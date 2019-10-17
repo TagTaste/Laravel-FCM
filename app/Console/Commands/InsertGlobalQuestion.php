@@ -47,22 +47,21 @@ class InsertGlobalQuestion extends Command
             ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
 
 
-            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
+            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
             ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
 
 
-
-            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odor/s that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
-
-
-
-            ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is chewed; and it may even last after the product is swallowed. Product may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
+            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+            ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
+
+
+
+            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
 
@@ -78,7 +77,7 @@ class InsertGlobalQuestion extends Command
 
 		"title": "Instruction",
 
-		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the each section.\n\nPlease note that you are reviewing the product and NOT the package.\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations.\nPlease click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of each section.\n\nPlease note that you are reviewing the product and NOT the package. Remember, there are no right or wrong answers. Let\'s start by opening the package.",
 
 		"select_type": 4
 
@@ -87,7 +86,7 @@ class InsertGlobalQuestion extends Command
 
 	"APPEARANCE": [{
 
-			"title": "What is the serving temperature of the product?",
+			"title": "What is the serving temperature of the product? ",
 
 			"subtitle": "You may also touch the product to assess the serving temperature.",
 
@@ -158,99 +157,10 @@ class InsertGlobalQuestion extends Command
 			]
 
 		},
-		{
-
-			"title": "How is the color of the product?",
-			"subtitle": "Please select the color & its intensity.",
-			"is_nested_question": 0,
-
-			"is_intensity": 0,
-
-			"is_nested_option": 0,
-
-			"is_mandatory": 1,
-
-			"select_type": 1,
-
-			"option": [{
-
-					"value": "Creamish",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-				},
-
-				{
-
-					"value": "Whitish",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-				},
-
-				{
-
-					"value": "Beige",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-				},
-
-				{
-
-					"value": "Light brown",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-				},
-
-				{
-
-					"value": "Brown",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-				},
-
-				{
-
-					"value": "Any other",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-				}
-
-			]
-
-		},
 
 		{
 
-			"title": "How is the visual impression of the product?",
+			"title": "How is the visual impression (color and sheen) of the product?",
 
 			"select_type": 2,
 
@@ -283,6 +193,21 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				},
+				{
+
+					"value": "Oily",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Glazed",
+
+					"is_intensity": 0
+
+				},
 
 				{
 
@@ -291,7 +216,6 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				},
-
 				{
 
 					"value": "Dark",
@@ -299,7 +223,6 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				},
-
 				{
 
 					"value": "Natural",
@@ -314,63 +237,13 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				}
-
-			]
-
-		},
-		{
-
-			"title": "Please touch the product. What do you observe on your fingers?",
-
-			"is_nested_question": 0,
-
-			"is_intensity": 0,
-
-			"is_nested_option": 0,
-
-			"is_mandatory": 1,
-
-			"select_type": 1,
-
-			"option": [{
-
-					"value": "Oily",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-				},
-
-				{
-
-					"value": "Any other",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-				},
-
-				{
-
-					"value": "Nothing",
-
-					"is_intensity": 0
-
-				}
 			]
 
 		},
 
 		{
 
-			"title": "How is the puffiness of the product?",
-
+			"title": "How is the color of the product?",
 			"select_type": 1,
 
 			"is_intensity": 0,
@@ -381,7 +254,7 @@ class InsertGlobalQuestion extends Command
 
 			"option": [{
 
-					"value": "Puffed all over & smooth",
+					"value": "Golden",
 
 					"is_intensity": 0
 
@@ -389,7 +262,14 @@ class InsertGlobalQuestion extends Command
 
 				{
 
-					"value": "Puffed all over & blistered",
+					"value": "Golden yellow",
+
+					"is_intensity": 0
+
+				},
+				{
+
+					"value": "Golden brown",
 
 					"is_intensity": 0
 
@@ -397,7 +277,14 @@ class InsertGlobalQuestion extends Command
 
 				{
 
-					"value": "Flattened & smooth",
+					"value": "Light brown",
+
+					"is_intensity": 0
+
+				},
+				{
+
+					"value": "Reddish",
 
 					"is_intensity": 0
 
@@ -405,22 +292,14 @@ class InsertGlobalQuestion extends Command
 
 				{
 
-					"value": "Flattened & blistered",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Partially puffed",
+					"value": "Dark brown",
 
 					"is_intensity": 0
 
 				},
 				{
 
-					"value": "Not puffed (Stiff)",
+					"value": "Burnt",
 
 					"is_intensity": 0
 
@@ -430,7 +309,147 @@ class InsertGlobalQuestion extends Command
 		},
 		{
 
-			"title": "If the product is <b>puffed all over</b>, in your opinion how <b>high</b> is the puff?",
+			"title": "How is the distribution of the color on the product?",
+			"select_type": 1,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [{
+
+					"value": "Even",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Uneven",
+
+					"is_intensity": 0
+
+				}
+			]
+
+		},
+		{
+
+			"title": "How does the visual texture of the product appear to you?",
+			"select_type": 2,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [{
+
+					"value": "Baked",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Roasted",
+
+					"is_intensity": 0
+
+				},
+				{
+
+					"value": "Fried",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Grilled",
+
+					"is_intensity": 0
+
+				},
+				{
+
+					"value": "Firm",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Limp",
+
+					"is_intensity": 0
+
+				},
+				{
+
+					"value": "Soggy",
+
+					"is_intensity": 0
+
+				}
+			]
+
+		},
+		{
+
+			"title": "What is the prominent impression about the crusting?",
+			"subtitle": "Observe the outer layer of the chicken and answer the question.",
+			"select_type": 1,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [{
+
+					"value": "Uniform crusting",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Clumpy crusting",
+
+					"is_intensity": 0
+
+				},
+				{
+
+					"value": "Cracked crusting",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Missed crusting",
+
+					"is_intensity": 0
+
+				}
+			]
+
+		},
+		{
+
+			"title": "What do you observe in the area of <b>missed crusting</b>?",
 
 			"select_type": 1,
 
@@ -442,7 +461,7 @@ class InsertGlobalQuestion extends Command
 
 			"option": [{
 
-					"value": "Very less",
+					"value": "Exposed skin (Granular)",
 
 					"is_intensity": 0
 
@@ -450,99 +469,14 @@ class InsertGlobalQuestion extends Command
 
 				{
 
-					"value": "Less",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "High",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Very high",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Extremely high",
-
-					"is_intensity": 0
-
-				}
-
-			]
-
-		},
-		{
-
-			"title": "How is the visual texture of the top layer of the product?",
-
-			"select_type": 2,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
-
-			"option": [{
-
-					"value": "Crispy",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Crusty",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Cracked",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Dry flour",
+					"value": "Exposed bone",
 
 					"is_intensity": 0
 
 				},
 				{
 
-					"value": "Limp",
-
-					"is_intensity": 0
-
-				},
-				{
-
-					"value": "Flaky",
-
-					"is_intensity": 0
-
-				},
-				{
-
-					"value": "Any other",
+					"value": "Exposed flesh",
 
 					"is_intensity": 0
 
@@ -552,9 +486,7 @@ class InsertGlobalQuestion extends Command
 		},
 		{
 
-			"title": "How is the elasticity of the product?",
-			"subtitle": "Pull the product normally, as you do it while eating.",
-
+			"title": "Hold the pieces for few seconds in between your fingers and put them back. What do you observe on your fingers?",
 			"is_nested_question": 0,
 
 			"is_intensity": 0,
@@ -563,11 +495,35 @@ class InsertGlobalQuestion extends Command
 
 			"is_mandatory": 1,
 
-			"select_type": 1,
+			"select_type": 2,
 
 			"option": [{
 
-					"value": "Elastic",
+					"value": "Oily film",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+
+				{
+
+					"value": "Loose particles",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+
+				{
+
+					"value": "Sticky film (sauce)",
 
 					"is_intensity": 1,
 
@@ -584,8 +540,6 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				}
-
-
 			]
 
 		},
@@ -687,7 +641,7 @@ class InsertGlobalQuestion extends Command
 
 			"title": "What all aromas have you sensed?",
 
-			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
+			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select <b>Any other</b> and if unable to sense any aroma at all, then select <b>Absent</b>.",
 
 			"select_type": 2,
 
@@ -1057,7 +1011,7 @@ class InsertGlobalQuestion extends Command
 
 			"title": "What all aromatics have you sensed?",
 
-			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\".",
+			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select <b>Any other</b> and if unable to sense any aromatics at all, then select <b>Absent</b>",
 
 			"select_type": 2,
 
@@ -1224,7 +1178,100 @@ class InsertGlobalQuestion extends Command
 			]
 
 		},
+		{
 
+			"title": "Which element is contributing majorly towards enhancing the flavor of the product?",
+
+			"select_type": 1,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [{
+
+					"value": "Chicken",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Spice Mix",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Oil",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Outer crust",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Sauce",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "None",
+
+					"is_intensity": 0
+
+				}
+
+			]
+
+		},
+		{
+
+			"title": "Please remove the outer crust and try to eat only the chicken part. Apart from chicken flavor, are you getting any other flavors?",
+
+			"select_type": 1,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [{
+
+					"value": "Yes",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "No",
+
+					"is_intensity": 0
+
+				}
+
+			]
+
+		},
 
 		{
 
@@ -1321,58 +1368,8 @@ class InsertGlobalQuestion extends Command
 
 	"TEXTURE": [{
 
-			"title": "Take sufficient quantity of the product (include all the components of the served product). Bite 2-3 times and pause. What kind of sound do you hear?",
-			"subtitle": "Crispy- one sound event which is sharp, clean, fast and high pitched, e.g., Chips.\nCrunchy (Crushing sound) - multiple low pitched sounds perceived as a series of small events,e.g., Rusks.\nCrackly- bite only once without grinding, it is one sudden low pitched sound event that brittles the product,e.g., Puffed rice.",
-
-			"select_type": 1,
-
-			"is_intensity": 0,
-
-			"is_mandatory": 1,
-
-			"is_nested_question": 0,
-
-
-			"option": [{
-
-					"value": "Crispy",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Crunchy",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Crackly",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "No Sound",
-
-					"is_intensity": 0
-
-
-				}
-
-			]
-
-		},
-		{
-
-			"title": "How much force is needed to chew the product?",
-
+			"title": "Take sufficient quantity of the product, bite the product just once then identify the sound and its intensity. Which prominent sound do you hear?",
+			"subtitle": "Crispy: One sharp, clean, fast, and high pitched sound. Eg., Chips.\nCrunchy: Multiple low pitched crushing sounds perceived as a series of small events. Eg., Rusks.\nCrackly: One sudden low pitched sound that brittles the product. Eg., Puffed rice.",
 			"select_type": 1,
 
 			"is_intensity": 0,
@@ -1385,7 +1382,7 @@ class InsertGlobalQuestion extends Command
 
 			"option": [{
 
-					"value": "Force needed",
+					"value": "Crispy",
 
 					"is_intensity": 1,
 
@@ -1397,20 +1394,83 @@ class InsertGlobalQuestion extends Command
 
 				{
 
-					"value": "No force needed",
+					"value": "Crunchy",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
+
+				},
+
+				{
+
+					"value": "Crackly",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+
+				{
+
+					"value": "No Sound",
 
 					"is_intensity": 0
 
 				}
+
 			]
 
 		},
 		{
 
-			"title": "As you chew, which of these are being released from the product?",
+			"title": "How much force is needed to chew the product?",
+			"subtitle": "Please chew the product 3-4 times and pause.",
 
-			"subtitle": "Please chew for 3 - 4 times and pause.",
+			"is_nested_question": 0,
 
+			"is_intensity": 0,
+
+			"is_mandatory": 1,
+
+			"select_type": 1,
+
+			"option": [{
+
+					"value": "Barely any force",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Normal force",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Extra force",
+
+					"is_intensity": 0
+
+				}
+
+			]
+
+		},
+		{
+
+			"title": "Assess the proportion of the chicken and the outer layer (crust) in the product. What do you feel about it?",
+			"subtitle": "Please take a bite of the product.",
 			"select_type": 2,
 
 			"is_intensity": 0,
@@ -1423,7 +1483,46 @@ class InsertGlobalQuestion extends Command
 
 			"option": [{
 
-					"value": "Grease (Oil/ Butter)",
+					"value": "Chicken",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+				},
+
+				{
+
+					"value": "Crust (Outer layer)",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+				}
+			]
+
+		},
+		{
+
+			"title": "As you chew, what is prominently being released from the product?",
+			"select_type": 2,
+
+			"is_intensity": 0,
+
+			"is_mandatory": 1,
+
+			"is_nested_question": 0,
+
+			"is_nested_option": 0,
+
+			"option": [{
+
+					"value": "Juice (From chicken)",
 
 					"is_intensity": 1,
 
@@ -1435,13 +1534,13 @@ class InsertGlobalQuestion extends Command
 
 				{
 
-					"value": "Moisture",
+					"value": "Oil",
 
 					"is_intensity": 1,
 
 					"intensity_type": 2,
 
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 				},
 				{
@@ -1452,7 +1551,8 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_type": 2,
 
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
 
 				}
 			]
@@ -1460,9 +1560,165 @@ class InsertGlobalQuestion extends Command
 		},
 		{
 
-			"title": "While chewing, which prominent textures can you feel in your mouth?",
-
+			"title": "While chewing, which textures can you feel inside your mouth?",
+			"subtitle": "Please select a maximum of 4 options.",
 			"select_type": 2,
+
+			"is_intensity": 0,
+
+			"is_mandatory": 1,
+
+			"is_nested_question": 0,
+
+			"is_nested_option": 0,
+
+			"option": [{
+
+					"value": "Tender",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+
+				{
+
+					"value": "Chewy",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+				{
+
+					"value": "Spongy",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+
+					"value": "Pasty",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+
+				{
+
+					"value": "Mushy",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+				{
+
+					"value": "Fibrous",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+
+					"value": "Chalky",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+
+				{
+
+					"value": "Rubbery",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+				{
+
+					"value": "Leathery",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+					{
+
+					"value": "Coarse",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+
+				{
+
+					"value": "Hard",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+				},
+				{
+
+					"value": "Any other",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				}
+			]
+
+		},
+		{
+
+			"title": "Please take a bite of only the outer layer (crust) of the product. How is the texture of the crust?",
+			"select_type": 1,
 
 			"is_intensity": 0,
 
@@ -1486,29 +1742,7 @@ class InsertGlobalQuestion extends Command
 
 				{
 
-					"value": "Tender",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
-
-				},
-				{
-
-					"value": "Fluffy",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
-
-				},
-				{
-
-					"value": "Sticky",
+					"value": "Moist",
 
 					"is_intensity": 1,
 
@@ -1517,32 +1751,9 @@ class InsertGlobalQuestion extends Command
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 				},
-
 				{
 
-					"value": "Springy (Like spring)",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
-
-				},
-				{
-
-					"value": "Gritty",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
-
-				},
-				{
-
-					"value": "Rubbery",
+					"value": "Soggy",
 
 					"is_intensity": 1,
 
@@ -1550,48 +1761,15 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-				},
-
-				{
-
-					"value": "Leathery",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
-
-				},
-				{
-
-					"value": "Firm",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
-
-				},
-				{
-
-					"value": "Hard",
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 				}
 			]
 
 		},
+
 		{
 
-			"title": "What kind of mass is being formed?",
-			"subtitle": "Chew it for minimum 8-10 times and pause.",
+			"title": "Take a sufficient quantity of the product, chew it for minimum 8-10 times and pause. What kind of mass is being formed?",
 
 			"select_type": 1,
 
@@ -1631,13 +1809,12 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				}
-
 			]
 
 		},
 		{
 
-			"title": "Did you feel anything left inside the mouth after swallowing the product?",
+			"title": "Swallow the product. What do you feel is left inside the mouth?",
 
 			"select_type": 2,
 
@@ -1645,19 +1822,13 @@ class InsertGlobalQuestion extends Command
 
 			"is_nested_question": 0,
 
-			"is_nested_option": 0,
-
 			"is_mandatory": 1,
 
 			"option": [{
 
 					"value": "Oily film",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				},
 
@@ -1665,61 +1836,36 @@ class InsertGlobalQuestion extends Command
 
 					"value": "Loose particles",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+					"is_intensity": 0
 
 				},
 
 				{
 
-					"value": "Sticking on tooth",
+					"value": "Stuck between teeth",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+					"is_intensity": 0
 
 				},
 				{
 
-					"value": "Stuck between tooth",
+					"value": "Sticking on palate/tooth",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+					"is_intensity": 0
 
 				},
 				{
 
 					"value": "Chalky",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+					"is_intensity": 0
 
 				},
 				{
 
-					"value": "Any other",
+					"value": "Fibrous",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+					"is_intensity": 0
 
 				},
 				{
@@ -1729,7 +1875,6 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				}
-
 			]
 
 		},
@@ -2015,7 +2160,7 @@ class InsertGlobalQuestion extends Command
 
 }';
 
-        $data = ['name'=>'private_bhatura','keywords'=>"private_bhatura",'description'=>null,
+        $data = ['name'=>'Private_Chicken Wings_Newly Weds','keywords'=>"Private_Chicken Wings_Newly Weds",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
 
