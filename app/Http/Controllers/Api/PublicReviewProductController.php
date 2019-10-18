@@ -283,10 +283,11 @@ class PublicReviewProductController extends Controller
         if($response['hits']['total']['value'] == 0) {
             $originalQuery = explode(' ' ,$query);
             $originalQuery = $originalQuery[0];
+            $q = $originalQuery;
             $originalQuery = str_split($originalQuery);
             $temp = '';
             $search = '';
-            $len = strlen($query)-1;
+            $len = strlen($q)-1;
             for($i=0;$i<$len;$i++) {
                 $temp = $temp.''.$originalQuery[$i];
                 if ($i == $len-1) {
