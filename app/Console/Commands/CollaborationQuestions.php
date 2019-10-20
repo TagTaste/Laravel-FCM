@@ -108,13 +108,6 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             {
                                 continue;
                             }
-                            if($v['value']=='any other' || $v['value']=='Any other') {
-                                $oT = 1;
-                            } else if($v['value']=='none' || $v['value']=='None') {
-                                $oT = 2;
-                            } else {
-                                $oT = 0;
-                            }
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v['value'],
@@ -123,7 +116,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                 'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
                                 'intensity_color'=>isset($v['intensity_color'])?$v['intensity_color'] : null,
-                                'option_type'=> $oT
+                                'option_type'=> isset($v['option_type'])?$v['option_type']:0
                             ];
                             $i++;
                         }
@@ -281,13 +274,6 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 {
                                     continue;
                                 }
-                                if($v['value']=='any other' || $v['value']=='Any other') {
-                                    $oT = 1;
-                                } else if ($v['value']=='none' || $v['value']=='None') {
-                                    $oT = 2;
-                                } else {
-                                    $oT = 0;
-                                }
                                 $option[] = [
                                     'id' => $i,
                                     'value' => $v['value'],
@@ -295,7 +281,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                     'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                     'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
-                                    'option_type'=>$oT
+                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0
                                 ];
                                 $i++;
                             }

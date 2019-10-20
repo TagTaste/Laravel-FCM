@@ -149,7 +149,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Nature fresh",
 
-
+                    "option_type": 0,
 					"is_intensity": 0
 
 
@@ -161,7 +161,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Delicate",
 
-
+                    "option_type":1,
 					"is_intensity": 0
 
 
@@ -175,7 +175,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"value": "Rustic",
-
+                    "option_type": 2,
 
 					"is_intensity": 0
 
@@ -187,7 +187,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"value": "Sun kissed",
-
+                    "option_type": 1,
 
 					"is_intensity": 0
 
@@ -197,7 +197,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"value": "Plain & boring",
-
+                    "option_type":2
 
 					"is_intensity": 0
 
@@ -3660,12 +3660,6 @@ class InsertPublicReviewQuestionair extends Command
                                 {
                                     continue;
                                 }
-                                if($v['value'] == 'Any other' || $v['value'] == 'any other')
-                                    $option_type = 1;
-                                else if($v['value'] == 'none' || $v['value'] == 'None')
-                                    $option_type = 2;
-                                else
-                                    $option_type = 0;
                                 $option[] = [
                                     'id' => $i,
                                     'value' => $v['value'],

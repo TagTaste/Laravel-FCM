@@ -40,7 +40,7 @@ class ReviewController extends Controller
 
         if(!$checkAssign)
         {
-            //return $this->sendError("Wrong product assigned");
+            return $this->sendError("Wrong product assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
         $latestCurrentStatus = \Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
