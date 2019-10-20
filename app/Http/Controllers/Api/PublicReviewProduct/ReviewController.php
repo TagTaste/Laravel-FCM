@@ -280,7 +280,17 @@ class ReviewController extends Controller
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
                 $selectType = isset($answer['select_type']) && !is_null($answer['select_type']) ? $answer['select_type'] : null;
-
+                if(isset($answer['option'])) {
+                    $optionVals = \DB::table('public_review_questions')->where('id',$questionId)->get();
+                    $optionVals = json_decode($optionVals[0]->questions);
+                    if(isset($optionVals->nested_option_list)) {
+                        $optionVals = $optionVals->nested_option_list;
+                    } else if (isset($optionVals->option)) {
+                        $optionVals = $optionVals->option;
+                    } else {
+                        $optionVals = null;
+                    }
+                }
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
@@ -289,13 +299,18 @@ class ReviewController extends Controller
                         $this->model = false;
                         return $this->sendError("Leaf id can not null");
                     }
+                    if($optionVals == "AROMA") {
+                        $option_type = \DB::table('public_review_nested_options')->where('id',$leafId)->select('option_type')->first()->option_type;
+                    } else {
+                        $option_type = isset($optionVals[$leafId-1]->option_type) ? $optionVals[$leafId-1]->option_type : 0;
+                    }
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,
                         'current_status'=>$currentStatus,'value_id'=>$valueId,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null,'option_type'=>$option_type];
                 }
                 if(isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta']))
                 {
@@ -303,7 +318,7 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
                         'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>6,'meta'=>$answer['meta']];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>6,'meta'=>$answer['meta'],'option_type'=>0];
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
@@ -312,7 +327,7 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
                         'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null,'option_type'=>0];
                 }
             }
         }
