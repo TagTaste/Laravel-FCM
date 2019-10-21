@@ -747,4 +747,8 @@ class CollaborateController extends Controller
 
         return $this->sendResponse();
     }
+    public function getRoles(Request $request)
+    {
+        dd($request);
+    }
 }

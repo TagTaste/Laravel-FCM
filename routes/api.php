@@ -186,6 +186,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
+                    Route::post('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
                 });
             });
         });
