@@ -60,14 +60,13 @@ class InsertPublicReviewQuestionair extends Command
             ['header_name'=>"TASTE","header_info"=> ["text" => "Slurp noisily and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Aromatics are the odors coming from the product (tisane liquor) inside the mouth. As you slurp noisily a series of odors will reveal themselves( one by one or even together). These aromatics will be sensed and recorded by the taster as Head notes, Body notes and Tail notes. Please follow the subtitle (use of aroma list etc.) and the question specific instructions carefully.\n\nSlurp noisily again, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odor(s) that come from inside the mouth."],'header_selection_type'=>"1"],
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Aromatics are the odors coming from the product (tisane liquor) inside the mouth. As you slurp noisily a series of odors will reveal themselves( one by one or even together). These aromatics will be sensed and recorded by the taster as Head notes, Body notes and Tail notes. Please follow the subtitle (use of aromatics list etc.) and the question specific instructions carefully.\n\nSlurp noisily again, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odor(s) that come from inside the mouth."],'header_selection_type'=>"1"],
 
 
             ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel - Sense of touch on the tongue) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘feel’ may even last after the product has been swallowed. Texture (mouthfeel) is all about the joy we get from what we drink."],'header_selection_type'=>"1"],
 
 
             ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
-
 
         ];
         $questions2 = '{
@@ -80,7 +79,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"title": "Instruction",
-
 
 			"subtitle": "<b>Welcome to the Product Review!</b>\n\nIf a product involves stirring, shaking etc (like cold coffee) then the taster must follow the instructions fully, as mentioned on the package.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
 
@@ -121,6 +119,107 @@ class InsertPublicReviewQuestionair extends Command
 
 		{
 
+			"title": "Please place dry tisanes on a white plate and observe its appearance. What is the dominant visual impression of the dry tisanes?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Floral",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Leafy",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Bark",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Roots",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Fruits/ Berries",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "All mixed",
+
+
+					"is_intensity": 0
+
+
+				}
+
+			]
+
+
+		},
+		{
+
 			"title": "How do you describe the dry tisanes?",
 
 			"select_type": 2,
@@ -149,7 +248,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Nature fresh",
 
-                    "option_type": 0,
+
 					"is_intensity": 0
 
 
@@ -161,7 +260,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Delicate",
 
-                    "option_type":1,
+
 					"is_intensity": 0
 
 
@@ -175,7 +274,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"value": "Rustic",
-                    "option_type": 2,
+
 
 					"is_intensity": 0
 
@@ -187,17 +286,17 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"value": "Sun kissed",
-                    "option_type": 1,
+
 
 					"is_intensity": 0
 
 
 				},
-					{
+				{
 
 
 					"value": "Plain & boring",
-                    "option_type":2
+
 
 					"is_intensity": 0
 
@@ -602,7 +701,7 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-				},{
+				}, {
 
 
 
@@ -687,7 +786,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
-		
+
 		{
 
 
@@ -1676,16 +1775,375 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-	"AROMATICS TO FLAVORS": [
+	"AROMATICS TO FLAVORS": [{
 
+
+
+
+
+			"title": "Head notes are the first impression of aromatics we perceive immediately, but they do not last long. Which prominent head notes have you sensed?",
+			"subtitle": "Please select a maximum of 2 options (aromatics).",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"is_nested_question": 0,
+
+
+
+
+
+			"is_nested_option": 0,
+
+
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+					"value": "Earthy",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+
+
+				{
+
+
+					"value": "Vegetal",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Spices",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Fruity",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+
+
+					"value": "Citrus fruits",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+
+
+				{
+
+
+					"value": "Berries",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Nuts",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Floral",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+
+
+					"value": "Animal",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+
+
+				{
+
+
+					"value": "Marine",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Sweet",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Smoke",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+
+				{
+
+
+					"value": "Mineral/ Chemical",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Any other",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Absent",
+
+
+					"is_intensity": 0
+
+
+				}
+
+
+			]
+
+
+		},
 
 		{
 
 
-			"title": "Please sense and mention only <b>3 prominent</b> aromatics from the liquor.\nFirst being the <b>head note</b> (Head notes are the first impression of aromatics we perceive immediately, but they do not last long),\n Second being the <b>body note</b> ( Body notes are powerful and stable aromatics that give the overall impression of the product (tisane liquor),\nLast being the <b>tail note</b> (Tail notes are aromatics that linger in the mouth after swallowing the product (tisane liquor). What all aromatics have you sensed?",
+			"title": "Body notes are powerful and stable aromatics that give the overall impression of the product (tisane liquor). Which prominent body notes have you sensed?",
 
 
-			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select <b>Any other</b> and if unable to sense any aromatics at all, then select <b>Absent</b>. If you select <b>Any other</b>, then please mention it in the comment box.",
+			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select <b>Any other</b> and if unable to sense any aromatics at all, then select <b>Absent</b>.\nPlease select a maximum of 2 options (aromatics).",
+
+
+			"select_type": 2,
+
+
+			"is_intensity": 1,
+
+
+			"intensity_type": 2,
+
+
+			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"is_nested_option": 1,
+
+
+			"nested_option_title": "AROMATICS",
+
+
+			"nested_option_list": "AROMA"
+
+
+		},
+
+		{
+
+
+			"title": "Tail notes are aromatics that linger in the mouth after swallowing the product (tisane liquor). Which tail notes have you sensed?",
+
+
+			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select <b>Any other</b> and if unable to sense any aromatics at all, then select <b>Absent</b>. ",
 
 
 			"select_type": 2,
@@ -2319,7 +2777,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 	"TEXTURE": [
-	 
+
 
 		{
 
@@ -2372,7 +2830,19 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+				{
 
+
+					"value": "Silky",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
 
 				{
 
@@ -2438,6 +2908,16 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
+					"value": "Flowy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
 					"value": "Heavy",
 
 
@@ -2454,33 +2934,13 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-				},
-				{
-
-
-					"value": "Heavy",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Any other",
-
-
-					"is_intensity": 0
-
-
 				}
 
 			]
 
 
 		},
-		
+
 		{
 
 
@@ -2556,7 +3016,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-					{
+				{
 
 
 					"value": "Thick",
@@ -3021,7 +3481,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Health benefits (Pain relief etc )",
+					"value": "Health benefits (Pain relief etc)",
 
 
 					"is_intensity": 0
@@ -3088,7 +3548,7 @@ class InsertPublicReviewQuestionair extends Command
 			"is_nested_question": 0,
 
 
-			"is_mandatory": 0,
+			"is_mandatory": 1,
 
 
 			"option": [
@@ -3424,7 +3884,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic tissane','keywords'=>"Generic Biryani_20th Sep_V2",'description'=>null,
+        $data = ['name'=>'generic_tisane_updated_ 17th Oct19','keywords'=>"generic_tisane_updated_ 17th Oct19",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
