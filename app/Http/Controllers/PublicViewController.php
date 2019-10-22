@@ -154,4 +154,48 @@ class PublicViewController extends Controller
         return response()->json(['data'=>$this->model]);
     }
 
+    /**
+     * Display a listing of the resource foodshot.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function foodShot(Request $request, $modelId)
+    {
+        $class = "\\App\\PublicView\\" . ucwords("product");
+        $product = $class::where('id',$modelId)->first();
+        if ($product == null) {
+            return $this->sendError("Product is not available");
+        }
+
+        //paginate
+        $page = $request->input('page') ? intval($request->input('page')) : 1;
+        $page = $page == 0 ? 1 : $page;
+        $take = 20;
+        $skip = ($page - 1) * $take;
+        $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
+        $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
+
+        $food_shots = \App\PublicReviewProduct\Review::where('product_id',$modelId)
+            ->where('select_type',6)
+            ->whereNotNull('meta')
+            ->orderBy('updated_at',$sortBy)
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        
+        $this->model = [];
+
+        if (count($food_shots)) {
+            $food_shots = $food_shots->toArray();
+            foreach ($food_shots as $key => $food_shot) {
+                $this->model[] = array(
+                    'id' => $food_shot['id'],
+                    'product_id' => $food_shot['product_id'],
+                    'meta' => $food_shot['meta'],
+                );
+            }
+        }
+        return response()->json(['data'=>$this->model]);
+    }
+
 }
