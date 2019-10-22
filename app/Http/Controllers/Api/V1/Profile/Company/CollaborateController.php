@@ -28,9 +28,11 @@ class CollaborateController extends Controller
      *
      * @return void
      */
+    public $now;
     public function __construct(Collaborate $model)
     {
         $this->model = $model;
+        $this->now = Carbon::now()->addMonth()->toDateTimeString();
     }
 
     /**
@@ -749,6 +751,16 @@ class CollaborateController extends Controller
     }
     public function getRoles(Request $request)
     {
-        dd($request);
+        $this->model = \DB::table('collaborate_role')->orderBy('id','asc')->get();
+        return $this->sendResponse();
+    }
+    public function assignRole(Request $request,$profileId,$companyId,$collaborateId)
+    {
+        $this->checkCollaborate($collaborateId);
+    }
+    public function checkCollaborate($id)
+    {
+        $checkIfExists = \DB::table('collaborates')->where('expires_on','>',$this->now)->whereNull('deleted_at')->where('state',1)->count();
+        dd($checkIfExists);
     }
 }

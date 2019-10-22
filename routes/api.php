@@ -180,13 +180,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("collaborate/draft","CollaborateController@draft");
                 Route::resource("collaborate","CollaborateController");
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                    Route::post('collaborate/{collaborateId}/asignRole', 'CollaborateController@assignRole');
                     Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                     Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
                     Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                     Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
-                    Route::post('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
+                    Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
                 });
             });
         });
