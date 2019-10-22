@@ -18,8 +18,7 @@ class CreateReviewInterfaceDesignTable extends Migration
             $table->unsignedInteger('postion')->nullable()->default(0);
             $table->unsignedInteger('ui_type')->nullable()->default(0);
             $table->text('ui_style')->nullable()->default(null);
-            $table->unsignedInteger('collection_id')->unsigned()->nullable()->default(null);
-            $table->string('collection_type', 50);
+            $table->unsignedInteger('collection_id')->references("id")->on("review_collections");
             $table->boolean('is_active')->default(0);
             $table->timestamps();
             $table->softDeletes();

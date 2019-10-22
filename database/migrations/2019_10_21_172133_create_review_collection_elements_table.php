@@ -16,8 +16,7 @@ class CreateReviewCollectionElementsTable extends Migration
         Schema::create('review_collection_elements', function (Blueprint $table) {
             $table->increments('id');
             $table->string('type', 50)->nullable()->default(null);
-            $table->unsignedInteger('collection_id')->unsigned()->nullable()->default(null);
-            $table->string('collection_type', 50);
+            $table->unsignedInteger('collection_id')->references("id")->on("review_collections");
             $table->string('data_type', 50);
             $table->unsignedInteger('data_id')->nullable()->default(null);
             $table->unsignedInteger('filter_id')->nullable()->default(null);
