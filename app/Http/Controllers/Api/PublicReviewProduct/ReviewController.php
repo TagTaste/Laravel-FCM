@@ -55,7 +55,7 @@ class ReviewController extends Controller
         //paginate
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
-        $take = 5;
+        $take = $request->input('take') ? intval($request->input('take')) : 5;
         $skip = ($page - 1) * $take;
 
         // sorting
