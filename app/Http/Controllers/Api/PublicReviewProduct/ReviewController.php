@@ -28,8 +28,12 @@ class ReviewController extends Controller
      *
      * @return void
      */
-    public function __construct(Review $model)
+    public function __construct(Review $model, Request $request)
     {
+        $this->page = $request->input('page') ? intval($request->input('page')) : 1;
+        $this->page = $this->page == 0 ? 1 : $this->page;
+        $this->take = 20;
+        $this->skip = ($this->page - 1) * $this->take;
         $this->model = $model;
         $this->now = Carbon::now()->toDateTimeString();
     }
@@ -48,7 +52,7 @@ class ReviewController extends Controller
         //paginate
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
-        $take = 5;
+        $take = $request->input('limit') ? intval($request->input('limit')) : 5;
         $skip = ($page - 1) * $take;
 
         // sorting
@@ -120,34 +124,38 @@ class ReviewController extends Controller
         return $this->sendResponse();
     }
 
-    /**
+   /**
      * Display a listing of the resource foodshot.
      *
      * @return \Illuminate\Http\Response
      */
     public function foodShot(Request $request,$productId)
     {
-        $product = PublicReviewProduct::where('id',$productId)->first();
-        if ($product == null) {
-            return $this->sendError("Product is not available");
-        }
 
-        //paginate
-        $page = $request->input('page') ? intval($request->input('page')) : 1;
-        $page = $page == 0 ? 1 : $page;
-        $take = 20;
-        $skip = ($page - 1) * $take;
+        $this->validateProduct($productId);
+        //order by
         $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
         $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
 
-        $food_shots = Review::where('product_id',$productId)
-            ->where('select_type',6)
-            ->whereNotNull('meta')
-            ->orderBy('updated_at',$sortBy)
-            ->skip($skip)
-            ->take($take)
+        $food_shots = Review::where('public_product_user_review.product_id',$productId)
+            ->join('public_review_products as prod','prod.id','=','public_product_user_review.product_id')
+            ->join('public_review_question_headers as headers',function($join){
+                $join->on('headers.global_question_id','=','prod.global_question_id');
+                $join->where('headers.header_selection_type',2);
+            })
+            ->join('public_product_user_review as r1',function($join){
+                $join->on('r1.profile_id','=','public_product_user_review.profile_id');
+                $join->on('r1.header_id','=','headers.id');
+                $join->where('r1.select_type',5);
+            })
+            ->where('public_product_user_review.select_type',6)
+            ->whereNotNull('public_product_user_review.meta')
+            ->orderBy('public_product_user_review.updated_at',$sortBy)
+            ->where('public_product_user_review.current_status',2)
+            ->skip($this->skip)
+            ->take($this->take)
             ->get();
-        
+
         $this->model = [];
 
         if (count($food_shots)) {
@@ -163,7 +171,15 @@ class ReviewController extends Controller
         return $this->sendResponse();
     }
 
-     /**
+    public function validateProduct($id)
+    {
+        $product = PublicReviewProduct::where('id',$id)->first();
+        if ($product == null) {
+            return $this->sendError("Product is not available");
+        }
+    }
+
+    /**
      * Display a listing of the resource foodshot.
      *
      * @return \Illuminate\Http\Response
