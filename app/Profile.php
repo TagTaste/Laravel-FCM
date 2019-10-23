@@ -1032,12 +1032,15 @@ class Profile extends Model
 
     public function getDocumentMetaAttribute()
     {
-        return json_decode(
-            \DB::table('profile_documents')
-                ->where('profile_id',$this->id)
-                ->select('document_meta')
-                ->first()->document_meta
-        );
+        $docs = \DB::table('profile_documents')
+            ->where('profile_id',$this->id)
+            ->select('document_meta')
+            ->first();
+        if(count($docs)) {
+            return json_decode($docs->document_meta);
+        } else {
+            return null;
+        }
     }
 }
 
