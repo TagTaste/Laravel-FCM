@@ -514,8 +514,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         // facebook friends
         Route::get("profile/facebookFriends", ['uses'=> 'ProfileController@fbFriends']);
         Route::post("profile/followFbFriends", ['uses'=> 'ProfileController@followFbFriends']);
-
-
+        //document upload
+        Route::post("profile/uploadDocument","ProfileController@uploadDocument");
         //check handle
         // Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
         Route::get("foodieType","ProfileController@foodieType");

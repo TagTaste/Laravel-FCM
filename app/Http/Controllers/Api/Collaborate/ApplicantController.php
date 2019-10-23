@@ -42,11 +42,11 @@ class ApplicantController extends Controller
         {
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
             if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
+                //return $this->sendError("Invalid Collaboration Project.");
             }
         }
         else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
+            //return $this->sendError("Invalid Collaboration Project.");
         }
         //paginate
         $page = $request->input('page');
@@ -102,7 +102,6 @@ class ApplicantController extends Controller
     public function store(Request $request, $collaborateId)
     {
         $collaborate = Collaborate::where('id',$collaborateId)->where('state',Collaborate::$state[0])->first();
-
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -133,6 +132,17 @@ class ApplicantController extends Controller
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
                 'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
+        }
+        if($collaborate->document_required) {
+            $doc = \DB::table('profile_documents')->where('profile_id',$loggedInprofileId)->first();
+            if(!count($doc)) {
+                return $this->sendError("please upload document");
+            } else if(!isset($request->terms_verified)) {
+                return $this->sendError("please agree to terms and conditions");
+            } else {
+                $inputs['terms_verified'] = 1;
+                $inputs['document_meta'] = $doc->document_meta;
+            }
         }
         $this->model = $this->model->create($inputs);
 
