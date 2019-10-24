@@ -142,6 +142,29 @@ class ReportController extends Controller
                 return '#305D03';
         }
     }
+    public function anyother(Request $request, $productId,$headerId,$questionId)
+    {
+        $product = PublicReviewProduct::where('id',$productId)->first();
+        if ($product === null) {
+            return $this->sendError("Invalid product.");
+        }
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = \DB::table('public_product_user_review')
+            ->select('id','value','leaf_id','intensity')
+            ->where('option_type',1)
+            ->where('product_id',$productId)
+            ->where('question_id',$questionId)
+            ->where('current_status',2);
+        $count = $this->model->count();
+        $data["values"] = $this->model
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        $data["count"] = $count;
+        $this->model = $data;
+        return $this->sendResponse();
+    }
     
     public function reports(Request $request,$productId,$headerId)
     {
@@ -228,13 +251,22 @@ class ReportController extends Controller
                         $subReports['select_type'] = isset($item->questions->select_type) ? $item->questions->select_type : null;
                         $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)
                             ->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
+                        $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                             ->where('product_id',$productId)->where('question_id',$item->id)
-                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->where('option_type','!=',1)->get();
+                        $answerAnyOther = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
+                            ->where('product_id',$productId)->where('question_id',$item->id)
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->where('option_type','=',1)->get();
+                        $answers = $answers->merge($answerAnyOther);
                         $options = isset($item->option) ? $item->option : [];
 
                         foreach ($answers as &$answer)
                         {
+                            if($answer->option_type == 1) {
+                                $answer->value = 'Any other';
+                            } else {
+                                $answer->value = \DB::table('public_product_user_review')->select('value')->where('id',$answer->id)->get();
+                            }
                             $value = [];
                             foreach ($options as $option)
                             {
@@ -304,12 +336,19 @@ class ReportController extends Controller
                 }
                 else
                 {
-                    $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
+                    $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                         ->where('product_id',$productId)->where('question_id',$data->id)
-                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type','value')->where('option_type','!=',1)->get();
+                    $answerAnyOther = \DB::table('public_product_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
+                        ->where('product_id',$productId)->where('question_id',$data->id)
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->where('option_type','=',1)->get();
+                    $answers = $answers->merge($answerAnyOther);
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
+                        if($answer->option_type == 1) {
+                            $answer->value = 'Any other';
+                        }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                         {

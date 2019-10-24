@@ -200,7 +200,6 @@ return [
         Barryvdh\DomPDF\ServiceProvider::class,
         Vinelab\NeoEloquent\NeoEloquentServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
-
     ],
 
     /*

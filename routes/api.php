@@ -366,6 +366,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("reportSummary","BatchController@reportSummary");
             Route::get("batches/{id}/reportHeader","QuestionController@reportHeader");
             Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
+            Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
             Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
             Route::get("getHeaderWeight","BatchController@getHeaderWeight");
             Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");
@@ -411,6 +412,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("headers/{headerId}/questions/{questionId}/option/{optionId}","ReportController@getAnswer");
             Route::get("headers/{headerId}/reports","ReportController@reports");
             Route::get("headers/{headerId}/questions/{questionId}/comments","ReportController@comments");
+            Route::get("headers/{headerId}/questions/{questionId}/anyother", "ReportController@anyother");
 
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
