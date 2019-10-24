@@ -83,8 +83,8 @@ class BatchController extends Controller
         $profileIds = $resp['profile_id'];
         $type = $resp['type'];
         $boolean = 'and' ;
-        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->whereIn('profile_id', $profileIds, $boolean, $type)->get()->pluck('profile_id');
-        $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->get();
+        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('created_at','desc')->get()->pluck('profile_id');
+        $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->orderBy('created_at','desc')->get();
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
@@ -395,14 +395,20 @@ class BatchController extends Controller
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")
+                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")
                             ->where('current_status',3)->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
-                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
-
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','option_type')->get();
+                        $answersAnyOther = \DB::table('collaborate_tasting_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                            ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
+                            ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->where('option_type','=',1)->get();
+                        $answers = $answers->merge($answersAnyOther);
                         $options = isset($item->option) ? $item->option : [];
                         foreach ($answers as &$answer)
                         {
                             $value = [];
+                            if($answer->option_type == '1') {
+                                $answer->value = "Any other";
+                            }
                             foreach ($options as $option)
                             {
                                 if($option->id == $answer->leaf_id)
@@ -470,13 +476,20 @@ class BatchController extends Controller
                 }
                 else
                 {
-                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type','value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
                         ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type','value')->where('option_type','!=',1)->get();
+                    $answersAnyOther = \DB::table('collaborate_tasting_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                        ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->where('option_type','=',1)->get();
 
+                        $answers = $answers->merge($answersAnyOther);
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
+                        if($answer->option_type == 1) {
+                            $answer->value = 'Any other';
+                        }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                         {
@@ -1042,8 +1055,7 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
-        if($profileIds->count() > 0 && isset($filters['exclude_profile_id']))
-        {
+        if($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter)
             {
@@ -1734,4 +1746,40 @@ class BatchController extends Controller
         }
     }
 
+    public function optionReports(Request $request, $collaborateId,$id, $headerId, $questionId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = \DB::table('collaborate_tasting_user_review')
+            ->select('value','intensity',\DB::raw('count(*) as total'))
+            ->where('collaborate_id',$collaborateId)
+            ->where('question_id',$questionId)
+            ->where('option_type',1)
+            ->where('current_status',3)
+            ->groupBy('value','intensity');
+        $data["values"] = $this->model
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        $data["count"] = $data["values"]->count();
+        $this->model = $data;
+        return $this->sendResponse();
+    }
 }

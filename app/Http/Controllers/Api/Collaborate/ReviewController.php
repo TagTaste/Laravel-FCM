@@ -58,16 +58,30 @@ class ReviewController extends Controller
             {
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
+                if(isset($answer["option"])) {
+                    $optionVal = \DB::table('collaborate_tasting_questions')->where('id',$questionId)->get();
+                    if(!isset(json_decode($optionVal[0]->questions)->nested_option_list))
+                        $optionVal = json_decode($optionVal[0]->questions)->option;
+                    else
+                        $optionVal = "AROMA";
+
+                }
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
+                    if($optionVal=='AROMA') {
+                        $optionType = \DB::table('collaborate_tasting_nested_options')->where('id',$leafId)->first()->option_type;
+                    } else {
+                        $optionType = isset($optionVal[$leafId-1]->option_type) ? $optionVal[$leafId-1]->option_type : 0;
+                    }
+                    //$optionType = isset($option['option_type'])? $option['option_type'] : 0;
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
                         'collaborate_id'=>$collaborateId,'intensity'=>$intensity,'current_status'=>$currentStatus,'value_id'=>$valueId,
-                        'created_at'=>$this->now,'updated_at'=>$this->now];
+                        'created_at'=>$this->now,'updated_at'=>$this->now, 'option_type'=>$optionType];
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
@@ -75,7 +89,7 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
                         'collaborate_id'=>$collaborateId,'intensity'=>null,'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'option_type'=>0];
                 }
             }
         }
