@@ -14,18 +14,18 @@ class ReviewInterfaceDesign extends Model
 
     protected $fillable = ['postion','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','postion','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at','collection'];
+    protected $visible = ['id','postion','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at','collections'];
 
-    protected $appends = ['collection'];
+    protected $with = ['collections'];
 
     /**
      * Which profile created the collaboration project.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function getCollectionAttribute()
+    public function collections()
     {
-        return $this->belongsTo(\App\ReviewCollection::class, 'id', 'collection_id');
+        return $this->belongsTo(\App\ReviewCollection::class, 'collection_id', 'id');
     }
 
 }

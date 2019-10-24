@@ -12,8 +12,20 @@ class ReviewCollection extends Model
 
     protected $table='review_collections';
 
-    protected $fillable = ['title','subtitle','description','image','type','is_active','created_at','updated_at','deleted_at'];
+    protected $fillable = ['title','subtitle','description','image','type','category_type','is_active','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','title','subtitle','description','image','type','is_active','created_at','updated_at','deleted_at'];
+    protected $visible = ['id','title','subtitle','description','image','type','category_type','is_active','created_at','updated_at','deleted_at','elements'];
+
+    protected $with = ['elements'];
+
+    /**
+     * Which profile created the collaboration project.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function elements()
+    {
+        return $this->hasMany(\App\ReviewCollectionElement::class, 'collection_id', 'id');
+    }
 
 }
