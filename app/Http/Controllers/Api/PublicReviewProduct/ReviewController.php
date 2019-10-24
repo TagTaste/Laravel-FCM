@@ -140,15 +140,19 @@ class ReviewController extends Controller
         $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
         $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
 
-        $food_shots = Review::where('public_product_user_review.product_id',$productId)
-            ->join('public_review_products as prod','prod.id','=','public_product_user_review.product_id')
-            ->join('public_review_question_headers as headers',function($join){
+        $food_shots = \App\PublicReviewProduct\Review::where('public_product_user_review.product_id',$productId)
+            ->where('public_product_user_review.product_id',$productId)
+            ->join('public_review_products as prod',function($join){
+                $join->on('public_product_user_review.product_id','=','prod.id');
+            })
+            ->leftJoin('public_review_question_headers as headers',function($join){
                 $join->on('headers.global_question_id','=','prod.global_question_id');
                 $join->where('headers.header_selection_type',2);
             })
-            ->join('public_product_user_review as r1',function($join){
-                $join->on('r1.profile_id','=','public_product_user_review.profile_id');
-                $join->on('r1.header_id','=','headers.id');
+            ->leftJoin('public_product_user_review as r1',function($join) use ($productId){
+                $join->on('public_product_user_review.profile_id','=','r1.profile_id');
+                $join->on('headers.id','=','r1.header_id');
+                $join->where('r1.product_Id','=',$productId);
                 $join->where('r1.select_type',5);
             })
             ->where('public_product_user_review.select_type',6)
