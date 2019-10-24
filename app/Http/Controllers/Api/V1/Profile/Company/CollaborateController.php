@@ -756,11 +756,31 @@ class CollaborateController extends Controller
     }
     public function assignRole(Request $request,$profileId,$companyId,$collaborateId)
     {
-        $this->checkCollaborate($collaborateId);
-    }
-    public function checkCollaborate($id)
-    {
-        $checkIfExists = \DB::table('collaborates')->where('expires_on','>',$this->now)->whereNull('deleted_at')->where('state',1)->count();
-        dd($checkIfExists);
+        $checkIfExists = \DB::table('collaborates')
+            ->whereNull('deleted_at')
+            ->where('state',1)
+            ->where('id',$collaborateId)
+            ->count();
+       if(!$checkIfExists) {
+           return $this->sendError("Invalid Collaboration");
+       }
+       $roleId = $request->role_id;
+       if(!isset($roleId) || $roleId == null) {
+           $this->sendError("please enter role id");
+       }
+       if(!is_array($roleId))
+           $roleId = [$roleId];
+
+       $data = [];
+       $profileId = $request->profile_id;
+       foreach ($roleId as $role) {
+           $exists = \DB::table('collaborate_roles')->where('id',$role)->count();
+           if($exists) {
+               return $this->sendError('Invalid role id');
+           }
+           $data[] = ['profile_id'=>$profileId,'collaborate_id'=>$collaborateId,'role_id'=>$roleId];
+       }
+       $this->model = \DB::table('collaborate_roles')->
+
     }
 }
