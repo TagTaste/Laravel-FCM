@@ -108,7 +108,7 @@ class PublicReviewProduct extends Model
             if ($public_review_product_brand 
                 && isset($public_review_product_brand->image) 
                 && !is_null($public_review_product_brand->image)) {
-                return json_decode($value);
+                return json_decode($public_review_product_brand->image);
             } else {
                 return null;
             }
@@ -148,7 +148,7 @@ class PublicReviewProduct extends Model
             if ($public_review_product_company 
                 && isset($public_review_product_company->image) 
                 && !is_null($public_review_product_company->image)) {
-                return json_decode($value);
+                return json_decode($public_review_product_company->image);
             } else {
                 return null;
             }
