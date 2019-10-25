@@ -20,15 +20,9 @@ class PublicReviewProduct extends Model
 
     public static $types = ['Vegetarian','Non-Vegetarian'];
 
-        protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
-        'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id',
-            'is_active','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains'];
+    protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id','is_active','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id'];
 
-    protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
-        'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords',
-        'is_authenticity_check','brand_description','company_description','paired_best_with','portion_size',
-        'product_ingredients','nutritional_info','allergic_info_contains'];
+    protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active','product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id'];
 
     protected $appends = ['type','review_count'];
 
@@ -127,16 +121,84 @@ class PublicReviewProduct extends Model
         return [];
     }
 
+    public function getBrandNameAttribute($value)
+    {
+        if (isset($this->brand_id) && !is_null($this->brand_id)) {
+            $public_review_product_brand = \App\PublicReviewProductBrand::where('id',$this->brand_id)->first();
+            if ($public_review_product_brand 
+                && isset($public_review_product_brand->name) 
+                && !is_null($public_review_product_brand->name)) {
+                return $public_review_product_brand->name;
+            } else {
+                return null;
+            }
+        } else {
+            if (isset($value)) {
+                return $value;
+            } else {
+                return null;
+            }
+        }
+    }
+
     public function getBrandLogoAttribute($value)
     {
-        if(isset($value))
-            return json_decode($value);
+        if (isset($this->brand_id) && !is_null($this->brand_id)) {
+            $public_review_product_brand = \App\PublicReviewProductBrand::where('id',$this->brand_id)->first();
+            if ($public_review_product_brand 
+                && isset($public_review_product_brand->image) 
+                && !is_null($public_review_product_brand->image)) {
+                return json_decode($value);
+            } else {
+                return null;
+            }
+        } else {
+            if (isset($value)) {
+                return json_decode($value);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public function getCompanyNameAttribute($value)
+    {
+        if (isset($this->company_id) && !is_null($this->company_id)) {
+            $public_review_product_company = \App\PublicReviewProductCompany::where('id',$this->company_id)->first();
+            if ($public_review_product_company 
+                && isset($public_review_product_company->name) 
+                && !is_null($public_review_product_company->name)) {
+                return $public_review_product_company->name;
+            } else {
+                return null;
+            }
+        } else {
+            if (isset($value)) {
+                return $value;
+            } else {
+                return null;
+            }
+        }
     }
 
     public function getCompanyLogoAttribute($value)
     {
-        if(isset($value))
-            return json_decode($value);
+        if (isset($this->company_id) && !is_null($this->company_id)) {
+            $public_review_product_company = \App\PublicReviewProductCompany::where('id',$this->company_id)->first();
+            if ($public_review_product_company 
+                && isset($public_review_product_company->image) 
+                && !is_null($public_review_product_company->image)) {
+                return json_decode($value);
+            } else {
+                return null;
+            }
+        } else {
+            if (isset($value)) {
+                return json_decode($value);
+            } else {
+                return null;
+            }
+        }
     }
 
     protected function getColorCode($value)
