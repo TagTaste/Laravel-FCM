@@ -8,10 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 
-
 class PublicReviewProduct extends Model
 {
-
     use SoftDeletes;
 
     public $incrementing = false;
@@ -34,11 +32,13 @@ class PublicReviewProduct extends Model
     {
         self::created(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             \App\Documents\PublicReviewProduct::create($model);
         });
 
         self::updated(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             //update the search
             \App\Documents\PublicReviewProduct::create($model);
 
@@ -47,8 +47,47 @@ class PublicReviewProduct extends Model
 
     public function addToCache()
     {
-        \Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
+        Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
+    }
 
+    public function addToCacheV2()
+    {
+        $data = $this->makeHidden([
+            "is_vegetarian",
+            "product_category_id",
+            "product_sub_category_id",
+            "brand_name",
+            "brand_logo",
+            "company_logo",
+            "company_id",
+            "description",
+            "mark_featured",
+            "keywords",
+            "is_authenticity_check",
+            "global_question_id",
+            "is_active",
+            "brand_description",
+            "company_description",
+            "paired_best_with",
+            "portion_size",
+            "serves_count",
+            "product_ingredients",
+            "nutritional_info",
+            "allergic_info_contains",
+            "type",
+            "product_category",
+            "product_sub_category",
+            "overall_rating",
+            "current_status"
+        ])->toArray();
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        Redis::connection('V2')->set(
+            "public-review/product:" . $this->id.":V2",
+            json_encode($data)
+        );
     }
 
     public function getTypeAttribute()
@@ -196,8 +235,7 @@ class PublicReviewProduct extends Model
     public function getOverallRatingAttribute()
     {
         $header = ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
-        if($header != null)
-        {
+        if (!is_null($header)) {
             $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
             $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
             $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();
