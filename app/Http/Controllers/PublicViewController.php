@@ -165,7 +165,7 @@ class PublicViewController extends Controller
         $class = "\\App\\PublicView\\" . ucwords("product");
         $product = $class::where('id',$modelId)->first();
         if ($product == null) {
-            return $this->sendError("Product is not available");
+            return response()->json(['error'=>"Product is not available"]);
         }
 
         //paginate
