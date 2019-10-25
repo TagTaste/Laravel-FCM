@@ -28,6 +28,9 @@ class ReviewController extends Controller
      *
      * @return void
      */
+    public $page;       
+    public $skip;       
+    public $take;
     public function __construct(Review $model, Request $request)
     {
         $this->page = $request->input('page') ? intval($request->input('page')) : 1;
