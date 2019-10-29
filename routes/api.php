@@ -373,6 +373,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
             Route::post("showInterest","ApplicantController@store");
+            Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
             Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
             Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
             Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");

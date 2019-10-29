@@ -15,7 +15,7 @@ class FCMPush extends Model
     public function send($notifiable,Notification $notification)
     {
         $data = $notification->toArray($notifiable);
-        if($data["action"] === 'upgrade-apk')
+        if(isset($data["action"]) && $data["action"] === 'upgrade-apk')
         {
             $this->upgradeApk($data,$notifiable->id);
         }
