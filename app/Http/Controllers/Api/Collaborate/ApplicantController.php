@@ -663,5 +663,6 @@ class ApplicantController extends Controller
         $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->update(['is_verified'=>0]);
         $this->model =  $applicant->delete();
         event(new \App\Events\DocumentRejectEvent($profileId,$collaborate));
+        return $this->sendResponse();
     }
 }
