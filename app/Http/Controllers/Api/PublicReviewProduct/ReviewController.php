@@ -28,8 +28,15 @@ class ReviewController extends Controller
      *
      * @return void
      */
-    public function __construct(Review $model)
+    public $page;
+    public $skip;
+    public $take;
+    public function __construct(Review $model, Request $request)
     {
+        $this->page = $request->input('page') ? intval($request->input('page')) : 1;
+        $this->page = $this->page == 0 ? 1 : $this->page;
+        $this->take = 20;
+        $this->skip = ($this->page - 1) * $this->take;
         $this->model = $model;
         $this->now = Carbon::now()->toDateTimeString();
     }
@@ -48,7 +55,7 @@ class ReviewController extends Controller
         //paginate
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
-        $take = 5;
+        $take = $request->input('limit') ? intval($request->input('limit')) : 5;
         $skip = ($page - 1) * $take;
 
         // sorting
@@ -127,36 +134,56 @@ class ReviewController extends Controller
      */
     public function foodShot(Request $request,$productId)
     {
-        $product = PublicReviewProduct::where('id',$productId)->first();
-        if ($product == null) {
-            return $this->sendError("Product is not available");
-        }
 
-        //paginate
-        $page = $request->input('page') ? intval($request->input('page')) : 1;
-        $page = $page == 0 ? 1 : $page;
-        $take = 20;
-        $skip = ($page - 1) * $take;
+        $this->validateProduct($productId);
+        //order by
         $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
         $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
-        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
-        $food_shots = $this->model->where('product_id',$productId)->where('header_id',$header->id)
-            ->where('select_type',5)
-            ->orderBy('updated_at',$sortBy)
+
+        $food_shots = \App\PublicReviewProduct\Review::where('public_product_user_review.product_id',$productId)
+            ->where('public_product_user_review.product_id',$productId)
+            ->join('public_review_products as prod',function($join){
+                $join->on('public_product_user_review.product_id','=','prod.id');
+            })
+            ->leftJoin('public_review_question_headers as headers',function($join){
+                $join->on('headers.global_question_id','=','prod.global_question_id');
+                $join->where('headers.header_selection_type',2);
+            })
+            ->leftJoin('public_product_user_review as r1',function($join) use ($productId){
+                $join->on('public_product_user_review.profile_id','=','r1.profile_id');
+                $join->on('headers.id','=','r1.header_id');
+                $join->where('r1.product_Id','=',$productId);
+                $join->where('r1.select_type',5);
+            })
+            ->where('public_product_user_review.select_type',6)
+            ->whereNotNull('public_product_user_review.meta')
+            ->orderBy('public_product_user_review.updated_at',$sortBy)
+            ->where('public_product_user_review.current_status',2)
+            ->skip($this->skip)
+            ->take($this->take)
             ->get();
-        
-        $final_data = [];
+
+        $this->model = [];
 
         if (count($food_shots)) {
             $food_shots = $food_shots->toArray();
             foreach ($food_shots as $key => $food_shot) {
-                if (!is_null($food_shot['meta'])) {
-                    $final_data[] = $food_shot;
-                }
+                $this->model[] = array(
+                    'id' => $food_shot['id'],
+                    'product_id' => $food_shot['product_id'],
+                    'meta' => $food_shot['meta'],
+                );
             }
         }
-        $this->model = array_splice($final_data, $skip, $take);
         return $this->sendResponse();
+    }
+
+    public function validateProduct($id)
+    {
+        $product = PublicReviewProduct::where('id',$id)->first();
+        if ($product == null) {
+            return $this->sendError("Product is not available");
+        }
     }
 
      /**
