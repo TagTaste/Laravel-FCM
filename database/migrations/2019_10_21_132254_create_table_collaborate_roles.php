@@ -14,7 +14,7 @@ class CreateTableCollaborateRoles extends Migration
     public function up()
     {
         Schema::create('collaborate_role', function(Blueprint $table){
-           $table->unsignedInteger('id');
+           $table->increments('id');
            $table->string('role');
         });
     }

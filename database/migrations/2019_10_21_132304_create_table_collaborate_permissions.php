@@ -14,10 +14,11 @@ class CreateTableCollaboratePermissions extends Migration
     public function up()
     {
         Schema::create('collaborate_permissions', function(Blueprint $table){
-            $table->unsignedInteger('id');
+            $table->increments('id');
             $table->string('name');
             $table->string('method');
             $table->string('route');
+            $table->string('feature')->nullable();
         });
     }
 

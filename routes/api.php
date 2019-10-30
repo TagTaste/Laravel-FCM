@@ -189,6 +189,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
                     Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
+                    Route::delete('collaborate/{collaborateId}/deleteRoles','CollaborateController@deleteRoles');
+                    Route::get('collaborate/{collaborateId}/getRole','CollaborateController@getProfileRole');
                 });
             });
         });
@@ -344,7 +346,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("collaborateCloseReason","CollaborateController@collaborateCloseReason");
 
 
-        Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function() {
+        Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.','middleware'=>'permission'],function() {
             Route::get("userBatches",'BatchController@userBatches');
             Route::post("beginTasting",'BatchController@beginTasting');
             Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
