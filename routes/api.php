@@ -95,7 +95,7 @@ Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");
  * has prefix api/ - defined in RouteServiceProvider.php
  * note the dot.
  */
-Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {   
+Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
     Route::post('/verifyInviteCode','UserController@verifyInviteCode');
     
     /**
@@ -133,6 +133,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
+            Route::resource("shoutout",'ShoutoutController');
+            Route::resource("polling","PollingController");
+            Route::resource("collaborate","CollaborateController");
+            Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
+            Route::get("feed","FeedController@feed");
+            Route::get("feed/{modelName}/{modelId}/{device}/{interactionTypeId}","FeedController@feedInteraction");
+            Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
+            Route::get('suggestion/company','SuggestionEngineController@suggestionCompany');
+            Route::get('ad_engine','SuggestionEngineController@adEngineList');
+
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
                 //namespace company - Checks for company admin
@@ -165,7 +175,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::delete("deleteMessage","MessageController@deleteMessage");
                 Route::resource("messages","MessageController");
                 Route::resource("members","MemberController");
-
             });
 
             Route::get("feed",'FeedController@feed');
@@ -687,7 +696,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("android_module_version","VersionController@getAndroidModuleVersion");
         Route::post("ios_module_version/{id}","VersionController@postIosModuleVersion");
         Route::post("android_module_version/{id}","VersionController@postAndroidModuleVersion");
-
+        Route::resource("advertisements","AdvertisementController");
 
     }); // end of authenticated routes. Add routes before this line to be able to
     // get current logged in user.

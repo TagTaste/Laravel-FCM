@@ -6,6 +6,7 @@ public/*
 !public/health.php
 Homestead.yaml
 Homestead.json
+composer.lock
 app/storage/
 .env.*.php
 .env.php
@@ -14,5 +15,9 @@ app/storage/
 .DS_Store
 /nbproject
 newrelic_agent.log
-/storage
+/storage/app/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/logs/*
 yarn.lock

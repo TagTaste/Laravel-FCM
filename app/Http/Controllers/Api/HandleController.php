@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class HandleController extends Controller
 {
@@ -18,7 +19,7 @@ class HandleController extends Controller
         $model = \DB::table('companies')->select('id')->where('handle',$handle)->first();
         
         if($model){
-            $company = \Redis::get("company:small:" . $model->id);
+            $company = Redis::get("company:small:" . $model->id);
             if(!$company){
                 throw new \Exception("Company {$model->id} not found in cache.");
             }
