@@ -56,7 +56,6 @@ use App\Console\Commands\Build\Graph\Profiles as GraphProfiles;
 use App\Console\Commands\Build\Graph\Companies as GraphCompanies;
 
 use App\Console\Commands\Build\Graph\Build\Following as GraphFollowing;
-use App\Console\Commands\Build\Graph\Build\Follower as GraphFollower;
 use App\Console\Commands\Build\Graph\Build\UserDoB as GraphUserDoB;
 use App\Console\Commands\Build\Graph\Build\UserCuisine as GraphUserCuisine;
 use App\Console\Commands\Build\Graph\Build\UserFoodieType as GraphUserFoodieType;
@@ -95,7 +94,6 @@ class Kernel extends ConsoleKernel
         GraphProfiles::class,
         GraphCompanies::class,
         GraphFollowing::class,
-        GraphFollower::class,
         GraphFoodieType::class,
         GraphCuisines::class,
         GraphSpecialisations::class,
