@@ -1109,6 +1109,12 @@ class ProfileController extends Controller
         $this->model  = \DB::table('profile_documents')->insert(['profile_id'=>$loggedInProfileId,'document_meta'=>$images]);
         return $this->sendResponse();
     }
+    public function deleteDocument(Request $request)
+    {
+        $loggedInProfile = $request->user()->profile->id;
+        $this->model = \DB::table('profile_documents')->where('profile_id',$loggedInProfile)->delete();
+        return $this->sendResponse();
+    }
     public function validatePhotos($request)
     {
         if(!$request->has('images') || is_null($request->input('images')) || !is_array($request->input('images')))

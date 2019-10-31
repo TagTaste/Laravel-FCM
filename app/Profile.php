@@ -65,7 +65,7 @@ class Profile extends Model
 
     private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations','document_meta'];
 
     public static function boot()
     {
@@ -926,7 +926,7 @@ class Profile extends Model
                 
                 foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
                 {
-                    if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                    if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
                     {
                         $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
                     }

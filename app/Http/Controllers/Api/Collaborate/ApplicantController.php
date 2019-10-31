@@ -134,7 +134,7 @@ class ApplicantController extends Controller
                 'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
         }
         if($collaborate->document_required) {
-            $doc = \DB::table('profile_documents')->where('profile_id',$loggedInprofileId)->where('is_verified',1)->first();
+            $doc = \DB::table('profile_documents')->where('profile_id',$loggedInprofileId)->first();
             if(!count($doc)) {
                 return $this->sendError("please upload document");
             } else if(!isset($request->terms_verified)) {
@@ -660,9 +660,39 @@ class ApplicantController extends Controller
         if(!count($applicant->first())) {
             return $this->sendError("Applicant not found");
         }
-        $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->update(['is_verified'=>0]);
+        $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->delete();
         $this->model =  $applicant->delete();
         event(new \App\Events\DocumentRejectEvent($profileId,$collaborate));
+        return $this->sendResponse();
+    }
+    public function acceptDocument(Request $request,$collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->profileId;
+        if(!isset($profileId) || $profileId == null) {
+            return $this->sendError("Please enter profile id");
+        }
+        $applicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$profileId);
+        if(!count($applicant->first())) {
+            return $this->sendError("Applicant not found");
+        }
+        $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->update(['is_verified'=>1]);
         return $this->sendResponse();
     }
 }

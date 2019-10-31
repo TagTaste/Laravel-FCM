@@ -16,7 +16,7 @@ class CreateTableProfileDocuments extends Migration
         Schema::create('profile_documents',function(Blueprint $table){
            $table->unsignedInteger('profile_id');
            $table->json('document_meta');
-           $table->boolean('is_verified')->default(1);
+           $table->boolean('is_verified')->default(0);
             $table->timestamp('created_at')->useCurrent();
         });
     }
