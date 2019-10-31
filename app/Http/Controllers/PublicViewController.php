@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Deeplink;
+use App\PublicReviewProduct\Review;
 use App\PublicView\Collaborate;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
@@ -198,7 +199,7 @@ class PublicViewController extends Controller
             ->skip($skip)
             ->take($take)
             ->get();
-        
+
         $this->model = [];
 
         if (count($food_shots)) {

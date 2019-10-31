@@ -13,6 +13,7 @@ class CreateAdvertiseTable extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('advertisements');
         Schema::create("advertisements",function(Blueprint $table){
             $table->increments('id');
             $table->string('title')->nullable()->default(null);

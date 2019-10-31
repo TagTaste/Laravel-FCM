@@ -480,7 +480,7 @@ class Collaborate extends Model implements Feedable
         $data = [];
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
-        $data['owner'] = $profile;
+        $data['owner'] = $profile->id;
         $data['title'] = substr($this->title,0,65);
         $data['description'] = $profile->name;
         $data['title'] = $profile->name. ' is looking for '.substr($this->title,0,65);

@@ -28,8 +28,8 @@ class ReviewController extends Controller
      *
      * @return void
      */
-    public $page;       
-    public $skip;       
+    public $page;
+    public $skip;
     public $take;
     public function __construct(Review $model, Request $request)
     {
