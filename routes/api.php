@@ -356,6 +356,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("reportSummary","BatchController@reportSummary");
             Route::get("batches/{id}/reportHeader","QuestionController@reportHeader");
             Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
+            Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
             Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
             Route::get("getHeaderWeight","BatchController@getHeaderWeight");
             Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");
@@ -372,6 +373,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
             Route::post("showInterest","ApplicantController@store");
+            Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
+            Route::post("acceptDocument", "ApplicantController@acceptDocument");
             Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
             Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
             Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
@@ -401,6 +404,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("headers/{headerId}/questions/{questionId}/option/{optionId}","ReportController@getAnswer");
             Route::get("headers/{headerId}/reports","ReportController@reports");
             Route::get("headers/{headerId}/questions/{questionId}/comments","ReportController@comments");
+            Route::get("headers/{headerId}/questions/{questionId}/anyother", "ReportController@anyother");
 
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
@@ -417,6 +421,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             //get review
             Route::get("reviews/{id}","ReviewController@show");
             Route::get("reviews","ReviewController@index");
+            Route::get("food-shot","ReviewController@foodShot");
+            Route::get("filters","ReviewController@reviewFilter");
         });
 
         Route::post('products/suggestion','PublicReviewProductController@productSuggestion');
@@ -510,8 +516,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         // facebook friends
         Route::get("profile/facebookFriends", ['uses'=> 'ProfileController@fbFriends']);
         Route::post("profile/followFbFriends", ['uses'=> 'ProfileController@followFbFriends']);
-
-
+        //document upload
+        Route::post("profile/uploadDocument","ProfileController@uploadDocument");
+        Route::delete("profile/deleteDocument", "ProfileController@deleteDocument");
         //check handle
         // Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
         Route::get("foodieType","ProfileController@foodieType");

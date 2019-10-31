@@ -1100,4 +1100,36 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
+    public function uploadDocument(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->validatePhotos($request);
+        $images = $this->changeInJson($request->images);
+        \DB::table('profile_documents')->where('profile_id',$loggedInProfileId)->delete();
+        $this->model  = \DB::table('profile_documents')->insert(['profile_id'=>$loggedInProfileId,'document_meta'=>$images]);
+        return $this->sendResponse();
+    }
+    public function deleteDocument(Request $request)
+    {
+        $loggedInProfile = $request->user()->profile->id;
+        $this->model = \DB::table('profile_documents')->where('profile_id',$loggedInProfile)->delete();
+        return $this->sendResponse();
+    }
+    public function validatePhotos($request)
+    {
+        if(!$request->has('images') || is_null($request->input('images')) || !is_array($request->input('images')))
+        {
+            return $this->sendError("wrong format");
+        }
+    }
+    public function changeInJson($images)
+    {
+        $data = [];
+        foreach ($images as $image)
+        {
+            $image = json_decode($image);
+            $data[] = ['original_photo'=>$image->original_photo,'tiny_photo'=>$image->tiny_photo,'meta'=>$image->meta];
+        }
+        return json_encode($data);
+    }
 }

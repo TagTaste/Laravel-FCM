@@ -15,7 +15,7 @@ class FCMPush extends Model
     public function send($notifiable,Notification $notification)
     {
         $data = $notification->toArray($notifiable);
-        if($data["action"] === 'upgrade-apk')
+        if(isset($data["action"]) && $data["action"] === 'upgrade-apk')
         {
             $this->upgradeApk($data,$notifiable->id);
         }
@@ -38,7 +38,7 @@ class FCMPush extends Model
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
-            if($iosData['action'] == 'chat' || $iosData['action'] == 'message')
+            if(isset($iosData['action']) && ($iosData['action'] == 'chat' || $iosData['action'] == 'message'))
             {
                 $extraData = $iosData;
                 $message = Message::where('chat_id',$iosData['model']['id'])->whereNull('read_on')->orderBy('created_at','desc')->take(5)->get();
