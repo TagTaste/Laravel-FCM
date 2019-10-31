@@ -14,15 +14,33 @@ class ReviewCollectionElement extends Model
 
     protected $fillable = ['type','collection_id','data_type','data_id','filter_id','filter_on','filter','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','type','collection_id','data_type','data_id','filter_id','filter_on','filter','actual_model','created_at','updated_at','deleted_at'];
+    protected $visible = ['id','type','collection_id','data_type','data_id','filter_id','filter_on','filter','data_model','created_at','updated_at','deleted_at'];
 
-    protected $appends = ['actual_model'];
+    protected $appends = ['data_model', 'filter_model'];
 
-    public function getActualModelAttribute()
+    public function getDataModelAttribute()
+    {
+        switch (strtolower($this->data_type)) {
+            case 'product':
+                return "App\PublicReviewProduct";
+                break;
+            case 'collection':
+                return "App\ReviewCollection";
+                break;
+            default:
+                return null;
+                break;
+        };
+    }
+
+    public function getFilterModelAttribute()
     {
         switch (strtolower($this->filter_on)) {
             case 'product':
                 return "App\PublicReviewProduct";
+                break;
+            case 'collection':
+                return "App\ReviewCollection";
                 break;
             default:
                 return null;

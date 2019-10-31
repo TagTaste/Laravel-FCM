@@ -25,7 +25,7 @@ class ReviewCollection extends Model
      */
     public function elements()
     {
-        return $this->hasMany(\App\ReviewCollectionElement::class, 'collection_id', 'id');
+        return $this->hasMany(\App\ReviewCollectionElement::class, 'collection_id', 'id')->inRandomOrder();
     }
 
 }

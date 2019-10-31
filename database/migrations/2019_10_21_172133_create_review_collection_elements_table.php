@@ -18,7 +18,7 @@ class CreateReviewCollectionElementsTable extends Migration
             $table->string('type', 50)->nullable()->default(null);
             $table->unsignedInteger('collection_id')->references("id")->on("review_collections");
             $table->string('data_type', 50)->nullable()->default(null);
-            $table->unsignedInteger('data_id')->nullable()->default(null);
+            $table->string('data_id', 100)->nullable()->default(null);
             $table->unsignedInteger('filter_id')->nullable()->default(null);
             $table->string('filter_on', 50)->nullable()->default(null);
             $table->text('filter')->nullable()->default(null);
