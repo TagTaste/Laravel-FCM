@@ -388,10 +388,23 @@ class ApplicantController extends Controller
             $this->model = null;
             return $this->sendError("Please fill mandatory feild.");
         }
+        $terms_verified = 0;
+        $document_meta = null;
+        if($collaborate->document_required) {
+            $doc = \DB::table('profile_documents')->where('profile_id',$loggedInProfileId)->first();
+            if(!count($doc)) {
+                return $this->sendError("please upload document");
+            } else if(!isset($request->terms_verified)) {
+                return $this->sendError("please agree to terms and conditions");
+            } else {
+                $terms_verified = 1;
+                $document_meta = $doc->document_meta;
+            }
+        }
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null,'message'=>$request->input('message'),
-                'applier_address'=>$applierAddress,'hut'=>$hut,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender]);
+                'applier_address'=>$applierAddress,'hut'=>$hut,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender,'document_meta'=>$document_meta,'terms_verified'=>$terms_verified]);
 
         if($this->model)
         {
