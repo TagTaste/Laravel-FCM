@@ -488,6 +488,7 @@ class FeedController extends Controller
 
         $collaborations = Collaborate::where('collaborates.state',Collaborate::$state[0])
             ->whereNotIn('id',$applied_collaboration)
+            ->whereNull('deleted_at')
             ->inRandomOrder()
             ->pluck('id')
             ->take(3)
@@ -569,7 +570,7 @@ class FeedController extends Controller
     public static function ad_engine($client, $profile, $profileId) 
     {
         $card = array(
-            "advertisement" => [],
+            "advertisement" => (object)array(),
             "meta" => [
                 "count" => 0,
                 "text" => "Promoted",
