@@ -60,7 +60,6 @@ class ApplicantController extends Controller
         if(isset($filters))
             $type = false;
         $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereNotNull('shortlisted_at')            ->whereNull('rejected_at')->orderBy("created_at","desc")->skip($skip)->take($take)->get();
-
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
         {
