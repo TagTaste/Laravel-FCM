@@ -98,7 +98,7 @@ class FeedController extends Controller
     {
         $this->model = array_fill(0, 20, null);
         // $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
-        $client = config('database.neo4j_uri_client')->build();
+        $client = config('database.neo4j_uri_client');
 
         // 2 profile, 6 product, 10 company, 13 ad engine and 15 collaboration suggestion
         $suggestion_position = array(2, 6, 10, 13, 15);

@@ -91,7 +91,7 @@ return [
     ],
 
     'neo4j_uri' => env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'),
-    'neo4j_uri_client' => ClientBuilder::create()->addConnection('default', env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474')),
+    'neo4j_uri_client' => ClientBuilder::create()->addConnection('default', env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'))->build(),
 
     /*
     |--------------------------------------------------------------------------
