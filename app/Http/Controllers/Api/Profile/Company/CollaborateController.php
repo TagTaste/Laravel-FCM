@@ -154,8 +154,6 @@ class CollaborateController extends Controller
     {
         $inputs = $request->all();
         unset($inputs['profile_id']);
-        unset($inputs['expires_on']);
-
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
@@ -189,7 +187,7 @@ class CollaborateController extends Controller
         }
         else
         {
-            if($inputs['file1'] == $collaborate->file1)
+            if (isset($inputs['file1']) && ($inputs['file1'] == $collaborate->file1))
                 unset($inputs['file1']);
             else
                 $inputs['file1'] = null;
@@ -216,7 +214,7 @@ class CollaborateController extends Controller
         }
 
         $this->model = $collaborate->update($inputs);
-
+        $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();

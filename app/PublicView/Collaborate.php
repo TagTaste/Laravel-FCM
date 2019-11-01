@@ -6,6 +6,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Collaborate as BaseCollaborate;
+use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends BaseCollaborate
 {
@@ -16,12 +17,12 @@ class Collaborate extends BaseCollaborate
         'description','project_commences','images',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','owner'
-        ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile','images_meta'];
+        ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile','images_meta','addresses','collaborate_allergens','brand_name','brand_logo'];
 
 
-    protected $appends = ['owner' ,'images','images_meta'];
+    protected $appends = ['owner' ,'images'];
 
-    protected $with = ['profile'];
+    protected $with = ['profile','addresses','collaborate_allergens'];
 
     public function company()
     {
@@ -42,7 +43,7 @@ class Collaborate extends BaseCollaborate
     {
         $meta = [];
         $key = "meta:collaborate:likes:" . $this->id;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
@@ -83,6 +84,16 @@ class Collaborate extends BaseCollaborate
             return 'Expired';
         else
             return 'Delete';
+    }
+
+
+    public function addresses()
+    {
+        return $this->hasMany('App\Collaborate\Addresses');
+    }
+    public function collaborate_allergens()
+    {
+        return $this->hasMany('App\Collaborate\Allergens');
     }
 
 }

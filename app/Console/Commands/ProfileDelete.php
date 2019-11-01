@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class ProfileDelete extends Command
 {
@@ -123,15 +124,15 @@ class ProfileDelete extends Command
                     {
                         echo "remove profile id $model->id from profile ".$profileId->profile_id ."\n\n";
 
-                        \Redis::sRem("followers:profile:" . $profileId->profile_id, $model->id);
+                        Redis::sRem("followers:profile:" . $profileId->profile_id, $model->id);
 
                         //profiles that are following $channelOwner
-                        \Redis::sRem("followers:profile:" . $model->id, $profileId->profile_id);
+                        Redis::sRem("followers:profile:" . $model->id, $profileId->profile_id);
 
-                        \Redis::sRem("following:profile:" . $profileId->profile_id, $model->id);
+                        Redis::sRem("following:profile:" . $profileId->profile_id, $model->id);
 
                         //profiles that are following $channelOwner
-                        \Redis::sRem("following:profile:" . $model->id, $profileId->profile_id);
+                        Redis::sRem("following:profile:" . $model->id, $profileId->profile_id);
                     }
                 }
             }
@@ -151,8 +152,8 @@ class ProfileDelete extends Command
                         $channel = $subscriber->channel_name;
                         $channel = explode('.',$channel);
                         echo "comapny id ".$channel[2] ." deleted profile id ".$model->id. "\n\n";
-                        \Redis::sRem("following:profile:" . $model->id, "company.$channel[2]");
-                        \Redis::sRem("followers:company:" . $channel[2], $model->id);
+                        Redis::sRem("following:profile:" . $model->id, "company.$channel[2]");
+                        Redis::sRem("followers:company:" . $channel[2], $model->id);
                     }
 
                 }
