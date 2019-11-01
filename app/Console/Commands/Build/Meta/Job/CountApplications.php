@@ -6,6 +6,7 @@ use App\Application;
 use App\Collaboration\Collaborator;
 use App\Profile;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class CountApplications extends Command
 {
@@ -42,7 +43,7 @@ class CountApplications extends Command
     {
         \DB::table('applications')->orderBy('id')->chunk(200,function($models){
             foreach($models as $model){
-                \Redis::hset("meta:job:" . $model->job_id,"applicationCount",0);
+                Redis::hset("meta:job:" . $model->job_id,"applicationCount",0);
             }
         });
 
@@ -52,7 +53,7 @@ class CountApplications extends Command
 
                 if($exist)
                 {
-                    \Redis::hIncrBy("meta:job:" . $model->job_id,"applicationCount",1);
+                    Redis::hIncrBy("meta:job:" . $model->job_id,"applicationCount",1);
                 }
             }
         });

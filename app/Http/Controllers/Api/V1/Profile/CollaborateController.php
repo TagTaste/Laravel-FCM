@@ -107,6 +107,7 @@ class CollaborateController extends Controller
         if (!empty($fields)) {
             unset($inputs['fields']);
         }
+        unset($inputs['images']);
         $this->model = $this->model->create($inputs);
 
 //        $categories = $request->input('categories');
@@ -157,14 +158,12 @@ class CollaborateController extends Controller
         $inputs = $request->all();
         $profileId = $request->user()->profile->id;
 
-        unset($inputs['expires_on']);
         $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
 
 
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
-        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {
@@ -200,7 +199,7 @@ class CollaborateController extends Controller
         }
         else
         {
-            if($inputs['file1'] == $collaborate->file1)
+            if (isset($inputs['file1']) && ($inputs['file1'] == $collaborate->file1))
                 unset($inputs['file1']);
             else
                 $inputs['file1'] = null;
@@ -225,9 +224,9 @@ class CollaborateController extends Controller
             \App\Filter\Collaborate::addModel($this->model);
             return $this->sendResponse();
         }
-
+        unset($inputs['images']);
         $this->model = $collaborate->update($inputs);
-
+        $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();
