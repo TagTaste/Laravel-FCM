@@ -56,7 +56,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
         foreach ($data as &$datum)
         {
             $headerInfo = isset($datum['header_info']) ? $datum['header_info'] : null;
-            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>isset($headerInfo) ? json_encode($headerInfo,true) : null,'collaborate_id'=>$collaborateId];
+            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>isset($headerInfo) ? json_encode($headerInfo,true) : null,'collaborate_id'=>$collaborateId, 'header_selection_type'=>$datum['header_selection_type']];
         }
         Collaborate\ReviewHeader::insert($header);
         foreach ($questions as $key=>$question)
@@ -84,9 +84,17 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         foreach($value as $v){
                             if(is_null($v) || empty($v))
                                 continue;
+                            if($v=='any other') {
+                                $oT = 1;
+                            } else if($v=='none') {
+                                $oT = 2;
+                            } else {
+                                $oT = 0;
+                            }
                             $option[] = [
                                 'id' => $i,
-                                'value' => $v
+                                'value' => $v,
+                                'option_type' => $oT
                             ];
                             $i++;
                         }
@@ -107,7 +115,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                 'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
-                                'intensity_color'=>isset($v['intensity_color'])?$v['intensity_color'] : null
+                                'intensity_color'=>isset($v['intensity_color'])?$v['intensity_color'] : null,
+                                'option_type'=> isset($v['option_type'])?$v['option_type']:0
                             ];
                             $i++;
                         }
@@ -121,9 +130,17 @@ class CollaborationQuestions extends Command implements ShouldQueue
                     foreach($value as $v){
                         if(is_null($v) || empty($v))
                             continue;
+                        if($v=='any other') {
+                            $oT = 1;
+                        } else if($v=='none') {
+                            $oT = 2;
+                        } else {
+                            $oT = 0;
+                        }
                         $option[] = [
                             'id' => $i,
-                            'value' => $v
+                            'value' => $v,
+                            'option_type' => $oT
                         ];
                         $i++;
                     }
@@ -153,8 +170,10 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $nestedOptionIntensity = isset($nested->is_intensity) ? $nested->is_intensity : $nestedOption->is_intensity;
+                                $imageUrl = isset($nested->image_url)?$nested->image_url:null;
+                                $optionType = $nested->option_type;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
-                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity];
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity,'image_url'=>$imageUrl,'option_type'=>$optionType];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
@@ -231,9 +250,17 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             foreach($value as $v){
                                 if(is_null($v) || empty($v))
                                     continue;
+                                if($v=='any other') {
+                                    $oT = 1;
+                                } else if($v=='none') {
+                                    $oT = 2;
+                                } else {
+                                    $oT = 0;
+                                }
                                 $option[] = [
                                     'id' => $i,
-                                    'value' => $v
+                                    'value' => $v,
+                                    'optionType'=> $oT
                                 ];
                                 $i++;
                             }
@@ -253,7 +280,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                     'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
                                     'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
-                                    'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null
+                                    'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
+                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0
                                 ];
                                 $i++;
                             }
@@ -267,9 +295,17 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         foreach($value as $v){
                             if(is_null($v) || empty($v))
                                 continue;
+                            if($v=='any other') {
+                                $oT = 1;
+                            } else if($v=='none') {
+                                $oT = 2;
+                            } else {
+                                $oT = 0;
+                            }
                             $option[] = [
                                 'id' => $i,
-                                'value' => $v
+                                'value' => $v,
+                                'option_type'=>$oT
                             ];
                             $i++;
                         }

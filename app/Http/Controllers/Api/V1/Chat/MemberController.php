@@ -8,6 +8,7 @@ use App\V1\Chat\Member;
 use App\V1\Chat;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Support\Facades\Redis;
 
 class MemberController extends Controller
 {
@@ -182,7 +183,7 @@ class MemberController extends Controller
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('exited_on')->get()->pluck('profile_id');
         $loggedInProfileId = $request->user()->profile->id ;
         $this->model = [];
-        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
             $ids2[] = $chatProfileId;
@@ -191,7 +192,7 @@ class MemberController extends Controller
 
         $profileIds = array_diff($ids,$ids2);
         $count = count($profileIds);
-        if($count > 0 && \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
+        if($count > 0 && Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
             $count = $count - 1;
         }
         $this->model['count'] = $count;
@@ -212,7 +213,7 @@ class MemberController extends Controller
 
         if(count($profileIds)> 0)
         {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
 
         }
         foreach($data as &$profile){
@@ -220,7 +221,7 @@ class MemberController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
         $this->model['profile'] = $data;
@@ -232,7 +233,7 @@ class MemberController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
         $this->model = [];
-        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
             $ids2[] = $chatProfileId;

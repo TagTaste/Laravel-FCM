@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 use App\Collaborate;
 use App\Job;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class SuggestionEngineController extends Controller
 {
@@ -17,7 +18,7 @@ class SuggestionEngineController extends Controller
     {
         $key = 'suggested:'.$modelName.':'.$request->user()->profile->id;
 
-        $modelIds = \Redis::sMembers($key);
+        $modelIds = Redis::sMembers($key);
 
         if($modelName == 'job' || $modelName == 'collaborate')
         {
@@ -46,7 +47,7 @@ class SuggestionEngineController extends Controller
                 $suggestedProfiles = [];
                 if(count($profileIds)> 0)
                 {
-                    $suggestedProfiles = \Redis::mget($profileIds);
+                    $suggestedProfiles = Redis::mget($profileIds);
                 }
                 $finalModel = [];
                 foreach($suggestedProfiles as $key=> &$profile){
@@ -61,7 +62,7 @@ class SuggestionEngineController extends Controller
                         continue;
                     }
                     $key = "following:profile:".$request->user()->profile->id;
-                    $profile->isFollowing =  \Redis::sIsMember($key,$profile->id) === 1;
+                    $profile->isFollowing =  Redis::sIsMember($key,$profile->id) === 1;
                     $finalModel[] = $profile;
                 }
                 $this->model = $finalModel;
@@ -87,7 +88,7 @@ class SuggestionEngineController extends Controller
                 $suggestedCompanies = [];
                 if(count($companyIds)> 0)
                 {
-                    $suggestedCompanies = \Redis::mget($companyIds);
+                    $suggestedCompanies = Redis::mget($companyIds);
                 }
                 $finalModel = [];
                 foreach($suggestedCompanies as $key=> &$company){
@@ -97,7 +98,7 @@ class SuggestionEngineController extends Controller
                     }
                     $company = json_decode($company);
                     $key = "following:profile:".$request->user()->profile->id;
-                    $company->isFollowing =  \Redis::sIsMember($key,"company.".$company->id) === 1;
+                    $company->isFollowing =  Redis::sIsMember($key,"company.".$company->id) === 1;
                     $finalModel[] = $company;
 
                 }
@@ -112,7 +113,7 @@ class SuggestionEngineController extends Controller
         $key = 'suggested:'.$modelName.':'.$request->user()->profile->id;
         $ignoredId = $request->input('id');
 
-        $this->model = \Redis::sRem($key,$ignoredId);
+        $this->model = Redis::sRem($key,$ignoredId);
 
         return $this->sendResponse();
     }

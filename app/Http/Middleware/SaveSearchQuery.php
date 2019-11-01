@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Redis;
 
 class SaveSearchQuery
 {
@@ -26,7 +27,7 @@ class SaveSearchQuery
         }
         $userId = $user->id;
         $key = "history:search:" . $userId;
-        \Redis::lPush($key, $request->q);
-        \Redis::lTrim($key,0,9);
+        Redis::lPush($key, $request->q);
+        Redis::lTrim($key,0,9);
     }
 }
