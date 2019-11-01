@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Controllers\Api\V2\FeedController;
-use GraphAware\Neo4j\Client\ClientBuilder;
+// use GraphAware\Neo4j\Client\ClientBuilder;
 use App\Strategies\Paginator;
 use App\Advertisements;
 use Carbon\Carbon;
@@ -20,7 +20,8 @@ class SuggestionEngineController extends Controller
     {
         $profile = $request->user()->profile;
         $profile_id = $profile->id;
-        $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
+        // $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
+        $client = config('database.neo4j_uri_client')->build();
         $this->model = FeedController::suggestion_by_following($client, $profile, $profile_id);
         return $this->sendResponse();
     }
@@ -29,7 +30,8 @@ class SuggestionEngineController extends Controller
     {
         $profile = $request->user()->profile;
         $profile_id = $profile->id;
-        $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
+        // $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
+        $client = config('database.neo4j_uri_client')->build();
         $this->model = FeedController::suggestion_company($client, $profile, $profile_id);
         return $this->sendResponse();
     }
