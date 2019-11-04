@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Redis;
 
 
 class BatchController extends Controller
@@ -87,7 +88,7 @@ class BatchController extends Controller
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
-            $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
+            $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
         $this->model = [];
@@ -168,8 +169,8 @@ class BatchController extends Controller
         \DB::table('collaborate_batches_assign')->where('collaborate_id',$id)->where('batch_id',$batchId)->whereIn('profile_id',$applierProfileIds)->delete();
         foreach ($applierProfileIds as $applierProfileId)
         {
-            \Redis::sAdd("collaborate:$id:profile:$applierProfileId:" ,$batchId);
-            \Redis::set("current_status:batch:$batchId:profile:$applierProfileId" ,0);
+            Redis::sAdd("collaborate:$id:profile:$applierProfileId:" ,$batchId);
+            Redis::set("current_status:batch:$batchId:profile:$applierProfileId" ,0);
             $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now, 'collaborate_id'=>$id];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
@@ -189,7 +190,7 @@ class BatchController extends Controller
         }
         foreach ($profileIds as $profileId)
         {
-            \Redis::sRem("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
+            Redis::sRem("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
         }
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->delete();
 
@@ -221,10 +222,10 @@ class BatchController extends Controller
             $company = Company::where('id',$collaborate->company_id)->first();
             foreach ($profileIds as $profileId)
             {
-                $currentStatus = \Redis::get("current_status:batch:$batchId:profile:$profileId");
+                $currentStatus = Redis::get("current_status:batch:$batchId:profile:$profileId");
                 if($currentStatus ==0)
                 {
-                    \Redis::set("current_status:batch:$batchId:profile:$profileId" ,1);
+                    Redis::set("current_status:batch:$batchId:profile:$profileId" ,1);
                 }
                 $collaborate->profile_id = $profileId;
                 event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company,$batchId));
@@ -283,11 +284,11 @@ class BatchController extends Controller
             foreach ($batchIds as &$batchId) {
                 $batchIdArray[] = "batch:" . $batchId;
             }
-            $batchInfos = \Redis::mGet($batchIdArray);
+            $batchInfos = Redis::mGet($batchIdArray);
             $batches = [];
             foreach ($batchInfos as &$batchInfo) {
                 $batchInfo = json_decode($batchInfo);
-                $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
+                $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
                 $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 if($batchInfo->current_status != 0)
                 {
@@ -303,7 +304,7 @@ class BatchController extends Controller
     public function getCurrentStatus(Request $request, $collaborateId, $batchId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $currentStatus = \Redis::get("current_status:batch:$batchId:profile:" . $loggedInProfileId);
+        $currentStatus = Redis::get("current_status:batch:$batchId:profile:" . $loggedInProfileId);
         $this->model = !is_null($currentStatus) ? (int)$currentStatus : 0;
         return $this->sendResponse();
 

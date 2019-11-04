@@ -389,21 +389,21 @@ class PollingController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $key = "meta:polling:likes:" . $pollId;
-        $pollLike = \Redis::sIsMember($key,$profileId);
+        $pollLike = Redis::sIsMember($key,$profileId);
         $this->model = [];
 
         if ($pollLike) {
             PollingLike::where('profile_id', $profileId)->where('poll_id', $pollId)->delete();
-            \Redis::sRem($key,$profileId);
+            Redis::sRem($key,$profileId);
             $this->model['liked'] = false;
         } else {
             PollingLike::insert(['profile_id' => $profileId, 'poll_id' => $pollId]);
-            \Redis::sAdd($key,$profileId);
+            Redis::sAdd($key,$profileId);
             $this->model['liked'] = true;
             $recipe = Polling::find($pollId);
             event(new Like($recipe, $request->user()->profile));
         }
-        $this->model['likeCount'] = \Redis::sCard($key);
+        $this->model['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
         $this->model['peopleLiked'] = $peopleLike->peopleLike($pollId, "polling",request()->user()->profile->id);

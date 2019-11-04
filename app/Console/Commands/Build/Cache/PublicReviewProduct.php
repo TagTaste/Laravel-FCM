@@ -39,7 +39,10 @@ class PublicReviewProduct extends Command
     {
         \App\PublicReviewProduct::whereNull('deleted_at')->where('is_active',1)->chunk(200,function($models){
             foreach($models as $model){
+                echo "Caching: public-review/product:" . $model->id."\n";
                 $model->addToCache();
+                echo "Caching: public-review/product:" . $model->id.":V2 \n\n";
+                $model->addToCacheV2();
             }
         });
     }

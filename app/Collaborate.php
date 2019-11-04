@@ -10,6 +10,7 @@ use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Model implements Feedable
 {
@@ -30,7 +31,8 @@ class Collaborate extends Model implements Feedable
 
     static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved = 4 5 = close
 
-    protected $visible = ['id','title', 'i_am', 'looking_for',
+
+  protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
         'description','project_commences',
         'duration','financials','eligibility_criteria','occassion',
@@ -41,6 +43,7 @@ class Collaborate extends Model implements Feedable
         'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
         'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
         'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required'];
+
 
     protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner'];
 
@@ -58,12 +61,13 @@ class Collaborate extends Model implements Feedable
     {
         self::created(function($model){
             $model->addToCache();
-    
+            $model->addToCacheV2();
             \App\Documents\Collaborate::create($model);
         });
         
         self::updated(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             //update the search
             \App\Documents\Collaborate::create($model);
     
@@ -72,8 +76,17 @@ class Collaborate extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
-    
+        Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
+    }
+
+    public function addToCacheV2()
+    {
+        $data = \App\V2\Collaborate::find($this->id)->toArray();
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        Redis::connection('V2')->set("collaborate:".$this->id.":V2",json_encode($data));
     }
 
     public function getOwnerAttribute()
@@ -83,7 +96,9 @@ class Collaborate extends Model implements Feedable
     
     public function removeFromCache()
     {
-        \Redis::del("collaborate:" . $this->id);
+
+        Redis::del("collaborate:".$this->id);
+        Redis::connection('V2')->del("collaborate:".$this->id.":V2");
     }
     /**
      * Which profile created the collaboration project.
@@ -246,13 +261,13 @@ class Collaborate extends Model implements Feedable
     
     private function getInterestedProfile($profileId)
     {
-        $interestedProfile = json_decode(\Redis::get("profile:small:" . $profileId),true);
+        $interestedProfile = json_decode(Redis::get("profile:small:" . $profileId),true);
         return is_array($interestedProfile) ? array_only($interestedProfile,['name','id']) : [];
     }
     
     private function getInterestedCompany($companyId)
     {
-        $company = json_decode(\Redis::get("company:small:" . $companyId),true);
+        $company = json_decode(Redis::get("company:small:" . $companyId),true);
         return is_array($company) ? array_only($company,['name','id','profileId']) : [];
     }
     
@@ -294,8 +309,8 @@ class Collaborate extends Model implements Feedable
         if($this->collaborate_type == 'product-review')
         {
             $key = "meta:collaborate:likes:" . $this->id;
-            $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-            $meta['likeCount'] = \Redis::sCard($key);
+            $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+            $meta['likeCount'] = Redis::sCard($key);
 
             $meta['commentCount'] = $this->comments()->count();
             $peopleLike = new PeopleLike();
@@ -315,8 +330,8 @@ class Collaborate extends Model implements Feedable
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
 
         $key = "meta:collaborate:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
@@ -324,7 +339,42 @@ class Collaborate extends Model implements Feedable
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 
-        $meta['interestedCount'] = (int) \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
+        $meta['interestedCount'] = (int) Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+
+        return $meta;
+    }
+
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getMetaForV2(int $profileId) : array
+    {
+        $meta = [];
+
+        if ($this->collaborate_type == 'product-review') {
+            $key = "meta:collaborate:likes:" . $this->id;
+            $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+            $meta['likeCount'] = Redis::sCard($key);
+            $meta['commentCount'] = $this->comments()->count();
+            $meta['shareCount'] = \DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+            $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+            $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+            return $meta;
+        }
+        $this->setInterestedAsProfiles($meta,$profileId);
+        
+        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+
+        $key = "meta:collaborate:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 
@@ -424,7 +474,7 @@ class Collaborate extends Model implements Feedable
     {
         if($this->collaborate_type != 'product-review')
         {
-            $this->interestedCount = (int)\Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+            $this->interestedCount = (int)Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
         }
         return $this->interestedCount;
     }
@@ -450,7 +500,8 @@ class Collaborate extends Model implements Feedable
         $data['ogDescription'] = $profile->name;
         $images = $this->getImagesAttribute($this->images);
         $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
-        $data['ogImage'] = isset($images[0]) ? $images[0]:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
+        $data['ogImage'] = isset($images[0]) ? $images[0]:
+            'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
         $data['ogUrl'] = env('APP_URL').'/preview/collaborate/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/collaborate/'.$this->id;
         $data['collaborate_type'] = $this->collaborate_type; 
@@ -558,5 +609,10 @@ class Collaborate extends Model implements Feedable
     {
         return !is_null($value) ? json_decode($value) : null;
     }
+
+//    public function getOwnerAttribute()
+//    {
+//        return $this->owner();
+//    }
 
 }

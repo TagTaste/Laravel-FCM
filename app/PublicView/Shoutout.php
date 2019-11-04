@@ -7,6 +7,7 @@ use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
 use App\Shoutout as BaseShoutout;
+use Illuminate\Support\Facades\Redis;
 
 class Shoutout extends BaseShoutout
 {
@@ -35,7 +36,7 @@ class Shoutout extends BaseShoutout
 
     public function getLikeCountAttribute()
     {
-        $count = \Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $count = Redis::sCard("meta:shoutout:likes:" . $this->id);
 
         if($count >1000000)
         {
@@ -58,7 +59,7 @@ class Shoutout extends BaseShoutout
     public function getMetaForPublic()
     {
         $meta = [];
-        $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
         $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }

@@ -6,11 +6,10 @@ use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Support\Facades\Redis;
 
 class PublicReviewProduct extends Model
 {
-
     use SoftDeletes;
 
     public $incrementing = false;
@@ -21,15 +20,9 @@ class PublicReviewProduct extends Model
 
     public static $types = ['Vegetarian','Non-Vegetarian'];
 
-        protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
-        'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id',
-            'is_active','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains'];
+    protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id','is_active','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id'];
 
-    protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
-        'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords',
-        'is_authenticity_check','brand_description','company_description','paired_best_with','portion_size',
-        'product_ingredients','nutritional_info','allergic_info_contains'];
+    protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active','product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id'];
 
     protected $appends = ['type','review_count'];
 
@@ -39,11 +32,13 @@ class PublicReviewProduct extends Model
     {
         self::created(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             \App\Documents\PublicReviewProduct::create($model);
         });
 
         self::updated(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             //update the search
             \App\Documents\PublicReviewProduct::create($model);
 
@@ -52,8 +47,47 @@ class PublicReviewProduct extends Model
 
     public function addToCache()
     {
-        \Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
+        Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
+    }
 
+    public function addToCacheV2()
+    {
+        $data = $this->makeHidden([
+            "is_vegetarian",
+            "product_category_id",
+            "product_sub_category_id",
+            "brand_name",
+            "brand_logo",
+            "company_logo",
+            "company_id",
+            "description",
+            "mark_featured",
+            "keywords",
+            "is_authenticity_check",
+            "global_question_id",
+            "is_active",
+            "brand_description",
+            "company_description",
+            "paired_best_with",
+            "portion_size",
+            "serves_count",
+            "product_ingredients",
+            "nutritional_info",
+            "allergic_info_contains",
+            "type",
+            "product_category",
+            "product_sub_category",
+            "overall_rating",
+            "current_status"
+        ])->toArray();
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        Redis::connection('V2')->set(
+            "public-review/product:" . $this->id.":V2",
+            json_encode($data)
+        );
     }
 
     public function getTypeAttribute()
@@ -87,16 +121,84 @@ class PublicReviewProduct extends Model
         return [];
     }
 
+    public function getBrandNameAttribute($value)
+    {
+        if (isset($this->brand_id) && !is_null($this->brand_id)) {
+            $public_review_product_brand = \App\PublicReviewProductBrand::where('id',$this->brand_id)->first();
+            if ($public_review_product_brand 
+                && isset($public_review_product_brand->name) 
+                && !is_null($public_review_product_brand->name)) {
+                return $public_review_product_brand->name;
+            } else {
+                return null;
+            }
+        } else {
+            if (isset($value)) {
+                return $value;
+            } else {
+                return null;
+            }
+        }
+    }
+
     public function getBrandLogoAttribute($value)
     {
-        if(isset($value))
-            return json_decode($value);
+        if (isset($this->brand_id) && !is_null($this->brand_id)) {
+            $public_review_product_brand = \App\PublicReviewProductBrand::where('id',$this->brand_id)->first();
+            if ($public_review_product_brand 
+                && isset($public_review_product_brand->image) 
+                && !is_null($public_review_product_brand->image)) {
+                return json_decode($public_review_product_brand->image);
+            } else {
+                return null;
+            }
+        } else {
+            if (isset($value)) {
+                return json_decode($value);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public function getCompanyNameAttribute($value)
+    {
+        if (isset($this->company_id) && !is_null($this->company_id)) {
+            $public_review_product_company = \App\PublicReviewProductCompany::where('id',$this->company_id)->first();
+            if ($public_review_product_company 
+                && isset($public_review_product_company->name) 
+                && !is_null($public_review_product_company->name)) {
+                return $public_review_product_company->name;
+            } else {
+                return null;
+            }
+        } else {
+            if (isset($value)) {
+                return $value;
+            } else {
+                return null;
+            }
+        }
     }
 
     public function getCompanyLogoAttribute($value)
     {
-        if(isset($value))
-            return json_decode($value);
+        if (isset($this->company_id) && !is_null($this->company_id)) {
+            $public_review_product_company = \App\PublicReviewProductCompany::where('id',$this->company_id)->first();
+            if ($public_review_product_company 
+                && isset($public_review_product_company->image) 
+                && !is_null($public_review_product_company->image)) {
+                return json_decode($public_review_product_company->image);
+            } else {
+                return null;
+            }
+        } else {
+            if (isset($value)) {
+                return json_decode($value);
+            } else {
+                return null;
+            }
+        }
     }
 
     protected function getColorCode($value)
@@ -133,8 +235,7 @@ class PublicReviewProduct extends Model
     public function getOverallRatingAttribute()
     {
         $header = ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
-        if($header != null)
-        {
+        if (!is_null($header)) {
             $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
             $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
             $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();

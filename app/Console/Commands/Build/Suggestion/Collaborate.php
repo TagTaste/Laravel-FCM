@@ -4,6 +4,7 @@ namespace App\Console\Commands\Build\Suggestion;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Command
 {
@@ -42,11 +43,11 @@ class Collaborate extends Command
             ->orderBy('id')->chunk(100,function($owners){
                 foreach ($owners as $owner)
                 {
-                    $collaborateIds = \Redis::sMembers('suggested:collaborate:'.$owner->id);
+                    $collaborateIds = Redis::sMembers('suggested:collaborate:'.$owner->id);
 
                     foreach ($collaborateIds as $collaborateId)
                     {
-                        \Redis::sRem('suggested:collaborate:'.$owner->id,$collaborateId);
+                        Redis::sRem('suggested:collaborate:'.$owner->id,$collaborateId);
                     }
                 }
             });
@@ -58,7 +59,7 @@ class Collaborate extends Command
                     $suggestedIds = explode(',',$suggestedIds);
                     foreach ($suggestedIds as $suggestedId)
                     {
-                        \Redis::sAdd('suggested:collaborate:'.$owner->profile_id,$suggestedId);
+                        Redis::sAdd('suggested:collaborate:'.$owner->profile_id,$suggestedId);
                     }
                 }
             });

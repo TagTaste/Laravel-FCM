@@ -40,16 +40,37 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')
-            ->whereNull('company_id')->orderBy('created_at', 'desc');
+        $collaborations = $this->model
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc');
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
         $data = [];
+        $type = isset($request->type)?$request->type:null;
+        $state = isset($request->state)?$request->state:null;
+        if($state == 6) {
+            $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('company_id')->whereNull('rejected_at')->pluck('collaborate_id');
+            $collaborations = $collaborations->whereIn('id',$interestedInCollaboration);
+        } else if($state != null){
+            $collaborations = $collaborations->where('state',$state)->whereNull('company_id');
+        } else {
+            $collaborations = $collaborations->whereNull('company_id');
+        }
+        if($type == 'collaborate') {
+            $collaborations = $collaborations->where('collaborate_type','collaborate');
+        } else if($type == 'product-review') {
+            $collaborations = $collaborations->where('collaborate_type','product-review');
+        }
+
         $this->model['count'] = $collaborations->count();
+
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         foreach ($collaborations as $collaboration) {
-            $data[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+            $data[] = [
+                'collaboration' => $collaboration,
+                'meta' => $collaboration->getMetaFor($profileId)
+            ];
         }
         $this->model['collaborations'] = $data;
 //        if($request->has('categories')){
@@ -107,6 +128,7 @@ class CollaborateController extends Controller
         if (!empty($fields)) {
             unset($inputs['fields']);
         }
+        unset($inputs['images']);
         $this->model = $this->model->create($inputs);
 
 //        $categories = $request->input('categories');
@@ -157,14 +179,12 @@ class CollaborateController extends Controller
         $inputs = $request->all();
         $profileId = $request->user()->profile->id;
 
-        unset($inputs['expires_on']);
         $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
 
 
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
-        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {
@@ -200,7 +220,7 @@ class CollaborateController extends Controller
         }
         else
         {
-            if($inputs['file1'] == $collaborate->file1)
+            if (isset($inputs['file1']) && ($inputs['file1'] == $collaborate->file1))
                 unset($inputs['file1']);
             else
                 $inputs['file1'] = null;
@@ -225,9 +245,9 @@ class CollaborateController extends Controller
             \App\Filter\Collaborate::addModel($this->model);
             return $this->sendResponse();
         }
-
+        unset($inputs['images']);
         $this->model = $collaborate->update($inputs);
-
+        $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();
