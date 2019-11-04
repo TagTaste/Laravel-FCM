@@ -10,10 +10,10 @@ class Applicant extends Model {
     protected $table = 'collaborate_applicants';
 
     protected $fillable = ['profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','applier_address','message',
-        'hut','created_at','updated_at','city','age_group','gender','company_id'];
+        'hut','created_at','updated_at','city','age_group','gender','company_id','document_meta','terms_verified'];
 
     protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address',
-        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id'];
+        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified'];
 
     protected $with = ['profile','company'];
 
@@ -36,6 +36,10 @@ class Applicant extends Model {
     public function getApplierAddressAttribute($value)
     {
         return json_decode($value,true);
+    }
+    public function getDocumentMetaAttribute($value)
+    {
+        return json_decode($value);
     }
 
 }

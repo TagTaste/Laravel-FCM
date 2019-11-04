@@ -43,11 +43,11 @@ class ApplicantController extends Controller
         {
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
             if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
+                //return $this->sendError("Invalid Collaboration Project.");
             }
         }
         else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
+            //return $this->sendError("Invalid Collaboration Project.");
         }
         //paginate
         $page = $request->input('page');
@@ -61,7 +61,6 @@ class ApplicantController extends Controller
         if(isset($filters))
             $type = false;
         $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereNotNull('shortlisted_at')            ->whereNull('rejected_at')->orderBy("created_at","desc")->skip($skip)->take($take)->get();
-
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
         {
@@ -103,7 +102,6 @@ class ApplicantController extends Controller
     public function store(Request $request, $collaborateId)
     {
         $collaborate = Collaborate::where('id',$collaborateId)->where('state',Collaborate::$state[0])->first();
-
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -134,6 +132,17 @@ class ApplicantController extends Controller
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
                 'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
+        }
+        if($collaborate->document_required) {
+            $doc = \DB::table('profile_documents')->where('profile_id',$loggedInprofileId)->first();
+            if(!count($doc)) {
+                return $this->sendError("please upload document");
+            } else if(!isset($request->terms_verified)) {
+                return $this->sendError("please agree to terms and conditions");
+            } else {
+                $inputs['terms_verified'] = 1;
+                $inputs['document_meta'] = $doc->document_meta;
+            }
         }
         $this->model = $this->model->create($inputs);
 
@@ -379,10 +388,23 @@ class ApplicantController extends Controller
             $this->model = null;
             return $this->sendError("Please fill mandatory feild.");
         }
+        $terms_verified = 0;
+        $document_meta = null;
+        if($collaborate->document_required) {
+            $doc = \DB::table('profile_documents')->where('profile_id',$loggedInProfileId)->first();
+            if(!count($doc)) {
+                return $this->sendError("please upload document");
+            } else if(!isset($request->terms_verified)) {
+                return $this->sendError("please agree to terms and conditions");
+            } else {
+                $terms_verified = 1;
+                $document_meta = $doc->document_meta;
+            }
+        }
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null,'message'=>$request->input('message'),
-                'applier_address'=>$applierAddress,'hut'=>$hut,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender]);
+                'applier_address'=>$applierAddress,'hut'=>$hut,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender,'document_meta'=>$document_meta,'terms_verified'=>$terms_verified]);
 
         if($this->model)
         {
@@ -624,5 +646,66 @@ class ApplicantController extends Controller
         $this->model = $data;
         return $this->sendResponse();
     }
+    public function rejectDocument(Request $request, $collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
 
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->profileId;
+        if(!isset($profileId) || $profileId == null) {
+            return $this->sendError("Please enter profile id");
+        }
+        $applicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$profileId);
+        if(!count($applicant->first())) {
+            return $this->sendError("Applicant not found");
+        }
+        $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->delete();
+        $this->model =  $applicant->delete();
+        event(new \App\Events\DocumentRejectEvent($profileId,$collaborate));
+        return $this->sendResponse();
+    }
+    public function acceptDocument(Request $request,$collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->profileId;
+        if(!isset($profileId) || $profileId == null) {
+            return $this->sendError("Please enter profile id");
+        }
+        $applicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$profileId);
+        if(!count($applicant->first())) {
+            return $this->sendError("Applicant not found");
+        }
+        $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->update(['is_verified'=>1]);
+        return $this->sendResponse();
+    }
 }

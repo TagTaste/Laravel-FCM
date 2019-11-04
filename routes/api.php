@@ -383,6 +383,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
             Route::post("showInterest","ApplicantController@store");
+            Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
+            Route::post("acceptDocument", "ApplicantController@acceptDocument");
             Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
             Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
             Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
@@ -524,8 +526,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         // facebook friends
         Route::get("profile/facebookFriends", ['uses'=> 'ProfileController@fbFriends']);
         Route::post("profile/followFbFriends", ['uses'=> 'ProfileController@followFbFriends']);
-
-
+        //document upload
+        Route::post("profile/uploadDocument","ProfileController@uploadDocument");
+        Route::delete("profile/deleteDocument", "ProfileController@deleteDocument");
         //check handle
         // Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
         Route::get("foodieType","ProfileController@foodieType");
