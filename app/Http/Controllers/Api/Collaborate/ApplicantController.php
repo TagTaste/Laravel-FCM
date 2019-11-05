@@ -108,16 +108,14 @@ class ApplicantController extends Controller
 
         $isInvited = 0;
         $now = Carbon::now()->toDateTimeString();
-        if(!$request->has('applier_address'))
-        {
+        if (!$request->has('applier_address')) {
             return $this->sendError("Please select address.");
         }
-        if($isInvited == 0)
-        {
+        
+        if ($isInvited == 0) {
             $loggedInprofileId = $request->user()->profile->id;
             $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInprofileId)->exists();
-            if($checkApplicant)
-            {
+            if ($checkApplicant) {
                 return $this->sendError("Already Applied");
             }
             $hut = $request->has('hut') ? $request->input('hut') : 0 ;
@@ -125,8 +123,7 @@ class ApplicantController extends Controller
             $address = json_decode($applierAddress,true);
             $city = $address['city'];
             $profile = Profile::where('id',$loggedInprofileId)->first();
-            if(!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender))
-            {
+            if (!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender)) {
                 $this->model = null;
                 return $this->sendError("Please fill mandatory feild.");
             }
@@ -134,11 +131,12 @@ class ApplicantController extends Controller
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
                 'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
         }
-        if($collaborate->document_required) {
+        
+        if ($collaborate->document_required) {
             $doc = \DB::table('profile_documents')->where('profile_id',$loggedInprofileId)->first();
-            if(!$doc) {
+            if (is_null($doc)) {
                 return $this->sendError("please upload document");
-            } else if(!isset($request->terms_verified)) {
+            } else if (!isset($request->terms_verified)) {
                 return $this->sendError("please agree to terms and conditions");
             } else {
                 $inputs['terms_verified'] = 1;
@@ -148,29 +146,22 @@ class ApplicantController extends Controller
         }
         $this->model = $this->model->create($inputs);
 
-        if(isset($this->model))
-        {
+        if (isset($this->model)) {
             $this->model = true;
 
-            if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-            {
+            if (isset($collaborate->company_id)&& (!is_null($collaborate->company_id))) {
                 $company = Redis::get('company:small:' . $collaborate->company_id);
                 $company = json_decode($company);
                 $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
-                foreach ($profileIds as $profileId)
-                {
+                foreach ($profileIds as $profileId) {
                     $collaborate->profile_id = $profileId;
                     event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message",""),null,null, $company));
 
                 }
-            }
-            else
-            {
+            } else {
                 event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
             }
-        }
-        else
-        {
+        } else {
             $this->model = false;
         }
 
