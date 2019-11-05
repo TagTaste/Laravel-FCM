@@ -115,7 +115,7 @@ class Profile extends Model
             $profile->addUserCuisine();
             $profile->addUserFoodieType();
             $profile->addUserSpecialization();
-            event(new SuggestionEngineEvent($profile, 'create'));
+            // event(new SuggestionEngineEvent($profile, 'create'));
 
         });
 
