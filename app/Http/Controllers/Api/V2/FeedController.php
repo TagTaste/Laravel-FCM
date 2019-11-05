@@ -9,7 +9,6 @@ use App\Education;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
-use GraphAware\Neo4j\Client\ClientBuilder;
 use App\Collaborate;
 use App\PublicReviewProduct;
 use App\Advertisements;
@@ -97,7 +96,7 @@ class FeedController extends Controller
     private function getMeta(&$payloads, &$profileId, $profile)
     {
         $this->model = array_fill(0, 20, null);
-        $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
+        $client = config('database.neo4j_uri_client');
 
         // 2 profile, 6 product, 10 company, 13 ad engine and 15 collaboration suggestion
         $suggestion_position = array(2, 6, 10, 13, 15);
@@ -488,6 +487,7 @@ class FeedController extends Controller
 
         $collaborations = Collaborate::where('collaborates.state',Collaborate::$state[0])
             ->whereNotIn('id',$applied_collaboration)
+            ->whereNull('deleted_at')
             ->inRandomOrder()
             ->pluck('id')
             ->take(3)
@@ -569,7 +569,7 @@ class FeedController extends Controller
     public static function ad_engine($client, $profile, $profileId) 
     {
         $card = array(
-            "advertisement" => [],
+            "advertisement" => (object)array(),
             "meta" => [
                 "count" => 0,
                 "text" => "Promoted",
