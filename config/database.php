@@ -2,6 +2,10 @@
 
 use GraphAware\Neo4j\Client\ClientBuilder;
 
+
+$httpClient = \Http\Adapter\Guzzle6\Client::createWithConfig(['timeout'=>(int)env('DB_NEO4J_TIMEOUT', 30)]);
+$config = \GraphAware\Neo4j\Client\HttpDriver\Configuration::create($httpClient);
+
 return [
 
     /*
@@ -91,7 +95,7 @@ return [
     ],
 
     'neo4j_uri' => env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'),
-    'neo4j_uri_client' => ClientBuilder::create()->addConnection('default', env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'))->build(),
+    'neo4j_uri_client' => ClientBuilder::create()->addConnection('default', env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'), $config)->build(),
 
     /*
     |--------------------------------------------------------------------------
