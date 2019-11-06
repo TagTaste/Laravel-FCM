@@ -25,6 +25,8 @@ class DocumentRejected extends Notification
     public $model;
     public $modelName;
     public $allData;
+    public $action;
+    public $company;
 
     public function __construct($event)
     {
@@ -33,6 +35,8 @@ class DocumentRejected extends Notification
         $this->notification = "Your document has been rejected.";
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
+        $this->action = $event->action;
+        $this->company = $event->company;
         $this->modelName = 'collaborate';
         if(method_exists($this->model,'getNotificationContent')){
             $this->allData = $this->model->getNotificationContent();
@@ -78,8 +82,8 @@ class DocumentRejected extends Notification
     public function toArray($notifiable)
     {
         $data = [
-            'action' => "documentreject",
-            'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
+            'action' => $this->action,
+            'profile' => isset($this->company) ? $this->company : null,
             'notification' => $this->notification,
         ];
 
