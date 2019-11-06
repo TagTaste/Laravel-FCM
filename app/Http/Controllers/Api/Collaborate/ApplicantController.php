@@ -647,6 +647,7 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
+        $company = Company::where('id',$collaborate->company_id)->first();
         $profileId = $request->user()->profile->id;
 
         if (isset($collaborate->company_id)&& (!is_null($collaborate->company_id))) {
@@ -670,7 +671,8 @@ class ApplicantController extends Controller
 
         $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->where('is_verified',0)->delete();
         $this->model =  $applicant->delete();
-        event(new \App\Events\DocumentRejectEvent($profileId,$collaborate));
+
+        event(new \App\Events\DocumentRejectEvent($profileId,$company,null,$collaborate));
         return $this->sendResponse();
     }
     
