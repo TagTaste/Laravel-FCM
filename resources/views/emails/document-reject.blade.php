@@ -38,7 +38,7 @@
                                                                         <b>{{$notifiable->name}},</b>
                                                                         <br>
                                                                         <br>
-                                                                        Unfortunately, {{companyName}} has rejected your document for product tasting..
+                                                                        Unfortunately, {{$companyName}} has rejected your document for product tasting..
                                                                         <br>
                                                                         <br>
                                                                     </p>
