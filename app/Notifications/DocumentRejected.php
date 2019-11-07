@@ -27,13 +27,16 @@ class DocumentRejected extends Notification
     public $allData;
     public $action;
     public $company;
+    public $companyName;
 
     public function __construct($event)
     {
         $this->view = 'emails.document-reject';
         $this->sub = "Your document has been rejected.";
+        $this->companyName = "";
         if (isset($event->company['name'])) {
-            $this->sub = $event->company['name'] ." has rejected your document for product tasting.";  
+            $this->sub = $event->company['name'] ." has rejected your document for product tasting."; 
+            $this->companyName = $event->company['name']; 
         }
         $this->notification = "Your document has been rejected.";
         $this->data = $event->collaborate;
@@ -55,7 +58,7 @@ class DocumentRejected extends Notification
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-        if($this->view && view()->exists($this->view)){
+        if ($this->view && view()->exists($this->view)) {
             $via[] = 'mail';
         }
         return $via;
@@ -71,7 +74,7 @@ class DocumentRejected extends Notification
     {
         if (view()->exists($this->view)) {
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
+                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable, 'companyName'=>$this->companyName]
             );
         }
     }

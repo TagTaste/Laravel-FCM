@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            Collaboration: {{$model->name}}
+                                            Collaboration: {{$companyName}}
                                         </div>
                                     </td>
                                 </tr>
@@ -38,7 +38,7 @@
                                                                         <b>{{$notifiable->name}},</b>
                                                                         <br>
                                                                         <br>
-                                                                        Unfortunately, {{$model->name}} has rejected your document for product tasting..
+                                                                        Unfortunately, {{companyName}} has rejected your document for product tasting..
                                                                         <br>
                                                                         <br>
                                                                     </p>
