@@ -32,13 +32,14 @@ class DocumentRejected extends Notification
     public function __construct($event)
     {
         $this->view = 'emails.document-reject';
-        $this->sub = "Your document has been rejected.";
+        $this->sub = "Re-submit Documents.";
         $this->companyName = "";
+        $this->notification = "Documents you submitted to, do not match our criteria. This could be either due to a blurry image upload or your birthday not visible. Tap on this notification to submit again.";
         if (isset($event->company['name'])) {
-            $this->sub = $event->company['name'] ." has rejected your document for product tasting."; 
             $this->companyName = $event->company['name']; 
+            $this->notification = "Documents you submitted to ".$event->company['name'] ." do not match our criteria. This could be either due to a blurry image upload or your birthday not visible. Tap on this notification to submit again.";
         }
-        $this->notification = "Your document has been rejected.";
+        
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
         $this->action = $event->action;

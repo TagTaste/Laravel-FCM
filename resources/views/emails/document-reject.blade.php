@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            Collaboration: {{$data->title}}
+                                            Documents do not match our Criteria Collaboration: {{$data->title}}
                                         </div>
                                     </td>
                                 </tr>
@@ -38,7 +38,7 @@
                                                                         <b>{{$notifiable->name}},</b>
                                                                         <br>
                                                                         <br>
-                                                                        Unfortunately, {{$companyName}} has rejected your document for product tasting..
+                                                                        Documents you submitted for the collaboration {{$data->title}} published by {{$companyName}} do not match our criteria. This could be either due to a blurry image upload or your birthday not visible. We request you to submit the document again.
                                                                         <br>
                                                                         <br>
                                                                     </p>
@@ -49,7 +49,7 @@
                                                             <td valign="top" align="center" bgcolor="#FFFFFF">
                                                                 <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}"
                                                                    style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">
-                                                                    View Collaboration
+                                                                    Submit Again
                                                                 </a>
                                                             </td>
                                                         </tr>
