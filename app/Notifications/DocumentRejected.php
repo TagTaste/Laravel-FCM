@@ -39,7 +39,7 @@ class DocumentRejected extends Notification
             $this->companyName = $event->company['name']; 
         }
         $this->notification = "Your document has been rejected.";
-        $this->data = $event->collaborate;
+        $this->data = $event->company;
         $this->model = $event->collaborate;
         $this->action = $event->action;
         $this->company = $event->company;
@@ -74,7 +74,7 @@ class DocumentRejected extends Notification
     {
         if (view()->exists($this->view)) {
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable, 'companyName'=>$this->companyName]
+                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
             );
         }
     }
