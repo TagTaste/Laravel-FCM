@@ -21,10 +21,17 @@ class DocumentRejectEvent
      */
     public $collaborate;
     public $profileId;
-    public function __construct($profileId,$collaborate)
+    public $company;
+    public $action;
+    public function __construct($profileId, $company = null, $action = null, $collaborate)
     {
         $this->profileId = $profileId;
         $this->collaborate = $collaborate;
+        $this->$company = null;
+        if (isset($company)) {
+            $this->company = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo, 'type'=>'company', 'tagline'=>$company->tagline];
+        }
+        $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
     }
 
     /**

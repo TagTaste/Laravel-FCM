@@ -1319,7 +1319,7 @@ class Profile extends Model
             ->where('profile_id',$this->id)
             ->select('document_meta','is_verified')
             ->first();
-        if(count($docs)) {
+        if ($docs) {
             $doc_meta = json_decode($docs->document_meta);
             $docs->images = $doc_meta;
             unset($docs->document_meta);
