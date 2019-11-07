@@ -38,7 +38,7 @@
                                                                         <b>{{$notifiable->name}},</b>
                                                                         <br>
                                                                         <br>
-                                                                        Documents you submitted for the collaboration {{$data->title}} published by {{$companyName}} do not match our criteria. This could be either due to a blurry image upload or your birthday not visible. We request you to submit the document again.
+                                                                        Documents you submitted for the collaboration {{$data->title}} published by {{$companyName}} do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. We request you to submit the document again.
                                                                         <br>
                                                                         <br>
                                                                     </p>
