@@ -41,13 +41,13 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount'];
+        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount','document_meta'];
 
     /**
         profile completion mandatory field
@@ -65,7 +65,7 @@ class Profile extends Model
 
     private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations','document_meta'];
 
     public static function boot()
     {
@@ -1209,7 +1209,7 @@ class Profile extends Model
                 
                 foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
                 {
-                    if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                    if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
                     {
                         $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
                     }
@@ -1311,6 +1311,22 @@ class Profile extends Model
             ->where('model', 'like', '%Photo')
             ->where('model', 'not like', '%Shareable%')
             ->count();
+    }
+
+    public function getDocumentMetaAttribute()
+    {
+        $docs = \DB::table('profile_documents')
+            ->where('profile_id',$this->id)
+            ->select('document_meta','is_verified')
+            ->first();
+        if(count($docs)) {
+            $doc_meta = json_decode($docs->document_meta);
+            $docs->images = $doc_meta;
+            unset($docs->document_meta);
+            return $docs;
+        } else {
+            return null;
+        }
     }
 }
 

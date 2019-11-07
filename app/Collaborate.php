@@ -24,15 +24,26 @@ class Collaborate extends Model implements Feedable
         'created_at','updated_at','category_id','step','financial_min','financial_max',
         'type_id','images','collaborate_type','is_taster_residence','product_review_meta',
         'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
-        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta'];
+        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta','document_required'];
 
     protected $with = ['profile','company','fields','categories','addresses','collaborate_occupations',
         'collaborate_specializations','collaborate_allergens'];
 
     static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved = 4 5 = close
 
-    protected $visible = ['id','title', 'i_am', 'looking_for','owner','expires_on','video','location','categories','description','project_commences','duration','financials','eligibility_criteria','occassion','profile_id', 'company_id','template_fields','template_id','notify','privacy_id','profile','company','created_at','deleted_at','applicationCount','file1','deliverables','start_in','state','updated_at','images','step','financial_min','financial_max','type','type_id','addresses','collaborate_type','is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations','brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner'
-    ];
+
+  protected $visible = ['id','title', 'i_am', 'looking_for',
+        'expires_on','video','location','categories',
+        'description','project_commences',
+        'duration','financials','eligibility_criteria','occassion',
+        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
+        'profile','company','created_at','deleted_at',
+        'applicationCount','file1','deliverables','start_in','state','updated_at','images',
+        'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
+        'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
+        'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required'];
+
 
     protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner'];
 

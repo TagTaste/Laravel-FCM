@@ -90,7 +90,7 @@ class Company extends Model
         'speciality',
         'profileId',
         'handle',
-        'followerProfiles',
+        'folProfiles',
         'city',
         'is_admin',
         'avg_rating',
@@ -115,7 +115,7 @@ class Company extends Model
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
         'portfolio','productCatalogue','coreteam','gallery'];
 
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
+    protected $appends = ['statuses','companyTypes','profileId','folProfiles','is_admin','avg_rating','review_count','rating_count',
         'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue', 'company_id', 'totalPostCount','imagePostCount'];
 
     private $empValue = ['1','2 - 10','11 - 50','51 - 200','201 - 500','501 - 1000','1001 - 5000','5001 - 10,000','10,000+'];
@@ -401,6 +401,7 @@ class Company extends Model
 //        Redis::sAdd("following:profile:" . $user->profile->id, "company.$this->id");
 //
 //        //profiles that are following $channelOwner
+
 //        Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
         
         //subscribe the user to the company feed
@@ -463,12 +464,14 @@ class Company extends Model
         return $this->user->profile->id;
     }
     
-    public function getFollowerProfilesAttribute()
+    public function getFolProfilesAttribute()
     {
     
         //if you use \App\Profile here, it would end up nesting a lot of things.
+
 //        $profiles = Company::getFollowers($this->id);
         $count = Redis::sCard("followers:company:" . $this->id);
+
 //        if($count > 1000000)
 //        {
 //            $count = round($count/1000000, 1);
@@ -485,8 +488,9 @@ class Company extends Model
     
     }
     
-    public static function getFollowers($id)
+    public static function getFols($id)
     {
+
         $profileIds = Redis::SMEMBERS("followers:company:" . $id);
 
         foreach ($profileIds as &$profileId)
@@ -497,15 +501,17 @@ class Company extends Model
         if(count($profileIds)) {
             $data = Redis::mget($profileIds);
         }
-        $followerProfileId = request()->user()->profile->id;
+        $folProfileId = request()->user()->profile->id;
         foreach ($data as &$datum)
         {
             $datum = json_decode($datum,true);
             if(!isset($data['id'])){
                 continue;
             }
+
             $datum['isFollowing'] = Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
 //            $datum['self'] = $followerProfileId === $datum['id'];
+
         }
         return $data;
     }
@@ -514,12 +520,13 @@ class Company extends Model
     {
         return $this->isFollowing(request()->user()->profile->id);
     }
-    public function isFollowing($followerProfileId = null)
+    public function isFollowing($folProfileId = null)
     {
+
         return Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
     }
     
-    public static function checkFollowing($followerProfileId,$id)
+    public static function checkFollowing($folProfileId,$id)
     {
         return Redis::sIsMember("following:profile:" . $followerProfileId, "company." . $id) === 1;
     }
@@ -569,7 +576,7 @@ class Company extends Model
     public function getNotificationContent()
     {
         return [
-            'name' => strtolower(class_basename(self::class)),
+            'name' => strto(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->name,
             'image' => $this->logo
