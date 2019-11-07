@@ -381,32 +381,49 @@ class ApplicantController extends Controller
             $this->model = null;
             return $this->sendError("Please fill mandatory feild.");
         }
+
         $terms_verified = 0;
         $document_meta = null;
+        $documents_verified = 0;
         if($collaborate->document_required) {
             $doc = \DB::table('profile_documents')->where('profile_id',$loggedInProfileId)->first();
-            if(!count($doc)) {
+            if (is_null($doc)) {
                 return $this->sendError("please upload document");
-            } else if(!isset($request->terms_verified)) {
+            } else if (!isset($request->terms_verified)) {
                 return $this->sendError("please agree to terms and conditions");
             } else {
                 $terms_verified = 1;
                 $document_meta = $doc->document_meta;
+                $documents_verified = $doc->is_verified;
             }
         }
-        $now = Carbon::now()->toDateTimeString();
-        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
-            ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null,'message'=>$request->input('message'),
-                'applier_address'=>$applierAddress,'hut'=>$hut,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender,'document_meta'=>$document_meta,'terms_verified'=>$terms_verified]);
 
-        if($this->model)
-        {
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('collaborate_applicants')
+            ->where('collaborate_id',$id)
+            ->where('profile_id',$loggedInProfileId)
+            ->update([
+                'shortlisted_at'=>$now,
+                'rejected_at'=>null,
+                'message'=>$request->input('message'),
+                'applier_address'=>$applierAddress,
+                'hut'=>$hut,
+                'city'=>$city,
+                'age_group'=>$profile->ageRange,
+                'gender'=>$profile->gender,
+                'document_meta'=>$document_meta,
+                'terms_verified'=>$terms_verified,
+                'documents_verified'=>$documents_verified
+            ]);
+
+        if ($this->model) {
             $company = Company::where('id',$collaborate->company_id)->first();
-            $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
-            foreach ($profileIds as $profileId)
-            {
+            $profileIds = CompanyUser::where('company_id',$collaborate->company_id)
+                ->get()
+                ->pluck('profile_id');
+            foreach ($profileIds as $profileId) {
                 $collaborate->profile_id = $profileId;
-                event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,$request->user()->profile,$request->input("message",""),null,null,$company));
+                event(new \App\Events\Actions\InvitationAcceptForReview($collaborate, $request->user()->profile, $request->input("message",""), null, null, $company));
             }
         }
 

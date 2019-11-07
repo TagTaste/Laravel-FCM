@@ -30,15 +30,18 @@ class DocumentRejected extends Notification
 
     public function __construct($event)
     {
-        $this->view = 'emails.documentReject';
+        $this->view = 'emails.document-reject';
         $this->sub = "Your document has been rejected.";
+        if (isset($event->company['name'])) {
+            $this->sub = $event->company['name'] ." has rejected your document for product tasting.";  
+        }
         $this->notification = "Your document has been rejected.";
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
         $this->action = $event->action;
         $this->company = $event->company;
         $this->modelName = 'collaborate';
-        if(method_exists($this->model,'getNotificationContent')){
+        if (method_exists($this->model,'getNotificationContent')) {
             $this->allData = $this->model->getNotificationContent();
         }
     }
@@ -66,10 +69,10 @@ class DocumentRejected extends Notification
      */
     public function toMail($notifiable)
     {
-        if(view()->exists($this->view)) {
+        if (view()->exists($this->view)) {
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, []
-            );//fill the data according yo the view in the array.
+                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
+            );
         }
     }
 
