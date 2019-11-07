@@ -1,4 +1,6 @@
-<?php namespace App\Http\Controllers\Api\Collaborate;
+<?php 
+
+namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
 use App\CompanyUser;
@@ -43,11 +45,11 @@ class ApplicantController extends Controller
         {
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
             if(!$checkUser){
-                //return $this->sendError("Invalid Collaboration Project.");
+                return $this->sendError("Invalid Collaboration Project.");
             }
         }
         else if($collaborate->profile_id != $profileId){
-            //return $this->sendError("Invalid Collaboration Project.");
+            return $this->sendError("Invalid Collaboration Project.");
         }
         //paginate
         $page = $request->input('page');
