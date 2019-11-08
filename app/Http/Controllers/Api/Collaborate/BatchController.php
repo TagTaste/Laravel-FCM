@@ -1279,7 +1279,6 @@ class BatchController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-
         $batchData = $this->model->where('id', $batchId)->where('collaborate_id',$collaborateId)->first();
         $profileId = $request->user()->profile->id;
 
