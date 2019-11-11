@@ -12,9 +12,9 @@ class ReviewCollectionElement extends Model
 
     protected $table = 'review_collection_elements';
 
-    protected $fillable = ['type','collection_id','data_type','data_id','filter_id','filter_on','filter','created_at','updated_at','deleted_at'];
+    protected $fillable = ['type','collection_id','data_type','data_id','filter_id','filter_name','filter_image','filter_on','filter','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','type','collection_id','data_type','data_id','filter_id','filter_on','filter','data_model','created_at','updated_at','deleted_at'];
+    protected $visible = ['id','type','collection_id','data_type','data_id','filter_id','filter_name','filter_image','filter_on','filter','data_model','created_at','updated_at','deleted_at'];
 
     protected $appends = ['data_model', 'filter_model'];
 

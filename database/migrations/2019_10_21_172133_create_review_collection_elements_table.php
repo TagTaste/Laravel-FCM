@@ -20,6 +20,8 @@ class CreateReviewCollectionElementsTable extends Migration
             $table->string('data_type', 50)->nullable()->default(null);
             $table->string('data_id', 100)->nullable()->default(null);
             $table->unsignedInteger('filter_id')->nullable()->default(null);
+            $table->string('filter_name', 100)->nullable()->default(null);
+            $table->text('filter_image')->nullable()->default(null);
             $table->string('filter_on', 50)->nullable()->default(null);
             $table->text('filter')->nullable()->default(null);
             $table->timestamps();

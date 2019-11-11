@@ -26,10 +26,11 @@ class SearchController extends Controller
         if (count($review_interface_design)) {
         	foreach ($review_interface_design as $key => $interface) {
         		$data[$interface->id] = array(
-        			"postion" => $interface->id,
+        			"postion" => $interface->postion,
         			"ui_type" => $interface->ui_type,
         			"ui_style" => $interface->ui_style,
         		);
+                
         		if (isset($interface->collections)) {
         			$collection = $interface->collections;
         			$data[$interface->id]['collection_id'] = $collection->id;
@@ -37,25 +38,27 @@ class SearchController extends Controller
         			$data[$interface->id]['subtitle'] = $collection->subtitle;
         			$data[$interface->id]['description'] = $collection->description;
         			$data[$interface->id]['image'] = $collection->image;
-                    $data[$interface->id]['category'] = $collection->category_type;
+                    $data[$interface->id]['category_type'] = $collection->category_type;
+                    $data[$interface->id]['elements'] = array();
         			if (isset($collection->elements) && count($collection->elements)) {
-        				$elements = $collection->elements->take(20);
-        				$data[$interface->id]['elements'] = array();
-        				foreach ($elements as $key => $element) {
-							if ("filter" == $element->type) {
-                                if ("product" == $element->filter_on) {
+        				$elements = $collection->elements->take(20);;
+        				if ("filter" === $collection->type) {
+                            foreach ($elements as $key => $element) {
+                                if ("filter" === $element->type && "product" === $element->filter_on) {
                                     $data[$interface->id]['elements'] = $this->elementsByProductFilter($element, $loggedInProfileId);
                                 }
-                            } else if ("product" == $element->type) {
-                                if ("product" == $element->data_type) {
+                            }
+                        } else if ("collection" == $collection->type) {
+                            foreach ($elements as $key => $element) {
+                                if ("product" === $element->type && "product" === $element->data_type) {
                                     $data[$interface->id]['elements'][] = $this->elementsByProductId($element, $loggedInProfileId);
-                                } 
-                            } else if ("collection" == $element->data_type) {
-                                if ("collection" == $element->data_type) {
+                                } else if ("collection" === $element->type && "collection" === $element->data_type) {
                                     $data[$interface->id]['elements'][] = $this->elementsByCollectionId($element, $loggedInProfileId);
+                                } else if ("filter" === $element->type && is_null($element->data_type)) {
+                                    $data[$interface->id]['elements'][] = $this->elementsByFilterId($element, $loggedInProfileId);
                                 }
                             }
-        				}
+                        }
         			} else {
         				unset($data[$interface->id]);
         			}
@@ -65,7 +68,7 @@ class SearchController extends Controller
         	}
         }
 
-        $this->model = $data;
+        $this->model = array_values($data);
         return $this->sendResponse();
     }
 
@@ -113,6 +116,19 @@ class SearchController extends Controller
             $model = $element->data_model;
             $data_fetched = $model::where('id',$product_id)->first()->makeHidden(['elements']);
             $response = $data_fetched;
+        }
+        return $response;
+    }
+
+    public function elementsByFilterId($element, $loggedInProfileId)
+    {
+        $response = array();
+        if (!is_null($element)) {
+            $response['id'] = $element->id;
+            $response['type'] = $element->type;
+            $response['filter_name'] = $element->filter_name;
+        } else {
+            $response = (object)array();
         }
         return $response;
     }
