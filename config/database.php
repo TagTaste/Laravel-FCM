@@ -1,5 +1,11 @@
 <?php
 
+use GraphAware\Neo4j\Client\ClientBuilder;
+
+
+$httpClient = \Http\Adapter\Guzzle6\Client::createWithConfig(['timeout'=>(int)env('DB_NEO4J_TIMEOUT', 30)]);
+$config = \GraphAware\Neo4j\Client\HttpDriver\Configuration::create($httpClient);
+
 return [
 
     /*
@@ -78,8 +84,18 @@ return [
             'schema' => 'public',
             'sslmode' => 'prefer',
         ],
-
+        'neo4j' => [
+            'name' => env('DB_NEO4J_CONNECTION', 'neo4j'),
+            'driver' => env('DB_NEO4J_CONNECTION', 'neo4j'),
+            'host'   => env('DB_NEO4J_HOST', 'localhost'),
+            'port'   => env('DB_NEO4J_PORT', '7474'),
+            'username' => env('DB_NEO4J_USERNAME', null),
+            'password' => env('DB_NEO4J_PASSWORD', null)
+        ],
     ],
+
+    'neo4j_uri' => env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'),
+    'neo4j_uri_client' => ClientBuilder::create()->addConnection('default', env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'), $config)->build(),
 
     /*
     |--------------------------------------------------------------------------
@@ -115,6 +131,13 @@ return [
             'host' => env('REDIS_HOST', 'localhost'),
             'password' => env('REDIS_PASSWORD', ''),
             'port' => env('REDIS_PORT', 6379),
+            'database' => 0,
+        ],
+
+        'V2' => [
+            'host' => env('REDIS_HOST_V2', 'localhost'),
+            'password' => env('REDIS_PASSWORD_V2', ''),
+            'port' => env('REDIS_PORT_V2', 6379),
             'database' => 0,
         ],
 

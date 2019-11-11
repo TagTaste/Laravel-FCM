@@ -7,6 +7,7 @@ use App\Collaborate\ReviewHeader;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Support\Facades\Redis;
 
 class ReviewController extends Controller
 {
@@ -43,7 +44,7 @@ class ReviewController extends Controller
             return $this->sendError("Wrong product assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
-        $latestCurrentStatus = \Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
+        $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
         if($currentStatus == $latestCurrentStatus && $latestCurrentStatus == 3)
         {
             return $this->sendError("You have already completed this product");

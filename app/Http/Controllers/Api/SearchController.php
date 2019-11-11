@@ -6,6 +6,7 @@ use App\Company;
 use App\PublicReviewProduct;
 use App\SearchClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class SearchController extends Controller
 {
@@ -114,7 +115,7 @@ class SearchController extends Controller
     
             if(isset($this->model['profile'])){
                 $this->model['profile'] = $this->model['profile']->toArray();
-                $following = \Redis::sMembers("following:profile:" . $profileId);
+                $following = Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
                     if($profile && isset($profile['id'])){
                         $profile['isFollowing'] = in_array($profile['id'],$following);
@@ -354,7 +355,7 @@ class SearchController extends Controller
 
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                $following = \Redis::sMembers("following:profile:" . $profileId);
+                $following = Redis::sMembers("following:profile:" . $profileId);
                 $profiles = $this->model['profile']->toArray();
                 $this->model['profile'] = [];
                 foreach($profiles as $profile){
@@ -413,7 +414,7 @@ class SearchController extends Controller
         if(!empty($this->model)){
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                $following = \Redis::sMembers("following:profile:" . $profileId);
+                $following = Redis::sMembers("following:profile:" . $profileId);
                 $profiles = $this->model['profile'];
                 $this->model['profile'] = [];
                 foreach($profiles as $profile){
@@ -513,7 +514,7 @@ class SearchController extends Controller
 
                 if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $following = Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile']->toArray();
                     $this->model['profile'] = [];
                     foreach($profiles as $profile){
@@ -582,7 +583,7 @@ class SearchController extends Controller
             if(!empty($this->model)){
                 if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $following = Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile'];
                     $this->model['profile'] = [];
                     foreach($profiles as $profile){
@@ -650,7 +651,7 @@ class SearchController extends Controller
             if (!empty($this->model)) {
                 if (isset($this->model['profile'])) {
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $following = Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile'];
                     $this->model['profile'] = [];
                     foreach ($profiles as $profile) {

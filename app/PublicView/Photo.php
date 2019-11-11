@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use App\Photo as BasePhoto;
+use Illuminate\Support\Facades\Redis;
 
 class Photo extends BasePhoto
 {
@@ -23,9 +24,9 @@ class Photo extends BasePhoto
 
     protected $visible = ['id','caption','photoUrl','likeCount',
         'created_at', 'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner'];
+        'owner','image'];
 
-    protected $appends = ['photoUrl','profile_id','company_id','owner'];
+    protected $appends = ['photoUrl','profile_id','company_id','owner','image'];
 
 
     public static function getProfileImagePath($profileId,$filename = null)
@@ -125,7 +126,7 @@ class Photo extends BasePhoto
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
@@ -138,6 +139,14 @@ class Photo extends BasePhoto
             $value = ['text'=>$value,'profiles'=>$profiles];
         }
         return $value;
+    }
+    public function getImageAttribute($value)
+    {
+        if($value == null) {
+            return [json_decode($this->image_meta)];
+        } else {
+            return json_decode($value);
+        }
     }
 
 }

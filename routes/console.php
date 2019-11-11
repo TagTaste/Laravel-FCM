@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Redis;
 /*
 |--------------------------------------------------------------------------
 | Console Routes
@@ -224,7 +225,7 @@ Artisan::command('inspire', function () {
     foreach ($profileIds as $profileId)
     {
         echo 'profile id is'.$profileId ."\n";
-        $x = \Redis::sIsMember("followers:profile:".$profileId,2245);
+        $x = Redis::sIsMember("followers:profile:".$profileId,2245);
         echo 'following is '.$x ."\n";
         if($x)
         {
@@ -240,10 +241,10 @@ Artisan::command('inspire', function () {
         $id = $user->id;
 
         //profiles the logged in user is following
-        \Redis::sAdd("following:profile:" . $id, $profileId);
+        Redis::sAdd("following:profile:" . $id, $profileId);
 
         //profiles that are following $channelOwner
-        \Redis::sAdd("followers:profile:" . $profileId, $id);
+        Redis::sAdd("followers:profile:" . $profileId, $id);
 
         echo 'profile id is'.$profileId ."\n";
 
@@ -263,7 +264,7 @@ Artisan::command('inspire', function () {
     foreach ($profileIds as $profileId)
     {
         echo 'profile id is'.$profileId ."\n";
-        $x = \Redis::sIsMember("followers:company:111",$profileId);
+        $x = Redis::sIsMember("followers:company:111",$profileId);
         echo 'following is '.$x ."\n";
         if($x)
         {
@@ -279,10 +280,10 @@ Artisan::command('inspire', function () {
         $id = $user->id;
 
         //companies the logged in user is following
-        \Redis::sAdd("following:profile:" . $profileId, "company.111");
+        Redis::sAdd("following:profile:" . $profileId, "company.111");
 
         //profiles that are following $channelOwner
-        \Redis::sAdd("followers:company:111", $profileId);
+        Redis::sAdd("followers:company:111", $profileId);
 
         echo 'profile id is'.$profileId ."\n";
 
@@ -301,7 +302,7 @@ Artisan::command('inspire', function () {
     foreach ($profileIds as $profileId)
     {
         echo 'profile id is'.$profileId ."\n";
-        $x = \Redis::sIsMember("followers:company:137",$profileId);
+        $x = Redis::sIsMember("followers:company:137",$profileId);
         echo 'following is '.$x ."\n";
         if($x)
         {
@@ -316,10 +317,10 @@ Artisan::command('inspire', function () {
         $id = $user->id;
 
         //companies the logged in user is following
-        \Redis::sAdd("following:profile:" . $profileId, "company.137");
+        Redis::sAdd("following:profile:" . $profileId, "company.137");
 
         //profiles that are following $channelOwner
-        \Redis::sAdd("followers:company:137", $profileId);
+        Redis::sAdd("followers:company:137", $profileId);
 
         echo 'profile id is'.$profileId ."\n";
 
@@ -338,7 +339,7 @@ Artisan::command('inspire', function () {
     foreach ($profileIds as $profileId)
     {
         echo 'profile id is'.$profileId ."\n";
-        $x = \Redis::sIsMember("followers:company:322",$profileId);
+        $x = Redis::sIsMember("followers:company:322",$profileId);
         echo 'following is '.$x ."\n";
         if($x)
         {
@@ -353,10 +354,10 @@ Artisan::command('inspire', function () {
         $id = $user->id;
 
         //companies the logged in user is following
-        \Redis::sAdd("following:profile:" . $profileId, "company.322");
+        Redis::sAdd("following:profile:" . $profileId, "company.322");
 
         //profiles that are following $channelOwner
-        \Redis::sAdd("followers:company:322", $profileId);
+        Redis::sAdd("followers:company:322", $profileId);
 
         echo 'profile id is'.$profileId ."\n";
 
