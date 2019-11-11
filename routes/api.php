@@ -133,6 +133,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
+
+            // review page api
+            Route::get("public-review/explore","SearchController@exploreForReview");
+            
             Route::resource("shoutout",'ShoutoutController');
             Route::resource("polling","PollingController");
             Route::resource("collaborate","CollaborateController");
