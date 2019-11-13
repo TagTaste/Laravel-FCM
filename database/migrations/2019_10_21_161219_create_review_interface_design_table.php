@@ -15,7 +15,7 @@ class CreateReviewInterfaceDesignTable extends Migration
     {
         Schema::create('review_interface_design', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('postion')->nullable()->default(0);
+            $table->unsignedInteger('position')->nullable()->default(0);
             $table->unsignedInteger('ui_type')->nullable()->default(0);
             $table->text('ui_style')->nullable()->default(null);
             $table->unsignedInteger('collection_id')->references("id")->on("review_collections");
