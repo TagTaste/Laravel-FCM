@@ -12,9 +12,9 @@ class ReviewInterfaceDesign extends Model
 
     protected $table = 'review_interface_design';
 
-    protected $fillable = ['postion','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at'];
+    protected $fillable = ['position','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','postion','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at','collections'];
+    protected $visible = ['id','position','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at','collections'];
 
     protected $with = ['collections'];
 
