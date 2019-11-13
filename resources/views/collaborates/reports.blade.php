@@ -196,6 +196,10 @@
             <p class="pr-report-batch-title">Product Name - {{ $batchData->notes }}</p>
         @endisset
     </div>
+    <div class="pr-report-batch-container" style="margin-top: 40px;">
+        <p class="pr-report-batch-helper">Report Generated On:</p>
+        <p class="pr-report-batch-title">{{ date('d F Y') }}</p>
+    </div>
     <div class="page-break"></div>
 </div>
 @foreach($data as $header)
