@@ -54,6 +54,11 @@ class SearchController extends Controller
                                     $data[$interface->id]['elements'][] = $this->elementsByProductId($element, $loggedInProfileId);
                                 } else if ("collection" === $element->type && "collection" === $element->data_type) {
                                     $data[$interface->id]['elements'][] = $this->elementsByCollectionId($element, $loggedInProfileId);
+                                } else if ("profile" === $element->type && "profile" === $element->data_type) {
+                                    $profile_data = $this->elementsByProfileId($element, $loggedInProfileId);
+                                    if (!is_null($profile_data)) {
+                                        $data[$interface->id]['elements'][] = $profile_data;
+                                    }
                                 } else if ("filter" === $element->type && is_null($element->data_type)) {
                                     $data[$interface->id]['elements'][] = $this->elementsByFilterId($element, $loggedInProfileId);
                                 }
@@ -87,7 +92,9 @@ class SearchController extends Controller
 			foreach ($data_fetched as $key => $data) {
 				$response[] = [
 					'product' => $data,
-					'meta' => $data->getMetaFor($loggedInProfileId)];
+					'meta' => $data->getMetaFor($loggedInProfileId),
+                    'type' => 'product',
+                ];
 			}
     	}
     	return $response;
@@ -102,7 +109,8 @@ class SearchController extends Controller
             $data_fetched = $model::where('id',$product_id)->first();
             $response = [
                 'product' => $data_fetched,
-                'meta' => $data_fetched->getMetaFor($loggedInProfileId)
+                'meta' => $data_fetched->getMetaFor($loggedInProfileId),
+                'type' => 'product',
             ];
         }
         return $response;
@@ -120,6 +128,22 @@ class SearchController extends Controller
         return $response;
     }
 
+    public function elementsByProfileId($element, $loggedInProfileId)
+    {
+        $response = null;
+        if (isset($element->data_model) && !is_null($element->data_model)) {
+            $profile_id = (int)$element->data_id;
+            $model = $element->data_model;
+            $data_fetched = $model::where('id',$profile_id)->first();
+            if (!is_null($data_fetched)) {
+                $response = $data_fetched->toArray();
+                $response['isFollowing'] = $data_fetched->isFollowing($profile_id, $loggedInProfileId);
+                $response['type'] = 'profile';
+            }
+        }
+        return $response;
+    }
+
     public function elementsByFilterId($element, $loggedInProfileId)
     {
         $response = array();
@@ -127,6 +151,13 @@ class SearchController extends Controller
             $response['id'] = $element->id;
             $response['type'] = $element->type;
             $response['filter_name'] = $element->filter_name;
+            $response['filter_on'] = $element->filter_on;
+            $response['filter'] = $element->filter;
+            $response['title'] = $element->title;
+            $response['subtitle'] = $element->subtitle;
+            $response['description'] = $element->description;
+             $response['image'] = $element->image;
+
         } else {
             $response = (object)array();
         }
