@@ -1276,9 +1276,12 @@ class BatchController extends Controller
     public function reportPdf(Request $request, $collaborateId,$batchId)
     {
         $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
-        $batchData = $this->model->where('id', $batchId)->where('collaborate_id',$collaborateId)->first();
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
+        }
+        $batchData = $this->model->where('id', $batchId)->where('collaborate_id',$collaborateId)->first();
+        if ($batchData === null) {
+            return $this->sendError("Invalid batch.");
         }
         $profileId = $request->user()->profile->id;
 
