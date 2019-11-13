@@ -52,5 +52,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UnsubscribeReasonSeeder::class);
 //        $this->call(ProfileAttributeIdSeeder::class);
 //        $this->call(ProfileAttributeTableSeeder::class);//requires profile type and admin generation
+        $this->call(ReviewInterfaceUiSeeder::class);
     }
 }
