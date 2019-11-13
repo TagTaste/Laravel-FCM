@@ -21,7 +21,10 @@ class SearchController extends Controller
         
         $data = [];
         
-        $review_interface_design = ReviewInterfaceDesign::whereNull('deleted_at')->where('is_active',1)->get();
+        $review_interface_design = ReviewInterfaceDesign::whereNull('deleted_at')
+            ->where('is_active',1)
+            ->orderBy('position')
+            ->get();
         
         if (count($review_interface_design)) {
         	foreach ($review_interface_design as $key => $interface) {
