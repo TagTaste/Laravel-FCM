@@ -1276,10 +1276,10 @@ class BatchController extends Controller
     public function reportPdf(Request $request, $collaborateId,$batchId)
     {
         $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
-
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
+        $batchData = $this->model->where('id', $batchId)->where('collaborate_id',$collaborateId)->first();
         $profileId = $request->user()->profile->id;
 
         if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
@@ -1570,7 +1570,10 @@ class BatchController extends Controller
             $this->model[] = ['headerName'=>$header->header_type,'data'=>$model];
         }
         $data = $this->model;
-        $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
+        $pdf = PDF::loadView('collaborates.reports',['data' => $data,
+            'filters'=>$filters,
+            'collaborate'=>$collaborate,
+            'batchData'=>$batchData]);
         $pdf = $pdf->output();
         $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
         $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";
