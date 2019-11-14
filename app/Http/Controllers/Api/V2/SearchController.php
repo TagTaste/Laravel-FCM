@@ -22,7 +22,6 @@ class SearchController extends Controller
         $data = [];
         
         $review_interface_design = ReviewInterfaceDesign::whereNull('deleted_at')
-            ->where('id',8)
             ->where('is_active',1)
             ->orderBy('position')
             ->get();
