@@ -29,7 +29,7 @@ class SearchController extends Controller
         if (count($review_interface_design)) {
         	foreach ($review_interface_design as $key => $interface) {
         		$data[$interface->id] = array(
-        			"postion" => $interface->postion,
+        			"position" => $interface->position,
         			"ui_type" => $interface->ui_type,
         			"ui_style" => $interface->ui_style,
         		);
