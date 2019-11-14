@@ -347,7 +347,7 @@ class SearchController extends Controller
                 }
                 if($suggested->count() > 0) {
                     //$this->model[$name] = $searched;
-                    $this->model[$name] = $suggested->prepend($searched);
+                    $this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
                 } else
                     $this->model[$name] = $searched;
             }
@@ -356,13 +356,13 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = Redis::sMembers("following:profile:" . $profileId);
-                $profiles = $this->model['profile']->toArray();
+                $profiles = $this->model['profile'];
                 $this->model['profile'] = [];
                 foreach($profiles as $profile){
                     if($profile && isset($profile['id'])){
                         $profile['isFollowing'] = in_array($profile['id'],$following);
                     }
-                    $this->model['profile'][] = $profile;
+                    $this->model['profile'] = $profile;
 
                 }
             }

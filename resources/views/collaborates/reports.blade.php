@@ -155,7 +155,53 @@
     .pr-intensity-numeric-img {
         margin-top: 5px;
     }
+    .pr-report-top-bar {
+        margin-top: 40px;
+    }
+    .pr-report-top-bar-heading {
+        font-size: 18px;
+        margin-bottom: 12px;
+        font-weight: bold;
+    }
+    .pr-report-top-bar-title {
+        font-size: 24px;
+        margin: 0;
+        margin-bottom: 60px;
+        font-weight: 400;
+    }
+    .pr-report-batch-helper {
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+    .pr-report-batch-helper {
+        font-size: 16px;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+    .pr-report-batch-title {
+        font-size: 18px;
+        margin-bottom: 8px;
+        word-wrap: break-word;
+    }
 </style>
+<div class="pr-report-top-bar">
+    <div>
+        <p class="pr-report-top-bar-heading">Collaboration</p>
+        <h1 class="pr-report-top-bar-title">{{ $collaborate->title }}</p>
+    </div>
+    <div class="pr-report-batch-container">
+        <p class="pr-report-batch-helper">Product Details</p>
+        <p class="pr-report-batch-title">Product Code - {{ $batchData->name }}</p>
+        @isset($batchData->notes)
+            <p class="pr-report-batch-title">Product Name - {{ $batchData->notes }}</p>
+        @endisset
+    </div>
+    <div class="pr-report-batch-container" style="margin-top: 40px;">
+        <p class="pr-report-batch-helper">Report Generated On:</p>
+        <p class="pr-report-batch-title">{{ date('d F Y') }}</p>
+    </div>
+    <div class="page-break"></div>
+</div>
 @foreach($data as $header)
     <h1>{{$header['headerName']}}</h1>
     @foreach($header['data'] as $headerData)
