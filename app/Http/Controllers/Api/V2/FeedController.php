@@ -572,6 +572,7 @@ class FeedController extends Controller
 
         $public_review_product = PublicReviewProduct::where('is_active',1)
             ->whereNotIn('id',$applied_product_review)
+            ->whereNull('deleted_at')
             ->inRandomOrder()
             ->get(['id', 'global_question_id'])
             ->take(10);
