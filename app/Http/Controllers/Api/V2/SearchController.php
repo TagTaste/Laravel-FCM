@@ -22,6 +22,7 @@ class SearchController extends Controller
         $data = [];
         
         $review_interface_design = ReviewInterfaceDesign::whereNull('deleted_at')
+            ->where('id',8)
             ->where('is_active',1)
             ->orderBy('position')
             ->get();
@@ -68,7 +69,11 @@ class SearchController extends Controller
                             }
                         }
         			} else {
-        				unset($data[$interface->id]);
+        				if (isset($collection->category_type) && "campus_connect" === $collection->category_type) {
+                            unset($data[$interface->id]['elements']);
+                        } else {
+                            unset($data[$interface->id]);
+                        }  
         			}
         		} else {
         			unset($data[$interface->id]);
