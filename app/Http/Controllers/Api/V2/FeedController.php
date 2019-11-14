@@ -440,6 +440,33 @@ class FeedController extends Controller
         return $suggestion;
     }
 
+    public static function suggestion_of_follower($client, $profile, $profileId) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Suggestions for you",
+                "sub_type" => "profile",
+            ],
+            "type" => "suggestion",
+        );
+
+        $query = "MATCH (user:User {profile_id:$profileId}), (users:User)
+            WHERE NOT (user)-[:FOLLOWS]-(users)
+            WITH users, rand() AS number
+            ORDER BY number
+            RETURN DISTINCT users
+            LIMIT 10";
+        $result = $client->run($query);
+        foreach ($result->records() as $record) {
+            $suggestion["meta"]["count"]++;
+            array_push($suggestion["suggestion"], $record->get('users')->values());
+        }
+        
+        return $suggestion;
+    }
+
     public static function suggestion_company($client, $profile, $profileId) 
     {
         $suggestion = array(
