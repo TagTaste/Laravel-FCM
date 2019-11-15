@@ -69,7 +69,7 @@ class Profile extends Model
 
     private $profileCompletionMandatoryFieldForCampusConnect = ['phone','verified_phone'];
     
-    private $profileCompletionMandatoryFieldForGetProductSample = ['name','dob','shippingaddress','phone','verified_phone'];
+    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone','verified_phone'];
 
     public static function boot()
     {

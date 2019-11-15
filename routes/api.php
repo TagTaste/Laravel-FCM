@@ -140,6 +140,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::resource("shoutout",'ShoutoutController');
             Route::resource("polling","PollingController");
             Route::resource("collaborate","CollaborateController");
+            Route::post("campus-connect","CampusConnectController@store");
             Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
             Route::get("feed","FeedController@feed");
             Route::get("feed/{modelName}/{modelId}/{device}/{interactionTypeId}","FeedController@feedInteraction");
@@ -441,6 +442,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         Route::post('products/suggestion','PublicReviewProductController@productSuggestion');
         Route::get('public-review/products/filters','PublicReviewProductController@getFilters');
+        Route::get('public-review/products/{productId}/get-sample','PublicReviewProductController@getSample');
         Route::get('public-review/similarProducts/{productId}', 'PublicReviewProductController@similarProducts');
 
         Route::get("public-review/discover/products","PublicReviewProductController@discover");
