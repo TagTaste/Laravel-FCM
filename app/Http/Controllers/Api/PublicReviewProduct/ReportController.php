@@ -45,7 +45,7 @@ class ReportController extends Controller
             return $this->sendError("Product is not available");
         }
         $count = Review::where('product_id',$productId)->where('current_status',2)->distinct('profile_id')->count('profile_id');
-        if($count < 1)
+        if($count < 10)
         {
             $this->model = [];
             $this->model['title'] = 'Sensogram';
