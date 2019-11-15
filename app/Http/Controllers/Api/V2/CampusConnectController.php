@@ -35,6 +35,7 @@ class CampusConnectController extends Controller
         //move this to validator
         if(empty($inputs['campus_name']) && empty($inputs['campus_name'])){
             $this->errors['message'] = 'Missing campus name.';
+            $this->errors['status'] = 1;
             return $this->sendResponse();
         }
 

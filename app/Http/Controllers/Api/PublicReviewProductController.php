@@ -627,6 +627,7 @@ class PublicReviewProductController extends Controller
         $product = $this->model->where('is_active',1)->whereNull('deleted_at')->where('id',$productId)->first();
         if (is_null($product)) {
             $this->errors['message'] = 'Product is not available';
+            $this->errors['status'] = 1;
             return $this->sendResponse();
         }
 
