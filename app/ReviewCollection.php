@@ -14,9 +14,11 @@ class ReviewCollection extends Model
 
     protected $fillable = ['title','subtitle','description','image','type','category_type','is_active','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','title','subtitle','description','image','type','category_type','is_active','created_at','updated_at','deleted_at','elements'];
+    protected $visible = ['id','title','subtitle','description','image','type','category_type','is_active','images_meta','created_at','updated_at','deleted_at','elements'];
 
     protected $with = ['elements'];
+
+    protected $appends = ['images_meta'];
 
     /**
      * Which profile created the collaboration project.
@@ -26,6 +28,14 @@ class ReviewCollection extends Model
     public function elements()
     {
         return $this->hasMany(\App\ReviewCollectionElement::class, 'collection_id', 'id')->inRandomOrder();
+    }
+
+    public function getImagesMetaAttribute()
+    {
+        if (!is_null($this->image)) {
+            return json_decode($this->image);
+        }
+        return $this->image;
     }
 
 }
