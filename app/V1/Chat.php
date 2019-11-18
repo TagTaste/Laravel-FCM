@@ -7,6 +7,7 @@ use App\V1\Chat\Message;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Chat extends Model
 {
@@ -133,7 +134,7 @@ class Chat extends Model
     public function getIsOnlineAttribute()
     {
         $loggedInProfileId = request()->user()->profile->id;
-        return \Redis::sIsMember("online:profile:",$loggedInProfileId);
+        return Redis::sIsMember("online:profile:",$loggedInProfileId);
     }
 }
 

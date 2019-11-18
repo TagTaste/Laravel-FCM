@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Carbon\Carbon;
 
 class DocumentRejected extends Notification
 {
@@ -24,16 +25,28 @@ class DocumentRejected extends Notification
     public $model;
     public $modelName;
     public $allData;
+    public $action;
+    public $company;
+    public $companyName;
 
     public function __construct($event)
     {
-        $this->view = 'emails.documentReject';
-        $this->sub = "Your document has been rejected.";
-        $this->notification = "Your document has been rejected.";
+        $this->view = 'emails.document-reject';
+        $this->sub = "Re-submit Documents";
+        $this->companyName = "";
+        $this->notification = "Documents you submitted to, do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";
+
+        if (isset($event->company['name'])) {
+            $this->companyName = $event->company['name']; 
+            $this->notification = "Documents you submitted to ".$event->company['name'] ." do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";
+        }
+        
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
+        $this->action = $event->action;
+        $this->company = $event->company;
         $this->modelName = 'collaborate';
-        if(method_exists($this->model,'getNotificationContent')){
+        if (method_exists($this->model,'getNotificationContent')) {
             $this->allData = $this->model->getNotificationContent();
         }
     }
@@ -47,7 +60,7 @@ class DocumentRejected extends Notification
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-        if($this->view && view()->exists($this->view)){
+        if ($this->view && view()->exists($this->view)) {
             $via[] = 'mail';
         }
         return $via;
@@ -61,10 +74,10 @@ class DocumentRejected extends Notification
      */
     public function toMail($notifiable)
     {
-        if(view()->exists($this->view)) {
+        if (view()->exists($this->view)) {
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, []
-            );//fill the data according yo the view in the array.
+                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable, 'companyName'=>$this->companyName]
+            );
         }
     }
 
@@ -76,8 +89,25 @@ class DocumentRejected extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
-            //
+        $data = [
+            'action' => $this->action,
+            'profile' => isset($this->company) ? $this->company : null,
+            'notification' => $this->notification,
         ];
+
+        if(method_exists($this->model,'getNotificationContent')){
+            $data['model'] = $this->allData;
+        } else {
+            \Log::warning(class_basename($this->modelName) . " doesn't specify notification content.");
+            $data['model'] = [
+                'name' => $this->modelName,
+                'id' => $this->data->model->id,
+                'content' => $this->data->content,
+                'image' => $this->data->image
+            ];
+        }
+        $data['created_at'] = Carbon::now()->toDateTimeString();
+
+        return $data;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Cached\Filter;
-
+use Illuminate\Support\Facades\Redis;
 
 class BaseFilter
 {
@@ -56,8 +56,8 @@ class BaseFilter
             return;
         }
         $value = trim($value);
-        \Redis::sAdd("filters:" . $this->modelName . ":" . $filterName,$value);
-        \Redis::sAdd("data:" . $this->modelName . ":$filterName:$value",$this->model->id);
+        Redis::sAdd("filters:" . $this->modelName . ":" . $filterName,$value);
+        Redis::sAdd("data:" . $this->modelName . ":$filterName:$value",$this->model->id);
     }
     
     public static function getModelIds($keys)
@@ -65,7 +65,7 @@ class BaseFilter
         $self = new static();
         if(is_string($keys)){
             $keys = "data:{$self->modelName}:$keys";
-            return \Redis::sMembers($keys);
+            return Redis::sMembers($keys);
         }
         //union if same filter name,
         //intersect different filter names
@@ -89,11 +89,11 @@ class BaseFilter
                 $key = $uniqueKey . "union" . str_random(2);
                 $intersect[] = $key;
                 $remove[] = $key;
-                \Redis::sUnionStore($key,...$value);
+                Redis::sUnionStore($key,...$value);
             }
         }
-        $modelIds = \Redis::sInter(...$intersect);
-        if(!empty($remove)){\Redis::del($remove);}
+        $modelIds = Redis::sInter(...$intersect);
+        if(!empty($remove)){Redis::del($remove);}
         return $modelIds;
     }
     
@@ -104,7 +104,7 @@ class BaseFilter
 
         foreach($self->attributes as $attribute){
             $key = "filters:" . $self->modelName . ":" . $attribute;
-            $filters[$attribute] = \Redis::sMembers($key);
+            $filters[$attribute] = Redis::sMembers($key);
         }
         return $filters;
     }
