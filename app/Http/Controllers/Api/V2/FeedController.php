@@ -557,7 +557,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Products you may like",
+                "text" => "Products you’d like to Review",
                 "sub_type" => "product",
             ],
             "type" => "suggestion",
