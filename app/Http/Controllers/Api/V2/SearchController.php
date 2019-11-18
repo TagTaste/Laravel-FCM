@@ -29,7 +29,6 @@ class SearchController extends Controller
         if (count($review_interface_design)) {
         	foreach ($review_interface_design as $key => $interface) {
         		$data[$interface->id] = array(
-        			"position" => $interface->position,
         			"ui_type" => $interface->ui_type,
         			"ui_style" => $interface->ui_style,
         		);
@@ -40,7 +39,7 @@ class SearchController extends Controller
         			$data[$interface->id]['title'] = $collection->title;
         			$data[$interface->id]['subtitle'] = $collection->subtitle;
         			$data[$interface->id]['description'] = $collection->description;
-        			$data[$interface->id]['image'] = $collection->image;
+        			$data[$interface->id]['images_meta'] = $collection->images_meta;
                     $data[$interface->id]['category_type'] = $collection->category_type;
                     $data[$interface->id]['elements'] = array();
         			if (isset($collection->elements) && count($collection->elements)) {
@@ -157,14 +156,15 @@ class SearchController extends Controller
         if (!is_null($element)) {
             $response['id'] = $element->id;
             $response['type'] = $element->type;
+            $response['collection_id'] = $element->collection_id;
+            $response['filter_id'] = $element->filter_id;
             $response['filter_name'] = $element->filter_name;
             $response['filter_on'] = $element->filter_on;
-            $response['filter'] = $element->filter;
+            $response['filter_meta'] = $element->filter_meta;
             $response['title'] = $element->title;
             $response['subtitle'] = $element->subtitle;
             $response['description'] = $element->description;
-             $response['image'] = $element->image;
-
+            $response['images_meta'] = $element->images_meta;
         } else {
             $response = (object)array();
         }
