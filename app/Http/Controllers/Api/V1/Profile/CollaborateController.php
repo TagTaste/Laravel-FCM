@@ -56,8 +56,10 @@ class CollaborateController extends Controller
         if($state == 6) {
             $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('rejected_at')->pluck('collaborate_id');
             $collaborations = $collaborations->whereIn('id',$interestedInCollaboration);
-        } else if($state != null){
-            $collaborations = $collaborations->where('step','!=',3)->where('profile_id',$profileId)->orWhereIn('company_id',$companyIds);
+        } else if($state == 4){
+            $collaborations = $collaborations->whereIn('company_id',$companyIds)->where('step',1);
+            $collaborations = $collaborations->orWhere('profile_id',$profileId)->where('step',1);
+            
         } else {
             $collaborations = $collaborations->where('profile_id',$profileId)->orWhereIn('company_id',$companyIds);
         }
