@@ -49,13 +49,17 @@ class CollaborateController extends Controller
         $data = [];
         $type = isset($request->type)?$request->type:null;
         $state = isset($request->state)?$request->state:null;
+        
+        //Get compnaies of the logged in user.
+        $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
+    
         if($state == 6) {
-            $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('company_id')->whereNull('rejected_at')->pluck('collaborate_id');
+            $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('rejected_at')->pluck('collaborate_id');
             $collaborations = $collaborations->whereIn('id',$interestedInCollaboration);
         } else if($state != null){
-            $collaborations = $collaborations->where('step','!=',3)->whereNull('company_id')->where('profile_id',$profileId);
+            $collaborations = $collaborations->where('step','!=',3)->where('profile_id',$profileId)->orWhereIn('company_id',$companyIds);
         } else {
-            $collaborations = $collaborations->whereNull('company_id')->where('profile_id',$profileId);
+            $collaborations = $collaborations->where('profile_id',$profileId)->orWhereIn('company_id',$companyIds);
         }
         if($type == 'collaborate') {
             $collaborations = $collaborations->where('collaborate_type','collaborate');
