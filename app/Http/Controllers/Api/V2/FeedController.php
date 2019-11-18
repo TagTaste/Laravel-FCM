@@ -137,7 +137,7 @@ class FeedController extends Controller
                     $this->model[$suggestion_position[$key]] = $this->suggestion_by_company($client, $profile, $profileId);
                     break;
                 case '7':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_following($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestion_of_follower($client, $profile, $profileId);
                     break;
                 default:
                     break;
