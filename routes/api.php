@@ -135,7 +135,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::resource("photos","PhotoController");
 
             // review page api
-            Route::get("public-review/explore","SearchController@exploreForReview");
+            Route::get("public-review/explore","ExploreController@exploreForReview");
+            Route::get("collection/{collectionId}","ExploreController@getCollectionElements");
             
             Route::resource("shoutout",'ShoutoutController');
             Route::resource("polling","PollingController");

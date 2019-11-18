@@ -7,8 +7,10 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\ReviewInterfaceDesign;
+use App\ReviewCollection;
+use App\ReviewCollectionElement;
 
-class SearchController extends Controller
+class ExploreController extends Controller
 {
    	//aliases added for frontend
     private $models = [
@@ -17,6 +19,7 @@ class SearchController extends Controller
 
     public function exploreForReview(Request $request)
     {
+        $this->errors['status'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
         
         $data = [];
@@ -169,5 +172,38 @@ class SearchController extends Controller
             $response = (object)array();
         }
         return $response;
+    }
+
+    public function getCollectionElements(Request $request, int $collectionId)
+    {
+        $this->errors['status'] = 0;
+        $loggedInProfileId = $request->user()->profile->id;
+        $data = [];
+
+        $skip = (int)$request->input('skip', 0);
+        $take = (int)$request->input('take', 10);
+        $collection_elements = ReviewCollectionElement::where('collection_id',$collectionId)
+            ->whereNull('deleted_at')
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        
+        if (count($collection_elements)) {
+             foreach ($collection_elements as $key => $element) {
+                if ("product" === $element->type && "product" === $element->data_type) {
+                    $data[] = $this->elementsByProductId($element, $loggedInProfileId);
+                } else if ("collection" === $element->type && "collection" === $element->data_type) {
+                    $data[] = $this->elementsByCollectionId($element, $loggedInProfileId);
+                } else if ("profile" === $element->type && "profile" === $element->data_type) {
+                    $profile_data = $this->elementsByProfileId($element, $loggedInProfileId);
+                    if (!is_null($profile_data)) {
+                        $data[] = $profile_data;
+                    }
+                }
+            }
+        }
+
+        $this->model = $data;
+        return $this->sendResponse();
     }
 }
