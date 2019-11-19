@@ -177,14 +177,21 @@ class ExploreController extends Controller
             $response['id'] = $element->id;
             $response['type'] = $element->type;
             $response['collection_id'] = $element->collection_id;
-            $response['filter_name'] = $element->filter_name;
+            if (8 == $ui_type) {
+                $response['filter_name'] = $element->filter_name;
+            }
+            
             $response['filter_meta'] = $element->filter_meta;
+            
             if (7 == $ui_type) {
                 $response['title'] = $element->title;
                 $response['subtitle'] = $element->subtitle;
                 $response['description'] = $element->description;
             }
             $response['images_meta'] = $element->images_meta;
+            // $response['filter_id'] = $element->filter_id;
+            // $response['filter_name'] = $element->filter_name;
+            // $response['filter_on'] = $element->filter_on;
         } else {
             $response = (object)array();
         }
