@@ -14,9 +14,11 @@ class ReviewInterfaceDesign extends Model
 
     protected $fillable = ['position','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','position','ui_type','ui_style','collection_id','is_active','created_at','updated_at','deleted_at','collections'];
+    protected $visible = ['id','position','ui_type','ui_style','ui_style_meta','collection_id','is_active','created_at','updated_at','deleted_at','collections'];
 
     protected $with = ['collections'];
+
+    protected $appends = ['ui_style_meta'];
 
     /**
      * Which profile created the collaboration project.
@@ -28,4 +30,11 @@ class ReviewInterfaceDesign extends Model
         return $this->belongsTo(\App\ReviewCollection::class, 'collection_id', 'id');
     }
 
+    public function getUiStyleMetaAttribute()
+    {
+        if (!is_null($this->ui_style) && "" != $this->ui_style) {
+            return json_decode($this->ui_style);
+        }
+        return $this->ui_style;
+    }
 }
