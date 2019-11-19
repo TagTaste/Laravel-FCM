@@ -73,7 +73,7 @@ class ExploreController extends Controller
                                         $data[$interface->id]['see_more'] = true;
                                     }
                                 } else if ("filter" === $element->type && is_null($element->data_type)) {
-                                    $data[$interface->id]['elements'][] = $this->elementsByFilterId($element, $loggedInProfileId);
+                                    $data[$interface->id]['elements'][] = $this->elementsByFilterId($element, $loggedInProfileId, $data[$interface->id]["ui_type"]);
                                 }
                             }
                         }
@@ -170,20 +170,20 @@ class ExploreController extends Controller
         return $response;
     }
 
-    public function elementsByFilterId($element, $loggedInProfileId)
+    public function elementsByFilterId($element, $loggedInProfileId, $ui_type)
     {
         $response = array();
         if (!is_null($element)) {
             $response['id'] = $element->id;
             $response['type'] = $element->type;
             $response['collection_id'] = $element->collection_id;
-            $response['filter_id'] = $element->filter_id;
             $response['filter_name'] = $element->filter_name;
-            $response['filter_on'] = $element->filter_on;
             $response['filter_meta'] = $element->filter_meta;
-            $response['title'] = $element->title;
-            $response['subtitle'] = $element->subtitle;
-            $response['description'] = $element->description;
+            if (7 == $ui_type) {
+                $response['title'] = $element->title;
+                $response['subtitle'] = $element->subtitle;
+                $response['description'] = $element->description;
+            }
             $response['images_meta'] = $element->images_meta;
         } else {
             $response = (object)array();
