@@ -29,7 +29,6 @@ class ExploreController extends Controller
         $data = [];
         
         $review_interface_design = ReviewInterfaceDesign::whereNull('deleted_at')
-            // ->where('position',6)
             ->where('is_active',1)
             ->orderBy('position')
             ->get();
@@ -110,8 +109,8 @@ class ExploreController extends Controller
         	$fetched_data = $element->filter_model;
         	if (count($filters)) {
 				foreach ($filters as $key => $criteria) {
-                    if (in_array($key, $field_processable)) {
-                        $fetched_data = $fetched_data::where($key, $criteria);
+                    if (in_array($criteria['key'], $field_processable)) {
+                        $fetched_data = $fetched_data::where($criteria['key'], $criteria['value']);
                     }
 				}
 			}
