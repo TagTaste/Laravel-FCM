@@ -119,7 +119,7 @@ class ExploreController extends Controller
 				$response[] = [
 					'product' => $data,
 					'meta' => $data->getMetaFor($loggedInProfileId),
-                    'type' => 'product',
+                    'element_type' => 'product',
                 ];
 			}
     	}
@@ -136,7 +136,7 @@ class ExploreController extends Controller
             $response = [
                 'product' => $data_fetched,
                 'meta' => $data_fetched->getMetaFor($loggedInProfileId),
-                'type' => 'product',
+                'element_type' => 'product',
             ];
         }
         return $response;
@@ -164,7 +164,7 @@ class ExploreController extends Controller
             if (!is_null($data_fetched)) {
                 $response = $data_fetched->toArray();
                 $response['isFollowing'] = $data_fetched->isFollowing($profile_id, $loggedInProfileId);
-                $response['type'] = 'profile';
+                $response['element_type'] = 'profile';
             }
         }
         return $response;
@@ -273,7 +273,7 @@ class ExploreController extends Controller
                             $data["profile"] = json_decode($company_cached_data,true); 
                         } 
                     }
-                    $data['type'] = 'collaborate';
+                    $data['element_type'] = 'collaborate';
                     array_push($collaborate_data, $data); 
                 }
             }
@@ -311,7 +311,7 @@ class ExploreController extends Controller
                 if (!is_null($data_fetched)) {
                     $response = $data_fetched->toArray();
                     $response['isFollowing'] = $data_fetched->isFollowing($reviewer->profile_id, $profileId);
-                    $response['type'] = 'profile';
+                    $response['element_type'] = 'profile';
                     $profile_data[] = $response;
                 }
             }
