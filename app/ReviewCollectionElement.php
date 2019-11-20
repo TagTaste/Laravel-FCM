@@ -56,8 +56,18 @@ class ReviewCollectionElement extends Model
 
     public function getFilterMetaAttribute()
     {
+        $field_unprocessable = ["By Company","By Brand","Category","Sub Category"];
         if (!is_null($this->filter)) {
-            return json_decode($this->filter);
+            $data = [];
+            $filter = json_decode($this->filter);
+            if (!is_null($filter)) {
+                foreach ($filter as $key => $value) {
+                    if (in_array($value->key, $field_unprocessable)) {
+                        $data[] = $value;
+                    }
+                }
+            }
+            return $data;
         }
         return $this->filter;
     }
