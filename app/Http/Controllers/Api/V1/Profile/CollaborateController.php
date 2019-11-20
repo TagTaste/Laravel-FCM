@@ -40,9 +40,7 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model
-            ->whereNull('deleted_at')
-            ->orderBy('created_at', 'desc');
+        $collaborations = $this->model->orderBy('state', 'asc')->orderBy('created_at','desc');
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
@@ -70,8 +68,8 @@ class CollaborateController extends Controller
         }
 
         $this->model['count'] = $collaborations->count();
-
-        $collaborations = $collaborations->skip($skip)->take($take)->get();
+        $collaborations = $collaborations->skip($skip)->take($take)
+        ->get();
         foreach ($collaborations as $collaboration) {
             $data[] = [
                 'collaboration' => $collaboration,
