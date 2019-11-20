@@ -78,8 +78,12 @@ class CompanyController extends Controller
         }
     
         \App\Filter\Company::addModel($company);
-    
+        
         $this->model = $company;
+        Redis::sAdd("following:profile:" . $request->user()->profile->id, "company.".$this->model->id);
+    
+        // add companies that are following $channel_owner
+        Redis::sAdd("followers:company:".$this->model->id, $request->user()->profile->id);
         return $this->sendResponse();
     }
 
