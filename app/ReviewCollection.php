@@ -14,11 +14,11 @@ class ReviewCollection extends Model
 
     protected $fillable = ['title','subtitle','description','image','type','category_type','is_active','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','title','subtitle','description','image','type','category_type','is_active','images_meta','created_at','updated_at','deleted_at','elements'];
+    protected $visible = ['id','title','subtitle','description','backend','category_type','images_meta','elements'];
 
     protected $with = ['elements'];
 
-    protected $appends = ['images_meta'];
+    protected $appends = ['images_meta','backend'];
 
     /**
      * Which profile created the collaboration project.
@@ -36,6 +36,11 @@ class ReviewCollection extends Model
             return json_decode($this->image);
         }
         return $this->image;
+    }
+
+    public function getBackendAttribute()
+    {
+        return $this->type;
     }
 
 }

@@ -14,7 +14,7 @@ class ReviewCollectionElement extends Model
 
     protected $fillable = ['type','collection_id','data_type','data_id','filter_id','filter_name','filter_image','filter_on','filter','title','subtitle','description','image','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','type','collection_id','data_type','data_id','data_model','filter_id','filter_name','filter_image','filter_on','filter','filter_meta','images_meta','title','subtitle','description','image','created_at','updated_at','deleted_at'];
+    protected $visible = ['id','type','collection_id','data_type','data_id','data_model','filter_id','filter_name','filter_image','filter_on','filter','filter_meta','images_meta','title','subtitle','description','image'];
 
     protected $appends = ['data_model', 'filter_model', 'filter_meta', 'images_meta'];
 

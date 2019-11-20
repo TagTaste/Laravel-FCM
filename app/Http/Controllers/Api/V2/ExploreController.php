@@ -29,6 +29,7 @@ class ExploreController extends Controller
         $data = [];
         
         $review_interface_design = ReviewInterfaceDesign::whereNull('deleted_at')
+            // ->where('position',6)
             ->where('is_active',1)
             ->orderBy('position')
             ->get();
@@ -47,7 +48,7 @@ class ExploreController extends Controller
         			$data[$interface->id]['subtitle'] = $collection->subtitle;
         			$data[$interface->id]['description'] = $collection->description;
         			$data[$interface->id]['images_meta'] = $collection->images_meta;
-                    $data[$interface->id]['backend'] = $collection->type;
+                    $data[$interface->id]['backend'] = $collection->backend;
                     $data[$interface->id]['category_type'] = $collection->category_type;
                     $data[$interface->id]['elements'] = array();
                     $data[$interface->id]['see_more'] = false;
@@ -177,17 +178,11 @@ class ExploreController extends Controller
             $response['id'] = $element->id;
             $response['type'] = $element->type;
             $response['collection_id'] = $element->collection_id;
-            if (8 == $ui_type) {
-                $response['filter_name'] = $element->filter_name;
-            }
-            
+            $response['filter_name'] = $element->filter_name;
             $response['filter_meta'] = $element->filter_meta;
-            
-            if (7 == $ui_type) {
-                $response['title'] = $element->title;
-                $response['subtitle'] = $element->subtitle;
-                $response['description'] = $element->description;
-            }
+            $response['title'] = $element->title;
+            $response['subtitle'] = $element->subtitle;
+            $response['description'] = $element->description;
             $response['images_meta'] = $element->images_meta;
             // $response['filter_id'] = $element->filter_id;
             // $response['filter_name'] = $element->filter_name;
