@@ -29,7 +29,6 @@ class ExploreController extends Controller
         $data = [];
         
         $review_interface_design = ReviewInterfaceDesign::whereNull('deleted_at')
-            // ->where('position',6)
             ->where('is_active',1)
             ->orderBy('position')
             ->get();
@@ -110,8 +109,8 @@ class ExploreController extends Controller
         	$fetched_data = $element->filter_model;
         	if (count($filters)) {
 				foreach ($filters as $key => $criteria) {
-                    if (in_array($key, $field_processable)) {
-                        $fetched_data = $fetched_data::where($key, $criteria);
+                    if (in_array($criteria['key'], $field_processable)) {
+                        $fetched_data = $fetched_data::where($criteria['key'], $criteria['value']);
                     }
 				}
 			}
@@ -147,9 +146,9 @@ class ExploreController extends Controller
     {
         $response = array();
         if (isset($element->data_model) && !is_null($element->data_model)) {
-            $product_id = (int)$element->data_id;
+            $collection_id = (int)$element->data_id;
             $model = $element->data_model;
-            $data_fetched = $model::where('id',$product_id)->first()->makeHidden(['elements']);
+            $data_fetched = $model::where('id',$collection_id)->first()->makeHidden(['elements']);
             $response = $data_fetched;
         }
         return $response;
@@ -176,17 +175,20 @@ class ExploreController extends Controller
         $response = array();
         if (!is_null($element)) {
             $response['id'] = $element->id;
-            $response['type'] = $element->type;
-            $response['collection_id'] = $element->collection_id;
-            $response['filter_name'] = $element->filter_name;
+            $response['category_type'] = $element->type;
+            $response['backend'] = $element->type;
             $response['filter_meta'] = $element->filter_meta;
             $response['title'] = $element->title;
+            if (is_null($element->title) || "" === $element->title) {
+                $response['title'] = $element->filter_name;
+            }
             $response['subtitle'] = $element->subtitle;
             $response['description'] = $element->description;
             $response['images_meta'] = $element->images_meta;
             // $response['filter_id'] = $element->filter_id;
             // $response['filter_name'] = $element->filter_name;
             // $response['filter_on'] = $element->filter_on;
+            // $response['collection_id'] = $element->collection_id;
         } else {
             $response = (object)array();
         }
