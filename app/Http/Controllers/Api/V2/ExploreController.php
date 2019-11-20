@@ -29,15 +29,9 @@ class ExploreController extends Controller
         $data = [];
         
         $review_interface_design = ReviewInterfaceDesign::whereNull('deleted_at')
-            ->where('position',7)
             ->where('is_active',1)
             ->orderBy('position')
-            ->get();
-
-        // $review = ReviewCollectionElement::whereNull('deleted_at')
-        //     ->where('id',395)
-        //     ->get(); 
-        // dd($review->filter_meta);   
+            ->get();  
         
         if (count($review_interface_design)) {
         	foreach ($review_interface_design as $key => $interface) {
