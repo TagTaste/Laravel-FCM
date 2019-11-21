@@ -40,22 +40,26 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model
-            ->whereNull('deleted_at')
-            ->orderBy('created_at', 'desc');
+        $collaborations = $this->model->orderBy('state', 'asc')->orderBy('created_at','desc');
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
         $data = [];
         $type = isset($request->type)?$request->type:null;
         $state = isset($request->state)?$request->state:null;
+        
+        //Get compnaies of the logged in user.
+        $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
+    
         if($state == 6) {
-            $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('company_id')->whereNull('rejected_at')->pluck('collaborate_id');
+            $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('rejected_at')->pluck('collaborate_id');
             $collaborations = $collaborations->whereIn('id',$interestedInCollaboration);
-        } else if($state != null){
-            $collaborations = $collaborations->where('step','!=',3)->whereNull('company_id')->where('profile_id',$profileId);
+        } else if($state == 4){
+            $collaborations = $collaborations->whereIn('company_id',$companyIds)->where('step',1);
+            $collaborations = $collaborations->orWhere('profile_id',$profileId)->where('step',1);
+            
         } else {
-            $collaborations = $collaborations->whereNull('company_id')->where('profile_id',$profileId);
+            $collaborations = $collaborations->where('profile_id',$profileId)->orWhereIn('company_id',$companyIds);
         }
         if($type == 'collaborate') {
             $collaborations = $collaborations->where('collaborate_type','collaborate');
@@ -64,8 +68,8 @@ class CollaborateController extends Controller
         }
 
         $this->model['count'] = $collaborations->count();
-
-        $collaborations = $collaborations->skip($skip)->take($take)->get();
+        $collaborations = $collaborations->skip($skip)->take($take)
+        ->get();
         foreach ($collaborations as $collaboration) {
             $data[] = [
                 'collaboration' => $collaboration,
