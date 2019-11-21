@@ -282,6 +282,16 @@ class PublicReviewProduct extends Model
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute();
         $meta['current_status'] = $this->getCurrentStatusAttribute();
+        $meta['is_sample_available'] = false;
+        $meta['is_sample_requested'] = false;
+        if ($this->is_newly_launched) {
+            $meta['is_sample_available'] = true;
+            $loggedInProfileId = request()->user()->profile->id;
+            $meta['is_sample_requested'] = PublicReviewProductGetSample::where('profile_id', (int)$loggedInProfileId)
+                ->where('product_id', $this->id)
+                ->exists();
+        }
+        
         return $meta;
     }
 

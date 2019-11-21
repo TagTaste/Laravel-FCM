@@ -224,7 +224,7 @@ class ExploreController extends Controller
             }
         }
 
-        $this->model['data'] = $data;
+        $this->model['elements'] = $data;
         $this->model['count'] = ReviewCollectionElement::where('collection_id',$collectionId)
             ->whereNull('deleted_at')
             ->count();
