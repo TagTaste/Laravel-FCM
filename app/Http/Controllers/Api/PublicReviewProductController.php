@@ -626,6 +626,7 @@ class PublicReviewProductController extends Controller
         $this->errors['status'] = 0;
         $product = $this->model->where('is_active',1)->whereNull('deleted_at')->where('id',$productId)->first();
         if (is_null($product)) {
+            $this->model = (object)[];
             $this->errors['message'] = 'Product is not available';
             $this->errors['status'] = 1;
             return $this->sendResponse();
@@ -633,6 +634,7 @@ class PublicReviewProductController extends Controller
 
         $user = $request->user();
         if (is_null($user)) {
+            $this->model = (object)[];
             $this->errors['message'] = 'Invalid User.';
             $this->errors['status'] = 1;
             return $this->sendResponse();
@@ -640,6 +642,7 @@ class PublicReviewProductController extends Controller
 
         $profile = $user->profile;
         if (!isset($profile) && is_null($profile)) {
+            $this->model = (object)[];
             $this->errors['message'] = 'User profile not exist.';
             $this->errors['status'] = 1;
             return $this->sendResponse();
@@ -647,6 +650,7 @@ class PublicReviewProductController extends Controller
 
         $mandatory_field = $profile->profile_completion['mandatory_field_for_get_product_sample'];
         if (count($mandatory_field)) {
+            $this->model = (object)[];
             $this->errors['message'] = 'User profile is incomplete check mandatory filed.';
             $this->errors['mandatory_field'] = $mandatory_field;
             $this->errors['status'] = 1;
