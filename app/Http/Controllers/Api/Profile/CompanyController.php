@@ -53,6 +53,7 @@ class CompanyController extends Controller
         }
 
         $inputs['user_id'] = $request->user()->id;
+
         try {
             $company = Company::create($inputs);
         }
@@ -206,7 +207,7 @@ class CompanyController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $userId = $request->user()->id;
-    
+
         //remove subscribers
         Subscriber::where("channel_name","like","company%$id")->delete();
     
@@ -231,6 +232,7 @@ class CompanyController extends Controller
         //remove from cache
         Redis::del("company:small:".$id);
         Redis::del("followers:company:$id");
+        \App\Neo4j\Company::where('company_id', (int)$id)->delete();
     
         return $this->sendResponse();
     }
