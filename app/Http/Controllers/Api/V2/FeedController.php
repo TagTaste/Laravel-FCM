@@ -478,9 +478,9 @@ class FeedController extends Controller
             ],
             "type" => "suggestion",
         );
-        
+
         $query = "MATCH (user:User {profile_id:$profileId}), (company:Company)
-            WHERE not ((user)-[:FOLLOWS_COMPANY {following:1}]->(company))
+            WHERE not ((user)-[:FOLLOWS_COMPANY {following:1}]->(company)) AND NOT EXISTS(company.deleted_at)
             WITH company, rand() AS number
             ORDER BY number
             RETURN DISTINCT company
@@ -490,6 +490,7 @@ class FeedController extends Controller
             $suggestion["meta"]["count"]++;
             array_push($suggestion["suggestion"], $record->get('company')->values());
         }
+
         return $suggestion;
     }
 
