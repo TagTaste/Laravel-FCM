@@ -7,17 +7,19 @@ use App\Job;
 use App\Profile as BaseProfile;
 use App\Shoutout;
 use App\Subscriber;
+use Illuminate\Notifications\Notifiable;
 
 class Profile extends BaseProfile
 {
+    use Notifiable;
     protected $fillable = [];
 
     protected $with = [];
 
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise','user_id',
-        'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta","document_meta"];
+        'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta"];
 
-    protected $appends = ['name','designation','imageUrl','ageRange','document_meta'];
+    protected $appends = ['name','designation','imageUrl','ageRange'];
     
     public function getDesignationAttribute()
     {
