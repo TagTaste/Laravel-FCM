@@ -53,13 +53,13 @@ class CampusConnectController extends Controller
             return $this->sendResponse();
         }
 
-        $mandatory_field = $profile->profile_completion['mandatory_field_for_campus_connect'];
-        if (count($mandatory_field)) {
-            $this->errors['message'] = 'User profile is incomplete check mandatory filed.';
-            $this->errors['mandatory_field'] = $mandatory_field;
-            $this->errors['status'] = 1;
-            return $this->sendResponse();
-        }
+        // $mandatory_field = $profile->profile_completion['mandatory_field_for_campus_connect'];
+        // if (count($mandatory_field)) {
+        //     $this->errors['message'] = 'User profile is incomplete check mandatory filed.';
+        //     $this->errors['mandatory_field'] = $mandatory_field;
+        //     $this->errors['status'] = 1;
+        //     return $this->sendResponse();
+        // }
 
         $logged_in_profile_id = $profile->id;
         $inputs['profile_id'] = $logged_in_profile_id;
