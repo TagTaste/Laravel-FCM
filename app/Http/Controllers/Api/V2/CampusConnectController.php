@@ -50,7 +50,7 @@ class CampusConnectController extends Controller
 
         $profile = $user->profile;
         if (!isset($profile) && is_null($profile)) {
-            $this->model = (object)[];s
+            $this->model = (object)[];
             $this->errors['message'] = 'User profile not exist.';
             $this->errors['status'] = 1;
             return $this->sendResponse();
