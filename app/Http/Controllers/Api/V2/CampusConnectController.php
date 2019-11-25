@@ -34,6 +34,7 @@ class CampusConnectController extends Controller
 
         //move this to validator
         if(empty($inputs['campus_name']) && empty($inputs['campus_name'])){
+            $this->model = (object)[];
             $this->errors['message'] = 'Missing campus name.';
             $this->errors['status'] = 1;
             return $this->sendResponse();
@@ -41,6 +42,7 @@ class CampusConnectController extends Controller
 
         $user = $request->user();
         if (is_null($user)) {
+            $this->model = (object)[];
             $this->errors['message'] = 'Invalid User.';
             $this->errors['status'] = 1;
             return $this->sendResponse();
@@ -48,6 +50,7 @@ class CampusConnectController extends Controller
 
         $profile = $user->profile;
         if (!isset($profile) && is_null($profile)) {
+            $this->model = (object)[];s
             $this->errors['message'] = 'User profile not exist.';
             $this->errors['status'] = 1;
             return $this->sendResponse();
