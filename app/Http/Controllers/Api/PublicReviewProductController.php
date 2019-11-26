@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Webpatser\Uuid\Uuid;
 use App\SearchClient;
+use App\PublicReviewProductGetSample;
 
 class PublicReviewProductController extends Controller
 {
@@ -618,6 +619,68 @@ class PublicReviewProductController extends Controller
                 ]);
 
         }
+    }
+
+    public function getSample(Request $request,$productId)
+    {
+        $this->errors['status'] = 0;
+        $product = $this->model->where('is_active',1)->whereNull('deleted_at')->where('id',$productId)->first();
+        if (is_null($product)) {
+            $this->model = (object)[];
+            $this->errors['message'] = 'Product is not available';
+            $this->errors['status'] = 1;
+            return $this->sendResponse();
+        }
+
+        $user = $request->user();
+        if (is_null($user)) {
+            $this->model = (object)[];
+            $this->errors['message'] = 'Invalid User.';
+            $this->errors['status'] = 1;
+            return $this->sendResponse();
+        }
+
+        $profile = $user->profile;
+        if (!isset($profile) && is_null($profile)) {
+            $this->model = (object)[];
+            $this->errors['message'] = 'User profile not exist.';
+            $this->errors['status'] = 1;
+            return $this->sendResponse();
+        }
+
+        // $mandatory_field = $profile->profile_completion['mandatory_field_for_get_product_sample'];
+        // if (count($mandatory_field)) {
+        //     $this->model = (object)[];
+        //     $this->errors['message'] = 'User profile is incomplete check mandatory filed.';
+        //     $this->errors['mandatory_field'] = $mandatory_field;
+        //     $this->errors['status'] = 1;
+        //     return $this->sendResponse();
+        // }
+       
+        $inputs = array();
+        $inputs['profile_id'] = $profile->id;
+        $inputs['product_id'] = $productId;
+        $inputs['count'] = 1; // make it user changeable
+        $inputs['created_at'] = Carbon::now();
+        $inputs['updated_at'] = Carbon::now();
+
+        $already_have_request = PublicReviewProductGetSample::where('profile_id', $inputs['profile_id'])
+            ->where('product_id',$productId)->first();
+        if (!is_null($already_have_request)) {
+            $this->errors['message'] = 'We already have sample request.';
+            $this->errors['status'] = 1;
+            $this->model = $already_have_request;
+            return $this->sendResponse();
+        }
+
+        $this->model = PublicReviewProductGetSample::create($inputs);
+        event(new \App\Events\PublicReviewProductGetSampleEvent(
+            $profile->id,
+            $user->email,
+            $productId,
+            $product->name
+        ));
+        return $this->sendResponse();
     }
 
 }

@@ -6,6 +6,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Polling as BasePolling;
+use Illuminate\Support\Facades\Redis;
 
 class Polling extends BasePolling
 {
@@ -51,6 +52,9 @@ class Polling extends BasePolling
         $meta = [];
         $meta['is_expired'] = $this->is_expired;
         $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        $key = "meta:polling:likes:" . $this->id;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
 

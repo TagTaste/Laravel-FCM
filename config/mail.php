@@ -60,6 +60,8 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'tagtaste_backend_mail_id' => env('TAGTASTE_BACKEND_MAIL_ID', 'sarvada@tagtaste.com'),
+
     /*
     |--------------------------------------------------------------------------
     | E-Mail Encryption Protocol

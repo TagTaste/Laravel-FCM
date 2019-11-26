@@ -8,12 +8,13 @@ use App\Company\Type;
 use App\CompanyRating;
 use Storage;
 use App\Company as BaseCompany;
+use Illuminate\Support\Facades\Redis;
 
 class Company extends BaseCompany
 {
     protected $visible = [
         'id', 'name', 'about', 'logo', 'hero_image', 'phone', 'registered_address', 'established_on', 'type', 'tagline', 'gallery',
-        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount','speciality','employeeCountArray','employeeCountValue'];
+        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount','speciality','employeeCountArray','employeeCountValue', 'logo_meta', 'hero_image_meta'];
 
     protected $with = ['gallery','status','type'];
 
@@ -163,7 +164,7 @@ class Company extends BaseCompany
 
     public function getFollowersCountAttribute()
     {
-        return \Redis::SCARD("followers:company:".$this->id);
+        return Redis::SCARD("followers:company:".$this->id);
     }
 
 }

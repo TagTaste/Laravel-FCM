@@ -58,6 +58,7 @@ Route::get('preview/{modelName}/{modelId}','Api\PreviewController@show');
 Route::get('preview/{modelName}/{modelId}/shared/{shareId}','Api\PreviewController@showShared');
 Route::get("/public/seeall/{modelName}",'PublicViewController@seeall');
 Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
+Route::get("public/product/{modelId}/food-shot","PublicViewController@foodShot");
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
 Route::get('preview/chefOfTheWeek', 'Api\PreviewController@showChefProfile');
@@ -94,7 +95,7 @@ Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");
  * has prefix api/ - defined in RouteServiceProvider.php
  * note the dot.
  */
-Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {   
+Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
     Route::post('/verifyInviteCode','UserController@verifyInviteCode');
     
     /**
@@ -120,7 +121,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post('/logout','UserController@logout');
         Route::post('/user/verify/phone','UserController@phoneVerify');
 
-        Route::post('/user/requestOtp','UserController@requestOtp');
+                            Route::post('/user/requestOtp','UserController@requestOtp');
 
         /**
          * Route to update user invite code, this roiute will be mostly used by the admin dashboard
@@ -132,6 +133,22 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
+
+            // review page api
+            Route::get("public-review/explore","ExploreController@exploreForReview");
+            Route::get("collection/{collectionId}","ExploreController@getCollectionElements");
+            
+            Route::resource("shoutout",'ShoutoutController');
+            Route::resource("polling","PollingController");
+            Route::resource("collaborate","CollaborateController");
+            Route::post("campus-connect","CampusConnectController@store");
+            Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
+            Route::get("feed","FeedController@feed");
+            Route::get("feed/{modelName}/{modelId}/{device}/{interactionTypeId}","FeedController@feedInteraction");
+            Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
+            Route::get('suggestion/company','SuggestionEngineController@suggestionCompany');
+            Route::get('ad_engine','SuggestionEngineController@adEngineList');
+
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
                 //namespace company - Checks for company admin
@@ -164,7 +181,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::delete("deleteMessage","MessageController@deleteMessage");
                 Route::resource("messages","MessageController");
                 Route::resource("members","MemberController");
-
             });
 
             Route::get("feed",'FeedController@feed');
@@ -373,6 +389,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
             Route::post("showInterest","ApplicantController@store");
+            Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
+            Route::post("acceptDocument", "ApplicantController@acceptDocument");
             Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
             Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
             Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
@@ -425,6 +443,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         Route::post('products/suggestion','PublicReviewProductController@productSuggestion');
         Route::get('public-review/products/filters','PublicReviewProductController@getFilters');
+        Route::get('public-review/products/{productId}/get-sample','PublicReviewProductController@getSample');
         Route::get('public-review/similarProducts/{productId}', 'PublicReviewProductController@similarProducts');
 
         Route::get("public-review/discover/products","PublicReviewProductController@discover");
@@ -514,8 +533,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         // facebook friends
         Route::get("profile/facebookFriends", ['uses'=> 'ProfileController@fbFriends']);
         Route::post("profile/followFbFriends", ['uses'=> 'ProfileController@followFbFriends']);
-
-
+        //document upload
+        Route::post("profile/uploadDocument","ProfileController@uploadDocument");
+        Route::delete("profile/deleteDocument", "ProfileController@deleteDocument");
         //check handle
         // Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
         Route::get("foodieType","ProfileController@foodieType");
@@ -686,7 +706,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("android_module_version","VersionController@getAndroidModuleVersion");
         Route::post("ios_module_version/{id}","VersionController@postIosModuleVersion");
         Route::post("android_module_version/{id}","VersionController@postAndroidModuleVersion");
-
+        Route::resource("advertisements","AdvertisementController");
 
     }); // end of authenticated routes. Add routes before this line to be able to
     // get current logged in user.

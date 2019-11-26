@@ -30,7 +30,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Searchable' => ['App\Listeners\ElasticSearch\Document'],
         'App\Events\LogRecord' => ['App\Listeners\ElasticSearch\Record'],
         'App\Events\Update' => ['App\Listeners\UpdateNotification'],
-
+        'App\Events\DocumentRejectEvent' => ['App\Listeners\DocumentReject'],
+        'App\Events\CampusConnectRequestEvent' => ['App\Listeners\CampusConnectRequest'],
+        'App\Events\PublicReviewProductGetSampleEvent' => ['App\Listeners\PublicReviewProductGetSample'],
         'App\Events\Actions\Like' => [],
         'App\Events\Actions\Comment' => [],
         'App\Events\Actions\Tag' => ['App\Listeners\Notifications\Tag'],

@@ -2,7 +2,7 @@
 
 use App\ProfileAttribute;
 use App\ProfileType;
-use App\User;
+use App\Profile\User;
 use Illuminate\Database\Seeder;
 
 class ProfileAttributeIdSeeder extends Seeder

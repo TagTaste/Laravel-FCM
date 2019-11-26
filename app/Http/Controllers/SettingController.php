@@ -41,12 +41,12 @@ class SettingController extends Controller
         return response()->json(["data"=>$this->model,"error"=>null,"status"=>200]);
 
     }
-
+    
     public function reasonUnsubscribe(Request $request)
     {
         $hash = $request->input('k');
         $decryptedString = Crypt::decryptString($hash);
-    
+        
         $info = explode("/",$decryptedString);
 
         $reasonId = $request->input('reasonId');
@@ -71,6 +71,4 @@ class SettingController extends Controller
         $this->model = \DB::table('unsubscribe_reasons')->get();
         return response()->json(["data"=>$this->model,"error"=>null,"status"=>200]);
     }
-
-
 }

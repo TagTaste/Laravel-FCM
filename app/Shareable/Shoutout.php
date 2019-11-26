@@ -3,6 +3,7 @@
 namespace App\Shareable;
 
 use App\PeopleLike;
+use Illuminate\Support\Facades\Redis;
 
 class Shoutout extends Share
 {
@@ -29,8 +30,8 @@ class Shoutout extends Share
         $meta = [];
         $key = "meta:shoutoutShare:likes:" . $this->id;
     
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutoutShare' ,request()->user()->profile->id);
@@ -42,16 +43,38 @@ class Shoutout extends Share
         return $meta;
     }
 
+    public function getMetaForV2($profileId)
+    {
+        $meta = [];
+        $key = "meta:shoutoutShare:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        return $meta;
+    }
+
+    public function getMetaForV2Shared($profileId)
+    {
+        $meta = [];
+        $key = "meta:shoutoutShare:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $shoutout = \App\Shoutout::where('id',$this->shoutout_id)->whereNull('deleted_at')->first();
+        $meta['originalPostMeta'] = $shoutout->getMetaForV2($profileId);
+        return $meta;
+    }
+
     public function getMetaForPublic() {
         $meta = [];
         $key = "meta:shoutoutShare:likes:" . $this->id;
 
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
 
         $shoutout = \App\Shoutout::where('id',$this->shoutout_id)->whereNull('deleted_at')->first();
-        $meta['original_post_meta'] = $shoutout->getMetaFor(request()->user()->profile->id);
+        //$meta['original_post_meta'] = $shoutout->getMetaFor(request()->user()->profile->id);
 
         return $meta;
     }

@@ -7,6 +7,7 @@ use App\PhotoLike;
 use App\Events\Update;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Support\Facades\Redis;
 
 class PhotoLikeController extends Controller
 {
@@ -57,17 +58,17 @@ class PhotoLikeController extends Controller
 	{
         $profileId = $request->user()->profile->id;
         $key = "meta:photo:likes:" . $photoId;
-        $photoLike = \Redis::sIsMember($key,$profileId);
+        $photoLike = Redis::sIsMember($key,$profileId);
         $this->model = [];
         if($photoLike) {
             PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->delete();
-            \Redis::sRem($key,$profileId);
+            Redis::sRem($key,$profileId);
             $this->model['liked'] = false;
-            $this->model['likeCount'] = \Redis::sCard($key);
+            $this->model['likeCount'] = Redis::sCard($key);
         } else {
             PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
-            \Redis::sAdd($key,$profileId);
-            $this->model['likeCount'] = \Redis::sCard($key);
+            Redis::sAdd($key,$profileId);
+            $this->model['likeCount'] = Redis::sCard($key);
             $this->model['liked'] = true;
 
             $photoProfile=\DB::table("profile_photos")->select('profile_id')->where('photo_id',$photoId)->pluck('profile_id');

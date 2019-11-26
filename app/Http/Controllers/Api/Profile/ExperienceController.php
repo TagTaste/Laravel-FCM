@@ -43,6 +43,7 @@ class ExperienceController extends Controller
         $inputs = $request->except(['_method','_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $this->model = Experience::create($inputs);
+        $this->model->addUserExperience();
         
         return $this->sendResponse();
 
@@ -87,9 +88,11 @@ class ExperienceController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $input = $request->except(['_method','_token']);
-
         $profileId = $request->user()->profile->id;
-        $this->model = Experience::where('profile_id',$profileId)->where('id',$id)->update($input);
+        $experiance = Experience::where('id',$id)->where("profile_id",$profileId)->first();
+        $experiance->detachUserExperience();
+        $this->model = $experiance->update($input);
+        $experiance->updateUserExperience();
         return $this->sendResponse();
     }
 
@@ -101,7 +104,9 @@ class ExperienceController extends Controller
      */
     public function destroy(Request $request,$profileId,$id)
     {
-        $this->model = Experience::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
+        $experiance = Experience::where('id',$id)->where("profile_id",$profileId)->first();
+        $experiance->detachUserExperience();
+        $this->model = Experience::where('id',$id)->where('profile_id',$profileId)->delete();
         return $this->sendResponse();
     }
 }

@@ -7,6 +7,7 @@ use App\PublicReviewProduct;
 use App\Shareable\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Payload extends Model
 {
@@ -39,7 +40,7 @@ class Payload extends Model
                 $cached = json_decode($this->payload,true);
             
             //get all cached objects at once
-                $objects = \Redis::mget(array_values($cached));
+                $objects = Redis::mget(array_values($cached));
             
             //Making a string instead of using objects/arrays (not using json_encode/decode).
             //Why decode an object just to prefix a key to it, and then re-encode it?
@@ -98,9 +99,9 @@ class Payload extends Model
                 //end json
                 $jsonPayload .= "}";
             //publish
-            \Redis::publish($this->channel->name, $jsonPayload);
+            Redis::publish($this->channel->name, $jsonPayload);
             
-            //\Redis::sAdd($this->channel->name,json_encode($object));
+            //Redis::sAdd($this->channel->name,json_encode($object));
     
         } catch (\Exception $e){
             \Log::warning("Could not publish.");
