@@ -52,7 +52,7 @@ class ExploreController extends Controller
                     $data[$interface->id]['elements'] = array();
                     $data[$interface->id]['see_more'] = false;
         			if (isset($collection->elements) && count($collection->elements)) {
-        				$elements = $collection->elements->take(20);;
+        				$elements = $collection->elements->take(20);
         				if ("filter" === $collection->type) {
                             foreach ($elements as $key => $element) {
                                 if ("filter" === $element->type && "product" === $element->filter_on) {
