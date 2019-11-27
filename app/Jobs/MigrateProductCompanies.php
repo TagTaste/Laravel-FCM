@@ -35,13 +35,17 @@ class MigrateProductCompanies implements ShouldQueue
         //
         //
         $companyList = \DB::table("public_review_products")->select('company_name','company_logo','company_description')->whereNotNull('company_name')->get()->groupBy('company_name');
-        $companyListToMigrate = [];
         foreach($companyList as $element){
-            $companyListToMigrate[] = ['name'=>$element[0]->company_name, 'image'=> $element[0]->company_logo, 'description'=>$element[0]->company_description, 'is_active'=>1, 'created_at'=>Carbon::now()];
+            $companyName = $element[0]->company_name;
+            $checkCompany = \DB::table('public_review_product_companies')->where('name',$companyName)->exists();
+            if(!$checkCompany){
+                $companyToMigrate = ['name'=>$element[0]->company_name, 'image'=> $element[0]->company_logo, 'description'=>$element[0]->company_description, 'is_active'=>1, 'created_at'=>Carbon::now()];
+                \DB::table("public_review_product_companies")->insert($companyToMigrate);
+            }
         };
-        
+
         //insert into company table
-        \DB::table("public_review_product_companies")->insert($companyListToMigrate);
+        // \DB::table("public_review_product_companies")->insert($companyListToMigrate);
 
         //update product table for company_id
         $updatedCompanies = \DB::table('public_review_product_companies')->get();
