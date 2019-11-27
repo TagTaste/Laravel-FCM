@@ -217,6 +217,7 @@ class CollaborateController extends Controller
             }
 
         }
+        unset($inputs['images']);
 
 
         if($request->hasFile('file1')){
@@ -252,7 +253,7 @@ class CollaborateController extends Controller
             \App\Filter\Collaborate::addModel($this->model);
             return $this->sendResponse();
         }
-        unset($inputs['images']);
+
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
