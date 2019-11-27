@@ -192,41 +192,38 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
+        
+        // image computation
         $imagesArray = [];
-        if ($request->has("images"))
-        {
+        if ($request->has("images")) {
             $images = $request->input('images');
             $imageMeta = [];
             $i = 1;
-            if(count($images) && is_array($images))
-            {
-                foreach ($images as $image)
-                {
-                    if(is_null($image))
+            if (count($images) && is_array($images)) {
+                foreach ($images as $image) {
+                    if (is_null($image))
                         continue;
                     $imagesArray[]['image'.$i] = $image['original_photo'];
                     $imageMeta[] = $image;
                     $i++;
                 }
                 $inputs['images_meta'] = json_encode($imageMeta,true);
-            }
-            else
-            {
+            } else {
                 $inputs['images_meta'] = null;
                 $inputs['images'] = null;
             }
 
         }
+        unset($inputs['images']);
 
 
-        if($request->hasFile('file1')){
+        if ($request->hasFile('file1')) {
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
-            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
-        }
-        else
-        {
+            $inputs["file1"] = $request->file("file1")
+                ->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        } else {
             if (isset($inputs['file1']) && ($inputs['file1'] == $collaborate->file1))
                 unset($inputs['file1']);
             else
@@ -234,8 +231,7 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
-        if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
-        {
+        if ($collaborate->state == 'Expired'||$collaborate->state == 'Close') {
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
             $inputs['created_at'] = Carbon::now()->toDateTimeString();
@@ -252,7 +248,7 @@ class CollaborateController extends Controller
             \App\Filter\Collaborate::addModel($this->model);
             return $this->sendResponse();
         }
-        unset($inputs['images']);
+
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
@@ -406,6 +402,44 @@ class CollaborateController extends Controller
             $data[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
         }
         $this->model['collaborations'] = $data;
+        return $this->sendResponse();
+    }
+
+    public function collaborateClose(Request $request, $profileId, $id)
+    {
+        $data = [];
+        $reasonId = $request->input('reason_id');
+        if ($reasonId == 1 || $reasonId == 2 || $reasonId == 3 ) {
+            $description = null;
+            if ($reasonId == 1) {
+                $reason = 'Completed';
+            } else if ($reasonId == 2) {
+                $reason = 'Did not find enough responses for this collaboration';
+            } else {
+                $reason = 'Other';
+                $description = $request->input('description');
+            }
+            $data = ['collaborate_id'=>$id,'reason'=>$reason,'other_reason'=>$description];
+        } else {
+            return $this->sendError("Please select valid reason");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+
+        $collaboration = $this->model->where('id',$id)
+            ->where('profile_id', $profileId)
+            ->whereNull('company_id')
+            ->whereIn('state',[Collaborate::$state[0], Collaborate::$state[4]])
+            ->first();
+        if (is_null($collaboration)) {
+            return $this->sendError("Collaboration not found.");
+        }
+
+        event(new \App\Events\DeleteFilters(class_basename($collaboration), $collaboration->id));
+        $collaboration->update(['deleted_at' => Carbon::now()->toDateTimeString(), 'state' => Collaborate::$state[4]]);
+        event(new DeleteFeedable($collaboration));
+
+        $this->model = \DB::table('collaborate_close_reason')->insert($data);
+
         return $this->sendResponse();
     }
 
