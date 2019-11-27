@@ -192,26 +192,23 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
+        
+        // image computation
         $imagesArray = [];
-        if ($request->has("images"))
-        {
+        if ($request->has("images")) {
             $images = $request->input('images');
             $imageMeta = [];
             $i = 1;
-            if(count($images) && is_array($images))
-            {
-                foreach ($images as $image)
-                {
-                    if(is_null($image))
+            if (count($images) && is_array($images)) {
+                foreach ($images as $image) {
+                    if (is_null($image))
                         continue;
                     $imagesArray[]['image'.$i] = $image['original_photo'];
                     $imageMeta[] = $image;
                     $i++;
                 }
                 $inputs['images_meta'] = json_encode($imageMeta,true);
-            }
-            else
-            {
+            } else {
                 $inputs['images_meta'] = null;
                 $inputs['images'] = null;
             }
@@ -220,14 +217,13 @@ class CollaborateController extends Controller
         unset($inputs['images']);
 
 
-        if($request->hasFile('file1')){
+        if ($request->hasFile('file1')) {
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
-            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
-        }
-        else
-        {
+            $inputs["file1"] = $request->file("file1")
+                ->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        } else {
             if (isset($inputs['file1']) && ($inputs['file1'] == $collaborate->file1))
                 unset($inputs['file1']);
             else
@@ -235,8 +231,7 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
-        if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
-        {
+        if ($collaborate->state == 'Expired'||$collaborate->state == 'Close') {
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
             $inputs['created_at'] = Carbon::now()->toDateTimeString();
