@@ -217,6 +217,7 @@ class CollaborateController extends Controller
             }
 
         }
+        unset($inputs['images']);
 
 
         if($request->hasFile('file1')){
