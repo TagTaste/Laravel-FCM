@@ -41,7 +41,6 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->orderBy('state', 'asc')->orderBy('created_at','desc');
-
         $profileId = $request->user()->profile->id;
         $this->model = [];
         $data = [];
@@ -50,23 +49,27 @@ class CollaborateController extends Controller
         
         //Get compnaies of the logged in user.
         $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
-    
         if($state == 6) {
             $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('rejected_at')->pluck('collaborate_id');
             $collaborations = $collaborations->whereIn('id',$interestedInCollaboration);
         } else if($state == 4){
-            $collaborations = $collaborations->whereIn('company_id',$companyIds)->where('step',1);
-            $collaborations = $collaborations->orWhere('profile_id',$profileId)->where('step',1);
+            $collaborations = $collaborations->where('step',1)->where(function($q) use ($profileId,$companyIds) {
+                $q->where('profile_id', $profileId)
+                  ->orWhereIn('company_id', $companyIds);
+            });
             
         } else {
-            $collaborations = $collaborations->where('profile_id',$profileId)->orWhereIn('company_id',$companyIds);
+            $collaborations = $collaborations->where(function($q) use ($profileId,$companyIds) {
+                $q->where('profile_id', $profileId)
+                  ->orWhereIn('company_id', $companyIds);
+            });
         }
         if($type == 'collaborate') {
             $collaborations = $collaborations->where('collaborate_type','collaborate');
-        } else if($type == 'product-review') {
+        
+        } else if ($type == 'product-review') {
             $collaborations = $collaborations->where('collaborate_type','product-review');
         }
-
         $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)
         ->get();

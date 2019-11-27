@@ -7,17 +7,19 @@ use App\Job;
 use App\Profile as BaseProfile;
 use App\Shoutout;
 use App\Subscriber;
+use Illuminate\Notifications\Notifiable;
 
 class Profile extends BaseProfile
 {
+    use Notifiable;
     protected $fillable = [];
 
     protected $with = [];
 
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise','user_id',
-        'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta","document_meta"];
+        'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta"];
 
-    protected $appends = ['name','designation','imageUrl','ageRange','document_meta'];
+    protected $appends = ['name','designation','imageUrl','ageRange'];
     
     public function getDesignationAttribute()
     {
@@ -142,5 +144,19 @@ class Profile extends BaseProfile
     {
         return $this->hasMany(Job::class);
     }
-
+    public function getDocumentMetaAttribute()
+    {
+        $docs = \DB::table('profile_documents')
+            ->where('profile_id',$this->id)
+            ->select('document_meta','is_verified')
+            ->first();
+        if ($docs) {
+            $doc_meta = json_decode($docs->document_meta);
+            $docs->images = $doc_meta;
+            unset($docs->document_meta);
+            return $docs;
+        } else {
+            return null;
+        }
+    }
 }
