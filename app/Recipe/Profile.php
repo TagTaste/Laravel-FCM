@@ -7,9 +7,11 @@ use App\Job;
 use App\Profile as BaseProfile;
 use App\Shoutout;
 use App\Subscriber;
+use Illuminate\Notifications\Notifiable;
 
 class Profile extends BaseProfile
 {
+    use Notifiable;
     protected $fillable = [];
 
     protected $with = [];
@@ -141,5 +143,20 @@ class Profile extends BaseProfile
     public function jobs()
     {
         return $this->hasMany(Job::class);
+    }
+    public function getDocumentMetaAttribute()
+    {
+        $docs = \DB::table('profile_documents')
+            ->where('profile_id',$this->id)
+            ->select('document_meta','is_verified')
+            ->first();
+        if ($docs) {
+            $doc_meta = json_decode($docs->document_meta);
+            $docs->images = $doc_meta;
+            unset($docs->document_meta);
+            return $docs;
+        } else {
+            return null;
+        }
     }
 }

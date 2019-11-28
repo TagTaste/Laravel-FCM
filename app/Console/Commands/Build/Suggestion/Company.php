@@ -4,6 +4,7 @@ namespace App\Console\Commands\Build\Suggestion;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class Company extends Command
 {
@@ -42,11 +43,11 @@ class Company extends Command
             ->orderBy('id')->chunk(100,function($owners){
                 foreach ($owners as $owner)
                 {
-                    $companyIds = \Redis::sMembers('suggested:company:'.$owner->id);
+                    $companyIds = Redis::sMembers('suggested:company:'.$owner->id);
 
                     foreach ($companyIds as $companyId)
                     {
-                        \Redis::sRem('suggested:company:'.$owner->id,$companyId);
+                        Redis::sRem('suggested:company:'.$owner->id,$companyId);
                     }
                 }
             });
@@ -58,9 +59,9 @@ class Company extends Command
                     $suggestedIds = explode(',',$suggestedIds);
                     foreach ($suggestedIds as $suggestedId)
                     {
-                        if(!\Redis::sIsMember('following:profile:'.$owner->profile_id, "company.".$suggestedId))
+                        if(!Redis::sIsMember('following:profile:'.$owner->profile_id, "company.".$suggestedId))
                         {
-                            \Redis::sAdd('suggested:company:'.$owner->profile_id,$suggestedId);
+                            Redis::sAdd('suggested:company:'.$owner->profile_id,$suggestedId);
                         }
                     }
                 }

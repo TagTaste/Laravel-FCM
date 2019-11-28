@@ -40,7 +40,8 @@ class CommentController extends Controller {
     
     private function fetchModel($model, $modelId)
     {
-        $model = $model->where('id',$modelId)->whereNull('deleted_at')->first();
+        
+            $model = $model->where('id',$modelId)->first();
     
         if(!$model){
             throw new ModelNotFoundException("Could not find model with provided id.");

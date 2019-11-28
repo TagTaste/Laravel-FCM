@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Deeplink;
+use App\PublicReviewProduct\Review;
 use App\PublicView\Collaborate;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PublicViewController extends Controller
 {
@@ -87,9 +89,9 @@ class PublicViewController extends Controller
         }
 
         $this->model['shared'] = $sharedModel;
-        $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $sharedModel->profile_id));
+        $this->model['sharedBy'] = json_decode(Redis::get('profile:small:' . $sharedModel->profile_id));
         $this->model['type'] = $modelName;
-        $this->model[$modelName] = (array) $model;
+        $this->model[$modelName] = $model->toArray();
         $this->model['meta']= $sharedModel->getMetaForPublic();
         $socialPreview = $model->getPreviewContent();
         $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id, true, $sharedId);
@@ -151,6 +153,65 @@ class PublicViewController extends Controller
         $this->model["count"] = $collaborations->count();
         $this->model["data"] = $collaborations->skip($skip)->take($take)->get();
 
+        return response()->json(['data'=>$this->model]);
+    }
+
+    /**
+     * Display a listing of the resource foodshot.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function foodShot(Request $request, $modelId)
+    {
+        $class = "\\App\\PublicView\\" . ucwords("product");
+        $product = $class::where('id',$modelId)->first();
+        if ($product == null) {
+            return response()->json(['error'=>"Product is not available"]);
+        }
+
+        //paginate
+        $page = $request->input('page') ? intval($request->input('page')) : 1;
+        $page = $page == 0 ? 1 : $page;
+        $take = 20;
+        $skip = ($page - 1) * $take;
+        $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
+        $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
+
+        $food_shots = \App\PublicReviewProduct\Review::where('public_product_user_review.product_id',$modelId)
+            ->where('public_product_user_review.product_id',$modelId)
+            ->join('public_review_products as prod',function($join){
+                $join->on('public_product_user_review.product_id','=','prod.id');
+            })
+            ->leftJoin('public_review_question_headers as headers',function($join){
+                $join->on('headers.global_question_id','=','prod.global_question_id');
+                $join->where('headers.header_selection_type',2);
+            })
+            ->leftJoin('public_product_user_review as r1',function($join) use ($modelId){
+                $join->on('public_product_user_review.profile_id','=','r1.profile_id');
+                $join->on('headers.id','=','r1.header_id');
+                $join->where('r1.product_Id','=',$modelId);
+                $join->where('r1.select_type',5);
+            })
+            ->where('public_product_user_review.select_type',6)
+            ->whereNotNull('public_product_user_review.meta')
+            ->orderBy('public_product_user_review.updated_at',$sortBy)
+            ->where('public_product_user_review.current_status',2)
+            ->skip($skip)
+            ->take($take)
+            ->get();
+
+        $this->model = [];
+
+        if (count($food_shots)) {
+            $food_shots = $food_shots->toArray();
+            foreach ($food_shots as $key => $food_shot) {
+                $this->model[] = array(
+                    'id' => $food_shot['id'],
+                    'product_id' => $food_shot['product_id'],
+                    'meta' => $food_shot['meta'],
+                );
+            }
+        }
         return response()->json(['data'=>$this->model]);
     }
 

@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Storage;
+use Illuminate\Support\Facades\Redis;
 
 class Company extends Model
 {
@@ -106,14 +107,16 @@ class Company extends Model
         'company_id',
         'is_premium',
         'logo_meta',
-        'hero_image_meta'
+        'hero_image_meta',
+        'totalPostCount',
+        'imagePostCount'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
         'portfolio','productCatalogue','coreteam','gallery'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
-        'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue', 'company_id'];
+        'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue', 'company_id', 'totalPostCount','imagePostCount'];
 
     private $empValue = ['1','2 - 10','11 - 50','51 - 200','201 - 500','501 - 1000','1001 - 5000','5001 - 10,000','10,000+'];
 
@@ -139,13 +142,15 @@ class Company extends Model
             //add creator as a user of his company
             $company->addUser($company->user);
             $company->addToCache();
+            $company->addToCacheV2();
+            $company->addToGraph();
             //make searchable
             \App\Documents\Company::create($company);
         });
         
         self::updated(function(Company $company){
             $company->addToCache();
-    
+            $company->addToCacheV2();
             //update the document
             \App\Documents\Company::create($company);
         });
@@ -175,17 +180,49 @@ class Company extends Model
             'logo_meta' =>$this->logo_meta,
             'hero_image_meta' =>$this->hero_image_meta
         ];
-        \Redis::set("company:small:" . $this->id,json_encode($data));
+        Redis::set("company:small:".$this->id,json_encode($data));
+    }
+
+    public function addToCacheV2()
+    {
+        $data = \App\V2\Company::find($this->id)->toArray();
+        Redis::connection('V2')->set("company:small:".$this->id.":V2",json_encode($data));
+    }
+
+    public function addToGraph()
+    {
+        $data = [
+            'id' => $this->id,
+            'profile_id' => $this->profileId,
+            'name' => $this->name,
+            'logo_meta' => $this->logo_meta
+        ];
+        if (isset($data['id'])) {
+            $data['company_id'] = (int)$data['id'];
+        }
+        $company = \App\Neo4j\Company::where('company_id', (int)$data['company_id'])->first();
+        if (!$company) {
+            \App\Neo4j\Company::create($data);
+        } else {
+            unset($data['company_id']);
+            $company->update($data);
+        }
     }
 
     public static function getFromCache($id)
     {
-        return \Redis::get('company:small:' . $id);
+        return Redis::get('company:small:'.$id);
+    }
+
+    public static function getFromCacheV2($id)
+    {
+        return Redis::connection('V2')->get('company:small:'.$id.":V2");
     }
 
     public function removeFromCache()
     {
-        \Redis::del("company:small:" . $this->id);
+        Redis::del("company:small:".$this->id);
+        Redis::connection('V2')->del("company:small:".$this->id.":V2");
     }
     
     public function photos()
@@ -361,10 +398,10 @@ class Company extends Model
         $this->users()->attach($user->id,['profile_id'=>$user->profile->id,'created_at'=>Carbon::now()->toDateTimeString()]);
 
 //        //companies the logged in user is following
-//        \Redis::sAdd("following:profile:" . $user->profile->id, "company.$this->id");
+//        Redis::sAdd("following:profile:" . $user->profile->id, "company.$this->id");
 //
 //        //profiles that are following $channelOwner
-//        \Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
+//        Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
         
         //subscribe the user to the company feed
 //        $user->completeProfile->subscribe("public",$this);
@@ -431,7 +468,7 @@ class Company extends Model
     
         //if you use \App\Profile here, it would end up nesting a lot of things.
 //        $profiles = Company::getFollowers($this->id);
-        $count = \Redis::sCard("followers:company:" . $this->id);
+        $count = Redis::sCard("followers:company:" . $this->id);
 //        if($count > 1000000)
 //        {
 //            $count = round($count/1000000, 1);
@@ -450,7 +487,7 @@ class Company extends Model
     
     public static function getFollowers($id)
     {
-        $profileIds = \Redis::SMEMBERS("followers:company:" . $id);
+        $profileIds = Redis::SMEMBERS("followers:company:" . $id);
 
         foreach ($profileIds as &$profileId)
         {
@@ -458,7 +495,7 @@ class Company extends Model
         }
         $data = [];
         if(count($profileIds)) {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
         }
         $followerProfileId = request()->user()->profile->id;
         foreach ($data as &$datum)
@@ -467,7 +504,7 @@ class Company extends Model
             if(!isset($data['id'])){
                 continue;
             }
-            $datum['isFollowing'] = \Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
+            $datum['isFollowing'] = Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
 //            $datum['self'] = $followerProfileId === $datum['id'];
         }
         return $data;
@@ -479,12 +516,12 @@ class Company extends Model
     }
     public function isFollowing($followerProfileId = null)
     {
-        return \Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
+        return Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
     }
     
     public static function checkFollowing($followerProfileId,$id)
     {
-        return \Redis::sIsMember("following:profile:" . $followerProfileId, "company." . $id) === 1;
+        return Redis::sIsMember("following:profile:" . $followerProfileId, "company." . $id) === 1;
     }
 
     public function getAvgRatingAttribute()
@@ -559,6 +596,21 @@ class Company extends Model
 
         return $data;
 
+    }
+
+    public function getTotalPostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','company.public.'.$this->id)->whereNull('deleted_at')->count();
+    }
+
+    public function getImagePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')
+            ->where('channel_name','company.public.'.$this->id)
+            ->whereNull('deleted_at')
+            ->where('model', 'like', '%Photo')
+            ->where('model', 'not like', '%Shareable%')
+            ->count();
     }
 
 }

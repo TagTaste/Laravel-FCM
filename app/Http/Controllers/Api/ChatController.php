@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\File;
 use App\Mail\JobResponse;
+use Illuminate\Support\Facades\Redis;
 
 class ChatController extends Controller
 {
@@ -75,7 +76,7 @@ class ChatController extends Controller
                 return $this->sendResponse();
             }
 
-            // if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
+            // if(!Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
             // {
             //     if(!\App\ChatLimit::checkLimit($loggedInProfileId,$profileIds[0])){
             //         return $this->sendError("max_limit_reached");
@@ -238,7 +239,7 @@ class ChatController extends Controller
                 return $this->sendmessage($request,$inputs);
             }
 
-            if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
+            if(!Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
             {
                 if(!\App\ChatLimit::checkLimit($loggedInProfileId,$profileIds[0])){
                     return $this->sendError("max_limit_reached");

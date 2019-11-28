@@ -7,6 +7,7 @@
  */
 
 namespace App;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -33,12 +34,12 @@ class Deeplink
     public static function getShortLink($modelName, $modelId, $isShared = false, $share_id = 0)
     {
         $key = 'deeplink:'.$modelName.':'.$modelId.':'.$share_id;
-//        if(!\Redis::exists($key)) {
+//        if(!Redis::exists($key)) {
 //            $self = new self($modelName, $modelId, $isShared, $share_id);
 //            $deeplink = $self->getDeeplinkUrl();
-//            \Redis::set($key,json_encode($deeplink));
+//            Redis::set($key,json_encode($deeplink));
 //        }
-//        return (json_decode(\Redis::get($key)))->url;
+//        return (json_decode(Redis::get($key)))->url;
 
         $self = new self($modelName, $modelId, $isShared, $share_id);
         return $self->getDeeplinkUrl()->url;
@@ -53,8 +54,8 @@ class Deeplink
     public static function getLongLink($modelName, $modelId, $isShared = false, $share_id = 0)
     {
         $key = 'deeplink:'.$modelName.':'.$modelId.':'.$share_id;
-//        if(\Redis::exists($key)) {
-//            return (json_decode(\Redis::get($key)))->url;
+//        if(Redis::exists($key)) {
+//            return (json_decode(Redis::get($key)))->url;
 //        }
         $url = 'https://tagtaste.app.link/?modelName='.$modelName.'&modelID='.$modelId.'&$fallback_url='.urlencode(Deeplink::getActualUrl($modelName, $modelId, $isShared, $share_id)).'&$canonical_identifier='.urlencode('share_feed/'.$modelId).'&shareTypeID='.$share_id.'&isShared='.$isShared;
         return $url;
@@ -122,7 +123,7 @@ class Deeplink
                     '$og_image_url' =>          $data->image_meta->original_photo,
 //                    '$og_image_width' =>      '273px',
 //                    '$og_image_height' =>     '526px',
-                    '$og_type' =>               'article',
+                    '$og_type' =>               'review',
                     '$og_app_id' =>             env('FACEBOOK_ID'),
                     '$desktop_url' =>           Deeplink::getActualUrl($this->modelName, $this->modelId, $this->shared, $this->share_id),
 
@@ -164,12 +165,15 @@ class Deeplink
 
         } else {
             switch ($modelName) {
-                case 'photo':       return env('APP_URL')."/feed/view/photo/$modelId";
-                case 'shoutout':    return env('APP_URL')."/feed/view/shoutout/$modelId";
-                case 'collaborate': return env('APP_URL')."/feed/view/collaborate/$modelId";
-                case 'job':         return env('APP_URL')."/feed/view/jobs/$modelId";
-                case 'recipe':      return env('APP_URL')."/recipe/$modelId";
-                case 'profile':     return env('APP_URL')."/profile/$modelId";
+                case 'photo':       return env('APP_URL')."/photo/$modelId";
+                case 'shoutout':    return env('APP_URL')."/shoutout/$modelId";
+                case 'collaborate': return env('APP_URL')."/collaborations/$modelId";
+                //case 'job':         return env('APP_URL')."/feed/view/jobs/$modelId";
+                //case 'recipe':      return env('APP_URL')."/recipe/$modelId";
+                case 'profile':     {
+                    $profile = \App\Profile::where('id',$modelId)->first();
+                    return env('APP_URL')."/profile/@".$profile->handle;
+                }
                 case 'company':     return env('APP_URL')."/companies/$modelId";
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;
@@ -245,7 +249,6 @@ class Deeplink
             return Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste! \r\n";
         else
             return "Checkout this profile on TagTaste. \r\n";
-
     }
 
     public static function getCompanyText($model)

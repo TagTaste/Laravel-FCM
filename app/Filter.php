@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 class Filter extends Model
 {
@@ -252,7 +253,7 @@ class Filter extends Model
             $models[] = static::$cacheKey . $model;
         }
     
-        $models = \Redis::mget($models);
+        $models = Redis::mget($models);
     
         foreach($models as &$model){
             $model = json_decode($model,true);
