@@ -197,8 +197,7 @@ class User extends BaseUser
         }
         else
         {
-                \Log::info($provider);
-            $user->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
+            $user->updateProfileInfo($provider,$socialiteUser, $socialiteUserLink);
         }
         return $user;
     }
