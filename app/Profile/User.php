@@ -192,9 +192,12 @@ class User extends BaseUser
         {
             $user->updateProfileInfo($provider,null, $socialiteUserLink);
 
+        } else if($provider == 'linkedin') {
+                $user->updateProfileInfo($provider,$socialiteUser, $socialiteUserLink);
         }
         else
         {
+                \Log::info($provider);
             $user->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
         }
         return $user;
