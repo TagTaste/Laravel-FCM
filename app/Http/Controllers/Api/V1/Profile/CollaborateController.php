@@ -231,23 +231,23 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
-        if ($collaborate->state == 'Expired'||$collaborate->state == 'Close') {
-            $inputs['state'] = Collaborate::$state[0];
-            $inputs['deleted_at'] = null;
-            $inputs['created_at'] = Carbon::now()->toDateTimeString();
-            $inputs['updated_at'] = Carbon::now()->toDateTimeString();
-            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        // if ($collaborate->state == 'Expired'||$collaborate->state == 'Close') {
+        //     $inputs['state'] = Collaborate::$state[0];
+        //     $inputs['deleted_at'] = null;
+        //     $inputs['created_at'] = Carbon::now()->toDateTimeString();
+        //     $inputs['updated_at'] = Carbon::now()->toDateTimeString();
+        //     $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
 
-            $this->model = $collaborate->update($inputs);
-            $collaborate->addToCache();
+        //     $this->model = $collaborate->update($inputs);
+        //     $collaborate->addToCache();
 
-            $profile = Profile::find($profileId);
-            $this->model = Collaborate::find($id);
+        //     $profile = Profile::find($profileId);
+        //     $this->model = Collaborate::find($id);
 
-            event(new NewFeedable($this->model, $profile));
-            \App\Filter\Collaborate::addModel($this->model);
-            return $this->sendResponse();
-        }
+        //     event(new NewFeedable($this->model, $profile));
+        //     \App\Filter\Collaborate::addModel($this->model);
+        //     return $this->sendResponse();
+        // }
 
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
