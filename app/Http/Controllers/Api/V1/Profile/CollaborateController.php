@@ -53,13 +53,13 @@ class CollaborateController extends Controller
             $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('rejected_at')->pluck('collaborate_id');
             $collaborations = $collaborations->whereIn('id',$interestedInCollaboration);
         } else if($state == 4){
-            $collaborations = $collaborations->where('step',1)->where(function($q) use ($profileId,$companyIds) {
+            $collaborations = $collaborations->where('state','!=',2)->where('step',1)->where(function($q) use ($profileId,$companyIds) {
                 $q->where('profile_id', $profileId)
                   ->orWhereIn('company_id', $companyIds);
             });
             
         } else {
-            $collaborations = $collaborations->where(function($q) use ($profileId,$companyIds) {
+            $collaborations = $collaborations->where('state','!=',2)->where(function($q) use ($profileId,$companyIds) {
                 $q->where('profile_id', $profileId)
                   ->orWhereIn('company_id', $companyIds);
             });
