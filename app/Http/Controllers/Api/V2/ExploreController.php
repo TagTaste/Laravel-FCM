@@ -203,6 +203,17 @@ class ExploreController extends Controller
 
         $skip = (int)$request->input('skip', 0);
         $take = (int)$request->input('take', 10);
+
+        $collection = ReviewCollection::where('id',$collectionId)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (is_null($collection)) {
+            return $this->sendError("Collection not found.");
+        }
+
+        $this->model = $collection->toArray();
+
         $collection_elements = ReviewCollectionElement::where('collection_id',$collectionId)
             ->whereNull('deleted_at')
             ->skip($skip)
