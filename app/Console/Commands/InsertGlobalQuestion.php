@@ -46,7 +46,7 @@ class InsertGlobalQuestion extends Command
         ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
 
 
-        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don\'t eat yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
+        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
         ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
@@ -235,6 +235,7 @@ class InsertGlobalQuestion extends Command
             "select_type": 1,
             "option": [{
                     "value": "Oil free",
+                     "option_type": 2,
                     "is_intensity": 0
                 },
                 {
@@ -599,7 +600,7 @@ class InsertGlobalQuestion extends Command
             ]
         },
         {
-            "title": "In this preparation, how well do you think the Indian flavors have inflused in the lamb?",
+            "title": "In this preparation, how well do you think the Indian flavors have infused in the lamb?",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
