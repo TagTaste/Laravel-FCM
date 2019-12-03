@@ -49,8 +49,18 @@ class PublicReviewProductGetSample
             ], 
             function ($mail) use ($data) {
                 $mail->from(config('mail.from.address'), config('mail.from.name'));
-                $mail->to(config('mail.tagtaste_backend_mail_id'), null)->subject("New request for sample of ".$data['product-name']
-                );
+                $mail->to(config('mail.tagtaste_backend_mail_id'), null)->subject("New Sample request");
+            }
+        );
+
+        Mail::send(
+            'emails.public-review-product-get-sample-to-user', 
+            [
+                'data' => $data
+            ], 
+            function ($mail) use ($data) {
+                $mail->from(config('mail.from.address'), config('mail.from.name'));
+                $mail->to($data['email'], null)->subject("Your Request for ".$data['product-name']." on TagTaste");
             }
         );
     }
