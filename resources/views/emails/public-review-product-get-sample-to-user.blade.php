@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            New Campus Connect Request
+                                            Your Request for {{ $data['product-name'] }} on TagTaste 
                                         </div>
                                     </td>
                                 </tr>
@@ -35,26 +35,13 @@
                                                             <td>
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
-                                                                        You’ve received a new request for a Campus Connection
                                                                         <br>
-                                                                        <b>Name - {{ $data['name'] }}</b>
+                                                                        Thanks for requesting a sample for {{ $data['product-name'] }} Someone from our team shall contact you soon.
                                                                         <br>
-                                                                        <b>Email - {{ $data['email'] }}</b>
                                                                         <br>
-                                                                        <b>Contact No - {{ $data['contact'] }}</b>
-                                                                        <br>
-                                                                        <b>Name of the Campus - {{ $data['campus-name'] }}</b>
-                                                                        <br>
+                                                                        In case you have any further queries, feel free to respond to this email.
                                                                     </p>
                                                                 </div>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td valign="top" align="center" bgcolor="#FFFFFF">
-                                                                <a href="{{env('APP_URL')}}/profile/{{$data['profile-id']}}"
-                                                                   style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">
-                                                                    Visit Profile
-                                                                </a>
                                                             </td>
                                                         </tr>
                                                     </table>

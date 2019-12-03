@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            Got new request for sample of {{ $data['product-name'] }}
+                                            New Sample request
                                         </div>
                                     </td>
                                 </tr>
@@ -35,21 +35,16 @@
                                                             <td>
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
-                                                                        <b>Hello,</b>
                                                                         <br>
+                                                                        You’ve received a new request for the below-mentioned product.
                                                                         <br>
-                                                                        Here is a new request for sample of {{ $data['product-name'] }}. Details are as follows:
+                                                                        <b>Product - <a href="{{env('APP_URL')}}/reviews/products/{{$data['product-id']}}">{{ $data['product-name'] }}</a></b>
                                                                         <br>
-                                                                        <b>Name: {{ $data['name'] }}</b>
+                                                                        <b>Name - <a href="{{env('APP_URL')}}/profile/{{$data['profile-id']}}">{{ $data['name'] }}</a></b>
                                                                         <br>
-                                                                        <b>Email: {{ $data['email'] }}</b>
+                                                                        <b>Email - {{ $data['email'] }}</b>
                                                                         <br>
-                                                                        <b>Contact: {{ $data['contact'] }}</b>
-                                                                        <br>
-                                                                        <b>Product Id:  <a href="{{env('APP_URL')}}/reviews/products/{{$data['product-id']}}"> {{ $data['product-id'] }}</a></b>
-                                                                        <br>
-                                                                        <b>Product Name: {{ $data['product-name'] }}</b>
-                                                                        <br>
+                                                                        <b>Contact No - {{ $data['contact'] }}</b>
                                                                     </p>
                                                                 </div>
                                                             </td>

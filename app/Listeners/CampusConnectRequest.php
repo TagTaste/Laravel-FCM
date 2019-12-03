@@ -47,7 +47,7 @@ class CampusConnectRequest
             ], 
             function ($mail) use ($data) {
                 $mail->from(config('mail.from.address'), config('mail.from.name'));
-                $mail->to(config('mail.tagtaste_backend_mail_id'), null)->subject('Campus connect request!');
+                $mail->to(config('mail.tagtaste_backend_mail_id'), null)->subject('New Campus Connect Request');
             }
         );
     }
