@@ -264,26 +264,9 @@ class ExploreController extends Controller
 
         if (count($collaborate)) {
             foreach ($collaborate as $key => $id) {
-                $cached_data = Redis::get("collaborate:".$id.":V2");
-                if ($cached_data) {
-                    $data = json_decode($cached_data,true); 
-                    $data["company"] = null;
-                    $data["profile"] = null;
-                    // add company detail to collaborate
-                    if (isset($data['company_id'])) {
-                        $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["company"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
-                    // add profile detail to collaborate
-                    if (isset($data['profile_id'])) {
-                        $company_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["profile"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
+                $cached_data = \App\V2\Detailed\Collaborate::where('id', $id)->first();
+                if (!is_null($cached_data)) {
+                    $data = $cached_data; 
                     $data['element_type'] = 'collaborate';
                     array_push($collaborate_data, $data); 
                 }
