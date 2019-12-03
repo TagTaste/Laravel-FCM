@@ -49,7 +49,7 @@ class PublicReviewProductGetSample
             ], 
             function ($mail) use ($data) {
                 $mail->from(config('mail.from.address'), config('mail.from.name'));
-                $mail->to(config('mail.tagtaste_backend_mail_id'), null)->subject("New Sample request");
+                $mail->to(config('mail.tagtaste_backend_mail_id'), null)->subject("New Sample Request");
             }
         );
 
@@ -60,7 +60,7 @@ class PublicReviewProductGetSample
             ], 
             function ($mail) use ($data) {
                 $mail->from(config('mail.from.address'), config('mail.from.name'));
-                $mail->to($data['email'], null)->subject("Your Request for ".$data['product-name']." on TagTaste");
+                $mail->to($data['email'], null)->subject('Your request for "'.$data['product-name'].'" on TagTaste');
             }
         );
     }
