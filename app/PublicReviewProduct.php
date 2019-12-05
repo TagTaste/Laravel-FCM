@@ -20,9 +20,9 @@ class PublicReviewProduct extends Model
 
     public static $types = ['Vegetarian','Non-Vegetarian'];
 
-    protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id','is_active','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id'];
+    protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id','is_active','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id','is_newly_launched'];
 
-    protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active','product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id'];
+    protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active','product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id','is_newly_launched'];
 
     protected $appends = ['type','review_count'];
 
@@ -282,6 +282,16 @@ class PublicReviewProduct extends Model
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute();
         $meta['current_status'] = $this->getCurrentStatusAttribute();
+        $meta['is_sample_available'] = false;
+        $meta['is_sample_requested'] = false;
+        if ($this->is_newly_launched) {
+            $meta['is_sample_available'] = true;
+            $loggedInProfileId = request()->user()->profile->id;
+            $meta['is_sample_requested'] = PublicReviewProductGetSample::where('profile_id', (int)$loggedInProfileId)
+                ->where('product_id', $this->id)
+                ->exists();
+        }
+        
         return $meta;
     }
 

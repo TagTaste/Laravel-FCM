@@ -67,6 +67,10 @@ class Profile extends Model
 
     private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
 
+    private $profileCompletionMandatoryFieldForCampusConnect = ['phone','verified_phone'];
+    
+    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone','verified_phone'];
+
     public static function boot()
     {
         parent::boot();
@@ -1167,11 +1171,15 @@ class Profile extends Model
                 $remaningOptionalItem = [];
                 $remaningAdditionalOptionalItem = [];
                 $profileCompletionMandatoryFieldForCollaborationApply = [];
+                $profileCompletionMandatoryFieldForCampusConnect = [];
+                $profileCompletionMandatoryFieldForGetProductSample = [];
                 $index = 0;
                 if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
                 {
                     $index++;
                     $remaningMandatoryItem = ['verified_email'];
+                    $profileCompletionMandatoryFieldForCampusConnect[] = 'verified_email';
+                    $profileCompletionMandatoryFieldForGetProductSample[] = 'verified_email';
                 }
 
                 if(!isset(request()->user()->email) && is_null(request()->user()->email))
@@ -1214,6 +1222,23 @@ class Profile extends Model
                         $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
                     }
                 }
+
+                foreach ($this->profileCompletionMandatoryFieldForCampusConnect as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
+                    {
+                        $profileCompletionMandatoryFieldForCampusConnect[] = $item;
+                    }
+                }
+
+                foreach ($this->profileCompletionMandatoryFieldForGetProductSample as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item}) || count([$this->{$item}]) == 0 || (is_object($this->{$item}) && $this->{$item}->count() == 0) || (is_array($this->{$item}) && $this->{$item}->count() == 0))
+                    {
+                        $profileCompletionMandatoryFieldForGetProductSample[] = $item;
+                    }
+                }
+
                 $percentage_total = ((25 - $index) / 25 ) * 100;
                 $profileCompletion = [
                     'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
@@ -1221,7 +1246,9 @@ class Profile extends Model
                     'mandatory_remaining_field' => $remaningMandatoryItem,
                     'optional_remaining_field' => $remaningOptionalItem,
                     'additional_optional_field' => $remaningAdditionalOptionalItem,
-                    'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply
+                    'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply,
+                    'mandatory_field_for_campus_connect' => $profileCompletionMandatoryFieldForCampusConnect,
+                    'mandatory_field_for_get_product_sample' => $profileCompletionMandatoryFieldForGetProductSample
                 ];
 
                 return $profileCompletion;
