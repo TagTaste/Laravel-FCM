@@ -80,6 +80,7 @@ class ExploreController extends Controller
                         }
         			} else {
         				if (isset($collection->type) && "campus_connect" === $collection->type && isset($collection->category_type) && "campus_connect" === $collection->category_type) {
+                            $data[$interface->id]['blog_url'] = "https://blog.tagtaste.com/tagtaste-introduces-campus-connect-program-for-students-69c6199eeb11";
                             unset($data[$interface->id]['elements']);
                         } else if (isset($collection->type) && "collaborate" === $collection->type && isset($collection->category_type) && "collaborate" === $collection->category_type) {
                             $data[$interface->id]['elements'] = $this->exploreCollaboration($loggedInProfileId, 0, 2);
@@ -247,12 +248,10 @@ class ExploreController extends Controller
     {
         $this->errors['status'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
-        $data = [];
+        $this->model = [];
 
         $skip = (int)$request->input('skip', 0);
         $take = (int)$request->input('take', 10);
-
-        $this->model = array();
 
         $collection_elements = ReviewCollectionElement::where('collection_id',$collectionId)
             ->whereNull('deleted_at')
@@ -263,19 +262,18 @@ class ExploreController extends Controller
         if (count($collection_elements)) {
              foreach ($collection_elements as $key => $element) {
                 if ("product" === $element->type && "product" === $element->data_type) {
-                    $data[] = $this->elementsByProductId($element, $loggedInProfileId);
+                    $this->model[] = $this->elementsByProductId($element, $loggedInProfileId);
                 } else if ("collection" === $element->type && "collection" === $element->data_type) {
-                    $data[] = $this->elementsByCollectionId($element, $loggedInProfileId);
+                    $this->model[] = $this->elementsByCollectionId($element, $loggedInProfileId);
                 } else if ("profile" === $element->type && "profile" === $element->data_type) {
                     $profile_data = $this->elementsByProfileId($element, $loggedInProfileId);
                     if (!is_null($profile_data)) {
-                        $data[] = $profile_data;
+                        $this->model[] = $profile_data;
                     }
                 }
             }
         }
 
-        $this->model = $data;
         return $this->sendResponse();
     }
 
