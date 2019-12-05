@@ -136,7 +136,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
             // review page api
             Route::get("public-review/explore","ExploreController@exploreForReview");
-            Route::get("collection/{collectionId}","ExploreController@getCollectionElements");
+            Route::get("collection/{collectionId}","ExploreController@getCollection");
+            Route::get("collection/{collectionId}/elements","ExploreController@getCollectionElements");
             
             Route::resource("shoutout",'ShoutoutController');
             Route::resource("polling","PollingController");
