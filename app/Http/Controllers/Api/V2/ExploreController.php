@@ -196,7 +196,7 @@ class ExploreController extends Controller
         return $response;
     }
 
-    public function getCollectionElements(Request $request, int $collectionId)
+    public function getCollection(Request $request, int $collectionId)
     {
         $this->errors['status'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
@@ -240,6 +240,42 @@ class ExploreController extends Controller
         $this->model['count'] = ReviewCollectionElement::where('collection_id',$collectionId)
             ->whereNull('deleted_at')
             ->count();
+        return $this->sendResponse();
+    }
+
+    public function getCollectionElements(Request $request, int $collectionId)
+    {
+        $this->errors['status'] = 0;
+        $loggedInProfileId = $request->user()->profile->id;
+        $data = [];
+
+        $skip = (int)$request->input('skip', 0);
+        $take = (int)$request->input('take', 10);
+
+        $this->model = array();
+
+        $collection_elements = ReviewCollectionElement::where('collection_id',$collectionId)
+            ->whereNull('deleted_at')
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        
+        if (count($collection_elements)) {
+             foreach ($collection_elements as $key => $element) {
+                if ("product" === $element->type && "product" === $element->data_type) {
+                    $data[] = $this->elementsByProductId($element, $loggedInProfileId);
+                } else if ("collection" === $element->type && "collection" === $element->data_type) {
+                    $data[] = $this->elementsByCollectionId($element, $loggedInProfileId);
+                } else if ("profile" === $element->type && "profile" === $element->data_type) {
+                    $profile_data = $this->elementsByProfileId($element, $loggedInProfileId);
+                    if (!is_null($profile_data)) {
+                        $data[] = $profile_data;
+                    }
+                }
+            }
+        }
+
+        $this->model = $data;
         return $this->sendResponse();
     }
 
