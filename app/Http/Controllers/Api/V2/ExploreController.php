@@ -13,6 +13,7 @@ use App\Collaborate;
 use Illuminate\Support\Facades\Redis;
 use \Carbon\Carbon;
 use App\PublicReviewProduct\Review;
+use App\Profile;
 
 class ExploreController extends Controller
 {
@@ -163,7 +164,7 @@ class ExploreController extends Controller
             $data_fetched = $model::where('id',$profile_id)->first();
             if (!is_null($data_fetched)) {
                 $response = $data_fetched->toArray();
-                $response['isFollowing'] = $data_fetched->isFollowing($profile_id, $loggedInProfileId);
+                $response['isFollowing'] = Profile::isFollowing($loggedInProfileId, $profile_id);
                 $response['element_type'] = 'profile';
             }
         }
@@ -266,7 +267,7 @@ class ExploreController extends Controller
             foreach ($collaborate as $key => $id) {
                 $cached_data = \App\V2\Detailed\Collaborate::where('id', $id)->first();
                 if (!is_null($cached_data)) {
-                    $data = $cached_data; 
+                    $data = $cached_data->toArray(); 
                     $data['element_type'] = 'collaborate';
                     array_push($collaborate_data, $data); 
                 }
@@ -304,7 +305,7 @@ class ExploreController extends Controller
                 $data_fetched = \App\V2\Profile::where('id',$reviewer->profile_id)->first();
                 if (!is_null($data_fetched)) {
                     $response = $data_fetched->toArray();
-                    $response['isFollowing'] = $data_fetched->isFollowing($reviewer->profile_id, $profileId);
+                    $response['isFollowing'] = Profile::isFollowing($profileId, $reviewer->profile_id);
                     $response['element_type'] = 'profile';
                     $profile_data[] = $response;
                 }
