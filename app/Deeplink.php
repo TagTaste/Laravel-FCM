@@ -165,12 +165,15 @@ class Deeplink
 
         } else {
             switch ($modelName) {
-                case 'photo':       return env('APP_URL')."/feed/view/photo/$modelId";
-                case 'shoutout':    return env('APP_URL')."/feed/view/shoutout/$modelId";
-                case 'collaborate': return env('APP_URL')."/collaborate/$modelId";
-                case 'job':         return env('APP_URL')."/feed/view/jobs/$modelId";
-                case 'recipe':      return env('APP_URL')."/recipe/$modelId";
-                case 'profile':     return env('APP_URL')."/profile/$modelId";
+                case 'photo':       return env('APP_URL')."/photo/$modelId";
+                case 'shoutout':    return env('APP_URL')."/shoutout/$modelId";
+                case 'collaborate': return env('APP_URL')."/collaborations/$modelId";
+                //case 'job':         return env('APP_URL')."/feed/view/jobs/$modelId";
+                //case 'recipe':      return env('APP_URL')."/recipe/$modelId";
+                case 'profile':     {
+                    $profile = \App\Profile::where('id',$modelId)->first();
+                    return env('APP_URL')."/profile/@".$profile->handle;
+                }
                 case 'company':     return env('APP_URL')."/companies/$modelId";
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;

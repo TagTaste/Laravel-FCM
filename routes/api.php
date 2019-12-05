@@ -44,7 +44,7 @@ Route::post('login',function(Request $request) {
     return response()->json(compact('token'));
     
 });
-
+Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
 Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
@@ -195,6 +195,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
                 Route::resource("photos","PhotoController");
                 Route::get("collaborate/draft","CollaborateController@draft");
+                Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                 Route::resource("collaborate","CollaborateController");
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                     Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
