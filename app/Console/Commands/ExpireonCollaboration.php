@@ -62,7 +62,7 @@ class ExpireonCollaboration extends Command
 
 
         // expire (admins)
-        if(!Cache::add(get_class($this), true, 0.5)) {
+        if(!\Cache::add(get_class($this), true, 0.5)) {
             return false;
         }
         \App\Collaborate::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
