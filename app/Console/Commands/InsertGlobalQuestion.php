@@ -53,7 +53,7 @@ class InsertGlobalQuestion extends Command
 
 
 
-        ['header_name' => "TASTE","header_info" => ["text" => "Pick the product (Ladoo) Ladoo with your hand, eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
+        ['header_name' => "TASTE","header_info" => ["text" => "Pick the product (Ladoo) with your hand, eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
 
 
 
@@ -307,9 +307,13 @@ class InsertGlobalQuestion extends Command
                     "option_type": 1,
 
 
-                    "is_intensity": 1,
+                     "is_intensity": 1,
+
+
+                     "intensity_type": 2,
+
                     
-                   "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
                 }
 
