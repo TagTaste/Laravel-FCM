@@ -53,7 +53,7 @@ class InsertGlobalQuestion extends Command
 
 
 
-        ['header_name' => "TASTE","header_info" => ["text" => "Pick Ladoo with your hand, eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
+        ['header_name' => "TASTE","header_info" => ["text" => "Pick the product (Ladoo) Ladoo with your hand, eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
 
 
 
@@ -229,7 +229,7 @@ class InsertGlobalQuestion extends Command
 
           
 
-          "is_intensity": 1,
+                    "is_intensity": 1,
 
 
                     "intensity_type": 2,
@@ -307,8 +307,9 @@ class InsertGlobalQuestion extends Command
                     "option_type": 1,
 
 
-                    "is_intensity": 0
-
+                    "is_intensity": 1,
+                    
+                   "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
                 }
 
@@ -330,9 +331,6 @@ class InsertGlobalQuestion extends Command
             "is_intensity": 0,
 
 
-            "is_nested_option": 0,
-
-
             "is_mandatory": 1,
 
 
@@ -346,15 +344,7 @@ class InsertGlobalQuestion extends Command
 
             
 
-            "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
+                    "is_intensity": 0
                 },
 
 
@@ -364,13 +354,7 @@ class InsertGlobalQuestion extends Command
                     "value": "Dull",
 
 
-                    "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "is_intensity": 0
 
 
                 },
@@ -382,13 +366,7 @@ class InsertGlobalQuestion extends Command
 
             
 
-            "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+            "is_intensity": 0
 
 
                 },
@@ -400,31 +378,7 @@ class InsertGlobalQuestion extends Command
                     "value": "Glazed",
 
 
-                    "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-                },
-
-                {
-
-
-                    "value": "Oily",
-
-            
-
-            "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "is_intensity": 0
 
 
                 },
@@ -436,13 +390,7 @@ class InsertGlobalQuestion extends Command
                     "value": "Light",
 
 
-                    "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "is_intensity": 0
 
 
                 },
@@ -454,14 +402,7 @@ class InsertGlobalQuestion extends Command
 
             
 
-            "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+            "is_intensity": 0
 
                 },
 
@@ -472,14 +413,7 @@ class InsertGlobalQuestion extends Command
                     "value": "Natural",
 
 
-                    "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+                    "is_intensity": 0
 
                 },
 
@@ -489,14 +423,7 @@ class InsertGlobalQuestion extends Command
                     "value": "Artificial",
 
 
-                    "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+                    "is_intensity": 0
 
                 }
 
@@ -591,7 +518,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "No Garnishing",
+                    "value": "No garnishing",
 
 
                     "is_intensity": 0
@@ -621,7 +548,7 @@ class InsertGlobalQuestion extends Command
         {
 
 
-            "title": "In your opinion, what is the size of each particle (moti) in the Ladoo?",
+            "title": "In your opinion, what is the size of each particle (moti) in the product (Ladoo)?",
 
 
             "select_type": 1,
@@ -705,10 +632,86 @@ class InsertGlobalQuestion extends Command
         {
 
 
-            "title": "Using your forefinger, gently apply a little pressure on the top of Ladoo. What do you feel?",
+            "title": "Using your forefinger, touch the product (Ladoo). What do you feel?",
+
+
+            "is_nested_question": 0,
+
+
+            "is_intensity": 0,
+
+
+            "is_nested_option": 0,
+
+
+            "is_mandatory": 1,
 
 
             "select_type": 2,
+
+
+            "option": [{
+
+
+                    "value": "Oily",
+
+          
+
+                    "is_intensity": 1,
+
+
+                    "intensity_type": 2,
+
+
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+                                        
+
+
+                },
+
+
+                {
+
+
+                    "value": "Sticky",
+
+
+                    "is_intensity": 1,
+
+
+                    "intensity_type": 2,
+
+
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+                },
+
+                {
+
+
+                    "value": "None",
+
+          
+                    "option_type": 2,
+                    
+                    "is_intensity": 0
+                 
+
+
+                }
+            ]
+
+
+        },
+{
+
+
+            "title": "Using your forefinger, gently apply a little pressure on the top of product (Ladoo). What do you feel?",
+
+
+            "select_type": 1,
 
 
             "is_intensity": 0,
@@ -784,7 +787,6 @@ class InsertGlobalQuestion extends Command
 
 
         },
-
 
         {
 
@@ -1870,7 +1872,7 @@ class InsertGlobalQuestion extends Command
     "TEXTURE": [{
 
 
-            "title": "How much force is needed to chew the product?",
+            "title": "How much <b>force</b> is needed to chew the product?",
 
 
             "is_nested_question": 0,
@@ -2519,10 +2521,11 @@ class InsertGlobalQuestion extends Command
             "is_mandatory": 1,
 
 
-            "option": [{
+            "option": [
+              {
 
 
-                    "value": "Yes",
+                    "value": "Easy",
 
 
                     "is_intensity": 0
@@ -2534,14 +2537,45 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "No",
+                    "value": "Somewhat easy",
+
+
+                    "is_intensity": 0
+
+
+                },
+                {
+
+
+                    "value": "Moderate",
+
+
+                    "is_intensity": 0
+
+
+                },
+
+
+                {
+
+
+                    "value": "Somewhat difficult",
+
+
+                    "is_intensity": 0
+
+
+                },
+                {
+
+
+                    "value": "Difficult",
 
 
                     "is_intensity": 0
 
 
                 }
-
             ]
 
 
@@ -2643,16 +2677,11 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "No residue",
+                     "value": "No residue",
+                     
+                      "option_type": 2,
 
-
-                    "is_intensity": 1,
-
-
-                    "intensity_type": 2,
-
-
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
+                    "is_intensity": 0
 
 
                 },
@@ -3094,13 +3123,9 @@ class InsertGlobalQuestion extends Command
 
 }';
 
-        $data = ['name'=>'Ladoo_6_Dec','keywords'=>"Ladoo_6_Dec",'description'=>null,
+        $data = ['name'=>'Ladoo_Private_Haldiram','keywords'=>"Ladoo_Private_Haldiram",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
-
-
-
-
 
 
     }
