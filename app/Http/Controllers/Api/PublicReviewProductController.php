@@ -329,15 +329,14 @@ class PublicReviewProductController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-
-                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-                $suggested = collect([]);
-                if(!empty($suggestions)){
-                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                }
-                if($suggested->count() > 0)
-                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
-                else
+                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                // $suggested = collect([]);
+                // if(!empty($suggestions)){
+                //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                // }
+                // if($suggested->count() > 0)
+                //     $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                // else
                     $this->model[$name] = $searched;
             }
             if(isset($this->model['product']))
@@ -414,6 +413,7 @@ class PublicReviewProductController extends Controller
 //        if(null !== $skip && null !== $take){
 //            $model = $model->skip($skip)->take($take);
 //        }
+        usort($m, function($a, $b) {return $a->review_count < $b->review_count;});
         return $m;
 
 
