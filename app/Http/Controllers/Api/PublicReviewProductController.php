@@ -22,6 +22,7 @@ class PublicReviewProductController extends Controller
      */
     protected $model;
     protected $now;
+    public $ids;
     /**
      * Create instance of controller with Model
      *
@@ -47,18 +48,24 @@ class PublicReviewProductController extends Controller
         $query = $request->input('q');
         $profileId = $request->user()->profile->id;
         if(isset($query) && !is_null($query) && !empty($query))
-        {
-            return $this->getSearchData($request,$query,$type,$profileId);
+        {   
+            $data = $this->getSearchData($request,$query,$type,$profileId);
+            if(!isset($request->filters))
+            return $data;
+            $this->model = new PublicReviewProduct;
         }
         $filters = $request->input('filters');
         if(!empty($filters))
         {
             $productIds =  \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
-
+            if(isset($query) && !is_null($query) && !empty($query)) {
+                $this->ids = (object)$this->ids;
+                $productIds = $productIds->intersect($this->ids);
+            }
             $products = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
             $data = [];
 
-            foreach($products as $product){
+            foreach($products as $product)  {
                 $meta = $product->getMetaFor($profileId);
                 $data[] = ['product'=>$product,'meta'=>$meta];
             }
@@ -328,6 +335,7 @@ class PublicReviewProductController extends Controller
             foreach($hits as $name => $hit){
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
+                $this->ids = $ids;
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
                 //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
                 // $suggested = collect([]);
