@@ -63,6 +63,9 @@ class PublicReviewProductController extends Controller
                 $productIds = $productIds->intersect($this->ids);
             }
             $products = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+            $products = $products->sortByDesc(function($product){
+                return $product->review_count;
+            });
             $data = [];
 
             foreach($products as $product)  {
