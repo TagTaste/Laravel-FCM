@@ -49,7 +49,7 @@ class PublicReviewProductGetSample
             ], 
             function ($mail) use ($data) {
                 $mail->from(config('mail.from.address'), config('mail.from.name'));
-                $mail->to(config('mail.tagtaste_backend_mail_id'), null)->subject("New Sample Request");
+                $mail->to(config('mail.tagtaste_sample_request_mail_id'), null)->subject("New Sample Request");
             }
         );
 
