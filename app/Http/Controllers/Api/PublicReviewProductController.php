@@ -291,7 +291,7 @@ class PublicReviewProductController extends Controller
         $client = SearchClient::get();
 
         $response = $client->search($params);
-        if($response['hits']['total']['value'] == 0) {
+        if($response['hits']['total'] == 0) {
             $originalQuery = explode(' ' ,$query);
             $originalQuery = $originalQuery[0];
             $q = $originalQuery;
