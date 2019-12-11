@@ -135,11 +135,13 @@ class ExploreController extends Controller
             $product_id = $element->data_id;
             $model = $element->data_model;
             $data_fetched = $model::where('id',$product_id)->first();
-            $response = [
-                'product' => $data_fetched,
-                'meta' => $data_fetched->getMetaFor($loggedInProfileId),
-                'element_type' => 'product',
-            ];
+            if (!is_null($data_fetched)) {
+               $response = [
+                    'product' => $data_fetched->toArray(),
+                    'meta' => $data_fetched->getMetaFor($loggedInProfileId),
+                    'element_type' => 'product',
+                ]; 
+            }
         }
         return $response;
     }
@@ -201,6 +203,7 @@ class ExploreController extends Controller
     {
         $this->errors['status'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
+        $sort_flag = 0;
         $data = [];
 
         $skip = (int)$request->input('skip', 0);
@@ -218,8 +221,6 @@ class ExploreController extends Controller
 
         $collection_elements = ReviewCollectionElement::where('collection_id',$collectionId)
             ->whereNull('deleted_at')
-            ->skip($skip)
-            ->take($take)
             ->get();
         
         if (count($collection_elements)) {
@@ -228,16 +229,22 @@ class ExploreController extends Controller
                     $data[] = $this->elementsByProductId($element, $loggedInProfileId);
                 } else if ("collection" === $element->type && "collection" === $element->data_type) {
                     $data[] = $this->elementsByCollectionId($element, $loggedInProfileId);
+                    $sort_flag = $sort_flag + 1;
                 } else if ("profile" === $element->type && "profile" === $element->data_type) {
                     $profile_data = $this->elementsByProfileId($element, $loggedInProfileId);
                     if (!is_null($profile_data)) {
                         $data[] = $profile_data;
+                        $sort_flag = $sort_flag + 1;
                     }
                 }
             }
         }
 
-        $this->model['elements'] = $data;
+        if (0 == $sort_flag) {
+            usort($data, function($a, $b) {return $a['product']['review_count'] < $b['product']['review_count'];});
+        }
+
+        $this->model['elements'] = array_slice($data, $skip, $take);
         $this->model['count'] = ReviewCollectionElement::where('collection_id',$collectionId)
             ->whereNull('deleted_at')
             ->count();
@@ -248,6 +255,8 @@ class ExploreController extends Controller
     {
         $this->errors['status'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
+        $sort_flag = 0;
+        $data = [];
         $this->model = [];
 
         $skip = (int)$request->input('skip', 0);
@@ -255,24 +264,29 @@ class ExploreController extends Controller
 
         $collection_elements = ReviewCollectionElement::where('collection_id',$collectionId)
             ->whereNull('deleted_at')
-            ->skip($skip)
-            ->take($take)
             ->get();
         
         if (count($collection_elements)) {
              foreach ($collection_elements as $key => $element) {
                 if ("product" === $element->type && "product" === $element->data_type) {
-                    $this->model[] = $this->elementsByProductId($element, $loggedInProfileId);
+                    $data[] = $this->elementsByProductId($element, $loggedInProfileId);
                 } else if ("collection" === $element->type && "collection" === $element->data_type) {
-                    $this->model[] = $this->elementsByCollectionId($element, $loggedInProfileId);
+                    $data[] = $this->elementsByCollectionId($element, $loggedInProfileId);
+                    $sort_flag = $sort_flag + 1;
                 } else if ("profile" === $element->type && "profile" === $element->data_type) {
                     $profile_data = $this->elementsByProfileId($element, $loggedInProfileId);
                     if (!is_null($profile_data)) {
-                        $this->model[] = $profile_data;
+                        $data[] = $profile_data;
+                        $sort_flag = $sort_flag + 1;
                     }
                 }
             }
         }
+        if (0 == $sort_flag) {
+            usort($data, function($a, $b) {return $a['product']['review_count'] < $b['product']['review_count'];});
+        }
+
+        $this->model = array_slice($data, $skip, $take);
 
         return $this->sendResponse();
     }
@@ -339,9 +353,11 @@ class ExploreController extends Controller
                 $data_fetched = \App\V2\Profile::where('id',$reviewer->profile_id)->first();
                 if (!is_null($data_fetched)) {
                     $response = $data_fetched->toArray();
-                    $response['isFollowing'] = Profile::isFollowing($profileId, $reviewer->profile_id);
-                    $response['element_type'] = 'profile';
-                    $profile_data[] = $response;
+                    if (!is_null($response['image_meta'])) {
+                        $response['isFollowing'] = Profile::isFollowing($profileId, $reviewer->profile_id);
+                        $response['element_type'] = 'profile';
+                        $profile_data[] = $response;
+                    }
                 }
             }
         }

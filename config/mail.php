@@ -60,7 +60,11 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
-    'tagtaste_backend_mail_id' => env('TAGTASTE_BACKEND_MAIL_ID', 'sarvada@tagtaste.com'),
+    'tagtaste_backend_mail_id' => env('TAGTASTE_BACKEND_MAIL_ID', 'support@tagtaste.com'),
+
+    'tagtaste_campus_connect_mail_id' => env('TAGTASTE_CAMPUS_CONNECT_MAIL_ID', 'campusconnect@tagtaste.com'),
+
+    'tagtaste_sample_request_mail_id' => env('TAGTASTE_SAMPLE_REQUEST_MAIL_ID', 'samples@tagtaste.com'),
 
     /*
     |--------------------------------------------------------------------------

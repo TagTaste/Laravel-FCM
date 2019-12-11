@@ -85,6 +85,10 @@ class CompanyController extends Controller
     
         // add companies that are following $channel_owner
         Redis::sAdd("followers:company:".$this->model->id, $request->user()->profile->id);
+
+        $subscriber = new Subscriber();
+        $subscriber->followCompanySuggestion((int)$request->user()->profile->id, (int)$this->model->id);
+        
         return $this->sendResponse();
     }
 
