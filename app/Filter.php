@@ -215,22 +215,26 @@ class Filter extends Model
     {
         $models = null;
         foreach($filters as $filter => $value){
-            $model = static::selectRaw('distinct ' . static::$relatedColumn)
+            if ("is_newly_launched" == $filter) {
+                $model = \App\PublicReviewProduct::where($filter, (int)$value)->pluck('id');
+            } else {
+                $model = static::selectRaw('distinct ' . static::$relatedColumn)
                 ->where('key',$filter)->whereIn('value',$value);
             
-            if((null !== $skip) || (null !== $take)){
-                $model = $model->skip($skip)->take($take);
+                if((null !== $skip) || (null !== $take)){
+                    $model = $model->skip($skip)->take($take);
+                }
+               
+                $model = $model->orderBy(static::$relatedColumn)
+                    ->get()
+                    ->pluck(static::$relatedColumn);
             }
-           
-            $model = $model->orderBy(static::$relatedColumn)
-                ->get()
-                ->pluck(static::$relatedColumn);
-            
+
             if(is_null($models)){
                 $models = $model;
                 continue;
             }
-            
+
             $models = $model->intersect($models);
         }
         return $models;

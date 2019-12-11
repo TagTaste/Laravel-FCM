@@ -57,6 +57,8 @@ class ExploreController extends Controller
         				if ("filter" === $collection->type) {
                             foreach ($elements as $key => $element) {
                                 if ("filter" === $element->type && "product" === $element->filter_on) {
+                                    $data[$interface->id]['filter_meta'] = $element->filter_meta;
+                                    $data[$interface->id]['see_more'] = true;
                                     $data[$interface->id]['elements'] = $this->elementsByProductFilter($element, $loggedInProfileId);
                                 }
                             }
@@ -105,7 +107,7 @@ class ExploreController extends Controller
     {
     	$response = array();
         $field_processable = ["is_newly_launched","company_id","brand_id","product_category_id","product_sub_category_id"];
-        $field_unprocessable = ["By Company","By Brand","Category","Sub Category"];
+        $field_unprocessable = ["By Company","By Brand","Category","Sub Category","is_newly_launched"];
     	if (isset($element->filter_model) && !is_null($element->filter_model)) {
     		$filters = json_decode($element->filter, true);
         	$fetched_data = $element->filter_model;
