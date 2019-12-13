@@ -67,7 +67,7 @@ class PublicReviewProductController extends Controller
                 return $product->review_count;
             });
             $data = [];
-
+            $products = $products->forPage($page,20);
             foreach($products as $product)  {
                 $meta = $product->getMetaFor($profileId);
                 $data[] = ['product'=>$product,'meta'=>$meta];
@@ -297,7 +297,7 @@ class PublicReviewProductController extends Controller
             $q = $originalQuery;
             $originalQuery = str_split($originalQuery);
             $temp = '';
-            $search = '';
+            $search = ''; 
             $len = strlen($q)-1;
             for($i=0;$i<$len;$i++) {
                 $temp = $temp.''.$originalQuery[$i];
