@@ -57,16 +57,16 @@ class InsertPublicReviewQuestionair extends Command
 ['header_name'=>"AROMA","header_info"=> ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat or drink yet.\n\nTake your nose closer to the food & beverage pair and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
-['header_name'=>"TASTE","header_info"=> ["text" => "Please take a bite of the food and drink the beverage as you would normally do while consuming this combination of food and beverage pair. Now assess the tastes.\n\nAll the basic tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
+['header_name'=>"TASTE","header_info"=> ["text" => "Please take a bite of the food and drink the beverage as you would normally do while consuming this combination of food and beverage pair. Now assess the tastes.\n\nAll the basic tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more.","video_link" => "https://www.youtube.com/watch?v=H8SVTNZyuW0"],'header_selection_type'=>"1"],
 
 
 ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Eat the food & beverage pair normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Instead of exhaling you can simply PINCH YOUR NOSE for minimum 5-6 seconds and release. Identify the odors that come from inside the mouth; these sensed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
-['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
+['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat.","video_link" => "https://www.youtube.com/watch?v=rIQzJ2Mz7KY"],'header_selection_type'=>"1"],
 
 
-['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor and Texture; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
+['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor and Texture of food and beverage pair; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
 
 ];
         $questions2 = '{
@@ -2364,7 +2364,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Completely Diluted",
+					"value": "Completely diluted",
 
 
 
@@ -2746,7 +2746,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Any Other",
+					"value": "Any other",
 
           
 
@@ -2778,7 +2778,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "While chewing normally with both food and beverage pair, what textures do you feel inside your mouth?",
+			"title": "While chewing normally with food and beverage pair, what textures do you feel inside your mouth?",
 
       
 
@@ -2825,7 +2825,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Tingling (Tiny Bubbles)",
+					"value": "Tingling (Tiny bubbles)",
 
 
 
@@ -3608,11 +3608,27 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Sticking on tooth",
+					"value": "Sticking on tooth or palate",
 
 
 
 					"is_intensity": 0
+
+
+
+				},
+				{
+
+
+
+					"value": "Stuck between teeth",
+
+
+
+					"is_intensity": 0
+
+
+
 
 
 
@@ -4141,7 +4157,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Hot Tea",
+					"value": "Hot tea",
 
 
 
@@ -4192,7 +4208,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Cold Coffee",
+					"value": "Cold coffee",
 
 
 
@@ -4209,7 +4225,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Hot Coffee",
+					"value": "Hot coffee",
 
 
 
@@ -4226,7 +4242,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Any Other",
+					"value": "Any other",
 
 				   
 
