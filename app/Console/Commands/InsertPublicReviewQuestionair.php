@@ -1166,7 +1166,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Please take a bite of the food and drink the beverage as you would normally do while consuming this combination of food and beverage pair. Now assess the tastes.\nWhich Basic tastes have you sensed (Food & beverage pair)?",
+			"title": "Please take a bite of the food and drink the beverage as you would normally do while consuming this combination of food and beverage pair. Now assess the tastes.\n\nWhich Basic tastes have you sensed (Food & beverage pair)?",
 
 
 
