@@ -355,11 +355,9 @@ class ExploreController extends Controller
                 $data_fetched = \App\V2\Profile::where('id',$reviewer->profile_id)->first();
                 if (!is_null($data_fetched)) {
                     $response = $data_fetched->toArray();
-                    if (!is_null($response['image_meta'])) {
-                        $response['isFollowing'] = Profile::isFollowing($profileId, $reviewer->profile_id);
-                        $response['element_type'] = 'profile';
-                        $profile_data[] = $response;
-                    }
+                    $response['isFollowing'] = Profile::isFollowing($profileId, $reviewer->profile_id);
+                    $response['element_type'] = 'profile';
+                    $profile_data[] = $response;
                 }
             }
         }
