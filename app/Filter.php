@@ -157,11 +157,26 @@ class Filter extends Model
     public static function getFilters($model = null)
     {
         $filterClass = static::class;
-        if($model){
+        if ($model) {
             $filterClass = "\\App\\Filter\\" . ucfirst($model);
         }
-        $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'))
-            ->groupBy('key','value')->orderBy('count','desc')->get()->groupBy('key');
+        
+        if ("\App\Filter\PublicReviewProduct" === $filterClass) {
+            $allFilters = $filterClass::where('key','!=','is_newly_launched')
+                ->select('key','value',\DB::raw('count(`key`) as count'))
+                ->groupBy('key','value')
+                ->orderBy('count','desc')
+                ->get()
+                ->groupBy('key');
+        } else {
+            $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'))
+                ->groupBy('key','value')
+                ->orderBy('count','desc')
+                ->get()
+                ->groupBy('key');
+        }
+        
+        
         $filters = [];
         //$allFilters = $allFilters->keyBy('key');
         $order = $filterClass::$filterOrder;
