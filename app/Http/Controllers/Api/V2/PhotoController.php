@@ -79,7 +79,7 @@ class PhotoController extends Controller
         {
             $companyId = $request->input('company_id');
             $userId = $request->user()->id;
-            $company = \App\V2\Company::find($companyId);
+            $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if(!$userBelongsToCompany){
                 return $this->sendError("User does not belong to this company");
@@ -92,7 +92,7 @@ class PhotoController extends Controller
             }
             $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>$this->model->images,
                 'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(), 'image_meta'=>json_encode($this->model->images[0])];
-            \Redis::set("photo:" . $this->model->id,json_encode($data));
+            Redis::set("photo:" . $this->model->id,json_encode($data));
             event(new NewFeedable($this->model,$company));
 
             //add subscriber
