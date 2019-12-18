@@ -79,7 +79,7 @@ class PhotoController extends Controller
         {
             $companyId = $request->input('company_id');
             $userId = $request->user()->id;
-            $company = Company::find($companyId);
+            $company = \App\V2\Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if(!$userBelongsToCompany){
                 return $this->sendError("User does not belong to this company");
