@@ -43,7 +43,6 @@ class Collaborate extends BaseCollaborate
     public function getDescriptionAttribute($value)
     {
         $data = $value;
-        // dd($data);
         if (!is_null($this->start_in)) {
             $data = $data."\n\n"."Starts In:\n".$this->start_in;
         }
@@ -87,7 +86,6 @@ class Collaborate extends BaseCollaborate
         if (!is_null($this->occassion)) {
             $data = $data."\n\n"."Event:\n".$this->occassion;
         }
-        // dd($data);
         return $data;
     }
 
