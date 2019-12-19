@@ -44,18 +44,18 @@ class Collaborate extends BaseCollaborate
     {
         $data = $value;
         if (!is_null($this->start_in)) {
-            $data = $data."\n\n"."Starts In:\n".$this->start_in;
+            $data = $data."\n\n"."Starts In\n".$this->start_in;
         }
 
         if (!is_null($this->duration)) {
-            $data = $data."\n\n"."Duration:\n".$this->duration;
+            $data = $data."\n\n"."Duration\n".$this->duration;
         }
 
         if (!is_null($this->eligibility_criteria)) {
             $data = $data."\n\n"."Eligibility Criteria:\n".$this->eligibility_criteria;
 
             if (!is_null($this->collaborate_occupations) && count($this->collaborate_occupations)) {
-                $data = $data."\n\n"."Consumers with Profiles:";
+                $data = $data."\n\n"."Consumers with Profiles";
                 $collaborate_occupations = $this->collaborate_occupations->toArray();
                 if (count($collaborate_occupations)) {
                     foreach ($collaborate_occupations as $key => $collaborate_occupation) {
@@ -65,7 +65,7 @@ class Collaborate extends BaseCollaborate
             }
 
             if (!is_null($this->collaborate_specializations) && count($this->collaborate_specializations)) {
-                $data = $data."\n\n"."Consumers with Profiles:";
+                $data = $data."\n\n"."Experts with Specializations";
                 $collaborate_specializations = $this->collaborate_specializations->toArray();
                 if (count($collaborate_specializations)) {
                     foreach ($collaborate_specializations as $key => $collaborate_specialization) {
@@ -76,15 +76,15 @@ class Collaborate extends BaseCollaborate
         }
 
         if (!is_null($this->project_commences)) {
-            $data = $data."\n\n"."Deliverables:\n".$this->project_commences;
+            $data = $data."\n\n"."Deliverables\n".$this->project_commences;
         }
 
         if (!is_null($this->financials)) {
-            $data = $data."\n\n"."Financials:\n".$this->financials;
+            $data = $data."\n\n"."Financials\n".$this->financials;
         }
 
         if (!is_null($this->occassion)) {
-            $data = $data."\n\n"."Event:\n".$this->occassion;
+            $data = $data."\n\n"."Event\n".$this->occassion;
         }
         return $data;
     }
