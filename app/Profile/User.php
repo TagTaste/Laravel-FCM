@@ -362,7 +362,7 @@ class User extends BaseUser
             CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
             CURLOPT_TIMEOUT        => 120,      // timeout on response
             CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
-            CURLOPT_CAINFO => app_path("cacert.pem")
+            // CURLOPT_CAINFO => app_path("cacert.pem") // remove because of image issue
         );
         
         $ch      = curl_init( $url );
