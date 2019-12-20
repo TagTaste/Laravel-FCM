@@ -51,7 +51,7 @@ class InsertGlobalQuestion extends Command
 
 
 
-        ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes\n\n.All the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long -lasting aftertaste, and some people crave for more."],'header_selection_type'=>"1"],
+        ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long -lasting aftertaste, and some people crave for more."],'header_selection_type'=>"1"],
 
 
 
