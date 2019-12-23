@@ -42,9 +42,15 @@ class Collaborate extends BaseCollaborate
      *
      * @return string
      */
-    public function getDescriptionUpdatedAttribute($value)
+    public function getDescriptionUpdatedAttribute()
     {
-        $data = $value;
+        $data = "";
+
+        if (!is_null($this->description) && 
+            (is_string($this->description) && strlen($this->description))) {
+            $data = $data.$this->description;
+        }
+
         if (!is_null($this->start_in) && 
             (is_string($this->start_in) && strlen($this->start_in))) {
             $data = $data."\n\n"."Starts In\n".$this->start_in;
@@ -57,7 +63,7 @@ class Collaborate extends BaseCollaborate
 
         if (!is_null($this->eligibility_criteria) && 
             (is_string($this->eligibility_criteria) && strlen($this->eligibility_criteria))) {
-            $data = $data."\n\n"."Eligibility Criteria:\n".$this->eligibility_criteria;
+            $data = $data."\n\n"."Eligibility Criteria\n".$this->eligibility_criteria;
 
             if (!is_null($this->collaborate_occupations) && count($this->collaborate_occupations)) {
                 $data = $data."\n\n"."Consumers with Profiles";
@@ -100,5 +106,4 @@ class Collaborate extends BaseCollaborate
         }
         return $data;
     }
-
 }
