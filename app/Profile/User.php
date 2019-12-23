@@ -261,9 +261,13 @@ class User extends BaseUser
             $s3 = \Storage::disk('s3');
             $filePath = 'images/p/' . $this->profile->id;
             $resp = $s3->putFile($filePath, new File($filename), ['visibility'=>'public']);
-            $meta = ['tiny_photo'=>$resp];
-            $imageMeta = ['original_photo'=>$resp,'tiny_photo'=>$resp,'meta'=>$meta];
-            Profile::where('id',$this->profile->id)->update(['image'=>$resp,'image_meta'=>json_encode($imageMeta,true)]);
+            // to genrate bucket path
+            $bucket = $s3->getAdapter()->getBucket();
+            $endpoint = $s3->getAdapter()->getClient()->getEndpoint();
+            $image_path = $endpoint->getScheme()."://".$endpoint->getHost()."/".$bucket."/";
+            $meta = ['tiny_photo'=>$image_path.$resp];
+            $imageMeta = ['original_photo'=>$image_path.$resp,'tiny_photo'=>$image_path.$resp,'meta'=>$meta];
+            Profile::where('id',$this->profile->id)->update(['image'=>$image_path.$resp,'image_meta'=>json_encode($imageMeta,true)]);
         }
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
         if(isset($this->profile->id))
@@ -358,7 +362,7 @@ class User extends BaseUser
             CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
             CURLOPT_TIMEOUT        => 120,      // timeout on response
             CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
-            CURLOPT_CAINFO => app_path("cacert.pem")
+            // CURLOPT_CAINFO => app_path("cacert.pem") // remove because of image issue
         );
         
         $ch      = curl_init( $url );
