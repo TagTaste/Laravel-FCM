@@ -17,10 +17,10 @@ class Collaborate extends BaseCollaborate
         'description','project_commences','images',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','owner'
-        ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile','images_meta','addresses','collaborate_allergens','brand_name','brand_logo'];
+        ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile','images_meta','addresses','collaborate_allergens','brand_name','brand_logo','description_updated'];
 
 
-    protected $appends = ['owner' ,'images'];
+    protected $appends = ['owner' ,'images', 'description_updated'];
 
     protected $with = ['profile','addresses','collaborate_allergens'];
 
@@ -101,7 +101,7 @@ class Collaborate extends BaseCollaborate
      *
      * @return string
      */
-    public function getDescriptionAttribute($value)
+    public function getDescriptionUpdatedAttribute($value)
     {
         $data = $value;
         if (!is_null($this->start_in) && 
