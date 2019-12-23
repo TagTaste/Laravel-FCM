@@ -36,9 +36,9 @@ class Collaborate extends BaseCollaborate
     }
 
     /**
-     * Which company created the collaboration project.
+     * Compute the description with old fields.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return string
      */
     public function getDescriptionAttribute($value)
     {
