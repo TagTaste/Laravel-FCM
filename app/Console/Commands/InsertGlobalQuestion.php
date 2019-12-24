@@ -1,27 +1,7 @@
-
- 
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@Tusharv23 
- Unwatch 3
- Star 0
- Fork 0 TagTaste/webapp Private
- Code  Issues 62  Pull requests 23  Actions  Projects 2  Wiki  Security  Insights  Settings
-Tree: 450ba9e756 
-webapp/app/Console/Commands/InsertGlobalQuestion.php
-Find file Copy path
-@sarvadachauhan sarvadachauhan final changes done
-450ba9e 2 minutes ago
-4 contributors
-@ashokTagtaste @sarvadachauhan @Tusharv23 @alokatTagTaste
-1924 lines (984 sloc)  36.1 KB
-RawBlameHistory
-    
 <?php
+
 namespace App\Console\Commands;
+
 use Illuminate\Console\Command;
 class InsertGlobalQuestion extends Command
 {
