@@ -23,7 +23,7 @@ class Profile extends Model
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
         'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete'
-        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert'
+        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -41,7 +41,7 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
