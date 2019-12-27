@@ -424,6 +424,7 @@ class PublicReviewProductController extends Controller
 //        if(null !== $skip && null !== $take){
 //            $model = $model->skip($skip)->take($take);
 //        }
+        $m = array_filter($m);
         usort($m, function($a, $b) {return $a->review_count < $b->review_count;});
         return $m;
 
