@@ -237,7 +237,9 @@ class PublicReviewProduct extends Model
         $header = ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
         if (!is_null($header)) {
             $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
-            $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
+            // old code
+            // $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
+            $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->count(\DB::raw('DISTINCT profile_id'));
             $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();
             $question = json_decode($question->questions);
             $option = isset($question->option) ? $question->option : [];
