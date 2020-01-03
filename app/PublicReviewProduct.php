@@ -316,4 +316,11 @@ class PublicReviewProduct extends Model
 
     }
 
+    public function getMetaForPublicForCollection()
+    {
+        $meta = [];
+        $meta['overall_rating'] = $this->getOverallRatingAttribute();
+        return $meta;
+    }
+
 }
