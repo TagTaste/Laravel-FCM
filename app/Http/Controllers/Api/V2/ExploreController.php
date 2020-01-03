@@ -228,10 +228,16 @@ class ExploreController extends Controller
         if (count($collection_elements)) {
              foreach ($collection_elements as $key => $element) {
                 if ("product" === $element->type && "product" === $element->data_type) {
-                    $data[] = $this->elementsByProductId($element, $loggedInProfileId);
+                    $product_detail = $this->elementsByProductId($element, $loggedInProfileId);
+                    if (!is_null($product_detail) && count($product_detail)) {
+                        $data[] = $product_detail;
+                    }
                 } else if ("collection" === $element->type && "collection" === $element->data_type) {
-                    $data[] = $this->elementsByCollectionId($element, $loggedInProfileId);
-                    $sort_flag = $sort_flag + 1;
+                    $collection_detail = $this->elementsByCollectionId($element, $loggedInProfileId);
+                    if (!is_null($collection_detail) && count($collection_detail)) {
+                        $data[] = $collection_detail;
+                        $sort_flag = $sort_flag + 1;
+                    }
                 } else if ("profile" === $element->type && "profile" === $element->data_type) {
                     $profile_data = $this->elementsByProfileId($element, $loggedInProfileId);
                     if (!is_null($profile_data)) {
@@ -271,10 +277,16 @@ class ExploreController extends Controller
         if (count($collection_elements)) {
              foreach ($collection_elements as $key => $element) {
                 if ("product" === $element->type && "product" === $element->data_type) {
-                    $data[] = $this->elementsByProductId($element, $loggedInProfileId);
+                    $product_detail = $this->elementsByProductId($element, $loggedInProfileId);
+                    if (!is_null($product_detail) && count($product_detail)) {
+                        $data[] = $product_detail;
+                    }
                 } else if ("collection" === $element->type && "collection" === $element->data_type) {
-                    $data[] = $this->elementsByCollectionId($element, $loggedInProfileId);
-                    $sort_flag = $sort_flag + 1;
+                    $collection_detail = $this->elementsByCollectionId($element, $loggedInProfileId);
+                    if (!is_null($collection_detail) && count($collection_detail)) {
+                        $data[] = $collection_detail;
+                        $sort_flag = $sort_flag + 1;
+                    }
                 } else if ("profile" === $element->type && "profile" === $element->data_type) {
                     $profile_data = $this->elementsByProfileId($element, $loggedInProfileId);
                     if (!is_null($profile_data)) {
