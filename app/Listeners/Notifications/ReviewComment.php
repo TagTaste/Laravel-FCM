@@ -32,6 +32,7 @@ class ReviewComment
             return;
         }
         $profile = Profile::where('id',$profileId)->first();
+        if(isset($profile))
         Notification::send($profile, new \App\Notifications\Actions\ReviewComment($event));
     }
 }
