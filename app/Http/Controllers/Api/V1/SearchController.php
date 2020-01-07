@@ -406,7 +406,7 @@ class SearchController extends Controller
             'body' => [
                 'query' => [
                     'query_string' => [
-                        'query' => $query
+                        'query' => '*'.$query.'*'
                     ]
                 ]
             ]
