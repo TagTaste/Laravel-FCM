@@ -420,7 +420,10 @@ class SearchController extends Controller
         $client = SearchClient::get();
 
         $response = $client->search($params);
-
+        if($response['hits']['total'] == 0) {
+                $suggestionByElastic = $this->elasticSuggestion($response,$type);
+                $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
+            }
         if($response['hits']['total'] > 0){
 
             $hits = collect($response['hits']['hits']);
@@ -1578,6 +1581,44 @@ class SearchController extends Controller
         $this->model = $model;
 
         return $this->sendResponse();
+    }
+
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response["suggest"];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])) {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
+                    
+                        $query= $query."AND ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    $params = [
+                        'index' => "api",
+                        'body' => [
+                            'query' => [
+                                'query_string' => [
+                                    'query' => $query
+                                ]
+                            ],
+                        ]
+                    ];
+                    $this->setType($type);
+
+                    if($type){
+                        $params['type'] = $type;
+                    }
+                    $client = SearchClient::get();
+
+                    $response = $client->search($params);
+                    return $response;    
+                } else {
+                    return null;
+                }
     }
 
 }
