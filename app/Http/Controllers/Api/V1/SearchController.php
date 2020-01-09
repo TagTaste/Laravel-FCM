@@ -434,11 +434,12 @@ class SearchController extends Controller
 
             foreach($hits as $name => $hit){
                 $searched = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
-                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                //$suggestions = null;
                 $suggested = collect([]);
-                if(!empty($suggestions)){
-                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                }
+                // if(!empty($suggestions)){
+                //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                // }
 
                 $this->model[$name] = $searched->merge($suggested)->sortBy('name');
             }
