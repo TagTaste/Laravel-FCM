@@ -1618,7 +1618,8 @@ class SearchController extends Controller
                         'body' => [
                             'query' => [
                                 'query_string' => [
-                                    'query' => $query
+                                    'query' => $query,
+                                    'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
                                 ]
                             ],
                         ]
