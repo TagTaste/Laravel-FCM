@@ -314,7 +314,21 @@ class SearchController extends Controller
                         'query' => '*'.$query.'*',
                         'fields' => ['name^3','handle^2','about','keywords^2']
                      ]
-                ]
+                    ],
+                    'suggest' => [
+                        'my-suggestion-1'=> [
+                                'text'=> $query,
+                                'term'=> [
+                                     'field'=> 'name'
+                                ]
+                        ],
+                        'my-suggestion-2'=> [
+                                'text'=> $query,
+                                'term'=> [
+                                     'field'=> 'title'
+                                ]
+                        ]
+                    ]
             ]
         ];
 
@@ -329,7 +343,10 @@ class SearchController extends Controller
         $this->model = [];
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        
+        if($response['hits']['total'] == 0) {
+            $suggestionByElastic = $this->elasticSuggestion($response,$type);
+            $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
+        }
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
@@ -803,4 +820,42 @@ class SearchController extends Controller
         return $this->sendResponse();
     }
 
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response["suggest"];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])) {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
+                    
+                        $query= $query."AND ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    $params = [
+                        'index' => "api",
+                        'body' => [
+                            'query' => [
+                                'query_string' => [
+                                    'query' => $query,
+                                    'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
+                                ]
+                            ],
+                        ]
+                    ];
+                    $this->setType($type);
+
+                    if($type){
+                        $params['type'] = $type;
+                    }
+                    $client = SearchClient::get();
+
+                    $response = $client->search($params);
+                    return $response;    
+                } else {
+                    return null;
+                }
+    }
 }
