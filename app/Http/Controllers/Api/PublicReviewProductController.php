@@ -292,39 +292,8 @@ class PublicReviewProductController extends Controller
 
         $response = $client->search($params);
         if($response['hits']['total'] == 0) {
-            $originalQuery = explode(' ' ,$query);
-            $originalQuery = $originalQuery[0];
-            $q = $originalQuery;
-            $originalQuery = str_split($originalQuery);
-            $temp = '';
-            $search = ''; 
-            $len = strlen($q)-1;
-            for($i=0;$i<$len;$i++) {
-                $temp = $temp.''.$originalQuery[$i];
-                if ($i == $len-1) {
-                    $search = '('.$temp.'*)'.$search;
-                } else {
-                    $search = ' OR ('.$temp.'*)'.$search;
-                }
-            }
-            $params = [
-                'index' => "api",
-                'body' => [
-                    "from" => 0, "size" => 1000,
-                    'query' => [
-                        'query_string' => [
-                            'query' => $search,
-                            'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
-                        ]
-                    ]
-                ]
-            ];
-            if($type){
-                $params['type'] = $type;
-            }
-            $client = SearchClient::get();
-
-            $response = $client->search($params);
+            $suggestionByElastic = $this->elasticSuggestion($response,$type);
+            $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
         }
         $this->model = [];
         //return $response;
@@ -695,4 +664,42 @@ class PublicReviewProductController extends Controller
         return $this->sendResponse();
     }
 
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response["suggest"];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    $params = [
+                        'index' => "api",
+                        'body' => [
+                            'query' => [
+                                'query_string' => [
+                                    'query' => $query,
+                                    'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
+                                ]
+                            ],
+                        ]
+                    ];
+                    $this->setType($type);
+
+                    if($type){
+                        $params['type'] = $type;
+                    }
+                    $client = SearchClient::get();
+
+                    $response = $client->search($params);
+                    return $response;    
+                } else {
+                    return null;
+                }
+    }
 }

@@ -1606,7 +1606,7 @@ class SearchController extends Controller
                     $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
                     if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
                     
-                        $query= $query."AND ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
                     }
                 } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
                     
