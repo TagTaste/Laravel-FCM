@@ -355,17 +355,17 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
 
                 $suggested = collect([]);
 
-                if(!empty($suggestions)){
-                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                }
-                if($suggested->count() > 0) {
+                //if(!empty($suggestions)){
+                //    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                //}
+                //if($suggested->count() > 0) {
                     //$this->model[$name] = $searched;
-                    $this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
-                } else
+                //    $this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
+                //} else
                     $this->model[$name] = $searched;
             }
 
@@ -823,13 +823,13 @@ class SearchController extends Controller
     public function elasticSuggestion($response,$type) {
         $query = "";
             $elasticSuggestions = $response["suggest"];
-            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])) {
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
                     $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
-                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
                     
                         $query= $query."AND ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
                     }
-                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
                     
                     $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
                 }
