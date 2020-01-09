@@ -1585,6 +1585,7 @@ class SearchController extends Controller
 
     public function elasticSuggestion($response,$type) {
         $query = "";
+            \Log::info($response);
             $elasticSuggestions = $response["suggest"];
             if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])) {
                     $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
