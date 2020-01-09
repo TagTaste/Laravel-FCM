@@ -421,7 +421,7 @@ class SearchController extends Controller
         $client = SearchClient::get();
 
         $response = $client->search($params);
-        if($response['hits']['total'] == 0 && isset(response["suggest"])) {
+        if($response['hits']['total'] == 0 && isset($response["suggest"])) {
                 $suggestionByElastic = $this->elasticSuggestion($response,$type);
                 $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
             }
