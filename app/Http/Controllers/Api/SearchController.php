@@ -380,7 +380,7 @@ class SearchController extends Controller
                         $prof['isFollowing'] = in_array($prof['id'],$following);
                     }
 
-                $this->model['profile'] = $prof;
+                $this->model['profile'][] = $prof;
                 }
             }
                 
