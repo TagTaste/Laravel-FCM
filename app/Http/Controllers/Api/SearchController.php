@@ -150,7 +150,7 @@ class SearchController extends Controller
                     'namesuggestion' => [
                         'text' => $name,
                         'term' => [
-                            'field' => 'description'
+                            'field' => 'name'
                         ]
                     ]
                 ]
@@ -373,14 +373,13 @@ class SearchController extends Controller
             if(isset($this->model['profile'])) {
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = Redis::sMembers("following:profile:" . $profileId);
-            $profiles = $this->model['profile'];
-            $this->model['profile'] = []; 
-            foreach($profiles as $prof){
+                $profiles = $this->model['profile'];
+                $this->model['profile'] = []; 
+                foreach($profiles as $prof) {
                     if($prof && isset($prof['id'])){
                         $prof['isFollowing'] = in_array($prof['id'],$following);
                     }
-
-                $this->model['profile'][] = $prof;
+                    $this->model['profile'][] = $prof;
                 }
             }
                 
@@ -824,7 +823,7 @@ class SearchController extends Controller
                     $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
                     if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
                     
-                        $query= $query."AND ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
                     }
                 } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
                     
