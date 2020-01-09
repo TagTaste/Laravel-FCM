@@ -370,23 +370,20 @@ class SearchController extends Controller
             }
 
 
-            if(isset($this->model['profile'])){
+            if(isset($this->model['profile'])) {
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = Redis::sMembers("following:profile:" . $profileId);
-                $profiles = $this->model['profile'];
-                $this->model['profile'] = []; 
-                foreach($profiles as $prof){
-                    $p = [];
-                    foreach ($prof as $profile) {
-                        if($profile && isset($profile['id'])){
-                            $profile['isFollowing'] = in_array($profile['id'],$following);
-                        }
-                        $p[] = $profile;
-
+            $profiles = $this->model['profile'];
+            $this->model['profile'] = []; 
+            foreach($profiles as $prof){
+                    if($prof && isset($prof['id'])){
+                        $prof['isFollowing'] = in_array($prof['id'],$following);
                     }
-                    $this->model['profile'] = $p;
+
+                $this->model['profile'] = $prof;
                 }
             }
+                
 
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
