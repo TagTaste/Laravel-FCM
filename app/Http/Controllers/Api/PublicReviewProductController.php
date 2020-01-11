@@ -685,6 +685,20 @@ class PublicReviewProductController extends Controller
                                 'query_string' => [
                                     'query' => $query,
                                     'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
+                                ],
+                                'suggest' => [
+                                    'my-suggestion-1'=> [
+                                            'text'=> $query,
+                                            'term'=> [
+                                                 'field'=> 'name'
+                                            ]
+                                    ],
+                                    'my-suggestion-2'=> [
+                                            'text'=> $query,
+                                            'term'=> [
+                                                 'field'=> 'title'
+                                            ]
+                                    ]
                                 ]
                             ],
                         ]
