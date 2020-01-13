@@ -281,7 +281,22 @@ class PublicReviewProductController extends Controller
                         'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
 
                     ]
+                ],
+                'suggest' => [
+                    'my-suggestion-1'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'name'
+                            ]
+                    ],
+                    'my-suggestion-2'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'title'
+                            ]
+                    ]
                 ]
+
             ]
         ];
 
@@ -689,7 +704,6 @@ class PublicReviewProductController extends Controller
                             ],
                         ]
                     ];
-                    $this->setType($type);
 
                     if($type){
                         $params['type'] = $type;

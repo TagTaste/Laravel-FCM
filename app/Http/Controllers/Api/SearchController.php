@@ -306,6 +306,9 @@ class SearchController extends Controller
     {
         $query = $request->input('q');
         $profileId = $request->user()->profile->id;
+        if($query != null || isset($query) ) {
+
+        }
         $params = [
             'index' => "api",
             'body' => [
@@ -347,7 +350,7 @@ class SearchController extends Controller
             $suggestionByElastic = $this->elasticSuggestion($response,$type);
             $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
         }
-        if($response['hits']['total'] > 0){
+        if($response['hits']['total'] > 0)  {
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
             
@@ -355,18 +358,7 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-
-                $suggested = collect([]);
-
-                //if(!empty($suggestions)){
-                //    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                //}
-                //if($suggested->count() > 0) {
-                    //$this->model[$name] = $searched;
-                //    $this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
-                //} else
-                    $this->model[$name] = $searched;
+                $this->model[$name] = $searched;
             }
 
 
@@ -586,6 +578,7 @@ class SearchController extends Controller
                 return $this->sendResponse();
 
             }
+        }
 
             $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
             $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
@@ -653,9 +646,7 @@ class SearchController extends Controller
                 }
 
                 return $this->sendResponse();
-            }
-        }
-        else {
+        } else {
             $page = $request->input('page');
             list($skip,$take) = \App\Strategies\Paginator::paginate($page);
             $this->model = [];
