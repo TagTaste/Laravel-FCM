@@ -7,6 +7,7 @@ use App\PublicReviewProduct;
 use App\SearchClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
+use App\ElasticHelper;
 
 class SearchController extends Controller
 {
@@ -150,7 +151,7 @@ class SearchController extends Controller
                     'namesuggestion' => [
                         'text' => $name,
                         'term' => [
-                            'field' => 'description'
+                            'field' => 'name'
                         ]
                     ]
                 ]
@@ -305,27 +306,16 @@ class SearchController extends Controller
     public function filterSearch(Request $request, $type = null)
     {
         $query = $request->input('q');
-        $profileId = $request->user()->profile->id;
-        $params = [
-            'index' => "api",
-            'body' => [
-                'query' => [
-                    'query_string' => [
-                        'query' => '*'.$query.'*',
-                        'fields' => ['name^3','handle^2','about','keywords^2']
-                     ]
-                ]
-            ]
-        ];
-
         $this->setType($type);
-
-        if($type){
-            $params['type'] = $type;
+        $profileId = $request->user()->profile->id;
+        if($query != null) {
+            $response = ElasticHelper::suggestedSearch($query,$type,0,1);
+        } else {
+            $response = ElasticHelper::suggestedSearch($query,$type,0,0);
         }
-        $client = SearchClient::get();
-
-        $response = $client->search($params);
+        if($response['hits']['total'] == 0 && isset($response["suggest"])) {
+            $response = $this->elasticSuggestion($response,$type) == null ? $response : $this->elasticSuggestion($response,$type);
+        }
         $this->model = [];
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -339,9 +329,7 @@ class SearchController extends Controller
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
                 $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-
                 $suggested = collect([]);
-
                 if(!empty($suggestions)){
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
@@ -351,8 +339,6 @@ class SearchController extends Controller
                 } else
                     $this->model[$name] = $searched;
             }
-
-
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = Redis::sMembers("following:profile:" . $profileId);
@@ -365,12 +351,10 @@ class SearchController extends Controller
                             $profile['isFollowing'] = in_array($profile['id'],$following);
                         }
                         $p[] = $profile;
-
                     }
                     $this->model['profile'] = $p;
                 }
             }
-
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
                 $companies = $this->model['company']->toArray();
@@ -387,9 +371,7 @@ class SearchController extends Controller
                 foreach($collaborates as $collaborate){
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
-
             }
-
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
@@ -402,7 +384,6 @@ class SearchController extends Controller
             }
             
             return $this->sendResponse();
-
         }
     
         $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
@@ -426,10 +407,8 @@ class SearchController extends Controller
                         $profile['isFollowing'] = in_array($profile['id'],$following);
                     }
                     $this->model['profile'][] = $profile;
-
                 }
             }
-
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
                 $companies = $this->model['company'];
@@ -439,7 +418,6 @@ class SearchController extends Controller
                     $this->model['company'][] = $company;
                 }
             }
-
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
@@ -447,9 +425,7 @@ class SearchController extends Controller
                 foreach($collaborates as $collaborate){
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
-
             }
-
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
@@ -460,7 +436,6 @@ class SearchController extends Controller
                     $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
                 }
             }
-
             return $this->sendResponse();
         }
         $this->model = [];
@@ -471,7 +446,6 @@ class SearchController extends Controller
     public function searchForApp(Request $request, $type = null)
     {
         $query = $request->input('q');
-        if(isset($query) && !is_null($query) && !empty($query)) {
             $profileId = $request->user()->profile->id;
             $params = [
                 'index' => "api",
@@ -640,9 +614,7 @@ class SearchController extends Controller
                 }
 
                 return $this->sendResponse();
-            }
-        }
-        else {
+        } else {
             $page = $request->input('page');
             list($skip,$take) = \App\Strategies\Paginator::paginate($page);
             $this->model = [];
@@ -803,4 +775,23 @@ class SearchController extends Controller
         return $this->sendResponse();
     }
 
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response['suggest'];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    return ElasticHelper::suggestedSearch($query,$type,0,0);    
+                } else {
+                    return null;
+                }
+    }
 }

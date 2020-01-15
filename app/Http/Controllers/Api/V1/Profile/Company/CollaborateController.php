@@ -294,6 +294,19 @@ class CollaborateController extends Controller
         //     return $this->sendResponse();
         // }
         $inputs['privacy_id'] = 1;
+        if($request->expires_on != null) {
+            $inputs['expires_on'] = $request->expires_on;
+            if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
+                $inputs['state'] = Collaborate::$state[0];
+                $inputs['deleted_at'] = null;
+                $collaborate->addToCache();
+                $company = Company::find($companyId);
+                $this->model = Collaborate::find($id);
+
+                event(new NewFeedable($this->model, $company));
+            }
+        }
+        $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));

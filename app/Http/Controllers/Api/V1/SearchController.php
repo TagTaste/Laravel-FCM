@@ -406,7 +406,22 @@ class SearchController extends Controller
             'body' => [
                 'query' => [
                     'query_string' => [
-                        'query' => $query
+                        'query' => '*'.$query.'*',
+                        'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
+                    ]
+                ],
+                'suggest' => [
+                    'my-suggestion-1'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'name'
+                            ]
+                    ],
+                    'my-suggestion-2'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'title'
+                            ]
                     ]
                 ]
             ]
@@ -420,7 +435,10 @@ class SearchController extends Controller
         $client = SearchClient::get();
 
         $response = $client->search($params);
-
+        if($response['hits']['total'] == 0 && isset($response["suggest"])) {
+                $suggestionByElastic = $this->elasticSuggestion($response,$type);
+                $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
+            }
         if($response['hits']['total'] > 0){
 
             $hits = collect($response['hits']['hits']);
@@ -431,11 +449,12 @@ class SearchController extends Controller
 
             foreach($hits as $name => $hit){
                 $searched = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
-                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                //$suggestions = null;
                 $suggested = collect([]);
-                if(!empty($suggestions)){
-                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                }
+                // if(!empty($suggestions)){
+                //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                // }
 
                 $this->model[$name] = $searched->merge($suggested)->sortBy('name');
             }
@@ -1578,6 +1597,45 @@ class SearchController extends Controller
         $this->model = $model;
 
         return $this->sendResponse();
+    }
+
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response["suggest"];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])) {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
+                    
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"])) {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    $params = [
+                        'index' => "api",
+                        'body' => [
+                            'query' => [
+                                'query_string' => [
+                                    'query' => $query,
+                                    'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
+                                ]
+                            ],
+                        ]
+                    ];
+                    $this->setType($type);
+
+                    if($type){
+                        $params['type'] = $type;
+                    }
+                    $client = SearchClient::get();
+
+                    $response = $client->search($params);
+                    return $response;    
+                } else {
+                    return null;
+                }
     }
 
 }

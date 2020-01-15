@@ -22,6 +22,7 @@ class PublicReviewProductController extends Controller
      */
     protected $model;
     protected $now;
+    public $ids;
     /**
      * Create instance of controller with Model
      *
@@ -47,18 +48,27 @@ class PublicReviewProductController extends Controller
         $query = $request->input('q');
         $profileId = $request->user()->profile->id;
         if(isset($query) && !is_null($query) && !empty($query))
-        {
-            return $this->getSearchData($request,$query,$type,$profileId);
+        {   
+            $data = $this->getSearchData($request,$query,$type,$profileId);
+            if(!isset($request->filters))
+            return $data;
+            $this->model = new PublicReviewProduct;
         }
         $filters = $request->input('filters');
         if(!empty($filters))
         {
             $productIds =  \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
-
+            if(isset($query) && !is_null($query) && !empty($query)) {
+                $this->ids = (object)$this->ids;
+                $productIds = $productIds->intersect($this->ids);
+            }
             $products = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+            $products = $products->sortByDesc(function($product){
+                return $product->review_count;
+            });
             $data = [];
-
-            foreach($products as $product){
+            $products = $products->forPage($page,20);
+            foreach($products as $product)  {
                 $meta = $product->getMetaFor($profileId);
                 $data[] = ['product'=>$product,'meta'=>$meta];
             }
@@ -271,7 +281,22 @@ class PublicReviewProductController extends Controller
                         'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
 
                     ]
+                ],
+                'suggest' => [
+                    'my-suggestion-1'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'name'
+                            ]
+                    ],
+                    'my-suggestion-2'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'title'
+                            ]
+                    ]
                 ]
+
             ]
         ];
 
@@ -281,40 +306,9 @@ class PublicReviewProductController extends Controller
         $client = SearchClient::get();
 
         $response = $client->search($params);
-        if($response['hits']['total']['value'] == 0) {
-            $originalQuery = explode(' ' ,$query);
-            $originalQuery = $originalQuery[0];
-            $q = $originalQuery;
-            $originalQuery = str_split($originalQuery);
-            $temp = '';
-            $search = '';
-            $len = strlen($q)-1;
-            for($i=0;$i<$len;$i++) {
-                $temp = $temp.''.$originalQuery[$i];
-                if ($i == $len-1) {
-                    $search = '('.$temp.'*)'.$search;
-                } else {
-                    $search = ' OR ('.$temp.'*)'.$search;
-                }
-            }
-            $params = [
-                'index' => "api",
-                'body' => [
-                    "from" => 0, "size" => 1000,
-                    'query' => [
-                        'query_string' => [
-                            'query' => $search,
-                            'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
-                        ]
-                    ]
-                ]
-            ];
-            if($type){
-                $params['type'] = $type;
-            }
-            $client = SearchClient::get();
-
-            $response = $client->search($params);
+        if($response['hits']['total'] == 0) {
+            $suggestionByElastic = $this->elasticSuggestion($response,$type);
+            $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
         }
         $this->model = [];
         //return $response;
@@ -328,16 +322,16 @@ class PublicReviewProductController extends Controller
             foreach($hits as $name => $hit){
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
+                $this->ids = $ids;
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-
-                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-                $suggested = collect([]);
-                if(!empty($suggestions)){
-                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                }
-                if($suggested->count() > 0)
-                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
-                else
+                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                // $suggested = collect([]);
+                // if(!empty($suggestions)){
+                //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                // }
+                // if($suggested->count() > 0)
+                //     $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                // else
                     $this->model[$name] = $searched;
             }
             if(isset($this->model['product']))
@@ -414,6 +408,8 @@ class PublicReviewProductController extends Controller
 //        if(null !== $skip && null !== $take){
 //            $model = $model->skip($skip)->take($take);
 //        }
+        $m = array_filter($m);
+        usort($m, function($a, $b) {return $a->review_count < $b->review_count;});
         return $m;
 
 
@@ -683,4 +679,41 @@ class PublicReviewProductController extends Controller
         return $this->sendResponse();
     }
 
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response["suggest"];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    $params = [
+                        'index' => "api",
+                        'body' => [
+                            'query' => [
+                                'query_string' => [
+                                    'query' => $query,
+                                    'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
+                                ]
+                            ],
+                        ]
+                    ];
+
+                    if($type){
+                        $params['type'] = $type;
+                    }
+                    $client = SearchClient::get();
+
+                    $response = $client->search($params);
+                    return $response;    
+                } else {
+                    return null;
+                }
+    }
 }
