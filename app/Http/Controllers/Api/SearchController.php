@@ -308,10 +308,10 @@ class SearchController extends Controller
         $query = $request->input('q');
         $this->setType($type);
         $profileId = $request->user()->profile->id;
-        if($query != null) {
-            $response = ElasticHelper::suggestedSearch($query,$type,0,1);
-        } else {
+        if($query == null || !isset($query) ) {
             $response = ElasticHelper::suggestedSearch($query,$type,0,0);
+        } else {
+            $response = ElasticHelper::suggestedSearch($query,$type,0,1);
         }
         if($response['hits']['total'] == 0 && isset($response["suggest"])) {
             $response = $this->elasticSuggestion($response,$type) == null ? $response : $this->elasticSuggestion($response,$type);
