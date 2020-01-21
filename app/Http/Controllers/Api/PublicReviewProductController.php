@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Controller;
 use Webpatser\Uuid\Uuid;
 use App\SearchClient;
 use App\PublicReviewProductGetSample;
+use App\TagtasteBuisness\ProductLead;
 
 class PublicReviewProductController extends Controller
 {
@@ -669,7 +670,21 @@ class PublicReviewProductController extends Controller
             return $this->sendResponse();
         }
 
+        $lead_inputs = array();
+        $lead_inputs['name'] = $user->name;
+        $lead_inputs['product_id'] = $productId;
+        $lead_inputs['email'] = $user->email;
+        $lead_inputs['phone'] = $user->profile->phone;
+        $lead_inputs['current_status'] = 1;
+        $lead_inputs['lead_source'] = "system";
+        $lead_inputs['created_at'] = Carbon::now();
+        $lead_inputs['updated_at'] = Carbon::now();
+        
         $this->model = PublicReviewProductGetSample::create($inputs);
+        if ($this->model) {
+            ProductLead::create($lead_inputs);
+        }
+
         event(new \App\Events\PublicReviewProductGetSampleEvent(
             $profile->id,
             $user->email,

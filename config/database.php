@@ -92,6 +92,20 @@ return [
             'username' => env('DB_NEO4J_USERNAME', null),
             'password' => env('DB_NEO4J_PASSWORD', null)
         ],
+
+        'mysql_ttfb' => [
+            'driver' => env('DB_TTFB_CONNECTION', 'neo4j'),
+            'host' => env('DB_TTFB_HOST', '127.0.0.1'),
+            'port' => env('DB_TTFB_PORT', '3306'),
+            'database' => env('DB_TTFB_DATABASE', 'forge'),
+            'username' => env('DB_TTFB_USERNAME', 'forge'),
+            'password' => env('DB_TTFB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
     ],
 
     'neo4j_uri' => env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'),

@@ -32,6 +32,7 @@ class FeedController extends Controller
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
+            ->whereNull('subscribers.deleted_at')
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.

@@ -308,10 +308,10 @@ class SearchController extends Controller
         $query = $request->input('q');
         $this->setType($type);
         $profileId = $request->user()->profile->id;
-        if($query != null) {
-            $response = ElasticHelper::suggestedSearch($query,$type,0,1);
+        if($query == null || !isset($query) ) {
+            $response['hits']['total'] = 0;
         } else {
-            $response = ElasticHelper::suggestedSearch($query,$type,0,0);
+            $response = ElasticHelper::suggestedSearch($query,$type,0,1);
         }
         if($response['hits']['total'] == 0 && isset($response["suggest"])) {
             $response = $this->elasticSuggestion($response,$type) == null ? $response : $this->elasticSuggestion($response,$type);
@@ -328,15 +328,15 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-                $suggested = collect([]);
-                if(!empty($suggestions)){
-                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                }
-                if($suggested->count() > 0) {
+                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                //$suggested = collect([]);
+                //if(!empty($suggestions)){
+                //    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                //}
+                //if($suggested->count() > 0) {
                     //$this->model[$name] = $searched;
-                    $this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
-                } else
+                    //$this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
+                //} else
                     $this->model[$name] = $searched;
             }
             if(isset($this->model['profile'])){
@@ -344,15 +344,11 @@ class SearchController extends Controller
                 $following = Redis::sMembers("following:profile:" . $profileId);
                 $profiles = $this->model['profile'];
                 $this->model['profile'] = []; 
-                foreach($profiles as $prof){
-                    $p = [];
-                    foreach ($prof as $profile) {
+                foreach($profiles as $profile){
                         if($profile && isset($profile['id'])){
                             $profile['isFollowing'] = in_array($profile['id'],$following);
+                            $this->model['profile'][] = $profile;
                         }
-                        $p[] = $profile;
-                    }
-                    $this->model['profile'] = $p;
                 }
             }
             if(isset($this->model['company'])){
