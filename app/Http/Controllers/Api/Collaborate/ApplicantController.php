@@ -103,6 +103,7 @@ class ApplicantController extends Controller
      */
     public function store(Request $request, $collaborateId)
     {
+        $loggedInprofileId = $request->user()->profile->id;
         $collaborate = Collaborate::where('id',$collaborateId)->where('state',Collaborate::$state[0])->first();
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
@@ -113,7 +114,16 @@ class ApplicantController extends Controller
         if (!$request->has('applier_address')) {
             return $this->sendError("Please select address.");
         }
-        
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$loggedInprofileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $loggedInprofileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
         if ($isInvited == 0) {
             $loggedInprofileId = $request->user()->profile->id;
             $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInprofileId)->exists();

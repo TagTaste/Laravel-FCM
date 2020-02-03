@@ -15,7 +15,7 @@ class Collaborate extends BaseCollaborate
 
 	protected $visible = ['id','title','expires_on','profile_id','company_id','created_at','updated_at','deleted_at','video','location','privacy_id','description','duration','file1','state','step','type_id','is_taster_residence','collaborate_type','brand_name','brand_logo','methodology_id','no_of_batches','global_question_id','images_meta','applicationCount','type','product_review_meta','tasting_methodology','profile','company','categories','addresses','collaborate_specializations','collaborate_allergens','description_updated'];
 
-    protected $appends = ['description_updated'];
+    protected $appends = ['description_updated', 'applicationCount'];
 
     /**
      * Which profile created the collaboration project.
