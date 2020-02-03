@@ -1372,7 +1372,6 @@ class BatchController extends Controller
                             $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")
                                 ->where('current_status',3)->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
                                 ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
-
                             $options = isset($item->option) ? $item->option : [];
                             foreach ($answers as &$answer)
                             {
@@ -1444,9 +1443,9 @@ class BatchController extends Controller
                     }
                     else
                     {
-                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
                             ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                            ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                            ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','option_type')->get();
 
                         $options = isset($data->questions->option) ? $data->questions->option : [];
                         foreach ($answers as &$answer)
