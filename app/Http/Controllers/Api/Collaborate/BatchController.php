@@ -1450,6 +1450,8 @@ class BatchController extends Controller
                         $options = isset($data->questions->option) ? $data->questions->option : [];
                         foreach ($answers as &$answer)
                         {
+                            if($answer->option_type == 1 && strtoupper($answer->value) != 'ANY OTHER')
+                                $answer->value = "Any Other - ".$answer->value;
                             $value = [];
                             if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                             {
