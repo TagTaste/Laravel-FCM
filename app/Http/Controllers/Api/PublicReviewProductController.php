@@ -56,7 +56,7 @@ class PublicReviewProductController extends Controller
             return $data;
             $this->model = new PublicReviewProduct;
         }
-        $isSearched = 0;
+        $this->isSearched = 0;
         $filters = $request->input('filters');
         if(!empty($filters))
         {
@@ -274,7 +274,7 @@ class PublicReviewProductController extends Controller
 
     public function getSearchData($request,$query,$type,$profileId)
     {
-        $isSearched = 1;
+        $this->isSearched = 1;
         $params = [
             'index' => "api",
             'body' => [
@@ -381,7 +381,7 @@ class PublicReviewProductController extends Controller
 //            $model = $model->skip($skip)->take($take);
 //        }
         $m = array_filter($m);
-        if(!$isSearched)
+        if(!$this->isSearched)
         usort($m, function($a, $b) {return $a->review_count < $b->review_count;});
         return $m;
 
