@@ -9,7 +9,7 @@
         }
         $avgIntensity = round($avgIntensity, 1);
         $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
-        $percent = number_format(floor(($currentAnswer->total/$totalAnswers) *100), 1);
+        $percent = bcadd(sprintf('%F', $currentAnswer->total/$totalAnswers*100), '0', 2);
     @endphp
     <div class="pr-answer-row">
         <div class="pr-answer-container">
