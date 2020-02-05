@@ -4,7 +4,7 @@
         $intensities = $currentAnswer->intensity;
         $finalTotal = $currentAnswer->total;
         $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
-        $percent = number_format(floor(($currentAnswer->total/$totalAnswers)*100), 1);
+        $percent = bcadd(sprintf('%F', $currentAnswer->total/$totalAnswers*100), '0', 2);
         $totalIntensity = 0;
         foreach ($intensities as $key => $value) {
             if ($value['count']) {
