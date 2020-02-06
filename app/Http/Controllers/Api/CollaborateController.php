@@ -44,7 +44,13 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->where('state',Collaborate::$state[0])->orderBy("created_at","desc");
+        if($request->q != null) {
+            $collabIds = $this->searchCollabs($request->q);
+            $ids_ordered = implode(',', $collabIds);
+            $collaborations = $this->model->where('state',Collaborate::$state[0])->whereIn('id',$collabIds)->orderByRaw("FIELD(id, $ids_ordered)");
+        } else {
+            $collaborations = $this->model->where('state',Collaborate::$state[0])->orderBy("created_at","desc");    
+        }
         $filters = $request->input('filters');
         //paginate
         $page = $request->input('page');
@@ -66,10 +72,6 @@ class CollaborateController extends Controller
         }
         $this->model = [];
         $this->model["data"]=[];
-        if($request->q != null) {
-            $collabIds = $this->searchCollabs($request->q);
-            $collaborations = $collaborations->whereIn('id',$collabIds);
-        }
         $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         
