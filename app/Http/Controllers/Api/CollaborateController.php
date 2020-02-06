@@ -44,12 +44,13 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-        if($request->q != null) {
-            $collabIds = $this->searchCollabs($request->q);
-            $ids_ordered = implode(',', $collabIds);
-            $collaborations = $this->model->where('state',Collaborate::$state[0])->whereIn('id',$collabIds)->orderByRaw("FIELD(id, $ids_ordered)");
+        $collaborations = $this->model->where('state',Collaborate::$state[0]);
+        if($request->q == null) {
+        $collaborations = $collaborations->orderBy("created_at","desc"); 
         } else {
-            $collaborations = $this->model->where('state',Collaborate::$state[0])->orderBy("created_at","desc");    
+        $collabIds = $this->searchCollabs($request->q);
+            $ids_ordered = implode(',', $collabIds);
+                $collaborations = $collaborations->whereIn('id',$collabIds);
         }
         $filters = $request->input('filters');
         //paginate
