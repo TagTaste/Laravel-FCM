@@ -10,6 +10,7 @@ use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
+use App\SearchClient;
 
 class CollaborateController extends Controller
 {
@@ -706,8 +707,8 @@ class CollaborateController extends Controller
         }
         $this->model = [];
         //return $response;
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        //$page = $request->input('page');
+        //list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
