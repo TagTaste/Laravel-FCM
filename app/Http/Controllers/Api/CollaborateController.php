@@ -64,12 +64,11 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
         $this->model = [];
-        $this->model["count"] = $collaborations->count();
         $this->model["data"]=[];
         if($request->q != null) {
             $collabIds = $this->searchCollabs($request->q);
+            $collaborations = $collaborations->whereIn('id',$collabIds);
         }
-        $collaborations = $collaborations->whereIn('id',$collabIds);
         $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         
