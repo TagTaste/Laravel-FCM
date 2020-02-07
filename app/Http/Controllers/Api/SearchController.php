@@ -482,7 +482,7 @@ class SearchController extends Controller
                     //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                     // }
 
-                    $this->model[$name] = $searched
+                    $this->model[$name] = $searched;
                     //->merge($suggested);
                     //->sortBy('name');
                 }
