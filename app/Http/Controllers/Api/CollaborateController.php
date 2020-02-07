@@ -47,11 +47,14 @@ class CollaborateController extends Controller
         $collaborations = $this->model->where('state',Collaborate::$state[0]);
         if($request->q == null) {
         $collaborations = $collaborations->orderBy("created_at","desc"); 
+        $isSearched = 0;
         } else {
         $collabIds = $this->searchCollabs($request->q);
-        $placeholders = implode(',',array_fill(0, count($collabIds), '?'));
-                if(count($collabIds) != 0)
-                $collaborations = $collaborations->whereIn('id',$collabIds)->orderByRaw("field(id,{$placeholders})", $collabIds);
+                if(count($collabIds) != 0) {
+                    $placeholders = implode(',',array_fill(0, count($collabIds), '?'));
+                    $collaborations = $collaborations->whereIn('id',$collabIds)->orderByRaw("field(id,{$placeholders})", $collabIds);
+                    $isSearched = 1;
+                }
         }
         $filters = $request->input('filters');
         //paginate
@@ -61,6 +64,9 @@ class CollaborateController extends Controller
         if(!empty($filters)){
             $this->model = [];
             $collaborations = \App\Filter\Collaborate::getModelIds($filters,$skip,$take);
+            if($isSearched)
+            $collaborations = \App\Collaborate::whereIn('id',$collaborations)->whereIn('id',$collabIds)->orderByRaw("field(id,{$placeholders})", $collabIds)->get();
+            else
             $collaborations = \App\Collaborate::whereIn('id',$collaborations)->get();
             $profileId = $request->user()->profile->id;
             $this->model["data"]=[];
