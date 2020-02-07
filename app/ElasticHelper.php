@@ -9,7 +9,7 @@ class ElasticHelper
     public static function suggestedSearch($query, $type = null,$isWildCard,$suggest)
     {    
         if($isWildCard) {
-            $query = '*'.$query.'*';
+            $query = $query.'*';
         } else {
             $query = $query;
         }
