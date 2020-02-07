@@ -354,6 +354,7 @@ class SearchController extends Controller
     public function searchSpecializationPeople(Request $request, $id)
     {
         //paginate
+        
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $loggedInProfileId = $request->user()->profile->id;

@@ -448,7 +448,7 @@ class SearchController extends Controller
                 'body' => [
                     'query' => [
                         'query_string' => [
-                            'query' => $query
+                            'query' => $query."*"
                         ]
                     ]
                 ]
@@ -476,13 +476,15 @@ class SearchController extends Controller
                     $ids = $hit->pluck('_id')->toArray();
                     $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
 
-                    $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-                    $suggested = collect([]);
-                    if(!empty($suggestions)){
-                        $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                    }
+                    // $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                    // $suggested = collect([]);
+                    // if(!empty($suggestions)){
+                    //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                    // }
 
-                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                    $this->model[$name] = $searched
+                    //->merge($suggested);
+                    //->sortBy('name');
                 }
 
 
