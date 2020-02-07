@@ -49,8 +49,8 @@ class CollaborateController extends Controller
         $collaborations = $collaborations->orderBy("created_at","desc"); 
         } else {
         $collabIds = $this->searchCollabs($request->q);
-            $ids_ordered = implode(',', $collabIds);
-                $collaborations = $collaborations->whereIn('id',$collabIds);
+        $placeholders = implode(',',array_fill(0, count($collabIds), '?'));
+                $collaborations = $collaborations->whereIn('id',$collabIds)->orderByRaw("field(id,{$placeholders})", $collabIds);
         }
         $filters = $request->input('filters');
         //paginate

@@ -63,6 +63,7 @@ class ElasticHelper
             $params = [
                 'index' => "api",
                 'body' => [
+                    "from" => 0, "size" => 1000,
                     'query' => [
                         'query_string' => [
                             'query' => $query,
@@ -74,6 +75,7 @@ class ElasticHelper
         }
         $client = SearchClient::get();
         $response = $client->search($params);
+
         return $response;
     }
 }
