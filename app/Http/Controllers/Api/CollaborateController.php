@@ -50,6 +50,7 @@ class CollaborateController extends Controller
         } else {
         $collabIds = $this->searchCollabs($request->q);
         $placeholders = implode(',',array_fill(0, count($collabIds), '?'));
+                if(count($collabIds) != 0)
                 $collaborations = $collaborations->whereIn('id',$collabIds)->orderByRaw("field(id,{$placeholders})", $collabIds);
         }
         $filters = $request->input('filters');
@@ -677,7 +678,7 @@ class CollaborateController extends Controller
                 "from" => 0, "size" => 1000,
                 'query' => [
                     'query_string' => [
-                        'query' => $query,
+                        'query' => $query.'*',
                         'fields'=>['title^3','keywords^2']
 
                     ]
