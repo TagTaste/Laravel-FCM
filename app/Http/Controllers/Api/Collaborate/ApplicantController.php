@@ -117,11 +117,11 @@ class ApplicantController extends Controller
         if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         {
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$loggedInprofileId)->exists();
-            if(!$checkUser){
+            if($checkUser){
                 return $this->sendError("Invalid Collaboration Project.");
             }
         }
-        else if($collaborate->profile_id != $loggedInprofileId){
+        else if($collaborate->profile_id == $loggedInprofileId){
             return $this->sendError("Invalid Collaboration Project.");
         }
         if ($isInvited == 0) {
