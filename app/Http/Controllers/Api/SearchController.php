@@ -54,8 +54,8 @@ class SearchController extends Controller
         if(!empty($filters) && isset($this->filters[$type])){
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
-                $placeholders = implode(',',array_fill(0, count($ids), '?')); 
                 $ids = array_intersect($ids,$modelIds->toArray());
+                $placeholders = implode(',',array_fill(0, count($ids), '?')); 
             }
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
 
