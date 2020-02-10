@@ -24,6 +24,7 @@ class PublicReviewProductController extends Controller
     protected $model;
     protected $now;
     public $ids;
+    public $isSearched;
     /**
      * Create instance of controller with Model
      *
@@ -55,6 +56,7 @@ class PublicReviewProductController extends Controller
             return $data;
             $this->model = new PublicReviewProduct;
         }
+        $this->isSearched = 0;
         $filters = $request->input('filters');
         if(!empty($filters))
         {
@@ -272,13 +274,14 @@ class PublicReviewProductController extends Controller
 
     public function getSearchData($request,$query,$type,$profileId)
     {
+        $this->isSearched = 1;
         $params = [
             'index' => "api",
             'body' => [
                 "from" => 0, "size" => 1000,
                 'query' => [
                     'query_string' => [
-                        'query' => '*'.$query.'*',
+                        'query' => $query,
                         'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
 
                     ]
@@ -325,15 +328,7 @@ class PublicReviewProductController extends Controller
                 $ids = $hit->pluck('_id')->toArray();
                 $this->ids = $ids;
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-                // $suggested = collect([]);
-                // if(!empty($suggestions)){
-                //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                // }
-                // if($suggested->count() > 0)
-                //     $this->model[$name] = $searched->merge($suggested)->sortBy('name');
-                // else
-                    $this->model[$name] = $searched;
+                $this->model[$name] = $searched;
             }
             if(isset($this->model['product']))
             {
@@ -349,30 +344,6 @@ class PublicReviewProductController extends Controller
             }
             return $this->sendResponse();
 
-        }
-
-        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
-        $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
-
-        if($suggestions && $suggestions->count()){
-//            if(!array_key_exists($type,$this->model)){
-//                $this->model[$type] = [];
-//            }
-            $this->model[$type] = $suggestions->toArray();
-        }
-
-        if(!empty($this->model)){
-            if(isset($this->model['product']))
-            {
-                $products = $this->model['product'];
-                $this->model = [];
-                foreach($products as $product){
-                    $product =  \App\PublicReviewProduct::where('id',$product['id'])->first();
-                    $meta = $product->getMetaFor($profileId);
-                    $this->model[] = ['product'=>$product,'meta'=>$meta];
-                }
-            }
-            return $this->sendResponse();
         }
         $this->model = [];
         $this->messages = ['Nothing found.'];
@@ -410,6 +381,7 @@ class PublicReviewProductController extends Controller
 //            $model = $model->skip($skip)->take($take);
 //        }
         $m = array_filter($m);
+        if(!$this->isSearched)
         usort($m, function($a, $b) {return $a->review_count < $b->review_count;});
         return $m;
 

@@ -45,6 +45,7 @@ class SearchController extends Controller
         if(empty($ids)){
             return false;
         }
+        $placeholders = implode(',',array_fill(0, count($ids), '?'));   
         $model = isset($this->models[$type]) ? new $this->models[$type] : false;
         if(!$model){
             return $model;
@@ -53,12 +54,12 @@ class SearchController extends Controller
         if(!empty($filters) && isset($this->filters[$type])){
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
-                $ids = array_merge($ids,$modelIds->toArray());
+                $ids = array_intersect($ids,$modelIds->toArray());
             }
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
 
         }
-        $placeholders = implode(',',array_fill(0, count($ids), '?'));
+        
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
@@ -442,26 +443,16 @@ class SearchController extends Controller
     public function searchForApp(Request $request, $type = null)
     {
         $query = $request->input('q');
+        $this->setType($type);
             $profileId = $request->user()->profile->id;
-            $params = [
-                'index' => "api",
-                'body' => [
-                    'query' => [
-                        'query_string' => [
-                            'query' => $query
-                        ]
-                    ]
-                ]
-            ];
-
-            $this->setType($type);
-
-            if($type){
-                $params['type'] = $type;
+            if($query == null || !isset($query) ) {
+                $response['hits']['total'] = 0;
+            } else {
+                $response = ElasticHelper::suggestedSearch($query,$type,0,1);
             }
-            $client = SearchClient::get();
-
-            $response = $client->search($params);
+            if($response['hits']['total'] == 0 && isset($response["suggest"])) {
+                $response = $this->elasticSuggestion($response,$type) == null ? $response : $this->elasticSuggestion($response,$type);
+            }
             $this->model = [];
 
             $page = $request->input('page');
@@ -476,13 +467,15 @@ class SearchController extends Controller
                     $ids = $hit->pluck('_id')->toArray();
                     $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
 
-                    $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-                    $suggested = collect([]);
-                    if(!empty($suggestions)){
-                        $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                    }
+                    // $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                    // $suggested = collect([]);
+                    // if(!empty($suggestions)){
+                    //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                    // }
 
-                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                    $this->model[$name] = $searched;
+                    //->merge($suggested);
+                    //->sortBy('name');
                 }
 
 

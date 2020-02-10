@@ -9,7 +9,7 @@ class ElasticHelper
     public static function suggestedSearch($query, $type = null,$isWildCard,$suggest)
     {    
         if($isWildCard) {
-            $query = '*'.$query.'*';
+            $query = $query.'*';
         } else {
             $query = $query;
         }
@@ -37,6 +37,7 @@ class ElasticHelper
             $params = [
             'index' => "api",
             'body' => [
+                "from" => 0, "size" => 1000,
                 'query' => [
                     'query_string' => [
                         'query' => $query,
@@ -63,6 +64,7 @@ class ElasticHelper
             $params = [
                 'index' => "api",
                 'body' => [
+                    "from" => 0, "size" => 1000,
                     'query' => [
                         'query_string' => [
                             'query' => $query,
@@ -74,6 +76,7 @@ class ElasticHelper
         }
         $client = SearchClient::get();
         $response = $client->search($params);
+
         return $response;
     }
 }

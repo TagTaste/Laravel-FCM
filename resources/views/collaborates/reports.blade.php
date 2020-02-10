@@ -210,7 +210,7 @@
             $currentQuestionIndex = $loop->index + 1;
         @endphp
         <div class="pr-report-question">
-            <p class="pr-report-pill-title">{{ $currentQuestionIndex }}. {{$headerData['title']}}</p>
+            <p class="pr-report-pill-title">{{ $currentQuestionIndex }}. {{strip_tags($headerData['title'])}}</p>
             {{--If nested question--}}
             @if (isset($headerData['nestedAnswers']))
                 @php
@@ -237,7 +237,7 @@
                             $isComment = (isset($nestedQuestion) && isset($nestedQuestion->selected_type)) ? $nestedQuestion->selected_type == 3 : false;
                         @endphp
                         <div>
-                            <p class="pr-report-pill-title">{{$currentQuestionIndex}}.{{$nestedQuestionIndex}} {{$nestedAnswer['title']}}</p>
+                            <p class="pr-report-pill-title">{{$currentQuestionIndex}}.{{$nestedQuestionIndex}} {{strip_tags($nestedAnswer['title'])}}</p>
                             <p class="pr-report-pill-helper pr-text-margin">
                                 {{$totalAnswers}} out of {{$totalApplicants}} answered this question.
                                 @if ($isComment == true)
@@ -250,9 +250,9 @@
                                 @php
                                     $answerTitle = $answer->value;
                                     $answerTotal = $answer->total;
-                                    $percent = $totalAnswers === 0 ? 0 : floor($answerTotal/$totalApplicants*100);
+                                    $percent = $totalAnswers === 0 ? 0 : bcadd(sprintf('%F', $answerTotal/$totalApplicants*100), '0', 2);
                                     $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
-                                    $percentToShow = number_format($percent, 1);
+                                    $percentToShow = $percent;
                                     $isIntensity = isset($answer->is_intensity) ? $answer->is_intensity : null;
                                     $intensityType = isset($answer->intensity_type) ? $answer->intensity_type : null;
                                 @endphp
@@ -301,9 +301,9 @@
                         @php
                             $answerTitle = $answer->value;
                             $answerTotal = $answer->total;
-                            $percent = $totalAnswers == 0 ? 0 : floor($answerTotal/$totalApplicants*100);
+                            $percent = $totalAnswers == 0 ? 0 : bcadd(sprintf('%F', $answerTotal/$totalApplicants*100), '0', 2);
                             $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
-                            $percentToShow = number_format($percent, 1);
+                            $percentToShow = $percent;
                             $isIntensity = isset($answer->is_intensity) ? $answer->is_intensity : null;
                             $intensityType = isset($answer->intensity_type) ? $answer->intensity_type : null;
                         @endphp
