@@ -54,6 +54,7 @@ class SearchController extends Controller
         if(!empty($filters) && isset($this->filters[$type])){
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
+                $placeholders = implode(',',array_fill(0, count($ids), '?')); 
                 $ids = array_intersect($ids,$modelIds->toArray());
             }
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
@@ -444,10 +445,12 @@ class SearchController extends Controller
     {
         foreach($model as $key => $value) {
             if($key != $type) {
-                unset($this->model[$type]);
+                unset($model[$key]);
             }
         }
+        return $model;
     }
+
 
     public function searchForApp(Request $request, $type = null)
     {
@@ -457,7 +460,7 @@ class SearchController extends Controller
             if($query == null || !isset($query) ) {
                 $response['hits']['total'] = 0;
             } else {
-                $response = ElasticHelper::suggestedSearch($query,$type,0,1);
+                $response = ElasticHelper::suggestedSearch($query,$type,1,1);
             }
             if($response['hits']['total'] == 0 && isset($response["suggest"])) {
                 $response = $this->elasticSuggestion($response,$type) == null ? $response : $this->elasticSuggestion($response,$type);
