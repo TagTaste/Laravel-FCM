@@ -440,6 +440,15 @@ class SearchController extends Controller
         return $this->sendResponse();
     }
 
+    public function removeOtherModels($model, $type)
+    {
+        foreach($model as $key => $value) {
+            if($key != $type) {
+                unset($this->model[$type]);
+            }
+        }
+    }
+
     public function searchForApp(Request $request, $type = null)
     {
         $query = $request->input('q');
@@ -532,6 +541,8 @@ class SearchController extends Controller
                     }
 
                 }
+                if(isset($type) && $type != null)
+                    $this->model = $this->removeOtherModels($this->model,$type);
 
                 return $this->sendResponse();
 
