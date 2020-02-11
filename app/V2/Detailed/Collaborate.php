@@ -106,4 +106,16 @@ class Collaborate extends BaseCollaborate
         }
         return $data;
     }
+
+    public function getApplicationCountAttribute()
+    {
+        $interestedCount = 0;
+        if($this->collaborate_type != 'product-review')
+        {
+            return (int)Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+        } else {
+            return \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
+        }
+        return $this->interestedCount;
+    }
 }
