@@ -62,12 +62,13 @@ class SearchController extends Controller
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
                 $ids = array_merge($ids,$modelIds->toArray());
+                $placeholders = implode(',',array_fill(0, count($ids), '?')); 
             }
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
 
         }
-
-        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
+        $placeholders = implode(',',array_fill(0, count($ids), '?')); 
+        $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
 
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
@@ -407,7 +408,7 @@ class SearchController extends Controller
             'body' => [
                 'query' => [
                     'query_string' => [
-                        'query' => $query,
+                        'query' => $query."*",
                         'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
                     ]
                 ],

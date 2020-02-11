@@ -55,6 +55,7 @@ class SearchController extends Controller
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
                 $ids = array_intersect($ids,$modelIds->toArray());
+                $placeholders = implode(',',array_fill(0, count($ids), '?')); 
             }
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
 
@@ -440,6 +441,17 @@ class SearchController extends Controller
         return $this->sendResponse();
     }
 
+    public function removeOtherModels($model, $type)
+    {
+        foreach($model as $key => $value) {
+            if($key != $type) {
+                unset($model[$key]);
+            }
+        }
+        return $model;
+    }
+
+
     public function searchForApp(Request $request, $type = null)
     {
         $query = $request->input('q');
@@ -532,6 +544,8 @@ class SearchController extends Controller
                     }
 
                 }
+                if(isset($type) && $type != null)
+                    $this->model = $this->removeOtherModels($this->model,$type);
 
                 return $this->sendResponse();
 
