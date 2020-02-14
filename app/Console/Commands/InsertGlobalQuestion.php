@@ -256,7 +256,7 @@ class InsertGlobalQuestion extends Command
         },
 
         {
-            "title": "Overall preference of Appearance",
+            "title": "Overall Preference of Appearance",
             "select_type": 5,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -315,7 +315,7 @@ class InsertGlobalQuestion extends Command
             "nested_option_title": "AROMAS"
         },
         {
-            "title": "Overall preference of Aroma",
+            "title": "Overall Preference of Aroma",
             "select_type": 5,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -444,7 +444,7 @@ class InsertGlobalQuestion extends Command
         },
         
         {
-            "title": "Overall preference of Taste",
+            "title": "Overall Preference of Taste",
             "select_type": 5,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -854,7 +854,7 @@ class InsertGlobalQuestion extends Command
         },
         
         {
-            "title": "Overall preference of Texture",
+            "title": "Overall Preference of Texture",
             "select_type": 5,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -936,6 +936,7 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                     "value": "All of them",
+                    "option_type": 2,
                     "is_intensity": 0
                 },
                 {
