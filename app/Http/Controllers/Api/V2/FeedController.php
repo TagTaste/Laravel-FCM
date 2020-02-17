@@ -576,6 +576,7 @@ class FeedController extends Controller
             ->toArray();
 
         $public_review_product = PublicReviewProduct::where('is_active',1)
+            ->where('is_suggestion_allowed',1)
             ->whereNotIn('id',$applied_product_review)
             ->whereNull('deleted_at')
             ->inRandomOrder()
