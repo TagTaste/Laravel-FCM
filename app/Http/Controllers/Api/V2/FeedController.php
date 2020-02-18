@@ -27,7 +27,7 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
-        list($skip,$take) = Paginator::paginate($page, 16);
+        list($skip,$take) = Paginator::paginate($page, 15);
         
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
@@ -103,7 +103,11 @@ class FeedController extends Controller
         // 10 company not working dated from 4th Feb 2020 onwards, 
         // 13 ad engine and 15 collaboration suggestion
         // $suggestion_position = array(2, 6, 10, 13, 15);
-        $suggestion_position = array(2, 6, 13, 15);
+        //
+        // newly updated positions 18 feb 2020 by tanvi
+        // 2 profile 6 collaboration
+        // 10 products 13 ad engine 15 collaboration
+        $suggestion_position = array(2, 6, 10, 13, 15);
 
         // $suggestion_position = array();
         // $suggestion_position[] = rand(2,4);
@@ -147,10 +151,11 @@ class FeedController extends Controller
                     break;
             }
         }
-        $this->model[$suggestion_position[1]] = $this->suggestion_products($client, $profile, $profileId);
+        $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        $this->model[$suggestion_position[2]] = $this->suggestion_products($client, $profile, $profileId);
         // $this->model[$suggestion_position[2]] = $this->suggestion_company($client, $profile, $profileId);
-        $this->model[$suggestion_position[2]] = $this->ad_engine($client, $profile, $profileId);
-        $this->model[$suggestion_position[3]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        $this->model[$suggestion_position[3]] = $this->ad_engine($client, $profile, $profileId);
+        $this->model[$suggestion_position[4]] = $this->suggestion_collaboration($client, $profile, $profileId);
 
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
