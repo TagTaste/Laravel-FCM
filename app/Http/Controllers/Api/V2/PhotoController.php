@@ -45,6 +45,7 @@ class PhotoController extends Controller
         $photos = $photos->skip($skip)->take($take)->get();
 
         $this->model = [];
+
         foreach($photos as $photo){
             $photo->images = json_decode($photo->images);
             $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($loggedInProfileId)];
@@ -91,7 +92,7 @@ class PhotoController extends Controller
             }
             $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>$this->model->images,
                 'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(), 'image_meta'=>json_encode($this->model->images[0])];
-            \Redis::set("photo:" . $this->model->id,json_encode($data));
+            Redis::set("photo:" . $this->model->id,json_encode($data));
             event(new NewFeedable($this->model,$company));
 
             //add subscriber
@@ -110,7 +111,8 @@ class PhotoController extends Controller
             $data = ['id'=>$photo->id,'caption'=>$photo->caption,'images'=>$photo->images,
                 'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString(), 'image_meta'=>json_encode($photo->images[0])];
 
-            \Redis::set("photo:" . $photo->id,json_encode($data));
+            Redis::set("photo:" . $photo->id,json_encode($data));
+
 
             //add to feed
             event(new NewFeedable($photo, $request->user()->profile));
@@ -119,8 +121,9 @@ class PhotoController extends Controller
             event(new Create($photo,$request->user()->profile));
 
             //recent uploads
-            \Redis::lPush("recent:user:" . $request->user()->id . ":photos",$photo->id);
-            \Redis::lTrim("recent:user:" . $request->user()->id . ":photos",0,9);
+            Redis::lPush("recent:user:" . $request->user()->id . ":photos",$photo->id);
+            Redis::lTrim("recent:user:" . $request->user()->id . ":photos",0,9);
+
 
             $this->model = $photo;
 
@@ -139,20 +142,30 @@ class PhotoController extends Controller
     public function show(Request $request,$id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $photo = Photo::where('id',$id)->with(['comments' => function($query){
-            $query->orderBy('created_at','desc');
-        }])
-            ->with(['like'=>function($query) use ($loggedInProfileId){
-                $query->where('profile_id',$loggedInProfileId);
-            }])->first();
-
+        $photo = Photo::where('id',$id)->first();
+        
         if(!$photo){
             return $this->sendError("Photo not found");
         }
         $photo->images = json_decode($photo->images);
-        $meta = $photo->getMetaFor($loggedInProfileId);
-        $this->model = ['photo'=>$photo,'meta'=>$meta];
+        $owner = $photo->getOwnerAttributeV2();
+        $meta = $photo->getMetaForV2($loggedInProfileId);
+        $photo = $photo->toArray();
+        foreach ($photo as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($photo[$key]);
+        }
+        $this->model = [
+            'photo'=>$photo,
+            'meta'=>$meta
+        ];
+        if (isset($photo['profile_id'])) {
+            $this->model['profile'] = $owner;
+        }
 
+        if (isset($photo['company_id'])) {
+            $this->model['company'] = $owner;
+        }
         return $this->sendResponse();
     }
 
@@ -163,6 +176,7 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
     public function update(UpdateRequest $request,$id)
     {
         $profile = $request->user()->profile;
@@ -176,7 +190,7 @@ class PhotoController extends Controller
             $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
-            if(!$userBelongsToCompany){
+            if (!$userBelongsToCompany) {
                 return $this->sendError("User does not belong to this company");
             }
             $this->model = $company->photos()->where('id',$id)->update($data);
@@ -195,9 +209,7 @@ class PhotoController extends Controller
             $this->model = ['photo'=>$this->model,'meta'=>$meta];
             return $this->sendResponse();
 
-        }
-        else
-        {
+        } else {
             $data['has_tags'] = $this->hasTags($data['caption']);
             $inputs = $data;
             unset($inputs['has_tags']);
@@ -216,7 +228,6 @@ class PhotoController extends Controller
             $this->model = ['photo'=>$this->model,'meta'=>$meta];
             return $this->sendResponse();
         }
-
     }
 
     /**
@@ -262,7 +273,7 @@ class PhotoController extends Controller
             event(new DeleteFeedable($this->model));
             $this->model = $this->model->delete();
             //remove from recent photos
-            \Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);
+            Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);
             return $this->sendResponse();
         }
     }

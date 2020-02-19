@@ -103,6 +103,33 @@ class Polling extends Model implements Feedable
         return $meta;
     }
 
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getMetaForV2(int $profileId) : array
+    {
+        $meta = [];
+//        $options = PollingOption::where('poll_id',$this->id)->get();
+//        $count = $options->sum('count');
+//        if($count)
+//        {
+//            foreach ($options as $option)
+//                $option->count = ($option->count/$count) * 100;
+//        }
+//        $meta['options'] = $options;
+        $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
+        $meta['is_expired'] = $this->is_expired;
+        $key = "meta:polling:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+        $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        return $meta;
+    }
+
     public function privacy()
     {
         return $this->belongsTo(Privacy::class);
@@ -162,7 +189,7 @@ class Polling extends Model implements Feedable
         $data['description'] = "by ".$this->owner->name;
         $data['ogTitle'] = "Poll: ".substr($this->title,0,65);
         $data['ogDescription'] = "by ".$this->owner->name;
-        $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
+        $images = $this->company != null ? $this->company->logo : $this->profile->image;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
         $data['ogUrl'] = env('APP_URL').'/polling/'.$this->id;
@@ -186,5 +213,10 @@ class Polling extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
+    }
+
+    public function getPollMetaAttribute()
+    {
+        return $this->getMetaAttribute();
     }
 }

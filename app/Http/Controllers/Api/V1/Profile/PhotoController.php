@@ -14,6 +14,7 @@ use App\Photo;
 use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PhotoController extends Controller
 {
@@ -81,7 +82,7 @@ class PhotoController extends Controller
         $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'image_info'=>$data['image_info'],
             'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
         
-        \Redis::set("photo:" . $photo->id,json_encode($data));
+        Redis::set("photo:" . $photo->id,json_encode($data));
         
         //add to feed
         event(new NewFeedable($photo, $request->user()->profile));
@@ -90,8 +91,8 @@ class PhotoController extends Controller
         event(new Create($photo,$request->user()->profile));
         
         //recent uploads
-        \Redis::lPush("recent:user:" . $request->user()->id . ":photos",$photo->id);
-        \Redis::lTrim("recent:user:" . $request->user()->id . ":photos",0,9);
+        Redis::lPush("recent:user:" . $request->user()->id . ":photos",$photo->id);
+        Redis::lTrim("recent:user:" . $request->user()->id . ":photos",0,9);
         
         $this->model = $photo;
     
@@ -175,7 +176,7 @@ class PhotoController extends Controller
         
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
             'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
-        \Redis::set("photo:" . $this->model->id,json_encode($data));
+        Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
 
         $loggedInProfileId = $request->user()->profile->id;
@@ -200,7 +201,7 @@ class PhotoController extends Controller
         event(new DeleteFeedable($this->model));
         $this->model = $this->model->delete();
         //remove from recent photos
-        \Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);
+        Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);
         return $this->sendResponse();
     }
 

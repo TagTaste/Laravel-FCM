@@ -45,7 +45,7 @@ class ReportController extends Controller
             return $this->sendError("Product is not available");
         }
         $count = Review::where('product_id',$productId)->where('current_status',2)->distinct('profile_id')->count('profile_id');
-        if($count < 1)
+        if($count < 10)
         {
             $this->model = [];
             $this->model['title'] = 'Sensogram';
@@ -92,9 +92,9 @@ class ReportController extends Controller
                     $userCount++;
                 }
             }
-            $headerRating[] = ['header_type'=>$header->header_type,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum,$header->id)];
+            $headerRating[] = ['header_type'=>$header->header_type,'header_id'=>$header->id,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum,$header->id)];
         }
-
+        
         return $headerRating;
 
     }

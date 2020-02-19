@@ -127,7 +127,7 @@ class ReviewController extends Controller
         return $this->sendResponse();
     }
 
-    /**
+   /**
      * Display a listing of the resource foodshot.
      *
      * @return \Illuminate\Http\Response
@@ -186,7 +186,7 @@ class ReviewController extends Controller
         }
     }
 
-     /**
+    /**
      * Display a listing of the resource foodshot.
      *
      * @return \Illuminate\Http\Response
@@ -386,7 +386,6 @@ class ReviewController extends Controller
         $this->model['next_page'] = $page > 1 ? $page - 1 : null;
         $this->model['count'] = $model->comments()->count();
         $this->model['previous_page'] = count($this->model['comments']) >= 10 && $page*10 < $this->model['count']  ? $page + 1 : null;
-
         return $this->sendResponse();
     }
 

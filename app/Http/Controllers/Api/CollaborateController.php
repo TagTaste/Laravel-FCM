@@ -9,6 +9,8 @@ use App\PeopleLike;
 use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
+use App\SearchClient;
 
 class CollaborateController extends Controller
 {
@@ -42,7 +44,18 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->where('state',Collaborate::$state[0])->orderBy("created_at","desc");
+        $collaborations = $this->model->where('state',Collaborate::$state[0]);
+        if($request->q == null) {
+        $collaborations = $collaborations->orderBy("created_at","desc"); 
+        $isSearched = 0;
+        } else {
+        $collabIds = $this->searchCollabs($request->q);
+                if(count($collabIds) != 0) {
+                    $placeholders = implode(',',array_fill(0, count($collabIds), '?'));
+                    $collaborations = $collaborations->whereIn('id',$collabIds)->orderByRaw("field(id,{$placeholders})", $collabIds);
+                    $isSearched = 1;
+                }
+        }
         $filters = $request->input('filters');
         //paginate
         $page = $request->input('page');
@@ -51,6 +64,9 @@ class CollaborateController extends Controller
         if(!empty($filters)){
             $this->model = [];
             $collaborations = \App\Filter\Collaborate::getModelIds($filters,$skip,$take);
+            if($isSearched)
+            $collaborations = \App\Collaborate::whereIn('id',$collaborations)->whereIn('id',$collabIds)->orderByRaw("field(id,{$placeholders})", $collabIds)->get();
+            else
             $collaborations = \App\Collaborate::whereIn('id',$collaborations)->get();
             $profileId = $request->user()->profile->id;
             $this->model["data"]=[];
@@ -63,9 +79,8 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
         $this->model = [];
-        $this->model["count"] = $collaborations->count();
         $this->model["data"]=[];
-       
+        $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         
         $profileId = $request->user()->profile->id;
@@ -85,7 +100,6 @@ class CollaborateController extends Controller
 	public function show(Request $request, $id)
 	{
         $collaboration = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
-
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -149,7 +163,7 @@ class CollaborateController extends Controller
                         'profile_id' => $request->user()->profile->id
                     ]);
 
-            $company = \Redis::get('company:small:' . $companyId);
+            $company = Redis::get('company:small:' . $companyId);
             $company = json_decode($company);
             if(isset($collaborate->company_id) && (!is_null($collaborate->company_id)))
             {
@@ -203,7 +217,7 @@ class CollaborateController extends Controller
                 event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
             }
         }
-        \Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
+        Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
         return $this->sendResponse();
     }
     
@@ -217,13 +231,13 @@ class CollaborateController extends Controller
         $this->model = [];
         $profileId = $request->user()->profile->id;
         $key = "meta:collaborate:likes:$id";
-        $like = \Redis::sIsMember($key,$profileId);
+        $like = Redis::sIsMember($key,$profileId);
         if($like){
             \DB::table("collaboration_likes")
                 ->where("collaboration_id",$id)->where('profile_id',$profileId)
                 ->delete();
-            \Redis::sRem($key,$profileId);
-            $this->model['likeCount'] = \Redis::sCard($key);
+            Redis::sRem($key,$profileId);
+            $this->model['likeCount'] = Redis::sCard($key);
             $this->model['liked'] = false;
 
             $peopleLike = new PeopleLike();
@@ -234,8 +248,8 @@ class CollaborateController extends Controller
         
         event(new Like($collaborate,$request->user()->profile));
         \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
-        \Redis::sAdd($key,$profileId);
-        $this->model['likeCount'] = \Redis::sCard($key);
+        Redis::sAdd($key,$profileId);
+        $this->model['likeCount'] = Redis::sCard($key);
         $this->model['liked'] = true;
 
         $peopleLike = new PeopleLike();
@@ -433,7 +447,7 @@ class CollaborateController extends Controller
             {
                 continue;
             }
-            $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
+            $batchIds = Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
             $count = count($batchIds);
             if($count)
             {
@@ -441,12 +455,12 @@ class CollaborateController extends Controller
                 {
                     $batchId = "batch:".$batchId;
                 }
-                $batchInfos = \Redis::mGet($batchIds);
+                $batchInfos = Redis::mGet($batchIds);
                 $batches = [];
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
+                    $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                     if($currentStatus != 0)
                     {
@@ -660,6 +674,99 @@ class CollaborateController extends Controller
         $this->model = $response;
         return $this->sendResponse();
 
+    }
+
+    public function searchCollabs($query)
+    {
+        $params = [
+            'index' => "api",
+            'body' => [
+                "from" => 0, "size" => 1000,
+                'query' => [
+                    'query_string' => [
+                        'query' => $query.'*',
+                        'fields'=>['title^3','keywords^2']
+
+                    ]
+                ],
+                'suggest' => [
+                    'my-suggestion-1'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'name'
+                            ]
+                    ],
+                    'my-suggestion-2'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'title'
+                            ]
+                    ]
+                ]
+
+            ]
+        ];
+
+            $params['type'] = 'collaborate';
+        $client = SearchClient::get();
+
+        $response = $client->search($params);
+        if($response['hits']['total'] == 0) {
+            $suggestionByElastic = $this->elasticSuggestion($response,'collaborate');
+            $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
+        }
+        $this->model = [];
+        //return $response;
+        //$page = $request->input('page');
+        //list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+        if($response['hits']['total'] > 0){
+            $hits = collect($response['hits']['hits']);
+            $hits = $hits->groupBy("_type");
+
+            foreach($hits as $name => $hit){
+                $ids = $hit->pluck('_id')->toArray();
+            }
+            return $ids;
+        }
+            return [];
+    }
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response["suggest"];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    $params = [
+                        'index' => "api",
+                        'body' => [
+                            'query' => [
+                                'query_string' => [
+                                    'query' => $query,
+                                    'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
+                                ]
+                            ],
+                        ]
+                    ];
+
+                    if($type){
+                        $params['type'] = $type;
+                    }
+                    $client = SearchClient::get();
+
+                    $response = $client->search($params);
+                    return $response;    
+                } else {
+                    return null;
+                }
     }
 
 }

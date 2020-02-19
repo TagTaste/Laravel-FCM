@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 class PhotoLike extends Model
 {
@@ -20,7 +21,7 @@ class PhotoLike extends Model
     
     public function getLikeCountAttribute()
     {
-        return \Redis::sCard( "meta:photo:likes:" . $this->photo_id);
+        return Redis::sCard( "meta:photo:likes:" . $this->photo_id);
     }
     
 }

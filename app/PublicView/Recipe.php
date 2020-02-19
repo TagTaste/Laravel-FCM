@@ -6,6 +6,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Recipe as BaseRecipe;
+use Illuminate\Support\Facades\Redis;
 
 class Recipe extends BaseRecipe
 {
@@ -73,7 +74,7 @@ class Recipe extends BaseRecipe
     {
         $meta = [];
         $key = "meta:recipe:likes:" . $this->id;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }

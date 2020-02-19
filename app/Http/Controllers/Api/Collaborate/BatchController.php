@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Redis;
 
 
 class BatchController extends Controller
@@ -87,7 +88,7 @@ class BatchController extends Controller
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
-            $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
+            $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
         $this->model = [];
@@ -168,8 +169,8 @@ class BatchController extends Controller
         \DB::table('collaborate_batches_assign')->where('collaborate_id',$id)->where('batch_id',$batchId)->whereIn('profile_id',$applierProfileIds)->delete();
         foreach ($applierProfileIds as $applierProfileId)
         {
-            \Redis::sAdd("collaborate:$id:profile:$applierProfileId:" ,$batchId);
-            \Redis::set("current_status:batch:$batchId:profile:$applierProfileId" ,0);
+            Redis::sAdd("collaborate:$id:profile:$applierProfileId:" ,$batchId);
+            Redis::set("current_status:batch:$batchId:profile:$applierProfileId" ,0);
             $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now, 'collaborate_id'=>$id];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
@@ -189,7 +190,7 @@ class BatchController extends Controller
         }
         foreach ($profileIds as $profileId)
         {
-            \Redis::sRem("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
+            Redis::sRem("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
         }
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->delete();
 
@@ -221,10 +222,10 @@ class BatchController extends Controller
             $company = Company::where('id',$collaborate->company_id)->first();
             foreach ($profileIds as $profileId)
             {
-                $currentStatus = \Redis::get("current_status:batch:$batchId:profile:$profileId");
+                $currentStatus = Redis::get("current_status:batch:$batchId:profile:$profileId");
                 if($currentStatus ==0)
                 {
-                    \Redis::set("current_status:batch:$batchId:profile:$profileId" ,1);
+                    Redis::set("current_status:batch:$batchId:profile:$profileId" ,1);
                 }
                 $collaborate->profile_id = $profileId;
                 event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company,$batchId));
@@ -283,11 +284,11 @@ class BatchController extends Controller
             foreach ($batchIds as &$batchId) {
                 $batchIdArray[] = "batch:" . $batchId;
             }
-            $batchInfos = \Redis::mGet($batchIdArray);
+            $batchInfos = Redis::mGet($batchIdArray);
             $batches = [];
             foreach ($batchInfos as &$batchInfo) {
                 $batchInfo = json_decode($batchInfo);
-                $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
+                $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
                 $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 if($batchInfo->current_status != 0)
                 {
@@ -303,7 +304,7 @@ class BatchController extends Controller
     public function getCurrentStatus(Request $request, $collaborateId, $batchId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $currentStatus = \Redis::get("current_status:batch:$batchId:profile:" . $loggedInProfileId);
+        $currentStatus = Redis::get("current_status:batch:$batchId:profile:" . $loggedInProfileId);
         $this->model = !is_null($currentStatus) ? (int)$currentStatus : 0;
         return $this->sendResponse();
 
@@ -1275,9 +1276,12 @@ class BatchController extends Controller
     public function reportPdf(Request $request, $collaborateId,$batchId)
     {
         $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
-
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
+        }
+        $batchData = $this->model->where('id', $batchId)->where('collaborate_id',$collaborateId)->first();
+        if ($batchData === null) {
+            return $this->sendError("Invalid batch.");
         }
         $profileId = $request->user()->profile->id;
 
@@ -1368,7 +1372,6 @@ class BatchController extends Controller
                             $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")
                                 ->where('current_status',3)->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
                                 ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
-
                             $options = isset($item->option) ? $item->option : [];
                             foreach ($answers as &$answer)
                             {
@@ -1440,13 +1443,15 @@ class BatchController extends Controller
                     }
                     else
                     {
-                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
                             ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                            ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                            ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','option_type')->get();
 
                         $options = isset($data->questions->option) ? $data->questions->option : [];
                         foreach ($answers as &$answer)
                         {
+                            if($answer->option_type == 1 && strtoupper($answer->value) != 'ANY OTHER')
+                                $answer->value = "Any Other - ".$answer->value;
                             $value = [];
                             if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                             {
@@ -1569,7 +1574,10 @@ class BatchController extends Controller
             $this->model[] = ['headerName'=>$header->header_type,'data'=>$model];
         }
         $data = $this->model;
-        $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
+        $pdf = PDF::loadView('collaborates.reports',['data' => $data,
+            'filters'=>$filters,
+            'collaborate'=>$collaborate,
+            'batchData'=>$batchData]);
         $pdf = $pdf->output();
         $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
         $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";

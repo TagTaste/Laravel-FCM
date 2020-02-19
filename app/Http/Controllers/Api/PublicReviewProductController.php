@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Webpatser\Uuid\Uuid;
 use App\SearchClient;
+use App\PublicReviewProductGetSample;
+use App\TagtasteBuisness\ProductLead;
 
 class PublicReviewProductController extends Controller
 {
@@ -21,6 +23,8 @@ class PublicReviewProductController extends Controller
      */
     protected $model;
     protected $now;
+    public $ids;
+    public $isSearched;
     /**
      * Create instance of controller with Model
      *
@@ -46,18 +50,28 @@ class PublicReviewProductController extends Controller
         $query = $request->input('q');
         $profileId = $request->user()->profile->id;
         if(isset($query) && !is_null($query) && !empty($query))
-        {
-            return $this->getSearchData($request,$query,$type,$profileId);
+        {   
+            $data = $this->getSearchData($request,$query,$type,$profileId);
+            if(!isset($request->filters))
+            return $data;
+            $this->model = new PublicReviewProduct;
         }
+        $this->isSearched = 0;
         $filters = $request->input('filters');
         if(!empty($filters))
         {
             $productIds =  \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
-
+            if(isset($query) && !is_null($query) && !empty($query)) {
+                $this->ids = (object)$this->ids;
+                $productIds = $productIds->intersect($this->ids);
+            }
             $products = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+            $products = $products->sortByDesc(function($product){
+                return $product->review_count;
+            });
             $data = [];
-
-            foreach($products as $product){
+            $products = $products->forPage($page,20);
+            foreach($products as $product)  {
                 $meta = $product->getMetaFor($profileId);
                 $data[] = ['product'=>$product,'meta'=>$meta];
             }
@@ -260,17 +274,33 @@ class PublicReviewProductController extends Controller
 
     public function getSearchData($request,$query,$type,$profileId)
     {
+        $this->isSearched = 1;
         $params = [
             'index' => "api",
             'body' => [
                 "from" => 0, "size" => 1000,
                 'query' => [
                     'query_string' => [
-                        'query' => '*'.$query.'*',
+                        'query' => $query,
                         'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
 
                     ]
+                ],
+                'suggest' => [
+                    'my-suggestion-1'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'name'
+                            ]
+                    ],
+                    'my-suggestion-2'=> [
+                            'text'=> $query,
+                            'term'=> [
+                                 'field'=> 'title'
+                            ]
+                    ]
                 ]
+
             ]
         ];
 
@@ -280,40 +310,9 @@ class PublicReviewProductController extends Controller
         $client = SearchClient::get();
 
         $response = $client->search($params);
-        if($response['hits']['total']['value'] == 0) {
-            $originalQuery = explode(' ' ,$query);
-            $originalQuery = $originalQuery[0];
-            $q = $originalQuery;
-            $originalQuery = str_split($originalQuery);
-            $temp = '';
-            $search = '';
-            $len = strlen($q)-1;
-            for($i=0;$i<$len;$i++) {
-                $temp = $temp.''.$originalQuery[$i];
-                if ($i == $len-1) {
-                    $search = '('.$temp.'*)'.$search;
-                } else {
-                    $search = ' OR ('.$temp.'*)'.$search;
-                }
-            }
-            $params = [
-                'index' => "api",
-                'body' => [
-                    "from" => 0, "size" => 1000,
-                    'query' => [
-                        'query_string' => [
-                            'query' => $search,
-                            'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
-                        ]
-                    ]
-                ]
-            ];
-            if($type){
-                $params['type'] = $type;
-            }
-            $client = SearchClient::get();
-
-            $response = $client->search($params);
+        if($response['hits']['total'] == 0) {
+            $suggestionByElastic = $this->elasticSuggestion($response,$type);
+            $response = $suggestionByElastic!=null ? $suggestionByElastic : $response;   
         }
         $this->model = [];
         //return $response;
@@ -327,17 +326,9 @@ class PublicReviewProductController extends Controller
             foreach($hits as $name => $hit){
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
+                $this->ids = $ids;
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-
-                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-                $suggested = collect([]);
-                if(!empty($suggestions)){
-                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                }
-                if($suggested->count() > 0)
-                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
-                else
-                    $this->model[$name] = $searched;
+                $this->model[$name] = $searched;
             }
             if(isset($this->model['product']))
             {
@@ -353,30 +344,6 @@ class PublicReviewProductController extends Controller
             }
             return $this->sendResponse();
 
-        }
-
-        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
-        $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
-
-        if($suggestions && $suggestions->count()){
-//            if(!array_key_exists($type,$this->model)){
-//                $this->model[$type] = [];
-//            }
-            $this->model[$type] = $suggestions->toArray();
-        }
-
-        if(!empty($this->model)){
-            if(isset($this->model['product']))
-            {
-                $products = $this->model['product'];
-                $this->model = [];
-                foreach($products as $product){
-                    $product =  \App\PublicReviewProduct::where('id',$product['id'])->first();
-                    $meta = $product->getMetaFor($profileId);
-                    $this->model[] = ['product'=>$product,'meta'=>$meta];
-                }
-            }
-            return $this->sendResponse();
         }
         $this->model = [];
         $this->messages = ['Nothing found.'];
@@ -413,6 +380,9 @@ class PublicReviewProductController extends Controller
 //        if(null !== $skip && null !== $take){
 //            $model = $model->skip($skip)->take($take);
 //        }
+        $m = array_filter($m);
+        if(!$this->isSearched)
+        usort($m, function($a, $b) {return $a->review_count < $b->review_count;});
         return $m;
 
 
@@ -620,4 +590,117 @@ class PublicReviewProductController extends Controller
         }
     }
 
+    public function getSample(Request $request,$productId)
+    {
+        $this->errors['status'] = 0;
+        $product = $this->model->where('is_active',1)->whereNull('deleted_at')->where('id',$productId)->first();
+        if (is_null($product)) {
+            $this->model = (object)[];
+            $this->errors['message'] = 'Product is not available';
+            $this->errors['status'] = 1;
+            return $this->sendResponse();
+        }
+
+        $user = $request->user();
+        if (is_null($user)) {
+            $this->model = (object)[];
+            $this->errors['message'] = 'Invalid User.';
+            $this->errors['status'] = 1;
+            return $this->sendResponse();
+        }
+
+        $profile = $user->profile;
+        if (!isset($profile) && is_null($profile)) {
+            $this->model = (object)[];
+            $this->errors['message'] = 'User profile not exist.';
+            $this->errors['status'] = 1;
+            return $this->sendResponse();
+        }
+
+        // $mandatory_field = $profile->profile_completion['mandatory_field_for_get_product_sample'];
+        // if (count($mandatory_field)) {
+        //     $this->model = (object)[];
+        //     $this->errors['message'] = 'User profile is incomplete check mandatory filed.';
+        //     $this->errors['mandatory_field'] = $mandatory_field;
+        //     $this->errors['status'] = 1;
+        //     return $this->sendResponse();
+        // }
+       
+        $inputs = array();
+        $inputs['profile_id'] = $profile->id;
+        $inputs['product_id'] = $productId;
+        $inputs['count'] = 1; // make it user changeable
+        $inputs['created_at'] = Carbon::now();
+        $inputs['updated_at'] = Carbon::now();
+
+        $already_have_request = PublicReviewProductGetSample::where('profile_id', $inputs['profile_id'])
+            ->where('product_id',$productId)->first();
+        if (!is_null($already_have_request)) {
+            $this->errors['message'] = 'We already have sample request.';
+            $this->errors['status'] = 1;
+            $this->model = $already_have_request;
+            return $this->sendResponse();
+        }
+
+        $lead_inputs = array();
+        $lead_inputs['name'] = $user->name;
+        $lead_inputs['product_id'] = $productId;
+        $lead_inputs['email'] = $user->email;
+        $lead_inputs['phone'] = $user->profile->phone;
+        $lead_inputs['current_status'] = 1;
+        $lead_inputs['lead_source'] = "system";
+        $lead_inputs['created_at'] = Carbon::now();
+        $lead_inputs['updated_at'] = Carbon::now();
+        
+        $this->model = PublicReviewProductGetSample::create($inputs);
+        if ($this->model) {
+            ProductLead::create($lead_inputs);
+        }
+
+        event(new \App\Events\PublicReviewProductGetSampleEvent(
+            $profile->id,
+            $user->email,
+            $productId,
+            $product->name
+        ));
+        return $this->sendResponse();
+    }
+
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response["suggest"];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    $params = [
+                        'index' => "api",
+                        'body' => [
+                            'query' => [
+                                'query_string' => [
+                                    'query' => $query,
+                                    'fields'=>['name^3','title^3','brand_name^2','company_name^2','handle^2','keywords^2','productCategory','subCategory']
+                                ]
+                            ],
+                        ]
+                    ];
+
+                    if($type){
+                        $params['type'] = $type;
+                    }
+                    $client = SearchClient::get();
+
+                    $response = $client->search($params);
+                    return $response;    
+                } else {
+                    return null;
+                }
+    }
 }

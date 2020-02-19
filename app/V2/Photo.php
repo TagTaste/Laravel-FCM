@@ -3,8 +3,8 @@
 namespace App\V2;
 
 use App\Channel\Payload;
-use App\Filter\People;
 use App\Interfaces\Feedable;
+use App\Filter\People;
 use App\PeopleLike;
 use App\Privacy;
 use App\Scopes\Company as ScopeCompany;
@@ -16,6 +16,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redis;
 
 class Photo extends Model implements Feedable
 {
@@ -25,10 +26,13 @@ class Photo extends Model implements Feedable
 
     protected $fillable = ['caption','privacy_id','payload_id','images','image_meta'];
 
-    protected $visible = ['id','caption','likeCount',
-        'created_at','comments',
-        'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner','nextPhotoId','previousPhotoId','images','image_meta'];
+    // old
+    // protected $visible = ['id','caption','likeCount',
+    //     'created_at','comments',
+    //     'profile_id','company_id','privacy_id','updated_at','deleted_at',
+    //     'owner','nextPhotoId','previousPhotoId','images','image_meta'];
+
+    protected $visible = ['id','caption','created_at','profile_id','company_id','privacy_id','updated_at','deleted_at','images','image_meta', 'owner'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -39,7 +43,9 @@ class Photo extends Model implements Feedable
 
     protected $with = ['like'];
 
-    protected $appends = ['profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
+    // old
+    // protected $appends = ['profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
+    protected $appends = ['profile_id','company_id', 'owner'];
 
     protected $dates = ['deleted_at'];
 
@@ -63,7 +69,7 @@ class Photo extends Model implements Feedable
         //so it can't be pushed to the feed since there won't be any "owner".
 
         self::created(function($photo){
-            //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
+            //Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
 
 //        self::created(function($photo){
@@ -79,12 +85,12 @@ class Photo extends Model implements Feedable
     {
         $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString(),
             'updated_at'=>$this->updated_at->toDateTimeString(),'image_meta'=>$this->image_meta];
-        \Redis::set("photo:" . $this->id,json_encode($data));
+        Redis::set("photo:".$this->id,json_encode($data));
     }
 
     public function deleteFromCache()
     {
-        \Redis::del("photo:" . $this->id);
+        Redis::del("photo:".$this->id);
     }
 
     public function ideabooks()
@@ -186,6 +192,44 @@ class Photo extends Model implements Feedable
         return $this->owner();
     }
 
+    public function getOwnerAttributeV2()
+    {
+        $data = array();
+        $owner = $this->owner();
+        if (!is_null($this->company_id)) {
+            $data = [
+                'id' => $owner->id,
+                'profile_id' => $owner->profileId,
+                'name' => $owner->name,
+                'logo_meta' => $owner->logo_meta
+            ];
+            return $data;
+        } else {
+            if (!is_null($this->profile_id)) {
+                $keyRequired = [
+                    'id',
+                    'user_id',
+                    'name',
+                    'designation',
+                    'handle',
+                    'tagline',
+                    'image_meta',
+                    'isFollowing'
+                ];
+                $data = array_intersect_key(
+                    $owner->toArray(), 
+                    array_flip($keyRequired)
+                );
+                foreach ($data as $key => $value) {
+                    if (is_null($value) || $value == '')
+                        unset($data[$key]);
+                }
+                return $data;
+            }
+        }
+        return $data;
+    }
+
     public function privacy()
     {
         return $this->belongsTo(Privacy::class);
@@ -200,8 +244,8 @@ class Photo extends Model implements Feedable
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'photo' ,request()->user()->profile->id);
@@ -214,9 +258,31 @@ class Photo extends Model implements Feedable
         return $meta;
     }
 
+    public function getMetaForV2($profileId)
+    {
+        $meta = [];
+        $key = "meta:photo:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+        $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+
+        return $meta;
+    }
+
     public function getNotificationContent()
     {
-        $image = $this->images[0]->original_photo;
+        $image = null;
+        if (isset($this->images) && strlen($this->images)) {
+            $image_data = json_decode($this->images);
+            if (isset($image_data[0]) && isset($image_data[0]->original_photo)) {
+                $image = $image_data[0]->original_photo;
+            }
+        }
         return [
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
@@ -235,7 +301,7 @@ class Photo extends Model implements Feedable
 
     public function getCaptionAttribute($value)
     {
-        $profiles = $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfilesV2($value);
 
         if($profiles){
             $value = ['text'=>$value,'profiles'=>$profiles];

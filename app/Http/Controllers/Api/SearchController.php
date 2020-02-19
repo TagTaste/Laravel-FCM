@@ -6,6 +6,8 @@ use App\Company;
 use App\PublicReviewProduct;
 use App\SearchClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
+use App\ElasticHelper;
 
 class SearchController extends Controller
 {
@@ -43,6 +45,7 @@ class SearchController extends Controller
         if(empty($ids)){
             return false;
         }
+        $placeholders = implode(',',array_fill(0, count($ids), '?'));   
         $model = isset($this->models[$type]) ? new $this->models[$type] : false;
         if(!$model){
             return $model;
@@ -51,12 +54,13 @@ class SearchController extends Controller
         if(!empty($filters) && isset($this->filters[$type])){
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
-                $ids = array_merge($ids,$modelIds->toArray());
+                $ids = array_intersect($ids,$modelIds->toArray());
+                $placeholders = implode(',',array_fill(0, count($ids), '?')); 
             }
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
 
         }
-        $placeholders = implode(',',array_fill(0, count($ids), '?'));
+        
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
@@ -114,7 +118,7 @@ class SearchController extends Controller
     
             if(isset($this->model['profile'])){
                 $this->model['profile'] = $this->model['profile']->toArray();
-                $following = \Redis::sMembers("following:profile:" . $profileId);
+                $following = Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
                     if($profile && isset($profile['id'])){
                         $profile['isFollowing'] = in_array($profile['id'],$following);
@@ -149,7 +153,7 @@ class SearchController extends Controller
                     'namesuggestion' => [
                         'text' => $name,
                         'term' => [
-                            'field' => 'description'
+                            'field' => 'name'
                         ]
                     ]
                 ]
@@ -304,27 +308,16 @@ class SearchController extends Controller
     public function filterSearch(Request $request, $type = null)
     {
         $query = $request->input('q');
-        $profileId = $request->user()->profile->id;
-        $params = [
-            'index' => "api",
-            'body' => [
-                'query' => [
-                    'query_string' => [
-                        'query' => '*'.$query.'*',
-                        'fields' => ['name^3','handle^2','about','keywords^2']
-                     ]
-                ]
-            ]
-        ];
-
         $this->setType($type);
-
-        if($type){
-            $params['type'] = $type;
+        $profileId = $request->user()->profile->id;
+        if($query == null || !isset($query) ) {
+            $response['hits']['total'] = 0;
+        } else {
+            $response = ElasticHelper::suggestedSearch($query,$type,0,1);
         }
-        $client = SearchClient::get();
-
-        $response = $client->search($params);
+        if($response['hits']['total'] == 0 && isset($response["suggest"])) {
+            $response = $this->elasticSuggestion($response,$type) == null ? $response : $this->elasticSuggestion($response,$type);
+        }
         $this->model = [];
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -337,35 +330,29 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-
-                $suggested = collect([]);
-
-                if(!empty($suggestions)){
-                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                }
-                if($suggested->count() > 0) {
+                //$suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                //$suggested = collect([]);
+                //if(!empty($suggestions)){
+                //    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                //}
+                //if($suggested->count() > 0) {
                     //$this->model[$name] = $searched;
-                    $this->model[$name] = $suggested->prepend($searched);
-                } else
+                    //$this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
+                //} else
                     $this->model[$name] = $searched;
             }
-
-
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                $following = \Redis::sMembers("following:profile:" . $profileId);
-                $profiles = $this->model['profile']->toArray();
-                $this->model['profile'] = [];
+                $following = Redis::sMembers("following:profile:" . $profileId);
+                $profiles = $this->model['profile'];
+                $this->model['profile'] = []; 
                 foreach($profiles as $profile){
-                    if($profile && isset($profile['id'])){
-                        $profile['isFollowing'] = in_array($profile['id'],$following);
-                    }
-                    $this->model['profile'][] = $profile;
-
+                        if($profile && isset($profile['id'])){
+                            $profile['isFollowing'] = in_array($profile['id'],$following);
+                            $this->model['profile'][] = $profile;
+                        }
                 }
             }
-
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
                 $companies = $this->model['company']->toArray();
@@ -382,9 +369,7 @@ class SearchController extends Controller
                 foreach($collaborates as $collaborate){
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
-
             }
-
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
@@ -397,7 +382,6 @@ class SearchController extends Controller
             }
             
             return $this->sendResponse();
-
         }
     
         $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
@@ -413,7 +397,7 @@ class SearchController extends Controller
         if(!empty($this->model)){
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                $following = \Redis::sMembers("following:profile:" . $profileId);
+                $following = Redis::sMembers("following:profile:" . $profileId);
                 $profiles = $this->model['profile'];
                 $this->model['profile'] = [];
                 foreach($profiles as $profile){
@@ -421,10 +405,8 @@ class SearchController extends Controller
                         $profile['isFollowing'] = in_array($profile['id'],$following);
                     }
                     $this->model['profile'][] = $profile;
-
                 }
             }
-
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
                 $companies = $this->model['company'];
@@ -434,7 +416,6 @@ class SearchController extends Controller
                     $this->model['company'][] = $company;
                 }
             }
-
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
@@ -442,9 +423,7 @@ class SearchController extends Controller
                 foreach($collaborates as $collaborate){
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
-
             }
-
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
@@ -455,7 +434,6 @@ class SearchController extends Controller
                     $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
                 }
             }
-
             return $this->sendResponse();
         }
         $this->model = [];
@@ -463,30 +441,30 @@ class SearchController extends Controller
         return $this->sendResponse();
     }
 
+    public function removeOtherModels($model, $type)
+    {
+        foreach($model as $key => $value) {
+            if($key != $type) {
+                unset($model[$key]);
+            }
+        }
+        return $model;
+    }
+
+
     public function searchForApp(Request $request, $type = null)
     {
         $query = $request->input('q');
-        if(isset($query) && !is_null($query) && !empty($query)) {
+        $this->setType($type);
             $profileId = $request->user()->profile->id;
-            $params = [
-                'index' => "api",
-                'body' => [
-                    'query' => [
-                        'query_string' => [
-                            'query' => $query
-                        ]
-                    ]
-                ]
-            ];
-
-            $this->setType($type);
-
-            if($type){
-                $params['type'] = $type;
+            if($query == null || !isset($query) ) {
+                $response['hits']['total'] = 0;
+            } else {
+                $response = ElasticHelper::suggestedSearch($query,$type,0,1);
             }
-            $client = SearchClient::get();
-
-            $response = $client->search($params);
+            if($response['hits']['total'] == 0 && isset($response["suggest"])) {
+                $response = $this->elasticSuggestion($response,$type) == null ? $response : $this->elasticSuggestion($response,$type);
+            }
             $this->model = [];
 
             $page = $request->input('page');
@@ -501,19 +479,21 @@ class SearchController extends Controller
                     $ids = $hit->pluck('_id')->toArray();
                     $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
 
-                    $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
-                    $suggested = collect([]);
-                    if(!empty($suggestions)){
-                        $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
-                    }
+                    // $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                    // $suggested = collect([]);
+                    // if(!empty($suggestions)){
+                    //     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                    // }
 
-                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                    $this->model[$name] = $searched;
+                    //->merge($suggested);
+                    //->sortBy('name');
                 }
 
 
                 if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $following = Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile']->toArray();
                     $this->model['profile'] = [];
                     foreach($profiles as $profile){
@@ -564,6 +544,8 @@ class SearchController extends Controller
                     }
 
                 }
+                if(isset($type) && $type != null)
+                    $this->model = $this->removeOtherModels($this->model,$type);
 
                 return $this->sendResponse();
 
@@ -582,7 +564,7 @@ class SearchController extends Controller
             if(!empty($this->model)){
                 if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $following = Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile'];
                     $this->model['profile'] = [];
                     foreach($profiles as $profile){
@@ -635,9 +617,7 @@ class SearchController extends Controller
                 }
 
                 return $this->sendResponse();
-            }
-        }
-        else {
+        } else {
             $page = $request->input('page');
             list($skip,$take) = \App\Strategies\Paginator::paginate($page);
             $this->model = [];
@@ -650,7 +630,7 @@ class SearchController extends Controller
             if (!empty($this->model)) {
                 if (isset($this->model['profile'])) {
 //                $this->model['profile'] = $this->model['profile']->toArray();
-                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $following = Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile'];
                     $this->model['profile'] = [];
                     foreach ($profiles as $profile) {
@@ -798,4 +778,23 @@ class SearchController extends Controller
         return $this->sendResponse();
     }
 
+    public function elasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response['suggest'];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    return ElasticHelper::suggestedSearch($query,$type,0,0);    
+                } else {
+                    return null;
+                }
+    }
 }

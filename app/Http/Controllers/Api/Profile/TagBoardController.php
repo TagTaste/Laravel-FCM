@@ -95,11 +95,11 @@ class TagBoardController extends Controller
         $ideabookLike = IdeabookLike::where('profile_id', $profileId)->where('ideabook_id', $id)->first();
         if($ideabookLike != null) {
             $this->model = IdeabookLike::where('profile_id', $profileId)->where('ideabook_id', $id)->delete();
-            \Redis::hIncrBy("ideabook:" . $id . ":meta","like",-1);
+            Redis::hIncrBy("ideabook:" . $id . ":meta","like",-1);
 
         } else {
             $this->model = IdeabookLike::insert(['profile_id' => $profileId, 'ideabook_id' => $id]);
-            \Redis::hIncrBy("ideabook:" . $id . ":meta","like",1);
+            Redis::hIncrBy("ideabook:" . $id . ":meta","like",1);
 
         }
         return $this->sendResponse();

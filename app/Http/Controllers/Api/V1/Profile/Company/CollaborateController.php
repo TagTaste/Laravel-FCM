@@ -104,7 +104,6 @@ class CollaborateController extends Controller
             unset($inputs['fields']);
         }
         //save images
-        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {
@@ -131,6 +130,7 @@ class CollaborateController extends Controller
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
+        unset($inputs['images']);
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
@@ -218,7 +218,6 @@ class CollaborateController extends Controller
         if($collaborate->collaborate_type == 'collaborate')
             unset($inputs['expires_on']);
 
-        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {
@@ -244,6 +243,7 @@ class CollaborateController extends Controller
                 $inputs['images'] = null;
             }
         }
+        unset($inputs['images']);
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
@@ -252,7 +252,7 @@ class CollaborateController extends Controller
         }
         else
         {
-            if($inputs['file1'] == $collaborate->file1)
+            if (isset($inputs['file1']) && ($inputs['file1'] == $collaborate->file1))
                 unset($inputs['file1']);
             else
                 $inputs['file1'] = null;
@@ -276,26 +276,39 @@ class CollaborateController extends Controller
             }
         }
 
-        if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
-        {
-            $inputs['state'] = Collaborate::$state[0];
-            $inputs['deleted_at'] = null;
-            $inputs['created_at'] = Carbon::now()->toDateTimeString();
-            $inputs['updated_at'] = Carbon::now()->toDateTimeString();
-            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-            $this->model = $collaborate->update($inputs);
+        // if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
+        // {
+        //     $inputs['state'] = Collaborate::$state[0];
+        //     $inputs['deleted_at'] = null;
+        //     $inputs['created_at'] = Carbon::now()->toDateTimeString();
+        //     $inputs['updated_at'] = Carbon::now()->toDateTimeString();
+        //     $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        //     $this->model = $collaborate->update($inputs);
 
-            $collaborate->addToCache();
+        //     $collaborate->addToCache();
 
-            $company = Company::find($companyId);
-            $this->model = Collaborate::find($id);
+        //     $company = Company::find($companyId);
+        //     $this->model = Collaborate::find($id);
 
-            event(new NewFeedable($this->model, $company));
-            \App\Filter\Collaborate::addModel($this->model);
+        //     event(new NewFeedable($this->model, $company));
+        //     \App\Filter\Collaborate::addModel($this->model);
 
-            return $this->sendResponse();
-        }
+        //     return $this->sendResponse();
+        // }
         $inputs['privacy_id'] = 1;
+        if($request->expires_on != null) {
+            $inputs['expires_on'] = $request->expires_on;
+            if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
+                $inputs['state'] = Collaborate::$state[0];
+                $inputs['deleted_at'] = null;
+                $collaborate->addToCache();
+                $company = Company::find($companyId);
+                $this->model = Collaborate::find($id);
+
+                event(new NewFeedable($this->model, $company));
+            }
+        }
+        $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));

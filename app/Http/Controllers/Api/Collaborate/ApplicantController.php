@@ -1,4 +1,6 @@
-<?php namespace App\Http\Controllers\Api\Collaborate;
+<?php 
+
+namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
 use App\CompanyUser;
@@ -8,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Support\Facades\Redis;
 
 class ApplicantController extends Controller
 {
@@ -60,11 +63,10 @@ class ApplicantController extends Controller
         if(isset($filters))
             $type = false;
         $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereNotNull('shortlisted_at')            ->whereNull('rejected_at')->orderBy("created_at","desc")->skip($skip)->take($take)->get();
-
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
         {
-            $batchIds = \Redis::sMembers("collaborate:".$applicant['collaborate_id'].":profile:".$applicant['profile_id'].":");
+            $batchIds = Redis::sMembers("collaborate:".$applicant['collaborate_id'].":profile:".$applicant['profile_id'].":");
             $count = count($batchIds);
             if($count)
             {
@@ -72,11 +74,11 @@ class ApplicantController extends Controller
                 {
                     $batchId = "batch:".$batchId;
                 }
-                $batchInfos = \Redis::mGet($batchIds);
+                $batchInfos = Redis::mGet($batchIds);
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile_id']);
+                    $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile_id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
@@ -101,23 +103,31 @@ class ApplicantController extends Controller
      */
     public function store(Request $request, $collaborateId)
     {
+        $loggedInprofileId = $request->user()->profile->id;
         $collaborate = Collaborate::where('id',$collaborateId)->where('state',Collaborate::$state[0])->first();
-
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
+
         $isInvited = 0;
         $now = Carbon::now()->toDateTimeString();
-        if(!$request->has('applier_address'))
-        {
+        if (!$request->has('applier_address')) {
             return $this->sendError("Please select address.");
         }
-        if($isInvited == 0)
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$loggedInprofileId)->exists();
+            if($checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id == $loggedInprofileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        if ($isInvited == 0) {
             $loggedInprofileId = $request->user()->profile->id;
             $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInprofileId)->exists();
-            if($checkApplicant)
-            {
+            if ($checkApplicant) {
                 return $this->sendError("Already Applied");
             }
             $hut = $request->has('hut') ? $request->input('hut') : 0 ;
@@ -125,8 +135,7 @@ class ApplicantController extends Controller
             $address = json_decode($applierAddress,true);
             $city = $address['city'];
             $profile = Profile::where('id',$loggedInprofileId)->first();
-            if(!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender))
-            {
+            if (!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender)) {
                 $this->model = null;
                 return $this->sendError("Please fill mandatory feild.");
             }
@@ -134,31 +143,37 @@ class ApplicantController extends Controller
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
                 'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
         }
+        
+        if ($collaborate->document_required) {
+            $doc = \DB::table('profile_documents')->where('profile_id',$loggedInprofileId)->first();
+            if (is_null($doc)) {
+                return $this->sendError("please upload document");
+            } else if (!isset($request->terms_verified)) {
+                return $this->sendError("please agree to terms and conditions");
+            } else {
+                $inputs['terms_verified'] = 1;
+                $inputs['document_meta'] = $doc->document_meta;
+                $inputs['documents_verified'] = $doc->is_verified;
+            }
+        }
         $this->model = $this->model->create($inputs);
 
-        if(isset($this->model))
-        {
+        if (isset($this->model)) {
             $this->model = true;
 
-            if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-            {
-                $company = \Redis::get('company:small:' . $collaborate->company_id);
+            if (isset($collaborate->company_id)&& (!is_null($collaborate->company_id))) {
+                $company = Redis::get('company:small:' . $collaborate->company_id);
                 $company = json_decode($company);
                 $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
-                foreach ($profileIds as $profileId)
-                {
+                foreach ($profileIds as $profileId) {
                     $collaborate->profile_id = $profileId;
                     event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message",""),null,null, $company));
 
                 }
-            }
-            else
-            {
+            } else {
                 event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
             }
-        }
-        else
-        {
+        } else {
             $this->model = false;
         }
 
@@ -378,19 +393,49 @@ class ApplicantController extends Controller
             $this->model = null;
             return $this->sendError("Please fill mandatory feild.");
         }
-        $now = Carbon::now()->toDateTimeString();
-        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
-            ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null,'message'=>$request->input('message'),
-                'applier_address'=>$applierAddress,'hut'=>$hut,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender]);
 
-        if($this->model)
-        {
+        $terms_verified = 0;
+        $document_meta = null;
+        $documents_verified = 0;
+        if($collaborate->document_required) {
+            $doc = \DB::table('profile_documents')->where('profile_id',$loggedInProfileId)->first();
+            if (is_null($doc)) {
+                return $this->sendError("please upload document");
+            } else if (!isset($request->terms_verified)) {
+                return $this->sendError("please agree to terms and conditions");
+            } else {
+                $terms_verified = 1;
+                $document_meta = $doc->document_meta;
+                $documents_verified = $doc->is_verified;
+            }
+        }
+
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('collaborate_applicants')
+            ->where('collaborate_id',$id)
+            ->where('profile_id',$loggedInProfileId)
+            ->update([
+                'shortlisted_at'=>$now,
+                'rejected_at'=>null,
+                'message'=>$request->input('message'),
+                'applier_address'=>$applierAddress,
+                'hut'=>$hut,
+                'city'=>$city,
+                'age_group'=>$profile->ageRange,
+                'gender'=>$profile->gender,
+                'document_meta'=>$document_meta,
+                'terms_verified'=>$terms_verified,
+                'documents_verified'=>$documents_verified
+            ]);
+
+        if ($this->model) {
             $company = Company::where('id',$collaborate->company_id)->first();
-            $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
-            foreach ($profileIds as $profileId)
-            {
+            $profileIds = CompanyUser::where('company_id',$collaborate->company_id)
+                ->get()
+                ->pluck('profile_id');
+            foreach ($profileIds as $profileId) {
                 $collaborate->profile_id = $profileId;
-                event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,$request->user()->profile,$request->input("message",""),null,null,$company));
+                event(new \App\Events\Actions\InvitationAcceptForReview($collaborate, $request->user()->profile, $request->input("message",""), null, null, $company));
             }
         }
 
@@ -461,7 +506,7 @@ class ApplicantController extends Controller
         $applicants = [];
         foreach ($profiles as &$applicant)
         {
-            $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant['profile']['id'].":");
+            $batchIds = Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant['profile']['id'].":");
             $count = count($batchIds);
             if($count)
             {
@@ -469,11 +514,11 @@ class ApplicantController extends Controller
                 {
                     $batchId = "batch:".$batchId;
                 }
-                $batchInfos = \Redis::mGet($batchIds);
+                $batchInfos = Redis::mGet($batchIds);
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile']['id']);
+                    $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile']['id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
@@ -624,4 +669,76 @@ class ApplicantController extends Controller
         return $this->sendResponse();
     }
 
+    public function rejectDocument(Request $request, $collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $company = Company::where('id',$collaborate->company_id)->first();
+        $profileId = $request->user()->profile->id;
+
+        if (isset($collaborate->company_id)&& (!is_null($collaborate->company_id))) {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if (!$checkUser) {
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        } else if ($collaborate->profile_id != $profileId) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        
+        $profileId = $request->profileId;
+        if (!isset($profileId) || $profileId == null) {
+            return $this->sendError("Please enter profile id");
+        }
+        
+        $applicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$profileId)->first();
+        if (is_null($applicant)) {
+            return $this->sendError("Applicant not found");
+        }
+
+        $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->where('is_verified',0)->delete();
+        $this->model =  $applicant->delete();
+
+        event(new \App\Events\DocumentRejectEvent($profileId,$company,null,$collaborate));
+        return $this->sendResponse();
+    }
+    
+    public function acceptDocument(Request $request,$collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if (isset($collaborate->company_id)&& (!is_null($collaborate->company_id))) {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if (!$checkUser) {
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        } else if ($collaborate->profile_id != $profileId) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        
+        $profileId = $request->profileId;
+        if (!isset($profileId) || $profileId == null) {
+            return $this->sendError("Please enter profile id");
+        }
+        
+        $applicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$profileId)->first();
+        if (is_null($applicant)) {
+            return $this->sendError("Applicant not found");
+        }
+
+        $update_applicant = $applicant->update(['documents_verified'=>1]);
+        if (!$update_applicant) {
+            return $this->sendError("Please try again. Update failed"); 
+        }
+
+        $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->update(['is_verified'=>1,'document_meta'=>json_encode($applicant->document_meta)]);
+        return $this->sendResponse();
+    }
 }

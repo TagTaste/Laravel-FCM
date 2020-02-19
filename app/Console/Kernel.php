@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\DispatchJob;
 use App\Console\Commands\AddHandle;
 use App\Console\Commands\AddSuggestionData;
 use App\Console\Commands\BackupDatabase;
@@ -46,6 +47,23 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\SettingChanges as SettingChanges;
 
+use App\Console\Commands\Build\Graph\DateOfBirth as GraphDateofBirth;
+use App\Console\Commands\Build\Graph\Cuisines as GraphCuisines;
+use App\Console\Commands\Build\Graph\FoodieType as GraphFoodieType;
+use App\Console\Commands\Build\Graph\Specializations as GraphSpecialisations;
+use App\Console\Commands\Build\Graph\Education as GraphEducation;
+use App\Console\Commands\Build\Graph\Experiance as GraphExperiance;
+use App\Console\Commands\Build\Graph\Profiles as GraphProfiles;
+use App\Console\Commands\Build\Graph\Companies as GraphCompanies;
+
+use App\Console\Commands\Build\Graph\Build\Following as GraphFollowing;
+use App\Console\Commands\Build\Graph\Build\UserDoB as GraphUserDoB;
+use App\Console\Commands\Build\Graph\Build\UserCuisine as GraphUserCuisine;
+use App\Console\Commands\Build\Graph\Build\UserFoodieType as GraphUserFoodieType;
+use App\Console\Commands\Build\Graph\Build\UserSpecialization as GraphUserSpecialization;
+use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
+use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -71,6 +89,25 @@ class Kernel extends ConsoleKernel
         SettingChanges::class,
         PublicReviewProduct::class,
         Polling::class,
+
+        
+        // Rebuild Graph
+        GraphProfiles::class,
+        GraphCompanies::class,
+        GraphFollowing::class,
+        GraphFoodieType::class,
+        GraphCuisines::class,
+        GraphSpecialisations::class,
+        GraphDateofBirth::class,
+        GraphEducation::class,
+        GraphUserDoB::class,
+        GraphUserCuisine::class,
+        GraphUserFoodieType::class,
+        GraphUserSpecialization::class,
+        GraphUserEducation::class,
+        GraphExperiance::class,
+        GraphUserExperiance::class,
+
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
         \App\Console\Commands\Build\Search\Company::class,
@@ -218,7 +255,9 @@ class Kernel extends ConsoleKernel
 
 
         //update social connection
-        SocialConnectedAddFlag::class
+        SocialConnectedAddFlag::class,
+
+        DispatchJob::class
 
     ];
 
@@ -230,7 +269,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('expires_on:job')->dailyAt('12:00');
+        //$schedule->command('expires_on:job')->dailyAt('12:00');
         $schedule->command('expires_on:collaboration')->dailyAt('12:00');
 
         //daily polling expire at 12
