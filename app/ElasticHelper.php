@@ -19,7 +19,7 @@ class ElasticHelper
                 $fields = ['name^3','cuisines^1','speciality^1','about^2'];
                 break;
             case "profile":
-                $fields = ['name^3','about^2','handle^1'];
+                $fields = ['name^3','handle^2'];
                 break;
             case "product";
                 $fields = ['name^3','productCategory^1','subCategory^1', 'brand_name^2', 'company_name^2'];
