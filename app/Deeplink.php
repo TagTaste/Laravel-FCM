@@ -73,6 +73,7 @@ class Deeplink
         $res = $client->request('POST', 'https://api.branch.io/v1/url', [
             'json' => [
                 "branch_key" => env('BRANCH_KEY'),
+
                 "data" => [
                     '$canonical_identifier' =>  $data['deeplinkCanonicalId'],
                     '$og_title' =>              strip_tags($data['ogTitle']),
@@ -114,6 +115,7 @@ class Deeplink
         $res = $client->request('POST', 'https://api.branch.io/v1/url', [
             'json' => [
                 "branch_key" => env('BRANCH_KEY'),
+
                 "data" => [
                     '$canonical_identifier' =>  'share_feed/',
                     '$og_title' =>              strip_tags($data->title),
@@ -151,16 +153,16 @@ class Deeplink
     private function getModel(&$modelName, &$id)
     {
         $class = "\\App\\" . ucwords($modelName);
-        if ($modelName == 'product'||$modelName =='review') {
+        if($modelName == 'product'||$modelName =='review')
             $class = "\\App\\" . "PublicReviewProduct";
-        }
         return $class::find($id);
     }
 
     public static function getActualUrl($modelName, $modelId, $shared = false, $share_id = 0)
     {
-        if ($shared) {
+        if($shared) {
             return env('APP_URL')."/feed/view/share/$modelName/$share_id/$modelId";
+
         } else {
             switch ($modelName) {
                 case 'photo':       return env('APP_URL')."/photo/$modelId";
@@ -180,15 +182,8 @@ class Deeplink
     }
     public static function getDeepLinkText($modelName,$model)
     {
-        if (
-            $modelName == 'product' 
-            ||
-            $modelName == 'profile'
-            ||
-            isset($model->owner->name)
-            ||
-            $modelName =='company'
-        ) {
+        if( $modelName == 'product' || $modelName == 'profile' || isset($model->owner->name) || $modelName =='company')
+        {
             switch ($modelName) {
                 case 'photo':       return Deeplink::getPhotoText($model);
                 case 'shoutout':    return Deeplink::getShoutoutText($model);
@@ -198,33 +193,31 @@ class Deeplink
                 case 'product':     return Deeplink::getProductText($model);
                 case 'polling':     return Deeplink::getPollingText($model);
             }
-        } else {
-            return null;
         }
+        else
+            return null;
     }
 
     public static function getShoutoutText($model)
     {
-        if (is_array($model->content)) {
-            $content = $model->content['text'];
-        } else {
-            $content = $model->content;
-        }
-        
-        if ($model->preview != null) {
-            if(!is_null($content) && strlen($content)) {
-                $description = $content;
+            if(is_array($model->content)){
+                $content = $model->content['text'];
             } else {
-                $description = isset($model->preview["description"])?$model->preview["description"]:null;
+                $content = $model->content;
             }
-            return strip_tags(Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n");
-        }
-        
-        if ($model->media_url != null && $model->content !=  null) {
-            return strip_tags(Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste! \r\n");
-        } else if ($content != null) {
-           return strip_tags(Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n");
-        }
+            if($model->preview != null){
+                if(!is_null($content) && strlen($content)) {
+                    $description = $content;
+                } else {
+                    $description = isset($model->preview["description"])?$model->preview["description"]:null;
+                }
+                return strip_tags(Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n");
+            }
+            if($model->media_url != null && $model->content !=  null){
+                return strip_tags(Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste! \r\n");
+            } else if ($content != null) {
+               return strip_tags(Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n");
+            }
         return strip_tags("Checkout this post by ".$model->owner->name." on TagTaste! \r\n");
 
     }
@@ -232,7 +225,7 @@ class Deeplink
     public static function getPhotoText($model)
     {
         $caption = $model->caption;
-        return strip_tags(Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste! \r\n");
+            return strip_tags(Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste! \r\n");
     }
 
     public static function getPollingText($model){
@@ -252,19 +245,17 @@ class Deeplink
 
     public static function getProfileText($model)
     {
-        if (isset($model->about) && !is_null($model->about) && strlen($model->about)) {
+        if(isset($model->about) && !is_null($model->about) && strlen($model->about))
             return strip_tags(Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste! \r\n");
-        } else {
+        else
             return strip_tags("Checkout this profile on TagTaste. \r\n");
-        }
     }
 
     public static function getCompanyText($model)
     {
-        if (isset($model->about) && !is_null($model->about) && strlen($model->about)) {
-            return strip_tags(Str::words(substr($model->about,0,155))."...\r\nCheckout this company on TagTaste! \r\n");
-        } else {
+        if(isset($model->about) && !is_null($model->about) && strlen($model->about))
+            return Str::words(substr($model->about,0,155))."...\r\nCheckout this company on TagTaste! \r\n";
+        else
             return strip_tags("Checkout this company on TagTaste! \r\n");
-        }
     }
 }
