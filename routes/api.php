@@ -393,7 +393,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
                 Route::post('inviteForReview','ApplicantController@inviteForReview'); //not need
-                Route::post('acceptInvitation','ApplicantController@acceptInvitation');
                 Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
                 Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
                 Route::post("acceptDocument", "ApplicantController@acceptDocument");
@@ -406,6 +405,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             });
 
             Route::post("showInterest","ApplicantController@store");
+            Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
             Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
