@@ -69,6 +69,6 @@ class Kernel extends HttpKernel
         'api.CheckCompanyAdmin' => \App\Http\Middleware\Api\CheckCompanyAdmin::class,
         'versionCheck' => VersionCheck::class,
         'optimizeImages'=> \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
-        'permission'=> \App\Http\Middleware\collaborateRoles::class,
+        'permissionCollaborate'=> \App\Http\Middleware\collaborateRoles::class,
     ];
 }
