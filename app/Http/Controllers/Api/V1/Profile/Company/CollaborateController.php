@@ -28,9 +28,11 @@ class CollaborateController extends Controller
      *
      * @return void
      */
+    public $now;
     public function __construct(Collaborate $model)
     {
         $this->model = $model;
+        $this->now = Carbon::now()->addMonth()->toDateTimeString();
     }
 
     /**
@@ -758,6 +760,89 @@ class CollaborateController extends Controller
 
         $this->model = \DB::table('collaborate_close_reason')->insert($data);
 
+        return $this->sendResponse();
+    }
+    public function getRoles(Request $request)
+    {
+        $this->model = \DB::table('collaborate_role')->orderBy('id','asc')->get();
+        return $this->sendResponse();
+    }
+    public function assignRole(Request $request,$profileId,$companyId,$collaborateId)
+    {
+        $checkIfExists = \DB::table('collaborates')
+            ->whereNull('deleted_at')
+            ->where('state',1)
+            ->where('id',$collaborateId)
+            ->count();
+       if(!$checkIfExists) {
+           return $this->sendError("Invalid Collaboration");
+       }
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
+            return $this->sendError("Invalid Admin.");
+        }
+       $roleId = $request->role_id;
+       if(!isset($roleId) || $roleId == null) {
+           $this->sendError("please enter role id");
+       }
+       if(!is_array($roleId))
+           $roleId = [$roleId];
+
+       $data = [];
+       $profileId = $request->profile_id;
+       foreach ($roleId as $role) {
+           $exists = \DB::table('collaborate_role')->where('id',$role)->count();
+           if(!$exists) {
+               return $this->sendError('Invalid role id');
+           }
+           $rolesAssigned = \DB::table('collaborate_user_roles')->where('collaborate_id',$collaborateId)->where('profile_id',$profileId)->where('role_id',$roleId)->count();
+           if(!$rolesAssigned) {
+               $data[] = ['profile_id'=>$profileId,'collaborate_id'=>$collaborateId,'role_id'=>$role];
+           }
+       }
+       $this->model = \DB::table('collaborate_user_roles')->insert($data);
+       return $this->sendResponse();
+
+    }
+    public function deleteRoles(Request $request,$profileId,$companyId,$collaborateId)
+    {
+        $checkIfExists = \DB::table('collaborates')
+            ->whereNull('deleted_at')
+            ->where('state',1)
+            ->where('id',$collaborateId)
+            ->count();
+        if(!$checkIfExists) {
+            return $this->sendError("Invalid Collaboration");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
+            return $this->sendError("Invalid Admin.");
+        }
+        $profileId = $request->profile_id;
+        $this->model = \DB::table('collaborate_user_roles')->where('collaborate_id',$collaborateId)->where('profile_id',$profileId)->delete();
+        return $this->sendResponse();
+    }
+    public function getProfileRole(Request $request,$profileId,$companyId,$collaborateId)
+    {
+        $checkIfExists = \DB::table('collaborates')
+            ->whereNull('deleted_at')
+            ->where('state',1)
+            ->where('id',$collaborateId)
+            ->count();
+        if(!$checkIfExists) {
+            return $this->sendError("Invalid Collaboration");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
+            return $this->sendError("Invalid Admin.");
+        }
+        $profileId = $request->profile_id;
+        $this->model = \DB::table('collaborate_user_roles')
+            ->join('collaborate_role','collaborate_role.id','=','collaborate_user_roles.role_id')
+            ->where('collaborate_user_roles.profile_id',$profileId)->get();
         return $this->sendResponse();
     }
 }
