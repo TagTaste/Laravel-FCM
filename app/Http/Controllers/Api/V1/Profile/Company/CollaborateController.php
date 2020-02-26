@@ -762,9 +762,18 @@ class CollaborateController extends Controller
 
         return $this->sendResponse();
     }
-    public function getRoles(Request $request)
+    public function getRoles(Request $request,$proifleId,$companyId,$id)
     {
-        $this->model = \DB::table('collaborate_role')->orderBy('id','asc')->get();
+        $this->model = \DB::table('collaborate_role')
+        ->join('collaborate_user_roles',function($join) use ($id){
+            $join->on('collaborate_role.id','=', 'collaborate_user_roles.role_id')
+            ->on('collaborate_user_role.collaborate_id','=',$id);
+        })
+        ->join('profiles','profiles.id','=','collaborate_user_roles.profile_id')
+        ->join('users','profiles.user_id','=','users.id')
+        ->select('users.name','collaborate_role.role','profiles.image')
+        ->orderBy('id','asc')
+        ->get();
         return $this->sendResponse();
     }
     public function assignRole(Request $request,$profileId,$companyId,$collaborateId)

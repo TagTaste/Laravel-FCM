@@ -401,10 +401,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
                 Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");
                 Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");
-                Route::resource('collaborateApplicants','ApplicantController');
             });
 
             Route::post("showInterest","ApplicantController@store");
+            Route::resource('collaborateApplicants','ApplicantController');
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
