@@ -771,13 +771,25 @@ class CollaborateController extends Controller
     public function getSideBar(Request $request,$id)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        $options = \Config::get('view.webview_collaboration');
+        $collab = \DB::table('collaborates')
+            ->whereNull('deleted_at')
+            ->where('state',1)
+            ->where('id',$id)
+            ->first();
+        $companyId = $collab->company_id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if($checkAdmin) {
+            $this->model = array_values($options);
+            return $this->sendResponse();
+        }
         $getRole = \DB::table('collaborate_user_roles')
                     ->where('profile_id',$loggedInProfileId)
                     ->where('collaborate_id',$id)
                     ->get();
         $roles = $getRole->pluck('role_id');
         $this->model = [];
-        $options = \Config::get('view.webview_collaboration');
+        
         foreach($roles as $role) {
             $this->model[] = $options[$role];  
         }

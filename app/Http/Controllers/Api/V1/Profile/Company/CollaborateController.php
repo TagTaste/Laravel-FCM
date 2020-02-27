@@ -789,7 +789,7 @@ class CollaborateController extends Controller
             $model['role'] = $role;
             $model['role_id'] = $value[0]->role_id;
             $model['name'] = $role;
-            $model['description'] = $value->helper_text;
+            $model['description'] = $value[0]->helper_text;
             $model['profiles'] = [];
             if($value[0]->profile_id != null)
             $model['profiles'] = $value;
