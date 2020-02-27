@@ -347,7 +347,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::resource("collaborate","CollaborateController");
 
         //product review related api
-        Route::get('collaborate/{collaborateId}/sideBar','CollaborateController@getSideBar');
         Route::get("userBatches","CollaborateController@userBatches");
         Route::post("seenBatchesList","CollaborateController@seenBatchesList");
         Route::get("tastingMethodology","CollaborateController@tastingMethodology");
