@@ -776,7 +776,7 @@ class CollaborateController extends Controller
                 'profiles.image',
                 'collaborate_role.id as role_id',
                 'collaborate_role.helper_text',
-                'profiles.id as profile_id',
+                'profiles.id',
                 'profiles.handle',
                 'profiles.city',
                 'profiles.tagline',
