@@ -207,7 +207,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::resource('photos','PhotoController');
                     Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
                     Route::delete('collaborate/{collaborateId}/deleteRoles','CollaborateController@deleteRoles');
-                    Route::get('collaborate/{collaborateId}/getRole','CollaborateController@getProfileRole');
+                    Route::get('collaborate/{collaborateId}/getRole','CollaborateController@getProfileRole'); 
                 });
             });
         });
@@ -347,6 +347,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::resource("collaborate","CollaborateController");
 
         //product review related api
+        Route::get('collaborate/{collaborateId}/sideBar','CollaborateController@getSideBar');
         Route::get("userBatches","CollaborateController@userBatches");
         Route::post("seenBatchesList","CollaborateController@seenBatchesList");
         Route::get("tastingMethodology","CollaborateController@tastingMethodology");

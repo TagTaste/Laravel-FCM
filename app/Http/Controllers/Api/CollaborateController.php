@@ -768,5 +768,19 @@ class CollaborateController extends Controller
                     return null;
                 }
     }
-
+    public function getSideBar(Request $request,$id)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $getRole = \DB::table('collaborate_user_roles')
+                    ->where('profile_id',$loggedInProfileId)
+                    ->where('collaborate_id',$id)
+                    ->get();
+        $roles = $getRole->pluck('role_id');
+        $this->model = [];
+        $options = \Config::get('view.webview_collaboration');
+        foreach($roles as $role) {
+            $this->model[] = $options[$role];  
+        }
+        return $this->sendResponse();
+    }
 }

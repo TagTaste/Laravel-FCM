@@ -29,5 +29,13 @@ return [
     */
 
     'compiled' => realpath(storage_path('framework/views')),
+    'webview_collaboration' => [
+        1 => [
+            'name'=>'Reports',
+        ],
+        2 => [
+            'name'=>'Manage Applicants'
+        ]
+    ]
 
 ];
