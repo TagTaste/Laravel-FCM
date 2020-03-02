@@ -69,6 +69,7 @@ Route::get('allCategories','FaqsController@allCategories');
 Route::post('storeCategories','FaqsController@storeCategories');
 Route::resource('faqs','FaqsController');
 
+
 // unsubscribe
 /**
  * this will do both subscribe and unsubscribe just pass subscribe or 
@@ -364,7 +365,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
 
         Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function() {
-            Route::group(['middleware' => ['permissionCollaborate']], function () {
+            //Route::group(['middleware' => ['permissionCollaborate']], function () {
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');//required
                 Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
@@ -401,7 +402,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
                 Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");
                 Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");
-            });
+            //});
 
             Route::post("showInterest","ApplicantController@store");
             Route::resource('collaborateApplicants','ApplicantController');
