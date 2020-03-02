@@ -501,11 +501,13 @@ class Collaborate extends Model implements Feedable
         $images = $this->getImagesAttribute($this->images);
         $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images[0]) ? $images[0]:
-            'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
+                (isset($profile->image) ? $profile->image :
+                    (isset($profile->logo) ? $profile->logo : 
+                        'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png'));
         $data['ogUrl'] = env('APP_URL').'/preview/collaborate/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/collaborate/'.$this->id;
         $data['collaborate_type'] = $this->collaborate_type; 
-
+        
         return $data;
 
     }
