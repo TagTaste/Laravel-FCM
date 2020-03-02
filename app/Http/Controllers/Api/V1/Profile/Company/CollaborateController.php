@@ -852,7 +852,15 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid Admin.");
         }
         $profileId = $request->profile_id;
-        $this->model = \DB::table('collaborate_user_roles')->where('collaborate_id',$collaborateId)->where('profile_id',$profileId)->delete();
+        $roleId = $request->role_id;
+        if(!isset($profileId) || !isset($roleId)) {
+            return $this->sendError("Invalid Inputs given");
+        }
+        $this->model = \DB::table('collaborate_user_roles')
+                        ->where('collaborate_id',$collaborateId)
+                        ->where('profile_id',$profileId)
+                        ->where('role_id',$roleId)
+                        ->delete();
         return $this->sendResponse();
     }
     public function getProfileRole(Request $request,$profileId,$companyId,$collaborateId)
