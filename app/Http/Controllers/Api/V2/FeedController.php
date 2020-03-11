@@ -27,7 +27,7 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
-        list($skip,$take) = Paginator::paginate($page, 15);
+        list($skip,$take) = Paginator::paginate($page, 13);
         
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
@@ -99,6 +99,14 @@ class FeedController extends Controller
         $this->model = array_fill(0, 20, null);
         $client = config('database.neo4j_uri_client');
 
+        // $suggestion_position = array();
+        // $suggestion_position[] = rand(2,4);
+        // $suggestion_position[] = rand(6,8);
+        // $suggestion_position[] = rand(10,12);
+        // $suggestion_position[] = rand(14,16);
+        // $suggestion_position[] = rand(18,20);
+        //
+        // old positions
         // 2 profile, 6 product, 
         // 10 company not working dated from 4th Feb 2020 onwards, 
         // 13 ad engine and 15 collaboration suggestion
@@ -107,14 +115,17 @@ class FeedController extends Controller
         // newly updated positions 18 feb 2020 by tanvi
         // 2 profile 6 collaboration
         // 10 products 13 ad engine 15 collaboration
-        $suggestion_position = array(2, 6, 10, 13, 15);
-
-        // $suggestion_position = array();
-        // $suggestion_position[] = rand(2,4);
-        // $suggestion_position[] = rand(6,8);
-        // $suggestion_position[] = rand(10,12);
-        // $suggestion_position[] = rand(14,16);
-        // $suggestion_position[] = rand(18,20);
+        // $suggestion_position = array(2, 6, 10, 13, 15);
+        //
+        // newly updated positions 11 march 2020 by tanvi
+        // 2 profile
+        // 5 ad engine
+        // 7 collaboration
+        // 11 ad engine
+        // 14 products 
+        // 17 ad engine
+        // 19 collaboration
+        $suggestion_position = array(2, 5, 7, 11, 14, 17, 19);
 
         $feed_position = array_values(array_diff(array_keys($this->model),$suggestion_position));
 
@@ -151,11 +162,12 @@ class FeedController extends Controller
                     break;
             }
         }
-        $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
-        $this->model[$suggestion_position[2]] = $this->suggestion_products($client, $profile, $profileId);
+        $this->model[$suggestion_position[2]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        $this->model[$suggestion_position[4]] = $this->suggestion_products($client, $profile, $profileId);
+        $this->model[$suggestion_position[6]] = $this->suggestion_collaboration($client, $profile, $profileId);
         // $this->model[$suggestion_position[2]] = $this->suggestion_company($client, $profile, $profileId);
         $this->model[$suggestion_position[3]] = $this->ad_engine($client, $profile, $profileId);
-        $this->model[$suggestion_position[4]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        
 
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
