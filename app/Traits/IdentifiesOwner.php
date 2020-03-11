@@ -48,4 +48,15 @@ trait IdentifiesOwner
     {
         return $this->getOwner();
     }
+
+    public function setRole($data, $profileId, $collabId)
+    {
+        $roleIds = \DB::table('collaborate_user_roles')
+                    ->where('profile_id',$profileId)
+                    ->where('collaborate_id',$collabId)
+                    ->pluck('role_id')->toArray();
+        $data['can_see_reports'] = in_array(1,array_values($roleIds)) ? 1 : 0;
+        $data['can_see_manage'] = in_array(2,array_values($roleIds)) ? 1 : 0;
+        return $data;
+    }
 }

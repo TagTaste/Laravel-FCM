@@ -13,7 +13,7 @@ class Collaborate extends BaseCollaborate
 {
 	use IdentifiesOwner, GetTags, HasPreviewContent;
 
-	protected $visible = ['id','title','expires_on','profile_id','company_id','created_at','updated_at','deleted_at','video','location','privacy_id','description','duration','file1','state','step','type','type_id','is_taster_residence','collaborate_type','brand_name','brand_logo','methodology_id','no_of_batches','global_question_id','images_meta','applicationCount','type','product_review_meta','tasting_methodology','profile','company','categories','addresses','collaborate_specializations','collaborate_allergens','description_updated', 'document_required'];
+	protected $visible = ['id','title','expires_on','profile_id','company_id','created_at','updated_at','deleted_at','video','location','privacy_id','description','duration','file1','state','step','type','type_id','is_taster_residence','collaborate_type','brand_name','brand_logo','methodology_id','no_of_batches','global_question_id','images_meta','applicationCount','type','product_review_meta','tasting_methodology','profile','company','categories','addresses','collaborate_specializations','collaborate_allergens','description_updated', 'document_required',"financials","financial_min","financial_max"];
 
     protected $appends = ['description_updated', 'applicationCount', 'product_review_meta', 'type','tasting_methodology'];
 
@@ -95,10 +95,10 @@ class Collaborate extends BaseCollaborate
             $data = $data."\n\n"."Deliverables\n".$this->project_commences;
         }
 
-        if (!is_null($this->financials) && 
-            (is_string($this->financials) && strlen($this->financials))) {
-            $data = $data."\n\n"."Financials\n".$this->financials;
-        }
+        // if (!is_null($this->financials) && 
+        //     (is_string($this->financials) && strlen($this->financials))) {
+        //     $data = $data."\n\n"."Financials\n".$this->financials;
+        // }
 
         if (!is_null($this->occassion) && 
             (is_string($this->occassion) && strlen($this->occassion))) {
