@@ -162,11 +162,12 @@ class FeedController extends Controller
                     break;
             }
         }
-        $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
-        $this->model[$suggestion_position[2]] = $this->suggestion_products($client, $profile, $profileId);
+        $this->model[$suggestion_position[2]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        $this->model[$suggestion_position[4]] = $this->suggestion_products($client, $profile, $profileId);
+        $this->model[$suggestion_position[6]] = $this->suggestion_collaboration($client, $profile, $profileId);
         // $this->model[$suggestion_position[2]] = $this->suggestion_company($client, $profile, $profileId);
         $this->model[$suggestion_position[3]] = $this->ad_engine($client, $profile, $profileId);
-        $this->model[$suggestion_position[4]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        
 
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
