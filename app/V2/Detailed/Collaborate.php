@@ -95,11 +95,6 @@ class Collaborate extends BaseCollaborate
             $data = $data."\n\n"."Deliverables\n".$this->project_commences;
         }
 
-        if (!is_null($this->financials) && 
-            (is_string($this->financials) && strlen($this->financials))) {
-            $data = $data."\n\n"."Financials\n".$this->financials;
-        }
-
         if (!is_null($this->occassion) && 
             (is_string($this->occassion) && strlen($this->occassion))) {
             $data = $data."\n\n"."Event\n".$this->occassion;
