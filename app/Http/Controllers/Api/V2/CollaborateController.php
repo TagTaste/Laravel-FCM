@@ -29,9 +29,6 @@ class CollaborateController extends BaseController
     public function __construct(Collaborate $model)
     {
         $this->model = $model;
-        $this->middleware('permissionCollaborate', ['only' => [
-            'show' // Could add bunch of more methods too
-        ]]);
     }
 
     /**
