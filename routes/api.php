@@ -142,7 +142,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             
             Route::resource("shoutout",'ShoutoutController');
             Route::resource("polling","PollingController");
-            Route::resource("collaborate","CollaborateController")->middleware('permissionCollaborate');
+            Route::resource("collaborate","CollaborateController");
             Route::post("campus-connect","CampusConnectController@store");
             Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
             Route::get("feed","FeedController@feed");
