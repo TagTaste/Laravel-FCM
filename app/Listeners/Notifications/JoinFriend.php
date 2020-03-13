@@ -32,6 +32,7 @@ class JoinFriend
             return;
         }
         $profile = Profile::find($profileId);
+        if(isset($profile))
         Notification::send($profile, new \App\Notifications\Actions\JoinFriend($event));
     }
 }

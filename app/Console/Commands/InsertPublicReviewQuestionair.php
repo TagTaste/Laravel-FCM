@@ -1166,7 +1166,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Please take a bite of the food and drink the beverage as you would normally do while consuming this combination of food and beverage pair. Now assess the tastes.\n\nWhich Basic tastes have you sensed (Food & beverage pair)?",
+			"title": "Please take a bite of the food and drink the beverage as you would normally do while consuming this combination of food and beverage pair. Now assess the tastes.\nWhich Basic tastes have you sensed (Food & beverage pair)?",
 
 
 
@@ -4681,10 +4681,9 @@ class InsertPublicReviewQuestionair extends Command
                             {
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
-								$option_type = isset($nested->option_type) ? $nested->option_type : 0;
-								$image = isset($nested->image_url) ? $nested->image_url : null;
+                                $option_type = isset($nested->option_type) ? $nested->option_type : 0;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,
-                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nested->is_intensity, 'option_type'=>$option_type, 'image_url'=>$image];
+                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nested->is_intensity, 'option_type'=>$option_type];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
