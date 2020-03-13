@@ -16,9 +16,9 @@ class collaborateRoles
      */
     public function handle($request, Closure $next)
     {
-        if($request->isMethod("GET")){
-            return $next($request);
-        }
+        // if($request->isMethod("GET")){
+        //     return $next($request);
+        // }
         $path = $request->getPathInfo();
        $ids = preg_split('#([/a-zA-Z]+)#', $path);
        $ids = array_reverse($ids);

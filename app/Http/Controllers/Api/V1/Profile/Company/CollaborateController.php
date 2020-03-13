@@ -762,9 +762,40 @@ class CollaborateController extends Controller
 
         return $this->sendResponse();
     }
-    public function getRoles(Request $request)
+    public function getRoles(Request $request,$proifleId,$companyId,$id)
     {
-        $this->model = \DB::table('collaborate_role')->orderBy('id','asc')->get();
+        $roles = \DB::table('collaborate_role')
+        ->leftJoin('collaborate_user_roles',function($join) use ($id){
+            $join->on('collaborate_role.id','=', 'collaborate_user_roles.role_id')
+            ->where('collaborate_user_roles.collaborate_id','=',$id);
+        })
+        ->leftJoin('profiles','collaborate_user_roles.profile_id','=','profiles.id')
+        ->leftJoin('users','profiles.user_id','=','users.id')
+        ->select('collaborate_role.role',
+                'users.name',
+                'profiles.image',
+                'collaborate_role.id as role_id',
+                'collaborate_role.helper_text',
+                'profiles.id',
+                'profiles.handle',
+                'profiles.city',
+                'profiles.tagline',
+                'profiles.image_meta')
+        ->orderBy('collaborate_role.id','asc')
+        ->get();
+        $roles = $roles->groupBy("role");
+        $this->model = [];
+        foreach($roles as $role => $value) {
+            $model = [];
+            $model['role'] = $role;
+            $model['role_id'] = $value[0]->role_id;
+            $model['name'] = $role;
+            $model['description'] = $value[0]->helper_text;
+            $model['profiles'] = [];
+            if($value[0]->id != null)
+            $model['profiles'] = $value;
+            $this->model[] = $model;
+        }
         return $this->sendResponse();
     }
     public function assignRole(Request $request,$profileId,$companyId,$collaborateId)
@@ -821,7 +852,15 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid Admin.");
         }
         $profileId = $request->profile_id;
-        $this->model = \DB::table('collaborate_user_roles')->where('collaborate_id',$collaborateId)->where('profile_id',$profileId)->delete();
+        $roleId = $request->role_id;
+        if(!isset($profileId) || !isset($roleId)) {
+            return $this->sendError("Invalid Inputs given");
+        }
+        $this->model = \DB::table('collaborate_user_roles')
+                        ->where('collaborate_id',$collaborateId)
+                        ->where('profile_id',$profileId)
+                        ->where('role_id',$roleId)
+                        ->delete();
         return $this->sendResponse();
     }
     public function getProfileRole(Request $request,$profileId,$companyId,$collaborateId)

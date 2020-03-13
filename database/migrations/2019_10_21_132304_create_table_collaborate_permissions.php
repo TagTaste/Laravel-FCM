@@ -15,7 +15,7 @@ class CreateTableCollaboratePermissions extends Migration
     {
         Schema::create('collaborate_permissions', function(Blueprint $table){
             $table->increments('id');
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('method');
             $table->string('route');
             $table->string('feature')->nullable();
