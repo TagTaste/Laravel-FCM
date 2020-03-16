@@ -30,7 +30,7 @@ class collaborateRoles
        }
         $collab = \DB::table('collaborates')
             ->whereNull('deleted_at')
-            ->where('state',1)
+            //->where('state',1)
             ->where('id',$collabId)
             ->first();
         if($collab->collaborate_type != 'product-review') {
