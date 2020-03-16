@@ -325,7 +325,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
         Route::resource("collaborate/categories","CollaborateCategoryController");
         Route::get('collaborate/types',"CollaborateController@types");
-        Route::get('batchesColor',"CollaborateController@batchesColor")->middleware('permissionCollaborate');
+        Route::get('batchesColor',"CollaborateController@batchesColor");
 
         //collaborate templates
         Route::resource("collaborate/templates","CollaborateTemplateController");
