@@ -412,7 +412,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
             Route::post("headers/{headerId}","ReviewController@reviewAnswers");
             Route::get("headers/{id}","QuestionController@reviewQuestions");
-            Route::get("headers","QuestionController@headers")->middleware('permissionCollaborate');
+            Route::get("headers","QuestionController@headers");
             Route::post("insertHeaders","QuestionController@insertHeaders");
             Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
             Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");
