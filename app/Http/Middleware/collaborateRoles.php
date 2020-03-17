@@ -30,17 +30,20 @@ class collaborateRoles
        }
         $collab = \DB::table('collaborates')
             ->whereNull('deleted_at')
-            ->where('state',1)
+            //->where('state',1)
             ->where('id',$collabId)
             ->first();
+        if($collab->collaborate_type != 'product-review') {
+            return $next($request);
+        }
         $companyId = $collab->company_id;
         $loggedInProfileId = $request->user()->profile->id;
         
         $path = preg_replace('#([0-9]+)#','id',$path); 
         $checkPermissionExist = \DB::table('collaborate_permissions')->where('route',$path)->where('method',$request->method())->count();
-        if(!$checkPermissionExist) {
-            \DB::table('collaborate_permissions')->insert(['route'=>$path,'method'=>$request->method()]);
-        }//This part is used jus to store information we should comment this after a while  
+        // if(!$checkPermissionExist) {
+        //     \DB::table('collaborate_permissions')->insert(['route'=>$path,'method'=>$request->method()]);
+        // }//This part is used jus to store information we should comment this after a while  
         
         $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
         if($checkAdmin) {
@@ -57,7 +60,7 @@ class collaborateRoles
         if($permission) {
             return $next($request);
         } else {
-            return response()->json(['data'=>null,'error'=>'permission_denied','status'=>'401'], 401);
+            return response()->json(['data'=>null,'error'=>'permission_denied','status'=>'403'], 403);
         }
 
     }

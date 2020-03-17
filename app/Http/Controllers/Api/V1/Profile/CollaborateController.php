@@ -102,7 +102,7 @@ class CollaborateController extends Controller
         $inputs = $request->all();
         $inputs['profile_id'] = $profileId;
         $inputs['state'] = Collaborate::$state[0];
-        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        $inputs['expires_on'] = $request->expires_on;
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         $imagesArray = [];
