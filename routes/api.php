@@ -158,6 +158,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::resource("users","UserController");
                 });
             });
+
+            Route::get("search/explore","SearchController@newExplore");
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {
