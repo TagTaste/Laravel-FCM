@@ -107,7 +107,8 @@ class Collaborate extends BaseCollaborate
         $interestedCount = 0;
         if($this->collaborate_type != 'product-review')
         {
-            $interestedCount = (int)Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+            // $interestedCount = (int)Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+            $interestedCount = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$this->id)->get()->count();
         } else {
             $interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
         }
