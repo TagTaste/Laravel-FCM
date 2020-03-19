@@ -764,6 +764,7 @@ class CollaborateController extends Controller
     }
     public function getRoles(Request $request,$proifleId,$companyId,$id)
     {
+        $canAction = Collaborate::where('id',$id)->pluck('state')[0] == "Active" ? true : false;
         $roles = \DB::table('collaborate_role')
         ->leftJoin('collaborate_user_roles',function($join) use ($id){
             $join->on('collaborate_role.id','=', 'collaborate_user_roles.role_id')
@@ -792,6 +793,7 @@ class CollaborateController extends Controller
             $model['name'] = $role;
             $model['description'] = $value[0]->helper_text;
             $model['profiles'] = [];
+            $model['can_action'] = $canAction;
             if($value[0]->id != null)
             $model['profiles'] = $value;
             $this->model[] = $model;
