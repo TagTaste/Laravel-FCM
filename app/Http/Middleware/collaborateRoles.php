@@ -29,7 +29,7 @@ class collaborateRoles
             $collabId = $id;
        }
         $collab = \DB::table('collaborates')
-            ->whereNull('deleted_at')
+            //->whereNull('deleted_at')
             //->where('state',1)
             ->where('id',$collabId)
             ->first();
