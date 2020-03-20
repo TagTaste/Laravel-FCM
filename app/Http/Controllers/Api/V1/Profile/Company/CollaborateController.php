@@ -795,7 +795,7 @@ class CollaborateController extends Controller
             $model['name'] = $role;
             $model['description'] = $value[0]->helper_text;
             $model['profiles'] = [];
-            $model['can_action'] = $value[0]->can_action;
+            $model['can_action'] = filter_var($value[0]->can_action, FILTER_VALIDATE_BOOLEAN);
             if($value[0]->id != null)
             $model['profiles'] = $value;
             $this->model[] = $model;
