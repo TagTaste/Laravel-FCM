@@ -790,12 +790,17 @@ class CollaborateController extends Controller
         $this->model = [];
         foreach($roles as $role => $value) {
             $model = [];
+            if($role == 'Panel Partners' && $canAction == false) {
+                $model['can_action'] = filter_var('false', FILTER_VALIDATE_BOOLEAN);
+            } else {
+                $model['can_action'] = filter_var('true', FILTER_VALIDATE_BOOLEAN);
+            }
             $model['role'] = $role;
             $model['role_id'] = $value[0]->role_id;
             $model['name'] = $role;
             $model['description'] = $value[0]->helper_text;
             $model['profiles'] = [];
-            $model['can_action'] = filter_var($value[0]->can_action, FILTER_VALIDATE_BOOLEAN);
+            
             if($value[0]->id != null)
             $model['profiles'] = $value;
             $this->model[] = $model;
