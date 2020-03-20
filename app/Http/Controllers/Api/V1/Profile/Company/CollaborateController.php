@@ -848,8 +848,8 @@ class CollaborateController extends Controller
     public function deleteRoles(Request $request,$profileId,$companyId,$collaborateId)
     {
         $checkIfExists = \DB::table('collaborates')
-            ->whereNull('deleted_at')
-            ->where('state',1)
+            // ->whereNull('deleted_at')
+            // ->where('state',1)
             ->where('id',$collaborateId)
             ->count();
         if(!$checkIfExists) {
@@ -875,8 +875,8 @@ class CollaborateController extends Controller
     public function getProfileRole(Request $request,$profileId,$companyId,$collaborateId)
     {
         $checkIfExists = \DB::table('collaborates')
-            ->whereNull('deleted_at')
-            ->where('state',1)
+            // ->whereNull('deleted_at')
+            // ->where('state',1)
             ->where('id',$collaborateId)
             ->count();
         if(!$checkIfExists) {
