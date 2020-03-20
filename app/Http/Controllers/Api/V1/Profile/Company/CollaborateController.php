@@ -44,7 +44,8 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('company_id',$companyId)->whereNull('deleted_at')
+        $collaborations = $this->model->where('company_id',$companyId)
+            ->whereNull('deleted_at')
             ->orderBy('created_at','desc');
 
         $profileId = $request->user()->profile->id;
@@ -777,6 +778,7 @@ class CollaborateController extends Controller
                 'profiles.image',
                 'collaborate_role.id as role_id',
                 'collaborate_role.helper_text',
+                'collaborate_role.can_action',
                 'profiles.id',
                 'profiles.handle',
                 'profiles.city',
@@ -793,7 +795,7 @@ class CollaborateController extends Controller
             $model['name'] = $role;
             $model['description'] = $value[0]->helper_text;
             $model['profiles'] = [];
-            $model['can_action'] = $canAction;
+            $model['can_action'] = $value[0]->can_action;
             if($value[0]->id != null)
             $model['profiles'] = $value;
             $this->model[] = $model;
