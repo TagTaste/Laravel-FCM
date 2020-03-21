@@ -39,7 +39,7 @@ class QuestionController extends Controller
 
     private function getHeaderRating($collaborateId,$batchId)
     {
-        $headers = ReviewHeader::where('collaborate_id',$collaborateId)->skip(1)->take(10)->get();
+        $headers = ReviewHeader::where('collaborate_id',$collaborateId)->where('header_selection_type','!=',3)->skip(1)->take(10)->get();
 //        $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('current_status',3)->get();
 
         $headerRating = [];
