@@ -619,6 +619,124 @@ class FeedController extends Controller
         return $suggestion;
     }
 
+    public static function suggestion_public_review_collaboration($client, $profile, $profileId, $count=3) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Interesting collaborations",
+                "sub_type" => "collaborate",
+            ],
+            "type" => "suggestion",
+        );
+
+        $applied_collaboration = \DB::table('collaborate_applicants')
+            ->where('profile_id',$profileId)
+            ->where('is_invited',0)
+            ->whereNull('rejected_at')
+            ->pluck('collaborate_id')
+            ->toArray();
+
+        $collaborations = Collaborate::where('collaborates.state',Collaborate::$state[0])
+            ->where('collaborate_type', 'product-review')
+            ->whereNotIn('id',$applied_collaboration)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->pluck('id')
+            ->take($count)
+            ->toArray();
+
+        if (count($collaborations)) {
+            foreach ($collaborations as $key => $id) {
+                $cached_data = Redis::get("collaborate:".$id.":V2");
+                if ($cached_data) {
+                    $data = json_decode($cached_data,true); 
+                    $data["company"] = null;
+                    $data["profile"] = null;
+                    // add company detail to collaboration
+                    if (isset($data['company_id'])) {
+                        $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
+                        if ($company_cached_data) {
+                            $data["company"] = json_decode($company_cached_data,true); 
+                        } 
+                    }
+
+                    // add profile detail to collaboration
+                    if (isset($data['profile_id'])) {
+                        $company_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
+                        if ($company_cached_data) {
+                            $data["profile"] = json_decode($company_cached_data,true); 
+                        } 
+                    }
+
+                    $suggestion["meta"]["count"]++;
+                    array_push($suggestion["suggestion"], $data); 
+                }
+            }
+        }
+        return $suggestion;
+    }
+
+    public static function suggestion_general_collaboration($client, $profile, $profileId, $count=3) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Interesting collaborations",
+                "sub_type" => "collaborate",
+            ],
+            "type" => "suggestion",
+        );
+
+        $applied_collaboration = \DB::table('collaborate_applicants')
+            ->where('profile_id',$profileId)
+            ->where('is_invited',0)
+            ->whereNull('rejected_at')
+            ->pluck('collaborate_id')
+            ->toArray();
+
+        $collaborations = Collaborate::where('collaborates.state',Collaborate::$state[0])
+            ->where('collaborate_type', 'collaborate')
+            ->whereNotIn('id',$applied_collaboration)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->pluck('id')
+            ->take($count)
+            ->toArray();
+
+        if (count($collaborations)) {
+            foreach ($collaborations as $key => $id) {
+                $cached_data = Redis::get("collaborate:".$id.":V2");
+                if ($cached_data) {
+                    $data = json_decode($cached_data,true); 
+                    $data["company"] = null;
+                    $data["profile"] = null;
+                    // add company detail to collaboration
+                    if (isset($data['company_id'])) {
+                        $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
+                        if ($company_cached_data) {
+                            $data["company"] = json_decode($company_cached_data,true); 
+                        } 
+                    }
+
+                    // add profile detail to collaboration
+                    if (isset($data['profile_id'])) {
+                        $company_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
+                        if ($company_cached_data) {
+                            $data["profile"] = json_decode($company_cached_data,true); 
+                        } 
+                    }
+
+                    $suggestion["meta"]["count"]++;
+                    array_push($suggestion["suggestion"], $data); 
+                }
+            }
+        }
+        return $suggestion;
+    }
+
     public static function suggestion_products($client, $profile, $profileId) 
     {
         $suggestion = array(
@@ -650,6 +768,65 @@ class FeedController extends Controller
             foreach ($public_review_product as $key => $product) {
                 $cached_data = Redis::get("public-review/product:".$product->id.":V2");
                 if ($cached_data) {
+                    $data = array();
+                    $data['product'] = json_decode($cached_data,true); 
+                    $data['meta'] = $product->getMetaFor($profileId);
+                    if (!is_null($data['meta']) && array_key_exists('overall_rating', $data['meta']) && !is_null($data['meta']['overall_rating'])) {
+                        $suggestion["meta"]["count"]++;
+                        array_push($suggestion["suggestion"], $data); 
+                    }
+                }
+            }
+        }
+        return $suggestion;
+    }
+
+    public static function suggestion_products_recent_reviewed($client, $profile, $profileId) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Products you may like to review",
+                "sub_type" => "product",
+            ],
+            "type" => "suggestion",
+        );
+
+        $applied_product_review = \DB::table('public_product_user_review')
+            ->where('profile_id',$profileId)
+            ->where('current_status',2)
+            ->distinct('product_id')
+            ->pluck('product_id')
+            ->toArray();
+
+        $public_review_product_list = \DB::table('public_review_products')
+            ->rightJoin('public_product_user_review', 'public_review_products.id', '=', 'public_product_user_review.product_id')
+            ->where('public_review_products.is_suggestion_allowed',1)
+            ->whereNotIn('public_review_products.id',$applied_product_review)
+            ->whereNull('public_review_products.deleted_at')
+            ->orderBy('public_product_user_review.created_at')
+            ->distinct('public_review_products.id')
+            ->get(['public_review_products.id'])
+            ->take(20);
+        
+        $product_review_ids = []; 
+        foreach ($public_review_product_list as $key => $product) {
+            array_push($product_review_ids, $product->id);
+        }
+
+        $public_review_product = PublicReviewProduct::where('is_active',1)
+            ->where('is_suggestion_allowed',1)
+            ->whereIn('id',$product_review_ids)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->get(['id', 'global_question_id'])
+            ->take(10);
+
+        if (count($public_review_product)) {
+            foreach ($public_review_product as $key => $product) {
+                $cached_data = Redis::get("public-review/product:".$product->id.":V2");
+                if (!is_null($cached_data)) {
                     $data = array();
                     $data['product'] = json_decode($cached_data,true); 
                     $data['meta'] = $product->getMetaFor($profileId);
