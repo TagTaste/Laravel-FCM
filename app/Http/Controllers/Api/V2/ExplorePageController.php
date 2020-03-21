@@ -111,7 +111,6 @@ class ExplorePageController extends Controller
                 "images_meta" => null,
                 "type" => "collection",
                 "sub_type" => "profile",
-                "backend" => "specialization",
                 "see_more" => false,
                 "filter_meta" => (object)[],
                 "elements" => $this->getSpecialization($profile, $profile_id)
@@ -136,7 +135,7 @@ class ExplorePageController extends Controller
             /* ui type = 6 is end */
         }
 
-        if ($search_filter === "products") {
+        if ($search_filter === "product") {
             /* ui type = 2 is start */
             $model[] = [
                 "position" => 2,
@@ -384,11 +383,11 @@ class ExplorePageController extends Controller
         $product_search_filter = array(
             "name" => "Products",
             "key" => "type",
-            "value" => "products",
+            "value" => "product",
             "is_selected" => false
         );
 
-        if ($filter_type === "products") {
+        if ($filter_type === "product") {
             $product_search_filter["is_selected"] = true;
         }
 
