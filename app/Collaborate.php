@@ -321,7 +321,7 @@ class Collaborate extends Model implements Feedable
             $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
             $meta['interestedCount'] = $this->interestedCount;
             $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;               
             return $meta;
         }
 
@@ -576,6 +576,7 @@ class Collaborate extends Model implements Feedable
                 ->where('is_invited',1)->first();
             $meta['is_actioned'] = isset($applicants) ? isset($applicants->shortlisted_at) || isset($applicants->rejected_at) ? true : false : false;
             $meta['is_invitation_accepted'] = isset($applicants) ? isset($applicants->shortlisted_at) && !is_null($applicants->shortlisted_at) ? true : false : false;
+            $meta = $this->setRole($meta,request()->user()->profile->id,$this->id);
             return $meta;
         }
         return null;

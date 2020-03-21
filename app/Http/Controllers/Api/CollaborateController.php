@@ -768,5 +768,4 @@ class CollaborateController extends Controller
                     return null;
                 }
     }
-
 }
