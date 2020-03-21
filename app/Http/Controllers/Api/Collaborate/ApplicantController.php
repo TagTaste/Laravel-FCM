@@ -133,7 +133,7 @@ class ApplicantController extends Controller
 
         if ($isInvited == 0) {
             $loggedInprofileId = $request->user()->profile->id;
-            $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInprofileId)->whereNull('rejected_at')->exists();
+            $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInprofileId)->exists();
             if ($checkApplicant) {
                 return $this->sendError("Already Applied");
             }
