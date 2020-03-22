@@ -124,7 +124,7 @@ class ApplicantController extends Controller
         // {
         //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$loggedInprofileId)->exists();
         //     if($checkUser){
-        //         return $this->sendError("Invalid Collaboration Project.");
+        //         return $this->sendError("Invalid Collaboration Project."); 
         //     }
         // }
         // else if($collaborate->profile_id == $loggedInprofileId){
@@ -333,7 +333,7 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
 
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id',$shortlistedProfiles)->update(['rejected_at'=>$now,'shortlisted_at'=>null]);
+            ->whereIn('profile_id',$shortlistedProfiles)->update(['rejected_at'=>$now]);
 
         return $this->sendResponse();
     }
