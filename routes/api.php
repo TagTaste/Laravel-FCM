@@ -384,12 +384,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");//->middleware('permissionCollaborate');
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
-                Route::get("getHeaderWeight","BatchController@getHeaderWeight");//->middleware('permissionCollaborate');
+                Route::get("getHeaderWeight","BatchController@getHeaderWeight")->middleware('permissionCollaborate');
                 Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");//->middleware('permissionCollaborate');
 
                 //filter for dashboard of product review
-                Route::get("dashboard/filters","BatchController@filters");//->middleware('permissionCollaborate');
-                Route::get("dashboard/report/filters","BatchController@reportFilters");//->middleware('permissionCollaborate');
+                Route::get("dashboard/filters","BatchController@filters")->middleware('permissionCollaborate');
+                Route::get("dashboard/report/filters","BatchController@reportFilters")->middleware('permissionCollaborate');
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
                 Route::resource('batches','BatchController');
