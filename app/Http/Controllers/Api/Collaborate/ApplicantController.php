@@ -25,9 +25,9 @@ class ApplicantController extends Controller
     public function __construct(Collaborate\Applicant $model)
     {
         $this->model = $model;
-        // $this->middleware('permissionCollaborate', ['only' => [
-        //     'index' // Could add bunch of more methods too
-        // ]]);
+        $this->middleware('permissionCollaborate', ['only' => [
+            'index' // Could add bunch of more methods too
+        ]]);
     }
 
     /**
