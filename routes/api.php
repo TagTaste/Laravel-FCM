@@ -377,33 +377,33 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
 
                 //reports
-                Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile")->middleware('permissionCollaborate');
-                Route::get("batches/{id}/reportPdf","BatchController@reportPdf")->middleware('permissionCollaborate');
+                Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile");//->middleware('permissionCollaborate');
+                Route::get("batches/{id}/reportPdf","BatchController@reportPdf");//->middleware('permissionCollaborate');
                 Route::get("reportSummary","BatchController@reportSummary");
                 Route::get("batches/{id}/reportHeader","QuestionController@reportHeader");
-                Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports")->middleware('permissionCollaborate');
+                Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");//->middleware('permissionCollaborate');
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
-                Route::get("getHeaderWeight","BatchController@getHeaderWeight")->middleware('permissionCollaborate');
-                Route::post("storeHeaderWeight","BatchController@storeHeaderWeight")->middleware('permissionCollaborate');
+                Route::get("getHeaderWeight","BatchController@getHeaderWeight");//->middleware('permissionCollaborate');
+                Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");//->middleware('permissionCollaborate');
 
                 //filter for dashboard of product review
-                Route::get("dashboard/filters","BatchController@filters")->middleware('permissionCollaborate');
-                Route::get("dashboard/report/filters","BatchController@reportFilters")->middleware('permissionCollaborate');
+                Route::get("dashboard/filters","BatchController@filters");//->middleware('permissionCollaborate');
+                Route::get("dashboard/report/filters","BatchController@reportFilters");//->middleware('permissionCollaborate');
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
                 Route::resource('batches','BatchController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
-                Route::post('inviteForReview','ApplicantController@inviteForReview')->middleware('permissionCollaborate'); //not need
+                Route::post('inviteForReview','ApplicantController@inviteForReview');//->middleware('permissionCollaborate'); //not need
                 Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
                 Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
                 Route::post("acceptDocument", "ApplicantController@acceptDocument");
                 Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
-                Route::get("getRejectApplicants","ApplicantController@getRejectApplicants")->middleware('permissionCollaborate');
-                Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants")->middleware('permissionCollaborate');
-                Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants")->middleware('permissionCollaborate');
-                Route::get("getApplicantFilter","ApplicantController@getApplicantFilter")->middleware('permissionCollaborate');
+                Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");//->middleware('permissionCollaborate');
+                Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");//->middleware('permissionCollaborate');
+                Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");//->middleware('permissionCollaborate');
+                Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");//->middleware('permissionCollaborate');
             //});
 
             Route::post("showInterest","ApplicantController@store");
