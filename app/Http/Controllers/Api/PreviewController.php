@@ -19,7 +19,7 @@ class PreviewController extends Controller
             $class = "\\App\\" . ucwords($modelName);
         if($modelName === 'collaborate')
         {
-            $model = $class::where('id',$id)->where('state',$class::$state[0])->whereNull('deleted_at')->first();
+            $model = $class::where('id',$id)->first();
         }
         else {
             $model = $class::find($id);
