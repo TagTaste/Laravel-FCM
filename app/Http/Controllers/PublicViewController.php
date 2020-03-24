@@ -32,7 +32,7 @@ class PublicViewController extends Controller
             $model = $class::where('handle', substr($id,1))->first();
             $id = isset($model->id) ? $model->id : null;
         } else if($modelName === 'collaborate') {
-            $model = $class::where('id',$id)->where('state',$class::$state[0])->whereNull('deleted_at')->first();
+            $model = $class::where('id',$id)->first();
         } else if($modelName === 'reviewCollection') {
             $model = $class::find($id);
             if (count($model->elements)) {
@@ -170,7 +170,7 @@ class PublicViewController extends Controller
             return $this->sendError("Model not found.");
         }
 
-        $collaborations = Collaborate::whereNull('deleted_at')->orderBy("created_at","desc");
+        $collaborations = Collaborate::orderBy("created_at","desc");
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
