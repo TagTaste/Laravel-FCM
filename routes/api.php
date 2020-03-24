@@ -490,6 +490,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::delete('comments/{id}','CommentController@destroy');
         Route::delete('comments/{id}/{modelName}/{modelId}','CommentController@commentDelete');
         Route::get('comment/tagging','CommentController@tagging');
+        
 
 
         //search
