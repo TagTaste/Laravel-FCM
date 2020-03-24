@@ -386,7 +386,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");//->middleware('permissionCollaborate');
 
                 //filter for dashboard of product review
-                Route::get("dashboard/filters","BatchController@filters")->middleware('permissionCollaborate');
+                Route::get("dashboard/filters","BatchController@filters");//->middleware('permissionCollaborate');
                 Route::get("dashboard/report/filters","BatchController@reportFilters")->middleware('permissionCollaborate');
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
