@@ -25,6 +25,9 @@ class ApplicantController extends Controller
     public function __construct(Collaborate\Applicant $model)
     {
         $this->model = $model;
+        $this->middleware('permissionCollaborate', ['only' => [
+            'index' // Could add bunch of more methods too
+        ]]);
     }
 
     /**
@@ -34,7 +37,9 @@ class ApplicantController extends Controller
      */
     public function index(Request $request,$collaborateId)
     {
-        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+        $collaborate = Collaborate::where('id',$collaborateId)
+                            //->where('state','!=',Collaborate::$state[1])
+                            ->first();
 
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
@@ -88,7 +93,7 @@ class ApplicantController extends Controller
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')->count();
-        $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+        $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)//->whereNull('shortlisted_at')
             ->whereNotNull('rejected_at')->count();
         $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
@@ -328,7 +333,7 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
 
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id',$shortlistedProfiles)->update(['rejected_at'=>$now,'shortlisted_at'=>null]);
+            ->whereIn('profile_id',$shortlistedProfiles)->update(['rejected_at'=>$now]);
 
         return $this->sendResponse();
     }
@@ -484,9 +489,9 @@ class ApplicantController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $this->model['rejectedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+        $this->model['rejectedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)//->whereNull('shortlisted_at')
             ->whereNotNull('rejected_at')->count();
-        $this->model['rejectedApplicantList'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+        $this->model['rejectedApplicantList'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)//->whereNull('shortlisted_at')
             ->whereNotNull('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
