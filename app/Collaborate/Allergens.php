@@ -11,9 +11,9 @@ class Allergens extends Model {
 
     protected $fillable = ['collaborate_id','allergens_id'];
 
-    protected $visible = ['id','name','description'];
+    protected $visible = ['id','name','description', 'image'];
 
-    protected $appends = ['id','name','description'];
+    protected $appends = ['id','name','description', 'image'];
 
     protected $allergens = null;
 
@@ -31,5 +31,10 @@ class Allergens extends Model {
     public function getDescriptionAttribute()
     {
         return isset($this->allergens->description) ? $this->allergens->description : null;
+    }
+
+    public function getImageAttribute()
+    {
+        return isset($this->allergens->image) ? $this->allergens->image : null;
     }
 }

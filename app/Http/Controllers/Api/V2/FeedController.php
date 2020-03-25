@@ -27,7 +27,7 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
-        list($skip,$take) = Paginator::paginate($page, 15);
+        list($skip,$take) = Paginator::paginate($page, 13);
         
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
@@ -99,6 +99,14 @@ class FeedController extends Controller
         $this->model = array_fill(0, 20, null);
         $client = config('database.neo4j_uri_client');
 
+        // $suggestion_position = array();
+        // $suggestion_position[] = rand(2,4);
+        // $suggestion_position[] = rand(6,8);
+        // $suggestion_position[] = rand(10,12);
+        // $suggestion_position[] = rand(14,16);
+        // $suggestion_position[] = rand(18,20);
+        //
+        // old positions
         // 2 profile, 6 product, 
         // 10 company not working dated from 4th Feb 2020 onwards, 
         // 13 ad engine and 15 collaboration suggestion
@@ -107,14 +115,17 @@ class FeedController extends Controller
         // newly updated positions 18 feb 2020 by tanvi
         // 2 profile 6 collaboration
         // 10 products 13 ad engine 15 collaboration
-        $suggestion_position = array(2, 6, 10, 13, 15);
-
-        // $suggestion_position = array();
-        // $suggestion_position[] = rand(2,4);
-        // $suggestion_position[] = rand(6,8);
-        // $suggestion_position[] = rand(10,12);
-        // $suggestion_position[] = rand(14,16);
-        // $suggestion_position[] = rand(18,20);
+        // $suggestion_position = array(2, 6, 10, 13, 15);
+        //
+        // newly updated positions 11 march 2020 by tanvi
+        // 2 profile
+        // 5 ad engine
+        // 7 collaboration
+        // 11 ad engine
+        // 14 products 
+        // 17 ad engine
+        // 19 collaboration
+        $suggestion_position = array(2, 5, 7, 11, 14, 17, 19);
 
         $feed_position = array_values(array_diff(array_keys($this->model),$suggestion_position));
 
@@ -151,11 +162,58 @@ class FeedController extends Controller
                     break;
             }
         }
-        $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
-        $this->model[$suggestion_position[2]] = $this->suggestion_products($client, $profile, $profileId);
+        $this->model[$suggestion_position[2]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        $this->model[$suggestion_position[4]] = $this->suggestion_products($client, $profile, $profileId);
+        $this->model[$suggestion_position[6]] = $this->suggestion_collaboration($client, $profile, $profileId);
         // $this->model[$suggestion_position[2]] = $this->suggestion_company($client, $profile, $profileId);
-        $this->model[$suggestion_position[3]] = $this->ad_engine($client, $profile, $profileId);
-        $this->model[$suggestion_position[4]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        // $this->model[$suggestion_position[1]] = $this->ad_engine($client, $profile, $profileId);
+
+        // 3 is passed in the last parameter as number of result desired
+        $ad_engine_details = $this->ad_engine_by_count($client, $profile, $profileId, 3);
+        if (count($ad_engine_details) === 3) {
+            if (isset($ad_engine_details[0])) {
+                $this->model[$suggestion_position[1]] = $ad_engine_details[0];
+            } else {
+                $this->model[$suggestion_position[1]] = array(
+                    "advertisement" => (object)array(),
+                    "meta" => [
+                        "count" => 0,
+                        "text" => "Promoted",
+                        "sub_type" => null,
+                    ],
+                    "type" => "advertisement",
+                );
+            }
+
+            if (isset($ad_engine_details[1])) {
+                $this->model[$suggestion_position[3]] = $ad_engine_details[1];
+            } else {
+                $this->model[$suggestion_position[3]] = array(
+                    "advertisement" => (object)array(),
+                    "meta" => [
+                        "count" => 0,
+                        "text" => "Promoted",
+                        "sub_type" => null,
+                    ],
+                    "type" => "advertisement",
+                );
+            }
+
+            if (isset($ad_engine_details[2])) {
+                $this->model[$suggestion_position[5]] = $ad_engine_details[2];
+            } else {
+                $this->model[$suggestion_position[5]] = array(
+                    "advertisement" => (object)array(),
+                    "meta" => [
+                        "count" => 0,
+                        "text" => "Promoted",
+                        "sub_type" => null,
+                    ],
+                    "type" => "advertisement",
+                );
+            }
+        }
+        
 
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
@@ -670,6 +728,110 @@ class FeedController extends Controller
             $card['advertisement'] = $advertisement;
         }
         return $card;
+    }
+
+    public static function ad_engine_by_count($client, $profile, $profileId, $count) 
+    {
+        $advertisement_details = array();
+
+        $advertisement_random = Advertisements::whereNull('deleted_at')->where('is_active',1)->whereDate('expired_at', '>', Carbon::now())->inRandomOrder()->limit($count)->get();
+        if ($advertisement_random->count() === 0) {
+            for ($i=0; $i<$count; $i++) { 
+                $temp_card = array(
+                    "advertisement" => (object)array(),
+                    "meta" => [
+                        "count" => 0,
+                        "text" => "Promoted",
+                        "sub_type" => null,
+                    ],
+                    "type" => "advertisement",
+                );
+                array_push($advertisement_details, $temp_card);
+            }
+        } else {
+            $advertisements = $advertisement_random->toArray();
+            
+            foreach ($advertisements as $key => $advertisement) {
+                $card = array(
+                    "advertisement" => (object)array(),
+                    "meta" => [
+                        "count" => 0,
+                        "text" => "Promoted",
+                        "sub_type" => null,
+                    ],
+                    "type" => "advertisement",
+                );
+
+                $data = [];
+
+                if (2 == $advertisement['type_id']) {
+                    if (!is_null($advertisement['payload'])) {
+                        $cached = json_decode($advertisement['payload'], true);
+                        $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
+                        $indexTypeV1 = array("photo", "polling");
+                        foreach ($cached as $name => $key) {
+                            $cachedData = null;
+                            if (in_array($name, $indexTypeV2)) {
+                                $key = $key.":V2";
+                                $cachedData = Redis::connection('V2')->get($key);
+                            } else {
+                                $cachedData = Redis::get($key);
+                            }
+                            if (!$cachedData) {
+                                \Log::warning("could not get from $key");
+                            }
+                            $data[$name] = json_decode($cachedData,true);
+                        }
+
+                        if ($advertisement['actual_model'] !== null) {
+                            $model = $advertisement['actual_model'];
+                            $type = getType($advertisement['actual_model']);
+                            $model = $model::find($advertisement['model_id']);
+                            if ($model !== null && method_exists($model, 'getMetaForV2')) {
+                                $data['meta'] = $model->getMetaForV2($profileId);
+                            }
+                        }
+                        $data['type'] = strtolower($advertisement['model']);
+                        $card['meta']['sub_type'] = strtolower($advertisement['model']);
+                        $advertisement['payload'] = $data;
+                    }
+                } else if (1 == $advertisement['type_id']) {
+                    if (!is_null($advertisement['image'])) {
+                        $advertisement['image'] = json_decode($advertisement['image']);
+                    }
+                    $card['meta']['sub_type'] = "image";
+                }
+
+                $card['meta']['count'] = 1; 
+                
+                foreach ($advertisement as $key => $value) {
+                    if (is_null($value) || $value == '')
+                        unset($advertisement[$key]);
+                }
+                $card['advertisement'] = $advertisement;
+                array_push($advertisement_details, $card);
+            }
+        }
+
+        $total_advertisement = count($advertisement_details);
+
+        if ($count > $total_advertisement) {
+            $advertisement_required = $count - $total_advertisement;
+            for ($i=0; $i<$advertisement_required; $i++) { 
+                $temp_card = array(
+                    "advertisement" => (object)array(),
+                    "meta" => [
+                        "count" => 0,
+                        "text" => "Promoted",
+                        "sub_type" => null,
+                    ],
+                    "type" => "advertisement",
+                );
+                array_push($advertisement_details, $temp_card);
+            }
+        }
+
+        return $advertisement_details;
     }
 
     private function getType($modelName)
