@@ -390,7 +390,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("dashboard/report/filters","BatchController@reportFilters")->middleware('permissionCollaborate');
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
-                Route::resource('batches','BatchController')->middleware('permissionCollaborate');
+                Route::resource('batches','BatchController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople')->middleware('permissionCollaborate');
                 Route::post('rejectPeople','ApplicantController@rejectPeople')->middleware('permissionCollaborate'); 
                 Route::post('inviteForReview','ApplicantController@inviteForReview');//not need
