@@ -21,35 +21,61 @@ class PublicViewController extends Controller
      */
     public function modelView(Request $request, $modelName , $id)
     {
-        if($modelName == 'jobs') $modelName = 'job';
+        if ($modelName == 'jobs') {
+            $modelName = 'job';
+        }
 
         $class = "\\App\\PublicView\\" . ucwords($modelName);
-
+        $collection_elements = [];
         // Added to retrieve profile details from handle
-        if($modelName === 'profile' && starts_with($id, '@')) {
+        if ($modelName === 'profile' && starts_with($id, '@')) {
             $model = $class::where('handle', substr($id,1))->first();
             $id = isset($model->id) ? $model->id : null;
-        }
-        else if($modelName === 'collaborate')
-        {
-            $model = $class::where('id',$id)->first();
-        }
-        else {
+        } else if($modelName === 'collaborate') {
+            $model = $class::where('id',$id)->where('state',$class::$state[0])->whereNull('deleted_at')->first();
+        } else if($modelName === 'reviewCollection') {
+            $model = $class::find($id);
+            if (count($model->elements)) {
+                foreach ($model->elements as $key => $element) {
+                    $product_detail = $this->elementsByProductId($element);
+                    if (!is_null($product_detail) && count($product_detail)) {
+                        $collection_elements[] = $product_detail;
+                    }
+                }
+            }
+            if (count($collection_elements)) {
+                usort($collection_elements, function($a, $b) {return $a['product']['review_count'] < $b['product']['review_count'];});
+                $collection_elements = array_slice($collection_elements, 0, 5);
+            }
+        } else {
             $model = $class::find($id);
         }
 
-        if(!$model){
+        if (!$model) {
             return response()->json(['data' => null, 'model' => null, 'errors' => ["Could not find model."]]);
         }
 
-        if(isset($model->content['text'])) {
+        if (isset($model->content['text'])) {
             $model->content = $this->getContentForHTML($model->content);
         }
-        if(isset($model->caption) && isset($model->caption['text'])) {
+        if (isset($model->caption) && isset($model->caption['text'])) {
             $model->caption = $this->getContentForHTML($model->caption);
         }
         $meta = $model->getMetaForPublic();
-        $this->model = [$modelName=>$model,'meta'=>$meta];
+        if ($modelName === 'reviewCollection') {
+            $collection_model = $model->toArray();
+            $collection_model['elements'] = $collection_elements;
+            $this->model = [
+                $modelName => $collection_model, 
+                'meta' => $meta
+            ];
+        } else {
+            $this->model = [
+                $modelName => $model,
+                'meta' => $meta
+            ];
+        }
+
         $socialPreview = $model->getPreviewContent();
         $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id);
         $this->model['social'] = [];
@@ -213,6 +239,24 @@ class PublicViewController extends Controller
             }
         }
         return response()->json(['data'=>$this->model]);
+    }
+
+    public function elementsByProductId($element)
+    {
+        $response = array();
+        if (isset($element->data_model) && !is_null($element->data_model)) {
+            $product_id = $element->data_id;
+            $model = $element->data_model;
+            $data_fetched = $model::where('id',$product_id)->first();
+            if (!is_null($data_fetched)) {
+               $response = [
+                    'product' => $data_fetched->toArray(),
+                    'meta' => $data_fetched->getMetaForPublicForCollection(),
+                    'element_type' => 'product',
+                ]; 
+            }
+        }
+        return $response;
     }
 
 }

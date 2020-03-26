@@ -33,6 +33,9 @@ class collaborateRoles
             // ->where('state',1)
             ->where('id',$collabId)
             ->first();
+        if($collab->collaborate_type != 'product-review') {
+            return $next($request);
+        }
         $companyId = $collab->company_id;
         $loggedInProfileId = $request->user()->profile->id;
         

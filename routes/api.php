@@ -158,6 +158,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::resource("users","UserController");
                 });
             });
+
+            Route::get("search/explore","ExplorePageController@explore");
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {
@@ -490,6 +492,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::delete('comments/{id}','CommentController@destroy');
         Route::delete('comments/{id}/{modelName}/{modelId}','CommentController@commentDelete');
         Route::get('comment/tagging','CommentController@tagging');
+        
 
 
         //search

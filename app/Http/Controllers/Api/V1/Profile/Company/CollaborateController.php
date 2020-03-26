@@ -44,7 +44,8 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('company_id',$companyId)->whereNull('deleted_at')
+        $collaborations = $this->model->where('company_id',$companyId)
+            ->whereNull('deleted_at')
             ->orderBy('created_at','desc');
 
         $profileId = $request->user()->profile->id;
@@ -606,7 +607,6 @@ class CollaborateController extends Controller
                 if(!isset($this->model->payload_id))
                     event(new NewFeedable($this->model, $company));
                 \App\Filter\Collaborate::addModel($this->model);
-
             }
             return $this->sendResponse();
 
@@ -799,6 +799,7 @@ class CollaborateController extends Controller
             $model['name'] = $role;
             $model['description'] = $value[0]->helper_text;
             $model['profiles'] = [];
+            
             if($value[0]->id != null)
             $model['profiles'] = $value;
             $this->model[] = $model;
