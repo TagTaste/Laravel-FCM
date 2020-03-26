@@ -382,7 +382,7 @@ class ChatController extends Controller
         {
             $checkUser = CompanyUser::where('company_id',$model->company_id)->where('profile_id',$loggedInProfileId)->exists();
             if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
+//                return $this->sendError("Invalid Collaboration Project.");
             }
         }
         else if($model->profile_id != $loggedInProfileId){

@@ -607,7 +607,6 @@ class CollaborateController extends Controller
                 if(!isset($this->model->payload_id))
                     event(new NewFeedable($this->model, $company));
                 \App\Filter\Collaborate::addModel($this->model);
-
             }
             return $this->sendResponse();
 
@@ -790,12 +789,17 @@ class CollaborateController extends Controller
         $this->model = [];
         foreach($roles as $role => $value) {
             $model = [];
+            if($role == 'Panel Partners' && $canAction == false) {
+                $model['can_action'] = filter_var('false', FILTER_VALIDATE_BOOLEAN);
+            } else {
+                $model['can_action'] = filter_var('true', FILTER_VALIDATE_BOOLEAN);
+            }
             $model['role'] = $role;
             $model['role_id'] = $value[0]->role_id;
             $model['name'] = $role;
             $model['description'] = $value[0]->helper_text;
             $model['profiles'] = [];
-            $model['can_action'] = $value[0]->can_action;
+            
             if($value[0]->id != null)
             $model['profiles'] = $value;
             $this->model[] = $model;
@@ -805,8 +809,8 @@ class CollaborateController extends Controller
     public function assignRole(Request $request,$profileId,$companyId,$collaborateId)
     {
         $checkIfExists = \DB::table('collaborates')
-            ->whereNull('deleted_at')
-            ->where('state',1)
+            // ->whereNull('deleted_at')
+            // ->where('state',1)
             ->where('id',$collaborateId)
             ->count();
        if(!$checkIfExists) {
@@ -843,8 +847,8 @@ class CollaborateController extends Controller
     public function deleteRoles(Request $request,$profileId,$companyId,$collaborateId)
     {
         $checkIfExists = \DB::table('collaborates')
-            ->whereNull('deleted_at')
-            ->where('state',1)
+            // ->whereNull('deleted_at')
+            // ->where('state',1)
             ->where('id',$collaborateId)
             ->count();
         if(!$checkIfExists) {
@@ -870,8 +874,8 @@ class CollaborateController extends Controller
     public function getProfileRole(Request $request,$profileId,$companyId,$collaborateId)
     {
         $checkIfExists = \DB::table('collaborates')
-            ->whereNull('deleted_at')
-            ->where('state',1)
+            // ->whereNull('deleted_at')
+            // ->where('state',1)
             ->where('id',$collaborateId)
             ->count();
         if(!$checkIfExists) {

@@ -170,7 +170,7 @@ class PublicViewController extends Controller
             return $this->sendError("Model not found.");
         }
 
-        $collaborations = Collaborate::whereNull('deleted_at')->orderBy("created_at","desc");
+        $collaborations = Collaborate::orderBy("created_at","desc");
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
