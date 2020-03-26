@@ -505,7 +505,7 @@ class ExplorePageController extends Controller
         }
 
         $company_suggestion_detail = array(
-            "profile" => $company_suggestion["suggestion"],
+            "company" => $company_suggestion["suggestion"],
             "count" => $company_suggestion["meta"]["count"],
             "type" => "company"
         );
@@ -517,7 +517,7 @@ class ExplorePageController extends Controller
         $company_suggestion = FeedController::suggestion_upcoming_company($profile, $profile_id);
 
         $company_suggestion_detail = array(
-            "profile" => $company_suggestion["suggestion"],
+            "company" => $company_suggestion["suggestion"],
             "count" => $company_suggestion["meta"]["count"],
             "type" => "company"
         );
