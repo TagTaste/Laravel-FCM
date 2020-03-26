@@ -104,6 +104,10 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
 
+        if (isset($collaboration->description) && !is_null($collaboration->description)) {
+            $collaboration->description = strip_tags($collaboration->description);    
+        }
+
         $profileId = $request->user()->profile->id;
         if($collaboration->state == 'Active' || $collaboration->state == 'Close' || $collaboration->state == 'Expired'){
             $meta = $collaboration->getMetaFor($profileId);
