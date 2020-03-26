@@ -13,6 +13,7 @@ use App\Collaborate;
 use App\PublicReviewProduct;
 use App\Advertisements;
 use App\FeedTracker;
+use App\CategorySelectorCollection;
 use Carbon\Carbon;
 
 class FeedController extends Controller
@@ -534,6 +535,38 @@ class FeedController extends Controller
         return $suggestion;
     }
 
+    public static function suggestion_of_active_influential_profile($profile, $profileId) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Suggestions for you",
+                "sub_type" => "profile",
+            ],
+            "type" => "suggestion",
+        );
+
+        $query = CategorySelectorCollection::where("is_active",1)
+            ->where("category_id", 1)
+            ->where("category_type", "active_and_influential")
+            ->inRandomOrder()
+            ->limit(10)
+            ->pluck("data_id");
+        
+        foreach ($query as $key => $record) {
+            $profile = \App\V2\Profile::where("id", (int)$record)->first()->toArray();
+
+            if (!is_null($profile)) {
+                $profile["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$record);
+                $suggestion["meta"]["count"]++;
+                array_push($suggestion["suggestion"], $profile);
+            }
+        }
+        
+        return $suggestion;
+    }
+
     public static function suggestion_company($client, $profile, $profileId) 
     {
         $suggestion = array(
@@ -558,6 +591,38 @@ class FeedController extends Controller
             array_push($suggestion["suggestion"], $record->get('company')->values());
         }
 
+        return $suggestion;
+    }
+
+    public static function suggestion_upcoming_company($profile, $profileId) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Suggestions for you",
+                "sub_type" => "company",
+            ],
+            "type" => "suggestion",
+        );
+
+        $query = CategorySelectorCollection::where("is_active",1)
+            ->where("category_id", 2)
+            ->where("category_type", "upcoming_company")
+            ->inRandomOrder()
+            ->limit(10)
+            ->pluck("data_id");
+
+        foreach ($query as $key => $record) {
+            $company = \App\V2\Company::where("id", (int)$record)->first()->toArray();
+            if (!is_null($profile)) {
+                $company["company_id"] = (int)$record;
+                $company["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$record);
+                $suggestion["meta"]["count"]++;
+                array_push($suggestion["suggestion"], $company);
+            }
+        }
+        
         return $suggestion;
     }
 

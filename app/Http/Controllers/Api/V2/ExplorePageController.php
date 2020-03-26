@@ -219,7 +219,7 @@ class ExplorePageController extends Controller
                 "sub_type" => "profile",
                 "see_more" => true,
                 "filter_meta" => (object)[],
-                "elements" => $this->getProfileSuggestion($profile, $profile_id)
+                "elements" => $this->getActiveAndInfluentialProfileSuggestion($profile, $profile_id)
             ];
             /* ui type = 4 is end */
 
@@ -292,7 +292,7 @@ class ExplorePageController extends Controller
                 "sub_type" => "company",
                 "see_more" => true,
                 "filter_meta" => (object)[],
-                "elements" => $this->getCompanySuggestion($profile, $profile_id)
+                "elements" => $this->getUpcomingCompanySuggestion($profile, $profile_id)
             ];
             /* ui type = 7 is end */
 
@@ -471,7 +471,22 @@ class ExplorePageController extends Controller
     {
         $client = config('database.neo4j_uri_client');
         $profile_suggestion = FeedController::suggestion_of_follower($client, $profile, $profile_id);
+        
+        foreach ($profile_suggestion["suggestion"] as $key => $value) {
+            $profile_suggestion["suggestion"][$key]["isFollowing"] = false;
+        }
 
+        $profile_suggestion_detail = array(
+            "profile" => $profile_suggestion["suggestion"],
+            "count" => $profile_suggestion["meta"]["count"],
+            "type" => "profile"
+        );
+        return $profile_suggestion_detail;     
+    }
+
+    public function getActiveAndInfluentialProfileSuggestion($profile, $profile_id)
+    {
+        $profile_suggestion = FeedController::suggestion_of_active_influential_profile($profile, $profile_id);
         $profile_suggestion_detail = array(
             "profile" => $profile_suggestion["suggestion"],
             "count" => $profile_suggestion["meta"]["count"],
@@ -484,6 +499,22 @@ class ExplorePageController extends Controller
     {
         $client = config('database.neo4j_uri_client');
         $company_suggestion = FeedController::suggestion_company($client, $profile, $profile_id);
+        
+        foreach ($company_suggestion["suggestion"] as $key => $value) {
+            $company_suggestion["suggestion"][$key]["isFollowing"] = false;
+        }
+
+        $company_suggestion_detail = array(
+            "profile" => $company_suggestion["suggestion"],
+            "count" => $company_suggestion["meta"]["count"],
+            "type" => "company"
+        );
+        return $company_suggestion_detail;     
+    }
+
+    public function getUpcomingCompanySuggestion($profile, $profile_id)
+    {
+        $company_suggestion = FeedController::suggestion_upcoming_company($profile, $profile_id);
 
         $company_suggestion_detail = array(
             "profile" => $company_suggestion["suggestion"],
