@@ -141,16 +141,16 @@ class BatchController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
-        }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
 
         $applierProfileIds = $request->input('profile_id');
         $checkUserShortlist = Collaborate\Applicant::where('collaborate_id',$id)->whereIn('profile_id',$applierProfileIds)->where('is_invited',1)->whereNull('shortlisted_at')->exists();
@@ -319,16 +319,16 @@ class BatchController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
-        }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
 
         $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
             ->whereNull('parent_question_id')->where('header_type_id',$headerId)->orderBy('id')->get();
@@ -804,16 +804,16 @@ class BatchController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
-        }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
 
         $this->model = [];
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->get()->pluck('profile_id');
@@ -1285,16 +1285,16 @@ class BatchController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
-        }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
 
         $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
 
@@ -1604,16 +1604,16 @@ class BatchController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
 
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
-        }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
 
         $filters = $request->input('filters');
         $resp = $this->getFilterProfileIds($filters,$collaborateId);
@@ -1678,16 +1678,16 @@ class BatchController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
-        }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
         $time = Carbon::now()->toDateTimeString();
         $checkBatch = \DB::table('collaborate_report_weight_assign')->where('collaborate_id',$collaborateId)->first();
         if(is_null($checkBatch))
@@ -1762,16 +1762,16 @@ class BatchController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
-        }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \DB::table('collaborate_tasting_user_review')

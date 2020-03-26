@@ -321,7 +321,7 @@ class Collaborate extends Model implements Feedable
             $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
             $meta['interestedCount'] = $this->interestedCount;
             $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;               
             return $meta;
         }
 
@@ -571,11 +571,12 @@ class Collaborate extends Model implements Feedable
             sort($completedBatchIds);
             $meta['is_completed_product_review'] = count($completedBatchIds) > 0 ? ($batchIds == $completedBatchIds) : false;
             $meta['is_interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
-                ->where('is_invited',0)->whereNull('rejected_at')->exists();
+                ->where('is_invited',0)->exists();
             $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
                 ->where('is_invited',1)->first();
             $meta['is_actioned'] = isset($applicants) ? isset($applicants->shortlisted_at) || isset($applicants->rejected_at) ? true : false : false;
             $meta['is_invitation_accepted'] = isset($applicants) ? isset($applicants->shortlisted_at) && !is_null($applicants->shortlisted_at) ? true : false : false;
+            $meta = $this->setRole($meta,request()->user()->profile->id,$this->id);
             return $meta;
         }
         return null;

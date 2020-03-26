@@ -69,6 +69,7 @@ Route::get('allCategories','FaqsController@allCategories');
 Route::post('storeCategories','FaqsController@storeCategories');
 Route::resource('faqs','FaqsController');
 
+
 // unsubscribe
 /**
  * this will do both subscribe and unsubscribe just pass subscribe or 
@@ -198,12 +199,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                 Route::resource("collaborate","CollaborateController");
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                    Route::post('collaborate/{collaborateId}/assignRole', 'CollaborateController@assignRole');
                     Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                     Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
                     Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                     Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
+                    Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
+                    Route::delete('collaborate/{collaborateId}/deleteRoles','CollaborateController@deleteRoles');
+                    Route::get('collaborate/{collaborateId}/getRole','CollaborateController@getProfileRole'); 
                 });
             });
         });
@@ -320,7 +325,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
         Route::resource("collaborate/categories","CollaborateCategoryController");
         Route::get('collaborate/types',"CollaborateController@types");
-        Route::get('batchesColor',"CollaborateController@batchesColor");
+        Route::get('batchesColor',"CollaborateController@batchesColor");//->middleware('permissionCollaborate');
 
         //collaborate templates
         Route::resource("collaborate/templates","CollaborateTemplateController");
@@ -360,52 +365,54 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
 
         Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function() {
-            Route::get("userBatches",'BatchController@userBatches');
-            Route::post("beginTasting",'BatchController@beginTasting');
-            Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
-            Route::post('removeFromBatch','BatchController@removeFromBatch');
-            Route::post('assignBatch','BatchController@assignBatch');
-            Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
-            Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
+            //Route::group(['middleware' => ['permissionCollaborate']], function () {
+                Route::get("userBatches",'BatchController@userBatches');
+                Route::post("beginTasting",'BatchController@beginTasting');//required
+                Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
+                Route::post('removeFromBatch','BatchController@removeFromBatch');//required
+                Route::post('assignBatch','BatchController@assignBatch');//required 
+                Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
+                Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
 
-            //reports
-            Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile");
-            Route::get("batches/{id}/reportPdf","BatchController@reportPdf");
-            Route::get("reportSummary","BatchController@reportSummary");
-            Route::get("batches/{id}/reportHeader","QuestionController@reportHeader");
-            Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
-            Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
-            Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
-            Route::get("getHeaderWeight","BatchController@getHeaderWeight");
-            Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");
+                //reports
+                Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile");//->middleware('permissionCollaborate');
+                Route::get("batches/{id}/reportPdf","BatchController@reportPdf");//->middleware('permissionCollaborate');
+                Route::get("reportSummary","BatchController@reportSummary");
+                Route::get("batches/{id}/reportHeader","QuestionController@reportHeader");
+                Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");//->middleware('permissionCollaborate');
+                Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
+                Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
+                Route::get("getHeaderWeight","BatchController@getHeaderWeight")->middleware('permissionCollaborate');
+                Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");//->middleware('permissionCollaborate');
 
-            //filter for dashboard of product review
-            Route::get("dashboard/filters","BatchController@filters");
-            Route::get("dashboard/report/filters","BatchController@reportFilters");
-            Route::get("batches/hutCsv","BatchController@allHutCsv");
-            Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
-            Route::resource('batches','BatchController');
-            Route::post('shortlistPeople','ApplicantController@shortlistPeople');
-            Route::post('rejectPeople','ApplicantController@rejectPeople');
-            Route::post('inviteForReview','ApplicantController@inviteForReview'); //not need
-            Route::post('acceptInvitation','ApplicantController@acceptInvitation');
-            Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
+                //filter for dashboard of product review
+                Route::get("dashboard/filters","BatchController@filters");//->middleware('permissionCollaborate');
+                Route::get("dashboard/report/filters","BatchController@reportFilters")->middleware('permissionCollaborate');
+                Route::get("batches/hutCsv","BatchController@allHutCsv");
+                Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
+                Route::resource('batches','BatchController');//->middleware('permissionCollaborate');
+                Route::post('shortlistPeople','ApplicantController@shortlistPeople');
+                Route::post('rejectPeople','ApplicantController@rejectPeople');
+                Route::post('inviteForReview','ApplicantController@inviteForReview');//->middleware('permissionCollaborate'); //not need
+                Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
+                Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
+                Route::post("acceptDocument", "ApplicantController@acceptDocument");
+                Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
+                Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");//->middleware('permissionCollaborate');
+                Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");//->middleware('permissionCollaborate');
+                Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");//->middleware('permissionCollaborate');
+                Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");//->middleware('permissionCollaborate');
+            //});
+
             Route::post("showInterest","ApplicantController@store");
-            Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
-            Route::post("acceptDocument", "ApplicantController@acceptDocument");
-            Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
-            Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
-            Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
-            Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");
-            Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");
-            Route::resource('collaborateApplicants','ApplicantController');
-
+            Route::resource('collaborateApplicants','ApplicantController');//->middleware('permissionCollaborate');
+            Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
             Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
             Route::post("headers/{headerId}","ReviewController@reviewAnswers");
             Route::get("headers/{id}","QuestionController@reviewQuestions");
-            Route::get("headers","QuestionController@headers");
+            Route::get("headers","QuestionController@headers");//->middleware('permissionCollaborate');
             Route::post("insertHeaders","QuestionController@insertHeaders");
             Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
             Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");
