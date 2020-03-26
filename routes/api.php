@@ -327,7 +327,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
         Route::resource("collaborate/categories","CollaborateCategoryController");
         Route::get('collaborate/types',"CollaborateController@types");
-        Route::get('batchesColor',"CollaborateController@batchesColor");
+        Route::get('batchesColor',"CollaborateController@batchesColor");//->middleware('permissionCollaborate');
 
         //collaborate templates
         Route::resource("collaborate/templates","CollaborateTemplateController");
@@ -414,7 +414,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
             Route::post("headers/{headerId}","ReviewController@reviewAnswers");
             Route::get("headers/{id}","QuestionController@reviewQuestions");
-            Route::get("headers","QuestionController@headers");
+            Route::get("headers","QuestionController@headers");//->middleware('permissionCollaborate');
             Route::post("insertHeaders","QuestionController@insertHeaders");
             Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
             Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");

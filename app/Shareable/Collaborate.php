@@ -40,7 +40,7 @@ class Collaborate extends Share
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborateShare' ,request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
-        $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->whereNull('deleted_at')->first();
+        $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->first();
         $meta['original_post_meta'] = $collaborate->getMetaFor($profileId);
 
         return $meta;
@@ -63,7 +63,7 @@ class Collaborate extends Share
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
-        $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->whereNull('deleted_at')->first();
+        $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->first();
         $meta['originalPostMeta'] = $collaborate->getMetaForV2($profileId);
         return $meta;
     }
