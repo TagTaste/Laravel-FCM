@@ -392,7 +392,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("dashboard/report/filters","BatchController@reportFilters")->middleware('permissionCollaborate');
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
-                Route::resource('batches','BatchController');
+                Route::resource('batches','BatchController');//->middleware('permissionCollaborate');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
                 Route::post('inviteForReview','ApplicantController@inviteForReview');//->middleware('permissionCollaborate'); //not need
@@ -407,7 +407,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             //});
 
             Route::post("showInterest","ApplicantController@store");
-            Route::resource('collaborateApplicants','ApplicantController');
+            Route::resource('collaborateApplicants','ApplicantController');//->middleware('permissionCollaborate');
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
