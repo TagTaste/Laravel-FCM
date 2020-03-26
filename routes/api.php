@@ -371,7 +371,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');//required
                 Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
-                Route::post('removeFromBatch','BatchController@removeFromBatch');//required
+                Route::post('removeFromBatch','BatchController@removeFromBatch')->middleware('permissionCollaborate');//required
                 Route::post('assignBatch','BatchController@assignBatch');//required 
                 Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
                 Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
@@ -392,10 +392,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("dashboard/report/filters","BatchController@reportFilters")->middleware('permissionCollaborate');
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
-                Route::resource('batches','BatchController');//->middleware('permissionCollaborate');
-                Route::post('shortlistPeople','ApplicantController@shortlistPeople');
-                Route::post('rejectPeople','ApplicantController@rejectPeople');
-                Route::post('inviteForReview','ApplicantController@inviteForReview');//->middleware('permissionCollaborate'); //not need
+                Route::resource('batches','BatchController');
+                Route::post('shortlistPeople','ApplicantController@shortlistPeople')->middleware('permissionCollaborate');
+                Route::post('rejectPeople','ApplicantController@rejectPeople')->middleware('permissionCollaborate'); 
+                Route::post('inviteForReview','ApplicantController@inviteForReview');//not need
                 Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
                 Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
                 Route::post("acceptDocument", "ApplicantController@acceptDocument");

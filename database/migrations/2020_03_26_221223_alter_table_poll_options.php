@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableCollaborateRole extends Migration
+class AlterTablePollOptions extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AlterTableCollaborateRole extends Migration
      */
     public function up()
     {
-        Schema::table('collaborate_role', function(Blueprint $table){
-            $table->string('can_action');
-         });
+        Schema::alter('poll_options',   function( Blueprint $table ) {
+            $table->json('images')->nullable();
+        });
     }
 
     /**
@@ -25,8 +25,8 @@ class AlterTableCollaborateRole extends Migration
      */
     public function down()
     {
-        Schema::table('collaborate_role', function (Blueprint $table){
-            $table->dropColumn(['can_action']);
+        Schema::alter('poll_options',   function( Blueprint $table ) {
+            $table->dropColumn(['images']);
         });
     }
 }
