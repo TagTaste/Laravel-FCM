@@ -28,6 +28,10 @@ class BatchController extends Controller
     public function __construct(Collaborate\Batches $model)
     {
         $this->model = $model;
+        $this->middleware('permissionCollaborate', ['only' => [
+            'store',
+            'update' // Could add bunch of more methods too
+        ]]);
     }
 
     /**
