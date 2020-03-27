@@ -65,16 +65,18 @@ class PollingController extends Controller
         if (!$request->has('title') ) {
             return $this->sendError("Please enter poll title");
         }
-        $optionImages = $request->option_image != null ? $request->option_image : null;
+        $image = $request->question_image != null ? $request->question_image : null;
+        $optionImages = $request->option_images != null ? $request->option_images : null;
         if (!$request->has('options') || count($options) < 2 || count($options) > 4 || (isset($optionImages) && (count($options) != count($optionImages)))) {
             return $this->sendError("Please enter valid options");
         }
         $data['title'] = $request->input('title');
+        $data['image'] = $image;
         $poll = Polling::create($data);
         $data = [];
         $i = 0 ;
         foreach ($options as $option) {
-            $opImg = isset($optionImages[$i]) ? $optionImage[$i] : null;
+            $opImg = isset($optionImages[$i]) ? $optionImages[$i] : null;
             $i++;
             if (strlen($option)!=0) {
                 $data[] = [
