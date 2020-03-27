@@ -870,7 +870,6 @@ class FeedController extends Controller
             ->where('public_review_products.is_suggestion_allowed',1)
             ->whereNotIn('public_review_products.id',$applied_product_review)
             ->whereNull('public_review_products.deleted_at')
-            ->orderBy('public_product_user_review.created_at')
             ->distinct('public_review_products.id')
             ->get(['public_review_products.id'])
             ->take(20);

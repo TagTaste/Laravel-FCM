@@ -22,6 +22,7 @@ class ExplorePageController extends Controller
 {
 	public function explore(Request $request)
     {
+        $this->errors['status'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
 
         $profile = $request->user()->profile;
@@ -314,8 +315,6 @@ class ExplorePageController extends Controller
             /* ui type = 7 is end */
         }
 
-
-
         $this->model = $model;
         return $this->sendResponse();
     }
@@ -499,7 +498,7 @@ class ExplorePageController extends Controller
     {
         $client = config('database.neo4j_uri_client');
         $company_suggestion = FeedController::suggestion_company($client, $profile, $profile_id);
-        
+
         foreach ($company_suggestion["suggestion"] as $key => $value) {
             $company_suggestion["suggestion"][$key]["isFollowing"] = false;
         }
