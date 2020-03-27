@@ -16,13 +16,13 @@ class Polling extends Model implements Feedable
 
     protected $table = 'poll_questions';
 
-    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id'];
+    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image'];
 
     protected $with = ['profile','company'];
 
     protected $appends = ['options','owner','meta'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image'];
 
     public static function boot()
     {
@@ -49,7 +49,8 @@ class Polling extends Model implements Feedable
             'poll_meta' => $this->meta,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
-            'profile_id'=>$this->profile_id
+            'profile_id'=>$this->profile_id,
+            'image'=>$this->image
         ];
         Redis::set("polling:" . $this->id,json_encode($data));
 
@@ -151,7 +152,7 @@ class Polling extends Model implements Feedable
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->title,
-            'image' => null,
+            'image' => $this->image,
             //'collaborate_type' => $this->collaborate_type
         ];
     }
@@ -189,7 +190,7 @@ class Polling extends Model implements Feedable
         $data['description'] = "by ".$this->owner->name;
         $data['ogTitle'] = "Poll: ".substr($this->title,0,65);
         $data['ogDescription'] = "by ".$this->owner->name;
-        $images = $this->company != null ? $this->company->logo : $this->profile->image;
+        $images = $this->image != null ? $this->image : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
         $data['ogUrl'] = env('APP_URL').'/polling/'.$this->id;

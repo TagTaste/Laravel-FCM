@@ -11,7 +11,7 @@ class PollingOption extends Model
 
     protected $table = 'poll_options';
 
-    protected $fillable = ['text','poll_id','count','created_at','deleted_at','updated_at'];
+    protected $fillable = ['text','poll_id','count','created_at','deleted_at','updated_at','image'];
 
-    protected $visible = ['id','text','poll_id','count','created_at','deleted_at','updated_at'];
+    protected $visible = ['id','text','poll_id','count','created_at','deleted_at','updated_at','image'];
 }
