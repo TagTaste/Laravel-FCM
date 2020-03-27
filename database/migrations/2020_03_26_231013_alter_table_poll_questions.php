@@ -14,7 +14,7 @@ class AlterTablePollQuestion extends Migration
     public function up()
     {
         Schema::alter('poll_question',   function( Blueprint $table ) {
-            $table->json('images')->nullable();
+            $table->json('image')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterTablePollQuestion extends Migration
     public function down()
     {
         Schema::alter('poll_question',   function( Blueprint $table ) {
-            $table->dropColumn(['images']);
+            $table->dropColumn(['image']);
         });
     }
 }
