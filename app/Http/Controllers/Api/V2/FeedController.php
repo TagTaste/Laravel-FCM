@@ -615,7 +615,7 @@ class FeedController extends Controller
 
         foreach ($query as $key => $record) {
             $company = \App\V2\Company::where("id", (int)$record)->first()->toArray();
-            if (!is_null($profile)) {
+            if (!is_null($company)) {
                 $company["company_id"] = (int)$record;
                 $company["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$record);
                 $suggestion["meta"]["count"]++;
