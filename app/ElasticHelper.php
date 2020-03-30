@@ -74,6 +74,9 @@ class ElasticHelper
                     ]
                 ];
         }
+        if($type){
+            $params['type'] = $type;
+        }
         $client = SearchClient::get();
         $response = $client->search($params);
 
