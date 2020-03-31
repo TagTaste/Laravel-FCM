@@ -14,4 +14,13 @@ class PollingOption extends Model
     protected $fillable = ['text','poll_id','count','created_at','deleted_at','updated_at','image'];
 
     protected $visible = ['id','text','poll_id','count','created_at','deleted_at','updated_at','image'];
+
+    public function getImageAttribute($value)
+    {
+        if($value != null) {
+            return json_decode($value);
+        } else {
+            return null;
+        }
+    }
 }

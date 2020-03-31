@@ -20,9 +20,9 @@ class Polling extends Model implements Feedable
 
     protected $with = ['profile','company'];
 
-    protected $appends = ['options','owner','meta'];
+    protected $appends = ['options','owner','meta','type'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image','type'];
 
     public static function boot()
     {
@@ -219,5 +219,18 @@ class Polling extends Model implements Feedable
     public function getPollMetaAttribute()
     {
         return $this->getMetaAttribute();
+    }
+
+    public function getImageAttribute($value)
+    {
+        if($value != null) {
+            return json_decode($value);
+        }
+        return null;
+    }
+
+    public function getTypeAttribute()
+    {
+        return $this->image != null ? 1 : ($this->options[0]['image'] != null ? 2 : 0);
     }
 }
