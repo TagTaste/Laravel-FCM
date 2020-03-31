@@ -213,6 +213,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             });
         });
         
+        Route::get('report-type',"ReportController@getReportTypeList");
         /**
          * Route to change password.
          */
