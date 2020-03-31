@@ -454,7 +454,6 @@ class ExplorePageController extends Controller
             }
 
             if ($search_filter === "product") {
-                dd($search_value);
                 $product_elastic_data = $this->getSearchProductElastic($profile, $profile_id, $search_value, 20);
                 // /* ui type = 2 is start */
                 $model[] = [
