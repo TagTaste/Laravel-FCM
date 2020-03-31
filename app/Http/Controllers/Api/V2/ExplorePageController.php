@@ -115,7 +115,7 @@ class ExplorePageController extends Controller
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
-                    "sub_type" => "profile",
+                    "sub_type" => "specialization",
                     "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $this->getSpecialization($profile, $profile_id)
@@ -238,8 +238,7 @@ class ExplorePageController extends Controller
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
-                    "sub_type" => "profile",
-                    "backend" => "specialization",
+                    "sub_type" => "specialization",
                     "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $this->getSpecialization($profile, $profile_id, 4)
@@ -365,7 +364,7 @@ class ExplorePageController extends Controller
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
-                    "sub_type" => "profile",
+                    "sub_type" => "product",
                     "see_more" => true,
                     "filter_meta" => (object)[],
                     "elements" => $product_elastic_data['top_result']
@@ -380,7 +379,7 @@ class ExplorePageController extends Controller
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
-                    "sub_type" => "profile",
+                    "sub_type" => "product",
                     "see_more" => true,
                     "filter_meta" => (object)[],
                     "elements" => $product_elastic_data['match']
@@ -465,7 +464,7 @@ class ExplorePageController extends Controller
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
-                    "sub_type" => "profile",
+                    "sub_type" => "product",
                     "see_more" => true,
                     "filter_meta" => (object)[],
                     "elements" => $product_elastic_data['top_result']
@@ -480,7 +479,7 @@ class ExplorePageController extends Controller
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
-                    "sub_type" => "profile",
+                    "sub_type" => "product",
                     "see_more" => true,
                     "filter_meta" => (object)[],
                     "elements" => $product_elastic_data['match']
