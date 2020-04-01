@@ -220,6 +220,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
          */
         Route::get('report-type/{reportCategory}',"ReportController@getReportTypeList");
         Route::post('report-content',"ReportController@reportContent");
+        Route::post('report-user',"ReportController@reportUser");
 
 
         /**
