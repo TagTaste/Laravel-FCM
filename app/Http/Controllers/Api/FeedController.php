@@ -42,8 +42,10 @@ class FeedController extends Controller
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
 
-        $payloads = Payload::where('channel_name','public.' . $profileId)
-            ->orderBy('created_at','desc')
+        $payloads = Payload::where('channel_payloads.channel_name','public.' . $profileId)
+            ->leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
+            ->whereNull('report_content.id')
+            ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
             ->get();
@@ -126,8 +128,10 @@ class FeedController extends Controller
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
 
-        $payloads = Payload::where('channel_name','company.public.' . $companyId)
-            ->orderBy('created_at','desc')
+        $payloads = Payload::where('channel_payloads.channel_name','company.public.' . $companyId)
+            ->leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
+            ->whereNull('report_content.id')
+            ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
             ->get();

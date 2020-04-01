@@ -11,10 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\GetTags;
+use App\Traits\IdentifiesContentIsReported;
 
 class Share extends Model implements CommentNotification
 {
-    use SoftDeletes, CachedPayload, GetTags;
+    use SoftDeletes, CachedPayload, GetTags, IdentifiesContentIsReported;
      
     protected $fillable = ['profile_id','privacy_id','content'];
     protected $visible = ['id','profile_id','created_at','content'];
