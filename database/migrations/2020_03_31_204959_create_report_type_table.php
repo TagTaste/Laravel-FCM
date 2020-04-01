@@ -15,6 +15,7 @@ class CreateReportTypeTable extends Migration
     {
         Schema::create('report_type', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('type', 40)->nullable()->default(null);
             $table->string('name', 255)->nullable()->default(null);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

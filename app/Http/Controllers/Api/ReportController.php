@@ -18,10 +18,18 @@ class ReportController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getReportTypeList(Request $request)
+    public function getReportTypeList(Request $request, $reportCategory)
     {
         $this->errors['status'] = 0;
-        $this->model = ReportType::where('is_active', 1)->get();
+
+        $report_category_type = array("content", "user");
+        if (!in_array($reportCategory, $report_category_type)) {
+            $this->errors['status'] = 1;
+            $this->errors['message'] = 'Please provide proper reporty category type.';
+            return $this->sendResponse();
+        }
+
+        $this->model = ReportType::where("type", $reportCategory)->where('is_active', 1)->get();
         return $this->sendResponse();
     }
 
