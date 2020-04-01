@@ -8,6 +8,7 @@ use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 use App\ReportType;
 use App\ReportContent;
+use App\ReportUser;
 use Carbon\Carbon;
 use App\Channel\Payload;
 
@@ -229,5 +230,73 @@ class ReportController extends Controller
             return null;
         }
         return $payload_detail['id'];
+    }
+
+    public function reportUser(Request $request)
+    {
+        $this->errors['status'] = 0;
+        $profile_id = $request->user()->profile->id;
+
+        // category of user
+        $valid_user_type = array("profile", "company");
+        $user_type = null !== $request->input('user_type') ? $request->input('user_type') : null;
+        if (!in_array($user_type, $valid_user_type)) {
+            $this->errors['status'] = 1;
+            $this->errors['message'] = 'Please provide proper user type to which you want to report.';
+            return $this->sendResponse();
+        }
+
+        // user id
+        $user_id = null !== $request->input('user_id') ? $request->input('user_id') : null; 
+        if ("" == $user_id || is_null($user_id)) {
+            $this->errors['status'] = 1;
+            $this->errors['message'] = 'Please provide valid profile/company id to which you want to report.';
+            return $this->sendResponse();
+        } else {
+            if (preg_match('/[^0-9]/', $user_id)) {
+              $this->errors['status'] = 1;
+              $this->errors['message'] = 'Please provide valid profile/company id to whom you want to report.';
+              return $this->sendResponse();
+            }  else {
+                $user_id = (int)$user_id;
+                if ($user_type == "profile") {
+                    $checkProfileExist = \App\V2\Profile::where("id", $user_id)->exists();
+                    if (!$checkProfileExist) {
+                        $this->errors['status'] = 1;
+                        $this->errors['message'] = 'Please provide valid profile id to whom you want to report.';
+                        return $this->sendResponse();
+                    }
+                } else {
+                    $checkCompanyExist = \App\V2\Company::where("id", $user_id)->exists();
+                    if (!$checkCompanyExist) {
+                        $this->errors['status'] = 1;
+                        $this->errors['message'] = 'Please provide valid company id to whom you want to report.';
+                        return $this->sendResponse();
+                    }
+                }
+            }
+        }
+
+        $input = array(
+            "user_type" => $user_type,  
+            "user_id" => $user_id,
+            "profile_id" => $profile_id,
+            "is_active" => true,
+        );
+
+        $report_exist = ReportUser::where("profile_id", $input['profile_id'])
+            ->where("user_id", $input['user_id'])
+            ->where("user_type", $input['user_type'])
+            ->get()
+            ->first();
+
+        if (!is_null($report_exist)) {
+            $this->model = $report_exist;
+            $this->errors['message'] = "Already reported.";
+        } else {
+            $this->model = ReportUser::create($input);
+            $this->errors['message'] = "Reported.";
+        }
+        return $this->sendResponse();
     }
 }
