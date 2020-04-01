@@ -8,6 +8,7 @@ use App\Traits\CachedPayload;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
+use App\Traits\IdentifiesContentIsReported;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent, IdentifiesContentIsReported;
 
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','preview',
         'media_url','cloudfront_media_url','media_json'];
@@ -122,6 +123,11 @@ class Shoutout extends Model implements Feedable
         return $this->hasMany(ShoutoutLike::class,'shoutout_id');
     }
 
+    public function isShoutoutReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "shoutout", (string)$this->id);
+    }
+    
     public function getMetaFor($profileId)
     {
         $meta = [];
@@ -134,6 +140,7 @@ class Shoutout extends Model implements Feedable
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+        $meta['isReported'] =  $this->isShoutoutReported();  
         return $meta;
     }
 
@@ -147,6 +154,7 @@ class Shoutout extends Model implements Feedable
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+        $meta['isReported'] =  $this->isShoutoutReported();  
         return $meta;
     }
 

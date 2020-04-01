@@ -28,6 +28,11 @@ class Photo extends Share
         return $this->hasMany(\App\Shareable\Sharelikable\Photo::class,'photo_share_id');
     }
 
+    public function isPhotoReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "photo", (string)$this->photo_id, true, $this->id);
+    }
+
     public function getMetaFor($profileId){
         $meta = [];
         $key = "meta:photoShare:likes:" . $this->id;
@@ -41,7 +46,7 @@ class Photo extends Share
         $meta['commentCount'] = $this->comments()->count();
         $photo = \App\Photo::where('id',$this->photo_id)->whereNull('deleted_at')->first();
         $meta['original_post_meta'] = $photo->getMetaFor($profileId);
-
+        $meta['isReported'] =  $this->isPhotoReported();
         return $meta;
     }
 
@@ -52,6 +57,7 @@ class Photo extends Share
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
+        $meta['isReported'] =  $this->isPhotoReported();
         return $meta;
     }
 
@@ -64,6 +70,7 @@ class Photo extends Share
         $meta['commentCount'] = $this->comments()->count();
         $photo = \App\Photo::where('id',$this->photo_id)->whereNull('deleted_at')->first();
         $meta['originalPostMeta'] = $photo->getMetaForV2($profileId);
+        $meta['isReported'] =  $this->isPhotoReported();
         return $meta;
     }
 

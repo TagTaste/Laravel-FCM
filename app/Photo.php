@@ -10,6 +10,7 @@ use App\Traits\CachedPayload;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
+use App\Traits\IdentifiesContentIsReported;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Photo extends Model implements Feedable
 {
-    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags, HasPreviewContent;
+    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags, HasPreviewContent, IdentifiesContentIsReported;
     
     use IdentifiesOwner, CachedPayload;
     
@@ -193,6 +194,11 @@ class Photo extends Model implements Feedable
     {
         return $this->belongsTo(Payload::class,'payload_id','id');
     }
+
+    public function isPhotoReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "photo", (string)$this->id);
+    }
     
     public function getMetaFor($profileId)
     {
@@ -208,7 +214,7 @@ class Photo extends Model implements Feedable
         $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-
+        $meta['isReported'] =  $this->isPhotoReported(); 
         return $meta;
     }
 
@@ -224,7 +230,7 @@ class Photo extends Model implements Feedable
         $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-
+        $meta['isReported'] =  $this->isPhotoReported();
         return $meta;
     }
     

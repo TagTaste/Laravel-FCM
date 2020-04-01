@@ -213,7 +213,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             });
         });
         
+        /**
+         * Route to report content and profile password.
+         */
         Route::get('report-type',"ReportController@getReportTypeList");
+        Route::post('report-content',"ReportController@reportContent");
+
+
         /**
          * Route to change password.
          */
