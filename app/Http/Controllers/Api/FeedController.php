@@ -48,8 +48,7 @@ class FeedController extends Controller
             ->pluck('channel_payloads.id')->toArray();
 
         $payloads = Payload::where('channel_payloads.channel_name','public.' . $profileId)
-            ->leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
-            ->whereNull('report_content.id')
+            ->whereNotIn('channel_payloads.id', $reported_payload)
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
@@ -138,8 +137,7 @@ class FeedController extends Controller
             ->pluck('channel_payloads.id')->toArray();
             
         $payloads = Payload::where('channel_payloads.channel_name','company.public.' . $companyId)
-            ->leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
-            ->whereNull('report_content.id')
+            ->whereNotIn('channel_payloads.id', $reported_payload)
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
