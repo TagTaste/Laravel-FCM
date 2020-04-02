@@ -143,7 +143,7 @@ class ReportController extends Controller
         }
         
         // report content
-        $report_content = null !== $request->input('report_content') ? $request->input('report_content') : null;
+        $report_comment = null !== $request->input('report_comment') ? $request->input('report_comment') : null;
 
         $payload_info = array(
             "photo" => array("App\Photo", "App\V2\Photo"),
@@ -192,7 +192,7 @@ class ReportController extends Controller
         $input = array(
             "report_type_id" => $report_type_id,  
             "report_type_name" => $report_type_name,
-            "report_content" => $report_content, 
+            "report_comment" => $report_comment, 
             "payload_id" => $payload_id,
             "data_type" => $content_type,
             "data_id" => (string)$content_id,
@@ -277,7 +277,39 @@ class ReportController extends Controller
             }
         }
 
+        // report type id
+        $report_type_id = null;
+        $report_type_name = null;
+        $report_id = null !== $request->input('report_type_id') ? $request->input('report_type_id') : null;
+        if ("" == $report_id || is_null($report_id)) {
+            $this->errors['status'] = 1;
+            $this->errors['message'] = 'Please provide valid report type id.';
+            return $this->sendResponse();
+        } else if (preg_match('/[^0-9]/', $report_id)) {
+          $this->errors['status'] = 1;
+          $this->errors['message'] = 'Please provide valid report type id.';
+          return $this->sendResponse();
+        } else {
+            $report_type_detail = ReportType::where('id',(int)$report_id)
+                ->where('is_active', 1)
+                ->get()
+                ->first();
+            if (is_null($report_type_detail)) {
+                $this->errors['status'] = 1;
+                $this->errors['message'] = 'Provided report type id is not associated with our system.';
+                return $this->sendResponse();
+            }
+            $report_type_id = $report_type_detail->id;
+            $report_type_name = $report_type_detail->name;
+        }
+        
+        // report content
+        $report_comment = null !== $request->input('report_comment') ? $request->input('report_comment') : null;
+
         $input = array(
+            "report_type_id" => $report_type_id,  
+            "report_type_name" => $report_type_name,
+            "report_comment" => $report_comment, 
             "user_type" => $user_type,  
             "user_id" => $user_id,
             "profile_id" => $profile_id,
