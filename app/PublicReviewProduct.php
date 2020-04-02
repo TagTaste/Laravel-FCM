@@ -56,7 +56,6 @@ class PublicReviewProduct extends Model
             "is_vegetarian",
             "product_category_id",
             "product_sub_category_id",
-            "brand_name",
             "brand_logo",
             "company_logo",
             "company_id",
