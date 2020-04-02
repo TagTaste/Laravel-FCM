@@ -13,8 +13,8 @@ class ReportUser extends Model
 
     protected $dates = ['deleted_at'];
 
-    protected $fillable = ['user_type','user_id','profile_id','is_active'];
+    protected $fillable = ['report_type_id','report_type_name','report_comment','user_type','user_id','profile_id','is_active'];
 
-    protected $visible = ['id','user_type','user_id','profile_id','is_active'];
+    protected $visible = ['id','report_type_id','report_type_name','report_comment','user_type','user_id','profile_id','is_active'];
 
 }

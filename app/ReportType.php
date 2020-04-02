@@ -13,7 +13,7 @@ class ReportType extends Model
 
     protected $table = 'report_type';
 
-    protected $fillable = ['name','is_active','created_at','updated_at','deleted_at'];
+    protected $fillable = ['content','name','is_active','created_at','updated_at','deleted_at'];
 
     protected $visible = ['id','name'];
 
