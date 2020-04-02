@@ -41,19 +41,20 @@ class FeedController extends Controller
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
-        $profileId = $request->user()->profile->id;
 
+        $profileId = $request->user()->profile->id;
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
             ->where('report_content.profile_id', $profileId)
             ->pluck('channel_payloads.id')->toArray();
-
         $payloads = Payload::where('channel_payloads.channel_name','public.' . $profileId)
-            ->whereNotIn('channel_payloads.id', $reported_payload)
+            ->leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
+            ->whereNull('report_content.id')
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
             ->get();
         $this->getMeta($payloads,$profileId);
+
         return $this->sendResponse();
     }
 
@@ -125,22 +126,24 @@ class FeedController extends Controller
     //things that is displayed on company's public feed
     public function company(Request $request, $companyId)
     {
+
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
-        $profileId=$request->user()->profile->id;
 
+        $profileId = $request->user()->profile->id;
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
             ->where('report_content.profile_id', $profileId)
             ->pluck('channel_payloads.id')->toArray();
-
         $payloads = Payload::where('channel_payloads.channel_name','company.public.' . $companyId)
-            ->whereNotIn('channel_payloads.id', $reported_payload)
+            ->leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
+            ->whereNull('report_content.id')
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
             ->get();
         $this->getMeta($payloads,$profileId);
+
         return $this->sendResponse();
     }
 
