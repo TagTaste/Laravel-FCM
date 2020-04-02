@@ -59,9 +59,11 @@ class CollaborateController extends Controller
             });
             
         } else {
+            $roleCollaborates = \DB::table('collaborate_user_roles')->where('profile_id',$profileId)->pluck('collaborate_id');
             $collaborations = $collaborations->where('state','!=',2)->where(function($q) use ($profileId,$companyIds) {
                 $q->where('profile_id', $profileId)
-                  ->orWhereIn('company_id', $companyIds);
+                  ->orWhereIn('company_id', $companyIds)
+                  ->orWhereIn('id',$roleCollaborates);
             });
         }
         if($type == 'collaborate') {
