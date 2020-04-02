@@ -41,6 +41,7 @@ class FeedController extends Controller
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
+        $profileId = $request->user()->profile->id;
 
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
             ->where('report_content.profile_id', $profileId)
@@ -52,9 +53,7 @@ class FeedController extends Controller
             ->skip($skip)
             ->take($take)
             ->get();
-        $profileId = $request->user()->profile->id;
         $this->getMeta($payloads,$profileId);
-
         return $this->sendResponse();
     }
 
@@ -126,10 +125,10 @@ class FeedController extends Controller
     //things that is displayed on company's public feed
     public function company(Request $request, $companyId)
     {
-
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
+        $profileId=$request->user()->profile->id;
 
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
             ->where('report_content.profile_id', $profileId)
@@ -141,9 +140,7 @@ class FeedController extends Controller
             ->skip($skip)
             ->take($take)
             ->get();
-        $profileId=$request->user()->profile->id;
         $this->getMeta($payloads,$profileId);
-
         return $this->sendResponse();
     }
 
