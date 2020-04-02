@@ -42,8 +42,9 @@ class FeedController extends Controller
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
 
+        $profile_id = $request->user()->profile->id;
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
-            ->where('report_content.profile_id', $profileId)
+            ->where('report_content.profile_id', $profile_id)
             ->pluck('channel_payloads.id')->toArray();
 
         $payloads = Payload::where('channel_payloads.channel_name','public.' . $profileId)
@@ -52,8 +53,7 @@ class FeedController extends Controller
             ->skip($skip)
             ->take($take)
             ->get();
-        $profileId = $request->user()->profile->id;
-        $this->getMeta($payloads,$profileId);
+        $this->getMeta($payloads,$profile_id);
 
         return $this->sendResponse();
     }
@@ -131,18 +131,18 @@ class FeedController extends Controller
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
 
+        $profile_id = $request->user()->profile->id;
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
-            ->where('report_content.profile_id', $profileId)
+            ->where('report_content.profile_id', $profile_id)
             ->pluck('channel_payloads.id')->toArray();
-
+            
         $payloads = Payload::where('channel_payloads.channel_name','company.public.' . $companyId)
             ->whereNotIn('channel_payloads.id', $reported_payload)
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
             ->get();
-        $profileId=$request->user()->profile->id;
-        $this->getMeta($payloads,$profileId);
+        $this->getMeta($payloads,$profile_id);
 
         return $this->sendResponse();
     }
