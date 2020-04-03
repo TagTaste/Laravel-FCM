@@ -23,10 +23,10 @@ class ReportController extends Controller
     {
         $this->errors['status'] = 0;
 
-        $report_category_type = array("content", "user");
+        $report_category_type = array("content", "profile", "company");
         if (!in_array($reportCategory, $report_category_type)) {
             $this->errors['status'] = 1;
-            $this->errors['message'] = 'Please provide proper reporty category type.';
+            $this->errors['message'] = 'Please provide proper reporty category type such as "content", "profile", "company".';
             return $this->sendResponse();
         }
 
