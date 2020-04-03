@@ -6,13 +6,14 @@ use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
+use App\Traits\IdentifiesContentIsReported;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 
 class Polling extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported;
 
     protected $table = 'poll_questions';
 
@@ -85,6 +86,11 @@ class Polling extends Model implements Feedable
         return $this->hasMany('App\PollingOption','poll_id');
     }
 
+    public function isPollingReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "polling", (string)$this->id);
+    }
+
     /**
      * @param int $profileId
      * @return array
@@ -101,6 +107,7 @@ class Polling extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        $meta['isReported'] =  $this->isPollingReported();
         return $meta;
     }
 
@@ -128,6 +135,7 @@ class Polling extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        $meta['isReported'] =  $this->isPollingReported();
         return $meta;
     }
 

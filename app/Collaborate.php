@@ -7,6 +7,7 @@ use App\Collaborate\Applicant;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
+use App\Traits\IdentifiesContentIsReported;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported;
 
     protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
         'description','project_commences','image1','image2','image3','image4','image5',
@@ -298,6 +299,11 @@ class Collaborate extends Model implements Feedable
         }
     }
     
+    public function isCollaborateReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "collaborate", (string)$this->id);
+    }
+
     /**
      * @param int $profileId
      * @return array
@@ -321,7 +327,8 @@ class Collaborate extends Model implements Feedable
             $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
             $meta['interestedCount'] = $this->interestedCount;
             $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;               
+                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+            $meta['isReported'] =  $this->isCollaborateReported();                
             return $meta;
         }
 
@@ -342,7 +349,7 @@ class Collaborate extends Model implements Feedable
         $meta['interestedCount'] = (int) Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-
+        $meta['isReported'] =  $this->isCollaborateReported(); 
         return $meta;
     }
 
@@ -363,6 +370,7 @@ class Collaborate extends Model implements Feedable
             $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
             $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
                 ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+            $meta['isReported'] =  $this->isCollaborateReported();
             return $meta;
         }
         $this->setInterestedAsProfiles($meta,$profileId);
@@ -377,7 +385,7 @@ class Collaborate extends Model implements Feedable
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-
+        $meta['isReported'] =  $this->isCollaborateReported();
         return $meta;
     }
     
