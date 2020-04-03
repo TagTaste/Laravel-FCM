@@ -30,9 +30,14 @@ class FeedController extends Controller
         list($skip,$take) = Paginator::paginate($page, 13);
         
         $profileId = $request->user()->profile->id;
+        $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
+            ->where('report_content.profile_id', $profileId)
+            ->pluck('channel_payloads.id')->toArray();
+
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             ->whereNull('subscribers.deleted_at')
+            ->whereNotIn('channel_payloads.id', $reported_payload)
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
