@@ -39,6 +39,17 @@ class ReportController extends Controller
         $this->errors['status'] = 0;
         $profile_id = $request->user()->profile->id;
 
+        $email_input = array(
+            "type" => "Post",
+            "profile_url" => url("/")."/@".$request->user()->profile->handle,
+            "url" => null,  
+            "issue" => null,
+            "report_on" => null, 
+            "reporter_name" => null != $request->user()->name ? $request->user()->name : "N/A",
+            "email_id" => null != $request->user()->email ? $request->user()->email : "N/A",
+            "phone_number" => null != $request->user()->profile->phone ? $request->user()->profile->phone : "N/A"
+        );
+
         // reported profile id check
         $reported_profile_id = null !== $request->input('reported_profile_id') ? $request->input('reported_profile_id') : null; 
         if ("" == $reported_profile_id) {
@@ -141,6 +152,8 @@ class ReportController extends Controller
             $report_type_id = $report_type_detail->id;
             $report_type_name = $report_type_detail->name;
         }
+
+        $email_input["issue"] = null != $report_type_name ? $report_type_name : "N/A";
         
         // report content
         $report_comment = null !== $request->input('report_comment') ? $request->input('report_comment') : null;
@@ -159,27 +172,37 @@ class ReportController extends Controller
         );
 
         $payload_id = null;
+        $payload_url = null;
         if ($is_shared) {
             if ("photo" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_photo"], $shared_id);
+                $payload_url = url("/")."/shared/".$shared_id."/photo/".$content_id;
             } else if ("shoutout" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_shoutout"], $shared_id);
+                $payload_url = url("/")."/shared/".$shared_id."/shoutout/".$content_id;
             } else if ("collaborate" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_collaborate"], $shared_id);
+                $payload_url = url("/")."/shared/".$shared_id."/collaborate/".$content_id;
             } else if ("product" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_product"], $shared_id);
+                $payload_url = url("/")."/shared/".$shared_id."/product/".$content_id;
             } else if ("polling" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_polling"], $shared_id);
+                $payload_url = url("/")."/shared/".$shared_id."/polling/".$content_id;
             }
         } else {
             if ("photo" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["photo"], $content_id);
+                $payload_url = url("/")."/photo/".$content_id;
             } else if ("shoutout" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shoutout"], $content_id);
+                $payload_url = url("/")."/shoutout/".$content_id;
             } else if ("collaborate" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["collaborate"], $content_id);
+                $payload_url = url("/")."/collaborations/".$content_id;
             } else if ("polling" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["polling"], $content_id);
+                $payload_url = url("/")."/polling/".$content_id;
             }
         }
 
@@ -217,7 +240,20 @@ class ReportController extends Controller
         } else {
             $this->model = ReportContent::create($input);
             $this->errors['message'] = "Reported.";
+            $email_input["url"] = $payload_url;
+            $email_input["report_on"] = \Carbon\Carbon::now()->toDateTimeString();
+            event(new \App\Events\ReportContentUserEvent(
+                $email_input["type"],
+                $email_input["profile_url"],
+                $email_input["url"],
+                $email_input["issue"],
+                $email_input["report_on"],
+                $email_input["reporter_name"],
+                $email_input["email_id"],
+                $email_input["phone_number"],
+            ));
         }
+        
         return $this->sendResponse();
     }
 
@@ -237,6 +273,17 @@ class ReportController extends Controller
         $this->errors['status'] = 0;
         $profile_id = $request->user()->profile->id;
 
+        $email_input = array(
+            "type" => "N/A",
+            "profile_url" => url("/")."/@".$request->user()->profile->handle,
+            "url" => null,  
+            "issue" => null,
+            "report_on" => null, 
+            "reporter_name" => null != $request->user()->name ? $request->user()->name : "N/A",
+            "email_id" => null != $request->user()->email ? $request->user()->email : "N/A",
+            "phone_number" => null != $request->user()->profile->phone ? $request->user()->profile->phone : "N/A"
+        );
+
         // category of user
         $valid_user_type = array("profile", "company");
         $user_type = null !== $request->input('user_type') ? $request->input('user_type') : null;
@@ -248,6 +295,7 @@ class ReportController extends Controller
 
         // user id
         $user_id = null !== $request->input('user_id') ? $request->input('user_id') : null; 
+        $payload_url = null;
         if ("" == $user_id || is_null($user_id)) {
             $this->errors['status'] = 1;
             $this->errors['message'] = 'Please provide valid profile/company id to which you want to report.';
@@ -266,6 +314,8 @@ class ReportController extends Controller
                         $this->errors['message'] = 'Please provide valid profile id to whom you want to report.';
                         return $this->sendResponse();
                     }
+                    $payload_url = url("/")."/profile/".$user_id;
+                    $email_input["type"] = "Profile";
                 } else {
                     $checkCompanyExist = \App\V2\Company::where("id", $user_id)->exists();
                     if (!$checkCompanyExist) {
@@ -273,6 +323,8 @@ class ReportController extends Controller
                         $this->errors['message'] = 'Please provide valid company id to whom you want to report.';
                         return $this->sendResponse();
                     }
+                    $payload_url = url("/")."/companies/".$user_id;
+                    $email_input["type"] = "Company";
                 }
             }
         }
@@ -302,6 +354,7 @@ class ReportController extends Controller
             $report_type_id = $report_type_detail->id;
             $report_type_name = $report_type_detail->name;
         }
+        $email_input["issue"] = null != $report_type_name ? $report_type_name : "N/A";
         
         // report content
         $report_comment = null !== $request->input('report_comment') ? $request->input('report_comment') : null;
@@ -328,6 +381,18 @@ class ReportController extends Controller
         } else {
             $this->model = ReportUser::create($input);
             $this->errors['message'] = "Reported.";
+            $email_input["url"] = $payload_url;
+            $email_input["report_on"] = \Carbon\Carbon::now()->toDateTimeString();
+            event(new \App\Events\ReportContentUserEvent(
+                $email_input["type"],
+                $email_input["profile_url"],
+                $email_input["url"],
+                $email_input["issue"],
+                $email_input["report_on"],
+                $email_input["reporter_name"],
+                $email_input["email_id"],
+                $email_input["phone_number"],
+            ));
         }
         return $this->sendResponse();
     }
