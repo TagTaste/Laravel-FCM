@@ -926,25 +926,22 @@ class ExplorePageController extends Controller
                             ->get(['id', 'global_question_id'])
                             ->first();
                         if (!is_null($public_review_product)) {
-                            $cached_data = Redis::get("public-review/product:".$public_review_product->id.":V2");
-                            if (!is_null($cached_data)) {
-                                $data = array();
-                                $data['product'] = json_decode($cached_data,true); 
-                                $data['meta'] = $public_review_product->getMetaFor((int)$profile_id);
-                                if ($hit["_score"] > 9) {
-                                    if ($count == $elastic_product['top_result']["count"]) {
-                                        continue;
-                                    } else {
-                                        $elastic_product['top_result']["count"]++;
-                                        array_push($elastic_product['top_result']["product"], $data);
-                                    }
+                            $data = array();
+                            $data['product'] = $public_review_product->toArray();
+                            $data['meta'] = $public_review_product->getMetaFor((int)$profile_id);
+                            if ($hit["_score"] > 9) {
+                                if ($count == $elastic_product['top_result']["count"]) {
+                                    continue;
                                 } else {
-                                    if ($count == $elastic_product['match']["count"]) {
-                                        continue;
-                                    } else {
-                                        $elastic_product['match']["count"]++;
-                                        array_push($elastic_product['match']["product"], $data);
-                                    }
+                                    $elastic_product['top_result']["count"]++;
+                                    array_push($elastic_product['top_result']["product"], $data);
+                                }
+                            } else {
+                                if ($count == $elastic_product['match']["count"]) {
+                                    continue;
+                                } else {
+                                    $elastic_product['match']["count"]++;
+                                    array_push($elastic_product['match']["product"], $data);
                                 }
                             }
                         }
