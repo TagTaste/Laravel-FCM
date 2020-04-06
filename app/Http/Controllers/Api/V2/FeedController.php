@@ -831,11 +831,11 @@ class FeedController extends Controller
 
         if (count($public_review_product)) {
             foreach ($public_review_product as $key => $product) {
-                $cached_data = Redis::get("public-review/product:".$product->id.":V2");
-                if ($cached_data) {
+                $data_fetched = PublicReviewProduct::where('id',$product->id)->first();
+                if (!is_null($data_fetched)) {
                     $data = array();
-                    $data['product'] = json_decode($cached_data,true); 
-                    $data['meta'] = $product->getMetaFor($profileId);
+                    $data['product'] = $data_fetched->toArray();
+                    $data['meta'] = $data_fetched->getMetaFor($profileId);
                     if (!is_null($data['meta']) && array_key_exists('overall_rating', $data['meta']) && !is_null($data['meta']['overall_rating'])) {
                         $suggestion["meta"]["count"]++;
                         array_push($suggestion["suggestion"], $data); 
@@ -889,11 +889,11 @@ class FeedController extends Controller
 
         if (count($public_review_product)) {
             foreach ($public_review_product as $key => $product) {
-                $cached_data = Redis::get("public-review/product:".$product->id.":V2");
-                if (!is_null($cached_data)) {
+                $data_fetched = PublicReviewProduct::where('id',$product->id)->first();
+                if (!is_null($data_fetched)) {
                     $data = array();
-                    $data['product'] = json_decode($cached_data,true); 
-                    $data['meta'] = $product->getMetaFor($profileId);
+                    $data['product'] = $data_fetched->toArray();
+                    $data['meta'] = $data_fetched->getMetaFor($profileId);
                     if (!is_null($data['meta']) && array_key_exists('overall_rating', $data['meta']) && !is_null($data['meta']['overall_rating'])) {
                         $suggestion["meta"]["count"]++;
                         array_push($suggestion["suggestion"], $data); 
