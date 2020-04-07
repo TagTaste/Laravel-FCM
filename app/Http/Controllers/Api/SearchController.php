@@ -224,7 +224,20 @@ class SearchController extends Controller
             }
         }
     
-    
+        if(null == $type || "collaborate" === $type)
+        {
+            $collaborates = \DB::table('collaborates')->where('title', 'like','%'.$term.'%')->
+                whereNull('deleted_at')->orderBy('id','desc')->skip($skip)
+                ->take($take)->get();
+
+            if(count($collaborates)){
+                foreach($collaborates as $collaborate){
+                    $collaborate->type = "collaborate";
+                    $suggestions[] = (array) $collaborate;
+                }
+            }
+        }
+
         return $suggestions;
     }
     private function autocomplete(&$term, $type = null)
