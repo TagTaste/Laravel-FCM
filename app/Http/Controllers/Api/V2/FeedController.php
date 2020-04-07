@@ -555,12 +555,16 @@ class FeedController extends Controller
             ->pluck("data_id");
         
         foreach ($query as $key => $record) {
-            $profile = \App\V2\Profile::where("id", (int)$record)->first()->toArray();
+            if ((int)$profileId === (int)$record) {
+                continue;
+            } else {
+                $profile = \App\V2\Profile::where("id", (int)$record)->first()->toArray();
 
-            if (!is_null($profile)) {
-                $profile["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$record);
-                $suggestion["meta"]["count"]++;
-                array_push($suggestion["suggestion"], $profile);
+                if (!is_null($profile)) {
+                    $profile["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$record);
+                    $suggestion["meta"]["count"]++;
+                    array_push($suggestion["suggestion"], $profile);
+                }
             }
         }
         
