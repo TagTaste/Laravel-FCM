@@ -923,7 +923,7 @@ class ExplorePageController extends Controller
                         $public_review_product = PublicReviewProduct::where('id',$hit["_id"])
                             ->where('is_active',1)
                             ->whereNull('deleted_at')
-                            ->get(['id', 'global_question_id'])
+                            ->get()
                             ->first();
                         if (!is_null($public_review_product)) {
                             $data = array();
