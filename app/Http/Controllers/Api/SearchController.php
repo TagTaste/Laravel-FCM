@@ -404,7 +404,10 @@ class SearchController extends Controller
 //            if(!array_key_exists($type,$this->model)){
 //                $this->model[$type] = [];
 //            }
+            if($type != 'collaborate')
             $this->model[$type] = $suggestions->toArray();
+            else
+            $this->model[$type] = $suggestions;
         }
         
         if(!empty($this->model)){
@@ -434,6 +437,7 @@ class SearchController extends Controller
                 $collaborates = $this->model['collaborate'];
                 $this->model['collaborate'] = [];
                 foreach($collaborates as $collaborate){
+
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
             }
