@@ -1000,52 +1000,6 @@ class ExplorePageController extends Controller
                                 }
                             }
                         }
-
-                        // $collaborate = Collaborate::where('id',$hit["_id"])
-                        //     ->where('collaborates.state',Collaborate::$state[0])
-                        //     ->whereNull('deleted_at')
-                        //     ->get(['id'])
-                        //     ->first();
-
-                        // if (!is_null($collaborate)) {
-                        //     $cached_data = Redis::get("collaborate:".$collaborate->id.":V2");
-                        //     if (!is_null($cached_data)) {
-                        //         $data = json_decode($cached_data,true); 
-                        //         $data["company"] = null;
-                        //         $data["profile"] = null;
-                        //         // add company detail to collaboration
-                        //         if (isset($data['company_id'])) {
-                        //             $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
-                        //             if ($company_cached_data) {
-                        //                 $data["company"] = json_decode($company_cached_data,true); 
-                        //             } 
-                        //         }
-
-                        //         // add profile detail to collaboration
-                        //         if (isset($data['profile_id'])) {
-                        //             $profile_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
-                        //             if ($profile_cached_data) {
-                        //                 $data["profile"] = json_decode($profile_cached_data,true); 
-                        //             } 
-                        //         }
-                                
-                        //         if ($hit["_score"] > 9) {
-                        //             if ($count == $elastic_collaborate['top_result']["count"]) {
-                        //                 continue;
-                        //             } else {
-                        //                 $elastic_collaborate['top_result']["count"]++;
-                        //                 array_push($elastic_collaborate['top_result']["collaborate"], $data);
-                        //             }
-                        //         } else {
-                        //             if ($count == $elastic_collaborate['match']["count"]) {
-                        //                 continue;
-                        //             } else {
-                        //                 $elastic_collaborate['match']["count"]++;
-                        //                 array_push($elastic_collaborate['match']["collaborate"], $data);
-                        //             }
-                        //         }
-                        //     }
-                        // }
                     }
                 }
             }
