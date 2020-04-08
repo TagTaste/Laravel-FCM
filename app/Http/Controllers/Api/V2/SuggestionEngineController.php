@@ -20,7 +20,7 @@ class SuggestionEngineController extends Controller
         $profile = $request->user()->profile;
         $profile_id = $profile->id;
         $client = config('database.neo4j_uri_client');
-        $this->model = FeedController::suggestion_of_follower($client, $profile, $profile_id);
+        $this->model = FeedController::suggestionOfFollower($client, $profile, $profile_id);
         return $this->sendResponse();
     }
 
@@ -29,7 +29,7 @@ class SuggestionEngineController extends Controller
         $profile = $request->user()->profile;
         $profile_id = $profile->id;
         $client = config('database.neo4j_uri_client');
-        $this->model = FeedController::suggestion_company($client, $profile, $profile_id);
+        $this->model = FeedController::suggestionCompany($client, $profile, $profile_id);
         return $this->sendResponse();
     }
 

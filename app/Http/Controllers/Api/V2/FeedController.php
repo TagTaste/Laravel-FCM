@@ -141,41 +141,41 @@ class FeedController extends Controller
         foreach ($random_suggestion as $key => $value) {
             switch ($value) {
                 case '0':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_dob($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByDob($client, $profile, $profileId);
                     break;
                 case '1':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_foodie_type($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByFoodieType($client, $profile, $profileId);
                     break;
                 case '2':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_cuisine($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByCuisine($client, $profile, $profileId);
                     break;
                 case '3':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_education($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByEducation($client, $profile, $profileId);
                     break;
                 case '4':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_experiance($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByExperiance($client, $profile, $profileId);
                     break;
                 case '5':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_specialization($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionBySpecialization($client, $profile, $profileId);
                     break;
                 case '6':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_company($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByCompany($client, $profile, $profileId);
                     break;
                 case '7':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_of_follower($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionOfFollower($client, $profile, $profileId);
                     break;
                 default:
                     break;
             }
         }
-        $this->model[$suggestion_position[2]] = $this->suggestion_collaboration($client, $profile, $profileId);
-        $this->model[$suggestion_position[4]] = $this->suggestion_products($client, $profile, $profileId);
-        $this->model[$suggestion_position[6]] = $this->suggestion_collaboration($client, $profile, $profileId);
-        // $this->model[$suggestion_position[2]] = $this->suggestion_company($client, $profile, $profileId);
-        // $this->model[$suggestion_position[1]] = $this->ad_engine($client, $profile, $profileId);
+        $this->model[$suggestion_position[2]] = $this->suggestionCollaboration($client, $profile, $profileId);
+        $this->model[$suggestion_position[4]] = $this->suggestionProducts($client, $profile, $profileId);
+        $this->model[$suggestion_position[6]] = $this->suggestionCollaboration($client, $profile, $profileId);
+        // $this->model[$suggestion_position[2]] = $this->suggestionCompany($client, $profile, $profileId);
+        // $this->model[$suggestion_position[1]] = $this->adEngine($client, $profile, $profileId);
 
         // 3 is passed in the last parameter as number of result desired
-        $ad_engine_details = $this->ad_engine_by_count($client, $profile, $profileId, 3);
+        $ad_engine_details = $this->adEngineByCount($client, $profile, $profileId, 3);
         if (count($ad_engine_details) === 3) {
             if (isset($ad_engine_details[0])) {
                 $this->model[$suggestion_position[1]] = $ad_engine_details[0];
@@ -258,7 +258,7 @@ class FeedController extends Controller
         $this->model = array_values(array_filter($this->model));
     }
 
-    public static function suggestion_by_dob($client, $profile, $profileId) 
+    public static function suggestionByDob($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -288,7 +288,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_foodie_type($client, $profile, $profileId) 
+    public static function suggestionByFoodieType($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -318,7 +318,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_cuisine($client, $profile, $profileId) 
+    public static function suggestionByCuisine($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -348,7 +348,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_education($client, $profile, $profileId) 
+    public static function suggestionByEducation($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -389,7 +389,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_experiance($client, $profile, $profileId) 
+    public static function suggestionByExperiance($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -430,7 +430,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_specialization($client, $profile, $profileId) 
+    public static function suggestionBySpecialization($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -459,7 +459,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_by_company($client, $profile, $profileId) 
+    public static function suggestionByCompany($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -486,7 +486,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_by_following($client, $profile, $profileId) 
+    public static function suggestionByFollowing($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -513,7 +513,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_of_follower($client, $profile, $profileId) 
+    public static function suggestionOfFollower($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -540,7 +540,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_of_active_influential_profile($profile, $profileId) 
+    public static function suggestionOfActiveInfluentialProfile($profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -576,7 +576,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_company($client, $profile, $profileId) 
+    public static function suggestionCompany($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -603,7 +603,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_upcoming_company($profile, $profileId) 
+    public static function suggestionUpcomingCompany($profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -635,7 +635,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_collaboration($client, $profile, $profileId) 
+    public static function suggestionCollaboration($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -693,7 +693,47 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_public_review_collaboration($client, $profile, $profileId, $count=3) 
+    public static function suggestionCollaborationDetailed($client, $profile, $profileId, $count=3) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Interesting collaborations",
+                "sub_type" => "collaborate",
+            ],
+            "type" => "suggestion",
+        );
+
+        $applied_collaboration = \DB::table('collaborate_applicants')
+            ->where('profile_id',$profileId)
+            ->where('is_invited',0)
+            ->whereNull('rejected_at')
+            ->pluck('collaborate_id')
+            ->toArray();
+
+        $collaborations = Collaborate::where('collaborates.state',Collaborate::$state[0])
+            ->whereNotIn('id',$applied_collaboration)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->pluck('id')
+            ->take($count)
+            ->toArray();
+
+        if (count($collaborations)) {
+            foreach ($collaborations as $key => $id) {
+                $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
+                if (!is_null($cached_data)) {
+                    $data = $cached_data->toArray(); 
+                    $suggestion["meta"]["count"]++;
+                    array_push($suggestion["suggestion"], $data);  
+                }
+            }
+        }
+        return $suggestion;
+    }
+
+    public static function suggestionPublicReviewCollaboration($client, $profile, $profileId, $count=3) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -723,36 +763,18 @@ class FeedController extends Controller
 
         if (count($collaborations)) {
             foreach ($collaborations as $key => $id) {
-                $cached_data = Redis::get("collaborate:".$id.":V2");
-                if ($cached_data) {
-                    $data = json_decode($cached_data,true); 
-                    $data["company"] = null;
-                    $data["profile"] = null;
-                    // add company detail to collaboration
-                    if (isset($data['company_id'])) {
-                        $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["company"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
-                    // add profile detail to collaboration
-                    if (isset($data['profile_id'])) {
-                        $company_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["profile"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
+                $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
+                if (!is_null($cached_data)) {
+                    $data = $cached_data->toArray(); 
                     $suggestion["meta"]["count"]++;
-                    array_push($suggestion["suggestion"], $data); 
+                    array_push($suggestion["suggestion"], $data);  
                 }
             }
         }
         return $suggestion;
     }
 
-    public static function suggestion_general_collaboration($client, $profile, $profileId, $count=3) 
+    public static function suggestionGeneralCollaboration($client, $profile, $profileId, $count=3) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -782,36 +804,18 @@ class FeedController extends Controller
 
         if (count($collaborations)) {
             foreach ($collaborations as $key => $id) {
-                $cached_data = Redis::get("collaborate:".$id.":V2");
-                if ($cached_data) {
-                    $data = json_decode($cached_data,true); 
-                    $data["company"] = null;
-                    $data["profile"] = null;
-                    // add company detail to collaboration
-                    if (isset($data['company_id'])) {
-                        $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["company"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
-                    // add profile detail to collaboration
-                    if (isset($data['profile_id'])) {
-                        $company_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["profile"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
+                $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
+                if (!is_null($cached_data)) {
+                    $data = $cached_data->toArray(); 
                     $suggestion["meta"]["count"]++;
-                    array_push($suggestion["suggestion"], $data); 
+                    array_push($suggestion["suggestion"], $data);  
                 }
             }
         }
         return $suggestion;
     }
 
-    public static function suggestion_products($client, $profile, $profileId) 
+    public static function suggestionProducts($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -855,7 +859,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_products_recent_reviewed($client, $profile, $profileId) 
+    public static function suggestionProductsRecentReviewed($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -913,7 +917,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function ad_engine($client, $profile, $profileId) 
+    public static function adEngine($client, $profile, $profileId) 
     {
         $card = array(
             "advertisement" => (object)array(),
@@ -980,7 +984,7 @@ class FeedController extends Controller
         return $card;
     }
 
-    public static function ad_engine_by_count($client, $profile, $profileId, $count) 
+    public static function adEngineByCount($client, $profile, $profileId, $count) 
     {
         $advertisement_details = array();
 
