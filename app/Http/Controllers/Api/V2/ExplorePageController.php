@@ -186,7 +186,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "product",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $this->getRecentReviewedProductsUserCanReview($profile, $profile_id)
                 ];
@@ -222,7 +222,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "profile",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $this->getActiveAndInfluentialProfileSuggestion($profile, $profile_id)
                 ];
@@ -332,7 +332,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "profile",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $profile_elastic_data['top_result']
                 ];
@@ -365,7 +365,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "product",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $product_elastic_data['top_result']
                 ];
@@ -398,7 +398,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "collaborate",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $collaborate_elastic_data['top_result']
                 ];
@@ -431,7 +431,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "company",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $company_elastic_data['top_result']
                 ];
@@ -465,7 +465,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "product",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $product_elastic_data['top_result']
                 ];
@@ -500,7 +500,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "profile",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $profile_elastic_data['top_result']
                 ];
@@ -534,7 +534,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "collaborate",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $collaborate_elastic_data['top_result']
                 ];
@@ -568,7 +568,7 @@ class ExplorePageController extends Controller
                     "images_meta" => null,
                     "type" => "collection",
                     "sub_type" => "company",
-                    "see_more" => true,
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $company_elastic_data['top_result']
                 ];
