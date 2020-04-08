@@ -250,7 +250,7 @@ class ReportController extends Controller
                 $email_input["report_on"],
                 $email_input["reporter_name"],
                 $email_input["email_id"],
-                $email_input["phone_number"],
+                $email_input["phone_number"]
             ));
         }
         
@@ -391,7 +391,7 @@ class ReportController extends Controller
                 $email_input["report_on"],
                 $email_input["reporter_name"],
                 $email_input["email_id"],
-                $email_input["phone_number"],
+                $email_input["phone_number"]
             ));
         }
         return $this->sendResponse();
