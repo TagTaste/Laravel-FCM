@@ -695,7 +695,7 @@ class ExplorePageController extends Controller
     public function getProductsUserCanReview($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
-        $products_suggestion = FeedController::suggestion_products($client, $profile, $profile_id);
+        $products_suggestion = FeedController::suggestionProducts($client, $profile, $profile_id);
         
         $products_suggestion_detail = array(
             "product" => $products_suggestion["suggestion"],
@@ -708,7 +708,7 @@ class ExplorePageController extends Controller
     public function getRecentReviewedProductsUserCanReview($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
-        $products_suggestion = FeedController::suggestion_products_recent_reviewed($client, $profile, $profile_id);
+        $products_suggestion = FeedController::suggestionProductsRecentReviewed($client, $profile, $profile_id);
         $products_suggestion_detail = array(
             "product" => $products_suggestion["suggestion"],
             "count" => $products_suggestion["meta"]["count"],
@@ -745,7 +745,7 @@ class ExplorePageController extends Controller
     public function getProfileSuggestion($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
-        $profile_suggestion = FeedController::suggestion_of_follower($client, $profile, $profile_id);
+        $profile_suggestion = FeedController::suggestionOfFollower($client, $profile, $profile_id);
         
         foreach ($profile_suggestion["suggestion"] as $key => $value) {
             $profile_suggestion["suggestion"][$key]["isFollowing"] = false;
@@ -761,7 +761,7 @@ class ExplorePageController extends Controller
 
     public function getActiveAndInfluentialProfileSuggestion($profile, $profile_id)
     {
-        $profile_suggestion = FeedController::suggestion_of_active_influential_profile($profile, $profile_id);
+        $profile_suggestion = FeedController::suggestionOfActiveInfluentialProfile($profile, $profile_id);
         $profile_suggestion_detail = array(
             "profile" => $profile_suggestion["suggestion"],
             "count" => $profile_suggestion["meta"]["count"],
@@ -773,7 +773,7 @@ class ExplorePageController extends Controller
     public function getCompanySuggestion($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
-        $company_suggestion = FeedController::suggestion_company($client, $profile, $profile_id);
+        $company_suggestion = FeedController::suggestionCompany($client, $profile, $profile_id);
 
         foreach ($company_suggestion["suggestion"] as $key => $value) {
             $company_suggestion["suggestion"][$key]["isFollowing"] = false;
@@ -789,7 +789,7 @@ class ExplorePageController extends Controller
 
     public function getUpcomingCompanySuggestion($profile, $profile_id)
     {
-        $company_suggestion = FeedController::suggestion_upcoming_company($profile, $profile_id);
+        $company_suggestion = FeedController::suggestionUpcomingCompany($profile, $profile_id);
 
         $company_suggestion_detail = array(
             "company" => $company_suggestion["suggestion"],
@@ -819,7 +819,7 @@ class ExplorePageController extends Controller
     public function getCollaborationSuggestion($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
-        $collaborations_suggestion = FeedController::suggestion_collaboration($client, $profile, $profile_id);
+        $collaborations_suggestion = FeedController::suggestionCollaborationDetailed($client, $profile, $profile_id, 3);
         $collaboration_suggestion_detail = array(
             "collaborate" => $collaborations_suggestion["suggestion"],
             "count" => $collaborations_suggestion["meta"]["count"],
@@ -831,7 +831,7 @@ class ExplorePageController extends Controller
     public function getPublicReviewCollaborationSuggestion($profile, $profile_id, $count)
     {
         $client = config('database.neo4j_uri_client');
-        $collaborations_suggestion = FeedController::suggestion_public_review_collaboration($client, $profile, $profile_id, $count);
+        $collaborations_suggestion = FeedController::suggestionPublicReviewCollaboration($client, $profile, $profile_id, $count);
         $collaboration_suggestion_detail = array(
             "collaborate" => $collaborations_suggestion["suggestion"],
             "count" => $collaborations_suggestion["meta"]["count"],
@@ -843,7 +843,7 @@ class ExplorePageController extends Controller
     public function getGeneralCollaborationSuggestion($profile, $profile_id, $count)
     {
         $client = config('database.neo4j_uri_client');
-        $collaborations_suggestion = FeedController::suggestion_general_collaboration($client, $profile, $profile_id, $count);
+        $collaborations_suggestion = FeedController::suggestionGeneralCollaboration($client, $profile, $profile_id, $count);
         $collaboration_suggestion_detail = array(
             "collaborate" => $collaborations_suggestion["suggestion"],
             "count" => $collaborations_suggestion["meta"]["count"],
@@ -977,51 +977,75 @@ class ExplorePageController extends Controller
                     if ($count == $elastic_collaborate['top_result']["count"] && $count == $elastic_collaborate['match']["count"]) {
                         break;
                     } else {
-                        $collaborate = Collaborate::where('id',$hit["_id"])
+                        $collaborate = \App\V2\Detailed\Collaborate::where('id', (int)$hit["_id"])
                             ->where('collaborates.state',Collaborate::$state[0])
                             ->whereNull('deleted_at')
-                            ->get(['id'])
                             ->first();
 
                         if (!is_null($collaborate)) {
-                            $cached_data = Redis::get("collaborate:".$collaborate->id.":V2");
-                            if (!is_null($cached_data)) {
-                                $data = json_decode($cached_data,true); 
-                                $data["company"] = null;
-                                $data["profile"] = null;
-                                // add company detail to collaboration
-                                if (isset($data['company_id'])) {
-                                    $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
-                                    if ($company_cached_data) {
-                                        $data["company"] = json_decode($company_cached_data,true); 
-                                    } 
-                                }
-
-                                // add profile detail to collaboration
-                                if (isset($data['profile_id'])) {
-                                    $profile_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
-                                    if ($profile_cached_data) {
-                                        $data["profile"] = json_decode($profile_cached_data,true); 
-                                    } 
-                                }
-                                
-                                if ($hit["_score"] > 9) {
-                                    if ($count == $elastic_collaborate['top_result']["count"]) {
-                                        continue;
-                                    } else {
-                                        $elastic_collaborate['top_result']["count"]++;
-                                        array_push($elastic_collaborate['top_result']["collaborate"], $data);
-                                    }
+                            $data = $collaborate->toArray();
+                            if ($hit["_score"] > 9) {
+                                if ($count == $elastic_collaborate['top_result']["count"]) {
+                                    continue;
                                 } else {
-                                    if ($count == $elastic_collaborate['match']["count"]) {
-                                        continue;
-                                    } else {
-                                        $elastic_collaborate['match']["count"]++;
-                                        array_push($elastic_collaborate['match']["collaborate"], $data);
-                                    }
+                                    $elastic_collaborate['top_result']["count"]++;
+                                    array_push($elastic_collaborate['top_result']["collaborate"], $data);
+                                }
+                            } else {
+                                if ($count == $elastic_collaborate['match']["count"]) {
+                                    continue;
+                                } else {
+                                    $elastic_collaborate['match']["count"]++;
+                                    array_push($elastic_collaborate['match']["collaborate"], $data);
                                 }
                             }
                         }
+
+                        // $collaborate = Collaborate::where('id',$hit["_id"])
+                        //     ->where('collaborates.state',Collaborate::$state[0])
+                        //     ->whereNull('deleted_at')
+                        //     ->get(['id'])
+                        //     ->first();
+
+                        // if (!is_null($collaborate)) {
+                        //     $cached_data = Redis::get("collaborate:".$collaborate->id.":V2");
+                        //     if (!is_null($cached_data)) {
+                        //         $data = json_decode($cached_data,true); 
+                        //         $data["company"] = null;
+                        //         $data["profile"] = null;
+                        //         // add company detail to collaboration
+                        //         if (isset($data['company_id'])) {
+                        //             $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
+                        //             if ($company_cached_data) {
+                        //                 $data["company"] = json_decode($company_cached_data,true); 
+                        //             } 
+                        //         }
+
+                        //         // add profile detail to collaboration
+                        //         if (isset($data['profile_id'])) {
+                        //             $profile_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
+                        //             if ($profile_cached_data) {
+                        //                 $data["profile"] = json_decode($profile_cached_data,true); 
+                        //             } 
+                        //         }
+                                
+                        //         if ($hit["_score"] > 9) {
+                        //             if ($count == $elastic_collaborate['top_result']["count"]) {
+                        //                 continue;
+                        //             } else {
+                        //                 $elastic_collaborate['top_result']["count"]++;
+                        //                 array_push($elastic_collaborate['top_result']["collaborate"], $data);
+                        //             }
+                        //         } else {
+                        //             if ($count == $elastic_collaborate['match']["count"]) {
+                        //                 continue;
+                        //             } else {
+                        //                 $elastic_collaborate['match']["count"]++;
+                        //                 array_push($elastic_collaborate['match']["collaborate"], $data);
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                 }
             }
