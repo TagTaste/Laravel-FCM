@@ -45,6 +45,7 @@ class SearchController extends Controller
         if(empty($ids) && $this->isSearched){
             return false;
         }
+        $placeholders = implode(',',array_fill(0, count($ids), '?')); 
         $model = isset($this->models[$type]) ? new $this->models[$type] : false;
         if(!$model){
             return $model;
@@ -57,9 +58,7 @@ class SearchController extends Controller
                 if(count($ids)) {
                     $placeholders = implode(',',array_fill(0, count($ids), '?')); 
                     return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
-                } else {
-                    return false;
-                }
+                } 
             }
             
 
