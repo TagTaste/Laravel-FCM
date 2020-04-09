@@ -41,7 +41,7 @@ class ReportController extends Controller
 
         $email_input = array(
             "type" => "Post",
-            "profile_url" => url("/")."/@".$request->user()->profile->handle,
+            "profile_url" => env('APP_URL')."/@".$request->user()->profile->handle,
             "url" => null,  
             "issue" => null,
             "report_on" => null, 
@@ -176,33 +176,33 @@ class ReportController extends Controller
         if ($is_shared) {
             if ("photo" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_photo"], $shared_id);
-                $payload_url = url("/")."/shared/".$shared_id."/photo/".$content_id;
+                $payload_url = env('APP_URL')."/shared/".$shared_id."/photo/".$content_id;
             } else if ("shoutout" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_shoutout"], $shared_id);
-                $payload_url = url("/")."/shared/".$shared_id."/shoutout/".$content_id;
+                $payload_url = env('APP_URL')."/shared/".$shared_id."/shoutout/".$content_id;
             } else if ("collaborate" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_collaborate"], $shared_id);
-                $payload_url = url("/")."/shared/".$shared_id."/collaborate/".$content_id;
+                $payload_url = env('APP_URL')."/shared/".$shared_id."/collaborate/".$content_id;
             } else if ("product" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_product"], $shared_id);
-                $payload_url = url("/")."/shared/".$shared_id."/product/".$content_id;
+                $payload_url = env('APP_URL')."/shared/".$shared_id."/product/".$content_id;
             } else if ("polling" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_polling"], $shared_id);
-                $payload_url = url("/")."/shared/".$shared_id."/polling/".$content_id;
+                $payload_url = env('APP_URL')."/shared/".$shared_id."/polling/".$content_id;
             }
         } else {
             if ("photo" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["photo"], $content_id);
-                $payload_url = url("/")."/photo/".$content_id;
+                $payload_url = env('APP_URL')."/photo/".$content_id;
             } else if ("shoutout" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shoutout"], $content_id);
-                $payload_url = url("/")."/shoutout/".$content_id;
+                $payload_url = env('APP_URL')."/shoutout/".$content_id;
             } else if ("collaborate" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["collaborate"], $content_id);
-                $payload_url = url("/")."/collaborations/".$content_id;
+                $payload_url = env('APP_URL')."/collaborations/".$content_id;
             } else if ("polling" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["polling"], $content_id);
-                $payload_url = url("/")."/polling/".$content_id;
+                $payload_url = env('APP_URL')."/polling/".$content_id;
             }
         }
 
@@ -250,7 +250,7 @@ class ReportController extends Controller
                 $email_input["report_on"],
                 $email_input["reporter_name"],
                 $email_input["email_id"],
-                $email_input["phone_number"],
+                $email_input["phone_number"]
             ));
         }
         
@@ -275,7 +275,7 @@ class ReportController extends Controller
 
         $email_input = array(
             "type" => "N/A",
-            "profile_url" => url("/")."/@".$request->user()->profile->handle,
+            "profile_url" => env('APP_URL')."/@".$request->user()->profile->handle,
             "url" => null,  
             "issue" => null,
             "report_on" => null, 
@@ -314,7 +314,7 @@ class ReportController extends Controller
                         $this->errors['message'] = 'Please provide valid profile id to whom you want to report.';
                         return $this->sendResponse();
                     }
-                    $payload_url = url("/")."/profile/".$user_id;
+                    $payload_url = env('APP_URL')."/profile/".$user_id;
                     $email_input["type"] = "Profile";
                 } else {
                     $checkCompanyExist = \App\V2\Company::where("id", $user_id)->exists();
@@ -323,7 +323,7 @@ class ReportController extends Controller
                         $this->errors['message'] = 'Please provide valid company id to whom you want to report.';
                         return $this->sendResponse();
                     }
-                    $payload_url = url("/")."/companies/".$user_id;
+                    $payload_url = env('APP_URL')."/companies/".$user_id;
                     $email_input["type"] = "Company";
                 }
             }
@@ -391,7 +391,7 @@ class ReportController extends Controller
                 $email_input["report_on"],
                 $email_input["reporter_name"],
                 $email_input["email_id"],
-                $email_input["phone_number"],
+                $email_input["phone_number"]
             ));
         }
         return $this->sendResponse();
