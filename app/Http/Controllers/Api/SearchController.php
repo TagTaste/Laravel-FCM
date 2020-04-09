@@ -55,9 +55,14 @@ class SearchController extends Controller
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
                 $ids = array_intersect($ids,$modelIds->toArray());
-                $placeholders = implode(',',array_fill(0, count($ids), '?')); 
+                if(count($ids)) {
+                    $placeholders = implode(',',array_fill(0, count($ids), '?')); 
+                    return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
+                } else {
+                    return false;
+                }
             }
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
+            
 
         }
         
@@ -396,9 +401,13 @@ class SearchController extends Controller
             
             return $this->sendResponse();
         }
-    
-        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
-        $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+        
+        if($request->input('filters') != null) 
+            $suggestions = $this->getModels($type,[],$request->input('filters'));
+        else{
+                $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
+                $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+            }
     
         if($suggestions && $suggestions->count()){
 //            if(!array_key_exists($type,$this->model)){
@@ -438,7 +447,7 @@ class SearchController extends Controller
                 $this->model['collaborate'] = [];
                 foreach($collaborates as $collaborate){
 
-                    $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId), ''];
+                    $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
             }
             if(isset($this->model['product']))
