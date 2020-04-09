@@ -241,7 +241,7 @@ class ReportController extends Controller
             $this->model = ReportContent::create($input);
             $this->errors['message'] = "Reported.";
             $email_input["url"] = $payload_url;
-            $email_input["report_on"] = \Carbon\Carbon::now()->toDateTimeString();
+            $email_input["report_on"] = \Carbon\Carbon::now()->format('jS F Y \\a\\t h:i:s A');
             event(new \App\Events\ReportContentUserEvent(
                 $email_input["type"],
                 $email_input["profile_url"],
@@ -382,7 +382,7 @@ class ReportController extends Controller
             $this->model = ReportUser::create($input);
             $this->errors['message'] = "Reported.";
             $email_input["url"] = $payload_url;
-            $email_input["report_on"] = \Carbon\Carbon::now()->toDateTimeString();
+            $email_input["report_on"] = \Carbon\Carbon::now()->format('jS F Y \\a\\t h:i:s A');
             event(new \App\Events\ReportContentUserEvent(
                 $email_input["type"],
                 $email_input["profile_url"],
