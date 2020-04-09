@@ -58,7 +58,9 @@ class SearchController extends Controller
                 if(count($ids)) {
                     $placeholders = implode(',',array_fill(0, count($ids), '?')); 
                     return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
-                } 
+                } else {
+                    return false;
+                }
             }
             
 
@@ -514,6 +516,11 @@ class SearchController extends Controller
                     $this->model[$name] = $searched;
                     //->merge($suggested);
                     //->sortBy('name');
+                    if(!$searched) {
+                        $this->model = [];
+                        $this->messages = ['Nothing found.'];
+                        return $this->sendResponse();
+                    }
                 }
 
 
