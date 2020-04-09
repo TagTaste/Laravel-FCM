@@ -873,29 +873,25 @@ class ExplorePageController extends Controller
                     if ($count == $elastic_profile['top_result']["count"] && $count == $elastic_profile['match']["count"]) {
                         break;
                     } else {
-                        if ((int)$profile_id === (int)$hit["_id"]) {
-                            continue;
-                        } else {
-                            $profile = \App\V2\Profile::where("id", (int)$hit["_id"])->first()->toArray();
-                            $profile["isFollowing"] = \App\Profile::isFollowing((int)$profile_id, (int)$hit["_id"]);
-                            if (!is_null($profile)) {
-                                if ($hit["_score"] > 9) {
-                                    if ($count == $elastic_profile['top_result']["count"]) {
-                                        continue;
-                                    } else {
-                                        $elastic_profile['top_result']["count"]++;
-                                        array_push($elastic_profile['top_result']["profile"], $profile);
-                                    }
+                        $profile = \App\V2\Profile::where("id", (int)$hit["_id"])->first()->toArray();
+                        $profile["isFollowing"] = \App\Profile::isFollowing((int)$profile_id, (int)$hit["_id"]);
+                        if (!is_null($profile)) {
+                            if ($hit["_score"] > 9) {
+                                if ($count == $elastic_profile['top_result']["count"]) {
+                                    continue;
                                 } else {
-                                    if ($count == $elastic_profile['match']["count"]) {
-                                        continue;
-                                    } else {
-                                        $elastic_profile['match']["count"]++;
-                                        array_push($elastic_profile['match']["profile"], $profile);
-                                    }
+                                    $elastic_profile['top_result']["count"]++;
+                                    array_push($elastic_profile['top_result']["profile"], $profile);
+                                }
+                            } else {
+                                if ($count == $elastic_profile['match']["count"]) {
+                                    continue;
+                                } else {
+                                    $elastic_profile['match']["count"]++;
+                                    array_push($elastic_profile['match']["profile"], $profile);
                                 }
                             }
-                        }
+                        }   
                     }
                 }
             }
