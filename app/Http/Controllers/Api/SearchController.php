@@ -13,8 +13,8 @@ class SearchController extends Controller
 {
     //aliases added for frontend
     private $models = [
-        'collaborate'=> \App\Recipe\Collaborate::class,
-        'collaborates'=> \App\Recipe\Collaborate::class,
+        'collaborate'=> \App\Collaborate::class,
+        'collaborates'=> \App\Collaborate::class,
         'recipe' => \App\Recipe::class,
         'recipes' => \App\Recipe::class,
         'profile' => \App\Recipe\Profile::class,
@@ -404,10 +404,10 @@ class SearchController extends Controller
 //            if(!array_key_exists($type,$this->model)){
 //                $this->model[$type] = [];
 //            }
-            if($type != 'collaborate')
-            $this->model[$type] = $suggestions->toArray();
-            else
+            if($type == 'collaborate' || $type == 'product')
             $this->model[$type] = $suggestions;
+            else
+            $this->model[$type] = $suggestions->toArray();
         }
         
         if(!empty($this->model)){
@@ -438,7 +438,7 @@ class SearchController extends Controller
                 $this->model['collaborate'] = [];
                 foreach($collaborates as $collaborate){
 
-                    $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                    $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId), ''];
                 }
             }
             if(isset($this->model['product']))
