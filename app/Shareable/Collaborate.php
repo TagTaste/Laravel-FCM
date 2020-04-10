@@ -29,6 +29,11 @@ class Collaborate extends Share
         return $this->hasMany(\App\Shareable\Sharelikable\Collaborate::class,'collaborate_share_id');
     }
 
+    public function isCollaborateReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "collaborate", $this->collaborate_id, true, $this->id);
+    }
+
     public function getMetaFor($profileId){
         $meta = [];
         $key = "meta:collaborateShare:likes:" . $this->id;
@@ -42,7 +47,7 @@ class Collaborate extends Share
         $meta['commentCount'] = $this->comments()->count();
         $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->first();
         $meta['original_post_meta'] = $collaborate->getMetaFor($profileId);
-
+        $meta['isReported'] =  $this->isCollaborateReported();
         return $meta;
     }
 
@@ -53,6 +58,7 @@ class Collaborate extends Share
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
+        $meta['isReported'] =  $this->isCollaborateReported();
         return $meta;
     }
 
@@ -65,6 +71,7 @@ class Collaborate extends Share
         $meta['commentCount'] = $this->comments()->count();
         $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->first();
         $meta['originalPostMeta'] = $collaborate->getMetaForV2($profileId);
+        $meta['isReported'] =  $this->isCollaborateReported();
         return $meta;
     }
 
