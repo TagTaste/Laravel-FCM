@@ -13,8 +13,8 @@ class SearchController extends Controller
 {
     //aliases added for frontend
     private $models = [
-        'collaborate'=> \App\Recipe\Collaborate::class,
-        'collaborates'=> \App\Recipe\Collaborate::class,
+        'collaborate'=> \App\Collaborate::class,
+        'collaborates'=> \App\Collaborate::class,
         'recipe' => \App\Recipe::class,
         'recipes' => \App\Recipe::class,
         'profile' => \App\Recipe\Profile::class,
@@ -39,13 +39,13 @@ class SearchController extends Controller
         'jobs' => \App\Filter\Job::class,
         'product' => \App\Filter\PublicReviewProduct::class
     ];
-    
+    protected $isSearched = 0;
     private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
     {
-        if(empty($ids)){
+        if(empty($ids) && $this->isSearched){
             return false;
         }
-        $placeholders = implode(',',array_fill(0, count($ids), '?'));   
+        $placeholders = implode(',',array_fill(0, count($ids), '?')); 
         $model = isset($this->models[$type]) ? new $this->models[$type] : false;
         if(!$model){
             return $model;
@@ -54,14 +54,21 @@ class SearchController extends Controller
         if(!empty($filters) && isset($this->filters[$type])){
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
-                $ids = array_intersect($ids,$modelIds->toArray());
-                $placeholders = implode(',',array_fill(0, count($ids), '?')); 
+                $ids = count($ids) ? array_intersect($ids,$modelIds->toArray()) : $modelIds->toArray();
+                if(count($ids)) {
+                    $placeholders = implode(',',array_fill(0, count($ids), '?')); 
+                    return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
+                } else {
+                    return false;
+                }
             }
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
+            
 
         }
-        
+        if(count($ids))
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
+        else
+        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
         }
@@ -224,7 +231,20 @@ class SearchController extends Controller
             }
         }
     
-    
+        if(null == $type || "collaborate" === $type)
+        {
+            $collaborates = \DB::table('collaborates')->where('title', 'like','%'.$term.'%')->
+                whereNull('deleted_at')->orderBy('id','desc')->skip($skip)
+                ->take($take)->get();
+
+            if(count($collaborates)){
+                foreach($collaborates as $collaborate){
+                    $collaborate->type = "collaborate";
+                    $suggestions[] = (array) $collaborate;
+                }
+            }
+        }
+
         return $suggestions;
     }
     private function autocomplete(&$term, $type = null)
@@ -312,8 +332,10 @@ class SearchController extends Controller
         $profileId = $request->user()->profile->id;
         if($query == null || !isset($query) ) {
             $response['hits']['total'] = 0;
+            $this->isSearched = 0;
         } else {
             $response = ElasticHelper::suggestedSearch($query,$type,0,1);
+            $this->isSearched = 1;
         }
         if($response['hits']['total'] == 0 && isset($response["suggest"])) {
             $response = $this->elasticSuggestion($response,$type) == null ? $response : $this->elasticSuggestion($response,$type);
@@ -339,6 +361,11 @@ class SearchController extends Controller
                     //$this->model[$name] = $searched;
                     //$this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
                 //} else
+                if(!$searched) {
+                    $this->model = [];
+                    $this->messages = ['Nothing found.'];
+                    return $this->sendResponse();
+                }
                     $this->model[$name] = $searched;
             }
             if(isset($this->model['profile'])){
@@ -383,14 +410,21 @@ class SearchController extends Controller
             
             return $this->sendResponse();
         }
-    
-        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
-        $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+        
+        if($request->input('filters') != null) {
+            $suggestions = $this->getModels($type,[],$request->input('filters'),$skip,$take);
+        } else {
+                $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
+                $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+            }
     
         if($suggestions && $suggestions->count()){
 //            if(!array_key_exists($type,$this->model)){
 //                $this->model[$type] = [];
 //            }
+            if($type == 'collaborate' || $type == 'product')
+            $this->model[$type] = $suggestions;
+            else
             $this->model[$type] = $suggestions->toArray();
         }
         
@@ -421,6 +455,7 @@ class SearchController extends Controller
                 $collaborates = $this->model['collaborate'];
                 $this->model['collaborate'] = [];
                 foreach($collaborates as $collaborate){
+
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
             }
@@ -488,6 +523,11 @@ class SearchController extends Controller
                     $this->model[$name] = $searched;
                     //->merge($suggested);
                     //->sortBy('name');
+                    // if(!$searched) {
+                    //     $this->model = [];
+                    //     $this->messages = ['Nothing found.'];
+                    //     return $this->sendResponse();
+                    // }
                 }
 
 
