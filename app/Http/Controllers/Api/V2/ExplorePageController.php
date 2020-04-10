@@ -713,8 +713,8 @@ class ExplorePageController extends Controller
         $products_suggestion = FeedController::suggestionProducts($client, $profile, $profile_id);
         
         $products_suggestion_detail = array(
-            "product" => $products_suggestion["suggestion"],
-            "count" => $products_suggestion["meta"]["count"],
+            "product" => array(),
+            "count" => 0,
             "type" => "product"
         );
         return $products_suggestion_detail;     
@@ -750,10 +750,10 @@ class ExplorePageController extends Controller
             "type" => "collection"
         );
 
-        foreach ($collections as $key => $collection) {
-            array_push($handpicked_collection_detail['collection'], $collection);
-            $handpicked_collection_detail['count'] += 1;
-        }
+        // foreach ($collections as $key => $collection) {
+        //     array_push($handpicked_collection_detail['collection'], $collection);
+        //     $handpicked_collection_detail['count'] += 1;
+        // }
         return $handpicked_collection_detail;     
     }
 
@@ -767,8 +767,8 @@ class ExplorePageController extends Controller
         }
 
         $profile_suggestion_detail = array(
-            "profile" => $profile_suggestion["suggestion"],
-            "count" => $profile_suggestion["meta"]["count"],
+            "profile" => array(),
+            "count" => 0,
             "type" => "profile"
         );
         return $profile_suggestion_detail;     
@@ -778,8 +778,8 @@ class ExplorePageController extends Controller
     {
         $profile_suggestion = FeedController::suggestionOfActiveInfluentialProfile($profile, $profile_id);
         $profile_suggestion_detail = array(
-            "profile" => $profile_suggestion["suggestion"],
-            "count" => $profile_suggestion["meta"]["count"],
+            "profile" => array(),
+            "count" => 0,
             "type" => "profile"
         );
         return $profile_suggestion_detail;     
@@ -807,8 +807,8 @@ class ExplorePageController extends Controller
         $company_suggestion = FeedController::suggestionUpcomingCompany($profile, $profile_id);
 
         $company_suggestion_detail = array(
-            "company" => $company_suggestion["suggestion"],
-            "count" => $company_suggestion["meta"]["count"],
+            "company" => array(),
+            "count" => 0,
             "type" => "company"
         );
         return $company_suggestion_detail;     
@@ -848,8 +848,8 @@ class ExplorePageController extends Controller
         $client = config('database.neo4j_uri_client');
         $collaborations_suggestion = FeedController::suggestionPublicReviewCollaboration($client, $profile, $profile_id, $count);
         $collaboration_suggestion_detail = array(
-            "collaborate" => $collaborations_suggestion["suggestion"],
-            "count" => $collaborations_suggestion["meta"]["count"],
+            "collaborate" => array(),
+            "count" => 0,
             "type" => "collaborate"
         );
         return $collaboration_suggestion_detail;     
