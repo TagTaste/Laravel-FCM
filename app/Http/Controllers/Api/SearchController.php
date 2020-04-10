@@ -58,15 +58,17 @@ class SearchController extends Controller
                 if(count($ids)) {
                     $placeholders = implode(',',array_fill(0, count($ids), '?')); 
                     return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
-                // } else {
-                //     return false;
+                } else {
+                    return false;
                 }
             }
             
 
         }
-        
+        if(count($ids))
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
+        else
+        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
         }
