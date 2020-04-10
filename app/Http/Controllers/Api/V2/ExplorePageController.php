@@ -21,6 +21,20 @@ use App\ElasticHelper;
 
 class ExplorePageController extends Controller
 {
+    public function exploreTest(Request $request)
+    {
+        $search_value = null !== $request->input('q') ? $request->input('q') : null;
+        $profile = $request->user()->profile;
+        $profile_id = $profile->id;
+        $this->model = array(
+            "profile" => $this->getSearchProfileElastic($profile, $profile_id, $search_value, 20),
+            "product" => $this->getSearchProductElastic($profile, $profile_id, $search_value, 20),
+            "collaboration" => $this->getSearchCollaborationElastic($profile, $profile_id, $search_value, 20),
+            "company" => $this->getSearchCompanyElastic($profile, $profile_id, $search_value, 20)
+        );
+        return $this->sendResponse();
+    }
+
 	public function explore(Request $request)
     {
         $this->errors['status'] = 0;
