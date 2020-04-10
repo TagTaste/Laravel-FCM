@@ -359,6 +359,11 @@ class SearchController extends Controller
                     //$this->model[$name] = $searched;
                     //$this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
                 //} else
+                if(!$searched) {
+                    $this->model = [];
+                    $this->messages = ['Nothing found.'];
+                    return $this->sendResponse();
+                }
                     $this->model[$name] = $searched;
             }
             if(isset($this->model['profile'])){
@@ -404,9 +409,9 @@ class SearchController extends Controller
             return $this->sendResponse();
         }
         
-        if($request->input('filters') != null) 
-            $suggestions = $this->getModels($type,[],$request->input('filters'));
-        else{
+        if($request->input('filters') != null) {
+            $suggestions = $this->getModels($type,[],$request->input('filters'),$skip,$take);
+        } else {
                 $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
                 $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
             }
