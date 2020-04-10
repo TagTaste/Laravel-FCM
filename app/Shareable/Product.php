@@ -46,6 +46,11 @@ class Product extends Share
         return [];
     }
 
+    public function isProductReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "product", $this->product_id, true, $this->id);
+    }
+
     public function getMetaFor() : array
     {
         $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
@@ -62,6 +67,7 @@ class Product extends Share
 
         $meta['commentCount'] = $this->comments()->count();
         $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
+        $meta['isReported'] =  $this->isProductReported();
         return $meta;
     }
 
@@ -76,6 +82,7 @@ class Product extends Share
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['originalPostMeta'] = $product->getMetaFor(request()->user()->profile->id);
+        $meta['isReported'] =  $this->isProductReported();
         return $meta;
     }
 
@@ -90,6 +97,7 @@ class Product extends Share
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['originalPostMeta'] = $product->getMetaFor(request()->user()->profile->id);
+        $meta['isReported'] =  $this->isProductReported();
         return $meta;
     }
 
