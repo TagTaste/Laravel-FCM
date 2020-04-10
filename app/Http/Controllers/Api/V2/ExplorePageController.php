@@ -35,7 +35,7 @@ class ExplorePageController extends Controller
         return $this->sendResponse();
     }
 
-	public function explore(Request $request)
+    public function explore(Request $request)
     {
         $this->errors['status'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
