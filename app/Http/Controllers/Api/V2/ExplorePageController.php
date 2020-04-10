@@ -888,9 +888,13 @@ class ExplorePageController extends Controller
                     if ($count == $elastic_profile['top_result']["count"] && $count == $elastic_profile['match']["count"]) {
                         break;
                     } else {
-                        $profile = \App\V2\Profile::where("id", (int)$hit["_id"])->whereNull('deleted_at')->first()->toArray();
-                        $profile["isFollowing"] = \App\Profile::isFollowing((int)$profile_id, (int)$hit["_id"]);
+                        $profile = \App\V2\Profile::where("id", (int)$hit["_id"])
+                            ->whereNull('deleted_at')
+                            ->get()
+                            ->first();
                         if (!is_null($profile)) {
+                            $profile = $profile->toArray();
+                            $profile["isFollowing"] = \App\Profile::isFollowing((int)$profile_id, (int)$hit["_id"]);
                             if ($hit["_score"] > 9) {
                                 if ($count == $elastic_profile['top_result']["count"]) {
                                     continue;
