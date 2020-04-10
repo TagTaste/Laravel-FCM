@@ -560,7 +560,7 @@ class FeedController extends Controller
             ->pluck("data_id");
         
         foreach ($query as $key => $record) {
-            $profile = \App\V2\Profile::where("id", (int)$record)->first()->toArray();
+            $profile = \App\V2\Profile::where("id", (int)$record)->whereNull('deleted_at')->first()->toArray();
 
             if (!is_null($profile)) {
                 $profile["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$record);
@@ -619,7 +619,7 @@ class FeedController extends Controller
             ->pluck("data_id");
 
         foreach ($query as $key => $record) {
-            $company = \App\V2\Company::where("id", (int)$record)->first()->toArray();
+            $company = \App\V2\Company::where("id", (int)$record)->whereNull('deleted_at')->first()->toArray();
             if (!is_null($company)) {
                 $company["company_id"] = (int)$record;
                 $company["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$record);

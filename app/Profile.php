@@ -1041,6 +1041,9 @@ class Profile extends Model
 
     public function getAddressAttribute($value)
     {
+        if (!isset(request()->user()->profile->id)) {
+            return null;
+        }
         if (!empty($value)) {
             if(request()->user()->profile->id == $this->id)
             {

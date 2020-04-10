@@ -21,6 +21,20 @@ use App\ElasticHelper;
 
 class ExplorePageController extends Controller
 {
+    public function exploreTest(Request $request)
+    {
+        $search_value = null !== $request->input('q') ? $request->input('q') : null;
+        $profile = $request->user()->profile;
+        $profile_id = $profile->id;
+        $this->model = array(
+            "profile" => $this->getSearchProfileElastic($profile, $profile_id, $search_value, 20),
+            "product" => $this->getSearchProductElastic($profile, $profile_id, $search_value, 20),
+            "collaboration" => $this->getSearchCollaborationElastic($profile, $profile_id, $search_value, 20),
+            "company" => $this->getSearchCompanyElastic($profile, $profile_id, $search_value, 20)
+        );
+        return $this->sendResponse();
+    }
+
 	public function explore(Request $request)
     {
         $this->errors['status'] = 0;
@@ -59,8 +73,8 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Products you can Review", 
-                    "subtitle" => "This is coming from suggestion engine",
+                    "title" => "Products for Review", 
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -76,7 +90,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 3,
                     "ui_style_meta" => (object)[],
-                    "title" => "Collections for you", 
+                    "title" => "Product Collections", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -93,8 +107,8 @@ class ExplorePageController extends Controller
                     "position" => 4,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "People you may know", 
-                    "subtitle" => "This is coming from suggestion engine",
+                    "title" => "Suggested People", 
+                    "subtitle" => "Based on your background & interests",
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -110,8 +124,8 @@ class ExplorePageController extends Controller
                     "position" => 5,
                     "ui_type" => 5,
                     "ui_style_meta" => (object)[],
-                    "title" => "People from the industry", 
-                    "subtitle" => "Discover people through different lenses from food industry",
+                    "title" => "Explore by Specialization", 
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -146,8 +160,8 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Products you can Review", 
-                    "subtitle" => "This is coming from suggestion engine",
+                    "title" => "Products for Review", 
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -163,7 +177,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 3,
                     "ui_style_meta" => (object)[],
-                    "title" => "Collections for you", 
+                    "title" => "Product Collections", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -180,8 +194,8 @@ class ExplorePageController extends Controller
                     "position" => 4,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Recently reviewed products", 
-                    "subtitle" => "This is coming from suggestion engine",
+                    "title" => "Recently Reviewed Products", 
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -199,8 +213,8 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "From your network", 
-                    "subtitle" => "This is coming from suggestion engine",
+                    "title" => "Suggested People", 
+                    "subtitle" => "Based on your network",
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -216,8 +230,8 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "Active & Influentials", 
-                    "subtitle" => "This is coming from suggestion engine",
+                    "title" => "Active & Influential", 
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -233,8 +247,8 @@ class ExplorePageController extends Controller
                     "position" => 4,
                     "ui_type" => 5,
                     "ui_style_meta" => (object)[],
-                    "title" => "People from the industry", 
-                    "subtitle" => "Discover people through different lenses from food industry",
+                    "title" => "Explore by Specialization", 
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -252,8 +266,8 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Take part in a Tasting Session", 
-                    "subtitle" => "Experiance professional Sensorial Analysis in these projects",
+                    "title" => "Be a part of a Tasting Session", 
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -269,8 +283,8 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Your next Buisness Opportunity", 
-                    "subtitle" => "Collaborate with Food Professionals in ways never done before",
+                    "title" => "Interesting Opportunities for you", 
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -289,7 +303,7 @@ class ExplorePageController extends Controller
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
                     "title" => "Brands & Companies", 
-                    "subtitle" => "Upcoming Companies with latest products",
+                    "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -305,8 +319,8 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => "In your Network", 
-                    "subtitle" => "Companies followed by people you follow",
+                    "title" => "Suggested Companies", 
+                    "subtitle" => "Based on your network",
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
@@ -321,12 +335,13 @@ class ExplorePageController extends Controller
             if ($search_filter === "everything" || $search_filter == null) {
                 $profile_elastic_data = $this->getSearchProfileElastic($profile, $profile_id, $search_value, 20);
 
+
                 /* ui type = 4 is start */
                 $model[] = [
                     "position" => 2,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top result in people", 
+                    "title" => "Top ".str_plural("Result", $profile_elastic_data['top_result']['count'])." in People", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -341,7 +356,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => '"'.$search_value.'"'.' in people', 
+                    "title" => '"'.$search_value.'"'.' in People', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -359,7 +374,7 @@ class ExplorePageController extends Controller
                     "position" => 4,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top result in product", 
+                    "title" => "Top ".str_plural("Result", $product_elastic_data['top_result']['count'])." in Products",
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -374,7 +389,7 @@ class ExplorePageController extends Controller
                     "position" => 5,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => '"'.$search_value.'"'.' in product', 
+                    "title" => '"'.$search_value.'"'.' in Products', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -392,7 +407,7 @@ class ExplorePageController extends Controller
                     "position" => 6,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top result in collaborate", 
+                    "title" => "Top ".str_plural("Result", $collaborate_elastic_data['top_result']['count'])." in Collaborations", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -407,7 +422,7 @@ class ExplorePageController extends Controller
                     "position" => 7,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => '"'.$search_value.'"'.' in collaborate', 
+                    "title" => '"'.$search_value.'"'.' in Collaborations', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -425,7 +440,7 @@ class ExplorePageController extends Controller
                     "position" => 8,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top result in company", 
+                    "title" => "Top ".str_plural("Result", $company_elastic_data['top_result']['count'])." in Companies", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -439,7 +454,7 @@ class ExplorePageController extends Controller
                     "position" => 9,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => '"'.$search_value.'"'.' in companies', 
+                    "title" => '"'.$search_value.'"'.' in Companies', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -459,7 +474,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top result in product", 
+                    "title" => "Top ".str_plural("Result", $product_elastic_data['top_result']['count'])." in Products", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -474,7 +489,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => '"'.$search_value.'"'.' in product', 
+                    "title" => '"'.$search_value.'"'.' in Products', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -494,7 +509,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top result in people", 
+                    "title" => "Top ".str_plural("Result", $profile_elastic_data['top_result']['count'])." in People", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -509,7 +524,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => '"'.$search_value.'"'.' in people', 
+                    "title" => '"'.$search_value.'"'.' in People', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -528,7 +543,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top result in collaborate", 
+                    "title" => "Top ".str_plural("Result", $collaborate_elastic_data['top_result']['count'])." in Collaborations", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -543,7 +558,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => '"'.$search_value.'"'.' in collaborate', 
+                    "title" => '"'.$search_value.'"'.' in Collaborations', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -562,7 +577,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top result in company", 
+                    "title" => "Top ".str_plural("Result", $company_elastic_data['top_result']['count'])." in Companies", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -576,7 +591,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => '"'.$search_value.'"'.' in companies', 
+                    "title" => '"'.$search_value.'"'.' in Companies', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -873,9 +888,13 @@ class ExplorePageController extends Controller
                     if ($count == $elastic_profile['top_result']["count"] && $count == $elastic_profile['match']["count"]) {
                         break;
                     } else {
-                        $profile = \App\V2\Profile::where("id", (int)$hit["_id"])->first()->toArray();
-                        $profile["isFollowing"] = \App\Profile::isFollowing((int)$profile_id, (int)$hit["_id"]);
+                        $profile = \App\V2\Profile::where("id", (int)$hit["_id"])
+                            ->whereNull('deleted_at')
+                            ->get()
+                            ->first();
                         if (!is_null($profile)) {
+                            $profile = $profile->toArray();
+                            $profile["isFollowing"] = \App\Profile::isFollowing((int)$profile_id, (int)$hit["_id"]);
                             if ($hit["_score"] > 9) {
                                 if ($count == $elastic_profile['top_result']["count"]) {
                                     continue;
