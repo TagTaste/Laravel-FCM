@@ -177,13 +177,19 @@ class Deeplink
                 case 'company':     return env('APP_URL')."/companies/$modelId";
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;
+                case 'reviewCollection':     return env('APP_URL').'/collection/'.$modelId;
             }
         }
     }
     public static function getDeepLinkText($modelName,$model)
     {
-        if( $modelName == 'product' || $modelName == 'profile' || isset($model->owner->name) || $modelName =='company')
-        {
+        if ($modelName =='reviewCollection') {
+            return Deeplink::getReviewCollectionText($model);
+        } else if ( $modelName == 'product' 
+            || $modelName == 'profile' 
+            || $modelName =='company'
+            || isset($model->owner->name) 
+            ) {
             switch ($modelName) {
                 case 'photo':       return Deeplink::getPhotoText($model);
                 case 'shoutout':    return Deeplink::getShoutoutText($model);
@@ -193,9 +199,9 @@ class Deeplink
                 case 'product':     return Deeplink::getProductText($model);
                 case 'polling':     return Deeplink::getPollingText($model);
             }
-        }
-        else
+        } else {
             return null;
+        }
     }
 
     public static function getShoutoutText($model)
@@ -231,6 +237,11 @@ class Deeplink
     public static function getPollingText($model){
 
         return strip_tags("Checkout this poll by ".$model->owner->name." on TagTaste! \r\n");
+    }
+
+    public static function getReviewCollectionText($model) {
+
+        return "Checkout this '".$model->title."' on TagTaste! \r\n";
     }
 
     public static function getCollaborateText($model)
