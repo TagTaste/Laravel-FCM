@@ -52,12 +52,12 @@ class SearchController extends Controller
         }
 
         if(!empty($filters) && isset($this->filters[$type])){
-            $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
+            $modelIds = $this->filters[$type]::getModelIds($filters);
             if($modelIds->count()){
                 $ids = count($ids) ? array_intersect($ids,$modelIds->toArray()) : $modelIds->toArray();
                 if(count($ids)) {
                     $placeholders = implode(',',array_fill(0, count($ids), '?')); 
-                    return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->get();
+                    return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
                 } else {
                     return false;
                 }
