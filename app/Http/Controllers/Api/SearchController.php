@@ -66,13 +66,6 @@ class SearchController extends Controller
 
         }
         if(count($ids)) {
-            if(!$this->isSearched && $type == 'product') {
-                $model = $model->whereIn('id',$ids)->whereNull('deleted_at');
-                $model = $model->sortByDesc(function($model){
-                    return $model->review_count;
-                });    
-            }
-            else
             $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
         }
         else
@@ -80,8 +73,14 @@ class SearchController extends Controller
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
         }
-        
-        return $model->get();
+        if(!$this->isSearched && $type == 'product') {
+            $model = $model->get();
+            $model = $model->sortByDesc(function($model){
+                return $model->review_count;
+            });
+            return $model;    
+        } else
+            return $model->get();
 
     
     }
