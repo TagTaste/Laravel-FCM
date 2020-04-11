@@ -65,7 +65,7 @@ class SearchController extends Controller
             
 
         }
-        iif(count($ids)) {
+        if(count($ids)) {
             if(!$this->isSearched && $type == 'product')
             $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->sortByDesc(function($product){
                 return $product->review_count;
