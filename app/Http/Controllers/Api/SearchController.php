@@ -72,8 +72,14 @@ class SearchController extends Controller
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
         }
-        
-        return $model->get();
+        if(!$this->isSearched && $type == 'product') {
+            $model = $model->get();
+            $model = $model->sortByDesc(function($model){
+                return $model->review_count;
+            });
+            return $model;    
+        } else
+            return $model->get();
 
     
     }
