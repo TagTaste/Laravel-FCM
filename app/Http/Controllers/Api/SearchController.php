@@ -368,7 +368,7 @@ class SearchController extends Controller
                     //$this->model[$name] = (object)array_merge((array)$searched,(array)$suggested);
                 //} else
                 if(!$searched) {
-                    $this->model = (object)[];
+                    $this->model = json_decode(json_encode([]), FALSE);
                     $this->messages = ['Nothing found.'];
                     return $this->sendResponse();
                 }
