@@ -66,10 +66,12 @@ class SearchController extends Controller
 
         }
         if(count($ids)) {
-            if(!$this->isSearched && $type == 'product')
-            $model = $model->whereIn('id',$ids)->whereNull('deleted_at')->sortByDesc(function($product){
-                return $product->review_count;
-            });    
+            if(!$this->isSearched && $type == 'product') {
+                $model = $model->whereIn('id',$ids)->whereNull('deleted_at');
+                $model = $model->sortByDesc(function($model){
+                    return $model->review_count;
+                });    
+            }
             else
             $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
         }
