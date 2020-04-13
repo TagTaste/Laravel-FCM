@@ -66,6 +66,8 @@ return [
 
     'tagtaste_sample_request_mail_id' => env('TAGTASTE_SAMPLE_REQUEST_MAIL_ID', 'samples@tagtaste.com'),
 
+    'tagtaste_report_content_user_mail_id' => env('TAGTASTE_REPORT_CONTENT_USER_MAIL_ID', 'content@tagtaste.com'),
+
     /*
     |--------------------------------------------------------------------------
     | E-Mail Encryption Protocol

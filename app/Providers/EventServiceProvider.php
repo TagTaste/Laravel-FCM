@@ -32,6 +32,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Update' => ['App\Listeners\UpdateNotification'],
         'App\Events\DocumentRejectEvent' => ['App\Listeners\DocumentReject'],
         'App\Events\CampusConnectRequestEvent' => ['App\Listeners\CampusConnectRequest'],
+        'App\Events\ReportContentUserEvent' => ['App\Listeners\ReportContentUser'],
         'App\Events\PublicReviewProductGetSampleEvent' => ['App\Listeners\PublicReviewProductGetSample'],
         'App\Events\Actions\Like' => [],
         'App\Events\Actions\Comment' => [],
