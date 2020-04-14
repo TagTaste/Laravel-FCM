@@ -219,7 +219,7 @@ class SearchController extends Controller
 
         if(null == $type || "product" === $type)
         {
-            $products = \DB::table('public_review_products')->leftJoin(DB::raw('(select count(distinct profile_id) as count,product_id from public_product_user_review where current_status = 2 group by product_id) as r'), function ($join) {
+            $products = \DB::table('public_review_products')->leftJoin(\DB::raw('(select count(distinct profile_id) as count,product_id from public_product_user_review where current_status = 2 group by product_id) as r'), function ($join) {
                 $join->on ( 'public_review_products.id', '=', 'r.product_id' );
             })->where('name', 'like','%'.$term.'%')->orWhere('brand_name', 'like','%'.$term.'%')
                 ->orWhere('company_name', 'like','%'.$term.'%')->orWhere('description', 'like','%'.$term.'%')->where('is_active',1)
