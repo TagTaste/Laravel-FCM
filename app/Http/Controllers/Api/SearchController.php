@@ -70,22 +70,12 @@ class SearchController extends Controller
         }
         else
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
-        if(!$this->isSearched && $type == 'product') {
-            $model = $model->get();
-            $model = $model->sortByDesc(function($model){
-                return $model->review_count;
-            });
-            if(null !== $skip && null !== $take){
-                $model = $model->skip($skip)->take($take);
-            }
-            return $model;    
-        } else  {
-            if(null !== $skip && null !== $take){
-                $model = $model->skip($skip)->take($take);
-            }
-            return $model->get();
+
+        if(null !== $skip && null !== $take){
+            $model = $model->skip($skip)->take($take);
         }
 
+        return $model->get();
     
     }
 
@@ -229,9 +219,11 @@ class SearchController extends Controller
 
         if(null == $type || "product" === $type)
         {
-            $products = \DB::table('public_review_products')->where('name', 'like','%'.$term.'%')->orWhere('brand_name', 'like','%'.$term.'%')
+            $products = \DB::table('public_review_products')->leftJoin(DB::raw('(select count(distinct profile_id) as count,product_id from public_product_user_review where current_status = 2 group by product_id) as r'), function ($join) {
+                $join->on ( 'public_review_products.id', '=', 'r.product_id' );
+            })->where('name', 'like','%'.$term.'%')->orWhere('brand_name', 'like','%'.$term.'%')
                 ->orWhere('company_name', 'like','%'.$term.'%')->orWhere('description', 'like','%'.$term.'%')->where('is_active',1)
-                ->whereNull('deleted_at')->get();
+                ->whereNull('deleted_at')->orderBy('r.count','desc')->skip($skip)->take($take)->get();
 
             if(count($products)){
                 foreach($products as $product){
