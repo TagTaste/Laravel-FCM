@@ -3,6 +3,7 @@
 namespace App\Collaborate;
 
 use Illuminate\Database\Eloquent\Model;
+use SoftDeletes; 
 
 
 class Applicant extends Model {

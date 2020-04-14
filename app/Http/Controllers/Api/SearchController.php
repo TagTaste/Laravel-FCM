@@ -70,17 +70,21 @@ class SearchController extends Controller
         }
         else
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
-        if(null !== $skip && null !== $take){
-            $model = $model->skip($skip)->take($take);
-        }
         if(!$this->isSearched && $type == 'product') {
             $model = $model->get();
             $model = $model->sortByDesc(function($model){
                 return $model->review_count;
             });
+            if(null !== $skip && null !== $take){
+                $model = $model->skip($skip)->take($take);
+            }
             return $model;    
-        } else
+        } else  {
+            if(null !== $skip && null !== $take){
+                $model = $model->skip($skip)->take($take);
+            }
             return $model->get();
+        }
 
     
     }
