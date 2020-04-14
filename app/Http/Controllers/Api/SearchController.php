@@ -231,8 +231,7 @@ class SearchController extends Controller
         {
             $products = \DB::table('public_review_products')->where('name', 'like','%'.$term.'%')->orWhere('brand_name', 'like','%'.$term.'%')
                 ->orWhere('company_name', 'like','%'.$term.'%')->orWhere('description', 'like','%'.$term.'%')->where('is_active',1)
-                ->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
-                ->take($take)->get();
+                ->whereNull('deleted_at')->get();
 
             if(count($products)){
                 foreach($products as $product){
