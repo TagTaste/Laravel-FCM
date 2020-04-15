@@ -3,11 +3,9 @@
 namespace App\Collaborate;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class Applicant extends Model {
-    use SoftDeletes; 
     protected $table = 'collaborate_applicants';
 
     protected $fillable = ['profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','applier_address','message',
