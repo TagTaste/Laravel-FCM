@@ -48,7 +48,8 @@ class Polling extends Share
 
         $poll = \App\Polling::where('id',$this->poll_id)->whereNull('deleted_at')->first();
         if ($poll) {
-            $meta['original_post_meta'] = $poll->getMetaFor($profileId);
+            $meta['originalPostMeta'] = $poll->getMetaFor($profileId);//Because off android this response is changes 
+                                                                      //from original_post_meta to originalPostMeta 
         }
         $meta['isReported'] =  $this->isPollingReported();
         return $meta;
