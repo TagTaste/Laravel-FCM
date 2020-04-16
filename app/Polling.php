@@ -232,6 +232,6 @@ class Polling extends Model implements Feedable
 
     public function getTypeAttribute()
     {
-        return $this->image != null ? 1 : ($this->options[0]['image'] != null ? 2 : 0);
+        return $this->image_meta != null ? 1 : ($this->options[0]['image'] != null ? 2 : 0);
     }
 }
