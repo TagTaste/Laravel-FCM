@@ -17,13 +17,13 @@ class Polling extends Model implements Feedable
 
     protected $table = 'poll_questions';
 
-    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image'];
+    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image_meta'];
 
     protected $with = ['profile','company'];
 
     protected $appends = ['options','owner','meta','type'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image','type'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image_meta','type'];
 
     public static function boot()
     {
@@ -51,7 +51,8 @@ class Polling extends Model implements Feedable
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'profile_id'=>$this->profile_id,
-            'image'=>$this->image
+            'image_meta'=>$this->image_meta,
+            'type'=>$this->type,
         ];
         Redis::set("polling:" . $this->id,json_encode($data));
 
@@ -160,7 +161,7 @@ class Polling extends Model implements Feedable
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->title,
-            'image' => $this->image,
+            'image' => $this->image_meta,
             //'collaborate_type' => $this->collaborate_type
         ];
     }
@@ -198,7 +199,7 @@ class Polling extends Model implements Feedable
         $data['description'] = "by ".$this->owner->name;
         $data['ogTitle'] = "Poll: ".substr($this->title,0,65);
         $data['ogDescription'] = "by ".$this->owner->name;
-        $images = $this->image != null ? $this->image : null;
+        $images = $this->image_meta != null ? $this->image_meta : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
         $data['ogUrl'] = env('APP_URL').'/polling/'.$this->id;
@@ -229,7 +230,7 @@ class Polling extends Model implements Feedable
         return $this->getMetaAttribute();
     }
 
-    public function getImageAttribute($value)
+    public function getImageMetaAttribute($value)
     {
         if($value != null) {
             return json_decode($value);

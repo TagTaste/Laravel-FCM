@@ -71,7 +71,7 @@ class PollingController extends Controller
             return $this->sendError("Please enter valid options");
         }
         $data['title'] = $request->input('title');
-        $data['image'] = $image;
+        $data['image_meta'] = $image;
         $poll = Polling::create($data);
         $data = [];
         $i = 0 ;
@@ -85,7 +85,7 @@ class PollingController extends Controller
                     'created_at'=>$this->now,
                     'updated_at'=>$this->now,
                     'count'=>0,
-                    'image'=> $opImg
+                    'image_meta'=> $opImg
                 ];
             } else {
                 return $this->sendError("Please enter valid options");
