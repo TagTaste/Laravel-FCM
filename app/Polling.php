@@ -26,9 +26,9 @@ class Polling extends Model implements Feedable
 
     public static function boot()
     {
-        self::created(function($model){
-            $model->addToCache();
-            });
+        // self::created(function($model){
+        //     $model->addToCache();
+        //     });
 
         self::updated(function($model){
             $model->addToCache();
