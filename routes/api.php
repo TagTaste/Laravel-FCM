@@ -380,7 +380,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');//required
                 Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
-                Route::post('removeFromBatch','BatchController@removeFromBatch')->middleware('permissionCollaborate');//required
+                Route::post('removeFromBatch','BatchController@removeFromBatch');//required
                 Route::post('assignBatch','BatchController@assignBatch');//required 
                 Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
                 Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
