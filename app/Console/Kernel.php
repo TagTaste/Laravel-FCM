@@ -242,6 +242,7 @@ class Kernel extends ConsoleKernel
         ChatMergeMessage::class,
         CompleteTastingMail::class,
         //\App\Console\Commands\DeleteUsers::class,
+        \App\Console\Commands\MailUnverifiedUserVerificationEmail::class,
 
 
         RemoveDuplicateFromReviewTable::class,
