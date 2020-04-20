@@ -1,21 +1,21 @@
-@include("emails.header.definition")
-<body>
+@include("emails.header.v1.definition")
+<body style="margin: 0; padding: 0;">
     <center>
-        <table width="100%" border ="0" cellspacing ="0" cellpadding = "0"  style="font-family:Arial" bgcolor="#F8F6F9">
-            @include("emails.header.header")
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family:Arial" bgcolor="#F8F6F9">
+            @include("emails.header.v1.header")
             <tr>
                 <td align="center" valign="top">
-                    <table class="container" width= "620" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" >
+                    <table class="container" width="620" align="center" border="0" cellspacing="0" cellpadding="0"
+                           border-collapse="collapse">
                         <tr>
-                            <td align="center" width="100%" bgcolor="#F8F6F9" >
-                                <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" >
+                            <td align="center" width="100%" bgcolor="#F8F6F9">
+                                <table width="550" align="center" border="0" cellspacing="0" cellpadding="0"
+                                       border-collapse="collapse">
                                     <tr>
-                                        <td align="center"  bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;" width="100%" style="width=100%!important">
-                                            <div style="font-size: 20px;font-weight: bold;color: #181818;margin: 0px 70px 0px 70px;"> Verify your email address</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="background-color: #FAFAFA;height: 10px;">
+                                        <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
+                                            <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
+                                                Verify your email address
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -85,9 +85,7 @@
                                         <td style="background-color: #FAFAFA;height: 10px;">
                                         </td>
                                     </tr>
-                                    @include("emails.footer.download")
-                                    @include("emails.footer.footer")
-                                   
+                                    @include("emails.footer.v1.footer")
                                 </table>
                             </td>
                         </tr>
