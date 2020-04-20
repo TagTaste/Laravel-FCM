@@ -38,13 +38,14 @@ class MailUnverifiedUserVerificationEmail extends Command
      */
     public function handle()
     {
-        $users = \App\User::whereNull('verified_at')->get();
+        $users = \App\User::whereIn('id',[12, 15])->whereNull('verified_at')->get();
         foreach ($users as $key => $user) {
-            $this->info($user->email_token);
+            $this->info($user->email." | Old Token: ".$user->email_token);
             $user->update(['email_token'=>str_random(15)]);
             $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
             dispatch($mail);
-            $this->info($user->email." Processed!!");
+            $this->info($user->email." | New Token: ".$user->email_token." Processed!!");
+            $this->info(" ");
         }
     }
 }
