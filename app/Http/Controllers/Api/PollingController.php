@@ -62,9 +62,9 @@ class PollingController extends Controller
             $data['profile_id'] = $profileId;
 
 
-        if (!$request->has('title') ) {
-            return $this->sendError("Please enter poll title");
-        }
+        // if (!$request->has('title') ) {
+        //     return $this->sendError("Please enter poll title");
+        // }
         $image = $request->question_image != null ? $request->question_image : null;
         $optionImages = $request->option_images != null ? $request->option_images : null;
         if (!$request->has('options') || count($options) < 2 || count($options) > 4 || (isset($optionImages) && (count($options) != count($optionImages)))) {
@@ -186,7 +186,7 @@ class PollingController extends Controller
             return $this->sendError("Poll can not be editable");
         }
 
-        $data = $request->input(['title']);
+        $data = $request->input(['title']) != null ? $request->input(['title']) : null;
         $options = $request->input(['options']);
 
         if (!is_array($options))
@@ -199,11 +199,11 @@ class PollingController extends Controller
                    $pollOptions = PollingOption::where('poll_id',$pollId)->where('id',$value['id']);
                     if ($pollOptions->exists()) {
                         $imageMeta = isset($value['image_meta']) ? $value['image_meta'] : null;
-                        $pollOptions->update(['text'=>$value['text'],'image_meta'=>json_encode($imageMeta)]);
+                        $pollOptions->update(['text'=>$value['text'],'image_meta'=>$imageMeta]);
                     }
                 } else if($count<4){
                     $imageMeta = isset($value['image_meta']) ? $value['image_meta'] : null;
-                    PollingOption::insert(['text'=>$value['text'],'poll_id'=>$pollId,'image_meta'=>json_encode($imageMeta)]);
+                    PollingOption::insert(['text'=>$value['text'],'poll_id'=>$pollId,'image_meta'=>$imageMeta]);
                     $count++;
                 }
             }
