@@ -198,10 +198,12 @@ class PollingController extends Controller
                 if (isset($value['id'])) {
                    $pollOptions = PollingOption::where('poll_id',$pollId)->where('id',$value['id']);
                     if ($pollOptions->exists()) {
-                        $pollOptions->update(['text'=>$value['text'],'image_meta'=>$value['image_meta']]);
+                        $imageMeta = isset($value['image_meta']) ? $value['image_meta'] : null;
+                        $pollOptions->update(['text'=>$value['text'],'image_meta'=>$imageMeta]);
                     }
                 } else if($count<4){
-                    PollingOption::insert(['text'=>$value['text'],'poll_id'=>$pollId,'image_meta'=>$value['image_meta']]);
+                    $imageMeta = isset($value['image_meta']) ? $value['image_meta'] : null;
+                    PollingOption::insert(['text'=>$value['text'],'poll_id'=>$pollId,'image_meta'=>$imageMeta]);
                     $count++;
                 }
             }
