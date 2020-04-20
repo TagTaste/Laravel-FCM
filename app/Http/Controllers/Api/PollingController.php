@@ -199,11 +199,11 @@ class PollingController extends Controller
                    $pollOptions = PollingOption::where('poll_id',$pollId)->where('id',$value['id']);
                     if ($pollOptions->exists()) {
                         $imageMeta = isset($value['image_meta']) ? $value['image_meta'] : null;
-                        $pollOptions->update(['text'=>$value['text'],'image_meta'=>$imageMeta]);
+                        $pollOptions->update(['text'=>$value['text'],'image_meta'=>json_encode($imageMeta)]);
                     }
                 } else if($count<4){
                     $imageMeta = isset($value['image_meta']) ? $value['image_meta'] : null;
-                    PollingOption::insert(['text'=>$value['text'],'poll_id'=>$pollId,'image_meta'=>$imageMeta]);
+                    PollingOption::insert(['text'=>$value['text'],'poll_id'=>$pollId,'image_meta'=>json_encode($imageMeta)]);
                     $count++;
                 }
             }
