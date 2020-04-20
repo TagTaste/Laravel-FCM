@@ -12,9 +12,9 @@ class Polling extends BasePolling
 	use IdentifiesOwner, HasPreviewContent;
 
 	protected $visible = ['id','title','profile_id','company_id','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','options','poll_meta'];
+        'deleted_at','updated_at','is_expired','expired_time','options','poll_meta','type'];
 
-    protected $appends = ['options','owner','poll_meta'];
+    protected $appends = ['options','owner','poll_meta','type'];
 
 	public function getOwnerAttribute()
     {
