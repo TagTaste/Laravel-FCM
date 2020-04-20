@@ -50,8 +50,8 @@ class CollaborateController extends Controller
         //Get compnaies of the logged in user.
         $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
         if($state == 6) {
-            $interestedInCollaboration =  \App\Collaborate\Applicant::withTrashed()->where('profile_id',$profileId)->pluck('collaborate_id');
-            $collaborations = $collaborations->whereIn('id',$interestedInCollaboration);
+            $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->pluck('collaborate_id');
+            $collaborations = $collaborations->where('state','!=',2)->whereIn('id',$interestedInCollaboration);
         } else if($state == 4){
             $collaborations = $collaborations->where('state','!=',2)->where('step',1)->where(function($q) use ($profileId,$companyIds) {
                 $q->where('profile_id', $profileId)

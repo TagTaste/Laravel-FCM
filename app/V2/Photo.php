@@ -283,8 +283,8 @@ class Photo extends Model implements Feedable
     public function getNotificationContent()
     {
         $image = null;
-        if (isset($this->images) && strlen($this->images)) {
-            $image_data = json_decode($this->images);
+        if (isset($this->images)) {
+            $image_data = $this->images;
             if (isset($image_data[0]) && isset($image_data[0]->original_photo)) {
                 $image = $image_data[0]->original_photo;
             }

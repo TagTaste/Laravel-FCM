@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 
 class Applicant extends Model {
-
     protected $table = 'collaborate_applicants';
 
     protected $fillable = ['profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','applier_address','message',
