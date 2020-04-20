@@ -160,6 +160,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             });
 
             Route::get("search/explore","ExplorePageController@explore");
+            Route::get("search_test/explore_test","ExplorePageController@exploreTest");
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {
@@ -215,6 +216,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             });
         });
         
+        /**
+         * Route to report content and profile password.
+         */
+        Route::get('report-type/{reportCategory}',"ReportController@getReportTypeList");
+        Route::post('report-content',"ReportController@reportContent");
+        Route::post('report-user',"ReportController@reportUser");
+
+
         /**
          * Route to change password.
          */
@@ -327,7 +336,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
         Route::resource("collaborate/categories","CollaborateCategoryController");
         Route::get('collaborate/types',"CollaborateController@types");
-        Route::get('batchesColor',"CollaborateController@batchesColor");
+        Route::get('batchesColor',"CollaborateController@batchesColor");//->middleware('permissionCollaborate');
 
         //collaborate templates
         Route::resource("collaborate/templates","CollaborateTemplateController");
@@ -371,7 +380,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');//required
                 Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
-                Route::post('removeFromBatch','BatchController@removeFromBatch');//required
+                Route::post('removeFromBatch','BatchController@removeFromBatch')->middleware('permissionCollaborate');//required
                 Route::post('assignBatch','BatchController@assignBatch');//required 
                 Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
                 Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
@@ -392,10 +401,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("dashboard/report/filters","BatchController@reportFilters")->middleware('permissionCollaborate');
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
-                Route::resource('batches','BatchController');//->middleware('permissionCollaborate');
-                Route::post('shortlistPeople','ApplicantController@shortlistPeople');
-                Route::post('rejectPeople','ApplicantController@rejectPeople');
-                Route::post('inviteForReview','ApplicantController@inviteForReview');//->middleware('permissionCollaborate'); //not need
+                Route::resource('batches','BatchController');
+                Route::post('shortlistPeople','ApplicantController@shortlistPeople')->middleware('permissionCollaborate');
+                Route::post('rejectPeople','ApplicantController@rejectPeople')->middleware('permissionCollaborate'); 
+                Route::post('inviteForReview','ApplicantController@inviteForReview');//not need
                 Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
                 Route::post("rejectDocument","ApplicantController@rejectDocument");//api to reject document of applicant
                 Route::post("acceptDocument", "ApplicantController@acceptDocument");
@@ -414,7 +423,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
             Route::post("headers/{headerId}","ReviewController@reviewAnswers");
             Route::get("headers/{id}","QuestionController@reviewQuestions");
-            Route::get("headers","QuestionController@headers");
+            Route::get("headers","QuestionController@headers");//->middleware('permissionCollaborate');
             Route::post("insertHeaders","QuestionController@insertHeaders");
             Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
             Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");

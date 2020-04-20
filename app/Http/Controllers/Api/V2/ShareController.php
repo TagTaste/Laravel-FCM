@@ -30,18 +30,18 @@ class ShareController extends BaseController
 
     private function getModel(&$modelName, &$id)
     {
-        if(ucfirst($modelName) === 'Photo')
-        {
+        if(ucfirst($modelName) === 'Photo') {
             $class = "\\App\\V2\\" . ucfirst ($modelName);
             $photo = $class::where('id',$id)->whereNull('deleted_at')->first();
             $photo->images = json_decode($photo->images);
             return $photo;
-        }
-        else if (ucfirst($modelName)== 'Product') {
+        }   else if (ucfirst($modelName)== 'Product') {
             $class = "\\App\\PublicReviewProduct";
             return $class::where('id',$id)->whereNull('deleted_at')->first();
-        }
-        else{
+        }   else if(ucfirst($modelName) == 'Collaborate') {
+            $class = "\\App\\V2\\" . ucfirst ($modelName);
+            return $class::where('id',$id)->first();
+        }   else{
             $class = "\\App\\V2\\" . ucfirst ($modelName);
             return $class::where('id',$id)->whereNull('deleted_at')->first();
         }

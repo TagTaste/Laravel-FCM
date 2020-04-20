@@ -26,6 +26,11 @@ class Shoutout extends Share
         return $this->hasMany(\App\Shareable\Sharelikable\Shoutout::class,'shoutout_share_id');
     }
 
+    public function isShoutoutReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "shoutout", $this->shoutout_id, true, $this->id);
+    }
+
     public function getMetaFor($profileId){
         $meta = [];
         $key = "meta:shoutoutShare:likes:" . $this->id;
@@ -39,7 +44,7 @@ class Shoutout extends Share
         $meta['commentCount'] = $this->comments()->count();
         $shoutout = \App\Shoutout::where('id',$this->shoutout_id)->whereNull('deleted_at')->first();
         $meta['original_post_meta'] = $shoutout->getMetaFor($profileId);
-
+        $meta['isReported'] =  $this->isShoutoutReported();
         return $meta;
     }
 
@@ -50,6 +55,7 @@ class Shoutout extends Share
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
+        $meta['isReported'] =  $this->isShoutoutReported();
         return $meta;
     }
 
@@ -62,6 +68,7 @@ class Shoutout extends Share
         $meta['commentCount'] = $this->comments()->count();
         $shoutout = \App\Shoutout::where('id',$this->shoutout_id)->whereNull('deleted_at')->first();
         $meta['originalPostMeta'] = $shoutout->getMetaForV2($profileId);
+        $meta['isReported'] =  $this->isShoutoutReported();
         return $meta;
     }
 

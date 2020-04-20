@@ -29,6 +29,11 @@ class Polling extends Share
         return $this->hasMany(\App\Shareable\Sharelikable\Polling::class,'poll_share_id');
     }
 
+    public function isPollingReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "polling", $this->poll_id, true, $this->id);
+    }
+
     public function getMetaFor($profileId){
         $meta = [];
         $key = "meta:pollingShare:likes:" . $this->id;
@@ -43,9 +48,10 @@ class Polling extends Share
 
         $poll = \App\Polling::where('id',$this->poll_id)->whereNull('deleted_at')->first();
         if ($poll) {
-            $meta['original_post_meta'] = $poll->getMetaFor($profileId);
+            $meta['originalPostMeta'] = $poll->getMetaFor($profileId);//Because off android this response is changes 
+                                                                      //from original_post_meta to originalPostMeta 
         }
-
+        $meta['isReported'] =  $this->isPollingReported();
         return $meta;
     }
 
@@ -60,6 +66,7 @@ class Polling extends Share
         if ($poll) {
             $meta['originalPostMeta'] = $poll->getMetaFor($profileId);
         }
+        $meta['isReported'] =  $this->isPollingReported();
         return $meta;
     }
 

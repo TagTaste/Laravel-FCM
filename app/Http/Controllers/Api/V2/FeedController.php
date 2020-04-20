@@ -13,6 +13,7 @@ use App\Collaborate;
 use App\PublicReviewProduct;
 use App\Advertisements;
 use App\FeedTracker;
+use App\CategorySelectorCollection;
 use Carbon\Carbon;
 
 class FeedController extends Controller
@@ -30,9 +31,14 @@ class FeedController extends Controller
         list($skip,$take) = Paginator::paginate($page, 13);
         
         $profileId = $request->user()->profile->id;
+        $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
+            ->where('report_content.profile_id', $profileId)
+            ->pluck('channel_payloads.id')->toArray();
+
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             ->whereNull('subscribers.deleted_at')
+            ->whereNotIn('channel_payloads.id', $reported_payload)
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
@@ -135,41 +141,41 @@ class FeedController extends Controller
         foreach ($random_suggestion as $key => $value) {
             switch ($value) {
                 case '0':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_dob($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByDob($client, $profile, $profileId);
                     break;
                 case '1':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_foodie_type($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByFoodieType($client, $profile, $profileId);
                     break;
                 case '2':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_cuisine($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByCuisine($client, $profile, $profileId);
                     break;
                 case '3':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_education($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByEducation($client, $profile, $profileId);
                     break;
                 case '4':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_experiance($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByExperiance($client, $profile, $profileId);
                     break;
                 case '5':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_specialization($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionBySpecialization($client, $profile, $profileId);
                     break;
                 case '6':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_company($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionByCompany($client, $profile, $profileId);
                     break;
                 case '7':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_of_follower($client, $profile, $profileId);
+                    $this->model[$suggestion_position[$key]] = $this->suggestionOfFollower($client, $profile, $profileId);
                     break;
                 default:
                     break;
             }
         }
-        $this->model[$suggestion_position[2]] = $this->suggestion_collaboration($client, $profile, $profileId);
-        $this->model[$suggestion_position[4]] = $this->suggestion_products($client, $profile, $profileId);
-        $this->model[$suggestion_position[6]] = $this->suggestion_collaboration($client, $profile, $profileId);
-        // $this->model[$suggestion_position[2]] = $this->suggestion_company($client, $profile, $profileId);
-        // $this->model[$suggestion_position[1]] = $this->ad_engine($client, $profile, $profileId);
+        $this->model[$suggestion_position[2]] = $this->suggestionCollaboration($client, $profile, $profileId);
+        $this->model[$suggestion_position[4]] = $this->suggestionProducts($client, $profile, $profileId);
+        $this->model[$suggestion_position[6]] = $this->suggestionCollaboration($client, $profile, $profileId);
+        // $this->model[$suggestion_position[2]] = $this->suggestionCompany($client, $profile, $profileId);
+        // $this->model[$suggestion_position[1]] = $this->adEngine($client, $profile, $profileId);
 
         // 3 is passed in the last parameter as number of result desired
-        $ad_engine_details = $this->ad_engine_by_count($client, $profile, $profileId, 3);
+        $ad_engine_details = $this->adEngineByCount($client, $profile, $profileId, 3);
         if (count($ad_engine_details) === 3) {
             if (isset($ad_engine_details[0])) {
                 $this->model[$suggestion_position[1]] = $ad_engine_details[0];
@@ -252,7 +258,7 @@ class FeedController extends Controller
         $this->model = array_values(array_filter($this->model));
     }
 
-    public static function suggestion_by_dob($client, $profile, $profileId) 
+    public static function suggestionByDob($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -282,7 +288,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_foodie_type($client, $profile, $profileId) 
+    public static function suggestionByFoodieType($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -312,7 +318,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_cuisine($client, $profile, $profileId) 
+    public static function suggestionByCuisine($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -342,7 +348,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_education($client, $profile, $profileId) 
+    public static function suggestionByEducation($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -383,7 +389,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_experiance($client, $profile, $profileId) 
+    public static function suggestionByExperiance($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -424,7 +430,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    public static function suggestion_by_specialization($client, $profile, $profileId) 
+    public static function suggestionBySpecialization($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -453,7 +459,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_by_company($client, $profile, $profileId) 
+    public static function suggestionByCompany($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -480,7 +486,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_by_following($client, $profile, $profileId) 
+    public static function suggestionByFollowing($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -507,7 +513,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_of_follower($client, $profile, $profileId) 
+    public static function suggestionOfFollower($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -534,7 +540,39 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_company($client, $profile, $profileId) 
+    public static function suggestionOfActiveInfluentialProfile($profile, $profileId) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Suggestions for you",
+                "sub_type" => "profile",
+            ],
+            "type" => "suggestion",
+        );
+
+        $query = CategorySelectorCollection::where("is_active",1)
+            ->where("category_id", 1)
+            ->where("category_type", "active_and_influential")
+            ->inRandomOrder()
+            ->limit(10)
+            ->pluck("data_id");
+        
+        foreach ($query as $key => $record) {
+            $profile = \App\V2\Profile::where("id", (int)$record)->whereNull('deleted_at')->first();
+            if (!is_null($profile)) {
+                $profile_data = $profile->toArray();
+                $profile_data["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$record);
+                $suggestion["meta"]["count"]++;
+                array_push($suggestion["suggestion"], $profile_data);
+            }
+        }
+        
+        return $suggestion;
+    }
+
+    public static function suggestionCompany($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -561,7 +599,40 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_collaboration($client, $profile, $profileId) 
+    public static function suggestionUpcomingCompany($profile, $profileId) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Suggestions for you",
+                "sub_type" => "company",
+            ],
+            "type" => "suggestion",
+        );
+
+        $query = CategorySelectorCollection::where("is_active",1)
+            ->where("category_id", 2)
+            ->where("category_type", "upcoming_company")
+            ->inRandomOrder()
+            ->limit(10)
+            ->pluck("data_id");
+
+        foreach ($query as $key => $record) {
+            $company = \App\V2\Company::where("id", (int)$record)->whereNull('deleted_at')->first();
+            if (!is_null($company)) {
+                $company_data = $company->toArray();
+                $company_data["company_id"] = (int)$record;
+                $company_data["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$record);
+                $suggestion["meta"]["count"]++;
+                array_push($suggestion["suggestion"], $company_data);
+            }
+        }
+        
+        return $suggestion;
+    }
+
+    public static function suggestionCollaboration($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -619,7 +690,47 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_public_review_collaboration($client, $profile, $profileId, $count=3) 
+    public static function suggestionCollaborationDetailed($client, $profile, $profileId, $count=3) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Interesting collaborations",
+                "sub_type" => "collaborate",
+            ],
+            "type" => "suggestion",
+        );
+
+        $applied_collaboration = \DB::table('collaborate_applicants')
+            ->where('profile_id',$profileId)
+            ->where('is_invited',0)
+            ->whereNull('rejected_at')
+            ->pluck('collaborate_id')
+            ->toArray();
+
+        $collaborations = Collaborate::where('collaborates.state',Collaborate::$state[0])
+            ->whereNotIn('id',$applied_collaboration)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->pluck('id')
+            ->take($count)
+            ->toArray();
+
+        if (count($collaborations)) {
+            foreach ($collaborations as $key => $id) {
+                $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
+                if (!is_null($cached_data)) {
+                    $data = $cached_data->toArray(); 
+                    $suggestion["meta"]["count"]++;
+                    array_push($suggestion["suggestion"], $data);  
+                }
+            }
+        }
+        return $suggestion;
+    }
+
+    public static function suggestionPublicReviewCollaboration($client, $profile, $profileId, $count=3) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -649,36 +760,18 @@ class FeedController extends Controller
 
         if (count($collaborations)) {
             foreach ($collaborations as $key => $id) {
-                $cached_data = Redis::get("collaborate:".$id.":V2");
-                if ($cached_data) {
-                    $data = json_decode($cached_data,true); 
-                    $data["company"] = null;
-                    $data["profile"] = null;
-                    // add company detail to collaboration
-                    if (isset($data['company_id'])) {
-                        $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["company"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
-                    // add profile detail to collaboration
-                    if (isset($data['profile_id'])) {
-                        $company_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["profile"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
+                $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
+                if (!is_null($cached_data)) {
+                    $data = $cached_data->toArray(); 
                     $suggestion["meta"]["count"]++;
-                    array_push($suggestion["suggestion"], $data); 
+                    array_push($suggestion["suggestion"], $data);  
                 }
             }
         }
         return $suggestion;
     }
 
-    public static function suggestion_general_collaboration($client, $profile, $profileId, $count=3) 
+    public static function suggestionGeneralCollaboration($client, $profile, $profileId, $count=3) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -708,36 +801,18 @@ class FeedController extends Controller
 
         if (count($collaborations)) {
             foreach ($collaborations as $key => $id) {
-                $cached_data = Redis::get("collaborate:".$id.":V2");
-                if ($cached_data) {
-                    $data = json_decode($cached_data,true); 
-                    $data["company"] = null;
-                    $data["profile"] = null;
-                    // add company detail to collaboration
-                    if (isset($data['company_id'])) {
-                        $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["company"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
-                    // add profile detail to collaboration
-                    if (isset($data['profile_id'])) {
-                        $company_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
-                        if ($company_cached_data) {
-                            $data["profile"] = json_decode($company_cached_data,true); 
-                        } 
-                    }
-
+                $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
+                if (!is_null($cached_data)) {
+                    $data = $cached_data->toArray(); 
                     $suggestion["meta"]["count"]++;
-                    array_push($suggestion["suggestion"], $data); 
+                    array_push($suggestion["suggestion"], $data);  
                 }
             }
         }
         return $suggestion;
     }
 
-    public static function suggestion_products($client, $profile, $profileId) 
+    public static function suggestionProducts($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -766,11 +841,11 @@ class FeedController extends Controller
 
         if (count($public_review_product)) {
             foreach ($public_review_product as $key => $product) {
-                $cached_data = Redis::get("public-review/product:".$product->id.":V2");
-                if ($cached_data) {
+                $data_fetched = PublicReviewProduct::where('id',$product->id)->first();
+                if (!is_null($data_fetched)) {
                     $data = array();
-                    $data['product'] = json_decode($cached_data,true); 
-                    $data['meta'] = $product->getMetaFor($profileId);
+                    $data['product'] = $data_fetched->toArray();
+                    $data['meta'] = $data_fetched->getMetaFor($profileId);
                     if (!is_null($data['meta']) && array_key_exists('overall_rating', $data['meta']) && !is_null($data['meta']['overall_rating'])) {
                         $suggestion["meta"]["count"]++;
                         array_push($suggestion["suggestion"], $data); 
@@ -781,7 +856,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function suggestion_products_recent_reviewed($client, $profile, $profileId) 
+    public static function suggestionProductsRecentReviewed($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -805,7 +880,6 @@ class FeedController extends Controller
             ->where('public_review_products.is_suggestion_allowed',1)
             ->whereNotIn('public_review_products.id',$applied_product_review)
             ->whereNull('public_review_products.deleted_at')
-            ->orderBy('public_product_user_review.created_at')
             ->distinct('public_review_products.id')
             ->get(['public_review_products.id'])
             ->take(20);
@@ -825,11 +899,11 @@ class FeedController extends Controller
 
         if (count($public_review_product)) {
             foreach ($public_review_product as $key => $product) {
-                $cached_data = Redis::get("public-review/product:".$product->id.":V2");
-                if (!is_null($cached_data)) {
+                $data_fetched = PublicReviewProduct::where('id',$product->id)->first();
+                if (!is_null($data_fetched)) {
                     $data = array();
-                    $data['product'] = json_decode($cached_data,true); 
-                    $data['meta'] = $product->getMetaFor($profileId);
+                    $data['product'] = $data_fetched->toArray();
+                    $data['meta'] = $data_fetched->getMetaFor($profileId);
                     if (!is_null($data['meta']) && array_key_exists('overall_rating', $data['meta']) && !is_null($data['meta']['overall_rating'])) {
                         $suggestion["meta"]["count"]++;
                         array_push($suggestion["suggestion"], $data); 
@@ -840,7 +914,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    public static function ad_engine($client, $profile, $profileId) 
+    public static function adEngine($client, $profile, $profileId) 
     {
         $card = array(
             "advertisement" => (object)array(),
@@ -907,7 +981,7 @@ class FeedController extends Controller
         return $card;
     }
 
-    public static function ad_engine_by_count($client, $profile, $profileId, $count) 
+    public static function adEngineByCount($client, $profile, $profileId, $count) 
     {
         $advertisement_details = array();
 
