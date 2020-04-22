@@ -38,7 +38,7 @@ class MailUnverifiedUserVerificationEmail extends Command
      */
     public function handle()
     {
-        $users_details = \App\User::whereIn('id',[12, 15])->whereNull('verified_at')->chunk(200,function($users){
+        $users_details = \App\User::whereNull('verified_at')->chunk(200,function($users){
             foreach ($users as $key => $user) {
                 $this->info($user->email." | Old Token: ".$user->email_token);
                 $user->update(['email_token'=>str_random(15)]);
