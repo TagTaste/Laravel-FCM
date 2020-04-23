@@ -13,7 +13,7 @@ class AlterTablePollOptionImage extends Migration
      */
     public function up()
     {
-        Schema::alter('poll_options',   function( Blueprint $table ) {
+        Schema::table('poll_options',   function( Blueprint $table ) {
             $table->json('image')->nullable();
         });
     }
@@ -25,7 +25,7 @@ class AlterTablePollOptionImage extends Migration
      */
     public function down()
     {
-        Schema::alter('poll_options',   function( Blueprint $table ) {
+        Schema::table('poll_options',   function( Blueprint $table ) {
             $table->dropColumn(['image']);
         });
     }
