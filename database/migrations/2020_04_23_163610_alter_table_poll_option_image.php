@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTablePollOption extends Migration
+class AlterTablePollOptionImage extends Migration
 {
-    /**
+     /**
      * Run the migrations.
      *
      * @return void
