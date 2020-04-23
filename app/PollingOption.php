@@ -11,7 +11,16 @@ class PollingOption extends Model
 
     protected $table = 'poll_options';
 
-    protected $fillable = ['text','poll_id','count','created_at','deleted_at','updated_at'];
+    protected $fillable = ['text','poll_id','count','created_at','deleted_at','updated_at','image_meta'];
 
-    protected $visible = ['id','text','poll_id','count','created_at','deleted_at','updated_at'];
+    protected $visible = ['id','text','poll_id','count','created_at','deleted_at','updated_at','image_meta'];
+
+    public function getImageMetaAttribute($value)
+    {
+        if($value != null) {
+            return json_decode($value);
+        } else {
+            return null;
+        }
+    }
 }
