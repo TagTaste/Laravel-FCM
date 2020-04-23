@@ -13,7 +13,7 @@ class AlterTablePollQuestionsTitleNullable extends Migration
      */
     public function up()
     {
-        Schema::alter('poll_question',   function( Blueprint $table ) {
+        Schema::table('poll_question',   function( Blueprint $table ) {
             $table->text('name')->nullable()->change();
         });
     }
