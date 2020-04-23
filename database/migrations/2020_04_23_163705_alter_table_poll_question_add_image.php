@@ -14,7 +14,7 @@ class AlterTablePollQuestionAddImage extends Migration
     public function up()
     {
         Schema::table('poll_question',   function( Blueprint $table ) {
-            $table->json('image')->nullable();
+            $table->json('image_meta')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterTablePollQuestionAddImage extends Migration
     public function down()
     {
         Schema::table('poll_question',   function( Blueprint $table ) {
-            $table->dropColumn(['image']);
+            $table->dropColumn(['image_meta']);
         });
     }
 }
