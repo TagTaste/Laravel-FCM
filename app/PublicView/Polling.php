@@ -14,9 +14,9 @@ class Polling extends BasePolling
 
     protected $with = ['profile','company'];
 
-    protected $appends = ['options','owner'];
+    protected $appends = ['options','owner','type'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','options','owner','image_meta'];
+        'deleted_at','updated_at','is_expired','expired_time','options','owner','image_meta','type'];
 
     /**
      * Which profile created the collaboration project.

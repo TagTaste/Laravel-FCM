@@ -12,8 +12,8 @@
                                 <table width="550" align="center" border="0" cellspacing="0" cellpadding="0"
                                        border-collapse="collapse">
                                     <tr>
-                                        <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
-                                            <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
+                                        <td align="center" bgcolor="#FFFFFF" style="padding:20px 0 0;border-radius: 4px 4px 0 0;width:100%!important;" width="100%">
+                                            <div style="font-size: 24px;font-weight: normal;color: #171717;padding: 0 40px 0 40px">
                                                 Verify your email address
                                             </div>
                                         </td>
@@ -26,8 +26,7 @@
                                                         <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FFFFFF" >
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF" align="center">
-                                                                    <p style="font-size: 16px;color: #181818;margin:0px;">You are just a step away from verifying your email address. A verified email address makes your profile more authentic and improves the chances of getting good response from the 
-                                                                        community.
+                                                                    <p style="font-size: 16px;color: #181818;margin:0px; line-height: 1.5;">You are just a step away from verifying your email address. A verified email address makes your profile more authentic and improves the chances of getting a good response from the community.
                                                                     </p>
                                                                 </td>
                                                             </tr>
@@ -48,23 +47,23 @@
                                                 <tr>
                                                     <td style="width:100%!important;background-color:#FFFFFF!important;padding: 18px 36px;" align="center">
                                                         <table>
-                                                        
+
                                                             <tr>
                                                                 <td valign="top" align="center"  bgcolor="#FFFFFF" >
-                                                                
-                                                                        <a href="{{ env('APP_URL') }}/user/verify/email/{{$email_token}}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal;">VERIFY EMAIL</a>
-                                                                
+
+                                                                        <a href="{{ env('APP_URL') }}/user/verify/email/{{$email_token}}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #F60E3A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal;">VERIFY EMAIL</a>
+
                                                                 </td>
                                                             </tr>
-                                                            
-                                                            
+
+
                                                         </table>
                                                     </td>
                                                 </tr>
-                                                
+
                                                 <tr>
                                                     <td style="height:31px;background-color:#FFFFFF">
-                                                       
+
                                                     </td>
                                                 </tr>
                                             </table>
@@ -75,7 +74,7 @@
                                             <div style="margin:0px 0px 20px 0px;font-size: 14px;color: #181818;" >or you can also paste this link into your browser</div>
                                         </td>
                                     </tr>
-                                    
+
                                     <tr>
                                         <td align="center" bgcolor="#FFFFFF" style="padding:0px 0px 30px 0px;">
                                             <a href="{{ env('APP_URL') }}/user/verify/email/{{$email_token}}" style="text-decoration:none;font-size: 14px;color:#0D86E3">{{ env('APP_URL') }}/user/verify/email/{{$email_token}}</a>
