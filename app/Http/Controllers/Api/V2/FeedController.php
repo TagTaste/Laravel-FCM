@@ -43,7 +43,15 @@ class FeedController extends Controller
     protected function getNewVersionOfPollPayloads()
     {
         $modelNotIncluded = [];
-        $pollPayloadsWithImage = App\Polling::where('type','!=',3)->pluck('payload_id')->toArray();
+        $pollPayloadsWithImage = \App\Polling::whereNotNull('image_meta')
+                ->pluck('payload_id')->toArray();
+        $pollPayloadWithOptionImage = \App\PollingOption::distinct()
+                                        ->select('poll_id')
+                                        ->whereNotNull('image_meta')
+                                        ->join('poll_questions','poll_questions.id','=','poll_options.poll_id')
+                                        ->pluck('poll_questions.payload_id')
+                                        ->toArray();
+        dd(array_merge($pollPayloadsWithImage,$pollPayloadWithOptionImage));
         return $pollPayloadsWithImage;
     }
     //things that is displayed on my (private) feed, and not on network or public
