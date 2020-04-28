@@ -32,7 +32,7 @@ class FeedController extends Controller
     protected function validatePayloadForVersion($request)
     {
         if(($request->header('x-version') != null 
-                && $request->header('x-version') < 58) || 
+                && $request->header('x-version') < 80) || 
             ($request->header('x-ios-version') != null 
                 && version_compare("4.2.5", $request->header('x-ios-version'))))   {
                     $pollPayloadIds = $this->getNewVersionOfPollPayloads();
