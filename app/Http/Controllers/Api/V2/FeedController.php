@@ -34,7 +34,7 @@ class FeedController extends Controller
         if(($request->header('x-version') != null 
                 && $request->header('x-version') < 80) || 
             ($request->header('x-ios-version') != null 
-                && version_compare("4.2.5", $request->header('x-ios-version'))))   {
+                && version_compare("4.2.7", $request->header('x-ios-version'))))   {
                     $pollPayloadIds = $this->getNewVersionOfPollPayloads();
                     $this->modelNotIncluded = array_merge($this->modelNotIncluded,$pollPayloadIds);
             }
@@ -43,17 +43,14 @@ class FeedController extends Controller
     protected function getNewVersionOfPollPayloads()
     {
         $modelNotIncluded = [];
-        $pollPayloadsWithImage = \App\Polling::whereNotNull('image_meta')
+        $pollPayloadsWithImage = \App\Polling::where('type','!=',3)
                 ->pluck('payload_id')->toArray();
-        $pollPayloadWithOptionImage = \App\PollingOption::distinct()
-                                        ->whereNotNull('poll_options.image_meta')
-                                        ->join('poll_questions','poll_questions.id','=','poll_options.poll_id')
-                                        ->whereNotNull('poll_questions.payload_id')
-                                        ->pluck('poll_questions.payload_id')
-                                        ->toArray();
-//      return array_merge($pollPayloadsWithImage,$pollPayloadWithOptionImage);
-    return  Payload::whereIn('id',array_merge($pollPayloadsWithImage,$pollPayloadWithOptionImage))
-                                        ->pluck('channel_payloads.id')->toArray();
+        $sharedPollWithImage = \App\Polling::join('polling_shares','polling_shares.poll_id','=','poll_questions.id')
+                ->where('type','!=',3)
+                ->pluck('polling_shares.poll_id')
+                ->toArray();
+        //      return array_merge($pollPayloadsWithImage,$pollPayloadWithOptionImage);
+        return  Payload::whereIn('id',array_merge($pollPayloadsWithImage,$sharedPollWithImage))->pluck('channel_payloads.id')->toArray();
     }
     //things that is displayed on my (private) feed, and not on network or public
     public function feed(Request $request)
