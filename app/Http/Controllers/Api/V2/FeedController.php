@@ -47,7 +47,7 @@ class FeedController extends Controller
                 ->pluck('payload_id')->toArray();
         $sharedPollWithImage = \App\Polling::join('polling_shares','polling_shares.poll_id','=','poll_questions.id')
                 ->where('type','!=',3)
-                ->pluck('polling_shares.poll_id')
+                ->pluck('polling_shares.payload_id')
                 ->toArray();
         //      return array_merge($pollPayloadsWithImage,$pollPayloadWithOptionImage);
         return  Payload::whereIn('id',array_merge($pollPayloadsWithImage,$sharedPollWithImage))->pluck('channel_payloads.id')->toArray();

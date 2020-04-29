@@ -53,7 +53,18 @@ class FeedController extends Controller
                     $this->modelNotIncluded = array_merge($this->modelNotIncluded,$pollPayloadIds);
             }
     }
-
+    protected function getNewVersionOfPollPayloads()
+    {
+        $modelNotIncluded = [];
+        $pollPayloadsWithImage = \App\Polling::where('type','!=',3)
+                ->pluck('payload_id')->toArray();
+        $sharedPollWithImage = \App\Polling::join('polling_shares','polling_shares.poll_id','=','poll_questions.id')
+                ->where('type','!=',3)
+                ->pluck('polling_shares.payload_id')
+                ->toArray();
+        //      return array_merge($pollPayloadsWithImage,$pollPayloadWithOptionImage);
+        return  Payload::whereIn('id',array_merge($pollPayloadsWithImage,$sharedPollWithImage))->pluck('channel_payloads.id')->toArray();
+    }
     //things that is displayed on my public feed
     public function public(Request $request, $profileId)
     {
