@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Redis;
 class FeedController extends Controller
 {
     protected $model = [];
+    protected $modelNotIncluded = [];
     //things that is displayed on my (private) feed, and not on network or public
     public function feed(Request $request)
     {
@@ -34,6 +35,24 @@ class FeedController extends Controller
         $this->getMeta($payloads,$profileId);
         return $this->sendResponse();
     }
+    protected function removeReportedPayloads($profileId)
+    {
+        $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
+            ->where('report_content.profile_id', $profileId)
+            ->pluck('channel_payloads.id')->toArray();
+        $this->modelNotIncluded = array_merge($this->modelNotIncluded,$reported_payload);
+    }
+
+    protected function validatePayloadForVersion($request)
+    {
+        if(($request->header('x-version') != null 
+                && $request->header('x-version') < 80) || 
+            ($request->header('x-ios-version') != null 
+                && version_compare("4.2.7", $request->header('x-ios-version'))))   {
+                    $pollPayloadIds = $this->getNewVersionOfPollPayloads();
+                    $this->modelNotIncluded = array_merge($this->modelNotIncluded,$pollPayloadIds);
+            }
+    }
 
     //things that is displayed on my public feed
     public function public(Request $request, $profileId)
@@ -43,12 +62,11 @@ class FeedController extends Controller
         $skip = $page > 1 ? ($page - 1) * $take : 0;
 
         $profile_id = $request->user()->profile->id;
-        $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
-            ->where('report_content.profile_id', $profile_id)
-            ->pluck('channel_payloads.id')->toArray();
-
+        $this->validatePayloadForVersion($request);
+        $this->removeReportedPayloads($profileId);
+        
         $payloads = Payload::where('channel_payloads.channel_name','public.' . $profileId)
-            ->whereNotIn('channel_payloads.id', $reported_payload)
+            ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
