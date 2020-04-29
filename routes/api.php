@@ -271,6 +271,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
 
         //shoutouts
+        Route::resource("feed_card",'FeedCardController');
+
+        //shoutouts
         Route::resource("shoutout",'ShoutoutController');
         Route::group(['prefix'=>'shoutout/{shoutoutId}'], function() {
             Route::resource("like",'ShoutoutLikeController');

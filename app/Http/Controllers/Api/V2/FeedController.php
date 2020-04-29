@@ -13,12 +13,36 @@ use App\Collaborate;
 use App\PublicReviewProduct;
 use App\Advertisements;
 use App\FeedTracker;
+use App\FeedCard;
 use App\CategorySelectorCollection;
 use Carbon\Carbon;
 
 class FeedController extends Controller
 {
     protected $model = [];
+    protected $feed_card = [];
+    protected $feed_card_count = 0;
+    
+    //things that calculate the feed card on feed
+    public function feed_card_computation()
+    {
+        $profile_feed_card = FeedCard::where('data_type','profile')->where('is_active',1)->whereNull('deleted_at')->first();
+        if (!is_null($profile_feed_card)) {
+            $this->feed_card['profile_card']['feedCard'] = $profile_feed_card;
+            $this->feed_card['profile_card']['meta'] = $profile_feed_card->getMetaFor();
+            $this->feed_card['profile_card']['type'] = "feedCard";
+            $this->feed_card_count = $this->feed_card_count + 1;
+        }
+        
+        $company_feed_card = FeedCard::where('data_type','company')->where('is_active',1)->whereNull('deleted_at')->first();
+        if (!is_null($company_feed_card)) {
+            $this->feed_card['company_card']['feedCard'] = $company_feed_card;
+            $this->feed_card['company_card']['meta'] = $company_feed_card->getMetaFor();
+            $this->feed_card['company_card']['type'] = "feedCard";
+            $this->feed_card_count = $this->feed_card_count + 1;
+        }
+    }
+
     //things that is displayed on my (private) feed, and not on network or public
     public function feed(Request $request)
     {
@@ -29,6 +53,11 @@ class FeedController extends Controller
             return $this->sendResponse();
         }
         list($skip,$take) = Paginator::paginate($page, 13);
+
+        if ($skip == 0) {
+            $this->feed_card_computation();
+            $take = $take - $this->feed_card_count;
+        }
         
         $profileId = $request->user()->profile->id;
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
@@ -132,8 +161,24 @@ class FeedController extends Controller
         // 17 ad engine
         // 19 collaboration
         $suggestion_position = array(2, 5, 7, 11, 14, 17, 19);
+        
+        // newly updated positions 25th april 2020 by harsh
+        // 4 profile feed card position
+        // 13 comapny feed card position
+        $feed_card_position = array();
+        if ($this->feed_card_count) {
+            if (isset($this->feed_card['profile_card'])) {
+                $this->model[4] = $this->feed_card['profile_card'];
+                array_push($feed_card_position, 4);
+            } 
 
+            if (isset($this->feed_card['company_card'])) {
+                $this->model[13] = $this->feed_card['company_card'];
+                array_push($feed_card_position, 13);
+            }
+        }
         $feed_position = array_values(array_diff(array_keys($this->model),$suggestion_position));
+        $feed_position = array_values(array_diff($feed_position, $feed_card_position));
 
         $random = range(0,7);
         shuffle($random);
