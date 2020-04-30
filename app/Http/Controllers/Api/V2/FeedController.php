@@ -26,7 +26,7 @@ class FeedController extends Controller
     //things that calculate the feed card on feed
     public function feed_card_computation()
     {
-        $profile_feed_card = FeedCard::where('data_type','profile')->where('is_active',1)->whereNull('deleted_at')->first();
+        $profile_feed_card = FeedCard::where('data_type','profile')->where('is_active',1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
         if (!is_null($profile_feed_card)) {
             $this->feed_card['profile_card']['feedCard'] = $profile_feed_card;
             $this->feed_card['profile_card']['meta'] = $profile_feed_card->getMetaFor();
@@ -34,7 +34,7 @@ class FeedController extends Controller
             $this->feed_card_count = $this->feed_card_count + 1;
         }
         
-        $company_feed_card = FeedCard::where('data_type','company')->where('is_active',1)->whereNull('deleted_at')->first();
+        $company_feed_card = FeedCard::where('data_type','company')->where('is_active',1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
         if (!is_null($company_feed_card)) {
             $this->feed_card['company_card']['feedCard'] = $company_feed_card;
             $this->feed_card['company_card']['meta'] = $company_feed_card->getMetaFor();
