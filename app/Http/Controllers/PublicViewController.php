@@ -25,6 +25,10 @@ class PublicViewController extends Controller
             $modelName = 'job';
         }
 
+        if ($modelName == 'feed_card') {
+            $modelName = 'feedCard';
+        }
+
         $class = "\\App\\PublicView\\" . ucwords($modelName);
         $collection_elements = [];
         // Added to retrieve profile details from handle
@@ -67,6 +71,11 @@ class PublicViewController extends Controller
             $collection_model['elements'] = $collection_elements;
             $this->model = [
                 $modelName => $collection_model, 
+                'meta' => $meta
+            ];
+        } else if ($modelName === 'FeedCard') { 
+            $this->model = [
+                $modelName => $model,
                 'meta' => $meta
             ];
         } else {
