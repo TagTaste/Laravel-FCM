@@ -26,7 +26,7 @@ class FeedController extends Controller
     //things that calculate the feed card on feed
     public function feed_card_computation()
     {
-        $profile_feed_card = FeedCard::where('data_type','profile')->where('is_active',1)->whereNull('deleted_at')->first();
+        $profile_feed_card = FeedCard::where('data_type','profile')->where('is_active',1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
         if (!is_null($profile_feed_card)) {
             $this->feed_card['profile_card']['feedCard'] = $profile_feed_card;
             $this->feed_card['profile_card']['meta'] = $profile_feed_card->getMetaFor();
@@ -34,7 +34,7 @@ class FeedController extends Controller
             $this->feed_card_count = $this->feed_card_count + 1;
         }
         
-        $company_feed_card = FeedCard::where('data_type','company')->where('is_active',1)->whereNull('deleted_at')->first();
+        $company_feed_card = FeedCard::where('data_type','company')->where('is_active',1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
         if (!is_null($company_feed_card)) {
             $this->feed_card['company_card']['feedCard'] = $company_feed_card;
             $this->feed_card['company_card']['meta'] = $company_feed_card->getMetaFor();
@@ -43,46 +43,9 @@ class FeedController extends Controller
         }
     }
 
-    protected $modelNotIncluded = [];
-    
-    protected function removeReportedPayloads($profileId)
-    {
-        $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
-            ->where('report_content.profile_id', $profileId)
-            ->pluck('channel_payloads.id')->toArray();
-        $this->modelNotIncluded = array_merge($this->modelNotIncluded,$reported_payload);
-    }
-
-    protected function validatePayloadForVersion($request)
-    {
-        if(($request->header('x-version') != null 
-                && $request->header('x-version') < 80) || 
-            ($request->header('x-ios-version') != null 
-                && version_compare("4.2.7", $request->header('x-ios-version'))))   {
-                    $pollPayloadIds = $this->getNewVersionOfPollPayloads();
-                    $this->modelNotIncluded = array_merge($this->modelNotIncluded,$pollPayloadIds);
-            }
-    }
-
-    protected function getNewVersionOfPollPayloads()
-    {
-        $modelNotIncluded = [];
-        $pollPayloadsWithImage = \App\Polling::where('type','!=',3)
-                ->pluck('payload_id')->toArray();
-        $sharedPollWithImage = \App\Polling::join('polling_shares','polling_shares.poll_id','=','poll_questions.id')
-                ->where('type','!=',3)
-                ->pluck('polling_shares.payload_id')
-                ->toArray();
-        //      return array_merge($pollPayloadsWithImage,$pollPayloadWithOptionImage);
-        return  Payload::whereIn('id',array_merge($pollPayloadsWithImage,$sharedPollWithImage))->pluck('channel_payloads.id')->toArray();
-    }
-
     //things that is displayed on my (private) feed, and not on network or public
     public function feed(Request $request)
     {
-        $profileId = $request->user()->profile->id;
-        $this->validatePayloadForVersion($request);
-        $this->removeReportedPayloads($profileId);
         $page = $request->input('page');
         if($page > 20)
         {
@@ -104,7 +67,7 @@ class FeedController extends Controller
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             ->whereNull('subscribers.deleted_at')
-            ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
+            ->whereNotIn('channel_payloads.id', $reported_payload)
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
