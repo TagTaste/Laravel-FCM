@@ -24,12 +24,14 @@ class FeedController extends Controller
     protected $feed_card_count = 0;
     
     //things that calculate the feed card on feed
-    public function feed_card_computation()
+    public function feed_card_computation($profileId)
     {
         $profile_feed_card = FeedCard::where('data_type','profile')->where('is_active',1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
         if (!is_null($profile_feed_card)) {
             $this->feed_card['profile_card']['feedCard'] = $profile_feed_card;
-            $this->feed_card['profile_card']['meta'] = $profile_feed_card->getMetaFor();
+            $meta = $profile_feed_card->getMetaFor();
+            $meta["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$profile_feed_card["data_id"]);
+            $this->feed_card['profile_card']['meta'] = $meta;
             $this->feed_card['profile_card']['type'] = "feedCard";
             $this->feed_card_count = $this->feed_card_count + 1;
         }
@@ -37,7 +39,9 @@ class FeedController extends Controller
         $company_feed_card = FeedCard::where('data_type','company')->where('is_active',1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
         if (!is_null($company_feed_card)) {
             $this->feed_card['company_card']['feedCard'] = $company_feed_card;
-            $this->feed_card['company_card']['meta'] = $company_feed_card->getMetaFor();
+            $meta = $company_feed_card->getMetaFor();
+            $meta["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$profile_feed_card["data_id"]);
+            $this->feed_card['company_card']['meta'] = $meta;
             $this->feed_card['company_card']['type'] = "feedCard";
             $this->feed_card_count = $this->feed_card_count + 1;
         }
@@ -89,14 +93,16 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
-        list($skip,$take) = Paginator::paginate($page, 13);
 
+        $profileId = $request->user()->profile->id;
+
+        list($skip,$take) = Paginator::paginate($page, 13);
         if ($skip == 0) {
-            $this->feed_card_computation();
+            $this->feed_card_computation($profileId);
             $take = $take - $this->feed_card_count;
         }
         
-        $profileId = $request->user()->profile->id;
+       
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
             ->where('report_content.profile_id', $profileId)
             ->pluck('channel_payloads.id')->toArray();

@@ -62,12 +62,22 @@ class FeedCardController extends Controller
      */
     public function show(Request $request, $id)
     {
+        $profile = $request->user()->profile;
+        $profile_id = $profile->id;
         $feed_card = $this->model->where('id',$id)->whereNull('deleted_at')->first();
         if(!$feed_card){
             return $this->sendError("Feed Card not found.");
         }
 
         $meta = $feed_card->getMetaFor();
+        if ($feed_card->data_type == "profile") {
+            $meta["isFollowing"] = \App\Profile::isFollowing((int)$profile_id, (int)$feed_card["data_id"]);
+        }
+
+        if ($feed_card->data_type == "company") {
+            $meta["isFollowing"] = \App\Company::checkFollowing((int)$profile_id, (int)$feed_card["data_id"]);
+        }
+
         $this->model = [
             'feedCard'=>$feed_card,
             'meta'=>$meta,
