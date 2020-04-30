@@ -33,7 +33,7 @@ class BatchController extends Controller
             'store',
             'update' // Could add bunch of more methods too
         ]]);
-
+        
     }
 
     /**

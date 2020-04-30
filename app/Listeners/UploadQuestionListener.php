@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Artisan;
 
 
-class UploadQuestionListener implements ShouldQueue
+class UploadQuestionListener
 {
     /**
      * Create the event listener.
