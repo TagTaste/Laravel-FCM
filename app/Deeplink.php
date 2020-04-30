@@ -155,6 +155,8 @@ class Deeplink
         $class = "\\App\\" . ucwords($modelName);
         if($modelName == 'product'||$modelName =='review')
             $class = "\\App\\" . "PublicReviewProduct";
+        if($modelName == 'feedCard')
+            $class = "\\App\\" . "FeedCard";
         return $class::find($id);
     }
 
@@ -178,6 +180,7 @@ class Deeplink
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;
                 case 'reviewCollection':     return env('APP_URL').'/collection/'.$modelId;
+                case 'feedCard':     return env('APP_URL').'/feed_card/'.$modelId;
             }
         }
     }
@@ -185,6 +188,8 @@ class Deeplink
     {
         if ($modelName =='reviewCollection') {
             return Deeplink::getReviewCollectionText($model);
+        } else if ( $modelName == 'feedCard')  {
+            return Deeplink::getFeedCardText($model);
         } else if ( $modelName == 'product' 
             || $modelName == 'profile' 
             || $modelName =='company'
@@ -198,10 +203,16 @@ class Deeplink
                 case 'company':     return Deeplink::getCompanyText($model);
                 case 'product':     return Deeplink::getProductText($model);
                 case 'polling':     return Deeplink::getPollingText($model);
+                case 'feedCard':     return Deeplink::getFeedCardText($model);
             }
         } else {
             return null;
         }
+    }
+
+    public static function getFeedCardText($model)
+    {
+        return strip_tags("Check out ".$model->title." on TagTaste! \r\n");
     }
 
     public static function getShoutoutText($model)
