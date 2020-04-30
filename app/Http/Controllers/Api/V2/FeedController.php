@@ -57,8 +57,8 @@ class FeedController extends Controller
     {
         if(($request->header('x-version') != null 
                 && $request->header('x-version') < 80) || 
-            ($request->header('x-ios-version') != null 
-                && version_compare("4.2.7", $request->header('x-ios-version'))))   {
+            ($request->header('x-version-ios') != null 
+                && version_compare("4.2.7", $request->header('x-version-ios'))))   {
                     $pollPayloadIds = $this->getNewVersionOfPollPayloads();
                     $this->modelNotIncluded = array_merge($this->modelNotIncluded,$pollPayloadIds);
             }
