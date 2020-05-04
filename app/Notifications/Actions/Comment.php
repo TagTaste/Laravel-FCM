@@ -35,7 +35,7 @@ class Comment extends Action
 
     public function toMail($notifiable)
     {
-        if(isset($this->allData['type']) && $this->allData['type'] != 'product'){
+ //       if(isset($this->allData['type']) && $this->allData['type'] != 'product'){
             $langKey = $this->data->action.':'.$this->modelName;
 
             // owner or subscriber
@@ -70,7 +70,7 @@ class Comment extends Action
                     $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
                 );
             }
-        }
+//        }
     }
 
     /**
