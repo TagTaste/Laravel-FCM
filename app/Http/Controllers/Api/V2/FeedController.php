@@ -40,7 +40,7 @@ class FeedController extends Controller
         if (!is_null($company_feed_card)) {
             $this->feed_card['company_card']['feedCard'] = $company_feed_card;
             $meta = $company_feed_card->getMetaFor();
-            $meta["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$profile_feed_card["data_id"]);
+            $meta["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$company_feed_card["data_id"]);
             $this->feed_card['company_card']['meta'] = $meta;
             $this->feed_card['company_card']['type'] = "feedCard";
             $this->feed_card_count = $this->feed_card_count + 1;
