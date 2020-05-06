@@ -89,8 +89,8 @@ class FeedCard extends Model
         $data['ogDescription'] = substr($this->description,0,155);
         $data['ogImage'] = $this->image_meta->original_photo;
         $data['cardType'] = 'summary_large_image';
-        $data['ogUrl'] = env('APP_URL').'/feed_card/'.$this->id;
-        $data['redirectUrl'] = env('APP_URL').'/feed_card/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/feed/card/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/feed/card/'.$this->id;
         if(empty($this->image_meta->original_photo)) {
             $data['cardType'] = 'summary';
         }
