@@ -13,6 +13,10 @@ class PreviewController extends Controller
     use GetTags, HasPreviewContent;
     private function getModel(&$modelName, &$id)
     {
+        if ($modelName == 'feed_card') {
+            $modelName = 'feedCard';
+        }
+
         if($modelName == 'product')
             $class = "\\App\\" . "PublicReviewProduct";
         else
@@ -34,6 +38,7 @@ class PreviewController extends Controller
             return $this->sendError("Nothing found for given Id.");
         }
         $data = $model->getPreviewContent();
+
         $deepLink = Deeplink::getShortLink($modelName, $modelId);
         $modelData = $model;
         if(isset($modelData->caption)) {
