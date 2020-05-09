@@ -212,7 +212,7 @@ class Deeplink
 
     public static function getFeedCardText($model)
     {
-        return strip_tags("Check out ".$model->title." on TagTaste! \r\n");
+        return strip_tags("Checkout ".$model->title." on TagTaste! \r\n");
     }
 
     public static function getShoutoutText($model)

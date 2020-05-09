@@ -83,9 +83,9 @@ class FeedCard extends Model
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $this->id;
-        $data['title'] = 'Check out '.$this->title.' on TagTaste';
+        $data['title'] = 'Checkout '.$this->title.' on TagTaste';
         $data['description'] = substr($this->description,0,155);
-        $data['ogTitle'] = 'Check out '.$this->title.' on TagTaste';
+        $data['ogTitle'] = 'Checkout '.$this->title.' on TagTaste';
         $data['ogDescription'] = substr($this->description,0,155);
         $data['ogImage'] = $this->image_meta->original_photo;
         $data['cardType'] = 'summary_large_image';
