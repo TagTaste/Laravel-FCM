@@ -512,7 +512,11 @@ class CollaborateController extends Controller
 
     public function globalQuestion(Request $request)
     {
-        $this->model = \DB::table('global_questions')->get();
+        if($request->track_consistency != null && $request->track_consistency == 1) {
+            $this->model = \DB::table('global_questions')->where('track_consistency',1)->get();
+        } else {
+            $this->model = \DB::table('global_questions')->get();
+        }
         return $this->sendResponse();
     }
 

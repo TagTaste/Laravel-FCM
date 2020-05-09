@@ -37,6 +37,7 @@ class InsertGlobalQuestion extends Command
      */
     public function handle()
     {
+        $track_consistency = 1;
        $headerInfo2 = [
 
 
@@ -1047,7 +1048,7 @@ class InsertGlobalQuestion extends Command
 }';
 
         $data = ['name'=>'Condiments_Asian_Sauce_Private_12th Feb 20','keywords'=>"Condiments_Asian_Sauce_Private_12th Feb 20",'description'=>null,
-            'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
+            'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true),'track_consistency'=>$track_consistency];
         \DB::table('global_questions')->insert($data);
 
 

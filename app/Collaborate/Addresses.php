@@ -9,11 +9,11 @@ class Addresses extends Model {
 
     protected $table = 'collaborate_addresses';
 
-    protected $fillable = ['collaborate_id','city_id','no_of_taster'];
+    protected $fillable = ['collaborate_id','city_id','no_of_taster','outlet_id','is_active'];
 
-    protected $visible = ['id','city','state','region','no_of_taster'];
+    protected $visible = ['id','city','state','region','no_of_taster','outlet','is_active','outlet_id'];
 
-    protected $appends = ['id','city','state','region'];
+    protected $appends = ['id','city','state','region','outlet'];
 
     protected $cities = null;
 
@@ -38,4 +38,9 @@ class Addresses extends Model {
         return isset($this->cities->region) ? $this->cities->region : null;
     }
 
+    public function getOutletAttribute()
+    {
+        $outlet = \DB::table('outlets')->where('id',$this->outlet_id)->first();
+        return isset($outlet) ? $outlet->name : null;
+    }
 }

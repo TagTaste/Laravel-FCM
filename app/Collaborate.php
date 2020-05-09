@@ -25,7 +25,7 @@ class Collaborate extends Model implements Feedable
         'created_at','updated_at','category_id','step','financial_min','financial_max',
         'type_id','images','collaborate_type','is_taster_residence','product_review_meta',
         'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
-        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta','document_required'];
+        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta','document_required','track_consistency'];
 
     protected $with = ['profile','company','fields','categories','addresses','collaborate_occupations',
         'collaborate_specializations','collaborate_allergens'];
@@ -43,7 +43,7 @@ class Collaborate extends Model implements Feedable
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
         'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
         'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
-        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required'];
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required','track_consistency'];
 
 
     protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner'];
@@ -559,7 +559,7 @@ class Collaborate extends Model implements Feedable
 
     public function addresses()
     {
-        return $this->hasMany('App\Collaborate\Addresses');
+        return $this->hasMany('App\Collaborate\Addresses')->where('is_active',1);
     }
 
     public function getProductReviewMetaAttribute()

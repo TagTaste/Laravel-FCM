@@ -385,7 +385,7 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        if(!$request->has('applier_address'))
+        if(!$request->has('applier_address') && !$collaborate->track_consistency)
         {
             return $this->sendError("Please select address.");
         }
@@ -746,6 +746,14 @@ class ApplicantController extends Controller
         }
 
         $this->model = \DB::table('profile_documents')->where('profile_id',$profileId)->update(['is_verified'=>1,'document_meta'=>json_encode($applicant->document_meta)]);
+        return $this->sendResponse();
+    }
+
+    public function getOutlets(Request $request, $collaborateId)
+    {
+        $this->model = \App\Collaborate\Address::where('collaborate_id',$collaborateId)
+                        ->where('is_active',1)
+                        ->get();
         return $this->sendResponse();
     }
 }
