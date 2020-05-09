@@ -29,8 +29,7 @@ class AlterComparisonReportDraftTable extends Migration
     {
         //
         Schema::table('comparison_report_draft', function (Blueprint $table) {
-            $table->dropColumn(['questionnaire_id']);
-            $table->dropColumn(['is_private_review']);
+            $table->dropColumn(['questionnaire_id','is_private_review']);
         });
 
     }
