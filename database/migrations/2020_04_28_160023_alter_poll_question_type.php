@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTablePollQuestionAddImage extends Migration
+class AlterPollQuestionType extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AlterTablePollQuestionAddImage extends Migration
     public function up()
     {
         Schema::table('poll_questions',   function( Blueprint $table ) {
-            $table->json('image_meta')->nullable();
+            $table->integer('type')->default(3);
         });
     }
 
@@ -26,7 +26,7 @@ class AlterTablePollQuestionAddImage extends Migration
     public function down()
     {
         Schema::table('poll_questions',   function( Blueprint $table ) {
-            $table->dropColumn(['image_meta']);
+            $table->dropColumn(['type']);
         });
     }
 }

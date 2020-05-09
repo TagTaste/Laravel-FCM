@@ -27,7 +27,7 @@ class PollingController extends Controller
      */
     protected $model;
     protected $now;
-
+    protected $type = 3;
     /**
      * Create instance of controller with Model
      *
@@ -67,11 +67,13 @@ class PollingController extends Controller
         // }
         $image = $request->question_image != null ? $request->question_image : null;
         $optionImages = $request->option_images != null ? $request->option_images : null;
+        $this->type = $optionImages != null ? 2 : ($image != null ? 1 : 3);
         if (!$request->has('options') || count($options) < 2 || count($options) > 4 || (isset($optionImages) && (count($options) != count($optionImages)))) {
             return $this->sendError("Please enter valid options");
         }
         $data['title'] = $request->input('title');
         $data['image_meta'] = $image;
+        $data['type'] = $this->type;
         $poll = Polling::create($data);
         $data = [];
         $i = 0 ;

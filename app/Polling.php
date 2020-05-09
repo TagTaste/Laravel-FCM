@@ -17,11 +17,11 @@ class Polling extends Model implements Feedable
 
     protected $table = 'poll_questions';
 
-    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image_meta'];
+    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image_meta','type'];
 
     protected $with = ['profile','company'];
 
-    protected $appends = ['options','owner','meta','type'];
+    protected $appends = ['options','owner','meta'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
         'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image_meta','type'];
 
@@ -201,7 +201,7 @@ class Polling extends Model implements Feedable
         $data['ogDescription'] = "by ".$this->owner->name;
         $images = $this->image_meta != null ? $this->image_meta : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
-        $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
         $data['ogUrl'] = env('APP_URL').'/polling/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/polling/'.$this->id;
 
@@ -238,8 +238,8 @@ class Polling extends Model implements Feedable
         return null;
     }
 
-    public function getTypeAttribute()
-    {
-        return $this->image_meta != null ? 1 : ($this->options[0]['image_meta'] != null ? 2 : 3);
-    }
+    // public function getTypeAttribute()
+    // {
+    //     return $this->image_meta != null ? 1 : ($this->options[0]['image_meta'] != null ? 2 : 3);
+    // }
 }
