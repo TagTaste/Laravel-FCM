@@ -97,6 +97,7 @@ class FeedController extends Controller
         $profileId = $request->user()->profile->id;
 
         list($skip,$take) = Paginator::paginate($page, 13);
+
         if ($skip == 0) {
             $this->feed_card_computation($profileId);
             $take = $take - $this->feed_card_count;
