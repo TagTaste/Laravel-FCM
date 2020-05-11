@@ -52,7 +52,7 @@ class FeedCard extends Model
      */
     public function getImageMetaAttribute()
     {   
-        if (is_null($this->image) && !is_null(json_decode($this->image))) {
+        if (!is_null($this->image) && !is_null(json_decode($this->image))) {
             return json_decode($this->image);
         } else {
             if ($this->data_type == "profile" && isset($this->profile->image_meta) && !is_null($this->profile->image_meta) && !is_null(json_decode($this->profile->image_meta))) {
