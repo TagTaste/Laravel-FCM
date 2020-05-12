@@ -11,9 +11,9 @@ class Addresses extends Model {
 
     protected $fillable = ['collaborate_id','city_id','no_of_taster','outlet_id','is_active'];
 
-    protected $visible = ['id','city','state','region','no_of_taster','outlet','is_active','outlet_id'];
+    protected $visible = ['address_id','id','city','state','region','no_of_taster','is_active'];
 
-    protected $appends = ['id','city','state','region','outlet'];
+    protected $appends = ['id','city','state','region'];
 
     protected $cities = null;
 

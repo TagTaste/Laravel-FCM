@@ -626,7 +626,7 @@ class CollaborateController extends Controller
                     
             }
             Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
-            $collaborate->addresses()->insert($cities);
+            Collaborate\Addresses::insert($cities);
         }
         else
         {
@@ -912,18 +912,30 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function getAddresses(Request $request,$profileId,$companyId,$collaborateId)
+    public function getCities(Request $request,$profileId,$companyId,$collaborateId)
     {
-        $this->model = \App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->get();
+        $this->model = \App\Collaborate\Addresses::select('city_id')
+                        ->groupBy('city_id')
+                        ->where('collaborate_id',$collaborateId)
+                        ->get();
+        return $this->sendResponse();
+    }
+    public function getOutlets(Request $request,$profileId,$companyId,$collaborateId,$cityId)
+    {
+        $this->model = \DB::table('collaborate_addresses')->select('collaborate_addresses.address_id','outlets.name','collaborate_addresses.is_active')
+                        ->where('collaborate_id',$collaborateId)
+                        ->join('outlets','outlets.id','=','collaborate_addresses.outlet_id')
+                        ->where('city_id',$cityId)
+                        ->get();
         return $this->sendResponse();
     }
 
-    public function outletStatus(Request $request,$profileId,$companyId,$collaborateId,$outletId)
-    {
+    public function outletStatus(Request $request,$profileId,$companyId,$collaborateId,$cityId,$addressId)
+    {   
         $status = $request->status != null ? $request->status : null;
         if($status != null) {
             $this->model = \DB::table('collaborate_addresses')
-                            ->where('outlet_id',$outletId)
+                            ->where('address_id',$addressId)
                             ->where('collaborate_id',$collaborateId)
                             ->update(['is_active'=>$status]);
             return $this->sendResponse();

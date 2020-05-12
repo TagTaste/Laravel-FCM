@@ -17,7 +17,7 @@ class AlterCollaborateAddressesAddOutlet extends Migration
             $table->integer('outlet_id')->unsigned()->nullable();
             $table->foreign('outlet_id')->references('id')->on('outlets');
             $table->boolean('is_active')->default(1);
-            $table->increments('id')->unsingned();
+            $table->increments('address_id')->unsingned();
         });
     }
 
@@ -30,7 +30,7 @@ class AlterCollaborateAddressesAddOutlet extends Migration
     {
         Schema::table('collaborate_addresses', function(Blueprint $table){
             $table->dropForeign(['outlet_id']);
-            $table->dropColumn(['outlet_id','is_active','id']);
+            $table->dropColumn(['outlet_id','is_active','address_id']);
         });
     }
 }

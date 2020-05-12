@@ -82,6 +82,7 @@ class InsertGlobalQuestion extends Command
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
+            "track_consistency":1,
             "option": [{
                     "value": "Frozen",
                     "is_intensity": 0
@@ -96,7 +97,8 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                     "value": "Room temperature",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "track_consistency":1
                 },
                 {
                     "value": "Warm",
@@ -310,6 +312,9 @@ class InsertGlobalQuestion extends Command
             "intensity_type": 2,
             "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
             "is_nested_question": 0,
+            "track_consistency":1,
+            "intensity_consistency": "weak",
+            "nested_option_consistency": 386,
             "is_mandatory": 1,
             "is_nested_option": 1,
             "nested_option_list": "AROMA",
@@ -367,10 +372,13 @@ class InsertGlobalQuestion extends Command
             "is_nested_option": 0,
             "is_mandatory": 1,
             "select_type": 2,
+            "track_consistency":1,
             "option": [{
                     "value": "Sweet",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "track_consistency":1,
+                    "intensity_consistency":"weak",
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
