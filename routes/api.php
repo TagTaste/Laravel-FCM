@@ -207,7 +207,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::post('collaborate/{collaborateId}/assignRole', 'CollaborateController@assignRole');
                     Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                     Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
-                    Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
+                    Route::get("collaborate/{id}/cities","collaborateController@getCities");
+                    Route::get("collaborate/{id}/cities/{cityId}/outlets","collaborateController@getOutlets");
+                    Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}","collaborateController@outletStatus");
+                    Route::patch("collaborate/{id}/close","CollaborateController@collaborateClose");
                     Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
@@ -421,6 +424,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             //});
 
             Route::post("showInterest","ApplicantController@store");
+            Route::get("cities/{cityId}/outlets","ApplicantController@getOutlets");
             Route::resource('collaborateApplicants','ApplicantController');//->middleware('permissionCollaborate');
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting

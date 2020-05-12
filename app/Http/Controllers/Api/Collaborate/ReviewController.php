@@ -33,6 +33,16 @@ class ReviewController extends Controller
         $answers = $request->input('answer');
         $loggedInProfileId = $request->user()->profile->id ;
         $batchId = $request->input('batch_id');
+        if(!$request->has('address_id') && 
+            \App\Collaborate::where('id',$collaborateId)->pluck('track_consistency')) {
+                return $this->sendError('Please send the respective outlet (address id) as query parameter');
+        } else if($request->has('address_id') && 
+                !\App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->where('address_id',$request->address_id)->exists()) {
+                    return $this->sendError('Invalid Address id');
+        } else {
+            $address_id = $request->address_id!= null ? $request->address_id : null;
+        }
+        
         if(!$request->has('batch_id'))
         {
             return $this->sendError("No prodcut id found");
@@ -81,7 +91,7 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
                         'collaborate_id'=>$collaborateId,'intensity'=>$intensity,'current_status'=>$currentStatus,'value_id'=>$valueId,
-                        'created_at'=>$this->now,'updated_at'=>$this->now, 'option_type'=>$optionType];
+                        'created_at'=>$this->now,'updated_at'=>$this->now, 'option_type'=>$optionType,'address_map_id'=>$address_id];
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
@@ -89,7 +99,7 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
                         'collaborate_id'=>$collaborateId,'intensity'=>null,'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'option_type'=>0];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'option_type'=>0,'address_map_id'=>$address_id];
                 }
             }
         }

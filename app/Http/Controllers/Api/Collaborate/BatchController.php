@@ -388,8 +388,31 @@ class BatchController extends Controller
                 $reports['subtitle'] = $data->subtitle;
                 $reports['is_nested_question'] = $data->is_nested_question;
                 $reports['question'] = $data->questions ;
+                $trackOptions = [];
+                 if(isset($data->questions->track_consistency) && $data->questions->track_consistency) {
+                    if(isset($data->questions->nested_option_list)) {
+                        $s_ids = explode(',',$data->questions->nested_option_consistency);
+                        foreach($s_ids as $s_id) {
+                            $opt = \DB::table('collaborate_tasting_nested_options')
+                                            ->where('sequence_id',$s_id)
+                                            ->where('question_id',$data->id)
+                                            ->first();
+                            $opt->intensity_consistency = $data->questions->intensity_consistency;
+                            $opt->intensity_value = $data->questions->intensity_value;
+                            $opt->intensity_type = $data->questions->intensity_type;
+                            $trackOptions[] = $opt; 
+                        }
+                    } else {
+                        foreach($data->questions->option as $option) {
+                            if($option->track_consistency) {
+                                $opt = $option;
+                                $trackOptions[] = $opt; 
+                            }
+                        }
+                    }
+                 }
                 if($data->questions->is_nested_question == 1)
-                {
+                {  
                     $subAnswers = [];
                     foreach ($data->questions->questions as $item)
                     {
@@ -509,12 +532,20 @@ class BatchController extends Controller
                                 {
 
                                     $count = 0;
+                                    $intensityConsistency = 0;
+                                    foreach($trackOptions as $key => $trackOption) {
+                                        if($answer->leaf_id == $trackOption->id && $x == ucwords($trackOption->intensity_consistency)) {
+                                            $answer->track_consistency = 1;
+                                            $intensityConsistency = 1;
+                                            unset($trackOptions[$key]);
+                                        }
+                                    }
                                     foreach ($answerIntensity as $y)
                                     {
                                         if($this->checkValue($x,$y))
                                             $count++;
                                     }
-                                    $value[] = ['value'=>$x,'count'=>$count];
+                                    $value[] = ['value'=>$x,'count'=>$count, 'intensity_consistency'=>$intensityConsistency];
                                 }
                             }
                             else if($data->questions->intensity_type == 1)
@@ -530,12 +561,27 @@ class BatchController extends Controller
                                 foreach ($questionIntensity as $x)
                                 {
                                     $count = 0;
+                                    $intensityConsistency = 0;
+                                    $intensityConsistency = 0;
+                                            foreach($trackOptions as $key => $trackOption) {
+                                                if($answer->leaf_id == $trackOption->id && $x == ucwords($trackOption->intensity_consistency)) {
+                                                    $answer->track_consistency = 1;
+                                                    $intensityConsistency = 1;
+                                                    unset($trackOptions[$key]);
+                                                }
+                                            }
                                     foreach ($answerIntensity as $y)
                                     {
                                         if($y == $x)
                                             $count++;
                                     }
-                                    $value[] = ['value'=>$x,'count'=>$count];
+                                    $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency];
+                                }
+                            }
+                            foreach($trackOptions as $key => $trackOption) {
+                                if($answer->leaf_id == $trackOption->id ) {
+                                    $answer->track_consistency = 1;
+                                    unset($trackOptions[$key]);
                                 }
                             }
                             $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
@@ -543,13 +589,13 @@ class BatchController extends Controller
                             $answer->intensity_type = $data->questions->intensity_type;
                         }
                         else
-                        {
+                        {  
                             foreach ($options as $option)
                             {
                                 if($option->id == $answer->leaf_id)
                                 {
                                     if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 2)
-                                    {
+                                    {   
                                         $answerIntensity = $answer->intensity;
                                         $answerIntensity = explode(",",$answerIntensity);
                                         $questionIntensity = $option->intensity_value;
@@ -557,12 +603,21 @@ class BatchController extends Controller
                                         foreach ($questionIntensity as $x)
                                         {
                                             $count = 0;
+                                            $intensityConsistency = 0;
+                                            foreach($trackOptions as $key => $trackOption) {
+                                                if($answer->leaf_id == $trackOption->id && $x == ucwords($trackOption->intensity_consistency)) {
+                                                    $answer->track_consistency = 1;
+                                                    $intensityConsistency = 1;
+                                                    unset($trackOptions[$key]);
+                                                }
+                                            }
                                             foreach ($answerIntensity as $y)
                                             {
+                                                
                                                 if($this->checkValue($x,$y))
                                                     $count++;
                                             }
-                                            $value[] = ['value'=>$x,'count'=>$count];
+                                            $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency];
                                         }
                                     }
                                     else if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 1)
@@ -578,12 +633,26 @@ class BatchController extends Controller
                                         foreach ($questionIntensity as $x)
                                         {
                                             $count = 0;
+                                            $intensityConsistency = 0;
+                                            foreach($trackOptions as $key => $trackOption) {
+                                                if($answer->leaf_id == $trackOption->id && $answerIntensity == $trackOption->intensity_consistency) {
+                                                    $answer->track_consistency = 1;
+                                                    $intensityConsistency = 1;
+                                                    unset($trackOptions[$key]);
+                                                }
+                                            }
                                             foreach ($answerIntensity as $y)
                                             {
                                                 if($y == $x)
                                                     $count++;
                                             }
-                                            $value[] = ['value'=>$x,'count'=>$count];
+                                            $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency];
+                                        }
+                                    }
+                                    foreach($trackOptions as $key => $trackOption) {
+                                        if($answer->leaf_id == $trackOption->id ) {
+                                            $answer->track_consistency = 1;
+                                            unset($trackOptions[$key]);
                                         }
                                     }
                                     $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
@@ -594,6 +663,8 @@ class BatchController extends Controller
                         }
                         $answer->intensity = $value;
                     }
+                    $answers = $this->addConsistencyAnswers($trackOptions,$answers,isset($data->questions->nested_option_list));
+                    //dd($answers);
                     $reports['answer'] = $answers;
 
                 }
@@ -632,7 +703,31 @@ class BatchController extends Controller
 
         return $this->sendResponse();
     }
-
+    protected function addConsistencyAnswers($trackOptions,$answers,$isNested) {
+        foreach($trackOptions as $trackOption) {
+            $mod['leaf_id'] = $trackOption->id;
+                $mod['total']=0;
+                $mod['value']=$trackOption->value;
+                $mod['intensity'] = [];
+                $mod['option_type'] = $trackOption->option_type;
+                $mod['is_intensity'] = $trackOption->is_intensity;
+                $mod['intensity_value'] = $trackOption->intensity_value;
+                $mod['intensity_type'] = $trackOption->intensity_type;
+                $mod['track_consistency'] = 1;
+            if($mod['intensity_value'] != null){
+                //dd(ucwords($trackOption->intensity_consistency));
+                $int = explode(',',$mod['intensity_value']);
+                foreach($int as $i) {
+                    $intensityConsistency = $i==ucwords($trackOption->intensity_consistency) ? 1 : 0;
+                    $mod['intensity'][] = ['value'=>$i,'count'=>0,'intensity_consitency'=>$intensityConsistency];
+                }
+            }
+            if($isNested) 
+                 $mod = (object)$mod;
+            $answers[] = $mod;
+        }
+        return $answers;
+    }
     public function filterReports($filters,$collaborateId, $batchId, $headerId,$withoutNest)
     {
         $profileIds = $this->getFilterProfileIds($filters,$collaborateId);
