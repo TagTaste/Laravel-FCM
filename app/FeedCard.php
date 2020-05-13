@@ -12,9 +12,9 @@ class FeedCard extends Model
 
     protected $table = 'feed_card';
 
-    protected $fillable = ['data_type','data_id','title','subtitle','name','image','description','icon','is_active','profile', 'company','created_at','updated_at','deleted_at'];
+    protected $fillable = ['data_type','data_id','title','subtitle','name','image','description','tagline','icon','is_active','profile', 'company','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','title','subtitle','name','image_meta','description','icon','profile', 'company'];
+    protected $visible = ['id','title','subtitle','name','image_meta','description','tagline','icon','profile', 'company'];
 
     protected $appends = ['profile', 'company', 'image_meta'];
 
