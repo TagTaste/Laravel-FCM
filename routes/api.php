@@ -207,9 +207,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::post('collaborate/{collaborateId}/assignRole', 'CollaborateController@assignRole');
                     Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                     Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
-                    Route::get("collaborate/{id}/cities","collaborateController@getCities");
-                    Route::get("collaborate/{id}/cities/{cityId}/outlets","collaborateController@getOutlets");
-                    Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}","collaborateController@outletStatus");
+                    Route::get("collaborate/{id}/cities","CollaborateController@getCities");
+                    Route::get("collaborate/{id}/cities/{cityId}/outlets","CollaborateController@getOutlets");
+                    Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}","CollaborateController@outletStatus");
                     Route::patch("collaborate/{id}/close","CollaborateController@collaborateClose");
                     Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
