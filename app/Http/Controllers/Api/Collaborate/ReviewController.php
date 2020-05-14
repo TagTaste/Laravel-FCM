@@ -34,8 +34,8 @@ class ReviewController extends Controller
         $loggedInProfileId = $request->user()->profile->id ;
         $batchId = $request->input('batch_id');
         if(!$request->has('address_id') && 
-            \App\Collaborate::where('id',$collaborateId)->pluck('track_consistency')) {
-                return $this->sendError('Please send the respective outlet (address id) as query parameter');
+        \App\Collaborate::where('id',$collaborateId)->first()->track_consistency){
+        return $this->sendError('Please send the respective outlet (address id) as query parameter');
         } else if($request->has('address_id') && 
                 !\App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->where('address_id',$request->address_id)->exists()) {
                     return $this->sendError('Invalid Address id');
