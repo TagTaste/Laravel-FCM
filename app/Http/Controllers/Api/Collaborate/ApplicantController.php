@@ -117,7 +117,7 @@ class ApplicantController extends Controller
 
         $isInvited = 0;
         $now = Carbon::now()->toDateTimeString();
-        if (!$request->has('applier_address') && !$collaborate->track_consistency) {
+        if (!$request->has('applier_address')){
             return $this->sendError("Please select address.");
         }
         // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
