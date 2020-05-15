@@ -1877,6 +1877,7 @@ class BatchController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \DB::table('collaborate_tasting_user_review')
             ->select('value','intensity',\DB::raw('count(*) as total'))
+            ->where('batch_id',$id)
             ->where('collaborate_id',$collaborateId)
             ->where('question_id',$questionId)
             ->where('option_type',1)
