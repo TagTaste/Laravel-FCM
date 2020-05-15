@@ -44,6 +44,7 @@ class InsertGlobalQuestion extends Command
 
         ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
 
+        ['header_name' => "Food Bill Shot", 'header_selection_type' => "3"],
 
         ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product and answer the questions outlined below."],'header_selection_type'=>"1"],
 
@@ -75,6 +76,18 @@ class InsertGlobalQuestion extends Command
         "select_type": 4
     }],
     
+    "Food Bill Shot": [{
+        "title": "Take a selfie with the product",
+        "subtitle": "Reviews look more authentic when you post them with a photograph.",
+        "select_type": 6
+    },
+    {
+        "title": "Take a selfie with the bill",
+        "subtitle": "Reviews look more authentic when you post them with a photograph.",
+        "select_type": 6
+    }
+    ],
+
     "APPEARANCE": [{
             "title": "What is the serving temperature of the product?",
             "subtitle": "You may also touch the product to assess the serving temperature.",
