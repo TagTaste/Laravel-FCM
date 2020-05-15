@@ -559,7 +559,20 @@ class Collaborate extends Model implements Feedable
 
     public function getAddressesAttribute()
     {
-        return  \App\Collaborate\Addresses::select('city_id')->groupBy('city_id')->where('is_active',1)->where('collaborate_id',$this->id)->distinct()->get();
+        
+        $cities = \App\Collaborate\Addresses::select('city_id')->groupBy('city_id')->where('collaborate_id',$this->id)->distinct()->get();
+                $mod = [];
+                foreach($cities as $city) {
+                        $modl['id'] = $city->id;
+                        $modl['city'] =$city->city;
+                        $modl['outlets'] = \DB::table('outlets')->join('collaborate_addresses','outlets.id','=','collaborate_addresses.outlet_id')
+                                                //->where('is_active',1)
+                                                ->where('city_id',$city->id)
+                                                ->where('collaborate_id',$this->id)
+                                                ->select('outlets.id','outlets.name','collaborate_addresses.is_active')->get();
+                        $mod[] = $modl;
+                }
+                return $mod;
     }
 
     public function getProductReviewMetaAttribute()
