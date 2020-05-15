@@ -610,20 +610,31 @@ class CollaborateController extends Controller
             {
                 if( isset($address['outlets']) && count($address['outlets'])>0 ) {
                     foreach($address['outlets'] as $outlet) {
+                        if(!isset($outlet['id'])) {
+                            $outletId = \App\Outlet::create(['name'=>$outlet['name']])->id;
+                            $isActive = 1;
+                        }else{
+                            \App\Outlet::where('id',$outlet['id'])->update(['name'=>$outlet['name']]);
+                            $outletId = $outlet['id'];
+                            if(isset($outlet['is_active'])) {
+                                $isActive = (int)$outlet['is_active'];
+                            } else {
+                                $isActive = 1;
+                            }
+                        }
                         $cities[] = [
                                 'collaborate_id'=>$collaborateId,
                                 'city_id'=>$address['id'],
                                 'no_of_taster'=>$address['no_of_taster'], 
-                                'outlet_id'=>\App\Outlet::create(['name'=>$outlet])->id
+                                'outlet_id'=>$outletId,
+                                'is_active'=>$isActive
                             ];    
                     }
                 } else if (!isset($address['outlets']) && $collaborate->track_consistency) {
-                    dd("not here");
                     return $this->sendError('Outlet cannot be null for consistency tracking collaboration');
                 } else {
                     $cities[] = ['collaborate_id'=>$collaborateId,'city_id'=>$address['id'],'no_of_taster'=>$address['no_of_taster']];
                 }
-                    
             }
             Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
             Collaborate\Addresses::insert($cities);
