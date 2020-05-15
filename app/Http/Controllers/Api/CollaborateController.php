@@ -44,7 +44,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-        $collaborations = $this->model->where('state',Collaborate::$state[0]);
+        $collaborations = $this->model->where('step',3)->where('state',Collaborate::$state[0]);
         if($request->q == null) {
         $collaborations = $collaborations->orderBy("created_at","desc"); 
         $isSearched = 0;
