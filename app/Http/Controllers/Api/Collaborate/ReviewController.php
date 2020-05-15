@@ -93,6 +93,14 @@ class ReviewController extends Controller
                         'collaborate_id'=>$collaborateId,'intensity'=>$intensity,'current_status'=>$currentStatus,'value_id'=>$valueId,
                         'created_at'=>$this->now,'updated_at'=>$this->now, 'option_type'=>$optionType,'address_map_id'=>$address_id];
                 }
+                if(isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta']))
+                {
+                    $data[] = ['key'=>"authenticity_check",'value'=>"meta",'leaf_id'=>0,
+                        'question_id'=>$questionId,'tasting_header_id'=>$headerId,
+                        'profile_id'=>$loggedInProfileId, 'batch_id'=>$batchId,'collaborate_id'=>$collaborateId,'intensity'=>null,
+                        'current_status'=>$currentStatus,'value_id'=>null,
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'meta'=>$answer['meta'],'option_type'=>0,'address_map_id'=>$address_id];
+                }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
                     $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
