@@ -119,7 +119,9 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 'intensity_color'=>isset($v['intensity_color'])?$v['intensity_color'] : null,
                                 'option_type'=> isset($v['option_type'])?$v['option_type']:0,
                                 'track_consistency'=> isset($v['track_consistency']) ? $v['track_consistency'] : null,
-                                'intensity_consistency'=>isset($v['track_consistency']) && isset($v['intensity_consistency']) ? $v['intensity_consistency'] : null
+                                'intensity_consistency'=>isset($v['track_consistency']) && isset($v['intensity_consistency']) ? $v['intensity_consistency'] : null,
+                                'benchmark_score'=>isset($v['track_consistency']) ? $v['benchmark_score'] : null,
+                                'benchmark_intensity'=> isset($v['intensity_consistency'])?$v['benchmark_intensity']:null
                             ];
                             $i++;
                         }
@@ -176,8 +178,10 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 $nestedOptionIntensity = isset($nested->is_intensity) ? $nested->is_intensity : $nestedOption->is_intensity;
                                 $imageUrl = isset($nested->image_url)?$nested->image_url:null;
                                 $optionType = $nested->option_type;
-                                if(isset($nestedOption->track_consistency) && $nested->s_no == $nestedOption->nested_option_consistency)
+                                if(isset($nestedOption->track_consistency) && $nested->s_no == $nestedOption->nested_option_consistency){
                                     $trackConsistency = 1;
+                                    //$benchmarkConsistency = $nestedOption->benchmark_consistency;
+                                }
                                 else 
                                     $trackConsistency = 0;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,

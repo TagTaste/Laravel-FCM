@@ -95,6 +95,12 @@ class ReviewController extends Controller
                 }
                 if(isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta']))
                 {
+                    if($answer['track_consistency']) {
+                        \DB::table('collaborate_batches_assign')
+                                ->where('batch_id',$batchId)
+                                ->where('profile_id',$loggedInProfileId)
+                                ->update(['bill_verified'=>1]);
+                    }
                     $data[] = ['key'=>"authenticity_check",'value'=>"meta",'leaf_id'=>0,
                         'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'batch_id'=>$batchId,'collaborate_id'=>$collaborateId,'intensity'=>null,

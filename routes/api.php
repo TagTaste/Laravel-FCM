@@ -386,6 +386,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function() {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
                 Route::get("userBatches",'BatchController@userBatches');
+                Route::put("batches/{batchId}/foodBillStatus",'BatchController@foodBillStatus');
                 Route::post("beginTasting",'BatchController@beginTasting');//required
                 Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
                 Route::post('removeFromBatch','BatchController@removeFromBatch');//required
