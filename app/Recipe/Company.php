@@ -11,7 +11,7 @@ class Company extends BaseCompany
     protected $fillable = [];
 
     protected $visible = ['id', 'name', 'about', 'logo', 'hero_image', 'tagline', 'created_at', 'speciality', 'profileId', 'handle', 'city',
-        'isFollowing','style_logo', 'style_hero_image', 'company_id','is_admin','is_premium','logo_meta', 'hero_image_meta'];
+        'isFollowing','style_logo', 'style_hero_image', 'company_id','is_admin','is_premium','logo_meta', 'hero_image_meta','verified'];
 
     protected $appends = ['profileId','is_admin','isFollowing','company_id'];
 
