@@ -79,7 +79,8 @@ class InsertGlobalQuestion extends Command
     "Food Bill Shot": [{
         "title": "Take a selfie with the product",
         "subtitle": "Reviews look more authentic when you post them with a photograph.",
-        "select_type": 6
+        "select_type": 6,
+        "track_consistency":1
     },
     {
         "title": "Take a selfie with the bill",

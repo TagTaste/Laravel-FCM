@@ -617,7 +617,7 @@ class CollaborateController extends Controller
                             \App\Outlet::where('id',$outlet['id'])->update(['name'=>$outlet['name']]);
                             $outletId = $outlet['id'];
                             if(isset($outlet['is_active'])) {
-                                $isActive = (int)$outlet['is_active'];
+                                $isActive = $outlet['is_active'];
                             } else {
                                 $isActive = 1;
                             }
