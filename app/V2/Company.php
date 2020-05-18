@@ -10,7 +10,7 @@ use App\Subscriber;
 
 class Company extends BaseCompany
 {
-    protected $visible = ['id','profile_id','name','logo_meta'];
+    protected $visible = ['id','profile_id','name','logo_meta','verified'];
 
     protected $appends = ['profile_id'];
 
