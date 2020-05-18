@@ -55,7 +55,8 @@ class Company extends Model
         'style_logo',
         'style_hero_image',
         'logo_meta',
-        'hero_image_meta'
+        'hero_image_meta',
+        'verified'
     ];
     
     protected $visible = [
@@ -200,6 +201,16 @@ class Company extends Model
             'logo_meta' => $this->logo_meta,
             'verified' => $this->verified
         ];
+
+        foreach ($data as $key => $value) {
+            if (in_array($key, ["verified"])) {
+                continue;
+            }
+
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+
         if (isset($data['id'])) {
             $data['company_id'] = (int)$data['id'];
         }
