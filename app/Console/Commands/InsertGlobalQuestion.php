@@ -112,7 +112,8 @@ class InsertGlobalQuestion extends Command
                 {
                     "value": "Room temperature",
                     "is_intensity": 0,
-                    "track_consistency":1
+                    "track_consistency":1,
+                    "benchmark_score":75
                 },
                 {
                     "value": "Warm",
@@ -328,7 +329,9 @@ class InsertGlobalQuestion extends Command
             "is_nested_question": 0,
             "track_consistency":1,
             "intensity_consistency": "weak",
+            "benchmark_intensity":5.2,
             "nested_option_consistency": 386,
+            "benchmark_score":68,
             "is_mandatory": 1,
             "is_nested_option": 1,
             "nested_option_list": "AROMA",
@@ -393,6 +396,8 @@ class InsertGlobalQuestion extends Command
                     "intensity_type": 2,
                     "track_consistency":1,
                     "intensity_consistency":"weak",
+                    "benchmark_intensity":4.0,
+                    "benchmark_score":50,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {

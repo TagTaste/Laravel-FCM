@@ -549,10 +549,13 @@ class BatchController extends Controller
 
                                     $count = 0;
                                     $intensityConsistency = 0;
+                                    $benchmarkIntensity = null;
                                     foreach($trackOptions as $key => $trackOption) {
                                         if($answer->leaf_id == $trackOption->id && $x == ucwords($trackOption->intensity_consistency)) {
                                             $answer->track_consistency = 1;
+                                            $answer->benchmark_score = $trackOption->benchmark_score; 
                                             $intensityConsistency = 1;
+                                            $benchmarkIntensity = $trackOption->benchmark_intensity;
                                             unset($trackOptions[$key]);
                                         }
                                     }
@@ -561,7 +564,7 @@ class BatchController extends Controller
                                         if($this->checkValue($x,$y))
                                             $count++;
                                     }
-                                    $value[] = ['value'=>$x,'count'=>$count, 'intensity_consistency'=>$intensityConsistency];
+                                    $value[] = ['value'=>$x,'count'=>$count, 'intensity_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                                 }
                             }
                             else if($data->questions->intensity_type == 1)
@@ -578,10 +581,12 @@ class BatchController extends Controller
                                 {
                                     $count = 0;
                                     $intensityConsistency = 0;
-                                    $intensityConsistency = 0;
+                                    $benchmarkIntensity = null;
                                             foreach($trackOptions as $key => $trackOption) {
                                                 if($answer->leaf_id == $trackOption->id && $x == ucwords($trackOption->intensity_consistency)) {
                                                     $answer->track_consistency = 1;
+                                                    $answer->benchmark_score = $trackOption->benchmark_score;
+                                                    $benchmarkIntensity = $trackOption->benchmark_intensity; 
                                                     $intensityConsistency = 1;
                                                     unset($trackOptions[$key]);
                                                 }
@@ -591,12 +596,13 @@ class BatchController extends Controller
                                         if($y == $x)
                                             $count++;
                                     }
-                                    $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency];
+                                    $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                                 }
                             }
                             foreach($trackOptions as $key => $trackOption) {
                                 if($answer->leaf_id == $trackOption->id ) {
                                     $answer->track_consistency = 1;
+                                    $answer->benchmark_score = $trackOption->benchmark_score;
                                     unset($trackOptions[$key]);
                                 }
                             }
@@ -620,10 +626,13 @@ class BatchController extends Controller
                                         {
                                             $count = 0;
                                             $intensityConsistency = 0;
+                                            $benchmarkIntensity = null;
                                             foreach($trackOptions as $key => $trackOption) {
                                                 if($answer->leaf_id == $trackOption->id && $x == ucwords($trackOption->intensity_consistency)) {
                                                     $answer->track_consistency = 1;
                                                     $intensityConsistency = 1;
+                                                    $benchmarkIntensity = $trackOption->benchmark_intensity;
+                                                    $answer->benchmark_score = $trackOption->benchmark_score;
                                                     unset($trackOptions[$key]);
                                                 }
                                             }
@@ -633,7 +642,7 @@ class BatchController extends Controller
                                                 if($this->checkValue($x,$y))
                                                     $count++;
                                             }
-                                            $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency];
+                                            $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                                         }
                                     }
                                     else if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 1)
@@ -650,10 +659,13 @@ class BatchController extends Controller
                                         {
                                             $count = 0;
                                             $intensityConsistency = 0;
+                                            $benchmarkIntensity = null;
                                             foreach($trackOptions as $key => $trackOption) {
                                                 if($answer->leaf_id == $trackOption->id && $answerIntensity == $trackOption->intensity_consistency) {
                                                     $answer->track_consistency = 1;
                                                     $intensityConsistency = 1;
+                                                    $benchmarkIntensity = $trackOption->benchmark_intensity;
+                                                    $answer->benchmark_score = $trackOption->benchmark_score;
                                                     unset($trackOptions[$key]);
                                                 }
                                             }
@@ -662,12 +674,13 @@ class BatchController extends Controller
                                                 if($y == $x)
                                                     $count++;
                                             }
-                                            $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency];
+                                            $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                                         }
                                     }
                                     foreach($trackOptions as $key => $trackOption) {
                                         if($answer->leaf_id == $trackOption->id ) {
                                             $answer->track_consistency = 1;
+                                            $answer->benchmark_score = $trackOption->benchmark_score;
                                             unset($trackOptions[$key]);
                                         }
                                     }
