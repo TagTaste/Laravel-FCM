@@ -1766,7 +1766,7 @@ class BatchController extends Controller
         $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->orderBy('id')->get();
 
         $model = [];
-        $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
+        $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->whereNotIn('header_selection_type',[0,3])->get();
         foreach ($headers as $header)
         {
             $data = [];
