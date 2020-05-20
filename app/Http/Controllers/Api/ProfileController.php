@@ -1167,6 +1167,9 @@ class ProfileController extends Controller
             $this->model = \App\Profile::where('id',$id)->first();
             if ($this->model) {
                 $this->model->update($data);
+                $this->model->addToCache();
+                $this->model->addToCacheV2();
+                $this->model->addToGraph();
                 return $this->sendResponse();
             } else {
                 return $this->sendError("Invalid profile id.");
