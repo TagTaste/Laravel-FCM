@@ -15,6 +15,7 @@ class AlterCollabBatchAssignAddBillVerified extends Migration
     {
         Schema::table('collaborate_batches_assign', function(Blueprint $table){
             $table->integer('bill_verified')->nullable();
+            $table->integer('address_id')->nullable();
         });
     }
 
@@ -26,7 +27,7 @@ class AlterCollabBatchAssignAddBillVerified extends Migration
     public function down()
     {
         Schema::table('collaborate_batches_assign', function(Blueprint $table){
-            $table->dropColumn(['bill_verified']);
+            $table->dropColumn(['bill_verified','address_id']);
         });
     }
 }
