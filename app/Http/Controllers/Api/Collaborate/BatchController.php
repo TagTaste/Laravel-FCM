@@ -313,7 +313,13 @@ class BatchController extends Controller
             foreach ($batchInfos as &$batchInfo) {
                 $batchInfo = json_decode($batchInfo);
                 $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
-                $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                $batch = \DB::table('collaborate_batches_assign')
+                                ->where('batch_id',$batchInfo->id)
+                                ->where('profile_id',$loggedInProfileId)
+                                ->first();
+                    $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                    $batchInfo->address_id = $batch->address_id;
+                    $batchInfo->bill_verified = $batch->bill_verified;
                 if($batchInfo->current_status != 0)
                 {
                     $batches[] = $batchInfo;
