@@ -323,6 +323,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         //get premium companies
         Route::get("profile/premium","ProfileController@getPremium");
+        Route::post('profile/{id}/update-details',['uses'=>'ProfileController@updateDetails']);
+        Route::post('company/{id}/update-details',['uses'=>'CompanyController@updateDetails']);
 
         //jobs
         Route::get("jobs/all","JobController@all");
