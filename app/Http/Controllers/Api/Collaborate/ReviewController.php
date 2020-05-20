@@ -139,6 +139,12 @@ class ReviewController extends Controller
                 }
 
             }
+            if( $latestCurrentStatus == 1){
+                \DB::table('collaborate_batches_assign')
+                ->where('batch_id',$batchId)
+                ->where('profile_id',$loggedInProfileId)
+                ->update(['address_id'=>$address_id]);
+            }
             \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
         }
         return $this->sendResponse();

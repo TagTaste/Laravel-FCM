@@ -105,7 +105,9 @@ class BatchController extends Controller
                                 ->where('collaborate_tasting_user_review.batch_id',$id)
                                 ->first();
                             $profile['foodBillShot'] = $foodBillShot != null ? json_decode($foodBillShot->meta) : null;
-                                $profile['bill_verified'] = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->where('profile_id', $profile['profile']['id'])->first()->bill_verified;
+                                $batch = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->where('profile_id', $profile['profile']['id'])->first();
+                                $profile['bill_verified'] = $batch->bill_verified;
+                                $profile['address_id'] = $batch->address_id;
             }
             $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
