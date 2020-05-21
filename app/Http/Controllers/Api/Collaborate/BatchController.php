@@ -92,9 +92,11 @@ class BatchController extends Controller
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('created_at','desc')->get()->pluck('profile_id');
         $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->orderBy('created_at','desc')->get();
         $profiles = $profiles->toArray();
+        $this->model = [];
         foreach ($profiles as &$profile)
         {
             if(Collaborate::where('id',$collaborateId)->first()->track_consistency) {
+                $this->model['track_consistency'] = 1;
                 $foodBillShot = \DB::table('collaborate_tasting_header')
                                 ->where('collaborate_tasting_header.collaborate_id',$collaborateId)
                                 ->where('header_selection_type',3)
@@ -104,7 +106,11 @@ class BatchController extends Controller
                                 ->where('collaborate_tasting_user_review.profile_id',$profile['profile']['id'])
                                 ->where('collaborate_tasting_user_review.batch_id',$id)
                                 ->get();
-                            $profile['foodBillShot'] = $foodBillShot != null ? json_decode($foodBillShot->pluck(json_decode('meta'))->toArray()) : null;
+                                $foodShots = $foodBillShot != null ? $foodBillShot->pluck('meta')->toArray() : null;
+                                foreach($foodShots as &$foodShot) {
+                                    $foodShot = json_decode($foodShot);
+                                }
+                                $profile['foodBillShot'] = $foodShots;
                                 $batch = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->where('profile_id', $profile['profile']['id'])->first();
                                 $profile['bill_verified'] = $batch->bill_verified;
                                 $profile['address_id'] = $batch->address_id;
@@ -112,7 +118,6 @@ class BatchController extends Controller
             $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
-        $this->model = [];
         $this->model['applicants'] = $profiles;
         $this->model['batch'] = Collaborate\Batches::where('id',$id)->first();
         return $this->sendResponse();
