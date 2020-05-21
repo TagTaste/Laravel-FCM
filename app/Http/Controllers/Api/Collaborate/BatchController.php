@@ -33,7 +33,7 @@ class BatchController extends Controller
             'store',
             'update' // Could add bunch of more methods too
         ]]);
-
+        
     }
 
     /**
@@ -424,6 +424,8 @@ class BatchController extends Controller
                             $opt->intensity_consistency = $data->questions->intensity_consistency;
                             $opt->intensity_value = $data->questions->intensity_value;
                             $opt->intensity_type = $data->questions->intensity_type;
+				$opt->benchmark_intensity = $data->questions->benchmark_intensity;
+			$opt->benchmark_score = $data->questions->benchmark_score;
                             $trackOptions[] = $opt; 
                         }
                     } else {
@@ -687,7 +689,7 @@ class BatchController extends Controller
                                     }
                                     foreach($trackOptions as $key => $trackOption) {
                                         if($answer->leaf_id == $trackOption->id ) {
-                                            $answer->track_consistency = 1;
+					   $answer->track_consistency = 1;
                                             $answer->benchmark_score = $trackOption->benchmark_score;
                                             unset($trackOptions[$key]);
                                         }
@@ -751,12 +753,14 @@ class BatchController extends Controller
                 $mod['intensity_value'] = $trackOption->intensity_value;
                 $mod['intensity_type'] = $trackOption->intensity_type;
                 $mod['track_consistency'] = 1;
+		$mod['benchmark_score'] = $trackOption->benchmark_score;
             if($mod['intensity_value'] != null){
                 //dd(ucwords($trackOption->intensity_consistency));
                 $int = explode(',',$mod['intensity_value']);
                 foreach($int as $i) {
                     $intensityConsistency = $i==ucwords($trackOption->intensity_consistency) ? 1 : 0;
-                    $mod['intensity'][] = ['value'=>$i,'count'=>0,'intensity_consitency'=>$intensityConsistency];
+			$benchmarkIntensity = $i==ucwords($trackOption->intensity_consistency) ? $trackOption->benchmark_intensity : null;
+                    $mod['intensity'][] = ['value'=>$i,'count'=>0,'intensity_consitency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                 }
             }
             if($isNested) 
@@ -1914,6 +1918,7 @@ class BatchController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \DB::table('collaborate_tasting_user_review')
             ->select('value','intensity',\DB::raw('count(*) as total'))
+            ->where('batch_id',$id)
             ->where('collaborate_id',$collaborateId)
             ->where('question_id',$questionId)
             ->where('option_type',1)
