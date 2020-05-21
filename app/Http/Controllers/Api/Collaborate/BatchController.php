@@ -760,7 +760,7 @@ class BatchController extends Controller
                 foreach($int as $i) {
                     $intensityConsistency = $i==ucwords($trackOption->intensity_consistency) ? 1 : 0;
 			$benchmarkIntensity = $i==ucwords($trackOption->intensity_consistency) ? $trackOption->benchmark_intensity : null;
-                    $mod['intensity'][] = ['value'=>$i,'count'=>0,'intensity_consitency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
+                    $mod['intensity'][] = ['value'=>$i,'count'=>0,'track_consitency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                 }
             }
             if($isNested) 
