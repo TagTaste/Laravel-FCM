@@ -574,7 +574,7 @@ class BatchController extends Controller
                                         if($this->checkValue($x,$y))
                                             $count++;
                                     }
-                                    $value[] = ['value'=>$x,'count'=>$count, 'intensity_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
+                                    $value[] = ['value'=>$x,'count'=>$count, 'track_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                                 }
                             }
                             else if($data->questions->intensity_type == 1)
@@ -606,7 +606,7 @@ class BatchController extends Controller
                                         if($y == $x)
                                             $count++;
                                     }
-                                    $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
+                                    $value[] = ['value'=>$x,'count'=>$count,'track_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                                 }
                             }
                             foreach($trackOptions as $key => $trackOption) {
@@ -652,7 +652,7 @@ class BatchController extends Controller
                                                 if($this->checkValue($x,$y))
                                                     $count++;
                                             }
-                                            $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
+                                            $value[] = ['value'=>$x,'count'=>$count,'track_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                                         }
                                     }
                                     else if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 1)
@@ -684,7 +684,7 @@ class BatchController extends Controller
                                                 if($y == $x)
                                                     $count++;
                                             }
-                                            $value[] = ['value'=>$x,'count'=>$count,'intensity_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
+                                            $value[] = ['value'=>$x,'count'=>$count,'track_consistency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                                         }
                                     }
                                     foreach($trackOptions as $key => $trackOption) {
