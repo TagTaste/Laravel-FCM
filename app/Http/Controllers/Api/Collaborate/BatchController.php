@@ -104,7 +104,11 @@ class BatchController extends Controller
                                 ->where('collaborate_tasting_user_review.profile_id',$profile['profile']['id'])
                                 ->where('collaborate_tasting_user_review.batch_id',$id)
                                 ->get();
-                            $profile['foodBillShot'] = $foodBillShot != null ? json_decode($foodBillShot->pluck(json_decode('meta'))->toArray()) : null;
+                                $foodShots = $foodBillShot != null ? $foodBillShot->pluck('meta')->toArray() : null;
+                                foreach($foodShots as &$foodShot) {
+                                    $foodShot = json_decode($foodShot);
+                                }
+                                $profile['foodBillShot'] = $foodShots;
                                 $batch = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->where('profile_id', $profile['profile']['id'])->first();
                                 $profile['bill_verified'] = $batch->bill_verified;
                                 $profile['address_id'] = $batch->address_id;
