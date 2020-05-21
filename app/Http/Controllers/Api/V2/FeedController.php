@@ -98,11 +98,12 @@ class FeedController extends Controller
 
         list($skip,$take) = Paginator::paginate($page, 13);
 
+        $this->feed_card_computation($profileId);
         if ($skip == 0) {
-            $this->feed_card_computation($profileId);
             $take = $take - $this->feed_card_count;
+        } else {
+            $skip = $skip - $this->feed_card_count;
         }
-        
        
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
             ->where('report_content.profile_id', $profileId)
