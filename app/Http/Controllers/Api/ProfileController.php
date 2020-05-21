@@ -1148,4 +1148,32 @@ class ProfileController extends Controller
         }
         return json_encode($data);
     }
+
+    public function updateDetails(Request $request, $id)
+    {
+        $data = $request->only(["verified","is_tasting_expert"]);
+
+        foreach ($data as $key => $value) {
+            if (is_null($value)) {
+                unset($data[$key]);
+            } else {
+                $data[$key] = (int)$value;
+            }
+        }
+        
+        if (is_null($data) || empty($data)) {
+            return $this->sendError("Please provide valid params such as 'verified','is_tasting_expert'");
+        } else {
+            $this->model = \App\Profile::where('id',$id)->first();
+            if ($this->model) {
+                $this->model->update($data);
+                $this->model->addToCache();
+                $this->model->addToCacheV2();
+                $this->model->addToGraph();
+                return $this->sendResponse();
+            } else {
+                return $this->sendError("Invalid profile id.");
+            }
+        }
+    }
 }

@@ -202,7 +202,8 @@ class Photo extends Model implements Feedable
                 'id' => $owner->id,
                 'profile_id' => $owner->profileId,
                 'name' => $owner->name,
-                'logo_meta' => $owner->logo_meta
+                'logo_meta' => $owner->logo_meta,
+                'verified' => $owner->verified
             ];
             return $data;
         } else {
@@ -215,13 +216,18 @@ class Photo extends Model implements Feedable
                     'handle',
                     'tagline',
                     'image_meta',
-                    'isFollowing'
+                    'isFollowing',
+                    'verified',
+                    'is_tasting_expert'
                 ];
                 $data = array_intersect_key(
                     $owner->toArray(), 
                     array_flip($keyRequired)
                 );
                 foreach ($data as $key => $value) {
+                    if (in_array($key, ["verified", "is_tasting_expert"])) {
+                        continue;
+                    }
                     if (is_null($value) || $value == '')
                         unset($data[$key]);
                 }

@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Comment extends Model
 {
     use SoftDeletes, GetTags;
-    protected $visible = ['name','content','id','profile_id','profileImage','created_at','has_tags','handle','profile_image_meta'];
-    protected $appends = ['name','profileImage','profile_id','count','handle','profile_image_meta'];
+    protected $visible = ['name','content','id','profile_id','profileImage','created_at','has_tags','handle','profile_image_meta','verified','is_tasting_expert'];
+    protected $appends = ['name','profileImage','profile_id','count','handle','profile_image_meta','verified','is_tasting_expert'];
 
     public function review()
     {
@@ -86,6 +86,16 @@ class Comment extends Model
             $value = ['text'=>$value,'profiles'=>$profiles];
         }
         return $value;
+    }
+
+    public function getVerifiedAttribute()
+    {
+        return $this->user->profile->verified;
+    }
+
+    public function getIsTastingExpertAttribute()
+    {
+        return $this->user->profile->is_tasting_expert;
     }
 
 }

@@ -163,6 +163,10 @@ class Profile extends Model
         $data = \App\V2\Profile::find($this->id)->toArray();
         
         foreach ($data as $key => $value) {
+            if (in_array($key, ["verified", "is_tasting_expert"])) {
+                continue;
+            }
+
             if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
