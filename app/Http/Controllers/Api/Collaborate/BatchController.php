@@ -92,9 +92,11 @@ class BatchController extends Controller
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('created_at','desc')->get()->pluck('profile_id');
         $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->orderBy('created_at','desc')->get();
         $profiles = $profiles->toArray();
+        $this->model = [];
         foreach ($profiles as &$profile)
         {
             if(Collaborate::where('id',$collaborateId)->first()->track_consistency) {
+                $this->model['track_consistency'] = 1;
                 $foodBillShot = \DB::table('collaborate_tasting_header')
                                 ->where('collaborate_tasting_header.collaborate_id',$collaborateId)
                                 ->where('header_selection_type',3)
@@ -116,7 +118,6 @@ class BatchController extends Controller
             $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
-        $this->model = [];
         $this->model['applicants'] = $profiles;
         $this->model['batch'] = Collaborate\Batches::where('id',$id)->first();
         return $this->sendResponse();

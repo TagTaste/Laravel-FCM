@@ -764,4 +764,10 @@ class ApplicantController extends Controller
                         ->get();
         return $this->sendResponse();
     }
+    public function getCities(Request $request, $collaborateId)
+    {
+        $cities = \App\Collaborate\Addresses::select('city_id')->groupBy('city_id')->where('collaborate_id',$collaborateId)->where('is_active',1)->distinct()->get();
+                $this->model =  $cities;
+                return $this->sendResponse();
+    }
 }
