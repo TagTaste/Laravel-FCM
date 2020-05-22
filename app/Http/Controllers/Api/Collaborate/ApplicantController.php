@@ -767,7 +767,18 @@ class ApplicantController extends Controller
     public function getCities(Request $request, $collaborateId)
     {
         $cities = \App\Collaborate\Addresses::select('city_id')->groupBy('city_id')->where('collaborate_id',$collaborateId)->where('is_active',1)->distinct()->get();
-                $this->model =  $cities;
+        $mod = [];
+        foreach($cities as $city) {
+                $modl['id'] = $city->id;
+                $modl['city'] =$city->city;
+                $modl['outlets'] = \DB::table('outlets')->join('collaborate_addresses','outlets.id','=','collaborate_addresses.outlet_id')
+                                    ->where('is_active',1)
+                                        ->where('city_id',$city->id)
+                                        ->where('collaborate_id',$collaborateId)
+                                        ->select('outlets.id','outlets.name','collaborate_addresses.is_active','collaborate_addresses.address_id')->get();
+                $mod[] = $modl;
+        }
+                $this->model = $mod;
                 return $this->sendResponse();
     }
 }
