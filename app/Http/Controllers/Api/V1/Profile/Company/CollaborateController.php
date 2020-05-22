@@ -783,7 +783,10 @@ class CollaborateController extends Controller
                 'profiles.handle',
                 'profiles.city',
                 'profiles.tagline',
-                'profiles.image_meta')
+                'profiles.image_meta',
+                'profiles.verified',
+                'profiles.is_tasting_expert'
+            )
         ->orderBy('collaborate_role.id','asc')
         ->get();
         $roles = $roles->groupBy("role");
