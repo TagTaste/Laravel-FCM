@@ -341,7 +341,7 @@ class ExploreController extends Controller
      public static function exploreTopTaster($profileId, $skip, $limit) 
     {
         $profile_data = [];
-        $first_day_of_month = date('Y-m-d 00:00:00', strtotime('first day of last month'));
+        $first_day_of_month = date('Y-m-d 00:00:00', strtotime('first day of -3 months'));
         $last_day_of_month = date('Y-m-d 00:00:00', strtotime('last day of last month'));
         
         $reviewers = DB::select(
