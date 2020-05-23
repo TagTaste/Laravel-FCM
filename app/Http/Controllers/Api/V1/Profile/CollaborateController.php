@@ -457,4 +457,34 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    public function allSubmissions(Request $request, $profileId, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = $this->model->where('id',$collaborateId)->where('profile_id',$profileId)->whereNull('company_id')->where('state','!=',Collaborate::$state[1])->where('is_contest',1)->exists();
+        if(!$checkAdmin){
+            return $this->sendError("Invalid Admin.");
+        }
+
+        $profiles = \DB::table("collaborate_applicants")->where("collaborate_id",$collaborateId)->whereNull('rejected_at')->get();
+        foreach($profiles as &$profile) {
+            $submissions = \App\Collaborate\Applicant::getSubmissions($profile->profile_id, $collaborateId);
+            $profile->submissions = $submissions;
+        }
+        $this->model = $profiles;
+        return $this->sendResponse();
+    }
+    public function updateSubmissionStatus(Request $request, $profileId, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = $this->model->where('id',$collaborateId)->where('profile_id',$profileId)->whereNull('company_id')->where('state','!=',Collaborate::$state[1])->where('is_contest',1)->exists();
+        if(!$checkAdmin){
+            return $this->sendError("Invalid Admin.");
+        }
+        $submissions = $request->submissions;
+        foreach($submissions as $submission) {
+            $this->model = \DB::table('submissions')->where('id',$submission['id'])
+                    ->update(['status'=>$submission['status']]);
+        }
+        return $this->sendResponse();
+    }
 }
