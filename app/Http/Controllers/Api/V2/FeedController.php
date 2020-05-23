@@ -916,16 +916,24 @@ class FeedController extends Controller
             "type" => "suggestion",
         );
 
+        $food_panda_product = \DB::table('public_product_user_review')
+            ->where('source',2)
+            ->distinct('product_id')
+            ->pluck('product_id')
+            ->toArray();
+
         $applied_product_review = \DB::table('public_product_user_review')
             ->where('profile_id',$profileId)
             ->where('current_status',2)
             ->distinct('product_id')
             ->pluck('product_id')
             ->toArray();
+        
+        $rejected_product_list = array_unique(array_merge($food_panda_product, $applied_product_review));
 
         $public_review_product = PublicReviewProduct::where('is_active',1)
             ->where('is_suggestion_allowed',1)
-            ->whereNotIn('id',$applied_product_review)
+            ->whereNotIn('id',$rejected_product_list )
             ->whereNull('deleted_at')
             ->inRandomOrder()
             ->get(['id', 'global_question_id'])
