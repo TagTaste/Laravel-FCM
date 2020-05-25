@@ -465,7 +465,7 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid Admin.");
         }
 
-        $profiles = \DB::table("collaborate_applicants")->where("collaborate_id",$collaborateId)->whereNull('rejected_at')->get();
+         $profiles = \DB::table("collaborate_applicants")->where("collaborate_id",$collaborateId)->whereNull('rejected_at')->get();
         foreach($profiles as &$profile) {
             $submissions = \App\Collaborate\Applicant::getSubmissions($profile->profile_id, $collaborateId);
             $profile->submissions = $submissions;

@@ -201,6 +201,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
                 Route::resource("photos","PhotoController");
                 Route::get("collaborate/draft","CollaborateController@draft");
+                Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
+                Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                 Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                 Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
                 Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
@@ -214,6 +216,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}","CollaborateController@outletStatus");
                     Route::patch("collaborate/{id}/close","CollaborateController@collaborateClose");
                     Route::get("collaborate/draft","CollaborateController@draft");
+                    Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
+                    Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
                     Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');

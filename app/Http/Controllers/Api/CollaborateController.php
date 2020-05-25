@@ -609,7 +609,7 @@ class CollaborateController extends Controller
             $this->model = $request->user()->profile->getProfileCompletionAttribute();
         else if($type == 'collaborate')
             $this->model = $request->user()->profile->getProfileCompletionAttribute();
-        else 
+        else
             $this->model = [];
         return $this->sendResponse();
     }
@@ -785,7 +785,6 @@ class CollaborateController extends Controller
                     return null;
                 }
     }
-
     public function contestSubmission(Request $request, $collaborateId)
     {
         $loggedInProfileId = $request->user()->profile->id;
@@ -811,7 +810,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function getSubmissions(Request $request, $collaborateId) 
+     public function getSubmissions(Request $request, $collaborateId) 
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
@@ -820,7 +819,7 @@ class CollaborateController extends Controller
             return $this->sendError('Invalid Collaboration Id given or applicant');
         }
 
-        $this->model = Applicant::getSubmissions($loggedInProfileId, $collaborateId);
+         $this->model = Applicant::getSubmissions($loggedInProfileId, $collaborateId);
         return $this->sendResponse();
     }
 }

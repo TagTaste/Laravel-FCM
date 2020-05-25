@@ -63,4 +63,26 @@ class Applicant extends Model {
        ->count();
     }
 
+    //0 no action taken
+    //1 accepted
+    //2 rejected
+    public static function getSubmissions($profileId, $collaborateId)
+    {
+        return \DB::table('collaborate_applicants')->where('profile_id',$profileId)
+        ->where('collaborate_id',$collaborateId)
+        ->join('contest_submissions','collaborate_applicants.id','=','contest_submissions.applicant_id')
+        ->join('submissions','submissions.id','=','contest_submissions.submission_id')
+        ->where('submissions.status','!=',2)
+        ->select('submissions.*')
+        ->get();
+    }
+    public static function countSubmissions($profileId,$collaborateId)
+    {
+       return \DB::table('collaborate_applicants')->where('profile_id',$profileId)
+       ->where('collaborate_id',$collaborateId)
+       ->join('contest_submissions','collaborate_applicants.id','=','contest_submissions.applicant_id')
+       ->join('submissions','submissions.id','=','contest_submissions.submission_id')
+       ->where('submissions.status','!=',2)
+       ->count();
+    }
 }
