@@ -961,4 +961,37 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid status type");
         }
     }
+
+    public function allSubmissions(Request $request, $profileId, $companyId,$collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        $collab = $this->model->where('state','!=',Collaborate::$state[1])->where('id',$collaborateId)->exists();
+        if(!$checkAdmin || !$collab){
+            return $this->sendError("Invalid Adminor collaboration.");
+        }
+
+         $profiles = \DB::table("collaborate_applicants")->where("collaborate_id",$collaborateId)->whereNull('rejected_at')->get();
+        foreach($profiles as &$profile) {
+            $submissions = \App\Collaborate\Applicant::getSubmissions($profile->profile_id, $collaborateId);
+            $profile->submissions = $submissions;
+        }
+        $this->model = $profiles;
+        return $this->sendResponse();
+    }
+    public function updateSubmissionStatus(Request $request, $profileId, $companyId, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        $collab = $this->model->where('state','!=',Collaborate::$state[1])->where('id',$collaborateId)->exists();
+        if(!$checkAdmin || !$collab){
+            return $this->sendError("Invalid Adminor collaboration.");
+        }
+        $submissions = $request->submissions;
+        foreach($submissions as $submission) {
+            $this->model = \DB::table('submissions')->where('id',$submission['id'])
+                    ->update(['status'=>$submission['status']]);
+        }
+        return $this->sendResponse();
+    }
 }

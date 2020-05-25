@@ -201,6 +201,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
                 Route::resource("photos","PhotoController");
                 Route::get("collaborate/draft","CollaborateController@draft");
+                Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
+                Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                 Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                 Route::resource("collaborate","CollaborateController");
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
@@ -212,6 +214,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}","CollaborateController@outletStatus");
                     Route::patch("collaborate/{id}/close","CollaborateController@collaborateClose");
                     Route::get("collaborate/draft","CollaborateController@draft");
+                    Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
+                    Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
                     Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
@@ -357,6 +361,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("collaborate/{id}/applications","CollaborateController@applications");
         Route::get("collaborate/{id}/archived","CollaborateController@archived");
         Route::post("collaborate/{id}/apply","CollaborateController@apply");
+        Route::post("collaborate/{id}/contestSubmission","CollaborateController@contestSubmission");
+        Route::get("collaborate/{id}/getSubmissions","CollaborateController@getSubmissions");
         Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
         Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
         Route::post("uploadBrandLogo","CollaborateController@uploadBrandLogo");

@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\SearchClient;
+use App\Collaborate\Applicant;
 
 class CollaborateController extends Controller
 {
@@ -606,6 +607,8 @@ class CollaborateController extends Controller
     {
         if($type == 'product-review')
             $this->model = $request->user()->profile->getProfileCompletionAttribute();
+        else if($type == 'collaborate')
+            $this->model = $request->user()->profile->getProfileCompletionAttribute();
         else
             $this->model = [];
         return $this->sendResponse();
@@ -781,5 +784,42 @@ class CollaborateController extends Controller
                 } else {
                     return null;
                 }
+    }
+    public function contestSubmission(Request $request, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
+        $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
+        if(!$collaborate->exists() && !$applicant->exists()) {
+            return $this->sendError('Invalid Collaboration Id given or applicant');
+        }
+        $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$collaborateId);
+        $clientSubmissionCount += count($request->file);
+        if($clientSubmissionCount > $collaborate->first()->max_submissions){
+            return $this->sendError('Invalid Number Of Submissions');
+         }
+         $applicantId = $applicant->first()->id;
+         $mapTable = [];
+         foreach($request->file as $url) {
+             $submissionId = \DB::table('submissions')
+                                ->insertGetId(['file_address'=>$url]);
+            $mapTable[] = ['applicant_id'=>$applicantId,'submission_id'=>$submissionId];
+         }
+         $this->model = \DB::table('contest_submissions')
+                            ->insert($mapTable);
+        return $this->sendResponse();
+    }
+
+     public function getSubmissions(Request $request, $collaborateId) 
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
+        $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
+        if(!$collaborate->exists() && !$applicant->exists()) {
+            return $this->sendError('Invalid Collaboration Id given or applicant');
+        }
+
+         $this->model = Applicant::getSubmissions($loggedInProfileId, $collaborateId);
+        return $this->sendResponse();
     }
 }
