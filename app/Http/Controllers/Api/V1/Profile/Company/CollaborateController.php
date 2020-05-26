@@ -601,6 +601,13 @@ class CollaborateController extends Controller
 
     protected function storeCity($addresses, $collaborateId, $collaborate)
     {
+        $isReviewed = \DB::table('collaborate_tasting_user_review')
+                        ->where('collaborate_id',$collaborateId)
+                        ->exists();
+        if($isReviewed)
+        {
+            return $this->sendError('Could not update outlets now as tasting has already begin');
+        }
         Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
         $cities = [];
         if(count($addresses) > 0 && !empty($addresses) && is_array($addresses))

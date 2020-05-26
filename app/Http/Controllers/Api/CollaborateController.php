@@ -522,7 +522,7 @@ class CollaborateController extends Controller
         if($request->track_consistency != null && $request->track_consistency == 1) {
             $this->model = \DB::table('global_questions')->where('track_consistency',1)->get();
         } else {
-            $this->model = \DB::table('global_questions')->get();
+            $this->model = \DB::table('global_questions')->where('track_consistency',0)->get();
         }
         return $this->sendResponse();
     }
