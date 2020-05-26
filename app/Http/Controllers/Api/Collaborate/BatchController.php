@@ -1786,8 +1786,8 @@ class BatchController extends Controller
             ->where('collaborate_id',$collaborateId)
             ->where('question_id',$questionId)
             ->where('option_type',1)
-            ->where('current_status',3);
-            //->groupBy('intensity','value');
+            ->where('current_status',3)
+            ->groupBy('intensity','value');
         $data["values"] = $this->model
             ->skip($skip)
             ->take($take)
