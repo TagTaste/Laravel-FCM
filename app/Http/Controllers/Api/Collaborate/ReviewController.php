@@ -95,7 +95,7 @@ class ReviewController extends Controller
                 }
                 if(isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta']))
                 {
-                    if($answer['track_consistency']) {
+                    if(isset($answer['track_consistency']) && $answer['track_consistency']) {
                         \DB::table('collaborate_batches_assign')
                                 ->where('batch_id',$batchId)
                                 ->where('profile_id',$loggedInProfileId)
