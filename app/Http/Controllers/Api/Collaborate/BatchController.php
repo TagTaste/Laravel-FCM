@@ -1781,13 +1781,13 @@ class BatchController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \DB::table('collaborate_tasting_user_review')
-            ->select('value','intensity',\DB::raw('count(*) as total'))
+            ->select('value','intensity')
             ->where('batch_id',$id)
             ->where('collaborate_id',$collaborateId)
             ->where('question_id',$questionId)
             ->where('option_type',1)
-            ->where('current_status',3)
-            ->groupBy('intensity','value');
+            ->where('current_status',3);
+            //->groupBy('intensity','value');
         $data["values"] = $this->model
             ->skip($skip)
             ->take($take)
