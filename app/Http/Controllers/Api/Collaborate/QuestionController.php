@@ -294,7 +294,7 @@ class QuestionController extends Controller
                 }
                 if($item->key == 'authenticity_check') {
                     $question = \DB::table('collaborate_tasting_questions')
-                                    ->where('question_id',$questionId)
+                                    ->where('id',$questionId)
                                     ->first();
                     $meta = $item->meta;
                     $track_consistency = $question->track_consistency;
