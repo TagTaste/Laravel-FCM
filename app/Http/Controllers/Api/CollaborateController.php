@@ -139,18 +139,6 @@ class CollaborateController extends Controller
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
         }
-        
-        if($collaborate->is_contest) {
-            $loggedInProfileId = $request->user()->profile->id;
-            $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
-            $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$collaborateId);
-            $clientSubmissionCount += count($request->file);
-                if($clientSubmissionCount > $collaborate->first()->max_submissions){
-                    return $this->sendError('Invalid Number Of Submissions');
-                }
-            $applicantId = $applicant->first()->id;
-            $this->storeContestDocs($request->file, $applicantId);
-        }
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
@@ -234,6 +222,17 @@ class CollaborateController extends Controller
             }
         }
         Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
+        if($collaborate->is_contest) {
+            $loggedInProfileId = $request->user()->profile->id;
+            $applicant = Applicant::where('collaborate_id',$id)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
+            $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$id);
+            $clientSubmissionCount += count($request->file);
+                if($clientSubmissionCount > $collaborate->first()->max_submissions){
+                    return $this->sendError('Invalid Number Of Submissions');
+                }
+            $applicantId = $applicant->first()->id;
+            $this->storeContestDocs($request->file, $applicantId);
+        }
         return $this->sendResponse();
     }
     
@@ -361,10 +360,25 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
         $this->model['count'] = $applications->count();
+        // if($collaborate->is_contest) {
+        //     $applications = $this->addSubmissions($applications->skip($skip)->take($take)->get());
+        // }
         $this->model['application'] = $applications->skip($skip)->take($take)->get();
         return $this->sendResponse();
 
     }
+
+    // protected function addSubmissions($applications)
+    // {
+    //     $applicants = [];
+    //     foreach($applications as $application) {
+    //         $applicant = $application;
+    //         $submissions = \App\Collaborate\Applicant::getSubmissions($application['profile_id'],$application['collaborate_id']);
+    //         $applicant['submissions'] = $submissions;
+    //         $applicants[] = $applicant;
+    //     }
+    //     return $applicants;
+    // }
 
     public function archived(Request $request, $id)
     {
@@ -792,7 +806,7 @@ class CollaborateController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
         $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
-        if(!$collaborate->exists() && !$applicant->exists()) {
+        if(!$collaborate->exists() || !$applicant->exists()) {
             return $this->sendError('Invalid Collaboration Id given or applicant');
         }
         $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$collaborateId);
@@ -824,7 +838,7 @@ class CollaborateController extends Controller
         $mapTable = [];
          foreach($files as $url) {
              $submissionId = \DB::table('submissions')
-                                ->insertGetId(['file_address'=>$url]);
+                                ->insertGetId(['file_address'=>$url['url'],'original_name'=>$url['original_name']]);
             $mapTable[] = ['applicant_id'=>$applicantId,'submission_id'=>$submissionId];
          }
          return \DB::table('contest_submissions')

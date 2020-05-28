@@ -16,6 +16,7 @@ class CreateTableSubmissions extends Migration
         Schema::create('submissions', function(Blueprint $table){
             $table->increments('id');
             $table->string('file_address');
+            $table->string('original_name');
             $table->integer('status')->default(0);
         });
     }

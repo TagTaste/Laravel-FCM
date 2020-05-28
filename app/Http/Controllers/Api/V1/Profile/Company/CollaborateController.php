@@ -897,7 +897,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function allSubmissions(Request $request, $profileId, $companyId,$collaborateId)
+    public function allSubmissions(Request $request, $profileId, $companyId,$collaborateId, $userId)
     {
         $loggedInProfileId = $request->user()->profile->id;
         $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
@@ -906,12 +906,8 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid Adminor collaboration.");
         }
 
-        $profiles = \DB::table("collaborate_applicants")->where("collaborate_id",$collaborateId)->whereNull('rejected_at')->get();
-        foreach($profiles as &$profile) {
-            $submissions = \App\Collaborate\Applicant::getSubmissions($profile->profile_id, $collaborateId);
-            $profile->submissions = $submissions;
-        }
-        $this->model = $profiles;
+            $submissions = \App\Collaborate\Applicant::getSubmissions($userId, $collaborateId);
+        $this->model = $submissions;
         return $this->sendResponse();
     }
     public function updateSubmissionStatus(Request $request, $profileId, $companyId, $collaborateId)
