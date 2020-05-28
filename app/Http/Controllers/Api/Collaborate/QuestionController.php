@@ -282,6 +282,8 @@ class QuestionController extends Controller
             $data = [];
             $comment = null;
             $questionId = null;
+            $meta = null;
+            $track_consistency = 0;
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
@@ -290,11 +292,23 @@ class QuestionController extends Controller
                     $comment = $item->value;
                     continue;
                 }
+                if($item->key == 'authenticity_check') {
+                    $question = \DB::table('collaborate_tasting_questions')
+                                    ->where('id',$questionId)
+                                    ->first();
+                    $meta = $item->meta;
+                    $track_consistency = $question->track_consistency;
+                }
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
             }
             if(!is_null($comment) && !empty($comment))
             {
                 $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
+            }
+
+            if(!is_null($meta) && !empty($meta))
+            {
+                $answers[] = ['question_id'=>$questionId,'meta'=>json_decode($meta),'track_consistency'=>$track_consistency];
             }
             else
             {

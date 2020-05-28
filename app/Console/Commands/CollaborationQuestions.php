@@ -73,6 +73,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 $isNested = isset($item['is_nested_question']) && $item['is_nested_question'] == 1 ? 1 : 0;
                 $isMandatory = isset($item['is_mandatory']) && $item['is_mandatory'] == 1 ? 1 : 0;
                 $option = isset($item['option']) ? $item['option'] : null;
+                $trackConsistency = isset($item['track_consistency']) ? $item['track_consistency'] : 0;
                 if(isset($item['select_type']) && !is_null($option))
                 {
                     $value = $item['option'];
@@ -116,7 +117,11 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                 'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
                                 'intensity_color'=>isset($v['intensity_color'])?$v['intensity_color'] : null,
-                                'option_type'=> isset($v['option_type'])?$v['option_type']:0
+                                'option_type'=> isset($v['option_type'])?$v['option_type']:0,
+                                'track_consistency'=> isset($v['track_consistency']) ? $v['track_consistency'] : null,
+                                'intensity_consistency'=>isset($v['track_consistency']) && isset($v['intensity_consistency']) ? $v['intensity_consistency'] : null,
+                                'benchmark_score'=>isset($v['track_consistency']) ? $v['benchmark_score'] : null,
+                                'benchmark_intensity'=> isset($v['intensity_consistency'])?$v['benchmark_intensity']:null
                             ];
                             $i++;
                         }
@@ -145,11 +150,12 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         $i++;
                     }
                 }
-                if(count($option))
+                if(count($option)) {
                     $item['option'] = $option;
+                }
                 unset($item['question']);
                 $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested_question'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>null,
-                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
+                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId,'track_consistency'=>$trackConsistency];
                 \Log::info("question ");
                 \Log::info($data);
                 $x = Collaborate\Questions::create($data);
@@ -172,8 +178,14 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 $nestedOptionIntensity = isset($nested->is_intensity) ? $nested->is_intensity : $nestedOption->is_intensity;
                                 $imageUrl = isset($nested->image_url)?$nested->image_url:null;
                                 $optionType = $nested->option_type;
+                                if(isset($nestedOption->track_consistency) && $nested->s_no == $nestedOption->nested_option_consistency){
+                                    $trackConsistency = 1;
+                                    //$benchmarkConsistency = $nestedOption->benchmark_consistency;
+                                }
+                                else 
+                                    $trackConsistency = 0;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
-                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity,'image_url'=>$imageUrl,'option_type'=>$optionType];
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity,'image_url'=>$imageUrl,'option_type'=>$optionType,'track_consistency'=>$trackConsistency];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
