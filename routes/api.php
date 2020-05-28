@@ -421,7 +421,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");//->middleware('permissionCollaborate');
             //});
 
-            Route::post("showInterest","ApplicantController@store");
+            Route::post("showInterest","ApplicantController@store")->middleware('iosCollaborate');
             Route::get("cities/{cityId}/outlets","ApplicantController@getOutlets");
             Route::get("cities","ApplicantController@getCities");
             Route::resource('collaborateApplicants','ApplicantController');//->middleware('permissionCollaborate');
