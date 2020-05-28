@@ -426,12 +426,14 @@ class BatchController extends Controller
                                             ->where('sequence_id',$s_id)
                                             ->where('question_id',$data->id)
                                             ->first();
-                            $opt->intensity_consistency = $data->questions->intensity_consistency;
-                            $opt->intensity_value = $data->questions->intensity_value;
-                            $opt->intensity_type = $data->questions->intensity_type;
-				$opt->benchmark_intensity = $data->questions->benchmark_intensity;
-			$opt->benchmark_score = $data->questions->benchmark_score;
-                            $trackOptions[] = $opt; 
+                                            if($opt != null) { 
+                                                $opt->intensity_consistency = $data->questions->intensity_consistency;
+                                   $opt->intensity_value = $data->questions->intensity_value;
+                                   $opt->intensity_type = $data->questions->intensity_type;
+                                       $opt->benchmark_intensity = $data->questions->benchmark_intensity;
+                               $opt->benchmark_score = $data->questions->benchmark_score;
+                                   $trackOptions[] = $opt;
+                                       }
                         }
                     } else {
                         foreach($data->questions->option as $option) {
