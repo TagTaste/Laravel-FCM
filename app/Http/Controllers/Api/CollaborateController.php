@@ -140,6 +140,17 @@ class CollaborateController extends Controller
             throw new \Exception("Invalid Collaboration project.");
         }
         
+        if($collaborate->is_contest) {
+            $loggedInProfileId = $request->user()->profile->id;
+            $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
+            $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$collaborateId);
+            $clientSubmissionCount += count($request->file);
+                if($clientSubmissionCount > $collaborate->first()->max_submissions){
+                    return $this->sendError('Invalid Number Of Submissions');
+                }
+            $applicantId = $applicant->first()->id;
+            $this->storeContestDocs($request->file, $applicantId);
+        }
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
@@ -790,14 +801,7 @@ class CollaborateController extends Controller
             return $this->sendError('Invalid Number Of Submissions');
          }
          $applicantId = $applicant->first()->id;
-         $mapTable = [];
-         foreach($request->file as $url) {
-             $submissionId = \DB::table('submissions')
-                                ->insertGetId(['file_address'=>$url]);
-            $mapTable[] = ['applicant_id'=>$applicantId,'submission_id'=>$submissionId];
-         }
-         $this->model = \DB::table('contest_submissions')
-                            ->insert($mapTable);
+         $this->model = $this->storeContestDocs($request->file, $applicantId);
         return $this->sendResponse();
     }
 
@@ -812,5 +816,28 @@ class CollaborateController extends Controller
 
         $this->model = Applicant::getSubmissions($loggedInProfileId, $collaborateId);
         return $this->sendResponse();
+    }
+
+    protected function storeContestDocs($files, $applicantId)
+    {
+        $this->removeRejectedDocs($applicantId);
+        $mapTable = [];
+         foreach($files as $url) {
+             $submissionId = \DB::table('submissions')
+                                ->insertGetId(['file_address'=>$url]);
+            $mapTable[] = ['applicant_id'=>$applicantId,'submission_id'=>$submissionId];
+         }
+         return \DB::table('contest_submissions')
+                            ->insert($mapTable);
+    }
+    protected function removeRejectedDocs($applicantId)
+    {
+        $query = 'DELETE contest_submissions,submissions 
+                    from contest_submissions 
+                    join submissions 
+                        on submissions.id = contest_submissions.submission_id 
+                    where submissions.status = 2 
+                        and applicant_id = '.$applicantId;
+        \DB::delete($query);
     }
 }
