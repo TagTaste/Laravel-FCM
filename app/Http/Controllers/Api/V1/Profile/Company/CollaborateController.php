@@ -606,7 +606,7 @@ class CollaborateController extends Controller
                         ->exists();
         if($isReviewed)
         {
-            return $this->sendError('Could not update outlets now as tasting has already begin');
+            return ;
         }
         Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
         $cities = [];
