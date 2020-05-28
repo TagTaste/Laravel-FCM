@@ -204,7 +204,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
                 Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                 Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
-                Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
+                Route::get('collaborate/{collaborateId}/allSubmissions/{userId}', 'CollaborateController@allSubmissions');
                 Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                 Route::resource("collaborate","CollaborateController");
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
@@ -221,7 +221,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
                     Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
-                    Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
+                    Route::get('collaborate/{collaborateId}/allSubmissions/{userId}', 'CollaborateController@allSubmissions');
                     Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                     Route::delete('collaborate/{collaborateId}/deleteRoles','CollaborateController@deleteRoles');
                     Route::get('collaborate/{collaborateId}/getRole','CollaborateController@getProfileRole'); 
@@ -723,6 +723,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         // Route::resource("certifications","CertificationController");
     
         Route::post("/uploadFiles","UploadFilesController@uploadFiles");
+        Route::post("/uploadContestFiles","UploadFilesController@uploadContestFiles");
 
         Route::post("/preview",function(Request $request){
             $url = $request->input('url');
