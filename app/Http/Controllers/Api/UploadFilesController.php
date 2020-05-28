@@ -145,7 +145,7 @@ class UploadFilesController extends Controller
                 $image_size = \Storage::disk('s3')->size($path);
                 $last_modified = \Storage::disk('s3')->lastModified($path);
                 $tempArray['url'] = $file_url;
-                $tempArray['original_name'] = $file->getClientOriginalName().".".$fileExt;
+                $tempArray['original_name'] = $file->getClientOriginalName();
                 $fileUrlArray[] = $tempArray;
             }
             $this->model = $fileUrlArray;
