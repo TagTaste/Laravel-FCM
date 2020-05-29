@@ -17,7 +17,7 @@ class CreateTableSubmissions extends Migration
             $table->increments('id');
             $table->string('file_address');
             $table->string('original_name');
-            $table->integer('status')->default(0);
+            $table->integer('status')->default(1);
         });
     }
 
