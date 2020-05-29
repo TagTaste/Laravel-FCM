@@ -34,7 +34,7 @@ class DocumentRejected extends Notification
         $this->view = 'emails.document-reject';
         $this->sub = "Re-submit Documents";
         $this->companyName = "";
-        $this->notification = "Documents you submitted to, do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";
+        $this->notification = "Documents you submitted, do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";
 
         if (isset($event->company['name'])) {
             $this->companyName = $event->company['name']; 
