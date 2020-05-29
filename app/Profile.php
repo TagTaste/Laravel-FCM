@@ -70,6 +70,8 @@ class Profile extends Model
     private $profileCompletionMandatoryFieldForCampusConnect = ['phone','verified_phone'];
     
     private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone','verified_phone'];
+    
+    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['verified_phone'];
 
     public static function boot()
     {
@@ -1178,6 +1180,7 @@ class Profile extends Model
                 $remaningOptionalItem = [];
                 $remaningAdditionalOptionalItem = [];
                 $profileCompletionMandatoryFieldForCollaborationApply = [];
+                $profileCompletionMandatoryFieldForCollaborationApplyV1 = []; 
                 $profileCompletionMandatoryFieldForCampusConnect = [];
                 $profileCompletionMandatoryFieldForGetProductSample = [];
                 $index = 0;
@@ -1230,6 +1233,14 @@ class Profile extends Model
                     }
                 }
 
+                foreach ($this->profileCompletionMandatoryFieldForCollaborationApplyV1 as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
+                    {
+                        $profileCompletionMandatoryFieldForCollaborationApplyV1[] = $item;
+                    }
+                }
+
                 foreach ($this->profileCompletionMandatoryFieldForCampusConnect as $item)
                 {
                     if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
@@ -1254,6 +1265,7 @@ class Profile extends Model
                     'optional_remaining_field' => $remaningOptionalItem,
                     'additional_optional_field' => $remaningAdditionalOptionalItem,
                     'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply,
+                    'mandatory_field_for_collaboration_apply_v1' => $profileCompletionMandatoryFieldForCollaborationApplyV1,
                     'mandatory_field_for_campus_connect' => $profileCompletionMandatoryFieldForCampusConnect,
                     'mandatory_field_for_get_product_sample' => $profileCompletionMandatoryFieldForGetProductSample
                 ];
