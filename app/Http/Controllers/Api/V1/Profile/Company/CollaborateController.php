@@ -937,6 +937,6 @@ class CollaborateController extends Controller
                         ->pluck('collaborate_applicants.profile_id');
         $collaborate = \App\Collaborate::where('id',$collaborateId)->first();
         $company = \App\Company::where('id',$companyId)->first();
-        event(new \App\Events\DocumentRejectEvent($profileId,$company,null,$collaborate));
+        //event(new \App\Events\DocumentRejectEvent($profileId,$company,null,$collaborate));
     }
 }
