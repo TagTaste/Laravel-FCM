@@ -164,7 +164,8 @@ class CollaborateController extends Controller
                         'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                         //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
-                        'profile_id' => $request->user()->profile->id
+                        'profile_id' => $request->user()->profile->id,
+                        'share_number' => $canShareNumber
                     ]);
 
             $company = Redis::get('company:small:' . $companyId);
@@ -176,7 +177,6 @@ class CollaborateController extends Controller
                 {
                     $collaborate->profile_id = $profileId;
                     event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,$request->input("message",""),null,null, $company));
-
                 }
             }
             else
@@ -195,7 +195,7 @@ class CollaborateController extends Controller
                 $this->model = $exists->pivot;
                 return $this->sendResponse();
             }
-            
+            $canShareNumber = $request->share_number != null ? $request->share_number: 0;
             $this->model = $collaborate->profiles()->attach($profileId);
             $this->model = $collaborate->profiles()
                 ->updateExistingPivot($profileId,
@@ -204,6 +204,7 @@ class CollaborateController extends Controller
                         //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
                         'shortlisted_at'=>Carbon::now()->toDateTimeString(),
+                        'share_number' => $canShareNumber
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))

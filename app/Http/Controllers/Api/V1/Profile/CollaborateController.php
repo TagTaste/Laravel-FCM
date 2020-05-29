@@ -479,7 +479,20 @@ class CollaborateController extends Controller
         foreach($submissions as $submission) {
             $this->model = \DB::table('submissions')->where('id',$submission['id'])
                     ->update(['status'=>$submission['status']]);
+            if($submission['status'] == 2 && $this->model) {
+                $this->sendRejectNotification($submission['id'],$collaborateId);
+            }
         }
         return $this->sendResponse();
+    }
+
+    protected function sendRejectNotification($submissionId,$collaborateId)
+    {
+        $profileId = \DB::table('contest_submissions')
+                        ->join('collaborate_applicants','collaborate_applicants.id','=','contest_submissions.applicant_id')
+                        ->where('contest_submissions.submission_id',$submissionId)
+                        ->pluck('collaborate_applicants.profile_id');
+        $collaborate = \App\Collaborate::where('id',$collaborateId);
+        //event(new \App\Events\DocumentRejectEvent($profileId,null,null,$collaborate));
     }
 }

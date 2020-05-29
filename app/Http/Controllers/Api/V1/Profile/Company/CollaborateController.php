@@ -957,7 +957,52 @@ class CollaborateController extends Controller
         foreach($submissions as $submission) {
             $this->model = \DB::table('submissions')->where('id',$submission['id'])
                     ->update(['status'=>$submission['status']]);
+                    if($submission['status'] == 2 && $this->model) {
+                        $this->sendRejectNotification($submission['id'],$collaborateId,$companyId);
+                    }
         }
         return $this->sendResponse();
+    }
+
+    protected function sendRejectNotification($submissionId,$collaborateId,$companyId)
+    {
+        $profileId = \DB::table('contest_submissions')
+                        ->join('collaborate_applicants','collaborate_applicants.id','=','contest_submissions.applicant_id')
+                        ->where('contest_submissions.submission_id',$submissionId)
+                        ->pluck('collaborate_applicants.profile_id');
+        $collaborate = \App\Collaborate::where('id',$collaborateId)->first();
+        $company = \App\Company::where('id',$companyId)->first();
+        //event(new \App\Events\DocumentRejectEvent($profileId,$company,null,$collaborate));
+    }
+    public function getCities(Request $request,$profileId,$companyId,$collaborateId)
+    {
+        $this->model = \App\Collaborate\Addresses::select('city_id')
+                        ->groupBy('city_id')
+                        ->where('collaborate_id',$collaborateId)
+                        ->get();
+        return $this->sendResponse();
+    }
+    public function getOutlets(Request $request,$profileId,$companyId,$collaborateId,$cityId)
+    {
+        $this->model = \DB::table('collaborate_addresses')->select('collaborate_addresses.address_id','outlets.name','collaborate_addresses.is_active')
+                        ->where('collaborate_id',$collaborateId)
+                        ->join('outlets','outlets.id','=','collaborate_addresses.outlet_id')
+                        ->where('city_id',$cityId)
+                        ->get();
+        return $this->sendResponse();
+    }
+
+    public function outletStatus(Request $request,$profileId,$companyId,$collaborateId,$cityId,$addressId)
+    {   
+        $status = $request->status != null ? $request->status : null;
+        if($status != null) {
+            $this->model = \DB::table('collaborate_addresses')
+                            ->where('address_id',$addressId)
+                            ->where('collaborate_id',$collaborateId)
+                            ->update(['is_active'=>$status]);
+            return $this->sendResponse();
+        } else {
+            return $this->sendError("Invalid status type");
+        }
     }
 }

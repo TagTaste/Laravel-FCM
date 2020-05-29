@@ -9,12 +9,14 @@ class Applicant extends Model {
     protected $table = 'collaborate_applicants';
 
     protected $fillable = ['profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','applier_address','message',
-        'hut','created_at','updated_at','city','age_group','gender','company_id','document_meta','terms_verified', 'documents_verified'];
+        'hut','created_at','updated_at','city','age_group','gender','company_id','document_meta','terms_verified', 'documents_verified','share_number'];
 
     protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address',
-        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified'];
+        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified','phone'];
 
     protected $with = ['profile','company'];
+
+    protected $appends = ['phone'];
 
     protected $casts = [
         'collaborate_id' => 'integer',
@@ -24,7 +26,8 @@ class Applicant extends Model {
 
     public function profile()
     {
-        return $this->belongsTo(\App\Recipe\Profile::class);
+        $profs = $this->belongsTo(\App\Recipe\Profile::class);
+        return $profs;
     }
 
     public function company()
@@ -61,5 +64,14 @@ class Applicant extends Model {
        ->join('submissions','submissions.id','=','contest_submissions.submission_id')
        ->where('submissions.status','!=',2)
        ->count();
+    }
+
+    public function getPhoneAttribute()
+    {
+        if($this->share_number) {
+            return \DB::table('profiles')->where('id',$this->profile_id)->first()->phone;
+        } else {
+            return null;
+        }
     }
 }
