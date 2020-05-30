@@ -28,6 +28,6 @@ class TieReportMail extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.future-of-food-email');
+        return $this->subject('Future of Food - COVID-19 Survival Plan')->view('emails.future-of-food-email');
     }
 }
