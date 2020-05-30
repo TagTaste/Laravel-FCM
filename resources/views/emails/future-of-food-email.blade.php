@@ -35,7 +35,7 @@
                                                                         <br>
                                                                         <br>
                                                                         <br>
-                                                                        Thank you for downloading the file. Please click on download link below.
+                                                                        We acknowledge your interest in our report on 'Future of Food - A COVID-19 Survival Plan'. Please click on the link below to download the report.
                                                                     </p>
                                                                 </div>
                                                             </td>
