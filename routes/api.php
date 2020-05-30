@@ -24,7 +24,7 @@ Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'], function() {
     Route::resource('types','TypeController');
 });
 Route::get('privacy','Api\PrivacyController@index');
-
+Route::post('mail/tieReport','GeneralMailController@tieReportMail');
 Route::post('login',function(Request $request) {
     $credentials = $request->only('email','password');
 //    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
