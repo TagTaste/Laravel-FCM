@@ -32,10 +32,14 @@
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
                                                                         Hi,
-                                                                        <br>
-                                                                        <br>
-                                                                        <br>
-                                                                        We acknowledge your interest in our report on 'Future of Food - A COVID-19 Survival Plan'. Please click on the link below to download the report.
+                                                                        <br />
+                                                                        <br />
+                                                                        Thank you for showing interest in our report on 'Future of Food - A COVID-19 Survival Plan'. Please click on the link below to download the report.
+                                                                        <br />
+                                                                        <br />
+                                                                        Regards,
+                                                                        <br />
+                                                                        TagTaste
                                                                     </p>
                                                                 </div>
                                                             </td>
