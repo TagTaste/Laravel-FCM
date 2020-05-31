@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0 0;border-radius: 4px 4px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 24px;font-weight: normal;color: #171717;padding: 0 40px 0 40px">
-                                            Future Of Food Report
+                                            TagTaste Reports
                                         </div>
                                     </td>
                                 </tr>
@@ -30,19 +30,23 @@
                                                         <tr>
                                                             <td>
                                                                 <div>
-                                                                    <p style="font-size: 14px;color: #181818;margin:0px">
+                                                                    <p style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
                                                                         Hi,
-                                                                        <br>
-                                                                        <br>
-                                                                        <br>
-                                                                        Thank you for downloading the file. Please click on download link below.
+                                                                        <br />
+                                                                        <br />
+                                                                        Thank you for showing interest in our report on 'Future of Food - A COVID-19 Survival Plan'. Please click on the link below to download the report.
+                                                                        <br />
+                                                                        <br />
+                                                                        Regards,
+                                                                        <br />
+                                                                        TagTaste
                                                                     </p>
                                                                 </div>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td valign="top" align="center" bgcolor="#FFFFFF">
-                                                                <a href="change_link_here"
+                                                                <a href="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/TIE+Report-2020.pdf"
                                                                    style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">
                                                                     Download Report
                                                                 </a>
