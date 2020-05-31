@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0 0;border-radius: 4px 4px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 24px;font-weight: normal;color: #171717;padding: 0 40px 0 40px">
-                                            Future Of Food Report
+                                            TagTaste Reports
                                         </div>
                                     </td>
                                 </tr>
@@ -30,7 +30,7 @@
                                                         <tr>
                                                             <td>
                                                                 <div>
-                                                                    <p style="font-size: 14px;color: #181818;margin:0px">
+                                                                    <p style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
                                                                         Hi,
                                                                         <br>
                                                                         <br>
