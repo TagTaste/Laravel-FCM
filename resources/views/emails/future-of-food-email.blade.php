@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0 0;border-radius: 4px 4px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 24px;font-weight: normal;color: #171717;padding: 0 40px 0 40px">
-                                            Future Of Food Report
+                                            TagTaste Reports
                                         </div>
                                     </td>
                                 </tr>
@@ -30,12 +30,16 @@
                                                         <tr>
                                                             <td>
                                                                 <div>
-                                                                    <p style="font-size: 14px;color: #181818;margin:0px">
+                                                                    <p style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
                                                                         Hi,
-                                                                        <br>
-                                                                        <br>
-                                                                        <br>
-                                                                        We acknowledge your interest in our report on 'Future of Food - A COVID-19 Survival Plan'. Please click on the link below to download the report.
+                                                                        <br />
+                                                                        <br />
+                                                                        Thank you for showing interest in our report on 'Future of Food - A COVID-19 Survival Plan'. Please click on the link below to download the report.
+                                                                        <br />
+                                                                        <br />
+                                                                        Regards,
+                                                                        <br />
+                                                                        TagTaste
                                                                     </p>
                                                                 </div>
                                                             </td>
