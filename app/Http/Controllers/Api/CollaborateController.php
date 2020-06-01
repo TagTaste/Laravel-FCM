@@ -361,25 +361,11 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
         $this->model['count'] = $applications->count();
-        // if($collaborate->is_contest) {
-        //     $applications = $this->addSubmissions($applications->skip($skip)->take($take)->get());
-        // }
-        $this->model['application'] = $applications->skip($skip)->take($take)->get();
+        $applications = $applications->skip($skip)->take($take)->get();
+        $this->model['application'] = $applications;
         return $this->sendResponse();
 
     }
-
-    // protected function addSubmissions($applications)
-    // {
-    //     $applicants = [];
-    //     foreach($applications as $application) {
-    //         $applicant = $application;
-    //         $submissions = \App\Collaborate\Applicant::getSubmissions($application['profile_id'],$application['collaborate_id']);
-    //         $applicant['submissions'] = $submissions;
-    //         $applicants[] = $applicant;
-    //     }
-    //     return $applicants;
-    // }
 
     public function archived(Request $request, $id)
     {
