@@ -157,16 +157,15 @@ class CollaborateController extends Controller
             }
             $canShareNumber = $request->share_number != null ? $request->share_number: 0;
             $this->model = $collaborate->companies()->attach($companyId);
-            $this->model = $collaborate->companies()
-                ->updateExistingPivot($companyId,
-                    [
-                        'created_at'=>Carbon::now()->toDateTimeString(),
-                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
-                        //'template_values' => json_encode($request->input('fields')),
-                        'message' => $request->input("message"),
-                        'profile_id' => $request->user()->profile->id,
-                        'share_number' => $canShareNumber
-                    ]);
+            $this->model = Applicant::where('collaborate_id',$id)->where('company_id',$companyId)
+                            ->update([
+                                'created_at'=>Carbon::now()->toDateTimeString(),
+                                'shortlisted_at'=>Carbon::now()->toDateTimeString(),
+                                //'template_values' => json_encode($request->input('fields')),
+                                'message' => $request->input("message"),
+                                'profile_id' => $request->user()->profile->id,
+                                'share_number' => $canShareNumber
+                            ]);
 
             $company = Redis::get('company:small:' . $companyId);
             $company = json_decode($company);
@@ -223,7 +222,7 @@ class CollaborateController extends Controller
             }
         }
         Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
-        if($collaborate->is_contest) {
+        if($collaborate->is_contest && $request->file != null) {
             $loggedInProfileId = $request->user()->profile->id;
             $applicant = Applicant::where('collaborate_id',$id)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
             $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$id);
