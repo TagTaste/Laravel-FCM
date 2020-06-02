@@ -155,7 +155,7 @@ class CollaborateController extends Controller
                 $this->model = $exists->pivot;
                 return $this->sendResponse();
             }
-            
+            $canShareNumber = $request->share_number != null ? $request->share_number: 0;
             $this->model = $collaborate->companies()->attach($companyId);
             $this->model = $collaborate->companies()
                 ->updateExistingPivot($companyId,
