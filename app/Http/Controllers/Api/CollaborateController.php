@@ -45,7 +45,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-        $collaborations = $this->model->where('state',Collaborate::$state[0]);
+        $collaborations = $this->model->where('step',3)->where('state',Collaborate::$state[0]);
         if($request->q == null) {
         $collaborations = $collaborations->orderBy("created_at","desc"); 
         $isSearched = 0;
@@ -157,16 +157,15 @@ class CollaborateController extends Controller
             }
             $canShareNumber = $request->share_number != null ? $request->share_number: 0;
             $this->model = $collaborate->companies()->attach($companyId);
-            $this->model = $collaborate->companies()
-                ->updateExistingPivot($companyId,
-                    [
-                        'created_at'=>Carbon::now()->toDateTimeString(),
-                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
-                        //'template_values' => json_encode($request->input('fields')),
-                        'message' => $request->input("message"),
-                        'profile_id' => $request->user()->profile->id,
-                        'share_number' => $canShareNumber
-                    ]);
+            $this->model = Applicant::where('collaborate_id',$id)->where('company_id',$companyId)
+                            ->update([
+                                'created_at'=>Carbon::now()->toDateTimeString(),
+                                'shortlisted_at'=>Carbon::now()->toDateTimeString(),
+                                //'template_values' => json_encode($request->input('fields')),
+                                'message' => $request->input("message"),
+                                'profile_id' => $request->user()->profile->id,
+                                'share_number' => $canShareNumber
+                            ]);
 
             $company = Redis::get('company:small:' . $companyId);
             $company = json_decode($company);
@@ -223,7 +222,7 @@ class CollaborateController extends Controller
             }
         }
         Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
-        if($collaborate->is_contest) {
+        if($collaborate->is_contest && $request->file != null) {
             $loggedInProfileId = $request->user()->profile->id;
             $applicant = Applicant::where('collaborate_id',$id)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
             $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$id);
@@ -534,7 +533,7 @@ class CollaborateController extends Controller
         if($request->track_consistency != null && $request->track_consistency == 1) {
             $this->model = \DB::table('global_questions')->where('track_consistency',1)->get();
         } else {
-            $this->model = \DB::table('global_questions')->get();
+            $this->model = \DB::table('global_questions')->where('track_consistency',0)->get();
         }
         return $this->sendResponse();
     }
@@ -621,7 +620,7 @@ class CollaborateController extends Controller
             $this->model = $request->user()->profile->getProfileCompletionAttribute();
         else if($type == 'collaborate')
             $this->model = $request->user()->profile->getProfileCompletionAttribute();
-        else 
+        else
             $this->model = [];
         return $this->sendResponse();
     }
@@ -797,7 +796,6 @@ class CollaborateController extends Controller
                     return null;
                 }
     }
-
     public function contestSubmission(Request $request, $collaborateId)
     {
         $loggedInProfileId = $request->user()->profile->id;
@@ -816,7 +814,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function getSubmissions(Request $request, $collaborateId) 
+     public function getSubmissions(Request $request, $collaborateId) 
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
@@ -825,7 +823,7 @@ class CollaborateController extends Controller
             return $this->sendError('Invalid Collaboration Id given or applicant');
         }
 
-        $this->model = Applicant::getSubmissions($loggedInProfileId, $collaborateId);
+         $this->model = Applicant::getSubmissions($loggedInProfileId, $collaborateId);
         return $this->sendResponse();
     }
 
