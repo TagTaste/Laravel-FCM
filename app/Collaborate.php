@@ -339,7 +339,6 @@ class Collaborate extends Model implements Feedable
         $key = "meta:collaborate:likes:" . $this->id;
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
-
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
@@ -350,6 +349,9 @@ class Collaborate extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['isReported'] =  $this->isCollaborateReported(); 
+        if($this->is_contest) {
+            $meta['submission_count'] = \App\Collaborate\Applicant::countSubmissions($profileId, $this->id);
+        }
         return $meta;
     }
 
@@ -386,6 +388,9 @@ class Collaborate extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['isReported'] =  $this->isCollaborateReported();
+        if($this->is_contest) {
+            $meta['submission_count'] = \App\Collaborate\Applicant::countSubmissions($profileId, $this->id);
+        }
         return $meta;
     }
     
