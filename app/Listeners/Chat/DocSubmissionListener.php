@@ -5,6 +5,9 @@ namespace App\Listeners\Chat;
 use App\Events\DocSubmissionEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Notify\Profile;
+use App\Notifications\DocumentSubmission;
+use Notification;
 
 class DocSubmissionListener
 {
@@ -26,6 +29,7 @@ class DocSubmissionListener
      */
     public function handle(DocSubmissionEvent $event)
     {
-        //
+        $profile = Profile::where('id',$event->profileId)->get();
+        Notification::send($profile, new DocumentSubmission($event));
     }
 }

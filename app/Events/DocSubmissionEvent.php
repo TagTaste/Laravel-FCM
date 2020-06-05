@@ -20,20 +20,15 @@ class DocSubmissionEvent
      * @return void
      */
     public $collaborate;
+    public $profileId;
     public $profile;
-    public $company;
-    public function __construct()
+    public $action;
+    public function __construct($profileId,$collaborate,$profile,$files)
     {
-        //
-    }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return Channel|array
-     */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
+        $this->profileId = $profileId;
+        $this->collaborate = $collaborate;
+        $this->profile = $profile;
+        $this->action = 'document_submission';
+        $this->files = $files;
     }
 }

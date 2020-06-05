@@ -31,7 +31,7 @@ class DocumentRejectEvent
         if (isset($company)) {
             $this->company = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo, 'type'=>'company', 'tagline'=>$company->tagline];
         }
-        $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
+        $this->action = 'document_rejection';
     }
 
     /**
