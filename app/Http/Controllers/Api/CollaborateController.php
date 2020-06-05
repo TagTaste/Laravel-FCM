@@ -811,6 +811,7 @@ class CollaborateController extends Controller
          }
          $applicantId = $applicant->first()->id;
          $this->model = $this->storeContestDocs($request->file, $applicantId);
+         $this->triggerDocSubmissions($collaborate->first(),$request->files,$request->user()->profile);
         return $this->sendResponse();
     }
 
@@ -848,5 +849,21 @@ class CollaborateController extends Controller
                     where submissions.status = 2 
                         and applicant_id = '.$applicantId;
         \DB::delete($query);
+    }
+    protected function triggerDocSubmissions($collaborate,$files,$profile)
+    {
+        if(isset($collaborate->company_id) && (!is_null($collaborate->company_id)))
+            {
+                $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
+                foreach ($profileIds as $profileId)
+                {
+                    $collaborate->profile_id = $profileId;
+                    event(new \App\Events\DocSubmissionEvent($profileId,$collaborate,$profile,$files));
+                }
+            }
+            else
+            {
+                event(new \App\Events\DocSubmissionEvent($collaborate->profile_id,$collaborate,$profile,$files));
+            }
     }
 }

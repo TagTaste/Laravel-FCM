@@ -2,14 +2,14 @@
 
 namespace App\Notifications;
 
-use App\FCMPush;
 use Illuminate\Bus\Queueable;
+use App\FCMPush;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Carbon\Carbon;
 
-class DocumentRejected extends Notification
+class DocumentSubmission extends Notification
 {
     use Queueable;
 
@@ -28,30 +28,23 @@ class DocumentRejected extends Notification
     public $action;
     public $company;
     public $companyName;
-    public $isContest;
+    public $files;
     public function __construct($event)
     {
-        $this->view = 'emails.document-reject';
-        $this->sub = "Re-submit Documents";
+        $this->view = 'emails.document-submission';
+        $this->sub = "Document Submission";
         $this->companyName = "";
-        $this->model = $event->collaborate;
-        $name = $this->model['title'];
-        $this->isContest = $event->collaborate['is_contest'];
-        if($this->isContest) {
-            $this->notification = "Admin has requested you to reupload the document for collaboration $name ";
-        } else {
-            $this->notification = "Documents you submitted, do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";
-
-        if (isset($event->company['name'])) {
-            $this->companyName = $event->company['name']; 
-            $this->notification = "Documents you submitted to ".$event->company['name'] ." do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";
-        }
-        }
-        
+        $userName = $event->profile['name'];
+        $this->notification = "User $userName has uploaded a document for your collaboration ".$event->collaborate->title." ";
+        // if (isset($event->company['name'])) {
+        //     $this->companyName = $event->company['name']; 
+        //     $this->notification = "User ".$this->companyName." has uploaded a document for your collaboration ".$event->collaborate->title." ";
+        // }
+        $this->file = $event->files;
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
         $this->action = $event->action;
-        $this->company = $event->company;
+        $this->profile = $event->profile;
         $this->modelName = 'collaborate';
         if (method_exists($this->model,'getNotificationContent')) {
             $this->allData = $this->model->getNotificationContent();
@@ -83,7 +76,7 @@ class DocumentRejected extends Notification
     {
         if (view()->exists($this->view)) {
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable, 'companyName'=>$this->companyName]
+                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable,'files'=>$event->files]
             );
         }
     }
@@ -98,7 +91,7 @@ class DocumentRejected extends Notification
     {
         $data = [
             'action' => $this->action,
-            'profile' => isset($this->company) ? $this->company : null,
+            'profile' => isset($this->profile) ? $this->profile : null,
             'notification' => $this->notification,
         ];
 

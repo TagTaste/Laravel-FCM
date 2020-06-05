@@ -10,7 +10,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class DocumentRejectEvent
+class DocSubmissionEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -21,26 +21,14 @@ class DocumentRejectEvent
      */
     public $collaborate;
     public $profileId;
-    public $company;
+    public $profile;
     public $action;
-    public function __construct($profileId, $company = null, $action = null, $collaborate)
+    public function __construct($profileId,$collaborate,$profile,$files)
     {
         $this->profileId = $profileId;
         $this->collaborate = $collaborate;
-        $this->$company = null;
-        if (isset($company)) {
-            $this->company = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo, 'type'=>'company', 'tagline'=>$company->tagline];
-        }
-        $this->action = 'document_rejection';
+        $this->profile = $profile;
+        $this->action = 'document_submission';
+        $this->files = $files;
     }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return Channel|array
-     */
-//    public function broadcastOn()
-//    {
-//        return new PrivateChannel('channel-name');
-//    }
 }

@@ -493,6 +493,6 @@ class CollaborateController extends Controller
                         ->where('contest_submissions.submission_id',$submissionId)
                         ->pluck('collaborate_applicants.profile_id');
         $collaborate = \App\Collaborate::where('id',$collaborateId);
-        //event(new \App\Events\DocumentRejectEvent($profileId,null,null,$collaborate));
+        event(new \App\Events\DocumentRejectEvent($profileId,null,null,$collaborate));
     }
 }
