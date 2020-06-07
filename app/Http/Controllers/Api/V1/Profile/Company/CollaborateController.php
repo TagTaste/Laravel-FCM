@@ -129,7 +129,7 @@ class CollaborateController extends Controller
             $relativePath = "images/p/$profileId/company/$companyId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
-            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name ,['visibility'=>'public']);
         }
         unset($inputs['images']);
         $this->model = $this->model->create($inputs);
