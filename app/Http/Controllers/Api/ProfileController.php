@@ -51,7 +51,7 @@ class ProfileController extends Controller
         $profile = \App\Profile\User::whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
-        dd($profile);
+
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }
