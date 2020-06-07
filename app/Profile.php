@@ -1387,7 +1387,7 @@ class Profile extends Model
         return $pallete_tasting;
     }
 
-    public function getCuurentPallateIterationValue()
+    public function getCurrentPallateIterationValue()
     {
         $current_pallate_iteration = 0;
         if (0 == $this->pallate_iteration) {
@@ -1407,7 +1407,7 @@ class Profile extends Model
     public function getPallateSensitivityResult()
     {
         $pallete_result = null;
-        $current_pallate_iteration = $this->getCuurentPallateIterationValue();
+        $current_pallate_iteration = $this->getCurrentPallateIterationValue();
         $pallate_responses = \App\PalleteResponses::where('profile_id',$this->id)
             ->where('iteration_id',$current_pallate_iteration)
             ->whereNull('deleted_at')
