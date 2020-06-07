@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePalleteOptionsTable extends Migration
+class CreatePalateOptionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreatePalleteOptionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('pallete_options', function(Blueprint $table){
+        Schema::create('palate_options', function(Blueprint $table){
             $table->increments('id');
             $table->string('type');
             $table->boolean('has_concentration')->default(0);
@@ -34,6 +34,6 @@ class CreatePalleteOptionsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('pallete_options');
+        Schema::drop('palate_options');
     }
 }

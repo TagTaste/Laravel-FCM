@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePalleteResponseTable extends Migration
+class CreatePalateResponseTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreatePalleteResponseTable extends Migration
      */
     public function up()
     {
-        Schema::create('pallete_responses', function(Blueprint $table){
+        Schema::create('palate_responses', function(Blueprint $table){
             $table->increments('id');
             $table->integer('iteration_id')->unsigned();
             $table->integer('profile_id')->unsigned();
@@ -34,6 +34,6 @@ class CreatePalleteResponseTable extends Migration
      */
     public function down()
     {
-        Schema::drop('pallete_responses');
+        Schema::drop('palate_responses');
     }
 }

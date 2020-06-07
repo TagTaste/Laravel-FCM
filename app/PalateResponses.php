@@ -6,53 +6,53 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\IdentifiesOwner;
 
-class PalleteResponses extends Model
+class PalateResponses extends Model
 {
 	use IdentifiesOwner, SoftDeletes;
 
-    protected $table = 'pallete_responses';
+    protected $table = 'palate_responses';
 
-    protected $fillable = ['iteration_id','profile_id','pallete_option_id','result','point_scale_result','created_at','updated_at','deleted_at'];
+    protected $fillable = ['iteration_id','profile_id','palate_option_id','result','point_scale_result','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','iteration_id','result','pallete_type','has_concentration','concentration_type','concentration_level','status', 'color_code'];
+    protected $visible = ['id','iteration_id','result','palate_type','has_concentration','concentration_type','concentration_level','status', 'color_code'];
 
-    protected $appends = ['pallete_type','has_concentration','concentration_type','concentration_level','status','color_code'];
+    protected $appends = ['palate_type','has_concentration','concentration_type','concentration_level','status','color_code'];
 
-    protected $with = ['pallete'];
+    protected $with = ['palate'];
 
     /**
      * Which pallete options.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function pallete()
+    public function palate()
     {
-        return $this->belongsTo(\App\PalleteOptions::class, 'pallete_option_id', 'id');
+        return $this->belongsTo(\App\PalateOptions::class, 'palate_option_id', 'id');
     }
 
-    public function getPalleteTypeAttribute()
+    public function getPalateTypeAttribute()
     {
-        return $this->pallete->type;
+        return $this->palate->type;
     }
 
     public function getHasConcentrationAttribute()
     {
-        return $this->pallete->has_concentration;
+        return $this->palate->has_concentration;
     }
 
     public function getConcentrationTypeAttribute()
     {
-        return $this->pallete->concentration;
+        return $this->palate->concentration;
     }
 
     public function getConcentrationLevelAttribute()
     {
-        return $this->pallete->concentration_level;
+        return $this->palate->concentration_level;
     }
 
     public function getStatusAttribute()
     {
-        if (!is_null($this->pallete->has_point_scale) && $this->pallete->has_point_scale && !is_null($this->point_scale_result)) {
+        if (!is_null($this->palate->has_point_scale) && $this->palate->has_point_scale && !is_null($this->point_scale_result)) {
             switch ($this->point_scale_result) {
                 case 1:
                     return 'Extremely low'; //'Barely Detectable'
@@ -79,8 +79,8 @@ class PalleteResponses extends Model
                     return null;
                     break;
             }
-        } else if (!is_null($this->pallete->has_concentration) && $this->pallete->has_concentration) {
-            switch ($this->pallete->concentration) {
+        } else if (!is_null($this->palate->has_concentration) && $this->palate->has_concentration) {
+            switch ($this->palate->concentration) {
                 case "0.01%":
                     return 'Very high'; 
                     break;
@@ -103,7 +103,7 @@ class PalleteResponses extends Model
 
     public function getColorCodeAttribute()
     {
-        if (!is_null($this->pallete->has_point_scale) && $this->pallete->has_point_scale && !is_null($this->point_scale_result)) {
+        if (!is_null($this->palate->has_point_scale) && $this->palate->has_point_scale && !is_null($this->point_scale_result)) {
             switch ($this->point_scale_result) {
                 case 1:
                     return '#fffeee'; //'Barely Detectable'
@@ -130,8 +130,8 @@ class PalleteResponses extends Model
                     return null;
                     break;
             }
-        } else if (!is_null($this->pallete->has_concentration) && $this->pallete->has_concentration) {
-            switch ($this->pallete->concentration) {
+        } else if (!is_null($this->palate->has_concentration) && $this->palate->has_concentration) {
+            switch ($this->palate->concentration) {
                 case "0.01%":
                     return '#fffeee'; 
                     break;
