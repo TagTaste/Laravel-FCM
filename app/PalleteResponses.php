@@ -81,16 +81,16 @@ class PalleteResponses extends Model
             }
         } else if (!is_null($this->pallete->has_concentration) && $this->pallete->has_concentration) {
             switch ($this->pallete->concentration) {
-                case "0.01":
+                case "0.01%":
                     return 'Very high'; 
                     break;
-                case "0.1":
+                case "0.1%":
                     return 'High'; 
                     break;
-                case "1":
+                case "1%":
                     return 'Medium';
                     break;
-                case "10":
+                case "10%":
                     return 'Low';
                     break;
                 default:
@@ -132,16 +132,16 @@ class PalleteResponses extends Model
             }
         } else if (!is_null($this->pallete->has_concentration) && $this->pallete->has_concentration) {
             switch ($this->pallete->concentration) {
-                case "0.01":
+                case "0.01%":
                     return '#fffeee'; 
                     break;
-                case "0.1":
+                case "0.1%":
                     return '#fffeee'; 
                     break;
-                case "1":
+                case "1%":
                     return '#fffeee';
                     break;
-                case "10":
+                case "10%":
                     return '#fffeee';
                     break;
                 default:
