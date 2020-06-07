@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class CreatePalleteResponseTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('pallete_responses', function(Blueprint $table){
+            $table->increments('id');
+            $table->integer('iteration_id')->unsigned();
+            $table->integer('profile_id')->unsigned();
+            $table->integer('pallete_option_id')->unsigned();
+            $table->boolean('result')->nullable()->default(null);
+            $table->integer('point_scale_result')->unsigned()->nullable()->default(null);
+            $table->timestamps();
+            $table->softDeletes();
+            $table->foreign('profile_id')->references('id')->on('profiles');
+            $table->foreign('pallete_option_id')->references('id')->on('pallete_options');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop('pallete_responses');
+    }
+}
