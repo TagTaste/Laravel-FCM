@@ -23,8 +23,15 @@ class Profile extends Model
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
         'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete'
-        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user'
+        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user', 
+        // pallate data
+        'pallate_visibility', 'pallate_iteration', 'pallate_iteration_status', 'pallate_test_status'
     ];
+
+    // pallate_visibility 0 visible to all, 1 hidden from everyone
+    // pallate_iteration 1,2,3,4...n iteration of pallate test
+    // pallate_iteration_status 0/1(incomplete/completed)
+    // pallate_test_status 0/1(inactive/active)
 
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
@@ -41,13 +48,13 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','pallate_sensitivity','pallate_visibility', 'pallate_iteration', 'pallate_iteration_status', 'pallate_test_status'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount','document_meta'];
+        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount','document_meta', 'pallate_sensitivity'];
 
     /**
         profile completion mandatory field
@@ -1361,6 +1368,101 @@ class Profile extends Model
         } else {
             return null;
         }
+    }
+
+    public function getPallateSensitivityAttribute()
+    {
+        $pallete_tasting = null;
+        
+        if (request()->user()->profile->id == $this->id) {
+            $pallete_tasting = $this->getPallateSensitivityResult();
+            return $pallete_tasting;
+        } else {
+            if ($this->pallate_visibility) {
+                return $pallete_tasting;
+            }
+            $pallete_tasting = $this->getPallateSensitivityResult();
+            return $pallete_tasting;
+        }
+        return $pallete_tasting;
+    }
+
+    public function getCuurentPallateIterationValue()
+    {
+        $current_pallate_iteration = 0;
+        if (0 == $this->pallate_iteration) {
+            return $current_pallate_iteration;
+        } else {
+            if ($this->pallate_iteration_status) {
+                $current_pallate_iteration = $this->pallate_iteration;
+                return $current_pallate_iteration;
+            } else {
+                $current_pallate_iteration = $this->pallate_iteration - 1;
+                return $current_pallate_iteration;
+            }
+        }
+        return $current_pallate_iteration;
+    }
+
+    public function getPallateSensitivityResult()
+    {
+        $pallete_result = null;
+        $current_pallate_iteration = $this->getCuurentPallateIterationValue();
+        $pallate_responses = \App\PalleteResponses::where('profile_id',$this->id)
+            ->where('iteration_id',$current_pallate_iteration)
+            ->whereNull('deleted_at')
+            ->get();
+        if (count($pallate_responses)) {
+            $pallete_result = array();
+            $pallate_responses_grouped = $this->group_by('pallete_type', $pallate_responses->toArray());
+            foreach ($pallate_responses_grouped as $group_key => $pallate_response_group) {
+                $keys = array_column($pallate_response_group, 'concentration_level');
+                array_multisort($keys, SORT_ASC, $pallate_response_group);
+                if (in_array($group_key, array("Salt", "Sugar", "Sour"))) {
+                    $pallete_result[$group_key] = array(
+                        'value' => $group_key,
+                        'color_code' => null,
+                        'status' => "Very Low"
+                    );
+
+                    foreach ($pallate_response_group as $key => $value) {
+                        if ($value['result']) {
+                            $pallete_result[$group_key]['status'] = $value['status'];
+                            $pallete_result[$group_key]['color_code'] = $value['color_code'];
+                            break;
+                        }                        
+                    }
+                } else if ($group_key === "Bitter") {
+                    $pallete_result[$group_key] = array(
+                        'value' => $group_key,
+                        'color_code' => $pallate_response_group[0]['color_code'],
+                        'status' => $pallate_response_group[0]['status']
+                    );
+                }
+            };
+            $pallete_result = array_values($pallete_result);
+        }
+        return $pallete_result;
+    }
+
+    /**
+     * Function that groups an array of associative arrays by some key.
+     * 
+     * @param {String} $key Property to sort by.
+     * @param {Array} $data Array that stores multiple associative arrays.
+     */
+    function group_by($key, $data) {
+        $result = array();
+
+        foreach($data as $val) {
+            if(array_key_exists($key, $val)){
+                $result[$val[$key]][] = $val;
+            }else{
+                $result[""][] = $val;
+            }
+        }
+
+        return $result;
     }
 }
 
