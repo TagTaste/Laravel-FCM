@@ -941,7 +941,7 @@ class CollaborateController extends Controller
         if(!$checkAdmin || !$collab){
             return $this->sendError("Invalid Adminor collaboration.");
         }
-        $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)->first()->id;
+        $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('profile_id',$userId)->first()->id;
         $submissions = \App\Collaborate\Applicant::getSubmissions($applicant, $collaborateId);
         $this->model = $submissions;
         return $this->sendResponse();

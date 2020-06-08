@@ -29,23 +29,30 @@ class DocumentSubmission extends Notification
     public $company;
     public $companyName;
     public $files;
+    public $userName;
     public function __construct($event)
     {
         $this->view = 'emails.document-submission';
         $this->sub = "Document Submission";
         $this->companyName = "";
-        $userName = $event->profile->name;
-        $this->notification = "$userName has uploaded a document for your collaboration ".$event->collaborate->title." ";
+        $this->userName = $event->profile->name;
+        if($event->company != null) {
+            $this->userName = $event->company->name;
+            $this->notification = "$this->userName has uploaded a document for your collaboration ".$event->collaborate->title." ";
+        } else {
+            $this->notification = "$this->userName has uploaded a document for your collaboration ".$event->collaborate->title." ";
+        }
         // if (isset($event->company['name'])) {
         //     $this->companyName = $event->company['name']; 
         //     $this->notification = "User ".$this->companyName." has uploaded a document for your collaboration ".$event->collaborate->title." ";
         // }
-        $this->file = $event->files;
+        $this->files = $event->files;
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
         $this->action = $event->action;
         $this->profile = $event->profile;
         $this->modelName = 'collaborate';
+        $this->company = $event->company;
         if (method_exists($this->model,'getNotificationContent')) {
             $this->allData = $this->model->getNotificationContent();
         }
@@ -76,7 +83,7 @@ class DocumentSubmission extends Notification
     {
         if (view()->exists($this->view)) {
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable,'files'=>$event->files]
+                $this->view, ['data' => $this->data,'model'=>$this->model,'userName'=>$this->userName,'files'=>$this->files]
             );
         }
     }
@@ -91,7 +98,7 @@ class DocumentSubmission extends Notification
     {
         $data = [
             'action' => $this->action,
-            'profile' => isset($this->profile) ? $this->profile : null,
+            'profile' => isset($this->company) ? $this->company : $this->profile,
             'notification' => $this->notification,
         ];
 

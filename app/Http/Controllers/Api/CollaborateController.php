@@ -817,7 +817,7 @@ class CollaborateController extends Controller
          $applicantId = $applicant->first()->id;
          $this->model = $this->storeContestDocs($request->file, $applicantId);
          $company = $applicant->first()->company_id != null ? \App\Company::where('id',$applicant->first()->company_id)->first() : null;
-         $this->triggerDocSubmissions($collaborate->first(),$request->files,$request->user()->profile,$company);
+         $this->triggerDocSubmissions($collaborate->first(),$request->file,$request->user()->profile,$company);
         return $this->sendResponse();
     }
 
