@@ -28,7 +28,7 @@ class Profile extends Model
         'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status'
     ];
 
-    // palate_visibility 0 visible to all, 1 hidden from everyone, 2 visible to followers
+    // palate_visibility 0 visible to all, 1 hidden from everyone, 2 visible to people I follow
     // palate_iteration 1,2,3,4...n iteration of palate test
     // palate_iteration_status 0/1(incomplete/completed)
     // palate_test_status 0/1(inactive/active)
@@ -1441,7 +1441,7 @@ class Profile extends Model
                 if (in_array($group_key, array("Salt", "Sugar", "Sour"))) {
                     $palate_result[$group_key] = array(
                         'value' => $group_key,
-                        'color_code' => null,
+                        'color_code' => "#F6F6F6",
                         'status' => "Very Low"
                     );
 

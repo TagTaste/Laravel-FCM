@@ -106,25 +106,25 @@ class PalateResponses extends Model
         if (!is_null($this->palate->has_point_scale) && $this->palate->has_point_scale && !is_null($this->point_scale_result)) {
             switch ($this->point_scale_result) {
                 case 1:
-                    return '#fffeee'; //'Barely Detectable'
+                    return '#F6F6F6'; //'Barely Detectable'
                     break;
                 case 2:
-                    return '#fffeee'; //'Weak
+                    return '#F6F6F6'; //'Weak
                     break;
                 case 3:
-                    return '#fffeee'; //'Mild'
+                    return '#F6F6F6'; //'Mild'
                     break;
                 case 4:
-                    return '#fffeee'; //'Moderate'
+                    return '#F6F6F6'; //'Moderate'
                     break;
                 case 5:
-                    return '#fffeee'; //'Intense'
+                    return '#F6F6F6'; //'Intense'
                     break;
                 case 6:
-                    return '#fffeee'; //'Very Intense'
+                    return '#F6F6F6'; //'Very Intense'
                     break;
                 case 7:
-                    return '#fffeee'; //'Extremely Intense'
+                    return '#F6F6F6'; //'Extremely Intense'
                     break;
                 default:
                     return null;
@@ -133,16 +133,16 @@ class PalateResponses extends Model
         } else if (!is_null($this->palate->has_concentration) && $this->palate->has_concentration) {
             switch ($this->palate->concentration) {
                 case "0.01%":
-                    return '#fffeee'; 
+                    return '#F6F6F6'; 
                     break;
                 case "0.1%":
-                    return '#fffeee'; 
+                    return '#F6F6F6'; 
                     break;
                 case "1%":
-                    return '#fffeee';
+                    return '#F6F6F6';
                     break;
                 case "10%":
-                    return '#fffeee';
+                    return '#F6F6F6';
                     break;
                 default:
                     return null;
