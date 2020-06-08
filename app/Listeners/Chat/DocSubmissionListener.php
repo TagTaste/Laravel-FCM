@@ -9,7 +9,7 @@ use App\Notify\Profile;
 use App\Notifications\DocumentSubmission;
 use Notification;
 
-class DocSubmissionListener
+class DocSubmissionListener implements ShouldQueue
 {
     /**
      * Create the event listener.

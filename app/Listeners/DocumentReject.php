@@ -12,7 +12,7 @@ use App\Notifications\DocumentRejected;
 use Notification;
 use App\Notify\Profile;
 
-class DocumentReject
+class DocumentReject implements ShouldQueue
 {
     //use Notifiable;
     /**
