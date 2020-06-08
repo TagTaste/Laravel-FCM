@@ -23,8 +23,15 @@ class Profile extends Model
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
         'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete'
-        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user'
+        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user', 
+        // palate data
+        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status'
     ];
+
+    // palate_visibility 0 visible to all, 1 hidden from everyone, 2 visible to people I follow
+    // palate_iteration 1,2,3,4...n iteration of palate test
+    // palate_iteration_status 0/1(incomplete/completed)
+    // palate_test_status 0/1(inactive/active)
 
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
@@ -41,13 +48,13 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount','document_meta'];
+        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount','document_meta', 'palate_sensitivity'];
 
     /**
         profile completion mandatory field
@@ -1373,6 +1380,109 @@ class Profile extends Model
         } else {
             return null;
         }
+    }
+
+    public function getPalateSensitivityAttribute()
+    {
+        $palate_tasting = null;
+        
+        if (request()->user()->profile->id == $this->id) {
+            $palate_tasting = $this->getPalateSensitivityResult();
+            return $palate_tasting;
+        } else {
+            if ($this->palate_visibility == 1) {
+                return $palate_tasting;
+            } else if ($this->palate_visibility == 2) {
+                if (Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id)) {
+                    $palate_tasting = $this->getPalateSensitivityResult();
+                    return $palate_tasting;
+                } else {
+                    return $palate_tasting;
+                }
+            } else {
+                $palate_tasting = $this->getPalateSensitivityResult();
+                return $palate_tasting;
+            } 
+        }
+        return $palate_tasting;
+    }
+
+    public function getCurrentPalateIterationValue()
+    {
+        $current_palate_iteration = 0;
+        if (0 == $this->palate_iteration) {
+            return $current_palate_iteration;
+        } else {
+            if ($this->palate_iteration_status) {
+                $current_palate_iteration = $this->palate_iteration;
+                return $current_palate_iteration;
+            } else {
+                $current_palate_iteration = $this->palate_iteration - 1;
+                return $current_palate_iteration;
+            }
+        }
+        return $current_palate_iteration;
+    }
+
+    public function getPalateSensitivityResult()
+    {
+        $palate_result = null;
+        $current_palate_iteration = $this->getCurrentPalateIterationValue();
+        $palate_responses = \App\PalateResponses::where('profile_id',$this->id)
+            ->where('iteration_id',$current_palate_iteration)
+            ->whereNull('deleted_at')
+            ->get();
+        if (count($palate_responses)) {
+            $palate_result = array();
+            $palate_responses_grouped = $this->group_by('palate_type', $palate_responses->toArray());
+            foreach ($palate_responses_grouped as $group_key => $palate_response_group) {
+                $keys = array_column($palate_response_group, 'concentration_level');
+                array_multisort($keys, SORT_ASC, $palate_response_group);
+                if (in_array($group_key, array("Salt", "Sugar", "Sour"))) {
+                    $palate_result[$group_key] = array(
+                        'value' => $group_key,
+                        'color_code' => "#F6F6F6",
+                        'status' => "Very Low"
+                    );
+
+                    foreach ($palate_response_group as $key => $value) {
+                        if ($value['result']) {
+                            $palate_result[$group_key]['status'] = $value['status'];
+                            $palate_result[$group_key]['color_code'] = $value['color_code'];
+                            break;
+                        }                        
+                    }
+                } else if ($group_key === "Bitter") {
+                    $palate_result[$group_key] = array(
+                        'value' => $group_key,
+                        'color_code' => $palate_response_group[0]['color_code'],
+                        'status' => $palate_response_group[0]['status']
+                    );
+                }
+            };
+            $palate_result = array_values($palate_result);
+        }
+        return $palate_result;
+    }
+
+    /**
+     * Function that groups an array of associative arrays by some key.
+     * 
+     * @param {String} $key Property to sort by.
+     * @param {Array} $data Array that stores multiple associative arrays.
+     */
+    function group_by($key, $data) {
+        $result = array();
+
+        foreach($data as $val) {
+            if(array_key_exists($key, $val)){
+                $result[$val[$key]][] = $val;
+            }else{
+                $result[""][] = $val;
+            }
+        }
+
+        return $result;
     }
 }
 
