@@ -46,9 +46,9 @@ class Applicant extends Model {
     //0 no action taken
     //1 accepted
     //2 rejected
-    public static function getSubmissions($profileId, $collaborateId)
+    public static function getSubmissions($id, $collaborateId)
     {  
-        return \DB::table('collaborate_applicants')->where('profile_id',$profileId)
+        return \DB::table('collaborate_applicants')->where('collaborate_applicants.id',$id)
         ->where('collaborate_id',$collaborateId)
         ->join('contest_submissions','collaborate_applicants.id','=','contest_submissions.applicant_id')
         ->join('submissions','submissions.id','=','contest_submissions.submission_id')
@@ -56,9 +56,9 @@ class Applicant extends Model {
         ->select('submissions.*')
         ->get();
     }
-    public static function countSubmissions($profileId,$collaborateId)
+    public static function countSubmissions($id,$collaborateId)
     {
-       return \DB::table('collaborate_applicants')->where('profile_id',$profileId)
+       return \DB::table('collaborate_applicants')->where('collaborate_applicants.id',$id)
        ->where('collaborate_id',$collaborateId)
        ->join('contest_submissions','collaborate_applicants.id','=','contest_submissions.applicant_id')
        ->join('submissions','submissions.id','=','contest_submissions.submission_id')
@@ -77,6 +77,6 @@ class Applicant extends Model {
 
     public function getSubmissionCountAttribute()
     {
-        return $this->countSubmissions($this->profile_id,$this->collaborate_id);
+        return $this->countSubmissions($this->id,$this->collaborate_id);
     }
 }

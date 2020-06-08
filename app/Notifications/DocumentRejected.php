@@ -33,11 +33,12 @@ class DocumentRejected extends Notification
     {
         $this->view = 'emails.document-reject';
         $this->sub = "Re-submit Documents";
-        $this->companyName = "";
+        $this->companyName = $event->company['name'];
         $this->model = $event->collaborate;
         $name = $this->model['title'];
         $this->isContest = $event->collaborate['is_contest'];
         if($this->isContest) {
+            $this->view = 'emails.contest-document-reject';
             $this->notification = "Admin has requested you to reupload the document for collaboration $name ";
         } else {
             $this->notification = "Documents you submitted, do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";

@@ -350,7 +350,8 @@ class Collaborate extends Model implements Feedable
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['isReported'] =  $this->isCollaborateReported(); 
         if($this->is_contest) {
-            $meta['submission_count'] = \App\Collaborate\Applicant::countSubmissions($profileId, $this->id);
+            $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)->first()->id;
+            $meta['submission_count'] = \App\Collaborate\Applicant::countSubmissions($applicant, $this->id);
         }
         return $meta;
     }
@@ -389,7 +390,8 @@ class Collaborate extends Model implements Feedable
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['isReported'] =  $this->isCollaborateReported();
         if($this->is_contest) {
-            $meta['submission_count'] = \App\Collaborate\Applicant::countSubmissions($profileId, $this->id);
+            $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)->first()->id;
+            $meta['submission_count'] = \App\Collaborate\Applicant::countSubmissions($applicant, $this->id);
         }
         return $meta;
     }

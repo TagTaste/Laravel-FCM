@@ -23,12 +23,15 @@ class DocSubmissionEvent
     public $profileId;
     public $profile;
     public $action;
-    public function __construct($profileId,$collaborate,$profile,$files)
+    public $company;
+    public $files;
+    public function __construct($profileId,$collaborate,$profile,$company,$files)
     {
         $this->profileId = $profileId;
         $this->collaborate = $collaborate;
         $this->profile = $profile;
         $this->action = 'document_submission';
         $this->files = $files;
+        $this->company = $company;
     }
 }
