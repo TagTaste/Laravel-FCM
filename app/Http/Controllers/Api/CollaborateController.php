@@ -225,7 +225,7 @@ class CollaborateController extends Controller
         if($collaborate->is_contest && $request->file != null) {
             $loggedInProfileId = $request->user()->profile->id;
             $applicant = Applicant::where('collaborate_id',$id)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
-            $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$id);
+            $clientSubmissionCount = Applicant::countSubmissions($applicant->first()->id,$id);
             $clientSubmissionCount += count($request->file);
                 if($clientSubmissionCount > $collaborate->first()->max_submissions){
                     return $this->sendError('Invalid Number Of Submissions');
@@ -799,19 +799,25 @@ class CollaborateController extends Controller
     public function contestSubmission(Request $request, $collaborateId)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        $companyId = $request->company_id;
         $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
-        $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
+        if($companyId != null) {
+            $applicant = Applicant::where('collaborate_id',$collaborateId)->where('company_id',$companyId)->whereNull('rejected_at');
+        } else  {
+            $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('company_id')->whereNull('rejected_at');
+        } 
         if(!$collaborate->exists() || !$applicant->exists()) {
             return $this->sendError('Invalid Collaboration Id given or applicant');
         }
-        $clientSubmissionCount = Applicant::countSubmissions($loggedInProfileId,$collaborateId);
+        $clientSubmissionCount = Applicant::countSubmissions($applicant->first()->id,$collaborateId);
         $clientSubmissionCount += count($request->file);
         if($clientSubmissionCount > $collaborate->first()->max_submissions){
             return $this->sendError('Invalid Number Of Submissions');
          }
          $applicantId = $applicant->first()->id;
          $this->model = $this->storeContestDocs($request->file, $applicantId);
-         $this->triggerDocSubmissions($collaborate->first(),$request->files,$request->user()->profile);
+         $company = $applicant->first()->company_id != null ? \App\Company::where('id',$applicant->first()->company_id)->first() : null;
+         $this->triggerDocSubmissions($collaborate->first(),$request->files,$request->user()->profile,$company);
         return $this->sendResponse();
     }
 
@@ -824,7 +830,7 @@ class CollaborateController extends Controller
             return $this->sendError('Invalid Collaboration Id given or applicant');
         }
 
-         $this->model = Applicant::getSubmissions($loggedInProfileId, $collaborateId);
+         $this->model = Applicant::getSubmissions($applicant->first()->id, $collaborateId);
         return $this->sendResponse();
     }
 
@@ -850,7 +856,7 @@ class CollaborateController extends Controller
                         and applicant_id = '.$applicantId;
         \DB::delete($query);
     }
-    protected function triggerDocSubmissions($collaborate,$files,$profile)
+    protected function triggerDocSubmissions($collaborate,$files,$profile,$company)
     {
         if(isset($collaborate->company_id) && (!is_null($collaborate->company_id)))
             {
@@ -858,12 +864,12 @@ class CollaborateController extends Controller
                 foreach ($profileIds as $profileId)
                 {
                     $collaborate->profile_id = $profileId;
-                    event(new \App\Events\DocSubmissionEvent($profileId,$collaborate,$profile,$files));
+                    event(new \App\Events\DocSubmissionEvent($profileId,$collaborate,$profile,$company,$files));
                 }
             }
             else
             {
-                event(new \App\Events\DocSubmissionEvent($collaborate->profile_id,$collaborate,$profile,$files));
+                event(new \App\Events\DocSubmissionEvent($collaborate->profile_id,$collaborate,$profile,$company,$files));
             }
     }
 }

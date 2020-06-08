@@ -34,8 +34,8 @@ class DocumentSubmission extends Notification
         $this->view = 'emails.document-submission';
         $this->sub = "Document Submission";
         $this->companyName = "";
-        $userName = $event->profile['name'];
-        $this->notification = "User $userName has uploaded a document for your collaboration ".$event->collaborate->title." ";
+        $userName = $event->profile->name;
+        $this->notification = "$userName has uploaded a document for your collaboration ".$event->collaborate->title." ";
         // if (isset($event->company['name'])) {
         //     $this->companyName = $event->company['name']; 
         //     $this->notification = "User ".$this->companyName." has uploaded a document for your collaboration ".$event->collaborate->title." ";
