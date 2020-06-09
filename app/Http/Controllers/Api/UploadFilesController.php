@@ -119,4 +119,39 @@ class UploadFilesController extends Controller
         $this->body = $response->body;
         return json_encode($this->body,true);
     }
+    public function uploadContestFiles(Request $request){
+        $profile_id = $request->user()->profile->id;
+        $fileUrlArray = [];
+        /**
+         * Validating all files by mime type & size of less than 10MB
+         */
+        // $validationStatus = $this->validate($request,[
+        //     'file.*'=>'required|file|mimetypes:text/plain,image/jpeg,application/octet-stream,audio/mpeg,application/zip,application/pdf,text/html,image/png|max:10500'
+        // ]);
+
+        if ($request->hasFile('file')){
+            $files = $request->file('file');
+            foreach ($files as $file) {
+                $fileMime = $file->getMimeType();
+                $filename = $file->getClientOriginalName();
+                $fileExt = \File::extension($filename);
+                $filename = "TagTaste_".str_random(15).".".$fileExt;
+                /**
+                 * Storing the file on S3
+                 */
+                $path = $file->storeAs('global/file/'.$profile_id,$filename,['visibility'=>'public',"disk"=>"s3"]);
+                $file_url = \Storage::disk('s3')->url($path);
+                $tempArray = [];
+                $image_size = \Storage::disk('s3')->size($path);
+                $last_modified = \Storage::disk('s3')->lastModified($path);
+                $tempArray['url'] = $file_url;
+                $tempArray['original_name'] = $file->getClientOriginalName();
+                $fileUrlArray[] = $tempArray;
+            }
+            $this->model = $fileUrlArray;
+            return $this->sendResponse();
+        } else {
+            return $this->sendResponse();
+        }  
+    }
 }
