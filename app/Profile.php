@@ -28,7 +28,7 @@ class Profile extends Model
         'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status'
     ];
 
-    // palate_visibility 0 visible to all, 1 hidden from everyone, 2 visible to people I follow
+    // palate_visibility 1 visible to all, 0 hidden from everyone, 2 visible to people I follow
     // palate_iteration 1,2,3,4...n iteration of palate test
     // palate_iteration_status 0/1(incomplete/completed)
     // palate_test_status 0/1(inactive/active)
@@ -1378,7 +1378,7 @@ class Profile extends Model
             $palate_tasting = $this->getPalateSensitivityResult();
             return $palate_tasting;
         } else {
-            if ($this->palate_visibility == 1) {
+            if ($this->palate_visibility == 0) {
                 return $palate_tasting;
             } else if ($this->palate_visibility == 2) {
                 if (Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id)) {
