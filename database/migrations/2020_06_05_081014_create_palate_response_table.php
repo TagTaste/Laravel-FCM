@@ -17,13 +17,13 @@ class CreatePalateResponseTable extends Migration
             $table->increments('id');
             $table->integer('iteration_id')->unsigned();
             $table->integer('profile_id')->unsigned();
-            $table->integer('pallete_option_id')->unsigned();
+            $table->integer('palate_option_id')->unsigned();
             $table->boolean('result')->nullable()->default(null);
             $table->integer('point_scale_result')->unsigned()->nullable()->default(null);
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('profile_id')->references('id')->on('profiles');
-            $table->foreign('pallete_option_id')->references('id')->on('pallete_options');
+            $table->foreign('palate_option_id')->references('id')->on('palate_options');
         });
     }
 
