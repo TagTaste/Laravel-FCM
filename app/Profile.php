@@ -1068,7 +1068,7 @@ class Profile extends Model
 
     public function getPhoneAttribute($value)
     {
-        if (!empty($value)) {
+        if (!empty($value) && isset(request()->user()->profile->id)) {
             if(request()->user()->profile->id == $this->id)
             {
                 return $value;
