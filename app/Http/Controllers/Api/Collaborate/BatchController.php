@@ -1456,7 +1456,7 @@ class BatchController extends Controller
         $boolean = 'and' ;
         foreach ($headers as $header)
         {
-            if($header->header_type == 'INSTRUCTIONS')
+            if($header->header_type == 'INSTRUCTIONS' || $header->header_selection_type == 3)
                 continue;
             $headerId = $header->id;
             $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)

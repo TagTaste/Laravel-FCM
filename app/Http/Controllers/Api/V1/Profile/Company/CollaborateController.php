@@ -933,6 +933,48 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    public function allSubmissions(Request $request, $profileId, $companyId,$collaborateId, $userId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        $collab = $this->model->where('state','!=',Collaborate::$state[1])->where('id',$collaborateId)->exists();
+        if(!$checkAdmin || !$collab){
+            return $this->sendError("Invalid Adminor collaboration.");
+        }
+        $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('profile_id',$userId)->first()->id;
+        $submissions = \App\Collaborate\Applicant::getSubmissions($applicant, $collaborateId);
+        $this->model = $submissions;
+        return $this->sendResponse();
+    }
+    public function updateSubmissionStatus(Request $request, $profileId, $companyId, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        $collab = $this->model->where('state','!=',Collaborate::$state[1])->where('id',$collaborateId)->exists();
+        if(!$checkAdmin || !$collab){
+            return $this->sendError("Invalid Adminor collaboration.");
+        }
+        $submissions = $request->submissions;
+        foreach($submissions as $submission) {
+            $this->model = \DB::table('submissions')->where('id',$submission['id'])
+                    ->update(['status'=>$submission['status']]);
+                    if($submission['status'] == 2 && $this->model) {
+                        $this->sendRejectNotification($submission['id'],$collaborateId,$companyId);
+                    }
+        }
+        return $this->sendResponse();
+    }
+
+    protected function sendRejectNotification($submissionId,$collaborateId,$companyId)
+    {
+        $profileId = \DB::table('contest_submissions')
+                        ->join('collaborate_applicants','collaborate_applicants.id','=','contest_submissions.applicant_id')
+                        ->where('contest_submissions.submission_id',$submissionId)
+                        ->pluck('collaborate_applicants.profile_id');
+        $collaborate = \App\Collaborate::where('id',$collaborateId)->first();
+        $company = \App\Company::where('id',$companyId)->first();
+        event(new \App\Events\DocumentRejectEvent($profileId,$company,null,$collaborate));
+    }
     public function getCities(Request $request,$profileId,$companyId,$collaborateId)
     {
         $this->model = \App\Collaborate\Addresses::select('city_id')

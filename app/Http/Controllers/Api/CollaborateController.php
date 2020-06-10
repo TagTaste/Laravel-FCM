@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\SearchClient;
+use App\Collaborate\Applicant;
 
 class CollaborateController extends Controller
 {
@@ -44,7 +45,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-        $collaborations = $this->model->where('state',Collaborate::$state[0]);
+        $collaborations = $this->model->where('step',3)->where('state',Collaborate::$state[0]);
         if($request->q == null) {
         $collaborations = $collaborations->orderBy("created_at","desc"); 
         $isSearched = 0;
@@ -138,7 +139,6 @@ class CollaborateController extends Controller
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
         }
-        
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
@@ -155,17 +155,17 @@ class CollaborateController extends Controller
                 $this->model = $exists->pivot;
                 return $this->sendResponse();
             }
-            
+            $canShareNumber = $request->share_number != null ? $request->share_number: 0;
             $this->model = $collaborate->companies()->attach($companyId);
-            $this->model = $collaborate->companies()
-                ->updateExistingPivot($companyId,
-                    [
-                        'created_at'=>Carbon::now()->toDateTimeString(),
-                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
-                        //'template_values' => json_encode($request->input('fields')),
-                        'message' => $request->input("message"),
-                        'profile_id' => $request->user()->profile->id
-                    ]);
+            $this->model = Applicant::where('collaborate_id',$id)->where('company_id',$companyId)
+                            ->update([
+                                'created_at'=>Carbon::now()->toDateTimeString(),
+                                'shortlisted_at'=>Carbon::now()->toDateTimeString(),
+                                //'template_values' => json_encode($request->input('fields')),
+                                'message' => $request->input("message"),
+                                'profile_id' => $request->user()->profile->id,
+                                'share_number' => $canShareNumber
+                            ]);
 
             $company = Redis::get('company:small:' . $companyId);
             $company = json_decode($company);
@@ -176,7 +176,6 @@ class CollaborateController extends Controller
                 {
                     $collaborate->profile_id = $profileId;
                     event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,$request->input("message",""),null,null, $company));
-
                 }
             }
             else
@@ -195,7 +194,7 @@ class CollaborateController extends Controller
                 $this->model = $exists->pivot;
                 return $this->sendResponse();
             }
-            
+            $canShareNumber = $request->share_number != null ? $request->share_number: 0;
             $this->model = $collaborate->profiles()->attach($profileId);
             $this->model = $collaborate->profiles()
                 ->updateExistingPivot($profileId,
@@ -204,6 +203,7 @@ class CollaborateController extends Controller
                         //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
                         'shortlisted_at'=>Carbon::now()->toDateTimeString(),
+                        'share_number' => $canShareNumber
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
@@ -222,6 +222,17 @@ class CollaborateController extends Controller
             }
         }
         Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
+        if($collaborate->is_contest && $request->file != null) {
+            $loggedInProfileId = $request->user()->profile->id;
+            $applicant = Applicant::where('collaborate_id',$id)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
+            $clientSubmissionCount = Applicant::countSubmissions($applicant->first()->id,$id);
+            $clientSubmissionCount += count($request->file);
+                if($clientSubmissionCount > $collaborate->first()->max_submissions){
+                    return $this->sendError('Invalid Number Of Submissions');
+                }
+            $applicantId = $applicant->first()->id;
+            $this->storeContestDocs($request->file, $applicantId);
+        }
         return $this->sendResponse();
     }
     
@@ -349,7 +360,8 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
         $this->model['count'] = $applications->count();
-        $this->model['application'] = $applications->skip($skip)->take($take)->get();
+        $applications = $applications->skip($skip)->take($take)->get();
+        $this->model['application'] = $applications;
         return $this->sendResponse();
 
     }
@@ -521,7 +533,7 @@ class CollaborateController extends Controller
         if($request->track_consistency != null && $request->track_consistency == 1) {
             $this->model = \DB::table('global_questions')->where('track_consistency',1)->get();
         } else {
-            $this->model = \DB::table('global_questions')->get();
+            $this->model = \DB::table('global_questions')->where('track_consistency',0)->get();
         }
         return $this->sendResponse();
     }
@@ -605,6 +617,8 @@ class CollaborateController extends Controller
     public function mandatoryField(Request $request,$type)
     {
         if($type == 'product-review')
+            $this->model = $request->user()->profile->getProfileCompletionAttribute();
+        else if($type == 'collaborate')
             $this->model = $request->user()->profile->getProfileCompletionAttribute();
         else
             $this->model = [];
@@ -781,5 +795,77 @@ class CollaborateController extends Controller
                 } else {
                     return null;
                 }
+    }
+    public function contestSubmission(Request $request, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $companyId = $request->company_id;
+        $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
+        $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at'); 
+        if(!$collaborate->exists() || !$applicant->exists()) {
+            return $this->sendError('Invalid Collaboration Id given or applicant');
+        }
+        $clientSubmissionCount = Applicant::countSubmissions($applicant->first()->id,$collaborateId);
+        $clientSubmissionCount += count($request->file);
+        if($clientSubmissionCount > $collaborate->first()->max_submissions){
+            return $this->sendError('Invalid Number Of Submissions');
+         }
+         $applicantId = $applicant->first()->id;
+         $this->model = $this->storeContestDocs($request->file, $applicantId);
+         $company = $applicant->first()->company_id != null ? \App\Company::where('id',$applicant->first()->company_id)->first() : null;
+         $this->triggerDocSubmissions($collaborate->first(),$request->file,$request->user()->profile,$company);
+        return $this->sendResponse();
+    }
+
+     public function getSubmissions(Request $request, $collaborateId) 
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
+        $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
+        if(!$collaborate->exists() && !$applicant->exists()) {
+            return $this->sendError('Invalid Collaboration Id given or applicant');
+        }
+
+         $this->model = Applicant::getSubmissions($applicant->first()->id, $collaborateId);
+        return $this->sendResponse();
+    }
+
+    protected function storeContestDocs($files, $applicantId)
+    {
+        $this->removeRejectedDocs($applicantId);
+        $mapTable = [];
+         foreach($files as $url) {
+             $submissionId = \DB::table('submissions')
+                                ->insertGetId(['file_address'=>$url['url'],'original_name'=>$url['original_name']]);
+            $mapTable[] = ['applicant_id'=>$applicantId,'submission_id'=>$submissionId];
+         }
+         return \DB::table('contest_submissions')
+                            ->insert($mapTable);
+    }
+    protected function removeRejectedDocs($applicantId)
+    {
+        $query = 'DELETE contest_submissions,submissions 
+                    from contest_submissions 
+                    join submissions 
+                        on submissions.id = contest_submissions.submission_id 
+                    where submissions.status = 2 
+                        and applicant_id = '.$applicantId;
+        \DB::delete($query);
+    }
+    protected function triggerDocSubmissions($collaborate,$files,$profile,$company)
+    {
+        if(isset($collaborate->company_id) && (!is_null($collaborate->company_id)))
+            {
+                $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
+                foreach ($profileIds as $profileId)
+                {
+                    $collaborate->profile_id = $profileId;
+                    event(new \App\Events\DocSubmissionEvent($profileId,$collaborate,$profile,$company,$files));
+                }
+            }
+            else
+            {
+                event(new \App\Events\DocSubmissionEvent($collaborate->profile_id,$collaborate,$profile,$company,$files));
+            }
     }
 }

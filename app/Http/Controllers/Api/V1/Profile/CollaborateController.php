@@ -457,4 +457,43 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    public function allSubmissions(Request $request, $profileId, $collaborateId,$userId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = $this->model->where('id',$collaborateId)->where('profile_id',$profileId)->whereNull('company_id')->where('state','!=',Collaborate::$state[1])->where('is_contest',1)->exists();
+        if(!$checkAdmin){
+            return $this->sendError("Invalid Admin.");
+        }
+        $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('profile_id',$userId)->first()->id;
+        $submissions = \App\Collaborate\Applicant::getSubmissions($applicant, $collaborateId);
+        $this->model = $submissions;
+        return $this->sendResponse();
+    }
+    public function updateSubmissionStatus(Request $request, $profileId, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = $this->model->where('id',$collaborateId)->where('profile_id',$profileId)->whereNull('company_id')->where('state','!=',Collaborate::$state[1])->where('is_contest',1)->exists();
+        if(!$checkAdmin){
+            return $this->sendError("Invalid Admin.");
+        }
+        $submissions = $request->submissions;
+        foreach($submissions as $submission) {
+            $this->model = \DB::table('submissions')->where('id',$submission['id'])
+                    ->update(['status'=>$submission['status']]);
+            if($submission['status'] == 2 && $this->model) {
+                $this->sendRejectNotification($submission['id'],$collaborateId);
+            }
+        }
+        return $this->sendResponse();
+    }
+
+    protected function sendRejectNotification($submissionId,$collaborateId)
+    {
+        $profileId = \DB::table('contest_submissions')
+                        ->join('collaborate_applicants','collaborate_applicants.id','=','contest_submissions.applicant_id')
+                        ->where('contest_submissions.submission_id',$submissionId)
+                        ->pluck('collaborate_applicants.profile_id');
+        $collaborate = \App\Collaborate::where('id',$collaborateId)->first();
+        event(new \App\Events\DocumentRejectEvent($profileId,null,null,$collaborate));
+    }
 }

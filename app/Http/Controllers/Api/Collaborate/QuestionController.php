@@ -304,14 +304,9 @@ class QuestionController extends Controller
             if(!is_null($comment) && !empty($comment))
             {
                 $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
-            }
-
-            if(!is_null($meta) && !empty($meta))
-            {
+            } else if(!is_null($meta) && !empty($meta)) {
                 $answers[] = ['question_id'=>$questionId,'meta'=>json_decode($meta),'track_consistency'=>$track_consistency];
-            }
-            else
-            {
+            }   else {
                 $answers[] = ['question_id'=>$questionId,'option'=>$data];
 
             }

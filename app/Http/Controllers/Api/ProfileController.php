@@ -112,6 +112,13 @@ class ProfileController extends Controller
             unset($data['profile']['handle']);
         }
 
+        // pallate visibility
+        if (isset($data['palate_visibility'])) {
+            if (in_array($data['palate_visibility'], ["0","1","2"])) {
+                $data['profile']['palate_visibility'] = (int)$data['palate_visibility'];
+            }
+        }
+
         //delete heroimage or image
         if($request->has("remove_image") && $request->input('remove_image') == 1)
         {
