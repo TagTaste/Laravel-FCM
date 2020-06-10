@@ -47,7 +47,7 @@
                                                         <tr>
                                                             <td>
                                                                 <div style="font-size: 16px;">
-                                                                    <p>Hi Harsh Arora,</p>
+                                                                    <p>Hi {{$userName}},</p>
                                                                     <p>Welcome to the Rally, please download the attachment to access the material on Pit Stop 1</p>
                                                                     <p>Regards,</p>
                                                                     <p>Team TagTaste</p>
