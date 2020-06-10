@@ -475,7 +475,7 @@ class BatchController extends Controller
                             {
                                 if($option->id == $answer->leaf_id)
                                 {
-                                    if($option->is_intensity == 1 && $option->intensity_type == 2)
+                                    if(isset($option->is_intensity) && $option->is_intensity == 1 && $option->intensity_type == 2)
                                     {
                                         $answerIntensity = $answer->intensity;
                                         $answerIntensity = explode(",",$answerIntensity);
@@ -492,7 +492,7 @@ class BatchController extends Controller
                                             $value[] = ['value'=>$x,'count'=>$count];
                                         }
                                     }
-                                    else if($option->is_intensity == 1 && $option->intensity_type == 1)
+                                    else if(isset($option->is_intensity) && $option->is_intensity == 1 && $option->intensity_type == 1)
                                     {
                                         $answerIntensity = $answer->intensity;
                                         $answerIntensity = explode(",",$answerIntensity);
