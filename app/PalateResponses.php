@@ -14,9 +14,9 @@ class PalateResponses extends Model
 
     protected $fillable = ['iteration_id','profile_id','palate_option_id','result','point_scale_result','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','iteration_id','result','palate_type','has_concentration','concentration_type','concentration_level','status', 'color_code'];
+    protected $visible = ['id','iteration_id','result','palate_type','has_concentration','concentration_type','concentration_level','status','color_code','ui_style_meta'];
 
-    protected $appends = ['palate_type','has_concentration','concentration_type','concentration_level','status','color_code'];
+    protected $appends = ['palate_type','has_concentration','concentration_type','concentration_level','status','color_code','ui_style_meta'];
 
     protected $with = ['palate'];
 
@@ -150,6 +150,90 @@ class PalateResponses extends Model
             }
         }
         return null;
+    }
+
+    public function getUiStyleMetaAttribute()
+    {
+        $response = array(
+            "border_color" => null,
+            "background_color" => null
+        );
+        if (!is_null($this->palate->has_point_scale) && $this->palate->has_point_scale && !is_null($this->point_scale_result)) {
+            switch ($this->point_scale_result) {
+                case 1:
+                    //'Barely Detectable'
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case 2:
+                    //'Weak
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case 3:
+                    //'Mild'
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case 4:
+                    //'Moderate'
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case 5:
+                    //'Intense'
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case 6:
+                    //'Very Intense'
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case 7:
+                    //'Extremely Intense'
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                default:
+                    return $response;
+                    break;
+            }
+        } else if (!is_null($this->palate->has_concentration) && $this->palate->has_concentration) {
+            switch ($this->palate->concentration) {
+                case "0.01%":
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case "0.1%":
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case "1%":
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                case "10%":
+                    $response['border_color'] = "#F6F6F6";
+                    $response['background_color'] = "#F6F6F6";
+                    return $response;
+                    break;
+                default:
+                    return $response;
+                    break;
+            }
+        }
+        return $response;
     }
 
 }

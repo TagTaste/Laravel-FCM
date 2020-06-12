@@ -1441,21 +1441,24 @@ class Profile extends Model
                 if (in_array($group_key, array("Salt", "Sugar", "Sour"))) {
                     $palate_result[$group_key] = array(
                         'value' => $group_key,
-                        'color_code' => "#F6F6F6",
+                        'ui_style_meta' => array(
+                            "border_color" => "#F6F6F6",
+                            "background_color" => "#F6F6F6"
+                        ),
                         'status' => "Very Low"
                     );
 
                     foreach ($palate_response_group as $key => $value) {
                         if ($value['result']) {
                             $palate_result[$group_key]['status'] = $value['status'];
-                            $palate_result[$group_key]['color_code'] = $value['color_code'];
+                            $palate_result[$group_key]['ui_style_meta'] = $value['ui_style_meta'];
                             break;
                         }                        
                     }
                 } else if ($group_key === "Bitter") {
                     $palate_result[$group_key] = array(
                         'value' => $group_key,
-                        'color_code' => $palate_response_group[0]['color_code'],
+                        'ui_style_meta' => $palate_response_group[0]['ui_style_meta'],
                         'status' => $palate_response_group[0]['status']
                     );
                 }
