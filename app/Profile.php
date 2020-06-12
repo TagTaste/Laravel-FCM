@@ -1442,8 +1442,8 @@ class Profile extends Model
                     $palate_result[$group_key] = array(
                         'value' => $group_key,
                         'ui_style_meta' => array(
-                            "border_color" => "#F6F6F6",
-                            "background_color" => "#F6F6F6"
+                            "border_color" => "#00000010",
+                            "background_color" => "#00000004"
                         ),
                         'status' => "Very Low"
                     );
