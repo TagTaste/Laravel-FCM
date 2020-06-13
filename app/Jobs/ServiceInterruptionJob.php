@@ -37,7 +37,7 @@ class ServiceInterruptionJob
         {
             // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
             $message->to($this->useremail, $this->username)->subject('Welcome to the US Cranberries Recipe Rally!')
-                    ->attach('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Pitstop+1+-+Hi!+Dried+Berries.pdf');
+                    ->attach('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Pitstop+2+-+Welcome!+Cranberry.pdf');
         });
     }
 }
