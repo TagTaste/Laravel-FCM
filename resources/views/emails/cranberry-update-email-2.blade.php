@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0 0;border-radius: 4px 4px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 24px;font-weight: normal;color: #171717;padding: 0 40px 0 40px">
-                                            Welcome to the Pit Stop 2, please download the attachment to access the material.
+                                            Welcome to Pit Stop 2!
                                         </div>
                                     </td>
                                 </tr>
@@ -31,7 +31,6 @@
                                                                 </div>
                                                             </td>
                                                         </tr>
-
                                                     </table>
                                                 </td>
                                             </tr>
