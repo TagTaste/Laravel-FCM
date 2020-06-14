@@ -33,11 +33,17 @@ class ServiceInterruptionJob
      */
     public function handle()
     {
+        \Mail::send('emails.cranberry-us', ['userName'=>$this->username], function($message)
+        {
+            // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
+            $message->to($this->useremail, $this->username)->subject('Collaboration Alert - US Cranberry Recipe Rally!');
+                    //->attach('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Pitstop+2+-+Welcome!+Cranberry.pdf');
+        });
         \Mail::send('emails.cranberry-update-email', ['userName'=>$this->username], function($message)
         {
             // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
             $message->to($this->useremail, $this->username)->subject('Welcome to the US Cranberries Recipe Rally!')
-                    ->attach('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Pitstop+2+-+Welcome!+Cranberry.pdf');
+                    ->attach('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Pitstop+1+-+Hi!+Dried+Berries.pdf');
         });
     }
 }
