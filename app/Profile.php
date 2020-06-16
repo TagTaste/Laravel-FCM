@@ -68,17 +68,17 @@ class Profile extends Model
         private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
     **/
-    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone', 'verified_phone'];
+    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone'];
 
     private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations'];
 
-    private $profileCompletionMandatoryFieldForCampusConnect = ['phone','verified_phone'];
+    private $profileCompletionMandatoryFieldForCampusConnect = ['phone'];
     
-    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone','verified_phone'];
+    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone'];
     
-    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['verified_phone'];
+    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = [];
 
     public static function boot()
     {
