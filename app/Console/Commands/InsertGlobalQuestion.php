@@ -97,27 +97,38 @@ class InsertGlobalQuestion extends Command
             "is_nested_question": 0,
             "is_mandatory": 1,
             "track_consistency":1,
+            "info": 
+				{
+				"text": "blah",
+				"image": "blah"
+				}
+			,
             "option": [{
                     "value": "Frozen",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Chilled",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Cold",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Room temperature",
                     "is_intensity": 0,
                     "track_consistency":1,
-                    "benchmark_score":75
+                    "benchmark_score":75,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Warm",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Hot",
@@ -125,7 +136,8 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                     "value": "Burning hot",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 }
             ]
         },
@@ -1074,7 +1086,7 @@ class InsertGlobalQuestion extends Command
     ]
 }';
 
-        $data = ['name'=>'Condiments_Asian_Sauce_Private_12th Feb 20','keywords'=>"Condiments_Asian_Sauce_Private_12th Feb 20",'description'=>null,
+        $data = ['name'=>'test_test Feb 20','keywords'=>"Condiments_Asian_Sauce_Private_12th Feb 20",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true),'track_consistency'=>$track_consistency];
         \DB::table('global_questions')->insert($data);
 

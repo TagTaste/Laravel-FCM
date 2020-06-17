@@ -822,7 +822,7 @@ class CollaborateController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $collaborate = $this->model->where('id',$collaborateId)->where('is_contest',1);
         $applicant = Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->whereNull('rejected_at');
-        if(!$collaborate->exists() && !$applicant->exists()) {
+        if(!$collaborate->exists() || !$applicant->exists()) {
             return $this->sendError('Invalid Collaboration Id given or applicant');
         }
 
