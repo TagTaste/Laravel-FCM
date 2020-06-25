@@ -81,7 +81,8 @@ class PublicViewController extends Controller
         } else {
             $this->model = [
                 $modelName => $model,
-                'meta' => $meta
+                'meta' => $meta,
+                'seoTags' => $model->getSeoTags()
             ];
         }
 
@@ -126,6 +127,7 @@ class PublicViewController extends Controller
         $this->model['shared'] = $sharedModel;
         $this->model['sharedBy'] = json_decode(Redis::get('profile:small:' . $sharedModel->profile_id));
         $this->model['type'] = $modelName;
+        $this->model['seoTags'] = $model->getSeoTags();
         $this->model[$modelName] = $model->toArray();
         $this->model['meta']= $sharedModel->getMetaForPublic();
         $socialPreview = $model->getPreviewContent();
