@@ -627,4 +627,44 @@ class Company extends Model
             ->count();
     }
 
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $follower_count = $this->getFollowerProfilesAttribute()['count'];
+        $title = "TagTaste | ".$this->name." | Profile";
+        
+        $description = "View ".$this->name."'s profile on TagTaste. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate.";
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $this->logo,
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
 }
