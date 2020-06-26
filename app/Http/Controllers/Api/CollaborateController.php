@@ -359,11 +359,27 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
-        $this->model['count'] = $applications->count();
-        $applications = $applications->skip($skip)->take($take)->get();
+        if($request->sortBy != null) {
+            $applications = $this->sortApplicants($request->sortBy,$applications);
+        }
+            $this->model['count'] = $applications->count();
+            $applications = $applications->skip($skip)->take($take)->get();
         $this->model['application'] = $applications;
         return $this->sendResponse();
 
+    }
+
+    private function sortApplicants($sortBy,$applications)
+    {
+        $key = array_keys($sortBy)[0];
+        $value = $sortBy[$key];
+        if($key == 'name') {
+            return $applications->join('profiles','profiles.id','=','collaborate_applicants.profile_id')
+                    ->join('users','profiles.user_id','=','users.id')
+                    ->orderBy('users.name',$value)
+                    ->select('collaborate_applicants.*');
+        } 
+        return $applications->orderBy($key,$value);
     }
 
     public function archived(Request $request, $id)
