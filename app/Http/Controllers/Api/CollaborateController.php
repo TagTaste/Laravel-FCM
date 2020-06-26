@@ -139,6 +139,10 @@ class CollaborateController extends Controller
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
         }
+        if($collaborate->is_taster_residence && !$request->has('applier_address')) {
+            return $this->sendError('Please provide your address as it is mandatory for this application or Update your app');
+        }
+        $address = $request->has('applier_address') ? $request->applier_address : null;
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
@@ -164,7 +168,8 @@ class CollaborateController extends Controller
                                 //'template_values' => json_encode($request->input('fields')),
                                 'message' => $request->input("message"),
                                 'profile_id' => $request->user()->profile->id,
-                                'share_number' => $canShareNumber
+                                'share_number' => $canShareNumber,
+                                'applier_address' => $address
                             ]);
 
             $company = Redis::get('company:small:' . $companyId);
@@ -203,7 +208,8 @@ class CollaborateController extends Controller
                         //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
                         'shortlisted_at'=>Carbon::now()->toDateTimeString(),
-                        'share_number' => $canShareNumber
+                        'share_number' => $canShareNumber,
+                        'applier_address' => $address
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
