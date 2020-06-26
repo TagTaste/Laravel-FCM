@@ -139,6 +139,11 @@ class CollaborateController extends Controller
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
         }
+        // if($collaborate->is_taster_residence && !$request->has('applier_address')) {
+        //     return $this->sendError('Please provide your address as it is mandatory for this application or Update your app');
+        // }
+        //should uncomment it for module force update
+        $address = $request->has('applier_address') ? $request->applier_address : null;
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
@@ -164,7 +169,8 @@ class CollaborateController extends Controller
                                 //'template_values' => json_encode($request->input('fields')),
                                 'message' => $request->input("message"),
                                 'profile_id' => $request->user()->profile->id,
-                                'share_number' => $canShareNumber
+                                'share_number' => $canShareNumber,
+                                'applier_address' => $address
                             ]);
 
             $company = Redis::get('company:small:' . $companyId);
@@ -203,7 +209,8 @@ class CollaborateController extends Controller
                         //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
                         'shortlisted_at'=>Carbon::now()->toDateTimeString(),
-                        'share_number' => $canShareNumber
+                        'share_number' => $canShareNumber,
+                        'applier_address' => $address
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
@@ -232,6 +239,18 @@ class CollaborateController extends Controller
                 }
             $applicantId = $applicant->first()->id;
             $this->storeContestDocs($request->file, $applicantId);
+        }
+        return $this->sendResponse();
+    }
+
+    public function addAddress(Request $request,$id)
+    {
+        //$applierAddress = $request->has('applier_address') ? $request->applier_address : null;
+        $applicant = Applicant::where('profile_id',$request->user()->profile->id)
+                                ->where('collaborate_id',$id);
+        $input = $request->except(['_method','_token']);
+        if($applicant->exists()) {
+            $this->model = $applicant->update($input);
         }
         return $this->sendResponse();
     }
@@ -359,11 +378,27 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
-        $this->model['count'] = $applications->count();
-        $applications = $applications->skip($skip)->take($take)->get();
+        if($request->sortBy != null) {
+            $applications = $this->sortApplicants($request->sortBy,$applications);
+        }
+            $this->model['count'] = $applications->count();
+            $applications = $applications->skip($skip)->take($take)->get();
         $this->model['application'] = $applications;
         return $this->sendResponse();
 
+    }
+
+    private function sortApplicants($sortBy,$applications)
+    {
+        $key = array_keys($sortBy)[0];
+        $value = $sortBy[$key];
+        if($key == 'name') {
+            return $applications->join('profiles','profiles.id','=','collaborate_applicants.profile_id')
+                    ->join('users','profiles.user_id','=','users.id')
+                    ->orderBy('users.name',$value)
+                    ->select('collaborate_applicants.*');
+        } 
+        return $applications->orderBy($key,$value);
     }
 
     public function archived(Request $request, $id)

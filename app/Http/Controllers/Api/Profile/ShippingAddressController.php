@@ -43,6 +43,7 @@ class ShippingAddressController extends Controller
             return $this->sendError("This address doesnt bleong to this user");
         }
         $this->model = Address::where('id',$id)->where("profile_id",$request->user()->profile->id)->update($input);
+        $this->model = Address::where('profile_id',$profileId)->where('id',$id)->get();
         return $this->sendResponse();
 	}
 }
