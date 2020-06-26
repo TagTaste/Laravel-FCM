@@ -386,6 +386,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("collaborate/{id}/applications","CollaborateController@applications");
         Route::get("collaborate/{id}/archived","CollaborateController@archived");
         Route::post("collaborate/{id}/apply","CollaborateController@apply");
+        Route::patch("collaborate/{id}/addAddress","CollaborateController@addAddress");
         Route::post("collaborate/{id}/contestSubmission","CollaborateController@contestSubmission");
         Route::get("collaborate/{id}/getSubmissions","CollaborateController@getSubmissions");
         Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');

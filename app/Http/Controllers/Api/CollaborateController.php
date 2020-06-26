@@ -241,6 +241,18 @@ class CollaborateController extends Controller
         }
         return $this->sendResponse();
     }
+
+    public function addAddress(Request $request,$id)
+    {
+        //$applierAddress = $request->has('applier_address') ? $request->applier_address : null;
+        $applicant = Applicant::where('profile_id',$request->user()->profile->id)
+                                ->where('collaborate_id',$id);
+        $input = $request->except(['_method','_token']);
+        if($applicant->exists()) {
+            $this->model = $applicant->update($input);
+        }
+        return $this->sendResponse();
+    }
     
     public function like(Request $request, $id)
     {
