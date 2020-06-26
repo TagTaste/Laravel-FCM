@@ -72,13 +72,13 @@ class Profile extends Model
 
     private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations','phone'];
 
     private $profileCompletionMandatoryFieldForCampusConnect = ['phone'];
     
     private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone'];
     
-    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = [];
+    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['phone'];
 
     public static function boot()
     {
