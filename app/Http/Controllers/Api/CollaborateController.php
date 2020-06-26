@@ -139,9 +139,10 @@ class CollaborateController extends Controller
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
         }
-        if($collaborate->is_taster_residence && !$request->has('applier_address')) {
-            return $this->sendError('Please provide your address as it is mandatory for this application or Update your app');
-        }
+        // if($collaborate->is_taster_residence && !$request->has('applier_address')) {
+        //     return $this->sendError('Please provide your address as it is mandatory for this application or Update your app');
+        // }
+        //should uncomment it for module force update
         $address = $request->has('applier_address') ? $request->applier_address : null;
         if($request->has('company_id')){
             //company wants to apply
