@@ -351,7 +351,7 @@ class Collaborate extends Model implements Feedable
         $meta['isReported'] =  $this->isCollaborateReported(); 
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
                 ->first();
-        $meta['is_address_uploaded'] = $applicants->applier_address != null ? 1 : 0;              
+                $meta['is_address_uploaded'] = ($applicants!= null && $applicants->applier_address) != null ? 1 : 0;   
         if($this->is_contest) {
             $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id);
             if($applicant->exists()){
@@ -397,7 +397,7 @@ class Collaborate extends Model implements Feedable
         $meta['isReported'] =  $this->isCollaborateReported();
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
                 ->first();
-        $meta['is_address_uploaded'] = $applicants->applier_address != null ? 1 : 0;   
+        $meta['is_address_uploaded'] = ($applicants!= null && $applicants->applier_address) != null ? 1 : 0;   
         if($this->is_contest) {
             $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id);
             if($applicant->exists()){
