@@ -112,6 +112,13 @@ class ProfileController extends Controller
             unset($data['profile']['handle']);
         }
 
+        // pallate visibility
+        if (isset($data['palate_visibility'])) {
+            if (in_array($data['palate_visibility'], ["0","1","2"])) {
+                $data['profile']['palate_visibility'] = (int)$data['palate_visibility'];
+            }
+        }
+
         //delete heroimage or image
         if($request->has("remove_image") && $request->input('remove_image') == 1)
         {
@@ -1175,5 +1182,19 @@ class ProfileController extends Controller
                 return $this->sendError("Invalid profile id.");
             }
         }
+    }
+
+    public function reviewHelperText(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $tasting_instructions = $request->tasting_instructions == 0 || $request->tasting_instructions == 1 ? $request->tasting_instructions : null;
+        
+        if($tasting_instructions == null) {
+            return $this->sendError('Invalid Input option received');
+        }
+
+        $this->model = Profile::where('id',$loggedInProfileId)
+                            ->update(['tasting_instructions'=>$tasting_instructions]);
+        return $this->sendResponse();
     }
 }

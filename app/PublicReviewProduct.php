@@ -296,6 +296,51 @@ class PublicReviewProduct extends Model
         return $meta;
     }
 
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $title = "TagTaste | Product Review | ".$this->name;
+        
+        $description = "";
+        if (!is_null($this->description)) {
+            $description = substr($this->description,0,160)."...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
+        }
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $this->getPreviewContent()['ogImage'],
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
+
     public function getPreviewContent()
     {
         $data = [];

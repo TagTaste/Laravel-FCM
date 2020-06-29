@@ -98,4 +98,39 @@ class Polling extends Share
         ];
     }
 
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $title = "TagTaste | Share Poll";
+        $description = "";
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
+
 }

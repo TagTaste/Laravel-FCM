@@ -25,10 +25,10 @@ class Profile extends Model
         'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete'
         ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user', 
         // palate data
-        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status'
+        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status','tasting_instructions'
     ];
 
-    // palate_visibility 0 visible to all, 1 hidden from everyone, 2 visible to people I follow
+    // palate_visibility 1 visible to all, 0 hidden from everyone, 2 visible to people I follow
     // palate_iteration 1,2,3,4...n iteration of palate test
     // palate_iteration_status 0/1(incomplete/completed)
     // palate_test_status 0/1(inactive/active)
@@ -48,7 +48,7 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status','tasting_instructions'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
@@ -68,17 +68,17 @@ class Profile extends Model
         private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
     **/
-    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone', 'verified_phone'];
+    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone'];
 
     private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations','phone'];
 
-    private $profileCompletionMandatoryFieldForCampusConnect = ['phone','verified_phone'];
+    private $profileCompletionMandatoryFieldForCampusConnect = ['phone'];
     
-    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone','verified_phone'];
+    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone'];
     
-    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['verified_phone'];
+    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['phone'];
 
     public static function boot()
     {
@@ -1077,7 +1077,7 @@ class Profile extends Model
 
     public function getPhoneAttribute($value)
     {
-        if (!empty($value)) {
+        if (!empty($value) && isset(request()->user()->profile->id)) {
             if(request()->user()->profile->id == $this->id)
             {
                 return $value;
@@ -1390,7 +1390,7 @@ class Profile extends Model
             $palate_tasting = $this->getPalateSensitivityResult();
             return $palate_tasting;
         } else {
-            if ($this->palate_visibility == 1) {
+            if ($this->palate_visibility == 0) {
                 return $palate_tasting;
             } else if ($this->palate_visibility == 2) {
                 if (Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id)) {
@@ -1441,21 +1441,24 @@ class Profile extends Model
                 if (in_array($group_key, array("Salt", "Sugar", "Sour"))) {
                     $palate_result[$group_key] = array(
                         'value' => $group_key,
-                        'color_code' => "#F6F6F6",
+                        'ui_style_meta' => array(
+                            "border_color" => "#00000010",
+                            "background_color" => "#00000004"
+                        ),
                         'status' => "Very Low"
                     );
 
                     foreach ($palate_response_group as $key => $value) {
                         if ($value['result']) {
                             $palate_result[$group_key]['status'] = $value['status'];
-                            $palate_result[$group_key]['color_code'] = $value['color_code'];
+                            $palate_result[$group_key]['ui_style_meta'] = $value['ui_style_meta'];
                             break;
                         }                        
                     }
                 } else if ($group_key === "Bitter") {
                     $palate_result[$group_key] = array(
                         'value' => $group_key,
-                        'color_code' => $palate_response_group[0]['color_code'],
+                        'ui_style_meta' => $palate_response_group[0]['ui_style_meta'],
                         'status' => $palate_response_group[0]['status']
                     );
                 }
@@ -1483,6 +1486,48 @@ class Profile extends Model
         }
 
         return $result;
+    }
+
+
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $follower_count = $this->getFollowerProfilesAttribute()['count'];
+        $title = "TagTaste | ".$this->name." | Profile";
+        
+        $description = "View ".$this->name."'s profile on TagTaste. ".$this->name." has ".$follower_count." followers of food professionals network listed on their profile. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate.";
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $this->imageUrl,
+                )
+            ),
+        ];
+        return $seo_tags;
     }
 }
 

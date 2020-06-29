@@ -4,15 +4,21 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
+use App\Profile;
 
 class HandleController extends Controller
 {
 	public function show(Request $request,$handle)
-	{
-	    $model = \DB::table("profiles")->select("id")->where('handle','like',$handle)->first();
-        
+	{;
+	    $model = Profile::where('handle','like',$handle)->first();
+        // \DB::table("profiles")->select("id")->where('handle','like',$handle)->first();
+
         if($model){
-            $this->model = ['type'=>"profile",'id'=>$model->id];
+            $this->model = [
+                'type'=>"profile",
+                'id'=>$model->id,
+                'seoTags'=>$model->getSeoTags()
+            ];
             return $this->sendResponse();
         }
         

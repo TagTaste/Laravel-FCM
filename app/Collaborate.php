@@ -328,7 +328,7 @@ class Collaborate extends Model implements Feedable
             $meta['interestedCount'] = $this->interestedCount;
             $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
                 ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-            $meta['isReported'] =  $this->isCollaborateReported();                
+            $meta['isReported'] =  $this->isCollaborateReported();  
             return $meta;
         }
 
@@ -349,6 +349,9 @@ class Collaborate extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['isReported'] =  $this->isCollaborateReported(); 
+        $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+                ->first();
+                $meta['is_address_uploaded'] = ($applicants!= null && $applicants->applier_address) != null ? 1 : 0;   
         if($this->is_contest) {
             $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id);
             if($applicant->exists()){
@@ -392,6 +395,9 @@ class Collaborate extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['isReported'] =  $this->isCollaborateReported();
+        $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+                ->first();
+        $meta['is_address_uploaded'] = ($applicants!= null && $applicants->applier_address) != null ? 1 : 0;   
         if($this->is_contest) {
             $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id);
             if($applicant->exists()){
@@ -411,6 +417,51 @@ class Collaborate extends Model implements Feedable
         $meta = [];
         $meta['interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
         return $meta;
+    }
+
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $title = "Tagtaste | ".$this->title;
+
+        $description = "";
+        if (!is_null($this->description)) {
+            $description = substr(strip_tags($this->description),0,160)."...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
+        }
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $this->getPreviewContent()['ogImage'],
+                )
+            ),
+        ];
+        return $seo_tags;
     }
     
     public function privacy()

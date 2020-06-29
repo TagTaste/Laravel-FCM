@@ -69,6 +69,22 @@ Route::get('allCategories','FaqsController@allCategories');
 Route::post('storeCategories','FaqsController@storeCategories');
 Route::resource('faqs','FaqsController');
 
+/**
+ * Route to report content and profile password.
+ */
+Route::get('/sitemap.xml', 'SitemapController@index');
+Route::get('/sitemap-products.xml', 'SitemapController@publicReviewProducts');
+Route::get('/sitemap-profiles.xml', 'SitemapController@profiles');
+Route::get('/sitemap-companies.xml', 'SitemapController@companies');
+Route::get('/sitemap-shoutout.xml', 'SitemapController@shoutouts');
+Route::get('/sitemap-photos.xml', 'SitemapController@photos');
+Route::get('/sitemap-collaborations.xml', 'SitemapController@collaborations');
+Route::get('/sitemap-polling.xml', 'SitemapController@polls');
+Route::get('/sitemap-shared-photos.xml', 'SitemapController@sharedPhotos');
+Route::get('/sitemap-shared-collaborations.xml', 'SitemapController@sharedCollaborations');
+Route::get('/sitemap-shared-products.xml', 'SitemapController@sharedProducts');
+Route::get('/sitemap-shared-pollings.xml', 'SitemapController@sharedPolls');
+Route::get('/sitemap-shared-shoutout.xml', 'SitemapController@sharedShoutouts');
 
 // unsubscribe
 /**
@@ -228,7 +244,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 });
             });
         });
-        
+
         /**
          * Route to report content and profile password.
          */
@@ -370,6 +386,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("collaborate/{id}/applications","CollaborateController@applications");
         Route::get("collaborate/{id}/archived","CollaborateController@archived");
         Route::post("collaborate/{id}/apply","CollaborateController@apply");
+        Route::patch("collaborate/{id}/addAddress","CollaborateController@addAddress");
         Route::post("collaborate/{id}/contestSubmission","CollaborateController@contestSubmission");
         Route::get("collaborate/{id}/getSubmissions","CollaborateController@getSubmissions");
         Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
@@ -587,6 +604,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("establishmentType","ProfileController@establishmentType");
         Route::get("profile/getAllergens","ProfileController@getAllergens");
         Route::post("profile/addAllergens","ProfileController@addAllergens");
+        Route::post("profile/reviewHelperText","profileController@reviewHelperText");
         Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
         Route::post('profile/nestedFollow',['uses'=>'ProfileController@nestedFollow']);
         Route::post('profile/follow',['uses'=>'ProfileController@follow']);
