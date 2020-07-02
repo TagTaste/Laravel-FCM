@@ -393,12 +393,12 @@ class CollaborateController extends Controller
         $key = array_keys($sortBy)[0];
         $value = $sortBy[$key];
         if($key == 'name') {
-            return $applications->join('profiles','profiles.id','=','collaborate_applicants.profile_id')
-                    ->join('users','profiles.user_id','=','users.id')
+            return $applications->join('profiles AS p','p.id','=','collaborate_applicants.profile_id')
+                    ->join('users','p.user_id','=','users.id')
                     ->orderBy('users.name',$value)
                     ->select('collaborate_applicants.*');
         } 
-        return $applications->orderBy($key,$value);
+        return $applications->orderBy('collaborate_applicants.created_at',$value);
     }
 
     public function archived(Request $request, $id)
@@ -427,6 +427,7 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 	    $archived = \App\Collaborate\Applicant::join('profiles','collaborate_applicants.profile_id','=','profiles.id')
             ->whereNotNull('collaborate_applicants.rejected_at')->whereNull('profiles.deleted_at')
+            ->select('collaborate_applicants.*')
             ->where('collaborate_id',$id)->with('profile','company');
             if($request->sortBy != null) {
                 $archived = $this->sortApplicants($request->sortBy,$archived);
