@@ -396,17 +396,19 @@ class CollaborateController extends Controller
             $userNames = $this->getUserNames($collabId);
            $companyNames = $this->getCompanyNames($collabId);
             $users = $userNames->merge($companyNames);
+            if($value == 'asc')
             $order = array_column($users->sortBy('name')->values()->all(),'id');
+            else
+            $order = array_column($users->sortByDesc('name')->values()->all(),'id');
             $placeholders = implode(',',array_fill(0, count($order), '?'));
-            return $applications->orderByRaw("field(id,{$placeholders})", $order)
+            return $applications->orderByRaw("field(collaborate_applicants.id,{$placeholders})", $order)
                     ->select('collaborate_applicants.*');
         } 
         return $applications->orderBy('collaborate_applicants.created_at',$value)->select('collaborate_applicants.*');
     }
     private function getCompanyNames($id)
     {   
-        return \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')
-        ->where('collaborate_id',$id)
+        return \App\Collaborate\Applicant::where('collaborate_id',$id)
         ->leftJoin('companies',function($q){
             $q->on('collaborate_applicants.company_id','=','companies.id')
             ;
@@ -417,8 +419,7 @@ class CollaborateController extends Controller
 
     private function getUserNames($id)
     {   
-        return \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')
-        ->where('collaborate_id',$id)
+        return \App\Collaborate\Applicant::where('collaborate_id',$id)
         ->leftJoin('profiles AS p',function($q){
             $q->on('collaborate_applicants.profile_id','=','p.id')
             ->where('collaborate_applicants.company_id','=',null);
