@@ -234,7 +234,7 @@ class Polling extends Model implements Feedable
         $title = "TagTaste | Poll";
         $description = "";
         if (!is_null($this->title)) {
-            $description = substr($this->title,0,160)."...";
+            $description = substr(htmlspecialchars_decode($this->title),0,160)."...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
         }
