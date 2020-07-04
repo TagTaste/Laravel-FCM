@@ -259,4 +259,16 @@ class SitemapController extends Controller
             ->header('Content-Type', 'text/xml');
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function miscellaneous(Request $request)
+    {
+        return response()
+            ->view('sitemap.miscellaneous')
+            ->header('Content-Type', 'text/xml');
+    }
+
 }
