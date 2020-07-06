@@ -379,7 +379,7 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
         if($request->sortBy != null) {
-            $applications = $this->sortApplicants($request->sortBy,$applications);
+            $applications = $this->sortApplicants($request->sortBy,$applications,$id);
         }
             $this->model['count'] = $applications->count();
             $applications = $applications->skip($skip)->take($take)->get();
@@ -388,17 +388,44 @@ class CollaborateController extends Controller
 
     }
 
-    private function sortApplicants($sortBy,$applications)
+    private function sortApplicants($sortBy,$applications,$collabId)
     {
         $key = array_keys($sortBy)[0];
         $value = $sortBy[$key];
         if($key == 'name') {
-            return $applications->join('profiles','profiles.id','=','collaborate_applicants.profile_id')
-                    ->join('users','profiles.user_id','=','users.id')
-                    ->orderBy('users.name',$value)
+            $userNames = $this->getUserNames($collabId);
+           $companyNames = $this->getCompanyNames($collabId);
+            $users = $userNames->merge($companyNames);
+            if($value == 'asc')
+            $order = array_column($users->sortBy('name')->values()->all(),'id');
+            else
+            $order = array_column($users->sortByDesc('name')->values()->all(),'id');
+            $placeholders = implode(',',array_fill(0, count($order), '?'));
+            return $applications->orderByRaw("field(collaborate_applicants.id,{$placeholders})", $order)
                     ->select('collaborate_applicants.*');
         } 
-        return $applications->orderBy($key,$value);
+        return $applications->orderBy('collaborate_applicants.created_at',$value)->select('collaborate_applicants.*');
+    }
+    private function getCompanyNames($id)
+    {   
+        return \App\Collaborate\Applicant::where('collaborate_id',$id)
+        ->leftJoin('companies',function($q){
+            $q->on('collaborate_applicants.company_id','=','companies.id')
+            ;
+        })->where('collaborate_applicants.company_id','!=',null)
+        ->select('companies.name AS name','collaborate_applicants.id')
+        ->get();
+    }
+
+    private function getUserNames($id)
+    {   
+        return \App\Collaborate\Applicant::where('collaborate_id',$id)
+        ->leftJoin('profiles AS p',function($q){
+            $q->on('collaborate_applicants.profile_id','=','p.id')
+            ->where('collaborate_applicants.company_id','=',null);
+        })->leftJoin('users','p.user_id','=','users.id')->where('users.name','!=',null)
+        ->select('users.name as name','collaborate_applicants.id')
+        ->get();
     }
 
     public function archived(Request $request, $id)
@@ -427,7 +454,11 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 	    $archived = \App\Collaborate\Applicant::join('profiles','collaborate_applicants.profile_id','=','profiles.id')
             ->whereNotNull('collaborate_applicants.rejected_at')->whereNull('profiles.deleted_at')
+            //->select('collaborate_applicants.*')
             ->where('collaborate_id',$id)->with('profile','company');
+            if($request->sortBy != null) {
+                $archived = $this->sortApplicants($request->sortBy,$archived,$id);
+            }
         $this->model['count'] = $archived->count();
         $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();
