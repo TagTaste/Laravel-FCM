@@ -4569,7 +4569,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'test_test','keywords'=>"generic_burger_bev_pair_v1",'description'=>null,
+        $data = ['name'=>'nested_question_image','keywords'=>"generic_burger_bev_pair_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
@@ -4793,7 +4793,8 @@ class InsertPublicReviewQuestionair extends Command
                                 $option[] = [
                                     'id' => $i,
                                     'value' => $v,
-                                    'option_type'=>$option_type
+                                    'option_type'=>$option_type,
+									'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                                 ];
                                 $i++;
                             }
@@ -4814,7 +4815,8 @@ class InsertPublicReviewQuestionair extends Command
                                     'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                     'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
-                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0
+                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0,
+									'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                                 ];
                                 $i++;
                             }
@@ -4836,7 +4838,8 @@ class InsertPublicReviewQuestionair extends Command
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v,
-                                'option_type'=>$option_type
+                                'option_type'=>$option_type,
+								'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                             ];
                             $i++;
                         }
