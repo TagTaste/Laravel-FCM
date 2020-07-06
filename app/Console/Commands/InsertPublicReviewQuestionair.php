@@ -115,7 +115,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"select_type": 6
+			"select_type": 6,
+
+			"placeholder_image": "www.google.com"
 
 
 
