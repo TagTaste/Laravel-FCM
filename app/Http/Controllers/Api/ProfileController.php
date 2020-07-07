@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Jobs\PhoneVerify;
 use Illuminate\Support\Facades\Redis;
+use Twilio\Rest\TwilioClient;
+use Twilio\Jwt\ClientToken;
 
 class ProfileController extends Controller
 {
@@ -921,9 +923,27 @@ class ProfileController extends Controller
 
                 $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
                 $text = $otpNo." is your One Time Password to verify your number with TagTaste. Valid for 5 min.";
-                $client = new Client();
-                $response = $client->get("http://193.105.74.159/api/v3/sendsms/plain?user=".env('SMS_KAP_USERNAME')."&password=".env('SMS_KAP_PASSWORD')."&sender=".env('SMS_KAP_TEMPLATEID')."&SMSText=$text&type=longsms&GSM=91$number");
-
+                $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
+                $authToken  = config('app.twilio')['TWILIO_AUTH_TOKEN'];
+                $client = new TwilioClient($accountSid, $authToken);
+                try
+                {
+                    // Use the client to do fun stuff like send text messages!
+                    $client->messages->create(
+                    // the number you'd like to send the message to
+                        $number,
+                array(
+                        // A Twilio phone number you purchased at twilio.com/console
+                        'from' => '+12058947690',
+                        // the body of the text message you'd like to send
+                        'body' => $text
+                    )
+                );
+        }
+                catch (Exception $e)
+                {
+                    echo "Error: " . $e->getMessage();
+                }
                 $this->model = $profile->update(['otp'=>$otpNo]);
 
                 $job = ((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
