@@ -27,7 +27,8 @@
         "webpatser/laravel-uuid": "2.*",
         "vinelab/neoeloquent": "^1.4",
         "graphaware/neo4j-php-client": "^4.8",
-        "barryvdh/laravel-cors": "^0.9.3"
+        "barryvdh/laravel-cors": "^0.9.3",
+        "twilio/sdk":"4.11.0"
     },
 
     "require-dev": {
