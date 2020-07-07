@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Jobs\PhoneVerify;
 use Illuminate\Support\Facades\Redis;
-use Twilio\Rest\TwilioClient;
+use Twilio\Rest\Client as TwilioClient;
 use Twilio\Jwt\ClientToken;
 
 class ProfileController extends Controller
@@ -931,7 +931,7 @@ class ProfileController extends Controller
                     // Use the client to do fun stuff like send text messages!
                     $client->messages->create(
                     // the number you'd like to send the message to
-                        $number,
+                        '+91'.$number,
                 array(
                         // A Twilio phone number you purchased at twilio.com/console
                         'from' => '+12058947690',
