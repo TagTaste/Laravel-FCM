@@ -1183,4 +1183,18 @@ class ProfileController extends Controller
             }
         }
     }
+
+    public function reviewHelperText(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $tasting_instructions = $request->tasting_instructions == 0 || $request->tasting_instructions == 1 ? $request->tasting_instructions : null;
+        
+        if($tasting_instructions == null) {
+            return $this->sendError('Invalid Input option received');
+        }
+
+        $this->model = Profile::where('id',$loggedInProfileId)
+                            ->update(['tasting_instructions'=>$tasting_instructions]);
+        return $this->sendResponse();
+    }
 }
