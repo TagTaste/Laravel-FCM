@@ -336,6 +336,22 @@ class InsertGlobalQuestion extends Command
             
             "select_type": 2,
             "is_intensity": 1,
+            "initial_intensity":0,
+            "can_select_parent":1,
+            "max_aroma_selection":[
+                {
+                    "sequence_id":1,
+                    "max_selection":3
+                },
+                {
+                    "sequence_id":2,
+                    "max_selection":2
+                },
+                {
+                    "sequence_id":3,
+                    "max_selection":1
+                }
+            ],
             "intensity_type": 2,
             "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
             "is_nested_question": 0,

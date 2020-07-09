@@ -123,7 +123,7 @@ class ReviewController extends Controller
             if($currentStatus == 3)
             {
                 $mandatoryQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
-                    ->where('is_mandatory',1)->get();
+                    ->where('is_mandatory',1)->where('is_nested_question',0)->get();
                 $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
                 $mandatoryReviewCount = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->whereIn('question_id',$mandatoryQuestionsId)->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->distinct('question_id')->count('question_id');
                 if($mandatoryQuestion->count() == $mandatoryReviewCount)

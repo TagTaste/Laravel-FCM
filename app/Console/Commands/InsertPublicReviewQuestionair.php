@@ -910,6 +910,22 @@ class InsertPublicReviewQuestionair extends Command
 
 			"nested_option_title": "AROMAS",
 
+			"initial_intensity":0,
+            "can_select_parent":1,
+            "max_aroma_selection":[
+                {
+                    "sequence_id":1,
+                    "max_selection":3
+                },
+                {
+                    "sequence_id":2,
+                    "max_selection":2
+                },
+                {
+                    "sequence_id":3,
+                    "max_selection":1
+                }
+            ],
 
 
 			"nested_option_list": "AROMA"
