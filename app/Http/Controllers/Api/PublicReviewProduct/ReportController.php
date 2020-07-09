@@ -295,7 +295,12 @@ class ReportController extends Controller
                                         $answerIntensity = explode(",",$answerIntensity);
                                         $questionIntensityValue = $option->intensity_value;
                                         $questionIntensity = [];
-                                        for($i = 1; $i <=(int)$questionIntensityValue ; $i++)
+                                        if(isset($data->questions->initial_intensity)) {
+                                            $temp = $data->questions->initial_intensity;
+                                        } else {
+                                            $temp = 1;
+                                        }
+                                        for($i=$temp ;$i <(int)$questionIntensityValue+$temp ; $i++)
                                         {
                                             $questionIntensity[] = $i;
                                         }
@@ -376,7 +381,12 @@ class ReportController extends Controller
                                 $answerIntensity = explode(",",$answerIntensity);
                                 $questionIntensityValue = $data->questions->intensity_value;
                                 $questionIntensity = [];
-                                for($i = 1; $i <=(int)$questionIntensityValue ; $i++)
+                                if(isset($data->questions->initial_intensity)) {
+                                    $temp = $data->questions->initial_intensity;
+                                } else {
+                                    $temp = 1;
+                                }
+                                for($i=$temp ;$i <(int)$questionIntensityValue+$temp ; $i++)
                                 {
                                     $questionIntensity[] = $i;
                                 }
@@ -424,7 +434,12 @@ class ReportController extends Controller
                                         $answerIntensity = explode(",",$answerIntensity);
                                         $questionIntensityValue = $option->intensity_value;
                                         $questionIntensity = [];
-                                        for($i = 1; $i <=(int)$questionIntensityValue ; $i++)
+                                        if(isset($data->questions->initial_intensity)) {
+                                            $temp = $data->questions->initial_intensity;
+                                        } else {
+                                            $temp = 1;
+                                        }
+                                        for($i=$temp ;$i <(int)$questionIntensityValue+$temp ; $i++)
                                         {
                                             $questionIntensity[] = $i;
                                         }

@@ -13,7 +13,7 @@ class AlterProfilesAddTastingInstruction extends Migration
      */
     public function up()
     {
-        Scheme::table('profiles', function(Blueprint $table){
+        Schema::table('profiles', function(Blueprint $table){
             $table->boolean('tasting_instructions')->default(1);
         });
     }
@@ -25,7 +25,7 @@ class AlterProfilesAddTastingInstruction extends Migration
      */
     public function down()
     {
-        Scheme::table('profiles', function(Blueprint $table){
+        Schema::table('profiles', function(Blueprint $table){
             $table->dropColumn('tasting_instructions');
         });
     }
