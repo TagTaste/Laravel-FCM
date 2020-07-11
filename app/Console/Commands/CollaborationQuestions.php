@@ -123,7 +123,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 'intensity_consistency'=>isset($v['track_consistency']) && isset($v['intensity_consistency']) ? $v['intensity_consistency'] : null,
                                 'benchmark_score'=>isset($v['track_consistency']) ? $v['benchmark_score'] : null,
                                 'benchmark_intensity'=> isset($v['intensity_consistency'])?$v['benchmark_intensity']:null,
-                                'image_url'=>isset($v['image_url'])?$v['image_url']:null
+                                'image_url'=>isset($v['image_url'])?$v['image_url']:null,
+                                'initial_intensity'=>isset($v['initial_intensity'])?$v['initial_intensity']:null
                             ];
                             $i++;
                         }
@@ -222,7 +223,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         $tr = 0;
                         foreach ($questions as $question)
                         {
-                            echo "count is ".$tr."\n";
+                            //echo "count is ".$tr."\n";
                             $checknestedIds = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                 ->where('parent_id',$question->sequence_id)->get()->pluck('id');
                             if(count($checknestedIds))
@@ -297,7 +298,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                     'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
                                     'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0,
-                                    'image_url'=>isset($v['image_url'])?$v['image_url']:null
+                                    'image_url'=>isset($v['image_url'])?$v['image_url']:null,
+                                    'initial_intensity'=>isset($v['initial_intensity'])?$v['initial_intensity']:null
                                 ];
                                 $i++;
                             }
