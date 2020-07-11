@@ -4681,7 +4681,8 @@ class InsertPublicReviewQuestionair extends Command
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                 'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
 								'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0,
-								'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
+								'image_url'=>isset($v['image_url']) ? $v['image_url'] : null,
+								'initial_intensity'=>isset($v['initial_intensity'])?$v['initial_intensity']:null
                             ];
                             $i++;
                         }
@@ -4850,7 +4851,8 @@ class InsertPublicReviewQuestionair extends Command
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                     'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
                                     'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0,
-									'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
+									'image_url'=>isset($v['image_url']) ? $v['image_url'] : null,
+                                    'initial_intensity'=>isset($v['initial_intensity'])?$v['initial_intensity']:null
                                 ];
                                 $i++;
                             }
