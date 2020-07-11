@@ -14,7 +14,7 @@ class AlterCollabRolesAddColumn extends Migration
     public function up()
     {
         Schema::table('collaborate_role', function(Blueprint $table){
-            $table->string('helper_text');
+            $table->string('helper_text', 300);
          });
     }
 

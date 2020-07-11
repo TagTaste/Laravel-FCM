@@ -115,7 +115,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"select_type": 6
+			"select_type": 6,
+
+			"placeholder_image": "www.google.com"
 
 
 
@@ -908,6 +910,22 @@ class InsertPublicReviewQuestionair extends Command
 
 			"nested_option_title": "AROMAS",
 
+			"initial_intensity":0,
+            "can_select_parent":1,
+            "max_aroma_selection":[
+                {
+                    "sequence_id":1,
+                    "max_selection":3
+                },
+                {
+                    "sequence_id":2,
+                    "max_selection":2
+                },
+                {
+                    "sequence_id":3,
+                    "max_selection":1
+                }
+            ],
 
 
 			"nested_option_list": "AROMA"
@@ -1196,7 +1214,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"is_nested_option": 0,
-
+			"initial_intensity":2,
 
 
 			"is_mandatory": 1,
@@ -1232,7 +1250,7 @@ class InsertPublicReviewQuestionair extends Command
 					"intensity_type": 2,
 
 
-
+					"initial_intensity":2,
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
@@ -1251,7 +1269,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"is_intensity": 1,
 
-
+					"initial_intensity":2,
 
 					"intensity_type": 2,
 
@@ -1282,7 +1300,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
-
+					"initial_intensity":2,
 
 					"intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
 
@@ -1307,7 +1325,7 @@ class InsertPublicReviewQuestionair extends Command
 					"intensity_type": 2,
 
 
-
+					"initial_intensity":2,
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
@@ -1334,7 +1352,7 @@ class InsertPublicReviewQuestionair extends Command
 					"intensity_type": 2,
 
 
-
+					"initial_intensity":2,
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
@@ -1404,7 +1422,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
+			"initial_intensity":2,
 
 
 			"is_nested_option": 0,
@@ -3032,7 +3050,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
+			"initial_intensity":0,
 
 
 			"option": [
@@ -3051,6 +3069,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"is_intensity": 1,
+
+					"initial_intensity":0,
 
 
 
@@ -3075,6 +3095,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"is_intensity": 1,
+
+					"initial_intensity":0,
 
 
 
@@ -3107,6 +3129,8 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
+					"initial_intensity":0,
+
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -3134,6 +3158,8 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
+					"initial_intensity":0,
+
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -3155,6 +3181,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"intensity_type": 2,
+
+					"initial_intensity":0,
 
 
 
@@ -3178,6 +3206,8 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
+					"initial_intensity":0,
+
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -3199,6 +3229,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"intensity_type": 2,
+
+					"initial_intensity":0,
 
 
 
@@ -3245,6 +3277,8 @@ class InsertPublicReviewQuestionair extends Command
 					"intensity_type": 2,
 
 
+					"initial_intensity":0,
+
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
@@ -3262,7 +3296,7 @@ class InsertPublicReviewQuestionair extends Command
 
          
 
-          "option_type": 2,
+          			"option_type": 2,
 
 
 
@@ -4569,7 +4603,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'test_test','keywords'=>"generic_burger_bev_pair_v1",'description'=>null,
+        $data = ['name'=>'initial_intensity','keywords'=>"generic_burger_bev_pair_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
@@ -4793,7 +4827,8 @@ class InsertPublicReviewQuestionair extends Command
                                 $option[] = [
                                     'id' => $i,
                                     'value' => $v,
-                                    'option_type'=>$option_type
+                                    'option_type'=>$option_type,
+									'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                                 ];
                                 $i++;
                             }
@@ -4814,7 +4849,8 @@ class InsertPublicReviewQuestionair extends Command
                                     'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                     'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
-                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0
+                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0,
+									'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                                 ];
                                 $i++;
                             }
@@ -4836,7 +4872,8 @@ class InsertPublicReviewQuestionair extends Command
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v,
-                                'option_type'=>$option_type
+                                'option_type'=>$option_type,
+								'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                             ];
                             $i++;
                         }

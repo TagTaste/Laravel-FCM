@@ -604,7 +604,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("establishmentType","ProfileController@establishmentType");
         Route::get("profile/getAllergens","ProfileController@getAllergens");
         Route::post("profile/addAllergens","ProfileController@addAllergens");
-        Route::post("profile/reviewHelperText","profileController@reviewHelperText");
+        Route::post("profile/reviewHelperText","ProfileController@reviewHelperText");
         Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
         Route::post('profile/nestedFollow',['uses'=>'ProfileController@nestedFollow']);
         Route::post('profile/follow',['uses'=>'ProfileController@follow']);
