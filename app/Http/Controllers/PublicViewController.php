@@ -73,7 +73,7 @@ class PublicViewController extends Controller
                 $modelName => $collection_model, 
                 'meta' => $meta
             ];
-        } else if ($modelName === 'FeedCard') { 
+        } else if ($modelName === 'feedCard') { 
             $this->model = [
                 $modelName => $model,
                 'meta' => $meta

@@ -267,7 +267,7 @@ class Shoutout extends Model implements Feedable
         $title = "TagTaste | Post";
         $description = "";
         if (!is_null($this->content)) {
-            $description = substr($this->getContent($this->content),0,160)."...";
+            $description = substr(htmlspecialchars_decode($this->getContent($this->content)),0,160)."...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
         }

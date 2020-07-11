@@ -61,5 +61,8 @@
             <loc>{{ Config::get('app.url') }}/sitemap-shared-shoutout.xml</loc>
         </sitemap>
     @endif
+    <sitemap>
+        <loc>{{ Config::get('app.url') }}/sitemap-miscellaneous.xml</loc>
+    </sitemap>
 
 </sitemapindex>

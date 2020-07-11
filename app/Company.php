@@ -634,9 +634,9 @@ class Company extends Model
     public function getSeoTags() : array
     {
         $follower_count = $this->getFollowerProfilesAttribute()['count'];
-        $title = "TagTaste | ".$this->name." | Profile";
+        $title = "TagTaste | ".htmlspecialchars_decode($this->name)." | Profile";
         
-        $description = "View ".$this->name."'s profile on TagTaste. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate.";
+        $description = "View ".htmlspecialchars_decode($this->name)."'s profile on TagTaste. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate.";
 
         $seo_tags = [
             "title" => $title,

@@ -306,7 +306,7 @@ class PublicReviewProduct extends Model
         
         $description = "";
         if (!is_null($this->description)) {
-            $description = substr($this->description,0,160)."...";
+            $description = substr(htmlspecialchars_decode($this->description),0,160)."...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
         }

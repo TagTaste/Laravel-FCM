@@ -85,6 +85,7 @@ Route::get('/sitemap-shared-collaborations.xml', 'SitemapController@sharedCollab
 Route::get('/sitemap-shared-products.xml', 'SitemapController@sharedProducts');
 Route::get('/sitemap-shared-pollings.xml', 'SitemapController@sharedPolls');
 Route::get('/sitemap-shared-shoutout.xml', 'SitemapController@sharedShoutouts');
+Route::get('/sitemap-miscellaneous.xml', 'SitemapController@miscellaneous');
 
 // unsubscribe
 /**
