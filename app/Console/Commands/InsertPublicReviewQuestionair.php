@@ -1214,7 +1214,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"is_nested_option": 0,
-
+			"initial_intensity":2,
 
 
 			"is_mandatory": 1,
@@ -1250,7 +1250,7 @@ class InsertPublicReviewQuestionair extends Command
 					"intensity_type": 2,
 
 
-
+					"initial_intensity":2,
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
@@ -1269,7 +1269,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"is_intensity": 1,
 
-
+					"initial_intensity":2,
 
 					"intensity_type": 2,
 
@@ -1300,7 +1300,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
-
+					"initial_intensity":2,
 
 					"intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
 
@@ -1325,7 +1325,7 @@ class InsertPublicReviewQuestionair extends Command
 					"intensity_type": 2,
 
 
-
+					"initial_intensity":2,
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
@@ -1352,7 +1352,7 @@ class InsertPublicReviewQuestionair extends Command
 					"intensity_type": 2,
 
 
-
+					"initial_intensity":2,
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
@@ -1422,7 +1422,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
+			"initial_intensity":2,
 
 
 			"is_nested_option": 0,
@@ -3050,7 +3050,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
+			"initial_intensity":0,
 
 
 			"option": [
@@ -3069,6 +3069,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"is_intensity": 1,
+
+					"initial_intensity":0,
 
 
 
@@ -3093,6 +3095,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"is_intensity": 1,
+
+					"initial_intensity":0,
 
 
 
@@ -3125,6 +3129,8 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
+					"initial_intensity":0,
+
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -3152,6 +3158,8 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
+					"initial_intensity":0,
+
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -3173,6 +3181,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"intensity_type": 2,
+
+					"initial_intensity":0,
 
 
 
@@ -3196,6 +3206,8 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
+					"initial_intensity":0,
+
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -3217,6 +3229,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"intensity_type": 2,
+
+					"initial_intensity":0,
 
 
 
@@ -3263,6 +3277,8 @@ class InsertPublicReviewQuestionair extends Command
 					"intensity_type": 2,
 
 
+					"initial_intensity":0,
+
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
@@ -3280,7 +3296,7 @@ class InsertPublicReviewQuestionair extends Command
 
          
 
-          "option_type": 2,
+          			"option_type": 2,
 
 
 
@@ -4587,7 +4603,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'nested_question_image','keywords'=>"generic_burger_bev_pair_v1",'description'=>null,
+        $data = ['name'=>'initial_intensity','keywords'=>"generic_burger_bev_pair_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);

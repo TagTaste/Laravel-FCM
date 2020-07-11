@@ -230,9 +230,19 @@ class QuestionController extends Controller
         {
             $squence = \DB::table('collaborate_tasting_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
+            if($squence->parent_id == null)
+                $parent_sequence_id = $squence->sequence_id;
+            else
+                $parent_sequence_id = $this->getParentSequence($squence->parent_id,$questionId);
             $this->model['question'] = \DB::table('collaborate_tasting_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
-            $leafIds = $this->model['question']->pluck('id');
+                $aromas = [];
+                $leafIds = $this->model['question']->pluck('id');
+                foreach($this->model['question'] as $aroma) {
+                    $aroma->parent_sequence_id = $parent_sequence_id;
+                    $aromas[] = $aroma;
+                } 
+                $this->model['question'] = $aromas;
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
                 ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->whereIn('leaf_id',$leafIds)
                 ->where('question_id',$questionId)->get()->groupBy('question_id');
@@ -259,6 +269,19 @@ class QuestionController extends Controller
 
     }
 
+    public function getParentSequence($id,$questionId)
+    {
+        $aroma = \DB::table('collaborate_tasting_nested_options')
+                        ->where('sequence_id',$id)
+                        ->where('is_active',1)
+                        ->where('question_id',$questionId)
+                        ->first();
+        if($aroma->parent_id == null)
+            return $id;
+        else
+            $this->getParentSequence($aroma->parent_id,$questionId);
+    }
+
     public function getNestedOptionSearch(Request $request, $collaborateId, $headerId, $questionId)
     {
         $this->model = [];
@@ -269,6 +292,15 @@ class QuestionController extends Controller
         }
         $this->model['option'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
             ->where('collaborate_id',$collaborateId)->where('is_active',1)->where('value','like',"%$term%")->get();
+            $options = [];
+        foreach ($this->model['option'] as $option) {
+            if($option->parent_id == null)
+            $parent_sequence_id = $option->sequence_id;
+            else
+            $parent_sequence_id = $this->getParentSequence($option->parent_id,$questionId);
+            $option->parent_sequence_id = $parent_sequence_id;
+                $options[] = $option;
+        }
         return $this->sendResponse();
     }
 

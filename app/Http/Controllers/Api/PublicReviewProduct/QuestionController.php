@@ -144,9 +144,19 @@ class QuestionController extends Controller
         {
             $squence = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('global_question_id',$product->global_question_id)->where('id',$id)->first();
+            if($squence->parent_id == null)
+            $parent_sequence_id = $squence->sequence_id;
+            else
+            $parent_sequence_id = $this->getParentSequence($squence->parent_id,$questionId);
             $this->model['question'] = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('global_question_id',$product->global_question_id)->where('parent_id',$squence->sequence_id)->get();
+            $aromas = [];
             $leafIds = $this->model['question']->pluck('id');
+            foreach($this->model['question'] as $aroma) {
+                $aroma->parent_sequence_id = $parent_sequence_id;
+                $aromas[] = $aroma;
+            }    
+            $this->model['question'] = $aromas;
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$product->id)
                 ->where('header_id',$headerId)->whereIn('leaf_id',$leafIds)
                 ->where('question_id',$questionId)->get()->groupBy('question_id');
@@ -174,7 +184,18 @@ class QuestionController extends Controller
         return $this->sendResponse();
 
     }
-
+    public function getParentSequence($id,$questionId)
+    {
+        $aroma = \DB::table('public_review_nested_options')
+                        ->where('sequence_id',$id)
+                        ->where('is_active',1)
+                        ->where('question_id',$questionId)
+                        ->first();
+        if($aroma->parent_id == null)
+            return $id;
+        else
+            $this->getParentSequence($aroma->parent_id,$questionId);
+    }
     public function getNestedOptionSearch(Request $request, $productId, $headerId, $questionId)
     {
         $this->model = [];
@@ -185,6 +206,15 @@ class QuestionController extends Controller
         }
         $this->model['option'] = \DB::table('public_review_nested_options')->where('question_id',$questionId)
             ->where('global_question_id',$product->global_question_id)->where('is_active',1)->where('value','like',"%$term%")->get();
+            //$options = [];
+        foreach ($this->model['option'] as $option) {
+            if($option->parent_id == null)
+            $parent_sequence_id = $option->sequence_id;
+            else
+            $parent_sequence_id = $this->getParentSequence($option->parent_id,$questionId);
+            $option->parent_sequence_id = $parent_sequence_id;
+                //$options[] = $option;
+        }
         return $this->sendResponse();
     }
 
