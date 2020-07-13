@@ -54,7 +54,7 @@ class Profile extends Model
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount','document_meta', 'palate_sensitivity'];
+        'cuisines','allergens','interested_collections','fb_info','reviewCount','privateReviewCount','totalPostCount', 'imagePostCount','document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount'];
 
     /**
         profile completion mandatory field
@@ -1298,6 +1298,11 @@ class Profile extends Model
         return \DB::table('public_product_user_review')->where('profile_id',$this->id)->where('current_status',2)->get()->unique('product_id')->count();
     }
 
+    public function getPrivateReviewCountAttribute()
+    {
+        return \DB::table('collaborate_tasting_user_review')->where('profile_id',$this->id)->where('current_status',3)->get()->unique('batch_id')->count();
+    }
+
     public function shippingaddress()
     {
         return $this->hasMany('App\Profile\ShippingAddress');
@@ -1355,6 +1360,53 @@ class Profile extends Model
     {
         return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->whereNull('deleted_at')->count();
     }
+
+    // count calculation function start
+    public function getShoutoutPostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shoutout')->whereNull('deleted_at')->count();
+    }
+
+    public function getShoutoutSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Shoutout')->whereNull('deleted_at')->count();
+    }
+
+    public function getCollaboratePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Collaborate')->whereNull('deleted_at')->count();
+    }
+
+    public function getCollaborateSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Collaborate')->whereNull('deleted_at')->count();
+    }
+
+    public function getPhotoPostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->whereIn('model',['App\Photo', 'App\V2\Photo'])->whereNull('deleted_at')->count();
+    }
+
+    public function getPhotoSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Photo')->whereNull('deleted_at')->count();
+    }
+
+    public function getPollingPostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Polling')->whereNull('deleted_at')->count();
+    }
+
+    public function getPollingSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Polling')->whereNull('deleted_at')->count();
+    }
+
+    public function getProductSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Product')->whereNull('deleted_at')->count();
+    }
+    // count calculation function end 
 
     public function getImagePostCountAttribute()
     {

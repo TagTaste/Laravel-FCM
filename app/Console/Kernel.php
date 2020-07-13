@@ -149,6 +149,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ChangeAffiliationsCommand::class,
         \App\Console\Commands\ChatGroup::class,
 
+        // set update profile compiled detail run once
+        \App\Console\Commands\UpdateProfileCompiledInfo::class,
+
         //expire poll
         ExpirePolling::class,
         
@@ -276,6 +279,8 @@ class Kernel extends ConsoleKernel
         //daily polling expire at 12
         $schedule->command('expires_on:polling')->dailyAt('12:00');
 
+        //daily polling expire at 12
+        $schedule->command('profile_compiled_detail:update')->dailyAt('13:55');
 
         //$schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
         //$schedule->command('follow:company')->weekly()->wednesdays()->at('00:00');;
