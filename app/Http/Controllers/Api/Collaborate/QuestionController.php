@@ -276,7 +276,7 @@ class QuestionController extends Controller
                         ->where('is_active',1)
                         ->where('question_id',$questionId)
                         ->first();
-        if($aroma->parent_id == null)
+        if($aroma == null || $aroma->parent_id == null)
             return $id;
         else
             $this->getParentSequence($aroma->parent_id,$questionId);
