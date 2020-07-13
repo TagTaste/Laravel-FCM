@@ -280,7 +280,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:polling')->dailyAt('12:00');
 
         //daily polling expire at 12
-        $schedule->command('profile_compiled_detail:update')->dailyAt('13:55');
+        $schedule->command('profile_compiled_detail:update')->dailyAt('14:05');
 
         //$schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
         //$schedule->command('follow:company')->weekly()->wednesdays()->at('00:00');;
