@@ -934,7 +934,7 @@ class ProfileController extends Controller
                         '+91'.$number,
                 array(
                         // A Twilio phone number you purchased at twilio.com/console
-                        'from' => '+12058947690',
+                        'from' => env('TWILIO_PHONE'),
                         // the body of the text message you'd like to send
                         'body' => $text
                     )
