@@ -7,7 +7,6 @@ use App\ProfileCompiledInfo;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Log;
 
 class UpdateProfileCompiledInfo extends Command
 {
