@@ -404,6 +404,7 @@ class ReportController extends Controller
                             $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
                             $answer->intensity_value = $data->questions->intensity_value;
                             $answer->intensity_type = $data->questions->intensity_type;
+                            $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
                         }
                         else
                         {
@@ -457,6 +458,7 @@ class ReportController extends Controller
                                     $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
                                     $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
                                     $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
+                                    $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
                                 }
 
                             }
