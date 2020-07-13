@@ -43,6 +43,7 @@ use App\Console\Commands\SetPlatformAndroid;
 use App\Console\Commands\ShoutoutPreviewUpdate;
 use App\Console\Commands\SocialConnectedAddFlag;
 use App\Console\Commands\UpdateNotificationModel;
+use App\Console\Commands\UpdateProfileCompiledInfo;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\SettingChanges as SettingChanges;
@@ -148,6 +149,9 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\ChangeAffiliationsCommand::class,
         \App\Console\Commands\ChatGroup::class,
+
+        // set update profile compiled detail run once
+        UpdateProfileCompiledInfo::class,
 
         //expire poll
         ExpirePolling::class,
@@ -276,6 +280,10 @@ class Kernel extends ConsoleKernel
         //daily polling expire at 12
         $schedule->command('expires_on:polling')->dailyAt('12:00');
 
+        //daily polling expire at 12
+        $schedule->command(UpdateProfileCompiledInfo::class)->dailyAt('12:00');
+
+        // $schedule->command('profile_compiled_detail:update')->dailyAt('14:05');
 
         //$schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
         //$schedule->command('follow:company')->weekly()->wednesdays()->at('00:00');;
