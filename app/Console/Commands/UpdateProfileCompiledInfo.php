@@ -41,7 +41,7 @@ class UpdateProfileCompiledInfo extends Command
     {
         $timestamp = Carbon::now();
 
-        Profile::where('id',14)->whereNull('deleted_at')->chunk(200, function($profiles) use ($timestamp) {
+        Profile::whereNull('deleted_at')->chunk(200, function($profiles) use ($timestamp) {
             foreach($profiles as $model) {
                 $data = array(
                     'profile_id' => $model->id,
@@ -59,7 +59,7 @@ class UpdateProfileCompiledInfo extends Command
                     'private_review_count' => $model->privateReviewCount,
                     'public_review_count' => $model->reviewCount
                 );
-                
+
                 $profile_compiled_info = ProfileCompiledInfo::where('profile_id', $model->id)->first();
                 if (is_null($profile_compiled_info)) {
                     $data['profile_id'] = $model->id;
