@@ -24,7 +24,7 @@ Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'], function() {
     Route::resource('types','TypeController');
 });
 Route::get('privacy','Api\PrivacyController@index');
-
+Route::post('mail/tieReport','GeneralMailController@tieReportMail');
 Route::post('login',function(Request $request) {
     $credentials = $request->only('email','password');
 //    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
@@ -162,7 +162,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("search/explore","ExplorePageController@explore");
             Route::get("search_test/explore_test","ExplorePageController@exploreTest");
         });
-
+        //Routes to get personalised meta
+        Route::get("/meta/{modelName}/{modelId}","MetaController@getMeta");
+        Route::get("/meta/{modelName}/{id}/{modelId}","MetaController@getSharedMeta");
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {
             Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
             Route::get("chatGroup",'ChatController@chatGroup');
@@ -200,16 +202,23 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::resource("photos","PhotoController");
                 Route::get("collaborate/draft","CollaborateController@draft");
                 Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
+                Route::get('collaborate/{collaborateId}/allSubmissions/{userId}', 'CollaborateController@allSubmissions');
+                Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                 Route::resource("collaborate","CollaborateController");
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                     Route::post('collaborate/{collaborateId}/assignRole', 'CollaborateController@assignRole');
                     Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                     Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
+                    Route::get("collaborate/{id}/cities","CollaborateController@getCities");
+                    Route::get("collaborate/{id}/cities/{cityId}/outlets","CollaborateController@getOutlets");
+                    Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}","CollaborateController@outletStatus");
                     Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                     Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
                     Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
+                    Route::get('collaborate/{collaborateId}/allSubmissions/{userId}', 'CollaborateController@allSubmissions');
+                    Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                     Route::delete('collaborate/{collaborateId}/deleteRoles','CollaborateController@deleteRoles');
                     Route::get('collaborate/{collaborateId}/getRole','CollaborateController@getProfileRole'); 
                 });
@@ -321,6 +330,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         //get premium companies
         Route::get("profile/premium","ProfileController@getPremium");
+        Route::post('profile/{id}/update-details',['uses'=>'ProfileController@updateDetails']);
+        Route::post('company/{id}/update-details',['uses'=>'CompanyController@updateDetails']);
 
         //jobs
         Route::get("jobs/all","JobController@all");
@@ -355,6 +366,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("collaborate/{id}/applications","CollaborateController@applications");
         Route::get("collaborate/{id}/archived","CollaborateController@archived");
         Route::post("collaborate/{id}/apply","CollaborateController@apply");
+        Route::patch("collaborate/{id}/addAddress","CollaborateController@addAddress");
+        Route::post("collaborate/{id}/contestSubmission","CollaborateController@contestSubmission");
+        Route::get("collaborate/{id}/getSubmissions","CollaborateController@getSubmissions");
         Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
         Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
         Route::post("uploadBrandLogo","CollaborateController@uploadBrandLogo");
@@ -381,6 +395,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function() {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
                 Route::get("userBatches",'BatchController@userBatches');
+                Route::put("batches/{batchId}/foodBillStatus",'BatchController@foodBillStatus');
                 Route::post("beginTasting",'BatchController@beginTasting');//required
                 Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
                 Route::post('removeFromBatch','BatchController@removeFromBatch');//required
@@ -418,7 +433,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");//->middleware('permissionCollaborate');
             //});
 
-            Route::post("showInterest","ApplicantController@store");
+            Route::post("showInterest","ApplicantController@store")->middleware('iosCollaborate');
+            Route::get("cities/{cityId}/outlets","ApplicantController@getOutlets");
+            Route::get("cities","ApplicantController@getCities");
             Route::resource('collaborateApplicants','ApplicantController');//->middleware('permissionCollaborate');
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting
@@ -567,6 +584,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("establishmentType","ProfileController@establishmentType");
         Route::get("profile/getAllergens","ProfileController@getAllergens");
         Route::post("profile/addAllergens","ProfileController@addAllergens");
+        Route::post("profile/reviewHelperText","ProfileController@reviewHelperText");
         Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
         Route::post('profile/nestedFollow',['uses'=>'ProfileController@nestedFollow']);
         Route::post('profile/follow',['uses'=>'ProfileController@follow']);
@@ -703,6 +721,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         // Route::resource("certifications","CertificationController");
     
         Route::post("/uploadFiles","UploadFilesController@uploadFiles");
+        Route::post("/uploadContestFiles","UploadFilesController@uploadContestFiles");
 
         Route::post("/preview",function(Request $request){
             $url = $request->input('url');

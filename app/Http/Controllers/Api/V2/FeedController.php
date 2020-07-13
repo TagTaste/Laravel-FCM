@@ -24,12 +24,14 @@ class FeedController extends Controller
     protected $feed_card_count = 0;
     
     //things that calculate the feed card on feed
-    public function feed_card_computation()
+    public function feed_card_computation($profileId)
     {
         $profile_feed_card = FeedCard::where('data_type','profile')->where('is_active',1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
         if (!is_null($profile_feed_card)) {
             $this->feed_card['profile_card']['feedCard'] = $profile_feed_card;
-            $this->feed_card['profile_card']['meta'] = $profile_feed_card->getMetaFor();
+            $meta = $profile_feed_card->getMetaFor();
+            $meta["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$profile_feed_card["data_id"]);
+            $this->feed_card['profile_card']['meta'] = $meta;
             $this->feed_card['profile_card']['type'] = "feedCard";
             $this->feed_card_count = $this->feed_card_count + 1;
         }
@@ -37,7 +39,9 @@ class FeedController extends Controller
         $company_feed_card = FeedCard::where('data_type','company')->where('is_active',1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
         if (!is_null($company_feed_card)) {
             $this->feed_card['company_card']['feedCard'] = $company_feed_card;
-            $this->feed_card['company_card']['meta'] = $company_feed_card->getMetaFor();
+            $meta = $company_feed_card->getMetaFor();
+            $meta["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$company_feed_card["data_id"]);
+            $this->feed_card['company_card']['meta'] = $meta;
             $this->feed_card['company_card']['type'] = "feedCard";
             $this->feed_card_count = $this->feed_card_count + 1;
         }
@@ -57,8 +61,8 @@ class FeedController extends Controller
     {
         if(($request->header('x-version') != null 
                 && $request->header('x-version') < 80) || 
-            ($request->header('x-ios-version') != null 
-                && version_compare("4.2.7", $request->header('x-ios-version'))))   {
+            ($request->header('x-version-ios') != null 
+                && version_compare("4.2.7", $request->header('x-version-ios'),">")))   {
                     $pollPayloadIds = $this->getNewVersionOfPollPayloads();
                     $this->modelNotIncluded = array_merge($this->modelNotIncluded,$pollPayloadIds);
             }
@@ -89,14 +93,20 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
+
+        $profileId = $request->user()->profile->id;
+
         list($skip,$take) = Paginator::paginate($page, 13);
 
+        $this->feed_card_computation($profileId);
         if ($skip == 0) {
-            $this->feed_card_computation();
             $take = $take - $this->feed_card_count;
+        } else {
+            $skip = $skip - $this->feed_card_count;
+            $this->feed_card_count = 0;
         }
         
-        $profileId = $request->user()->profile->id;
+       
         $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
             ->where('report_content.profile_id', $profileId)
             ->pluck('channel_payloads.id')->toArray();
@@ -906,16 +916,24 @@ class FeedController extends Controller
             "type" => "suggestion",
         );
 
+        $food_panda_product = \DB::table('public_product_user_review')
+            ->where('source',2)
+            ->distinct('product_id')
+            ->pluck('product_id')
+            ->toArray();
+
         $applied_product_review = \DB::table('public_product_user_review')
             ->where('profile_id',$profileId)
             ->where('current_status',2)
             ->distinct('product_id')
             ->pluck('product_id')
             ->toArray();
+        
+        $rejected_product_list = array_unique(array_merge($food_panda_product, $applied_product_review));
 
         $public_review_product = PublicReviewProduct::where('is_active',1)
             ->where('is_suggestion_allowed',1)
-            ->whereNotIn('id',$applied_product_review)
+            ->whereNotIn('id',$rejected_product_list )
             ->whereNull('deleted_at')
             ->inRandomOrder()
             ->get(['id', 'global_question_id'])

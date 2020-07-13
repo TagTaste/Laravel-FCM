@@ -115,7 +115,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"select_type": 6
+			"select_type": 6,
+
+			"placeholder_image": "www.google.com"
 
 
 
@@ -155,7 +157,12 @@ class InsertPublicReviewQuestionair extends Command
 
 			"is_mandatory": 1,
 
-
+			"info": 
+				{
+				"text": "blah",
+				"image": "blah"
+				}
+			,
 
 			"option": [
 
@@ -175,9 +182,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"is_intensity": 0
+					"is_intensity": 0,
 
-
+					"image_url":"hello.txt"
 
 				},
 
@@ -191,7 +198,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"is_intensity": 0
+					"is_intensity": 0,
+
+					"image_url":"hello.txt"
 
 
 
@@ -208,7 +217,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"is_intensity": 0
+					"is_intensity": 0,
+
+					"image_url":"hello.txt"
 
 
 
@@ -228,7 +239,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"is_intensity": 0
+					"is_intensity": 0,
+
+					"image_url":"hello.txt"
 
 
 
@@ -244,7 +257,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"is_intensity": 0
+					"is_intensity": 0,
+
+					"image_url":"hello.txt"
 
 
 
@@ -261,7 +276,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"is_intensity": 0
+					"is_intensity": 0,
+
+					"image_url":"hello.txt"
 
 
 
@@ -281,7 +298,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"is_intensity": 0
+					"is_intensity": 0,
+
+					"image_url":"hello.txt"
 
 
 
@@ -4552,7 +4571,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_burger_bev_pair_v1','keywords'=>"generic_burger_bev_pair_v1",'description'=>null,
+        $data = ['name'=>'nested_question_image','keywords'=>"generic_burger_bev_pair_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
@@ -4586,7 +4605,8 @@ class InsertPublicReviewQuestionair extends Command
                 $subquestions = isset($item['question']) ? $item['question'] : [];
                 $isNested = isset($item['is_nested_question']) && $item['is_nested_question'] == 1 ? 1 : 0;
                 $isMandatory = isset($item['is_mandatory']) && $item['is_mandatory'] == 1 ? 1 : 0;
-                $option = isset($item['option']) ? $item['option'] : null;
+				$option = isset($item['option']) ? $item['option'] : null;
+				
                 if(isset($item['select_type']) && !is_null($option))
                 {
                     $value = $item['option'];
@@ -4628,7 +4648,8 @@ class InsertPublicReviewQuestionair extends Command
                                 'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                 'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
-                                'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0
+								'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0,
+								'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                             ];
                             $i++;
                         }
@@ -4658,7 +4679,7 @@ class InsertPublicReviewQuestionair extends Command
                 }
                 if(count($option))
                     $item['option'] = $option;
-                unset($item['question']);
+				unset($item['question']);
                 $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested_question'=>$isNested,
                     'questions'=>json_encode($item,true),'parent_question_id'=>null,
                     'header_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','global_question_id'=>$globalQuestion->id];
@@ -4774,7 +4795,8 @@ class InsertPublicReviewQuestionair extends Command
                                 $option[] = [
                                     'id' => $i,
                                     'value' => $v,
-                                    'option_type'=>$option_type
+                                    'option_type'=>$option_type,
+									'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                                 ];
                                 $i++;
                             }
@@ -4795,7 +4817,8 @@ class InsertPublicReviewQuestionair extends Command
                                     'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                     'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
-                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0
+                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0,
+									'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                                 ];
                                 $i++;
                             }
@@ -4817,7 +4840,8 @@ class InsertPublicReviewQuestionair extends Command
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v,
-                                'option_type'=>$option_type
+                                'option_type'=>$option_type,
+								'image_url'=>isset($v['image_url']) ? $v['image_url'] : null
                             ];
                             $i++;
                         }

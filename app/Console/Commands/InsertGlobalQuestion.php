@@ -37,12 +37,14 @@ class InsertGlobalQuestion extends Command
      */
     public function handle()
     {
+        $track_consistency = 1;
        $headerInfo2 = [
 
 
 
         ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
 
+        ['header_name' => "Food Bill Shot", 'header_selection_type' => "3"],
 
         ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product and answer the questions outlined below."],'header_selection_type'=>"1"],
 
@@ -74,6 +76,19 @@ class InsertGlobalQuestion extends Command
         "select_type": 4
     }],
     
+    "Food Bill Shot": [{
+        "title": "Take a selfie with the product",
+        "subtitle": "Reviews look more authentic when you post them with a photograph.",
+        "select_type": 6,
+        "track_consistency":1
+    },
+    {
+        "title": "Take a selfie with the bill",
+        "subtitle": "Reviews look more authentic when you post them with a photograph.",
+        "select_type": 6
+    }
+    ],
+
     "APPEARANCE": [{
             "title": "What is the serving temperature of the product?",
             "subtitle": "You may also touch the product to assess the serving temperature.",
@@ -81,25 +96,39 @@ class InsertGlobalQuestion extends Command
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
+            "track_consistency":1,
+            "info": 
+				{
+				"text": "blah",
+				"image": "blah"
+				}
+			,
             "option": [{
                     "value": "Frozen",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Chilled",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Cold",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Room temperature",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "track_consistency":1,
+                    "benchmark_score":75,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Warm",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 },
                 {
                     "value": "Hot",
@@ -107,7 +136,8 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                     "value": "Burning hot",
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "image_url": "dfgergewgrwv"
                 }
             ]
         },
@@ -309,6 +339,11 @@ class InsertGlobalQuestion extends Command
             "intensity_type": 2,
             "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
             "is_nested_question": 0,
+            "track_consistency":1,
+            "intensity_consistency": "weak",
+            "benchmark_intensity":5.2,
+            "nested_option_consistency": 386,
+            "benchmark_score":68,
             "is_mandatory": 1,
             "is_nested_option": 1,
             "nested_option_list": "AROMA",
@@ -366,10 +401,15 @@ class InsertGlobalQuestion extends Command
             "is_nested_option": 0,
             "is_mandatory": 1,
             "select_type": 2,
+            "track_consistency":1,
             "option": [{
                     "value": "Sweet",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "track_consistency":1,
+                    "intensity_consistency":"weak",
+                    "benchmark_intensity":4.0,
+                    "benchmark_score":50,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
@@ -1046,8 +1086,8 @@ class InsertGlobalQuestion extends Command
     ]
 }';
 
-        $data = ['name'=>'Condiments_Asian_Sauce_Private_12th Feb 20','keywords'=>"Condiments_Asian_Sauce_Private_12th Feb 20",'description'=>null,
-            'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
+        $data = ['name'=>'test_test Feb 20','keywords'=>"Condiments_Asian_Sauce_Private_12th Feb 20",'description'=>null,
+            'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true),'track_consistency'=>$track_consistency];
         \DB::table('global_questions')->insert($data);
 
 

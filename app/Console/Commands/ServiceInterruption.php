@@ -40,6 +40,8 @@ class ServiceInterruption extends Command
     public function handle()
     {
         User::with([])->whereNull('deleted_at')
+            ->whereNotNull('verified_at')
+            ->whereIn('id',[728])
             ->orderBy('id')->chunk(100,function($models) {
                 $count = 0;
                 foreach ($models as $model)

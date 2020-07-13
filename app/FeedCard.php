@@ -12,9 +12,9 @@ class FeedCard extends Model
 
     protected $table = 'feed_card';
 
-    protected $fillable = ['data_type','data_id','title','subtitle','name','image','description','icon','is_active','profile', 'company','created_at','updated_at','deleted_at'];
+    protected $fillable = ['data_type','data_id','title','subtitle','name','image','description','tagline','icon','is_active','profile', 'company','created_at','updated_at','deleted_at'];
 
-    protected $visible = ['id','title','subtitle','name','image_meta','description','icon','profile', 'company'];
+    protected $visible = ['id','title','subtitle','name','image_meta','description','tagline','icon','profile', 'company'];
 
     protected $appends = ['profile', 'company', 'image_meta'];
 
@@ -52,7 +52,7 @@ class FeedCard extends Model
      */
     public function getImageMetaAttribute()
     {   
-        if (is_null($this->image) && !is_null(json_decode($this->image))) {
+        if (!is_null($this->image) && !is_null(json_decode($this->image))) {
             return json_decode($this->image);
         } else {
             if ($this->data_type == "profile" && isset($this->profile->image_meta) && !is_null($this->profile->image_meta) && !is_null(json_decode($this->profile->image_meta))) {
@@ -83,14 +83,14 @@ class FeedCard extends Model
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $this->id;
-        $data['title'] = 'Check out '.$this->title.' on TagTaste';
+        $data['title'] = 'Checkout '.$this->title.' on TagTaste';
         $data['description'] = substr($this->description,0,155);
-        $data['ogTitle'] = 'Check out '.$this->title.' on TagTaste';
+        $data['ogTitle'] = 'Checkout '.$this->title.' on TagTaste';
         $data['ogDescription'] = substr($this->description,0,155);
         $data['ogImage'] = $this->image_meta->original_photo;
         $data['cardType'] = 'summary_large_image';
-        $data['ogUrl'] = env('APP_URL').'/feed_card/'.$this->id;
-        $data['redirectUrl'] = env('APP_URL').'/feed_card/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/feed/card/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/feed/card/'.$this->id;
         if(empty($this->image_meta->original_photo)) {
             $data['cardType'] = 'summary';
         }

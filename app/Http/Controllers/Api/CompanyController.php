@@ -97,4 +97,31 @@ class CompanyController extends Controller {
         return $this->sendResponse();
     }
 
+    public function updateDetails(Request $request, $id)
+    {
+        $data = $request->only(["verified"]);
+
+        foreach ($data as $key => $value) {
+            if (is_null($value)) {
+                unset($data[$key]);
+            } else {
+                $data[$key] = (int)$value;
+            }
+        }
+        
+        if (is_null($data) || empty($data)) {
+            return $this->sendError("Please provide valid params such as 'verified'.");
+        } else {
+            $this->model = \App\Company::where('id',$id)->first();
+            if ($this->model) {
+                $this->model->update($data);
+                $this->model->addToCache();
+                $this->model->addToCacheV2();
+                $this->model->addToGraph();
+                return $this->sendResponse();
+            } else {
+                return $this->sendError("Invalid company id.");
+            }
+        }
+    }
 }

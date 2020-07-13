@@ -129,7 +129,7 @@ class CollaborateController extends Controller
             $relativePath = "images/p/$profileId/company/$companyId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
-            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name ,['visibility'=>'public']);
         }
         unset($inputs['images']);
         $this->model = $this->model->create($inputs);
@@ -504,22 +504,7 @@ class CollaborateController extends Controller
 
         if($request->has('city'))
         {
-            $addresses = $request->input('city');
-            Collaborate\Addresses::where('collaborate_id',$id)->delete();
-            $cities = [];
-            if(count($addresses) > 0 && !empty($addresses) && is_array($addresses))
-            {
-                foreach ($addresses as $address)
-                {
-                    $cities[] = ['collaborate_id'=>$collaborateId,'city_id'=>$address['id'],'no_of_taster'=>$address['no_of_taster']];
-                }
-                Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
-                $collaborate->addresses()->insert($cities);
-            }
-            else
-            {
-                Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
-            }
+           $this->storeCity($request->input('city'),$collaborateId,$collaborate);
         }
 
         if($request->has('occupation_id'))
@@ -614,6 +599,58 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    protected function storeCity($addresses, $collaborateId, $collaborate)
+    {
+        $isReviewed = \DB::table('collaborate_tasting_user_review')
+                        ->where('collaborate_id',$collaborateId)
+                        ->exists();
+        if($isReviewed)
+        {
+            return ;
+        }
+        Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
+        $cities = [];
+        if(count($addresses) > 0 && !empty($addresses) && is_array($addresses))
+        {
+            foreach ($addresses as $address)
+            {
+                if( isset($address['outlets']) && count($address['outlets'])>0 ) {
+                    foreach($address['outlets'] as $outlet) {
+                        if(!isset($outlet['id'])) {
+                            $outletId = \App\Outlet::create(['name'=>$outlet['name']])->id;
+                            $isActive = 1;
+                        }else{
+                            \App\Outlet::where('id',$outlet['id'])->update(['name'=>$outlet['name']]);
+                            $outletId = $outlet['id'];
+                            if(isset($outlet['is_active'])) {
+                                $isActive = $outlet['is_active'];
+                            } else {
+                                $isActive = 1;
+                            }
+                        }
+                        $cities[] = [
+                                'collaborate_id'=>$collaborateId,
+                                'city_id'=>$address['id'],
+                                'no_of_taster'=>$address['no_of_taster'], 
+                                'outlet_id'=>$outletId,
+                                'is_active'=>$isActive
+                            ];    
+                    }
+                } else if (!isset($address['outlets']) && $collaborate->track_consistency) {
+                    return $this->sendError('Outlet cannot be null for consistency tracking collaboration');
+                } else {
+                    $cities[] = ['collaborate_id'=>$collaborateId,'city_id'=>$address['id'],'no_of_taster'=>$address['no_of_taster']];
+                }
+            }
+            Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
+            Collaborate\Addresses::insert($cities);
+        }
+        else
+        {
+            Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
+        }
+    }
+
     public function checkJson($json)
     {
         if(!is_null($json))
@@ -654,11 +691,10 @@ class CollaborateController extends Controller
             $this->model = false;
             return $this->sendError("You can not update your question");
         }
-
         if($collaborate->state == 'Save')
         {
             $globalQuestionId = $request->input('global_question_id');
-            $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->exists();
+            $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->where('track_consistency',$collaborate->track_consistency)->exists();
             if(!$checkQuestionexist)
             {
                 $this->model = false;
@@ -782,7 +818,10 @@ class CollaborateController extends Controller
                 'profiles.handle',
                 'profiles.city',
                 'profiles.tagline',
-                'profiles.image_meta')
+                'profiles.image_meta',
+                'profiles.verified',
+                'profiles.is_tasting_expert'
+            )
         ->orderBy('collaborate_role.id','asc')
         ->get();
         $roles = $roles->groupBy("role");
@@ -891,5 +930,79 @@ class CollaborateController extends Controller
             ->join('collaborate_role','collaborate_role.id','=','collaborate_user_roles.role_id')
             ->where('collaborate_user_roles.profile_id',$profileId)->get();
         return $this->sendResponse();
+    }
+
+    public function allSubmissions(Request $request, $profileId, $companyId,$collaborateId, $userId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        $collab = $this->model->where('state','!=',Collaborate::$state[1])->where('id',$collaborateId)->exists();
+        if(!$checkAdmin || !$collab){
+            return $this->sendError("Invalid Adminor collaboration.");
+        }
+        $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('profile_id',$userId)->first()->id;
+        $submissions = \App\Collaborate\Applicant::getSubmissions($applicant, $collaborateId);
+        $this->model = $submissions;
+        return $this->sendResponse();
+    }
+    public function updateSubmissionStatus(Request $request, $profileId, $companyId, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        $collab = $this->model->where('state','!=',Collaborate::$state[1])->where('id',$collaborateId)->exists();
+        if(!$checkAdmin || !$collab){
+            return $this->sendError("Invalid Adminor collaboration.");
+        }
+        $submissions = $request->submissions;
+        foreach($submissions as $submission) {
+            $this->model = \DB::table('submissions')->where('id',$submission['id'])
+                    ->update(['status'=>$submission['status']]);
+                    if($submission['status'] == 2 && $this->model) {
+                        $this->sendRejectNotification($submission['id'],$collaborateId,$companyId);
+                    }
+        }
+        return $this->sendResponse();
+    }
+
+    protected function sendRejectNotification($submissionId,$collaborateId,$companyId)
+    {
+        $profileId = \DB::table('contest_submissions')
+                        ->join('collaborate_applicants','collaborate_applicants.id','=','contest_submissions.applicant_id')
+                        ->where('contest_submissions.submission_id',$submissionId)
+                        ->pluck('collaborate_applicants.profile_id');
+        $collaborate = \App\Collaborate::where('id',$collaborateId)->first();
+        $company = \App\Company::where('id',$companyId)->first();
+        event(new \App\Events\DocumentRejectEvent($profileId,$company,null,$collaborate));
+    }
+    public function getCities(Request $request,$profileId,$companyId,$collaborateId)
+    {
+        $this->model = \App\Collaborate\Addresses::select('city_id')
+                        ->groupBy('city_id')
+                        ->where('collaborate_id',$collaborateId)
+                        ->get();
+        return $this->sendResponse();
+    }
+    public function getOutlets(Request $request,$profileId,$companyId,$collaborateId,$cityId)
+    {
+        $this->model = \DB::table('collaborate_addresses')->select('collaborate_addresses.address_id','outlets.name','collaborate_addresses.is_active')
+                        ->where('collaborate_id',$collaborateId)
+                        ->join('outlets','outlets.id','=','collaborate_addresses.outlet_id')
+                        ->where('city_id',$cityId)
+                        ->get();
+        return $this->sendResponse();
+    }
+
+    public function outletStatus(Request $request,$profileId,$companyId,$collaborateId,$cityId,$addressId)
+    {   
+        $status = $request->status != null ? $request->status : null;
+        if($status != null) {
+            $this->model = \DB::table('collaborate_addresses')
+                            ->where('address_id',$addressId)
+                            ->where('collaborate_id',$collaborateId)
+                            ->update(['is_active'=>$status]);
+            return $this->sendResponse();
+        } else {
+            return $this->sendError("Invalid status type");
+        }
     }
 }

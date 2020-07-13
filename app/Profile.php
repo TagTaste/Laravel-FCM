@@ -23,8 +23,15 @@ class Profile extends Model
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
         'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete'
-        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user'
+        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user', 
+        // palate data
+        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status','tasting_instructions'
     ];
+
+    // palate_visibility 1 visible to all, 0 hidden from everyone, 2 visible to people I follow
+    // palate_iteration 1,2,3,4...n iteration of palate test
+    // palate_iteration_status 0/1(incomplete/completed)
+    // palate_test_status 0/1(inactive/active)
 
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
@@ -41,13 +48,13 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status','tasting_instructions'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount','document_meta'];
+        'cuisines','allergens','interested_collections','fb_info','reviewCount','privateReviewCount','totalPostCount', 'imagePostCount','document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount'];
 
     /**
         profile completion mandatory field
@@ -61,15 +68,17 @@ class Profile extends Model
         private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
     **/
-    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone', 'verified_phone'];
+    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone'];
 
     private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations','phone'];
 
-    private $profileCompletionMandatoryFieldForCampusConnect = ['phone','verified_phone'];
+    private $profileCompletionMandatoryFieldForCampusConnect = ['phone'];
     
-    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone','verified_phone'];
+    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone'];
+    
+    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['phone'];
 
     public static function boot()
     {
@@ -163,6 +172,10 @@ class Profile extends Model
         $data = \App\V2\Profile::find($this->id)->toArray();
         
         foreach ($data as $key => $value) {
+            if (in_array($key, ["verified", "is_tasting_expert"])) {
+                continue;
+            }
+
             if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
@@ -1064,7 +1077,7 @@ class Profile extends Model
 
     public function getPhoneAttribute($value)
     {
-        if (!empty($value)) {
+        if (!empty($value) && isset(request()->user()->profile->id)) {
             if(request()->user()->profile->id == $this->id)
             {
                 return $value;
@@ -1174,6 +1187,7 @@ class Profile extends Model
                 $remaningOptionalItem = [];
                 $remaningAdditionalOptionalItem = [];
                 $profileCompletionMandatoryFieldForCollaborationApply = [];
+                $profileCompletionMandatoryFieldForCollaborationApplyV1 = []; 
                 $profileCompletionMandatoryFieldForCampusConnect = [];
                 $profileCompletionMandatoryFieldForGetProductSample = [];
                 $index = 0;
@@ -1226,6 +1240,14 @@ class Profile extends Model
                     }
                 }
 
+                foreach ($this->profileCompletionMandatoryFieldForCollaborationApplyV1 as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
+                    {
+                        $profileCompletionMandatoryFieldForCollaborationApplyV1[] = $item;
+                    }
+                }
+
                 foreach ($this->profileCompletionMandatoryFieldForCampusConnect as $item)
                 {
                     if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
@@ -1250,6 +1272,7 @@ class Profile extends Model
                     'optional_remaining_field' => $remaningOptionalItem,
                     'additional_optional_field' => $remaningAdditionalOptionalItem,
                     'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply,
+                    'mandatory_field_for_collaboration_apply_v1' => $profileCompletionMandatoryFieldForCollaborationApplyV1,
                     'mandatory_field_for_campus_connect' => $profileCompletionMandatoryFieldForCampusConnect,
                     'mandatory_field_for_get_product_sample' => $profileCompletionMandatoryFieldForGetProductSample
                 ];
@@ -1273,6 +1296,11 @@ class Profile extends Model
     public function getReviewCountAttribute()
     {
         return \DB::table('public_product_user_review')->where('profile_id',$this->id)->where('current_status',2)->get()->unique('product_id')->count();
+    }
+
+    public function getPrivateReviewCountAttribute()
+    {
+        return \DB::table('collaborate_tasting_user_review')->where('profile_id',$this->id)->where('current_status',3)->get()->unique('batch_id')->count();
     }
 
     public function shippingaddress()
@@ -1333,6 +1361,53 @@ class Profile extends Model
         return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->whereNull('deleted_at')->count();
     }
 
+    // count calculation function start
+    public function getShoutoutPostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shoutout')->whereNull('deleted_at')->count();
+    }
+
+    public function getShoutoutSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Shoutout')->whereNull('deleted_at')->count();
+    }
+
+    public function getCollaboratePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Collaborate')->whereNull('deleted_at')->count();
+    }
+
+    public function getCollaborateSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Collaborate')->whereNull('deleted_at')->count();
+    }
+
+    public function getPhotoPostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->whereIn('model',['App\Photo', 'App\V2\Photo'])->whereNull('deleted_at')->count();
+    }
+
+    public function getPhotoSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Photo')->whereNull('deleted_at')->count();
+    }
+
+    public function getPollingPostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Polling')->whereNull('deleted_at')->count();
+    }
+
+    public function getPollingSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Polling')->whereNull('deleted_at')->count();
+    }
+
+    public function getProductSharePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Product')->whereNull('deleted_at')->count();
+    }
+    // count calculation function end 
+
     public function getImagePostCountAttribute()
     {
         return \DB::table('channel_payloads')
@@ -1357,6 +1432,112 @@ class Profile extends Model
         } else {
             return null;
         }
+    }
+
+    public function getPalateSensitivityAttribute()
+    {
+        $palate_tasting = null;
+        
+        if (request()->user()->profile->id == $this->id) {
+            $palate_tasting = $this->getPalateSensitivityResult();
+            return $palate_tasting;
+        } else {
+            if ($this->palate_visibility == 0) {
+                return $palate_tasting;
+            } else if ($this->palate_visibility == 2) {
+                if (Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id)) {
+                    $palate_tasting = $this->getPalateSensitivityResult();
+                    return $palate_tasting;
+                } else {
+                    return $palate_tasting;
+                }
+            } else {
+                $palate_tasting = $this->getPalateSensitivityResult();
+                return $palate_tasting;
+            } 
+        }
+        return $palate_tasting;
+    }
+
+    public function getCurrentPalateIterationValue()
+    {
+        $current_palate_iteration = 0;
+        if (0 == $this->palate_iteration) {
+            return $current_palate_iteration;
+        } else {
+            if ($this->palate_iteration_status) {
+                $current_palate_iteration = $this->palate_iteration;
+                return $current_palate_iteration;
+            } else {
+                $current_palate_iteration = $this->palate_iteration - 1;
+                return $current_palate_iteration;
+            }
+        }
+        return $current_palate_iteration;
+    }
+
+    public function getPalateSensitivityResult()
+    {
+        $palate_result = null;
+        $current_palate_iteration = $this->getCurrentPalateIterationValue();
+        $palate_responses = \App\PalateResponses::where('profile_id',$this->id)
+            ->where('iteration_id',$current_palate_iteration)
+            ->whereNull('deleted_at')
+            ->get();
+        if (count($palate_responses)) {
+            $palate_result = array();
+            $palate_responses_grouped = $this->group_by('palate_type', $palate_responses->toArray());
+            foreach ($palate_responses_grouped as $group_key => $palate_response_group) {
+                $keys = array_column($palate_response_group, 'concentration_level');
+                array_multisort($keys, SORT_ASC, $palate_response_group);
+                if (in_array($group_key, array("Salt", "Sugar", "Sour"))) {
+                    $palate_result[$group_key] = array(
+                        'value' => $group_key,
+                        'ui_style_meta' => array(
+                            "border_color" => "#00000010",
+                            "background_color" => "#00000004"
+                        ),
+                        'status' => "Very Low"
+                    );
+
+                    foreach ($palate_response_group as $key => $value) {
+                        if ($value['result']) {
+                            $palate_result[$group_key]['status'] = $value['status'];
+                            $palate_result[$group_key]['ui_style_meta'] = $value['ui_style_meta'];
+                            break;
+                        }                        
+                    }
+                } else if ($group_key === "Bitter") {
+                    $palate_result[$group_key] = array(
+                        'value' => $group_key,
+                        'ui_style_meta' => $palate_response_group[0]['ui_style_meta'],
+                        'status' => $palate_response_group[0]['status']
+                    );
+                }
+            };
+            $palate_result = array_values($palate_result);
+        }
+        return $palate_result;
+    }
+
+    /**
+     * Function that groups an array of associative arrays by some key.
+     * 
+     * @param {String} $key Property to sort by.
+     * @param {Array} $data Array that stores multiple associative arrays.
+     */
+    function group_by($key, $data) {
+        $result = array();
+
+        foreach($data as $val) {
+            if(array_key_exists($key, $val)){
+                $result[$val[$key]][] = $val;
+            }else{
+                $result[""][] = $val;
+            }
+        }
+
+        return $result;
     }
 }
 

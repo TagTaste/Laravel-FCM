@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Jobs\PhoneVerify;
 use Illuminate\Support\Facades\Redis;
+use Twilio\Rest\Client as TwilioClient;
+use Twilio\Jwt\ClientToken;
 
 class ProfileController extends Controller
 {
@@ -110,6 +112,13 @@ class ProfileController extends Controller
         else
         {
             unset($data['profile']['handle']);
+        }
+
+        // pallate visibility
+        if (isset($data['palate_visibility'])) {
+            if (in_array($data['palate_visibility'], ["0","1","2"])) {
+                $data['profile']['palate_visibility'] = (int)$data['palate_visibility'];
+            }
         }
 
         //delete heroimage or image
@@ -914,9 +923,27 @@ class ProfileController extends Controller
 
                 $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
                 $text = $otpNo." is your One Time Password to verify your number with TagTaste. Valid for 5 min.";
-                $client = new Client();
-                $response = $client->get("http://193.105.74.159/api/v3/sendsms/plain?user=".env('SMS_KAP_USERNAME')."&password=".env('SMS_KAP_PASSWORD')."&sender=".env('SMS_KAP_TEMPLATEID')."&SMSText=$text&type=longsms&GSM=91$number");
-
+                $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
+                $authToken  = config('app.twilio')['TWILIO_AUTH_TOKEN'];
+                $client = new TwilioClient($accountSid, $authToken);
+                try
+                {
+                    // Use the client to do fun stuff like send text messages!
+                    $client->messages->create(
+                    // the number you'd like to send the message to
+                        '+91'.$number,
+                array(
+                        // A Twilio phone number you purchased at twilio.com/console
+                        'from' => env('TWILIO_PHONE'),
+                        // the body of the text message you'd like to send
+                        'body' => $text
+                    )
+                );
+        }
+                catch (Exception $e)
+                {
+                    echo "Error: " . $e->getMessage();
+                }
                 $this->model = $profile->update(['otp'=>$otpNo]);
 
                 $job = ((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
@@ -1147,5 +1174,47 @@ class ProfileController extends Controller
             $data[] = ['original_photo'=>$image->original_photo,'tiny_photo'=>$image->tiny_photo,'meta'=>$image->meta];
         }
         return json_encode($data);
+    }
+
+    public function updateDetails(Request $request, $id)
+    {
+        $data = $request->only(["verified","is_tasting_expert"]);
+
+        foreach ($data as $key => $value) {
+            if (is_null($value)) {
+                unset($data[$key]);
+            } else {
+                $data[$key] = (int)$value;
+            }
+        }
+        
+        if (is_null($data) || empty($data)) {
+            return $this->sendError("Please provide valid params such as 'verified','is_tasting_expert'");
+        } else {
+            $this->model = \App\Profile::where('id',$id)->first();
+            if ($this->model) {
+                $this->model->update($data);
+                $this->model->addToCache();
+                $this->model->addToCacheV2();
+                $this->model->addToGraph();
+                return $this->sendResponse();
+            } else {
+                return $this->sendError("Invalid profile id.");
+            }
+        }
+    }
+
+    public function reviewHelperText(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $tasting_instructions = $request->tasting_instructions == 0 || $request->tasting_instructions == 1 ? $request->tasting_instructions : null;
+        
+        if($tasting_instructions == null) {
+            return $this->sendError('Invalid Input option received');
+        }
+
+        $this->model = Profile::where('id',$loggedInProfileId)
+                            ->update(['tasting_instructions'=>$tasting_instructions]);
+        return $this->sendResponse();
     }
 }

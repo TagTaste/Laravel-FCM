@@ -15,9 +15,9 @@ class User extends NeoEloquent
 
     protected $label = 'User';
 
-    protected $fillable = ['id', 'profile_id', 'user_id', 'name', 'designation', 'handle', 'tagline', 'image_meta', 'isFollowing'];
+    protected $fillable = ['id', 'profile_id', 'user_id', 'name', 'designation', 'handle', 'tagline', 'image_meta', 'verified', 'is_tasting_expert', 'isFollowing'];
 
-    protected $append = ['id', 'profile_id', 'name', 'designation', 'handle', 'tagline', 'image_meta', 'isFollowing'];
+    protected $append = ['id', 'profile_id', 'name', 'designation', 'handle', 'tagline', 'image_meta', 'verified', 'is_tasting_expert', 'isFollowing'];
 
     
     public function follows()

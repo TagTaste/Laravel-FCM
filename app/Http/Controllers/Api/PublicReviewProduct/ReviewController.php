@@ -515,7 +515,7 @@ class ReviewController extends Controller
             $this->model = Review::insert($data);
             if($currentStatus == 2)
             {
-                $mandatoryQuestion = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)->where('is_mandatory',1)->get();
+                $mandatoryQuestion = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)->where('is_mandatory',1)->where('is_nested_question',0)->get();
                 $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
                 $mandatoryReviewCount = \DB::table('public_product_user_review')->where('product_id',$productId)->whereIn('question_id',$mandatoryQuestionsId)->where('profile_id',$loggedInProfileId)->distinct('question_id')->count('question_id');
                 if($mandatoryQuestion->count() == $mandatoryReviewCount)

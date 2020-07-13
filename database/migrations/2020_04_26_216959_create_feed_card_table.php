@@ -19,9 +19,9 @@ class CreateFeedCardTable extends Migration
             $table->integer('data_id')->unsigned();
             $table->string('title', 255)->nullable()->default(null);
             $table->string('subtitle', 255)->nullable()->default(null);
-            $table->string('name', 100)->nullable()->default(null);
+            $table->string('name', 140)->nullable()->default(null);
             $table->text('image')->nullable()->default(null);
-            $table->string('description', 600)->nullable()->default(null);
+            $table->string('description', 1500)->nullable()->default(null);
             $table->text('icon')->nullable()->default(null);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

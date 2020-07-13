@@ -180,7 +180,7 @@ class Deeplink
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;
                 case 'reviewCollection':     return env('APP_URL').'/collection/'.$modelId;
-                case 'feedCard':     return env('APP_URL').'/feed_card/'.$modelId;
+                case 'feedCard':     return env('APP_URL').'/feed/card/'.$modelId;
             }
         }
     }
@@ -212,7 +212,7 @@ class Deeplink
 
     public static function getFeedCardText($model)
     {
-        return strip_tags("Check out ".$model->title." on TagTaste! \r\n");
+        return strip_tags("Checkout ".$model->title." on TagTaste! \r\n");
     }
 
     public static function getShoutoutText($model)

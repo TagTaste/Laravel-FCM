@@ -9,12 +9,14 @@ class Applicant extends Model {
     protected $table = 'collaborate_applicants';
 
     protected $fillable = ['profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','applier_address','message',
-        'hut','created_at','updated_at','city','age_group','gender','company_id','document_meta','terms_verified', 'documents_verified'];
+        'hut','created_at','updated_at','city','age_group','gender','company_id','document_meta','terms_verified', 'documents_verified','share_number'];
 
     protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address',
-        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified'];
+        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified','phone','submission_count'];
 
     protected $with = ['profile','company'];
+
+    protected $appends = ['phone','submission_count'];
 
     protected $casts = [
         'collaborate_id' => 'integer',
@@ -24,7 +26,8 @@ class Applicant extends Model {
 
     public function profile()
     {
-        return $this->belongsTo(\App\Recipe\Profile::class);
+        $profs = $this->belongsTo(\App\Recipe\Profile::class);
+        return $profs;
     }
 
     public function company()
@@ -40,5 +43,40 @@ class Applicant extends Model {
     {
         return json_decode($value);
     }
+    //0 no action taken
+    //1 accepted
+    //2 rejected
+    public static function getSubmissions($id, $collaborateId)
+    {  
+        return \DB::table('collaborate_applicants')->where('collaborate_applicants.id',$id)
+        ->where('collaborate_id',$collaborateId)
+        ->join('contest_submissions','collaborate_applicants.id','=','contest_submissions.applicant_id')
+        ->join('submissions','submissions.id','=','contest_submissions.submission_id')
+        //->where('submissions.status','!=',2)
+        ->select('submissions.*')
+        ->get();
+    }
+    public static function countSubmissions($id,$collaborateId)
+    {
+       return \DB::table('collaborate_applicants')->where('collaborate_applicants.id',$id)
+       ->where('collaborate_id',$collaborateId)
+       ->join('contest_submissions','collaborate_applicants.id','=','contest_submissions.applicant_id')
+       ->join('submissions','submissions.id','=','contest_submissions.submission_id')
+       ->where('submissions.status','!=',2)
+       ->count();
+    }
 
+    public function getPhoneAttribute()
+    {
+        if($this->share_number) {
+            return \DB::table('profiles')->where('id',$this->profile_id)->first()->phone;
+        } else {
+            return null;
+        }
+    }
+
+    public function getSubmissionCountAttribute()
+    {
+        return $this->countSubmissions($this->id,$this->collaborate_id);
+    }
 }

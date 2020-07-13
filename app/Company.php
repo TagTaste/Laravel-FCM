@@ -55,7 +55,8 @@ class Company extends Model
         'style_logo',
         'style_hero_image',
         'logo_meta',
-        'hero_image_meta'
+        'hero_image_meta',
+        'verified'
     ];
     
     protected $visible = [
@@ -109,7 +110,8 @@ class Company extends Model
         'logo_meta',
         'hero_image_meta',
         'totalPostCount',
-        'imagePostCount'
+        'imagePostCount',
+        'verified'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
@@ -178,7 +180,8 @@ class Company extends Model
             'tagline' => $this->tagline,
             'city' =>$this->city,
             'logo_meta' =>$this->logo_meta,
-            'hero_image_meta' =>$this->hero_image_meta
+            'hero_image_meta' =>$this->hero_image_meta,
+            'verified' => $this->verified
         ];
         Redis::set("company:small:".$this->id,json_encode($data));
     }
@@ -195,8 +198,19 @@ class Company extends Model
             'id' => $this->id,
             'profile_id' => $this->profileId,
             'name' => $this->name,
-            'logo_meta' => $this->logo_meta
+            'logo_meta' => $this->logo_meta,
+            'verified' => $this->verified
         ];
+
+        foreach ($data as $key => $value) {
+            if (in_array($key, ["verified"])) {
+                continue;
+            }
+
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+
         if (isset($data['id'])) {
             $data['company_id'] = (int)$data['id'];
         }

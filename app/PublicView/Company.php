@@ -14,7 +14,7 @@ class Company extends BaseCompany
 {
     protected $visible = [
         'id', 'name', 'about', 'logo', 'hero_image', 'phone', 'registered_address', 'established_on', 'type', 'tagline', 'gallery',
-        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount','speciality','employeeCountArray','employeeCountValue', 'logo_meta', 'hero_image_meta'];
+        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount','speciality','employeeCountArray','employeeCountValue', 'logo_meta', 'hero_image_meta','verified'];
 
     protected $with = ['gallery','status','type'];
 
@@ -139,9 +139,9 @@ class Company extends BaseCompany
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_profile/'.$this->id;
         $data['owner'] = $this->id;
-        $data['title'] = 'Check out '.$this->name.' on TagTaste';
+        $data['title'] = 'Checkout '.$this->name.' on TagTaste';
         $data['description'] = substr($this->about,0,155);
-        $data['ogTitle'] = 'Check out '.$this->name.' on TagTaste';
+        $data['ogTitle'] = 'Checkout '.$this->name.' on TagTaste';
         $data['ogDescription'] = substr($this->about,0,155);
         $data['ogImage'] = $this->logo;
         $data['cardType'] = 'summary_large_image';

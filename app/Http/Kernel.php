@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         'versionCheck' => VersionCheck::class,
         'optimizeImages'=> \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
         'permissionCollaborate'=> \App\Http\Middleware\collaborateRoles::class,
+        'iosCollaborate'=>\App\Http\Middleware\Api\IosCollaborate::class,
     ];
 }

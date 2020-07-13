@@ -15,7 +15,7 @@ class Company extends NeoEloquent
 
     protected $label = 'Company';
 
-    protected $fillable = ['id', 'profileId', 'name', 'logo_meta', 'company_id'];
+    protected $fillable = ['id', 'profileId', 'name', 'logo_meta', 'company_id','verified'];
 
     protected $append = ['id', 'profileId', 'name', 'logo_meta', 'company_id'];
 

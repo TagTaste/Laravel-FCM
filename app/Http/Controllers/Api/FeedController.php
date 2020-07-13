@@ -47,8 +47,8 @@ class FeedController extends Controller
     {
         if(($request->header('x-version') != null 
                 && $request->header('x-version') < 80) || 
-            ($request->header('x-ios-version') != null 
-                && version_compare("4.2.7", $request->header('x-ios-version'))))   {
+            ($request->header('x-version-ios') != null 
+                && version_compare("4.2.7", $request->header('x-version-ios'),">")))   {
                     $pollPayloadIds = $this->getNewVersionOfPollPayloads();
                     $this->modelNotIncluded = array_merge($this->modelNotIncluded,$pollPayloadIds);
             }
@@ -161,12 +161,11 @@ class FeedController extends Controller
         $skip = $page > 1 ? ($page - 1) * $take : 0;
 
         $profile_id = $request->user()->profile->id;
-        $reported_payload = Payload::leftJoin('report_content','report_content.payload_id','=','channel_payloads.id')
-            ->where('report_content.profile_id', $profile_id)
-            ->pluck('channel_payloads.id')->toArray();
+        $this->validatePayloadForVersion($request);
+        $this->removeReportedPayloads($profile_id);
             
         $payloads = Payload::where('channel_payloads.channel_name','company.public.' . $companyId)
-            ->whereNotIn('channel_payloads.id', $reported_payload)
+            ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
