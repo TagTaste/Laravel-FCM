@@ -25,6 +25,7 @@ class CreateProfileCompiledInfoTable extends Migration
             $table->integer('poll_post')->unsigned()->default(0);
             $table->integer('poll_share_post')->unsigned()->default(0);
             $table->integer('product_share_post')->unsigned()->default(0);
+            $table->integer('total_post_count')->unsigned()->default(0);
             $table->integer('follower_count')->unsigned()->default(0);
             $table->integer('private_review_count')->unsigned()->default(0);
             $table->integer('public_review_count')->unsigned()->default(0);
