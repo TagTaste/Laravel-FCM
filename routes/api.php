@@ -69,6 +69,23 @@ Route::get('allCategories','FaqsController@allCategories');
 Route::post('storeCategories','FaqsController@storeCategories');
 Route::resource('faqs','FaqsController');
 
+/**
+ * Route to report content and profile password.
+ */
+Route::get('/sitemap.xml', 'SitemapController@index');
+Route::get('/sitemap-products.xml', 'SitemapController@publicReviewProducts');
+Route::get('/sitemap-profiles.xml', 'SitemapController@profiles');
+Route::get('/sitemap-companies.xml', 'SitemapController@companies');
+Route::get('/sitemap-shoutout.xml', 'SitemapController@shoutouts');
+Route::get('/sitemap-photos.xml', 'SitemapController@photos');
+Route::get('/sitemap-collaborations.xml', 'SitemapController@collaborations');
+Route::get('/sitemap-polling.xml', 'SitemapController@polls');
+Route::get('/sitemap-shared-photos.xml', 'SitemapController@sharedPhotos');
+Route::get('/sitemap-shared-collaborations.xml', 'SitemapController@sharedCollaborations');
+Route::get('/sitemap-shared-products.xml', 'SitemapController@sharedProducts');
+Route::get('/sitemap-shared-pollings.xml', 'SitemapController@sharedPolls');
+Route::get('/sitemap-shared-shoutout.xml', 'SitemapController@sharedShoutouts');
+Route::get('/sitemap-miscellaneous.xml', 'SitemapController@miscellaneous');
 
 // unsubscribe
 /**
@@ -201,6 +218,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
                 Route::resource("photos","PhotoController");
                 Route::get("collaborate/draft","CollaborateController@draft");
+                Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
+                Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                 Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                 Route::get('collaborate/{collaborateId}/allSubmissions/{userId}', 'CollaborateController@allSubmissions');
                 Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
@@ -214,6 +233,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                     Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}","CollaborateController@outletStatus");
                     Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                     Route::get("collaborate/draft","CollaborateController@draft");
+                    Route::get('collaborate/{collaborateId}/allSubmissions', 'CollaborateController@allSubmissions');
+                    Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
                     Route::resource("collaborate","CollaborateController");
                     Route::resource('photos','PhotoController');
                     Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
@@ -224,7 +245,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 });
             });
         });
-        
+
         /**
          * Route to report content and profile password.
          */

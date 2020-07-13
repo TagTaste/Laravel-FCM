@@ -68,7 +68,7 @@ class ShareController extends BaseController
         if (!$exists) {
             return $this->sendError("Nothing found for given shared model.");
         }
-
+        $seoTags = $sharedModel->getSeoTags();
         $sharedModel = $sharedModel->toArray();
         foreach ($sharedModel as $key => $value) {
             if (is_null($value) || $value == '')
@@ -86,6 +86,7 @@ class ShareController extends BaseController
         }
         $this->model[$modelName] = $sharedModel;
         $this->model['meta']= $exists->getMetaForV2Shared($loggedInProfileId);
+        $this->model['seoTags']= $seoTags;
         return $this->sendResponse();
     }
 }
