@@ -249,7 +249,7 @@ class QuestionController extends Controller
                 $option_type = isset($item->option_type) ? $item->option_type : 0;
                 
                 
-                if(isset(json_decode($question->questions)->is_nested_option)) {
+                if(isset(json_decode($question->questions)->is_nested_option) && json_decode($question->questions)->is_nested_option == 1) {
                     $aroma = \DB::table('public_review_nested_options')
                                     ->where('id',$item->leaf_id)
                                     ->first();
