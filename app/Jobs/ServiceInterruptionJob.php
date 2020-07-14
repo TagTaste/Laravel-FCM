@@ -33,10 +33,10 @@ class ServiceInterruptionJob
      */
     public function handle()
     {
-        \Mail::send('emails.cranberry-update-new', ['userName'=>$this->username], function($message)
+        \Mail::send('emails.cranberry-final-update', ['userName'=>$this->username], function($message)
         {
             // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
-            $message->to($this->useremail, $this->username)->subject('IMPORTANT UPDATE | US Cranberry Recipe Rally');
+            $message->to($this->useremail, $this->username)->subject('US Cranberry Recipe Rally | Have you submitted your recipe?');
                 //->attach('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Berry+Talks.pdf');
         });
     }
