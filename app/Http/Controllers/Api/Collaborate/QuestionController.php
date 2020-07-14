@@ -335,7 +335,7 @@ class QuestionController extends Controller
                     $track_consistency = $question->track_consistency;
                 }
                 
-                if(isset($question->is_nested_option)) {
+                if(isset(json_decode($question->questions)->is_nested_option)) {
                         $aroma = \DB::table('collaborate_tasting_nested_options')
                                         ->where('id',$item->leaf_id)
                                         ->first();
