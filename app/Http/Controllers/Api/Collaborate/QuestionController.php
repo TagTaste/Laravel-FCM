@@ -319,6 +319,9 @@ class QuestionController extends Controller
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
+                $question = \DB::table('collaborate_tasting_questions')
+                                    ->where('id',$questionId)
+                                    ->first();
                 if($item->key == 'comment')
                 {
                     $comment = $item->value;
@@ -331,7 +334,21 @@ class QuestionController extends Controller
                     $meta = $item->meta;
                     $track_consistency = $question->track_consistency;
                 }
-                $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                
+                if(isset($question->is_nested_option)) {
+                        $aroma = \DB::table('collaborate_tasting_nested_options')
+                                        ->where('id',$item->leaf_id)
+                                        ->first();
+                        
+                        if($aroma->parent_id != null) {
+                            $parent_sequence_id = $this->getParentSequence($aroma->parent_id,$questionId);
+                        } else {
+                            $parent_sequence_id = $aroma->sequence_id;
+                        }
+                        $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$parent_sequence_id];
+                } else {
+                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                }
             }
             if(!is_null($comment) && !empty($comment))
             {
