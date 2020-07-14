@@ -144,10 +144,12 @@ class QuestionController extends Controller
         {
             $squence = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('global_question_id',$product->global_question_id)->where('id',$id)->first();
-            if($squence->parent_id == null)
-            $parent_sequence_id = $squence->sequence_id;
-            else
-            $parent_sequence_id = $this->getParentSequence($squence->parent_id,$questionId);
+            $parent_sequence_id = \DB::table('public_review_nested_options')
+                ->where('value',$squence->path)
+                ->where('is_active',1)
+                ->where('question_id',$questionId)
+                ->first()
+                ->sequence_id;
             $this->model['question'] = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('global_question_id',$product->global_question_id)->where('parent_id',$squence->sequence_id)->get();
             $aromas = [];
@@ -184,18 +186,7 @@ class QuestionController extends Controller
         return $this->sendResponse();
 
     }
-    public function getParentSequence($id,$questionId)
-    {
-        $aroma = \DB::table('public_review_nested_options')
-                        ->where('sequence_id',$id)
-                        ->where('is_active',1)
-                        ->where('question_id',$questionId)
-                        ->first();
-        if($aroma == null || $aroma->parent_id == null)
-            return $aroma->sequence_id;
-        else
-            $this->getParentSequence($aroma->parent_id,$questionId);
-    }
+
     public function getNestedOptionSearch(Request $request, $productId, $headerId, $questionId)
     {
         $this->model = [];
@@ -208,10 +199,12 @@ class QuestionController extends Controller
             ->where('global_question_id',$product->global_question_id)->where('is_active',1)->where('value','like',"%$term%")->get();
             //$options = [];
         foreach ($this->model['option'] as $option) {
-            if($option->parent_id == null)
-            $parent_sequence_id = $option->sequence_id;
-            else
-            $parent_sequence_id = $this->getParentSequence($option->parent_id,$questionId);
+            $parent_sequence_id = \DB::table('public_review_nested_options')
+                                        ->where('value',$option->path)
+                                        ->where('is_active',1)
+                                        ->where('question_id',$questionId)
+                                        ->first()
+                                        ->sequence_id;
             $option->parent_sequence_id = $parent_sequence_id;
                 //$options[] = $option;
         }
@@ -254,11 +247,12 @@ class QuestionController extends Controller
                                     ->where('id',$item->leaf_id)
                                     ->first();
                     
-                    if($aroma->parent_id != null) {
-                        $parent_sequence_id = $this->getParentSequence($aroma->parent_id,$questionId);
-                        } else {
-                            $parent_sequence_id = $aroma->sequence_id;
-                        }
+                                    $parent_sequence_id = \DB::table('public_review_nested_options')
+                                    ->where('value',$aroma->path)
+                                    ->where('is_active',1)
+                                    ->where('question_id',$questionId)
+                                    ->first()
+                                    ->sequence_id;
                         $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$parent_sequence_id];
                     } else {
                         $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
