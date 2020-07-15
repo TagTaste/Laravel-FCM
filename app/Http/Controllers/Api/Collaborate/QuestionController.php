@@ -230,12 +230,15 @@ class QuestionController extends Controller
         {
             $squence = \DB::table('collaborate_tasting_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
-                $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
-                ->where('value',$squence->path)
-                ->where('is_active',1)
-                ->where('question_id',$questionId)
-                ->first()
-                ->sequence_id;
+                if($squence->path != null)
+                    $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
+                    ->where('value',$squence->path)
+                    ->where('is_active',1)
+                    ->where('question_id',$questionId)
+                    ->first()
+                    ->sequence_id;
+                else
+                    $parent_sequence_id = null;
             $this->model['question'] = \DB::table('collaborate_tasting_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
                 $aromas = [];
@@ -283,12 +286,15 @@ class QuestionController extends Controller
             ->where('collaborate_id',$collaborateId)->where('is_active',1)->where('value','like',"%$term%")->get();
             $options = [];
         foreach ($this->model['option'] as $option) {
-            $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
-                                    ->where('value',$option->path)
-                                    ->where('is_active',1)
-                                    ->where('question_id',$questionId)
-                                    ->first()
-                                    ->sequence_id;
+                if($option->path != null)
+                    $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
+                    ->where('value',$option->path)
+                     ->where('is_active',1)
+                     ->where('question_id',$questionId)
+                     ->first()
+                     ->sequence_id;
+                else
+                   $parent_sequence_id = null;
             $option->parent_sequence_id = $parent_sequence_id;
                 $options[] = $option;
         }
@@ -330,13 +336,15 @@ class QuestionController extends Controller
                         $aroma = \DB::table('collaborate_tasting_nested_options')
                                         ->where('id',$item->leaf_id)
                                         ->first();
-                        
-                                        $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
-                                        ->where('value',$aroma->path)
-                                        ->where('is_active',1)
-                                        ->where('question_id',$questionId)
-                                        ->first()
-                                        ->sequence_id;
+                        if($aroma->path != null)
+                            $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
+                            ->where('value',$aroma->path)
+                            ->where('is_active',1)
+                            ->where('question_id',$questionId)
+                            ->first()
+                            ->sequence_id;
+                        else
+                            $parent_sequence_id = null;
                         $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$parent_sequence_id];
                 } else {
                     $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
