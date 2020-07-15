@@ -39,6 +39,11 @@ class ReportController extends Controller
 
     public function reportSummary(Request $request,$productId)
     {
+        $minimum_report_count = 10;
+        if ("https://dev.tagtaste.com" == env("APP_URL")) {
+            $minimum_report_count = 2;
+        }
+        dd($minimum_report_count);
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
