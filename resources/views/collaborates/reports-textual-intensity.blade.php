@@ -3,16 +3,17 @@
         $answerTitle = $currentAnswer->value;
         $intensities = $currentAnswer->intensity;
         $finalTotal = $currentAnswer->total;
+        $initialIntensity = isset($currentAnswer->initial_intensity) && !is_null($currentAnswer->initial_intensity) ? $currentAnswer->initial_intensity : 1;
         $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
         $percent = bcadd(sprintf('%F', $currentAnswer->total/$totalAnswers*100), '0', 2);
         $totalIntensity = 0;
         foreach ($intensities as $key => $value) {
             if ($value['count']) {
-                $totalIntensity = $totalIntensity + (($key + 1) * $value['count']);
+                $totalIntensity = $totalIntensity + (($key + $initialIntensity) * $value['count']);
             }
         }
         $avgIntensity = number_format((float)($totalIntensity/$finalTotal), 2, '.', '');
-        $roundedIntensity = round($avgIntensity) - 1;
+        $roundedIntensity = round($avgIntensity) - $initialIntensity;
         $classNameOfPillText = isset($path) ? 'pr-report-pill-text--small' : 'pr-report-pill-text';
     @endphp
     <div class="pr-answer-row">
