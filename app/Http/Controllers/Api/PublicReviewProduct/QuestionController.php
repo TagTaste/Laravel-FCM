@@ -144,20 +144,20 @@ class QuestionController extends Controller
         {
             $squence = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('global_question_id',$product->global_question_id)->where('id',$id)->first();
-            if($squence->path != null)
+            $this->model['question'] = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
+                ->where('global_question_id',$product->global_question_id)->where('parent_id',$squence->sequence_id)->get();
+            $aromas = [];
+            $leafIds = $this->model['question']->pluck('id');
+            foreach($this->model['question'] as $aroma) {
+                if($aroma->path != null)
             $parent_sequence_id = \DB::table('public_review_nested_options')
-                ->where('value',$squence->path)
+                ->where('value',$aroma->path)
                 ->where('is_active',1)
                 ->where('question_id',$questionId)
                 ->first()
                 ->sequence_id;
             else
                 $parent_sequence_id = null;
-            $this->model['question'] = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
-                ->where('global_question_id',$product->global_question_id)->where('parent_id',$squence->sequence_id)->get();
-            $aromas = [];
-            $leafIds = $this->model['question']->pluck('id');
-            foreach($this->model['question'] as $aroma) {
                 $aroma->parent_sequence_id = $parent_sequence_id;
                 $aromas[] = $aroma;
             }    
