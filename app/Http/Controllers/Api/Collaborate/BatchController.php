@@ -1713,6 +1713,7 @@ class BatchController extends Controller
                                                 $value[] = ['value'=>$x,'count'=>$count];
                                             }
                                         }
+                                        $answer->initial_intensity = isset($option->initial_intensity) ? $option->initial_intensity : null;
                                         $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
                                         $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
                                         $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
