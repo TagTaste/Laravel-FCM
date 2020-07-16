@@ -850,7 +850,7 @@ class InsertPublicReviewQuestionair extends Command
                         foreach ($paths as $path)
                         {
                             \DB::table('public_review_nested_options')->where('question_id',$x->id)->where('global_question_id',$globalQuestion->id)
-                                ->where('id',$path->id)->update(['path'=>$path->value]);
+                                ->where('id',$path->id)->update(['path'=>$path->value,'parent_sequence_id'=>$path->sequence_id]);
                         }
                         $questions = \DB::table('public_review_nested_options')->where('question_id',$x->id)->where('global_question_id',
                             $globalQuestion->id)->get();
@@ -867,7 +867,7 @@ class InsertPublicReviewQuestionair extends Command
                                     ->where('global_question_id',$globalQuestion->id)
                                     ->where('sequence_id',$question->sequence_id)->first();
                                 \DB::table('public_review_nested_options')->where('question_id',$x->id)->where('global_question_id',$globalQuestion->id)
-                                    ->whereIn('id',$checknestedIds)->update(['path'=>$pathname->path]);
+                                    ->whereIn('id',$checknestedIds)->update(['path'=>$pathname->path,'parent_sequence_id'=>$pathname->parent_sequence_id]);
                                 \DB::table('public_review_nested_options')->where('question_id',$x->id)->where('global_question_id',$globalQuestion->id)
                                     ->where('id',$question->id)->update(['is_nested_option'=>1]);
                             }
