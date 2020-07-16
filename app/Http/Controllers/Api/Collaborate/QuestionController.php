@@ -302,7 +302,7 @@ class QuestionController extends Controller
                     $meta = $item->meta;
                     $track_consistency = $question->track_consistency;
                 }
-                
+                $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
             }
             if(!is_null($comment) && !empty($comment))
             {
