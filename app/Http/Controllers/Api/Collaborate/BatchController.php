@@ -696,7 +696,7 @@ class BatchController extends Controller
                                     }
                                     foreach($trackOptions as $key => $trackOption) {
                                         if($answer->leaf_id == $trackOption->id ) {
-					   $answer->track_consistency = 1;
+                       $answer->track_consistency = 1;
                                             $answer->benchmark_score = $trackOption->benchmark_score;
                                             unset($trackOptions[$key]);
                                         }
@@ -760,13 +760,13 @@ class BatchController extends Controller
                 $mod['intensity_value'] = $trackOption->intensity_value;
                 $mod['intensity_type'] = $trackOption->intensity_type;
                 $mod['track_consistency'] = 1;
-		$mod['benchmark_score'] = $trackOption->benchmark_score;
+        $mod['benchmark_score'] = $trackOption->benchmark_score;
             if($mod['intensity_value'] != null){
                 //dd(ucwords($trackOption->intensity_consistency));
                 $int = explode(',',$mod['intensity_value']);
                 foreach($int as $i) {
                     $intensityConsistency = $i==ucwords($trackOption->intensity_consistency) ? 1 : 0;
-			$benchmarkIntensity = $i==ucwords($trackOption->intensity_consistency) ? $trackOption->benchmark_intensity : null;
+            $benchmarkIntensity = $i==ucwords($trackOption->intensity_consistency) ? $trackOption->benchmark_intensity : null;
                     $mod['intensity'][] = ['value'=>$i,'count'=>0,'track_consitency'=>$intensityConsistency,'benchmark_intensity'=>$benchmarkIntensity];
                 }
             }
@@ -1643,6 +1643,7 @@ class BatchController extends Controller
                                         $value[] = ['value'=>$x,'count'=>$count];
                                     }
                                 }
+                                $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
                                 $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
                                 $answer->intensity_value = $data->questions->intensity_value;
                                 $answer->intensity_type = $data->questions->intensity_type;
@@ -1691,6 +1692,7 @@ class BatchController extends Controller
                                                 $value[] = ['value'=>$x,'count'=>$count];
                                             }
                                         }
+                                        $answer->initial_intensity = isset($option->initial_intensity) ? $option->initial_intensity : null;
                                         $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
                                         $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
                                         $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
