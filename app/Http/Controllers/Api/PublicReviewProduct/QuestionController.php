@@ -146,22 +146,7 @@ class QuestionController extends Controller
                 ->where('global_question_id',$product->global_question_id)->where('id',$id)->first();
             $this->model['question'] = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('global_question_id',$product->global_question_id)->where('parent_id',$squence->sequence_id)->get();
-            $aromas = [];
             $leafIds = $this->model['question']->pluck('id');
-            foreach($this->model['question'] as $aroma) {
-                if($aroma->path != null)
-            $parent_sequence_id = \DB::table('public_review_nested_options')
-                ->where('value',$aroma->path)
-                ->where('is_active',1)
-                ->where('question_id',$questionId)
-                ->first()
-                ->sequence_id;
-            else
-                $parent_sequence_id = null;
-                $aroma->parent_sequence_id = $parent_sequence_id;
-                $aromas[] = $aroma;
-            }    
-            $this->model['question'] = $aromas;
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$product->id)
                 ->where('header_id',$headerId)->whereIn('leaf_id',$leafIds)
                 ->where('question_id',$questionId)->get()->groupBy('question_id');
@@ -200,20 +185,6 @@ class QuestionController extends Controller
         }
         $this->model['option'] = \DB::table('public_review_nested_options')->where('question_id',$questionId)
             ->where('global_question_id',$product->global_question_id)->where('is_active',1)->where('value','like',"%$term%")->get();
-            //$options = [];
-        foreach ($this->model['option'] as $option) {
-            if($option->path != null)
-            $parent_sequence_id = \DB::table('public_review_nested_options')
-                                        ->where('value',$option->path)
-                                        ->where('is_active',1)
-                                        ->where('question_id',$questionId)
-                                        ->first()
-                                        ->sequence_id;
-            else
-                $parent_sequence_id = null;
-            $option->parent_sequence_id = $parent_sequence_id;
-                //$options[] = $option;
-        }
         return $this->sendResponse();
     }
 
@@ -246,25 +217,6 @@ class QuestionController extends Controller
                     continue;
                 }
                 $option_type = isset($item->option_type) ? $item->option_type : 0;
-                
-                
-                if(isset(json_decode($question->questions)->is_nested_option) && json_decode($question->questions)->is_nested_option == 1) {
-                    $aroma = \DB::table('public_review_nested_options')
-                                    ->where('id',$item->leaf_id)
-                                    ->first();
-                                    if($aroma->path != null)
-                                        $parent_sequence_id = \DB::table('public_review_nested_options')
-                                        ->where('value',$aroma->path)
-                                        ->where('is_active',1)
-                                        ->where('question_id',$questionId)
-                                        ->first()
-                                        ->sequence_id;
-                                    else
-                                        $parent_sequence_id = null;
-                        $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$parent_sequence_id];
-                    } else {
-                        $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
-                    }
             }
             if((!is_null($comment) && !empty($comment)) || (!is_null($meta) && !empty($meta)))
             {

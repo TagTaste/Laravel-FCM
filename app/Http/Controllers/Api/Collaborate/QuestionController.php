@@ -232,22 +232,7 @@ class QuestionController extends Controller
                 ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
             $this->model['question'] = \DB::table('collaborate_tasting_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
-                $aromas = [];
                 $leafIds = $this->model['question']->pluck('id');
-                foreach($this->model['question'] as $aroma) {
-                    if($aroma->path != null)
-                    $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
-                    ->where('value',$aroma->path)
-                    ->where('is_active',1)
-                    ->where('question_id',$questionId)
-                    ->first()
-                    ->sequence_id;
-                else
-                    $parent_sequence_id = null;
-                    $aroma->parent_sequence_id = $parent_sequence_id;
-                    $aromas[] = $aroma;
-                } 
-                $this->model['question'] = $aromas;
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
                 ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->whereIn('leaf_id',$leafIds)
                 ->where('question_id',$questionId)->get()->groupBy('question_id');
@@ -284,20 +269,6 @@ class QuestionController extends Controller
         }
         $this->model['option'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
             ->where('collaborate_id',$collaborateId)->where('is_active',1)->where('value','like',"%$term%")->get();
-            $options = [];
-        foreach ($this->model['option'] as $option) {
-                if($option->path != null)
-                    $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
-                    ->where('value',$option->path)
-                     ->where('is_active',1)
-                     ->where('question_id',$questionId)
-                     ->first()
-                     ->sequence_id;
-                else
-                   $parent_sequence_id = null;
-            $option->parent_sequence_id = $parent_sequence_id;
-                $options[] = $option;
-        }
         return $this->sendResponse();
     }
 
@@ -332,23 +303,6 @@ class QuestionController extends Controller
                     $track_consistency = $question->track_consistency;
                 }
                 
-                if(isset(json_decode($question->questions)->is_nested_option) && json_decode($question->questions)->is_nested_option == 1) {
-                        $aroma = \DB::table('collaborate_tasting_nested_options')
-                                        ->where('id',$item->leaf_id)
-                                        ->first();
-                        if($aroma->path != null)
-                            $parent_sequence_id = \DB::table('collaborate_tasting_nested_options')
-                            ->where('value',$aroma->path)
-                            ->where('is_active',1)
-                            ->where('question_id',$questionId)
-                            ->first()
-                            ->sequence_id;
-                        else
-                            $parent_sequence_id = null;
-                        $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$parent_sequence_id];
-                } else {
-                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
-                }
             }
             if(!is_null($comment) && !empty($comment))
             {
