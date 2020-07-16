@@ -302,7 +302,14 @@ class QuestionController extends Controller
                     $meta = $item->meta;
                     $track_consistency = $question->track_consistency;
                 }
+                if(isset(json_decode($question->questions)->is_nested_option) && json_decode($question->questions)->is_nested_option == 1) {
+                    $aroma = \DB::table('collaborate_tasting_nested_options')
+                                    ->where('id',$item->leaf_id)
+                                    ->first();
+                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id];
+            } else {
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+            }
             }
             if(!is_null($comment) && !empty($comment))
             {
