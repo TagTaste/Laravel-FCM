@@ -879,7 +879,7 @@ class InsertPublicReviewQuestionair extends Command
                         foreach ($paths as $path)
                         {
                             \DB::table('public_review_nested_options')->where('question_id',$x->id)->where('global_question_id',$globalQuestion->id)
-                                ->where('id',$path->id)->update(['path'=>null]);
+                                ->where('id',$path->id)->update(['path'=>null,'parent_sequence_id'=>null]);
                         }
                     }
                 }
