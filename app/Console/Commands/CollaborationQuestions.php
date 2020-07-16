@@ -242,7 +242,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         foreach ($paths as $path)
                         {
                             \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
-                                ->where('id',$path->id)->update(['path'=>null]);
+                                ->where('id',$path->id)->update(['path'=>null,'parent_sequence_id'=>null]);
                         }
                     }
                 }
