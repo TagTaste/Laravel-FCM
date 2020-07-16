@@ -217,7 +217,15 @@ class QuestionController extends Controller
                     continue;
                 }
                 $option_type = isset($item->option_type) ? $item->option_type : 0;
-                $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$option_type];
+                if(isset(json_decode($question->questions)->is_nested_option) && json_decode($question->questions)->is_nested_option == 1) {
+                    $aroma = \DB::table('public_review_nested_options')
+                                    ->where('id',$item->leaf_id)
+                                    ->first();
+                        $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id];
+                    } else {
+                        $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                    }
+                
             }
             if((!is_null($comment) && !empty($comment)) || (!is_null($meta) && !empty($meta)))
             {
