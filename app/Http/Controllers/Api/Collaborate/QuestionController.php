@@ -39,7 +39,7 @@ class QuestionController extends Controller
 
     private function getHeaderRating($collaborateId,$batchId)
     {
-        $headers = ReviewHeader::where('collaborate_id',$collaborateId)->skip(1)->take(10)->get();
+        $headers = ReviewHeader::where('collaborate_id',$collaborateId)->where('header_selection_type','!=',3)->skip(1)->take(10)->get();
 //        $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('current_status',3)->get();
 
         $headerRating = [];
@@ -232,7 +232,7 @@ class QuestionController extends Controller
                 ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
             $this->model['question'] = \DB::table('collaborate_tasting_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
-            $leafIds = $this->model['question']->pluck('id');
+                $leafIds = $this->model['question']->pluck('id');
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
                 ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->whereIn('leaf_id',$leafIds)
                 ->where('question_id',$questionId)->get()->groupBy('question_id');
@@ -287,6 +287,9 @@ class QuestionController extends Controller
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
+                $question = \DB::table('collaborate_tasting_questions')
+                                    ->where('id',$questionId)
+                                    ->first();
                 if($item->key == 'comment')
                 {
                     $comment = $item->value;
@@ -299,7 +302,14 @@ class QuestionController extends Controller
                     $meta = $item->meta;
                     $track_consistency = $question->track_consistency;
                 }
+                if(isset(json_decode($question->questions)->is_nested_option) && json_decode($question->questions)->is_nested_option == 1) {
+                    $aroma = \DB::table('collaborate_tasting_nested_options')
+                                    ->where('id',$item->leaf_id)
+                                    ->first();
+                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id];
+            } else {
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+            }
             }
             if(!is_null($comment) && !empty($comment))
             {
