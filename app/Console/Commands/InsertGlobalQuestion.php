@@ -336,6 +336,22 @@ class InsertGlobalQuestion extends Command
             
             "select_type": 2,
             "is_intensity": 1,
+            "initial_intensity":0,
+            "can_select_parent":1,
+            "max_aroma_selection":[
+                {
+                    "sequence_id":1,
+                    "max_selection":3
+                },
+                {
+                    "sequence_id":2,
+                    "max_selection":2
+                },
+                {
+                    "sequence_id":3,
+                    "max_selection":1
+                }
+            ],
             "intensity_type": 2,
             "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
             "is_nested_question": 0,
@@ -408,6 +424,7 @@ class InsertGlobalQuestion extends Command
                     "intensity_type": 2,
                     "track_consistency":1,
                     "intensity_consistency":"weak",
+                    "initial_intensity":0,
                     "benchmark_intensity":4.0,
                     "benchmark_score":50,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -416,24 +433,28 @@ class InsertGlobalQuestion extends Command
                     "value": "Salt",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":0,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
                     "value": "Sour",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":0,
                     "intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
                 },
                 {
                     "value": "Bitter",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":0,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
                     "value": "Umami",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":0,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
@@ -848,30 +869,35 @@ class InsertGlobalQuestion extends Command
                     "value": "Oily film",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":2,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
                     "value": "Loose particles",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":2,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
                 },
                 {
                     "value": "Sticking on tooth / palate",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":2,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
                     "value": "Stuck between teeth",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":2,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
                     "value": "Chalky",
                     "is_intensity": 1,
                     "intensity_type": 2,
+                    "initial_intensity":2,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
                 },
                 {
@@ -885,6 +911,7 @@ class InsertGlobalQuestion extends Command
                     "value": "Any other",
                     "is_intensity": 1,
                      "option_type": 1,
+                     "initial_intensity":2,
                      "intensity_type": 2,
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
@@ -1082,11 +1109,11 @@ class InsertGlobalQuestion extends Command
             "is_intensity": 0,
             "is_mandatory": 1,
             "is_nested_question": 0
-        }
+        } 
     ]
 }';
 
-        $data = ['name'=>'test_test Feb 20','keywords'=>"Condiments_Asian_Sauce_Private_12th Feb 20",'description'=>null,
+        $data = ['name'=>'initial_intensity','keywords'=>"Condiments_Asian_Sauce_Private_12th Feb 20",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true),'track_consistency'=>$track_consistency];
         \DB::table('global_questions')->insert($data);
 

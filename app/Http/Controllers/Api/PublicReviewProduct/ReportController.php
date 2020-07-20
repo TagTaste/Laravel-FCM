@@ -295,7 +295,12 @@ class ReportController extends Controller
                                         $answerIntensity = explode(",",$answerIntensity);
                                         $questionIntensityValue = $option->intensity_value;
                                         $questionIntensity = [];
-                                        for($i = 1; $i <=(int)$questionIntensityValue ; $i++)
+                                        if(isset($data->questions->initial_intensity)) {
+                                            $temp = $data->questions->initial_intensity;
+                                        } else {
+                                            $temp = 1;
+                                        }
+                                        for($i=$temp ;$i <(int)$questionIntensityValue+$temp ; $i++)
                                         {
                                             $questionIntensity[] = $i;
                                         }
@@ -376,7 +381,12 @@ class ReportController extends Controller
                                 $answerIntensity = explode(",",$answerIntensity);
                                 $questionIntensityValue = $data->questions->intensity_value;
                                 $questionIntensity = [];
-                                for($i = 1; $i <=(int)$questionIntensityValue ; $i++)
+                                if(isset($data->questions->initial_intensity)) {
+                                    $temp = $data->questions->initial_intensity;
+                                } else {
+                                    $temp = 1;
+                                }
+                                for($i=$temp ;$i <(int)$questionIntensityValue+$temp ; $i++)
                                 {
                                     $questionIntensity[] = $i;
                                 }
@@ -394,6 +404,7 @@ class ReportController extends Controller
                             $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
                             $answer->intensity_value = $data->questions->intensity_value;
                             $answer->intensity_type = $data->questions->intensity_type;
+                            $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
                         }
                         else
                         {
@@ -424,7 +435,12 @@ class ReportController extends Controller
                                         $answerIntensity = explode(",",$answerIntensity);
                                         $questionIntensityValue = $option->intensity_value;
                                         $questionIntensity = [];
-                                        for($i = 1; $i <=(int)$questionIntensityValue ; $i++)
+                                        if(isset($data->questions->initial_intensity)) {
+                                            $temp = $data->questions->initial_intensity;
+                                        } else {
+                                            $temp = 1;
+                                        }
+                                        for($i=$temp ;$i <(int)$questionIntensityValue+$temp ; $i++)
                                         {
                                             $questionIntensity[] = $i;
                                         }
@@ -442,6 +458,7 @@ class ReportController extends Controller
                                     $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
                                     $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
                                     $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
+                                    $answer->initial_intensity = isset($option->initial_intensity) ? $option->initial_intensity : null;
                                 }
 
                             }
