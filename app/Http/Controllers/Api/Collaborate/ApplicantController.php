@@ -1049,9 +1049,9 @@ class ApplicantController extends Controller
                 $excel->sheet('Sheetname', function($sheet) use($finalData, $column_name) {
                     $sheet->fromArray($finalData);
                     $sheet->row(1, $column_name);
-                })->store('xls', false, true);
+                })->store('xlsx', false, true);
             });
-        $excel_save_path = $excel->storagePath."/".$excel->filename.".".$excel->ext;
+        $excel_save_path = storage_path("exports/".$excel->filename.".xlsx");
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility'=>'public']);
         $this->model = \Storage::url($resp);
