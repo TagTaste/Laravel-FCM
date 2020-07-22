@@ -11,9 +11,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\FilterFactory;
 
 class ApplicantController extends Controller
 {
+    use FilterFactory;
 
     protected $model;
 
@@ -63,7 +65,7 @@ class ApplicantController extends Controller
         $this->model = [];
         //filters data
         $filters = $request->input('filters');
-        $profileIds = $this->getFilterProfileIds($filters,$collaborateId);
+        $profileIds = $this->getFilteredProfiles($filters,$collaborateId);
         $type = true;
         $boolean = 'and' ;
         if(isset($filters))
