@@ -10,7 +10,7 @@ use App\Subscriber;
 
 class Profile extends BaseProfile
 {
-    protected $visible = ['id','user_id','name','designation','handle','tagline','image_meta','verified','is_tasting_expert','isFollowing','tasting_instructions'];
+    protected $visible = ['id','user_id','name','designation','handle','tagline','image_meta','verified','is_tasting_expert','isFollowing','tasting_instructions','is_premium'];
 
     protected $appends = ['name','designation'];
     
