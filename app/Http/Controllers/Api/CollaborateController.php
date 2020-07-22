@@ -12,9 +12,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\SearchClient;
 use App\Collaborate\Applicant;
+use App\Traits\FilterFactory;
 
 class CollaborateController extends Controller
 {
+    use FilterFactory;
 	/**
 	 * Variable to model
 	 *
@@ -354,6 +356,7 @@ class CollaborateController extends Controller
 
     public function applications(Request $request, $id)
     {
+        $filters = $request->input('filters');
         $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
 
         if ($collaborate === null) {
@@ -378,6 +381,10 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
+        if(isset($filters) && $filters != null) {
+            $profileIds = $this->getFilteredProfile($filters, $id);
+            $applications = $applications->whereIn('profile_id',$profileIds);
+        }
         if($request->sortBy != null) {
             $applications = $this->sortApplicants($request->sortBy,$applications,$id);
         }
@@ -933,5 +940,12 @@ class CollaborateController extends Controller
             {
                 event(new \App\Events\DocSubmissionEvent($collaborate->profile_id,$collaborate,$profile,$company,$files));
             }
+    }
+
+    public function applicantFilters(Request $request, $collaborateId)
+    {
+        $filters = $request->input('filter');
+        $this->model = $this->getFilters($filters, $collaborateId);
+        return $this->sendResponse();
     }
 }
