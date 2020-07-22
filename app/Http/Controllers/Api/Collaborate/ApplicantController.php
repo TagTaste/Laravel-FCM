@@ -817,7 +817,6 @@ class ApplicantController extends Controller
         $filters = $request->input('filters');
         // $profileIds = $this->getFilterProfileIds($filters, $collaborateId);
         $profileIds = $this->getFilteredProfiles($filters, $collaborateId);
-        // dd($profileIds, $profileIdss);
         $type = true;
         $boolean = 'and' ;
         if(isset($filters))
