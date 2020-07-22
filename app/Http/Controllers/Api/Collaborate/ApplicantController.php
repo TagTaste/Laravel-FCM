@@ -1034,8 +1034,6 @@ class ApplicantController extends Controller
 
         $relativePath = "images/collaborateApplicantExcel/$collaborateId";
         $name = "collaborate-".$collaborateId."-".uniqid();
-        // dd($relativePath, $name);
-        // dd($collaborate);
         
         $excel = Excel::create($name, function($excel) use ($name, $finalData, $column_name)  {
                 // Set the title
