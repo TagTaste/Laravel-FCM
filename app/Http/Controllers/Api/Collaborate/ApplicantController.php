@@ -815,7 +815,9 @@ class ApplicantController extends Controller
 
         //filters data
         $filters = $request->input('filters');
-        $profileIds = $this->getFilterProfileIds($filters, $collaborateId);
+        // $profileIds = $this->getFilterProfileIds($filters, $collaborateId);
+        $profileIds = $this->getFilteredProfiles($filters, $collaborateId);
+        // dd($profileIds, $profileIdss);
         $type = true;
         $boolean = 'and' ;
         if(isset($filters))
@@ -828,7 +830,6 @@ class ApplicantController extends Controller
             ->get();
 
         $finalData = array();
-
         foreach ($applicants as $key => $applicant) {
             $job_profile = '';
             if (isset($applicant->profile->profile_occupations)) {
