@@ -436,6 +436,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::post("showInterest","ApplicantController@store")->middleware('iosCollaborate');
             Route::get("cities/{cityId}/outlets","ApplicantController@getOutlets");
             Route::get("cities","ApplicantController@getCities");
+            Route::get('collaborateApplicants/export','ApplicantController@export');//->
             Route::resource('collaborateApplicants','ApplicantController');//->middleware('permissionCollaborate');
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting
