@@ -357,6 +357,7 @@ class CollaborateController extends Controller
     public function applications(Request $request, $id)
     {
         $filters = $request->input('filters');
+        $q = $request->input('q');
         $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
 
         if ($collaborate === null) {
@@ -381,15 +382,23 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
+
+        if(isset($q) && $q != null) {
+            $profileIds = $this->getSearchedProfile($q, $id);
+            $applications = $applications->whereIn('profile_id', $profileIds);
+        }
+        
         if(isset($filters) && $filters != null) {
             $profileIds = $this->getFilteredProfile($filters, $id);
             $applications = $applications->whereIn('profile_id',$profileIds);
         }
+        
         if($request->sortBy != null) {
             $applications = $this->sortApplicants($request->sortBy,$applications,$id);
         }
-            $this->model['count'] = $applications->count();
-            $applications = $applications->skip($skip)->take($take)->get();
+        
+        $this->model['count'] = $applications->count();
+        $applications = $applications->skip($skip)->take($take)->get();
         $this->model['application'] = $applications;
         return $this->sendResponse();
 

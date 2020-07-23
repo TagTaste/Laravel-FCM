@@ -167,4 +167,14 @@ trait FilterFactory
         }
         return $profileIds;
     }
+    public function getSearchedProfile($q,$collaborateId)
+    {
+        return \DB::table('collaborate_applicants')
+                            ->where('collaborate_id',$collaborateId)
+                            ->join('profiles','collaborate_applicants.profile_id','=','profiles.id')
+                            ->join('users','profiles.user_id','=','users.id')
+                            ->where('users.name','LIKE',$q.'%')
+                            ->pluck('collaborate_applicants.profile_id');
+
+    }
 }
