@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\File;
 use App\Traits\FilterFactory;
 
 class ApplicantController extends Controller
@@ -791,5 +793,279 @@ class ApplicantController extends Controller
         }
                 $this->model = $mod;
                 return $this->sendResponse();
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
+    public function export(Request $request,$collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)
+                            //->where('state','!=',Collaborate::$state[1])
+                            ->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        //filters data
+        $filters = $request->input('filters');
+        // $profileIds = $this->getFilterProfileIds($filters, $collaborateId);
+        $profileIds = $this->getFilteredProfiles($filters, $collaborateId);
+        $type = true;
+        $boolean = 'and' ;
+        if(isset($filters))
+            $type = false;
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
+            ->whereIn('profile_id', $profileIds, $boolean, $type)
+            ->whereNotNull('shortlisted_at')
+            ->whereNull('rejected_at')
+            ->orderBy("created_at","desc")
+            ->get();
+
+        $finalData = array();
+        foreach ($applicants as $key => $applicant) {
+            $job_profile = '';
+            if (isset($applicant->profile->profile_occupations)) {
+                if (isset($applicant->profile->profile_occupations->toArray()['0'])) {
+                    $job_profile = $applicant->profile->profile_occupations->toArray()['0']['name'];
+                }
+            }
+            $specialization = '';
+            foreach ($applicant->profile->profile_specializations as $profile_specialization_key => $profile_specialization) {
+                if (isset($profile_specialization->toArray()['name'])) {
+                    if ($profile_specialization_key == 0) {
+                        $specialization .= $profile_specialization->toArray()['name'];
+                    } else {
+                        $specialization .= ", ".$profile_specialization->toArray()['name'];
+                    }
+                } 
+            }
+
+            $temp = array(
+                "s_no" => $applicant->id,
+                "name" => $applicant->profile->name,
+                "profile_link" => env('APP_URL')."/@".$applicant->profile->handle,
+                "email" => $applicant->profile->email,
+                "phone_number" => $applicant->profile->phone,
+                "job_profile" => $job_profile,
+                "specialization" => $specialization,
+            );
+
+            if ($collaborate->collaborate_type == 'collaborate') {
+                if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
+                    $temp['address'] = '';
+                    if (isset($applicant->applier_address['label']))
+                        $temp['address'] .= $applicant->applier_address['label'].", ";
+                    if (isset($applicant->applier_address['house_no']))
+                        $temp['address'] .= $applicant->applier_address['house_no'].", ";
+                    if (isset($applicant->applier_address['landmark']))
+                        $temp['address'] .= "Landmark ".$applicant->applier_address['landmark'].", ";
+                    if (isset($applicant->applier_address['locality']))
+                        $temp['address'] .= $applicant->applier_address['locality'].", ";
+                    if (isset($applicant->applier_address['city']))
+                        $temp['address'] .= $applicant->applier_address['city'].", ";
+                    if (isset($applicant->applier_address['state']))
+                        $temp['address'] .= $applicant->applier_address['state'].", ";
+                    if (isset($applicant->applier_address['country']))
+                        $temp['address'] .= $applicant->applier_address['country'].", ";
+                    if (isset($applicant->applier_address['pincode']))
+                        $temp['address'] .= $applicant->applier_address['pincode'];
+
+                } else if (!$collaborate->is_taster_residence && $collaborate->is_contest) {
+                    $submissions = $applicant->getSubmissions($applicant->id, $collaborate->id);
+                    $temp['submitted_file_links'] = '';
+                    if (count($submissions)) {
+                        foreach ($submissions as $submission_key => $submission) {
+                            if (strlen($submission->file_address)) {
+                                if ($submission_key == 0) {
+                                    $temp['submitted_file_links'] .= $submission->file_address;
+                                } else {
+                                    $temp['submitted_file_links'] .= ", ".$submission->file_address;
+                                }
+                            }
+                        }
+                    }
+                } else if ($collaborate->is_taster_residence && $collaborate->is_contest) {
+                    $temp['address'] = '';
+                    if (isset($applicant->applier_address['label']))
+                        $temp['address'] .= $applicant->applier_address['label'].", ";
+                    if (isset($applicant->applier_address['house_no']))
+                        $temp['address'] .= $applicant->applier_address['house_no'].", ";
+                    if (isset($applicant->applier_address['landmark']))
+                        $temp['address'] .= "Landmark ".$applicant->applier_address['landmark'].", ";
+                    if (isset($applicant->applier_address['locality']))
+                        $temp['address'] .= $applicant->applier_address['locality'].", ";
+                    if (isset($applicant->applier_address['city']))
+                        $temp['address'] .= $applicant->applier_address['city'].", ";
+                    if (isset($applicant->applier_address['state']))
+                        $temp['address'] .= $applicant->applier_address['state'].", ";
+                    if (isset($applicant->applier_address['country']))
+                        $temp['address'] .= $applicant->applier_address['country'].", ";
+                    if (isset($applicant->applier_address['pincode']))
+                        $temp['address'] .= $applicant->applier_address['pincode'];
+
+                    $submissions = $applicant->getSubmissions($applicant->id, $collaborate->id);
+                    $temp['submitted_file_links'] = '';
+                    if (count($submissions)) {
+                        foreach ($submissions as $submission_key => $submission) {
+                            if (strlen($submission->file_address)) {
+                                if ($submission_key == 0) {
+                                    $temp['submitted_file_links'] .= $submission->file_address;
+                                } else {
+                                    $temp['submitted_file_links'] .= ", ".$submission->file_address;
+                                }
+                            }
+                        }
+                    }
+                }
+            } elseif ($collaborate->collaborate_type == 'product-review') {
+                if ($collaborate->is_taster_residence && !$collaborate->document_required) {
+                    $temp['address'] = '';
+                    if (isset($applicant->applier_address['label']))
+                        $temp['address'] .= $applicant->applier_address['label'].", ";
+                    if (isset($applicant->applier_address['house_no']))
+                        $temp['address'] .= $applicant->applier_address['house_no'].", ";
+                    if (isset($applicant->applier_address['landmark']))
+                        $temp['address'] .= "Landmark ".$applicant->applier_address['landmark'].", ";
+                    if (isset($applicant->applier_address['locality']))
+                        $temp['address'] .= $applicant->applier_address['locality'].", ";
+                    if (isset($applicant->applier_address['city']))
+                        $temp['address'] .= $applicant->applier_address['city'].", ";
+                    if (isset($applicant->applier_address['state']))
+                        $temp['address'] .= $applicant->applier_address['state'].", ";
+                    if (isset($applicant->applier_address['country']))
+                        $temp['address'] .= $applicant->applier_address['country'].", ";
+                    if (isset($applicant->applier_address['pincode']))
+                        $temp['address'] .= $applicant->applier_address['pincode'];
+                } else if (!$collaborate->is_taster_residence && $collaborate->document_required) {
+                    $temp['documents_verified'] = $applicant->documents_verified;
+                    $temp['dob'] = $applicant->profile->dob;
+                    $temp['document_link'] = '';
+
+                    if (count($applicant->document_meta)) {
+                        foreach ($applicant->document_meta as $document_meta_key => $document_meta) {
+                            if (strlen($document_meta->original_photo)) {
+                                if ($document_meta_key == 0) {
+                                    $temp['document_link'] .= $document_meta->original_photo;
+                                } else {
+                                    $temp['document_link'] .= ", ".$document_meta->original_photo;
+                                }
+                            }
+                        }
+                    }
+                } else if ($collaborate->is_taster_residence && $collaborate->document_required) {
+                    $temp['address'] = '';
+                    if (isset($applicant->applier_address['label']))
+                        $temp['address'] .= $applicant->applier_address['label'].", ";
+                    if (isset($applicant->applier_address['house_no']))
+                        $temp['address'] .= $applicant->applier_address['house_no'].", ";
+                    if (isset($applicant->applier_address['landmark']))
+                        $temp['address'] .= "Landmark ".$applicant->applier_address['landmark'].", ";
+                    if (isset($applicant->applier_address['locality']))
+                        $temp['address'] .= $applicant->applier_address['locality'].", ";
+                    if (isset($applicant->applier_address['city']))
+                        $temp['address'] .= $applicant->applier_address['city'].", ";
+                    if (isset($applicant->applier_address['state']))
+                        $temp['address'] .= $applicant->applier_address['state'].", ";
+                    if (isset($applicant->applier_address['country']))
+                        $temp['address'] .= $applicant->applier_address['country'].", ";
+                    if (isset($applicant->applier_address['pincode']))
+                        $temp['address'] .= $applicant->applier_address['pincode'];
+
+                    $temp['documents_verified'] = $applicant->documents_verified;
+                    $temp['dob'] = $applicant->profile->dob;
+                    $temp['document_link'] = '';
+
+                    if (count($applicant->document_meta)) {
+                        foreach ($applicant->document_meta as $document_meta_key => $document_meta) {
+                            if (strlen($document_meta->original_photo)) {
+                                if ($document_meta_key == 0) {
+                                    $temp['document_link'] .= $document_meta->original_photo;
+                                } else {
+                                    $temp['document_link'] .= ", ".$document_meta->original_photo;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            array_push($finalData, array_values($temp));
+        }
+
+        $column_name = [
+            "S. No", 
+            "Name", 
+            "Profile link", 
+            "Email", 
+            "Phone Number", 
+            "Occupation",
+            "Specialization", 
+        ];  
+
+        if ($collaborate->collaborate_type == 'collaborate') {
+            if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
+                array_push($column_name, "Delivery Address");
+            } else if (!$collaborate->is_taster_residence && $collaborate->is_contest) {
+                array_push($column_name, "Submitted files links");
+            } else if ($collaborate->is_taster_residence && $collaborate->is_contest) {
+                array_push($column_name, "Delivery Address");
+                array_push($column_name, "Submitted files links");
+            }
+        } elseif ($collaborate->collaborate_type == 'product-review') {
+            if ($collaborate->is_taster_residence && !$collaborate->document_required) {
+                array_push($column_name, "Delivery Address");
+            } else if (!$collaborate->is_taster_residence && $collaborate->document_required) {
+                array_push($column_name, "Document Verified");
+                array_push($column_name, "Date of Birth");
+                array_push($column_name, "Age Proof Document Links");
+            } else if ($collaborate->is_taster_residence && $collaborate->document_required) {
+                array_push($column_name, "Delivery Address");
+                array_push($column_name, "Document Verified");
+                array_push($column_name, "Date of Birth");
+                array_push($column_name, "Age Proof Document Links");
+            }
+        }
+
+        $relativePath = "images/collaborateApplicantExcel/$collaborateId";
+        $name = "collaborate-".$collaborateId."-".uniqid();
+        
+        $excel = Excel::create($name, function($excel) use ($name, $finalData, $column_name)  {
+                // Set the title
+                $excel->setTitle($name);
+
+                // Chain the setters
+                $excel->setCreator('Tagtaste')
+                      ->setCompany('Tagtaste');
+
+                // Call them separately
+                $excel->setDescription('A Collaborate Applicants list');
+
+                $excel->sheet('Sheetname', function($sheet) use($finalData, $column_name) {
+                    $sheet->fromArray($finalData);
+                    $sheet->row(1, $column_name);
+                })->store('xlsx', false, true);
+            });
+        $excel_save_path = storage_path("exports/".$excel->filename.".xlsx");
+        $s3 = \Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility'=>'public']);
+        $this->model = \Storage::url($resp);
+        unlink($excel_save_path);
+
+        return $this->sendResponse();
     }
 }

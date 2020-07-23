@@ -16,7 +16,6 @@
         "tagtaste/api-response": "~1.1.0",
         "laravel/socialite": "^3.0",
         "stevebauman/purify": "^1.1",
-        "maatwebsite/excel": "2.1.19",
         "league/flysystem-aws-s3-v3": "~1.0",
         "revolution/laravel-google-sheets": "^2.3",
         "tagtaste/laravel-fcm": "^1.3",
@@ -28,7 +27,8 @@
         "vinelab/neoeloquent": "^1.4",
         "graphaware/neo4j-php-client": "^4.8",
         "barryvdh/laravel-cors": "^0.9.3",
-        "twilio/sdk":"^6.0"
+        "twilio/sdk":"^6.0",
+        "maatwebsite/excel": "2.1.19"
     },
 
     "require-dev": {
