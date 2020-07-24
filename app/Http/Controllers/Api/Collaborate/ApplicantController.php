@@ -63,6 +63,7 @@ class ApplicantController extends Controller
 
         //paginate
         $page = $request->input('page');
+        $q = $request->input('q');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
         //filters data
@@ -72,7 +73,15 @@ class ApplicantController extends Controller
         $boolean = 'and' ;
         if(isset($filters))
             $type = false;
-        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereNotNull('shortlisted_at')            ->whereNull('rejected_at')->orderBy("created_at","desc")->skip($skip)->take($take)->get();
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId);
+        if(isset($q) && $q != null) {
+            $searchedProfiles = $this->getSearchedProfile($q, $collaborateId);
+            $applicants = $applicants->whereIn('profile_id', $searchedProfiles);
+        }
+        $applicants = $applicants->whereIn('profile_id', $profileIds, $boolean, $type)
+        ->whereNotNull('shortlisted_at')            
+        ->whereNull('rejected_at')->orderBy("created_at","desc")
+        ->skip($skip)->take($take)->get();
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
         {
