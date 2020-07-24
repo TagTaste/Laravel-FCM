@@ -1178,7 +1178,7 @@ class ProfileController extends Controller
 
     public function updateDetails(Request $request, $id)
     {
-        $data = $request->only(["verified","is_tasting_expert"]);
+        $data = $request->only(["verified","is_tasting_expert", "is_premium"]);
 
         foreach ($data as $key => $value) {
             if (is_null($value)) {
@@ -1187,9 +1187,9 @@ class ProfileController extends Controller
                 $data[$key] = (int)$value;
             }
         }
-        
+
         if (is_null($data) || empty($data)) {
-            return $this->sendError("Please provide valid params such as 'verified','is_tasting_expert'");
+            return $this->sendError("Please provide valid params such as 'verified','is_tasting_expert', 'is_premium'");
         } else {
             $this->model = \App\Profile::where('id',$id)->first();
             if ($this->model) {
