@@ -28,11 +28,11 @@ trait FilterFactory
                                 ->where('profiles.id',$applicant->profile_id)
                                 ->pluck('name');
             foreach($specializations as $specialization) {
-                if(!in_array($specialization,$profile))
+                if(!in_array($specialization,$profile) && $specialization != null)
                     $profile[] = $specialization;
             }
         }
-        $profile = array_filter($profile);
+        //$profile = array_filter($profile);
         $data = [];
         if(count($filters))
         {
