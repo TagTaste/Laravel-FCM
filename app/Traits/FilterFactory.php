@@ -33,6 +33,12 @@ trait FilterFactory
             }
         }
         //$profile = array_filter($profile);
+        $sort_by = [
+            "Latest First",
+            "Oldest First",
+            "Name A-Z",
+            "Name Z-A"
+        ];
         $data = [];
         if(count($filters))
         {
@@ -48,11 +54,13 @@ trait FilterFactory
                     $data['current_status'] = $currentStatus;
                 if($filter == 'profile')
                     $data['profile'] = $profile;
+                if($filter == 'sort_by')
+                    $data['sort by'] = $sort_by;
             }
         }
         else
         {
-            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,'current_status'=>$currentStatus,'profile'=>$profile];
+            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,'current_status'=>$currentStatus,'profile'=>$profile,'sort by'=>$sort_by];
         }
         return $data;
     }
