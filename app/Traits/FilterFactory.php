@@ -28,11 +28,11 @@ trait FilterFactory
                                 ->where('profiles.id',$applicant->profile_id)
                                 ->pluck('name');
             foreach($specializations as $specialization) {
-                if(!in_array($specialization,$profile))
+                if(!in_array($specialization,$profile) && $specialization != null)
                     $profile[] = $specialization;
             }
         }
-        $profile = array_filter($profile);
+        //$profile = array_filter($profile);
         $data = [];
         if(count($filters))
         {
@@ -57,7 +57,7 @@ trait FilterFactory
         return $data;
     }
 
-    public function getFilteredProfiles($filters, $collaborateId)
+    public function getFilteredProfile($filters, $collaborateId)
     {
         $profileIds = new Collection([]);
         if($profileIds->count() == 0 && isset($filters['profile_id']))
@@ -169,12 +169,60 @@ trait FilterFactory
     }
     public function getSearchedProfile($q,$collaborateId)
     {
-        return \DB::table('collaborate_applicants')
+            $searchByProfile = \DB::table('collaborate_applicants')
                             ->where('collaborate_id',$collaborateId)
+                            ->whereNUll('company_id')
                             ->join('profiles','collaborate_applicants.profile_id','=','profiles.id')
                             ->join('users','profiles.user_id','=','users.id')
                             ->where('users.name','LIKE',$q.'%')
-                            ->pluck('collaborate_applicants.profile_id');
+                            ->pluck('collaborate_applicants.id');
 
+            $searchByCompany = \DB::table('collaborate_applicants')
+                                ->where('collaborate_id',$collaborateId)
+                                ->leftJoin('companies','collaborate_applicants.company_id','=','companies.id')
+                                ->where('companies.name','LIKE',$q.'%')
+                                ->pluck('collaborate_applicants.id');
+            return $searchByProfile->merge($searchByCompany);
+                                            
+
+    }
+    public function sortApplicants($sortBy,$applications,$collabId)
+    {
+        $key = array_keys($sortBy)[0];
+        $value = $sortBy[$key];
+        if($key == 'name') {
+            $userNames = $this->getUserNames($collabId);
+           $companyNames = $this->getCompanyNames($collabId);
+            $users = $userNames->merge($companyNames);
+            if($value == 'asc')
+            $order = array_column($users->sortBy('name')->values()->all(),'id');
+            else
+            $order = array_column($users->sortByDesc('name')->values()->all(),'id');
+            $placeholders = implode(',',array_fill(0, count($order), '?'));
+            return $applications->orderByRaw("field(collaborate_applicants.id,{$placeholders})", $order)
+                    ->select('collaborate_applicants.*');
+        } 
+        return $applications->orderBy('collaborate_applicants.created_at',$value)->select('collaborate_applicants.*');
+    }
+    private function getCompanyNames($id)
+    {   
+        return \App\Collaborate\Applicant::where('collaborate_id',$id)
+        ->leftJoin('companies',function($q){
+            $q->on('collaborate_applicants.company_id','=','companies.id')
+            ;
+        })->where('collaborate_applicants.company_id','!=',null)
+        ->select('companies.name AS name','collaborate_applicants.id')
+        ->get();
+    }
+
+    private function getUserNames($id)
+    {   
+        return \App\Collaborate\Applicant::where('collaborate_id',$id)
+        ->leftJoin('profiles AS p',function($q){
+            $q->on('collaborate_applicants.profile_id','=','p.id')
+            ->where('collaborate_applicants.company_id','=',null);
+        })->leftJoin('users','p.user_id','=','users.id')->where('users.name','!=',null)
+        ->select('users.name as name','collaborate_applicants.id')
+        ->get();
     }
 }
