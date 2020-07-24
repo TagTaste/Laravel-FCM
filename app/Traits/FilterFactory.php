@@ -57,7 +57,7 @@ trait FilterFactory
         return $data;
     }
 
-    public function getFilteredProfiles($filters, $collaborateId)
+    public function getFilteredProfile($filters, $collaborateId)
     {
         $profileIds = new Collection([]);
         if($profileIds->count() == 0 && isset($filters['profile_id']))
