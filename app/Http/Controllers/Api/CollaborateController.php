@@ -384,8 +384,8 @@ class CollaborateController extends Controller
         $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
 
         if(isset($q) && $q != null) {
-            $profileIds = $this->getSearchedProfile($q, $id);
-            $applications = $applications->whereIn('profile_id', $profileIds);
+            $ids = $this->getSearchedProfile($q, $id);
+            $applications = $applications->whereIn('id', $ids);
         }
         
         if(isset($filters) && $filters != null) {

@@ -76,7 +76,10 @@ class ApplicantController extends Controller
         $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId);
         if(isset($q) && $q != null) {
             $searchedProfiles = $this->getSearchedProfile($q, $collaborateId);
-            $applicants = $applicants->whereIn('profile_id', $searchedProfiles);
+            $applicants = $applicants->whereIn('id', $searchedProfiles);
+        }
+        if($request->sortBy != null) {
+            $applicants = $this->sortApplicants($request->sortBy,$applicants,$collaborateId);
         }
         $applicants = $applicants->whereIn('profile_id', $profileIds, $boolean, $type)
         ->whereNotNull('shortlisted_at')            
