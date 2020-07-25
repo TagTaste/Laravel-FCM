@@ -1027,39 +1027,39 @@ class ApplicantController extends Controller
             array_push($finalData, $temp);
         }
 
-        $column_name = [
-            "S. No", 
-            "Name", 
-            "Profile link", 
-            "Email", 
-            "Phone Number", 
-            "Occupation",
-            "Specialization", 
-        ];  
+        // $column_name = [
+        //     "S. No", 
+        //     "Name", 
+        //     "Profile link", 
+        //     "Email", 
+        //     "Phone Number", 
+        //     "Occupation",
+        //     "Specialization", 
+        // ];  
 
-        if ($collaborate->collaborate_type == 'collaborate') {
-            if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
-                array_push($column_name, "Delivery Address");
-            } else if (!$collaborate->is_taster_residence && $collaborate->is_contest) {
-                array_push($column_name, "Submitted files links");
-            } else if ($collaborate->is_taster_residence && $collaborate->is_contest) {
-                array_push($column_name, "Delivery Address");
-                array_push($column_name, "Submitted files links");
-            }
-        } elseif ($collaborate->collaborate_type == 'product-review') {
-            if ($collaborate->is_taster_residence && !$collaborate->document_required) {
-                array_push($column_name, "Delivery Address");
-            } else if (!$collaborate->is_taster_residence && $collaborate->document_required) {
-                array_push($column_name, "Document Verified");
-                array_push($column_name, "Date of Birth");
-                array_push($column_name, "Age Proof Document Links");
-            } else if ($collaborate->is_taster_residence && $collaborate->document_required) {
-                array_push($column_name, "Delivery Address");
-                array_push($column_name, "Document Verified");
-                array_push($column_name, "Date of Birth");
-                array_push($column_name, "Age Proof Document Links");
-            }
-        }
+        // if ($collaborate->collaborate_type == 'collaborate') {
+        //     if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
+        //         array_push($column_name, "Delivery Address");
+        //     } else if (!$collaborate->is_taster_residence && $collaborate->is_contest) {
+        //         array_push($column_name, "Submitted files links");
+        //     } else if ($collaborate->is_taster_residence && $collaborate->is_contest) {
+        //         array_push($column_name, "Delivery Address");
+        //         array_push($column_name, "Submitted files links");
+        //     }
+        // } elseif ($collaborate->collaborate_type == 'product-review') {
+        //     if ($collaborate->is_taster_residence && !$collaborate->document_required) {
+        //         array_push($column_name, "Delivery Address");
+        //     } else if (!$collaborate->is_taster_residence && $collaborate->document_required) {
+        //         array_push($column_name, "Document Verified");
+        //         array_push($column_name, "Date of Birth");
+        //         array_push($column_name, "Age Proof Document Links");
+        //     } else if ($collaborate->is_taster_residence && $collaborate->document_required) {
+        //         array_push($column_name, "Delivery Address");
+        //         array_push($column_name, "Document Verified");
+        //         array_push($column_name, "Date of Birth");
+        //         array_push($column_name, "Age Proof Document Links");
+        //     }
+        // }
 
         $relativePath = "images/collaborateApplicantExcel/$collaborateId";
         $name = "collaborate-".$collaborateId."-".uniqid();
@@ -1077,7 +1077,19 @@ class ApplicantController extends Controller
 
                 $excel->sheet('Sheetname', function($sheet) use($finalData) {
                     $sheet->fromArray($finalData);
-                    // $sheet->row(1, $column_name);
+                    foreach ($sheet->getColumnIterator() as $row) {
+                        foreach ($row->getCellIterator() as $cell) {
+                            if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
+                                $cell_link = $cell->getValue();
+                                $cell->getHyperlink()
+                                    ->setUrl($cell_link)
+                                    ->setTooltip('Click here to access profile');
+                            }
+
+                            // if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '://s3')) {
+                            // }
+                        }
+                    }
                 })->store('xlsx', false, true);
             });
         $excel_save_path = storage_path("exports/".$excel->filename.".xlsx");
