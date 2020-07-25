@@ -446,6 +446,8 @@ class CollaborateController extends Controller
 
     public function archived(Request $request, $id)
     {
+        $filters = $request->input('filters');
+        $q = $request->input('q');
         $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
 
         if ($collaborate === null) {
@@ -472,6 +474,15 @@ class CollaborateController extends Controller
             ->whereNotNull('collaborate_applicants.rejected_at')->whereNull('profiles.deleted_at')
             //->select('collaborate_applicants.*')
             ->where('collaborate_id',$id)->with('profile','company');
+            if(isset($q) && $q != null) {
+                $ids = $this->getSearchedProfile($q, $id);
+                $archived = $archived->whereIn('id', $ids);
+            }
+            
+            if(isset($filters) && $filters != null) {
+                $profileIds = $this->getFilteredProfile($filters, $id);
+                $archived = $archived->whereIn('profile_id',$profileIds);
+            }
             if($request->sortBy != null) {
                 $archived = $this->sortApplicants($request->sortBy,$archived,$id);
             }

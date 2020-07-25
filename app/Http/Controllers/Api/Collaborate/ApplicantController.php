@@ -63,10 +63,10 @@ class ApplicantController extends Controller
 
         //paginate
         $page = $request->input('page');
-        $q = $request->input('q');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
         //filters data
+        $q = $request->input('q');
         $filters = $request->input('filters');
         $profileIds = $this->getFilteredProfile($filters,$collaborateId);
         $type = true;
@@ -508,12 +508,29 @@ class ApplicantController extends Controller
     public function getRejectApplicants(Request $request, $collaborateId)
     {
         $page = $request->input('page');
+        $q = $request->input('q');
+        $filters = $request->input('filters');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $this->model['rejectedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)//->whereNull('shortlisted_at')
-            ->whereNotNull('rejected_at')->count();
-        $this->model['rejectedApplicantList'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)//->whereNull('shortlisted_at')
-            ->whereNotNull('rejected_at')->skip($skip)->take($take)->get();
+        $list = Collaborate\Applicant::where('collaborate_id',$collaborateId)//->whereNull('shortlisted_at')
+        ->whereNotNull('rejected_at');
+
+        if(isset($q) && $q != null) {
+            $ids = $this->getSearchedProfile($q, $collaborateId);
+            $list = $list->whereIn('id', $ids);
+        }
+        
+        if(isset($filters) && $filters != null) {
+            $profileIds = $this->getFilteredProfile($filters, $collaborateId);
+            $list = $list->whereIn('profile_id',$profileIds);
+        }
+        if($request->sortBy != null) {
+            $archived = $this->sortApplicants($request->sortBy,$list,$collaborateId);
+        }
+
+        $this->model['rejectedApplicantsCount'] = $list->count();
+            $list = $list->skip($skip)->take($take)->get();
+            $this->model['rejectedApplicantList'] = $list;
 
         return $this->sendResponse();
     }
@@ -828,7 +845,7 @@ class ApplicantController extends Controller
         //filters data
         $filters = $request->input('filters');
         // $profileIds = $this->getFilterProfileIds($filters, $collaborateId);
-        $profileIds = $this->getFilteredProfiles($filters, $collaborateId);
+        $profileIds = $this->getFilteredProfile($filters, $collaborateId);
         $type = true;
         $boolean = 'and' ;
         if(isset($filters))
