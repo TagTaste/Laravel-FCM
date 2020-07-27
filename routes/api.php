@@ -386,6 +386,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post("collaborate/{id}/like","CollaborateController@like");
         Route::get("collaborate/{id}/applications","CollaborateController@applications");
         Route::get("collaborate/{id}/archived","CollaborateController@archived");
+        Route::get("collaborate/{id}/archived/export","CollaborateController@archivedExport");
         Route::post("collaborate/{id}/apply","CollaborateController@apply");
         Route::patch("collaborate/{id}/addAddress","CollaborateController@addAddress");
         Route::post("collaborate/{id}/contestSubmission","CollaborateController@contestSubmission");
@@ -449,6 +450,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::post("acceptDocument", "ApplicantController@acceptDocument");
                 Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
                 Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");//->middleware('permissionCollaborate');
+                Route::get("getRejectApplicants/export","ApplicantController@getRejectApplicantsExport");
                 Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");//->middleware('permissionCollaborate');
                 Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");//->middleware('permissionCollaborate');
                 Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");//->middleware('permissionCollaborate');
