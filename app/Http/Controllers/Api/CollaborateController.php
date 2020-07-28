@@ -204,7 +204,7 @@ class CollaborateController extends Controller
                 $this->model = $exists->pivot;
                 return $this->sendResponse();
             }
-            $profile = Profile::where('id',$profileId)->first();
+            $profile = \App\Recipe\Profile::where('id',$profileId)->first();
             $canShareNumber = $request->share_number != null ? $request->share_number: 0;
             $this->model = $collaborate->profiles()->attach($profileId);
             $this->model = $collaborate->profiles()
@@ -216,7 +216,8 @@ class CollaborateController extends Controller
                         'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                         'share_number' => $canShareNumber,
                         'applier_address' => $address,
-                        'gender'=>$profile->gender
+                        'gender'=>$profile->gender,
+                        'age_group'=>$profile->ageRange
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
