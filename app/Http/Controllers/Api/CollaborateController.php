@@ -202,6 +202,7 @@ class CollaborateController extends Controller
                 $this->model = $exists->pivot;
                 return $this->sendResponse();
             }
+            $profile = Profile::where('id',$profileId)->first();
             $canShareNumber = $request->share_number != null ? $request->share_number: 0;
             $this->model = $collaborate->profiles()->attach($profileId);
             $this->model = $collaborate->profiles()
@@ -212,7 +213,8 @@ class CollaborateController extends Controller
                         'message' => $request->input("message"),
                         'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                         'share_number' => $canShareNumber,
-                        'applier_address' => $address
+                        'applier_address' => $address,
+                        'gender'=>$profile->gender
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
@@ -476,12 +478,12 @@ class CollaborateController extends Controller
             ->where('collaborate_id',$id)->with('profile','company');
             if(isset($q) && $q != null) {
                 $ids = $this->getSearchedProfile($q, $id);
-                $archived = $archived->whereIn('id', $ids);
+                $archived = $archived->whereIn('collaborate_applicants.id', $ids);
             }
             
             if(isset($filters) && $filters != null) {
                 $profileIds = $this->getFilteredProfile($filters, $id);
-                $archived = $archived->whereIn('profile_id',$profileIds);
+                $archived = $archived->whereIn('collaborate_applicants.profile_id',$profileIds);
             }
             if($request->sortBy != null) {
                 $archived = $this->sortApplicants($request->sortBy,$archived,$id);

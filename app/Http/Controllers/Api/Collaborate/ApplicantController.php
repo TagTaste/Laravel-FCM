@@ -83,7 +83,7 @@ class ApplicantController extends Controller
         }
         $applicants = $applicants->whereIn('profile_id', $profileIds, $boolean, $type)
         ->whereNotNull('shortlisted_at')            
-        ->whereNull('rejected_at')->orderBy("created_at","desc")
+        ->whereNull('rejected_at')//->orderBy("created_at","desc")
         ->skip($skip)->take($take)->get();
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
@@ -319,7 +319,7 @@ class ApplicantController extends Controller
             ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
 
         return $this->sendResponse();
-    }
+}
 
     public function rejectPeople(Request $request, $collaborateId)
     {
