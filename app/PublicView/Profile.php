@@ -15,7 +15,7 @@ class Profile extends BaseProfile
     protected $with = [];
 
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise',
-        'keywords','image','experience','education','followersCount', 'image_meta','hero_image_meta','foodie_type','cuisines','profile_occupation','allergens','verified','is_tasting_expert'];
+        'keywords','image','experience','education','followersCount', 'image_meta','hero_image_meta','foodie_type','cuisines','profile_occupation','allergens','verified','is_tasting_expert', 'is_premium'];
 
     protected $appends = ['name','imageUrl','experience','education','followersCount','foodie_type','cuisines','allergens'];
 

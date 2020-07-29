@@ -358,13 +358,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         //collaborates shortlist
         Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
         Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
-
+        Route::get("collaborate/{id}/applicantFilters","CollaborateController@applicantFilters");
         //collaborate
         Route::get("collaborate/all","CollaborateController@all");
         Route::get("collaborate/filters","CollaborateController@filters");
         Route::post("collaborate/{id}/like","CollaborateController@like");
         Route::get("collaborate/{id}/applications","CollaborateController@applications");
         Route::get("collaborate/{id}/archived","CollaborateController@archived");
+        Route::get("collaborate/{id}/archived/export","CollaborateController@archivedExport");
         Route::post("collaborate/{id}/apply","CollaborateController@apply");
         Route::patch("collaborate/{id}/addAddress","CollaborateController@addAddress");
         Route::post("collaborate/{id}/contestSubmission","CollaborateController@contestSubmission");
@@ -428,6 +429,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::post("acceptDocument", "ApplicantController@acceptDocument");
                 Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
                 Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");//->middleware('permissionCollaborate');
+                Route::get("getRejectApplicants/export","ApplicantController@getRejectApplicantsExport");
                 Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");//->middleware('permissionCollaborate');
                 Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");//->middleware('permissionCollaborate');
                 Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");//->middleware('permissionCollaborate');
@@ -436,6 +438,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::post("showInterest","ApplicantController@store")->middleware('iosCollaborate');
             Route::get("cities/{cityId}/outlets","ApplicantController@getOutlets");
             Route::get("cities","ApplicantController@getCities");
+            Route::get('collaborateApplicants/export','ApplicantController@export');//->
             Route::resource('collaborateApplicants','ApplicantController');//->middleware('permissionCollaborate');
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting
