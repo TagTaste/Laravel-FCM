@@ -1042,7 +1042,7 @@ class CollaborateController extends Controller
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
-                "Phone Numbe" => $applicant->profile->getContactDetail(),
+                "Phone Number" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
             );
