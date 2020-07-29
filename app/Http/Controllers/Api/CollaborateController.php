@@ -1039,10 +1039,10 @@ class CollaborateController extends Controller
 
             $temp = array(
                 "S. No" => $key+1,
-                "Name" => $applicant->profile->name,
+                "Name" => htmlspecialchars_decode($applicant->profile->name),
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
-                "Phone Numbe" => $applicant->profile->phone,
+                "Phone Numbe" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
             );
@@ -1051,21 +1051,21 @@ class CollaborateController extends Controller
                 if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
                     $temp['Delivery Address'] = '';
                     if (isset($applicant->applier_address['label']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['label'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
                     if (isset($applicant->applier_address['house_no']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['house_no'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
                     if (isset($applicant->applier_address['landmark']))
-                        $temp['Delivery Address'] .= "Landmark ".$applicant->applier_address['landmark'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
                     if (isset($applicant->applier_address['locality']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['locality'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
                     if (isset($applicant->applier_address['city']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['city'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
                     if (isset($applicant->applier_address['state']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['state'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
                     if (isset($applicant->applier_address['country']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['country'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
                     if (isset($applicant->applier_address['pincode']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['pincode'];
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
 
                 } else if (!$collaborate->is_taster_residence && $collaborate->is_contest) {
                     $submissions = $applicant->getSubmissions($applicant->id, $collaborate->id);
@@ -1084,21 +1084,21 @@ class CollaborateController extends Controller
                 } else if ($collaborate->is_taster_residence && $collaborate->is_contest) {
                     $temp['Delivery Address'] = '';
                     if (isset($applicant->applier_address['label']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['label'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
                     if (isset($applicant->applier_address['house_no']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['house_no'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
                     if (isset($applicant->applier_address['landmark']))
-                        $temp['Delivery Address'] .= "Landmark ".$applicant->applier_address['landmark'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
                     if (isset($applicant->applier_address['locality']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['locality'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
                     if (isset($applicant->applier_address['city']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['city'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
                     if (isset($applicant->applier_address['state']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['state'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
                     if (isset($applicant->applier_address['country']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['country'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
                     if (isset($applicant->applier_address['pincode']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['pincode'];
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
 
                     $submissions = $applicant->getSubmissions($applicant->id, $collaborate->id);
                     $temp['Submitted files links'] = '';
@@ -1118,21 +1118,21 @@ class CollaborateController extends Controller
                 if ($collaborate->is_taster_residence && !$collaborate->document_required) {
                     $temp['Delivery Address'] = '';
                     if (isset($applicant->applier_address['label']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['label'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
                     if (isset($applicant->applier_address['house_no']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['house_no'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
                     if (isset($applicant->applier_address['landmark']))
-                        $temp['Delivery Address'] .= "Landmark ".$applicant->applier_address['landmark'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
                     if (isset($applicant->applier_address['locality']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['locality'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
                     if (isset($applicant->applier_address['city']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['city'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
                     if (isset($applicant->applier_address['state']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['state'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
                     if (isset($applicant->applier_address['country']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['country'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
                     if (isset($applicant->applier_address['pincode']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['pincode'];
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
                 } else if (!$collaborate->is_taster_residence && $collaborate->document_required) {
                     $temp['Document Verified'] = $applicant->documents_verified;
                     $temp['Date of Birth'] = $applicant->profile->dob;
@@ -1152,21 +1152,21 @@ class CollaborateController extends Controller
                 } else if ($collaborate->is_taster_residence && $collaborate->document_required) {
                     $temp['Delivery Address'] = '';
                     if (isset($applicant->applier_address['label']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['label'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
                     if (isset($applicant->applier_address['house_no']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['house_no'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
                     if (isset($applicant->applier_address['landmark']))
-                        $temp['Delivery Address'] .= "Landmark ".$applicant->applier_address['landmark'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
                     if (isset($applicant->applier_address['locality']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['locality'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
                     if (isset($applicant->applier_address['city']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['city'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
                     if (isset($applicant->applier_address['state']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['state'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
                     if (isset($applicant->applier_address['country']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['country'].", ";
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
                     if (isset($applicant->applier_address['pincode']))
-                        $temp['Delivery Address'] .= $applicant->applier_address['pincode'];
+                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
 
                     $temp['Document Verified'] = $applicant->documents_verified;
                     $temp['Date of Birth'] = $applicant->profile->dob;

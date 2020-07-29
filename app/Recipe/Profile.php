@@ -160,14 +160,21 @@ class Profile extends BaseProfile
         }
     }
 
-    public function getPhoneAttribute($value)
-    {
-        return $value;
-    }
-
     public function getEmailAttribute($value)
     {
         return $this->user->email;
+    }
+
+    public function getContactDetail()
+    {
+        $phone_number = null;
+        if (isset($this->id)) {
+            $profile_data = \DB::table('profiles')->where('id',$this->id)->first();
+            if (isset($profile_data->phone)) {
+                $phone_number = $profile_data->phone;
+            }
+        }
+        return $phone_number;
     }
 
 }
