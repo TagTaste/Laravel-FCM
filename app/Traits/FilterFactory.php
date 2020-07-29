@@ -94,7 +94,7 @@ trait FilterFactory
                 }
                 $currentStatusIds = $currentStatusIds->merge($ids);
             }
-            $profileIds = $currentStatus;
+            $profileIds = $profileIds->merge($currentStatusIds);
         }
         if(isset($filters['city']))
         {
@@ -108,7 +108,7 @@ trait FilterFactory
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
                 $cityFilterIds = $cityFilterIds->merge($ids);
             }
-            $profileIds = $cityFilterIds;
+            $profileIds = $profileIds->merge($cityFilterIds);
         }
         if(isset($filters['age']))
         {
@@ -124,7 +124,7 @@ trait FilterFactory
                         ->get()->pluck('profile_id');
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
-            $profileIds = $ageFilterIds;
+            $profileIds = $profileIds->merge($ageFilterIds);
         }
         if(isset($filters['gender']))
         {
@@ -139,7 +139,7 @@ trait FilterFactory
                         ->get()->pluck('profile_id');
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
-            $profileIds = $genderFilterIds;
+            $profileIds = $profileIds->merge($genderFilterIds);
         }
         if(isset($filters['profile'])) {
             $profileFilterIds = new Collection([]);
@@ -163,7 +163,7 @@ trait FilterFactory
                 $profileFilterIds = $profileFilterIds->merge($ids);
             }
 
-            $profileIds = $profileFilterIds;
+            $profileIds = $profileIds->merge($profileFilterIds);
         }
         return $profileIds;
     }
