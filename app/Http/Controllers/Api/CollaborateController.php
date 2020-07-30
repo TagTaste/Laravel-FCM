@@ -985,6 +985,10 @@ class CollaborateController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
+        if (!$request->user()->profile->is_premium) {
+            return $this->sendError("You dont have access to this premium feature.");
+        }
+        
         if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         {
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
