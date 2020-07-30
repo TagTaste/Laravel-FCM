@@ -14,8 +14,8 @@ class AddFieldsToGlobalQuestionaire extends Migration
     public function up()
     {
         Schema::table('global_questions', function(Blueprint $table){
-            $table->boolean('is_benchmark')->default(0);
-            $table->boolean('is_private')->default(0);
+            $table->boolean('is_benchmark')->default(false);
+            $table->boolean('is_private')->default(false);
             $table->integer("state")->default(0);
             $table->integer("created_by")->nullable();
             $table->integer("updated_by")->nullable();

@@ -18,7 +18,7 @@ class CreateIntensityScaleTable extends Migration
             $table->string('title', 255);
             $table->text('description')->nullable()->default(null);
             $table->boolean('is_active')->default(false);
-            $table->integer('intensity_type')->unsigned();
+            $table->integer('intensity_type')->unsigned()->default(2);
             $table->text('intensity_scale')->nullable()->default(null);
             $table->timestamps();
             $table->softDeletes();
