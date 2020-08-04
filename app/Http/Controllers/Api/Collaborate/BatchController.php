@@ -1211,132 +1211,123 @@ class BatchController extends Controller
             $filterProfile = [];
             foreach ($filters['include_profile_id'] as $filter)
             {
-                $isFilterAble = true;
+                //$isFilterAble = true;
                 $filterProfile[] = (int)$filter;
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
-        if($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
-            $filterNotProfileIds = [];
-            foreach ($filters['exclude_profile_id'] as $filter)
-            {
-                $isFilterAble = true;
-                $filterNotProfileIds[] = (int)$filter;
-            }
-            $profileIds = $profileIds->diff($filterNotProfileIds);
-        }
-        else if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
-        {
-            $isFilterAble = false;
-            $excludeAble = false;
-            $filterNotProfileIds = [];
-            foreach ($filters['exclude_profile_id'] as $filter)
-            {
-                $isFilterAble = true;
-                $excludeAble = true;
-                $filterNotProfileIds[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterNotProfileIds);
-            if(isset($filters['current_status']) && !is_null($batchId))
-            {
-                $excludeAble = false;
-                $currentStatusIds = new Collection([]);
-                foreach ($filters['current_status'] as $currentStatus)
-                {
-                    if($currentStatus == 0 || $currentStatus == 1)
-                    {
-                        if($isFilterAble)
-                        {
-                            $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                                ->whereNotIn('profile_id',$profileIds)->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
-                            $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                                ->get()->pluck('profile_id');
-                        }
-                        else
-                        {
-                            $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                                ->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
-                            $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                                ->get()->pluck('profile_id');
-                        }
-                        $ids = $ids->diff($ids2);
-                    }
-                    else
-                    {
-                        if($isFilterAble)
-                            $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                                ->whereNotIn('profile_id',$profileIds)->where('current_status',$currentStatus)->get()->pluck('profile_id');
-                        else
-                            $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                                ->where('current_status',$currentStatus)->get()->pluck('profile_id');
-                    }
-                    $currentStatusIds = $currentStatusIds->merge($ids);
-                }
-                $isFilterAble = true;
-                $profileIds = $currentStatusIds;
+        // else if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
+        // {
+        //     $isFilterAble = false;
+        //     $excludeAble = false;
+        //     $filterNotProfileIds = [];
+        //     foreach ($filters['exclude_profile_id'] as $filter)
+        //     {
+        //         $isFilterAble = true;
+        //         $excludeAble = true;
+        //         $filterNotProfileIds[] = (int)$filter;
+        //     }
+        //     $profileIds = $profileIds->merge($filterNotProfileIds);
+        //     if(isset($filters['current_status']) && !is_null($batchId))
+        //     {
+        //         $excludeAble = false;
+        //         $currentStatusIds = new Collection([]);
+        //         foreach ($filters['current_status'] as $currentStatus)
+        //         {
+        //             if($currentStatus == 0 || $currentStatus == 1)
+        //             {
+        //                 if($isFilterAble)
+        //                 {
+        //                     $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+        //                         ->whereNotIn('profile_id',$profileIds)->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
+        //                     $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+        //                         ->get()->pluck('profile_id');
+        //                 }
+        //                 else
+        //                 {
+        //                     $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+        //                         ->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
+        //                     $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+        //                         ->get()->pluck('profile_id');
+        //                 }
+        //                 $ids = $ids->diff($ids2);
+        //             }
+        //             else
+        //             {
+        //                 if($isFilterAble)
+        //                     $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+        //                         ->whereNotIn('profile_id',$profileIds)->where('current_status',$currentStatus)->get()->pluck('profile_id');
+        //                 else
+        //                     $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+        //                         ->where('current_status',$currentStatus)->get()->pluck('profile_id');
+        //             }
+        //             $currentStatusIds = $currentStatusIds->merge($ids);
+        //         }
+        //         $isFilterAble = true;
+        //         $profileIds = $currentStatusIds;
 
-            }
-            if(isset($filters['city']))
-            {
-                $excludeAble = false;
-                $cityFilterIds = new Collection([]);
-                foreach ($filters['city'] as $city)
-                {
-                    if($isFilterAble)
-                        $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
-                            ->whereNotIn('profile_id',$profileIds)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
+        //     }
+        //     if(isset($filters['city']))
+        //     {
+        //         $excludeAble = false;
+        //         $cityFilterIds = new Collection([]);
+        //         foreach ($filters['city'] as $city)
+        //         {
+        //             if($isFilterAble)
+        //                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
+        //                     ->whereNotIn('profile_id',$profileIds)->get()->pluck('profile_id');
+        //             else
+        //                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
 
-                    $cityFilterIds = $cityFilterIds->merge($ids);
-                }
-                $isFilterAble = true;
-                $profileIds = $cityFilterIds;
+        //             $cityFilterIds = $cityFilterIds->merge($ids);
+        //         }
+        //         $isFilterAble = true;
+        //         $profileIds = $cityFilterIds;
 
-            }
-            if(isset($filters['age']))
-            {
-                $excludeAble = false;
-                $ageFilterIds = new Collection([]);
-                foreach ($filters['age'] as $age)
-                {
-                    $age = htmlspecialchars_decode($age);
-                    if($isFilterAble)
-                        $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
-                            ->whereNotIn('profile_id',$profileIds)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
-                            ->get()->pluck('profile_id');
-                    $ageFilterIds = $ageFilterIds->merge($ids);
-                }
-                $isFilterAble = true;
-                $profileIds = $ageFilterIds;
+        //     }
+        //     if(isset($filters['age']))
+        //     {
+        //         $excludeAble = false;
+        //         $ageFilterIds = new Collection([]);
+        //         foreach ($filters['age'] as $age)
+        //         {
+        //             $age = htmlspecialchars_decode($age);
+        //             if($isFilterAble)
+        //                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
+        //                     ->whereNotIn('profile_id',$profileIds)->get()->pluck('profile_id');
+        //             else
+        //                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
+        //                     ->get()->pluck('profile_id');
+        //             $ageFilterIds = $ageFilterIds->merge($ids);
+        //         }
+        //         $isFilterAble = true;
+        //         $profileIds = $ageFilterIds;
 
-            }
-            if(isset($filters['gender']))
-            {
-                $excludeAble = false;
-                $genderFilterIds = new Collection([]);
+        //     }
+        //     if(isset($filters['gender']))
+        //     {
+        //         $excludeAble = false;
+        //         $genderFilterIds = new Collection([]);
 
-                foreach ($filters['gender'] as $gender)
-                {
-                    if($isFilterAble)
-                        $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
-                            ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
-                            ->get()->pluck('profile_id');
-                    $genderFilterIds = $genderFilterIds->merge($ids);
-                }
-                $isFilterAble = true;
-                $profileIds = $genderFilterIds;
-            }
+        //         foreach ($filters['gender'] as $gender)
+        //         {
+        //             if($isFilterAble)
+        //                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
+        //                     ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+        //             else
+        //                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
+        //                     ->get()->pluck('profile_id');
+        //             $genderFilterIds = $genderFilterIds->merge($ids);
+        //         }
+        //         $isFilterAble = true;
+        //         $profileIds = $genderFilterIds;
+        //     }
 
-            if($excludeAble)
-                return ['profile_id'=>$profileIds,'type'=>true];
+        //     if($excludeAble)
+        //         return ['profile_id'=>$profileIds,'type'=>true];
 
-            return ['profile_id'=>$profileIds,'type'=>false];
-        }
+        //     return ['profile_id'=>$profileIds,'type'=>false];
+        // }
         if(isset($filters['current_status']) && !is_null($batchId))
         {
             $currentStatusIds = new Collection([]);
@@ -1372,8 +1363,7 @@ class BatchController extends Controller
                 $currentStatusIds = $currentStatusIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $currentStatusIds;
-
+            $profileIds = $profileIds->merge($currentStatusIds);
         }
         if(isset($filters['city']))
         {
@@ -1389,7 +1379,7 @@ class BatchController extends Controller
                 $cityFilterIds = $cityFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $cityFilterIds;
+            $profileIds = $profileIds->merge($cityFilterIds);
 
         }
         if(isset($filters['age']))
@@ -1407,7 +1397,7 @@ class BatchController extends Controller
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $ageFilterIds;
+            $profileIds = $profileIds->merge($ageFilterIds);
 
         }
         if(isset($filters['gender']))
@@ -1425,9 +1415,30 @@ class BatchController extends Controller
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $genderFilterIds;
+            $profileIds = $profileIds->merge($genderFilterIds);
         }
-
+        if($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
+            $filterNotProfileIds = [];
+            foreach ($filters['exclude_profile_id'] as $filter)
+            {
+                $isFilterAble = true;
+                $filterNotProfileIds[] = (int)$filter;
+            }
+            $profileIds = $profileIds->diff($filterNotProfileIds);
+        }
+        if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
+        {
+            $isFilterAble = false;
+            $excludeAble = false;
+            $filterNotProfileIds = [];
+            foreach ($filters['exclude_profile_id'] as $filter)
+            {
+                $isFilterAble = false;
+                $excludeAble = true;
+                $filterNotProfileIds[] = (int)$filter;
+            }
+            $profileIds = $profileIds->merge($filterNotProfileIds);
+        }
         if($isFilterAble)
             return ['profile_id'=>$profileIds,'type'=>false];
         else
