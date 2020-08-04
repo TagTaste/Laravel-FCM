@@ -985,6 +985,10 @@ class CollaborateController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
+        if (!$request->user()->profile->is_premium) {
+            return $this->sendError("You dont have access to this premium feature.");
+        }
+        
         if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         {
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
@@ -1042,7 +1046,7 @@ class CollaborateController extends Controller
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
-                "Phone Numbe" => $applicant->profile->getContactDetail(),
+                "Phone Number" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
             );

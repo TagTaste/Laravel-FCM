@@ -830,17 +830,20 @@ class ApplicantController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
         $profileId = $request->user()->profile->id;
-
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
+        
+        if (!$request->user()->profile->is_premium) {
+            return $this->sendError("You dont have access to this premium feature.");
         }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
 
         //filters data
         $filters = $request->input('filters');
@@ -881,7 +884,7 @@ class ApplicantController extends Controller
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
-                "Phone Numbe" => $applicant->profile->getContactDetail(),
+                "Phone Number" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
             );
@@ -1083,6 +1086,10 @@ class ApplicantController extends Controller
         $list = Collaborate\Applicant::where('collaborate_id',$collaborateId)//->whereNull('shortlisted_at')
         ->whereNotNull('rejected_at');
 
+        if (!$request->user()->profile->is_premium) {
+            return $this->sendError("You dont have access to this premium feature.");
+        }
+        
         if(isset($q) && $q != null) {
             $ids = $this->getSearchedProfile($q, $collaborateId);
             $list = $list->whereIn('id', $ids);
@@ -1123,7 +1130,7 @@ class ApplicantController extends Controller
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
-                "Phone Numbe" => $applicant->profile->getContactDetail(),
+                "Phone Number" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
             );
