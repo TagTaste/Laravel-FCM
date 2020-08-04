@@ -738,12 +738,11 @@ class ProfileController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
         $query = $request->input('term');
-
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')->where('users.name','like',"%$query%")
-            ->whereIn('profiles.id',$profileIds)->take(20)->get();
+            ->whereIn('profiles.id',$profileIds)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
 
