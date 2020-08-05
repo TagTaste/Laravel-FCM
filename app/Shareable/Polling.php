@@ -144,7 +144,7 @@ class Polling extends Share
                 ),
                 array(
                     "property" => "og:image",
-                    "content" => null,
+                    "content" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/og_logo.png",
                 )
             ),
         ];
