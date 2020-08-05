@@ -101,18 +101,32 @@ class Photo extends Share
     public function getSeoTags() : array
     {
         $title = "TagTaste | Share Photo";
+
         $description = "";
+        if (!is_null($this->content)) {
+            if (is_array($this->content) && array_key_exists('text', $this->content)) {
+                $description = $this->content['text'];
+            } else {
+                $description = $this->content;
+            }
+        }
+
+        if (!is_null($description) && strlen($description)) {
+            $description = substr($this->getContent($description),0,160)."...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
 
         $seo_tags = [
             "title" => $title,
             "meta" => array(
                 array(
                     "name" => "description",
-                    "content" => $description,
+                    "content" => $description
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "",
+                    "content" => "post, shoutout, feed, user feed, text update, tagtaste post, poll, photo, video",
                 )
             ),
             "og" => array(

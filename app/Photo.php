@@ -344,12 +344,12 @@ class Photo extends Model implements Feedable
      */
     public function getSeoTags() : array
     {
-        $title = "TagTaste | Post";
+        $title = "TagTaste | Photo";
         $description = "";
         if (!is_null($this->caption)) {
             $description = substr(htmlspecialchars_decode($this->getContent($this->caption)),0,160)."...";
         } else {
-            $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
 
         $seo_tags = [
@@ -361,7 +361,7 @@ class Photo extends Model implements Feedable
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "",
+                    "content" => "post, feed, user feed, tagtaste post, photo",
                 )
             ),
             "og" => array(
