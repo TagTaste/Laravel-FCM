@@ -144,7 +144,7 @@ class Collaborate extends Share
                 ),
                 array(
                     "property" => "og:image",
-                    "content" => $this->photoUrl,
+                    "content" => null,
                 )
             ),
         ];
