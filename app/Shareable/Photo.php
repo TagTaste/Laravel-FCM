@@ -137,6 +137,10 @@ class Photo extends Share
                 array(
                     "property" => "og:description",
                     "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => null,
                 )
             ),
         ];
