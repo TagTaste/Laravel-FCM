@@ -1498,7 +1498,7 @@ class Profile extends Model
         $follower_count = $this->getFollowerProfilesAttribute()['count'];
         $title = "TagTaste | ".htmlspecialchars_decode($this->name)." | Profile";
         
-        $description = "View ".htmlspecialchars_decode($this->name)."'s profile on TagTaste. ".htmlspecialchars_decode($this->name)." has ".$follower_count." followers of food professionals network listed on their profile. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate.";
+        $description = "View ".htmlspecialchars_decode($this->name)."'s profile on TagTaste. ".htmlspecialchars_decode($this->name)." has ".$follower_count." followers. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate with each other.";
 
         $seo_tags = [
             "title" => $title,
@@ -1509,7 +1509,7 @@ class Profile extends Model
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "",
+                    "content" => "user, profile, tagtaste, tagtaste profile, ".htmlspecialchars_decode($this->name),
                 )
             ),
             "og" => array(

@@ -302,13 +302,13 @@ class PublicReviewProduct extends Model
      */
     public function getSeoTags() : array
     {
-        $title = "TagTaste | Product Review | ".$this->name;
+        $title = "TagTaste | ".$this->name." | Product";
         
         $description = "";
         if (!is_null($this->description)) {
             $description = substr(htmlspecialchars_decode($this->description),0,160)."...";
         } else {
-            $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
 
         $seo_tags = [
@@ -320,7 +320,7 @@ class PublicReviewProduct extends Model
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "",
+                    "content" => "product reviews, sensory reviews, sensory product reviews, food product reviews, beverage reviews, alcoholic beverage reviews, alcohol review, sensogram, product sensogram, appearance, aroma, aromatics, flavor, flavour, texture, product experience, TagTaste product reviews",
                 )
             ),
             "og" => array(

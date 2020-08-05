@@ -236,7 +236,7 @@ class Polling extends Model implements Feedable
         if (!is_null($this->title)) {
             $description = substr(htmlspecialchars_decode($this->title),0,160)."...";
         } else {
-            $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
 
         $seo_tags = [
@@ -248,7 +248,7 @@ class Polling extends Model implements Feedable
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "",
+                    "content" => "polls, polling, online polls, food polls, TagTaste polls",
                 )
             ),
             "og" => array(

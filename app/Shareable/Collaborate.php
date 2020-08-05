@@ -105,11 +105,20 @@ class Collaborate extends Share
     public function getSeoTags() : array
     {
         $title = "TagTaste | Post";
+
         $description = "";
-        if (!is_null($this->caption)) {
-            $description = substr($this->getContent($this->caption),0,160)."...";
+        if (!is_null($this->content)) {
+            if (is_array($this->content) && array_key_exists('text', $this->content)) {
+                $description = $this->content['text'];
+            } else {
+                $description = $this->content;
+            }
+        }
+
+        if (!is_null($description) && strlen($description)) {
+            $description = substr($this->getContent($description),0,160)."...";
         } else {
-            $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
 
         $seo_tags = [
@@ -121,7 +130,7 @@ class Collaborate extends Share
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "",
+                    "content" => "post, shoutout, feed, user feed, text update, tagtaste post, poll, photo, video",
                 )
             ),
             "og" => array(

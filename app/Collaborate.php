@@ -419,13 +419,19 @@ class Collaborate extends Model implements Feedable
      */
     public function getSeoTags() : array
     {
-        $title = "Tagtaste | ".$this->title;
+        $title = "TagTaste | ".$this->title." | Collaboration";
 
         $description = "";
         if (!is_null($this->description)) {
             $description = substr(strip_tags($this->description),0,160)."...";
         } else {
-            $description = "World's first online community for food professionals to discover, network and collaborate. Connect with thousands of Food professionals and start building your network. Chat online, Share Photos, Videos with your followers on TagTaste community.";
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
+
+        $keywords = "collaboration, collaboration at TagTaste, project, food project, f&b project";
+
+        if ($this->collaborate_type == "product-review") {
+            $keywords .= ", product reviews, sensory reviews, sensory product reviews, sensory analysis, product benchmarking, food pairing, consistency tracking, food beverage pairing, TagTaste product reviews";
         }
 
         $seo_tags = [
@@ -437,7 +443,7 @@ class Collaborate extends Model implements Feedable
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "",
+                    "content" => $keywords,
                 )
             ),
             "og" => array(
