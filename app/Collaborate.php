@@ -418,6 +418,57 @@ class Collaborate extends Model implements Feedable
         $meta['interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
         return $meta;
     }
+
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $title = "TagTaste | ".$this->title." | Collaboration";
+
+        $description = "";
+        if (!is_null($this->description)) {
+            $description = substr(strip_tags($this->description),0,160)."...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
+
+        $keywords = "collaboration, collaboration at TagTaste, project, food project, f&b project";
+
+        if ($this->collaborate_type == "product-review") {
+            $keywords .= ", product reviews, sensory reviews, sensory product reviews, sensory analysis, product benchmarking, food pairing, consistency tracking, food beverage pairing, TagTaste product reviews";
+        }
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => $keywords,
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $this->getPreviewContent()['ogImage'],
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
     
     public function privacy()
     {

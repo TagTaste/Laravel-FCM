@@ -138,7 +138,11 @@ class PublicReviewProductController extends Controller
             $this->model = [];
             return $this->sendError("Product is not available");
         }
-        $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
+        $this->model = [
+            'product'=>$product,
+            'meta'=>$product->getMetaFor($request->user()->profile->id),
+            'seoTags'=>$product->getSeoTags($request->user()->profile->id)
+        ];
         return $this->sendResponse();
 
     }

@@ -98,4 +98,57 @@ class Collaborate extends Share
         ];
     }
 
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $title = "TagTaste | Post";
+
+        $description = "";
+        if (!is_null($this->content)) {
+            if (is_array($this->content) && array_key_exists('text', $this->content)) {
+                $description = $this->content['text'];
+            } else {
+                $description = $this->content;
+            }
+        }
+
+        if (!is_null($description) && strlen($description)) {
+            $description = substr($this->getContent($description),0,160)."...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "post, shoutout, feed, user feed, text update, tagtaste post, poll, photo, video",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/og_logo.png",
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
+
 }
