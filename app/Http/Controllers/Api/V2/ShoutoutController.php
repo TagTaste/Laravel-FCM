@@ -48,6 +48,7 @@ class ShoutoutController extends BaseController
         }
         $owner = $shoutout->getOwnerAttribute();
         $meta = $shoutout->getMetaForV2($loggedInProfileId);
+        $seoTags = $shoutout->getSeoTags();
         $shoutout = $shoutout->toArray();
         
         foreach ($shoutout as $key => $value) {
@@ -56,7 +57,8 @@ class ShoutoutController extends BaseController
         }
         $this->model = [
             'shoutout'=>$shoutout,
-            'meta'=>$meta
+            'meta'=>$meta,
+            'seoTags'=>$seoTags
         ];
 
         if (isset($shoutout['profile_id'])) {

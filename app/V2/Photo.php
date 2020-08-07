@@ -413,4 +413,48 @@ class Photo extends Model implements Feedable
         }
     }
 
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $title = "TagTaste | Photo";
+        $description = "";
+        if (!is_null($this->caption)) {
+            $description = substr(htmlspecialchars_decode($this->getContent($this->caption)),0,160)."...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "post, feed, user feed, tagtaste post, photo",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $this->photoUrl,
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
+
 }

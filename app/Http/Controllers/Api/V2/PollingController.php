@@ -50,11 +50,13 @@ class PollingController extends BaseController
         }
         $owner = $poll->getOwnerAttribute();
         $meta = $poll->getMetaForV2($loggedInProfileId);
+        $seoTags = $poll->getSeoTags();
         $poll = $poll->toArray();
         
         $this->model = [
             'polling'=>$poll,
-            'meta'=>$meta
+            'meta'=>$meta,
+            'seoTags'=>$seoTags
         ];
 
         if (isset($poll['profile_id'])) {

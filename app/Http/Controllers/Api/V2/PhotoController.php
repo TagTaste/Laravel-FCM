@@ -150,6 +150,7 @@ class PhotoController extends Controller
         $photo->images = json_decode($photo->images);
         $owner = $photo->getOwnerAttributeV2();
         $meta = $photo->getMetaForV2($loggedInProfileId);
+        $seoTags = $photo->getSeoTags();
         $photo = $photo->toArray();
         foreach ($photo as $key => $value) {
             if (is_null($value) || $value == '')
@@ -157,7 +158,9 @@ class PhotoController extends Controller
         }
         $this->model = [
             'photo'=>$photo,
-            'meta'=>$meta
+            'meta'=>$meta,
+            'seoTags'=>$seoTags
+
         ];
         if (isset($photo['profile_id'])) {
             $this->model['profile'] = $owner;
