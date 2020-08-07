@@ -347,6 +347,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         //collaborate
         //collaborate categories
+        Route::get("collaboration/mandatoryFields", "CollaborateController@dynamicMandatoryFields");
+        Route::get("collaborate/{id}/mandatoryFields", "CollaborateController@collaborationMandatoryFields");
         Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
         Route::resource("collaborate/categories","CollaborateCategoryController");
         Route::get('collaborate/types',"CollaborateController@types");
