@@ -17,7 +17,8 @@ class Profile extends BaseProfile
     protected $with = [];
 
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise','user_id',
-        'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta",'is_ttfb_user','verified','is_tasting_expert','phone','tasting_instructions','is_premium'];
+        'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta",'is_ttfb_user','verified','is_tasting_expert','phone','tasting_instructions','is_premium','hometown'];
+
 
     protected $appends = ['name','designation','imageUrl','ageRange', 'email'];
     
