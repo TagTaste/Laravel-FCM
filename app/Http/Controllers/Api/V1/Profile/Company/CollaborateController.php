@@ -164,7 +164,7 @@ class CollaborateController extends Controller
         $this->model = $this->model->fresh();
         
         //storing mandatory fields
-        if($mandatory_field_ids != null && count($mandatory_field_ids)>0)
+        if(isset($mandatory_field_ids) && $mandatory_field_ids != null && count($mandatory_field_ids)>0)
             $this->storeMandatoryFields($mandatory_field_ids,$this->model->id);
 
         if($this->model->collaborate_type != 'product-review')
