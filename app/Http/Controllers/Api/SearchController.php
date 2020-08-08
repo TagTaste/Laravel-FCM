@@ -66,10 +66,14 @@ class SearchController extends Controller
 
         }
         if(count($ids)) {
-            $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
-        }
-        else
-        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
+            if($type=='collaborate') {
+                $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step',3);
+            } else 
+                $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
+        } else if($type=='collaborate') {
+            $model = $model::whereIn('id',$ids)->where('step',3)->whereNull('deleted_at');
+        } else
+            $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
 
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
