@@ -151,7 +151,7 @@ class CollaborateController extends Controller
         $profile = \App\Recipe\Profile::find($profileId);
         $this->model = $this->model->fresh();
         //storing mandatory fields
-        if($mandatory_field_ids != null && count($mandatory_field_ids)>0)
+        if(isset($mandatory_field_ids) && $mandatory_field_ids != null && count($mandatory_field_ids)>0)
             $this->storeMandatoryFields($mandatory_field_ids,$this->model->id);
         //push to feed
         event(new NewFeedable($this->model, $profile));
