@@ -74,11 +74,13 @@ class Profile extends Model
 
     private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations','phone','verified_phone'];
 
+
     private $profileCompletionMandatoryFieldForCampusConnect = ['phone'];
     
     private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone'];
     
     private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['phone','verified_phone'];
+
 
     public static function boot()
     {
