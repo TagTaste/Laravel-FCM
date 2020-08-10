@@ -712,6 +712,26 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    public function dynamicMandatoryFields(Request $request)
+    {
+        $this->model = \DB::table('mandatory_fields')->get();
+        return $this->sendResponse();
+    }
+
+    public function collaborationMandatoryFields(Request $request,$id)
+    {
+        unset($this->model);
+        $this->model = [];
+        $fields = \DB::table('mandatory_fields')
+                        ->join('collaborate_mandatory_mapping','mandatory_fields.id','=','collaborate_mandatory_mapping.mandatory_field_id')
+                        ->where('collaborate_mandatory_mapping.collaborate_id',$id)
+                        ->pluck('mandatory_fields.field');
+        $this->model['mandatory_fields'] = $fields;                
+        $this->model['remaining_mandatory_fields'] = $request->user()->profile->getProfileCompletionAttribute($fields);
+        return $this->sendResponse();
+
+    }
+
     public function mandatoryField(Request $request,$type)
     {
         if($type == 'product-review')
