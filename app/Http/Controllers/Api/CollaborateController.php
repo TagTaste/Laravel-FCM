@@ -217,7 +217,8 @@ class CollaborateController extends Controller
                         'share_number' => $canShareNumber,
                         'applier_address' => $address,
                         'gender'=>$profile->gender,
-                        'age_group'=>$profile->ageRange
+                        'age_group'=>$profile->ageRange,
+                        'hometown'=>$profile->hometown
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
