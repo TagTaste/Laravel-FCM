@@ -13,9 +13,5 @@ class Collaborate extends BaseCollaborate
 {
 	use IdentifiesOwner, GetTags, HasPreviewContent;
 
-<<<<<<< HEAD
-	protected $visible = ["id", "title", "description", "profile_id", "company_id", "has_tags", "collaborate_type", "expires_on", "updated_at", "created_at", "deleted_at","financials","financial_min","financial_max","track_consistency","addresses","is_contest","max_submissions","mandatory_fields"];
-=======
-	protected $visible = ["id", "title", "description", "profile_id", "company_id", "has_tags", "collaborate_type", "expires_on", "updated_at", "created_at", "deleted_at","financials","financial_min","financial_max","track_consistency","addresses","is_contest","max_submissions","show_interest_state"];
->>>>>>> 232310a41622161cd69592c3ca14d36674273078
+	protected $visible = ["id", "title", "description", "profile_id", "company_id", "has_tags", "collaborate_type", "expires_on", "updated_at", "created_at", "deleted_at","financials","financial_min","financial_max","track_consistency","addresses","is_contest","max_submissions","show_interest_state","mandatory_fields"];
 }
