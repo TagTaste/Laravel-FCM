@@ -1562,6 +1562,48 @@ class Profile extends Model
 
         return $result;
     }
+
+
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getSeoTags() : array
+    {
+        $follower_count = $this->getFollowerProfilesAttribute()['count'];
+        $title = "TagTaste | ".htmlspecialchars_decode($this->name)." | Profile";
+        
+        $description = "View ".htmlspecialchars_decode($this->name)."'s profile on TagTaste. ".htmlspecialchars_decode($this->name)." has ".$follower_count." followers. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate with each other.";
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "user, profile, tagtaste, tagtaste profile, ".htmlspecialchars_decode($this->name),
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $this->imageUrl,
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
 }
 
 

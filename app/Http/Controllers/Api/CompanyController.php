@@ -72,6 +72,7 @@ class CompanyController extends Controller {
         $profileId = $request->user()->profile->id;
         $this->model = $company->toArray();
         $this->model['isFollowing'] = $company->isFollowing($profileId);
+        $this->model['seoTags'] = $company->getSeoTags();
         if(!$this->model){
             return $this->sendError("Company not found.");
         }

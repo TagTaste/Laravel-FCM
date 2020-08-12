@@ -48,7 +48,8 @@ class CollaborateController extends BaseController
         if ($collaboration->state == 'Active' || $collaboration->state == 'Close' || $collaboration->state == 'Expired') {
             $meta = $collaboration->getMetaForV2($profileId);
             $collaboration_detail = $collaboration->toArray();
-            $this->model = ['collaboration'=>$collaboration_detail,'meta'=>$meta];
+            $seoTags = $collaboration->getSeoTags($profileId);
+            $this->model = ['collaboration'=>$collaboration_detail,'meta'=>$meta,'seoTags'=>$seoTags];
             return $this->sendResponse();
         }
 
@@ -63,9 +64,11 @@ class CollaborateController extends BaseController
 
 
         $meta = $collaboration->getMetaForV2($profileId);
+        $seoTags = $collaboration->getSeoTags();
         $this->model = [
             'collaboration'=>$collaboration, 
-            'meta'=>$meta
+            'meta'=>$meta,
+            'seoTags'=>$seoTags
         ];
         return $this->sendResponse();
         

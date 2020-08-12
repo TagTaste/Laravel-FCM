@@ -218,7 +218,8 @@ class CollaborateController extends Controller
                         'applier_address' => $address,
                         'gender'=>$profile->gender,
                         'age_group'=>$profile->ageRange,
-                        'hometown'=>$profile->hometown
+                        'hometown'=>$profile->hometown,
+                        'current_city'=>$profile->city
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
