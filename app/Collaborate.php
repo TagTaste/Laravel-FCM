@@ -25,7 +25,7 @@ class Collaborate extends Model implements Feedable
         'created_at','updated_at','category_id','step','financial_min','financial_max',
         'type_id','images','collaborate_type','is_taster_residence','product_review_meta',
         'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
-        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta','document_required','track_consistency','is_contest','max_submissions'];
+        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta','document_required','track_consistency','is_contest','max_submissions','show_interest_state'];
 
     protected $with = ['profile','company','fields','categories','collaborate_occupations',
         'collaborate_specializations','collaborate_allergens'];
@@ -43,10 +43,10 @@ class Collaborate extends Model implements Feedable
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
         'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
         'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
-        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required','track_consistency','is_contest','max_submissions'];
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required','track_consistency','is_contest','max_submissions','mandatory_fields'];
 
 
-    protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner','addresses'];
+    protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner','addresses','mandatory_fields'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -702,6 +702,14 @@ class Collaborate extends Model implements Feedable
     public function getGenderRatioAttribute($value)
     {
         return !is_null($value) ? json_decode($value) : null;
+    }
+
+    public function getMandatoryFieldsAttribute()
+    {
+        return \DB::table('mandatory_fields')
+                ->join('collaborate_mandatory_mapping','mandatory_fields.id','=','collaborate_mandatory_mapping.mandatory_field_id')
+                ->where('collaborate_mandatory_mapping.collaborate_id',$this->id)
+                ->get();
     }
 
 //    public function getOwnerAttribute()

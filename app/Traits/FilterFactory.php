@@ -15,6 +15,8 @@ trait FilterFactory
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->get();
         $city = [];
         $profile = [];
+        $hometown = [];
+        $current_city = [];
         foreach ($applicants as $applicant)
         {
             if(isset($applicant->city))
@@ -22,6 +24,19 @@ trait FilterFactory
                 if(!in_array($applicant->city,$city))
                     $city[] = $applicant->city;
             }
+
+            if(isset($applicant->hometown))
+            {
+                if(!in_array($applicant->hometown,$hometown))
+                    $hometown[] = $applicant->hometown;
+            }
+
+            if(isset($applicant->current_city))
+            {
+                if(!in_array($applicant->current_city,$current_city))
+                    $current_city[] = $applicant->current_city;
+            }
+
             $specializations = \DB::table('profiles')
                                  ->leftJoin('profile_specializations','profiles.id','=','profile_specializations.profile_id')
                                  ->leftJoin('specializations','specializations.id','=','profile_specializations.specialization_id')
@@ -48,11 +63,15 @@ trait FilterFactory
                     $data['current_status'] = $currentStatus;
                 if($filter == 'profile')
                     $data['profile'] = $profile;
+                if($filter == 'hometown')
+                    $data['hometown'] = $hometown;
+                if($filter == 'current_city')
+                    $data['current_city'] = $current_city;
             }
         }
         else
         {
-            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,'current_status'=>$currentStatus,'profile'=>$profile];
+            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,'current_status'=>$currentStatus,'profile'=>$profile,'hometown'=>$hometown,'current_city'=>$current_city];
         }
         return $data;
     }
@@ -164,6 +183,36 @@ trait FilterFactory
             }
 
             $profileIds = $profileIds->merge($profileFilterIds);
+        }
+        if(isset($filters['hometown']))
+        {
+            $hometownFilterIds = new Collection([]);
+            foreach ($filters['hometown'] as $hometown)
+            {
+                if($profileIds->count() > 0 )
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('hometown', 'LIKE', $hometown)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('hometown', 'LIKE', $hometown)
+                        ->get()->pluck('profile_id');
+                $hometownFilterIds = $hometownFilterIds->merge($ids);
+            }
+            $profileIds = $profileIds->merge($hometownFilterIds);
+        }
+        if(isset($filters['current_city']))
+        {
+            $currentCityFilterIds = new Collection([]);
+            foreach ($filters['current_city'] as $current_city)
+            {
+                if($profileIds->count() > 0 )
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('current_city', 'LIKE', $current_city)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('current_city', 'LIKE', $current_city)
+                        ->get()->pluck('profile_id');
+                $currentCityFilterIds = $currentCityFilterIds->merge($ids);
+            }
+            $profileIds = $profileIds->merge($currentCityFilterIds);
         }
         return $profileIds;
     }
