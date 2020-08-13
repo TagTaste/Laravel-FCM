@@ -39,13 +39,18 @@ class ReportController extends Controller
 
     public function reportSummary(Request $request,$productId)
     {
+        $minimum_report_count = 10;
+        if ("https://dev.tagtaste.com" == env("APP_URL")) {
+            $minimum_report_count = 2;
+        }
+
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
             return $this->sendError("Product is not available");
         }
         $count = Review::where('product_id',$productId)->where('current_status',2)->distinct('profile_id')->count('profile_id');
-        if($count < 10)
+        if($count < $minimum_report_count)
         {
             $this->model = [];
             $this->model['title'] = 'Sensogram';

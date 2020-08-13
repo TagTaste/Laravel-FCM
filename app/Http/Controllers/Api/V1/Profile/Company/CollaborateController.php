@@ -602,7 +602,6 @@ class CollaborateController extends Controller
                 if(!isset($this->model->payload_id))
                     event(new NewFeedable($this->model, $company));
                 \App\Filter\Collaborate::addModel($this->model);
-
             }
             return $this->sendResponse();
 
