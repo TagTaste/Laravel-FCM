@@ -1287,9 +1287,9 @@ class Profile extends Model
                         } else {
                             $item = $field;
                         }
-
-                        if($field == 'verified_email' && !isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
+                        if($field == 'verified_email' )
                         {
+                            if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
                             $remaningMandatoryItem[] = 'verified_email';
                         } else if($field == 'email' && !isset(request()->user()->email) && is_null(request()->user()->email))
                         {
