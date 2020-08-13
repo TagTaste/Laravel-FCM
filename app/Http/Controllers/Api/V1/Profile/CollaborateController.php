@@ -269,6 +269,10 @@ class CollaborateController extends Controller
              event(new NewFeedable($this->model, $profile));
             }
         }
+        if($request->has('mandatory_field_ids')) {
+            $mandatory_field_ids = $request->mandatory_field_ids;
+            $this->storeMandatoryFields($mandatory_field_ids,$id);
+        }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
@@ -506,6 +510,7 @@ class CollaborateController extends Controller
 
     public function storeMandatoryFields($fieldIds, $collaborateId)
     {
+        \DB::table('collaborate_mandatory_mapping')->where('collaborate_id',$collaborateId)->delete();
         $insertData = [];
         foreach ($fieldIds as $fieldId) {
             $insertData[] = ['mandatory_field_id'=>$fieldId,'collaborate_id'=>$collaborateId];

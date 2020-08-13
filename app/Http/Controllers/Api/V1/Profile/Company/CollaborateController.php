@@ -1017,6 +1017,7 @@ class CollaborateController extends Controller
     }
     public function storeMandatoryFields($fieldIds, $collaborateId)
     {
+        \DB::table('collaborate_mandatory_mapping')->where('collaborate_id',$collaborateId)->delete();
         $insertData = [];
         foreach ($fieldIds as $fieldId) {
             $insertData[] = ['mandatory_field_id'=>$fieldId,'collaborate_id'=>$collaborateId];
