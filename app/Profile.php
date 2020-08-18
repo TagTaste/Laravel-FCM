@@ -1284,11 +1284,6 @@ class Profile extends Model
                 }   else {
                     $remaningMandatoryItem = [];
                     foreach ($fields as $field) {
-                        if($fields == 'age_proof') {
-                            $item = 'document_meta';
-                        } else {
-                            $item = $field;
-                        }
                         if($field == 'verified_email' )
                         {
                             if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
@@ -1296,8 +1291,8 @@ class Profile extends Model
                         } else if($field == 'email' && !isset(request()->user()->email) && is_null(request()->user()->email))
                         {
                             $remaningMandatoryItem[] = 'email';
-                        } else if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
-                        {
+                        } else if(is_null($this->{$field}) || empty($this->{$field})|| count($this->{$field}) == 0)
+			{
                             $remaningMandatoryItem[] = $field;
                         }
                     }
@@ -1607,5 +1602,3 @@ class Profile extends Model
         return $seo_tags;
     }
 }
-
-

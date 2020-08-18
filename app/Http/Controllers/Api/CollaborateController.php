@@ -206,6 +206,21 @@ class CollaborateController extends Controller
             }
             $profile = \App\Recipe\Profile::where('id',$profileId)->first();
             $canShareNumber = $request->share_number != null ? $request->share_number: 0;
+            $terms_verified = null;
+            $document_meta = null;
+            $documents_verified = null;
+            if ($collaborate->document_required) {
+                $doc = \DB::table('profile_documents')->where('profile_id',$loggedInprofileId)->first();
+                if (is_null($doc)) {
+                    return $this->sendError("please upload document");
+                } else if (!isset($request->terms_verified)) {
+                    return $this->sendError("please agree to terms and conditions");
+                } else {
+                    $terms_verified = 1;
+                    $document_meta = $doc->document_meta;
+                    $documents_verified = $doc->is_verified;
+                }
+            }
             $this->model = $collaborate->profiles()->attach($profileId);
             $this->model = $collaborate->profiles()
                 ->updateExistingPivot($profileId,
@@ -219,7 +234,10 @@ class CollaborateController extends Controller
                         'gender'=>$profile->gender,
                         'age_group'=>$profile->ageRange,
                         'hometown'=>$profile->hometown,
-                        'current_city'=>$profile->city
+                        'current_city'=>$profile->city,
+                        'terms_verified'=>$terms_verified,
+                        'document_meta'=>$document_meta,
+                        'document_verified'=>$documents_verified
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
