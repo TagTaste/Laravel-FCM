@@ -1080,15 +1080,29 @@ class CollaborateController extends Controller
                     }
                 } 
             }
+            $allergens = '';
+            foreach ($applicant->profile->allergens as $allergens_key => $profile_allergen) {
+                if (isset($profile_allergen->name)) {
+                    if ($allergens_key == 0) {
+                        $allergens .= $profile_allergen->name;
+                    } else {
+                        $allergens .= ", ".$profile_allergen->name;
+                    }
+                } 
+            }
 
             $temp = array(
                 "S. No" => $key+1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
+                "Gender" => $applicant->profile->gender,
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
                 "Phone Number" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
+                "Allergens" => $allergens,
+                "Hometown" => $applicant->hometown,
+                "Current City" => $applicant->current_city
             );
 
             if ($collaborate->collaborate_type == 'collaborate') {
