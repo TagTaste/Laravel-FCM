@@ -734,7 +734,28 @@ class CollaborateController extends Controller
 
     public function dynamicMandatoryFields(Request $request)
     {
-        $this->model = \DB::table('mandatory_fields')->get();
+        $type = $request->has('type') ? $request->type : [];
+        $this->model = [];
+        $fields = \DB::table('mandatory_fields')->get();
+        foreach($fields as $field) {
+            $is_selected = 0;
+            $data = [];
+            foreach($type as $t) {
+                if($field->field == 'document_meta' && $t == 'document_required'){
+                    $is_selected = 1;
+                } else if($field->field == 'address' && $t == 'hut') {
+                    $is_selected = 1;
+                }
+            }
+            $data['id'] = $field->id;
+            $data['is_selected'] = $is_selected;
+            $data['name'] = $field->name;
+            $data['field'] = $field->field;
+            $data['is_mandatory'] = $field->is_mandatory;
+            $data = (object)$data;
+            $this->model[] = $data;
+        }         
+
         return $this->sendResponse();
     }
 
