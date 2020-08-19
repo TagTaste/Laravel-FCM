@@ -237,7 +237,7 @@ class CollaborateController extends Controller
                         'current_city'=>$profile->city,
                         'terms_verified'=>$terms_verified,
                         'document_meta'=>$document_meta,
-                        'document_verified'=>$documents_verified
+                        'documents_verified'=>$documents_verified
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
