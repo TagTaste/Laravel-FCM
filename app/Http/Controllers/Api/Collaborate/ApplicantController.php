@@ -157,7 +157,7 @@ class ApplicantController extends Controller
             if($request->applier_address) {
                 $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress,true);
-            $city = $address['collaborate_city'];
+            $city = (isset($address['collaborate_city'])) ? $address['collaborate_city'] : null;
             } else {
                 $city = null;
                 $applierAddress = null;
