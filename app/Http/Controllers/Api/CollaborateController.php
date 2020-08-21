@@ -210,7 +210,7 @@ class CollaborateController extends Controller
             $document_meta = null;
             $documents_verified = null;
             if ($collaborate->document_required) {
-                $doc = \DB::table('profile_documents')->where('profile_id',$loggedInprofileId)->first();
+                $doc = \DB::table('profile_documents')->where('profile_id',$profileId)->first();
                 if (is_null($doc)) {
                     return $this->sendError("please upload document");
                 } else if (!isset($request->terms_verified)) {
