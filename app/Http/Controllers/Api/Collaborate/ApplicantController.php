@@ -414,7 +414,7 @@ class ApplicantController extends Controller
         $hut = $request->has('hut') ? $request->input('hut') : 0 ;
         $applierAddress = $request->input('applier_address');
         $address = json_decode($applierAddress,true);
-        $city = $address['city'];
+        $city = (isset($address['collaborate_city'])) ? $address['collaborate_city'] : null;
         $profile = Profile::where('id',$loggedInProfileId)->first();
         if(!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender))
         {

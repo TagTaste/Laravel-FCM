@@ -516,6 +516,7 @@ class CollaborateController extends Controller
         }
         if($request->has('mandatory_field_ids')) {
             $this->storeMandatoryFields($request->mandatory_field_ids,$collaborateId);
+            $inputs['document_required'] = $request->has('document_required') ? $request->document_required : null;
         }
         if($request->has('occupation_id'))
         {
