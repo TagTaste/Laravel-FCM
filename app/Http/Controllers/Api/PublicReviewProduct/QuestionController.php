@@ -219,12 +219,16 @@ class QuestionController extends Controller
                 $option_type = isset($item->option_type) ? $item->option_type : 0;
                 if(isset(json_decode($question->questions)->is_nested_option) && json_decode($question->questions)->is_nested_option == 1) {
                     $aroma = \DB::table('public_review_nested_options')
-                                    ->where('id',$item->leaf_id)
-                                    ->first();
-                        $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id];
-                    } else {
-                        $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                        ->where('id',$item->leaf_id)
+                        ->first();
+                    $is_intensity = 0;
+                    if (!is_null($aroma)) {
+                        $is_intensity = $aroma->is_intensity;
                     }
+                    $data[] = ['value'=>$item->value,'is_intensity'=>$is_intensity,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id];
+                } else {
+                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                }
                 
             }
             if((!is_null($comment) && !empty($comment)) || (!is_null($meta) && !empty($meta)))
