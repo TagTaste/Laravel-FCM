@@ -184,6 +184,7 @@ class ApplicantController extends Controller
                 $inputs['documents_verified'] = $doc->is_verified;
             }
         }
+        $inputs['share_number'] = $request->has('share_number') ? $request->share_number : 0;
         $this->model = $this->model->create($inputs);
 
         if (isset($this->model)) {
