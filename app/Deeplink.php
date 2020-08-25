@@ -174,7 +174,7 @@ class Deeplink
                 //case 'recipe':      return env('APP_URL')."/recipe/$modelId";
                 case 'profile':     {
                     $profile = \App\Profile::where('id',$modelId)->first();
-                    return env('APP_URL')."/profile/@".$profile->handle;
+                    return env('APP_URL')."/@".$profile->handle;
                 }
                 case 'company':     return env('APP_URL')."/companies/$modelId";
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;

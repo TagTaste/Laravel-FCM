@@ -1305,7 +1305,13 @@ class Profile extends Model
 
     public function shippingaddress()
     {
-        return $this->hasMany('App\Profile\ShippingAddress');
+        // if(request() != null && request()->user()->profile->id != $this->id) {
+        //     return $this->hasMany('App\Profile\ShippingAddress');
+        // } else {
+        //     return null;
+        // }
+        return null;
+        
     }
 
     public function profile_specializations()
