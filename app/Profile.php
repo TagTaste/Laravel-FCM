@@ -1305,12 +1305,11 @@ class Profile extends Model
 
     public function shippingaddress()
     {
-        // if(request() != null && request()->user()->profile->id != $this->id) {
-        //     return $this->hasMany('App\Profile\ShippingAddress');
-        // } else {
-        //     return null;
-        // }
-        return null;
+        if(request() != null && request()->user()->profile->id != $this->id) {
+            return $this->hasMany('App\Profile\ShippingAddress');
+        } else {
+            return null;
+        }
         
     }
 
