@@ -290,38 +290,41 @@ class QuestionController extends Controller
                 $question = \DB::table('collaborate_tasting_questions')
                                     ->where('id',$questionId)
                                     ->first();
-                if($item->key == 'comment')
-                {
+                if ($item->key == 'comment') {
                     $comment = $item->value;
                     continue;
                 }
-                if($item->key == 'authenticity_check') {
+
+                if ($item->key == 'authenticity_check') {
                     $question = \DB::table('collaborate_tasting_questions')
                                     ->where('id',$questionId)
                                     ->first();
                     $meta = $item->meta;
                     $track_consistency = $question->track_consistency;
                 }
-                if(isset(json_decode($question->questions)->is_nested_option) && json_decode($question->questions)->is_nested_option == 1) {
+                
+                if (isset(json_decode($question->questions)->is_nested_option) 
+                        && json_decode($question->questions)->is_nested_option == 1) {
                     $aroma = \DB::table('collaborate_tasting_nested_options')
-                                    ->where('id',$item->leaf_id)
-                                    ->first();
-                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id];
-            } else {
-                $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                        ->where('id',$item->leaf_id)
+                        ->first();
+                    $is_intensity = 0;
+                    if (!is_null($aroma)) {
+                        $is_intensity = $aroma->is_intensity;
+                    }
+                    $data[] = ['value'=>$item->value,'is_intensity'=>$is_intensity,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id];
+                } else {
+                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                }
             }
-            }
-            if(!is_null($comment) && !empty($comment))
-            {
+            if (!is_null($comment) && !empty($comment)) {
                 $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
-            } else if(!is_null($meta) && !empty($meta)) {
+            } else if (!is_null($meta) && !empty($meta)) {
                 $answers[] = ['question_id'=>$questionId,'meta'=>json_decode($meta),'track_consistency'=>$track_consistency];
-            }   else {
+            } else {
                 $answers[] = ['question_id'=>$questionId,'option'=>$data];
-
             }
         }
-
         return $answers;
     }
 
