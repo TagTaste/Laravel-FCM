@@ -184,6 +184,7 @@ class ApplicantController extends Controller
                 $inputs['documents_verified'] = $doc->is_verified;
             }
         }
+        $inputs['share_number'] = $request->has('share_number') ? $request->share_number : 0;
         $this->model = $this->model->create($inputs);
 
         if (isset($this->model)) {
@@ -437,7 +438,7 @@ class ApplicantController extends Controller
                 $documents_verified = $doc->is_verified;
             }
         }
-
+        $share_number = $request->has('share_number') ? $request->share_number : 0;
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')
             ->where('collaborate_id',$id)
@@ -453,7 +454,8 @@ class ApplicantController extends Controller
                 'gender'=>$profile->gender,
                 'document_meta'=>$document_meta,
                 'terms_verified'=>$terms_verified,
-                'documents_verified'=>$documents_verified
+                'documents_verified'=>$documents_verified,
+                'share_number'=>$share_number
             ]);
 
         if ($this->model) {

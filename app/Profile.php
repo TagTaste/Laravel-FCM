@@ -1295,6 +1295,9 @@ class Profile extends Model
 			{
                             $remaningMandatoryItem[] = $field;
                         }
+                        if($field == 'document_meta') {
+                            $remaningMandatoryItem[] = $field;
+                        }
                     }
                     return $remaningMandatoryItem;
                 }
