@@ -36,7 +36,7 @@ class Profile extends Model
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
-        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddress',
+        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training',
         'profile_occupations', 'profile_specializations'];
 
     protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
@@ -51,7 +51,7 @@ class Profile extends Model
         'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status','tasting_instructions','is_premium','hometown'];
 
 
-    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
+    protected $appends = ['imageUrl','shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
         'cuisines','allergens','interested_collections','fb_info','reviewCount','privateReviewCount','totalPostCount', 'imagePostCount','document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount'];
@@ -1326,9 +1326,13 @@ class Profile extends Model
         return \DB::table('collaborate_tasting_user_review')->where('profile_id',$this->id)->where('current_status',3)->get()->unique('batch_id')->count();
     }
 
-    public function shippingaddress()
-    {
-        return $this->hasMany('App\Profile\ShippingAddress');
+    public function getShippingaddressAttribute()
+    {        
+        $request = request()->user();
+        if($request != null && $request->profile->id == $this->id)
+            return \App\Profile\ShippingAddress::where('profile_id',$this->id)->get();        
+        else 
+            return null;
     }
 
     public function profile_specializations()
