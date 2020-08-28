@@ -38,13 +38,13 @@ class InsertGlobalQuestion extends Command
     public function handle()
     {
         $track_consistency = 0;
-        $headerInfo2 = [
+          $headerInfo2 = [
 
         ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
 
 
 
-        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Take a slice of bread & place it on a white plate. Examine the product visually and answer the questions outlined below.\nFor this tasting process, the top and bottom most slice should be <b>excluded</b>.","images" => ["https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/Public.png"]],'header_selection_type'=>"1"],
+        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Take a slice of bread & place it on a white plate. Examine the product visually and answer the questions outlined below.\nFor this tasting process, the top and bottom most slice should be <b>excluded</b>."],'header_selection_type'=>"1"],
 
 
         ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Aroma+(1)+(1).png"]],'header_selection_type'=>"1"],
@@ -77,7 +77,7 @@ class InsertGlobalQuestion extends Command
         "subtitle": "<b>Welcome to Fruit Bread Tasting!</b>\n\nHope you have attended the training on sensory tasting. Now please answer the questions. Every question will have many options. To answer, please select option/s which match your feelings and observations. For help, please click \"i\" on every page/screen.\n\nRemember, there are no right or wrong answers. If you feel anything about the bread to be very good or very bad, then please write about it in the comment box. You will find the comment box at the end of every section.\n\nPlease make sure your fruit bread is at room temperature. Now let\'s start by opening the package. Please select any slice from the centre of the bread.",
         "select_type": 4,
         "question_info": {
-          "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/sample/artboard1_4x.png"]
+          "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/sample/welcome_image.png"]
            
         }
 
@@ -247,9 +247,13 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                     "value": "Any other",
-                     
                     "option_type": 1,
-                    "is_intensity": 0
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+                  
                 }
             ]
         },
