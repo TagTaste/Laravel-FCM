@@ -43,7 +43,7 @@ class Collaborate extends Model implements Feedable
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
         'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
         'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
-        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required','track_consistency','is_contest','max_submissions','mandatory_fields'];
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required','track_consistency','is_contest','max_submissions','mandatory_fields','show_interest_state'];
 
 
     protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner','addresses','mandatory_fields'];
