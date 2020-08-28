@@ -1292,10 +1292,10 @@ class Profile extends Model
                         {
                             $remaningMandatoryItem[] = 'email';
                         } else if(is_null($this->{$field}) || empty($this->{$field})|| count($this->{$field}) == 0)
-			{
+			                {  
                             $remaningMandatoryItem[] = $field;
                         }
-                        if($field == 'document_meta') {
+                        if($field == 'document_meta' || $field == 'address') {
                             $remaningMandatoryItem[] = $field;
                         }
                     }
