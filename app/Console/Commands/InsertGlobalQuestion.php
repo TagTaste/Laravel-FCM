@@ -1084,7 +1084,7 @@ class InsertGlobalQuestion extends Command
     ]
 }';
 
-        $data = ['name'=>'private_modern_fruit_bread28th_aug_20','keywords'=>"Private_Modern_Fruit_Bread28th Aug 20",'description'=>null,
+        $data = ['name'=>'private_modern_fruit_bread','keywords'=>"private_modern_fruit_bread",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true),'track_consistency'=>$track_consistency];
         \DB::table('global_questions')->insert($data);
 
