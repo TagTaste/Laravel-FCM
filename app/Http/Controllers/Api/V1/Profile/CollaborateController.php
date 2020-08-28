@@ -138,6 +138,10 @@ class CollaborateController extends Controller
             unset($inputs['fields']);
         }
         unset($inputs['images']);
+        if($request->has('mandatory_field_ids')) {
+            $mandatory_field_ids = $request->mandatory_field_ids;
+            unset($inputs['mandatory_field_ids']);
+        }
         $this->model = $this->model->create($inputs);
 
 //        $categories = $request->input('categories');
@@ -146,6 +150,9 @@ class CollaborateController extends Controller
 
         $profile = \App\Recipe\Profile::find($profileId);
         $this->model = $this->model->fresh();
+        //storing mandatory fields
+        if(isset($mandatory_field_ids) && $mandatory_field_ids != null && count($mandatory_field_ids)>0)
+            $this->storeMandatoryFields($mandatory_field_ids,$this->model->id);
         //push to feed
         event(new NewFeedable($this->model, $profile));
 
@@ -261,6 +268,10 @@ class CollaborateController extends Controller
 
              event(new NewFeedable($this->model, $profile));
             }
+        }
+        if($request->has('mandatory_field_ids')) {
+            $mandatory_field_ids = $request->mandatory_field_ids;
+            $this->storeMandatoryFields($mandatory_field_ids,$id);
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         $this->model = $collaborate->update($inputs);
@@ -495,5 +506,15 @@ class CollaborateController extends Controller
                         ->pluck('collaborate_applicants.profile_id');
         $collaborate = \App\Collaborate::where('id',$collaborateId)->first();
         event(new \App\Events\DocumentRejectEvent($profileId,null,null,$collaborate));
+    }
+
+    public function storeMandatoryFields($fieldIds, $collaborateId)
+    {
+        \DB::table('collaborate_mandatory_mapping')->where('collaborate_id',$collaborateId)->delete();
+        $insertData = [];
+        foreach ($fieldIds as $fieldId) {
+            $insertData[] = ['mandatory_field_id'=>$fieldId,'collaborate_id'=>$collaborateId];
+        }
+        \DB::table('collaborate_mandatory_mapping')->insert($insertData);
     }
 }

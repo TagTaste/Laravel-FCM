@@ -206,6 +206,18 @@ class CollaborateController extends Controller
             }
             $profile = \App\Recipe\Profile::where('id',$profileId)->first();
             $canShareNumber = $request->share_number != null ? $request->share_number: 0;
+            $terms_verified = null;
+            $document_meta = null;
+            $documents_verified = null;
+            if ($collaborate->document_required) {
+                $doc = \DB::table('profile_documents')->where('profile_id',$profileId)->first();
+                if (is_null($doc)) {
+                    return $this->sendError("please upload document");
+                } else {
+                    $document_meta = $doc->document_meta;
+                    $documents_verified = $doc->is_verified;
+                }
+            }
             $this->model = $collaborate->profiles()->attach($profileId);
             $this->model = $collaborate->profiles()
                 ->updateExistingPivot($profileId,
@@ -217,7 +229,12 @@ class CollaborateController extends Controller
                         'share_number' => $canShareNumber,
                         'applier_address' => $address,
                         'gender'=>$profile->gender,
-                        'age_group'=>$profile->ageRange
+                        'age_group'=>$profile->ageRange,
+                        'hometown'=>$profile->hometown,
+                        'current_city'=>$profile->city,
+                        'terms_verified'=>$terms_verified,
+                        'document_meta'=>$document_meta,
+                        'documents_verified'=>$documents_verified
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
@@ -712,6 +729,47 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    public function dynamicMandatoryFields(Request $request)
+    {
+        $type = $request->has('type') ? $request->type : [];
+        $this->model = [];
+        $fields = \DB::table('mandatory_fields')->get();
+        foreach($fields as $field) {
+            $is_selected = 0;
+            $data = [];
+            foreach($type as $t) {
+                if($field->field == 'document_meta' && $t == 'document_required'){
+                    $is_selected = 1;
+                } else if($field->field == 'address' && $t == 'hut') {
+                    $is_selected = 1;
+                }
+            }
+            $data['id'] = $field->id;
+            $data['is_selected'] = $is_selected;
+            $data['name'] = $field->name;
+            $data['field'] = $field->field;
+            $data['is_mandatory'] = $field->is_mandatory;
+            $data = (object)$data;
+            $this->model[] = $data;
+        }         
+
+        return $this->sendResponse();
+    }
+
+    public function collaborationMandatoryFields(Request $request,$id)
+    {
+        unset($this->model);
+        $this->model = [];
+        $fields = \DB::table('mandatory_fields')
+                        ->join('collaborate_mandatory_mapping','mandatory_fields.id','=','collaborate_mandatory_mapping.mandatory_field_id')
+                        ->where('collaborate_mandatory_mapping.collaborate_id',$id)
+                        ->pluck('mandatory_fields.field');
+        $this->model['mandatory_fields'] = $fields;                
+        $this->model['remaining_mandatory_fields'] = $request->user()->profile->getProfileCompletionAttribute($fields);
+        return $this->sendResponse();
+
+    }
+
     public function mandatoryField(Request $request,$type)
     {
         if($type == 'product-review')
@@ -1040,15 +1098,29 @@ class CollaborateController extends Controller
                     }
                 } 
             }
+            $allergens = '';
+            foreach ($applicant->profile->allergens as $allergens_key => $profile_allergen) {
+                if (isset($profile_allergen->name)) {
+                    if ($allergens_key == 0) {
+                        $allergens .= $profile_allergen->name;
+                    } else {
+                        $allergens .= ", ".$profile_allergen->name;
+                    }
+                } 
+            }
 
             $temp = array(
                 "S. No" => $key+1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
+                "Gender" => $applicant->profile->gender,
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
                 "Phone Number" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
+                "Allergens" => $allergens,
+                "Hometown" => $applicant->hometown,
+                "Current City" => $applicant->current_city
             );
 
             if ($collaborate->collaborate_type == 'collaborate') {

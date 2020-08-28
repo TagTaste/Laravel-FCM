@@ -11,7 +11,7 @@ use App\Traits\CheckTags;
 use App\Events\Actions\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
-
+use App\Jobs\AddUserInfoWithReview;
 class ReviewController extends Controller
 {
     use CheckTags;
@@ -524,6 +524,7 @@ class ReviewController extends Controller
                     \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
                     Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
                         ->update(['current_status'=>$currentStatus]);
+                    dispatch(new AddUserInfoWithReview($productId,$loggedInProfileId));
                 }
                 else
                 {

@@ -132,6 +132,10 @@ class CollaborateController extends Controller
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name ,['visibility'=>'public']);
         }
         unset($inputs['images']);
+        if($request->has('mandatory_field_ids')) {
+            $mandatory_field_ids = $request->mandatory_field_ids;
+            unset($inputs['mandatory_field_ids']);
+        }
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
@@ -158,6 +162,10 @@ class CollaborateController extends Controller
             }
         }
         $this->model = $this->model->fresh();
+        
+        //storing mandatory fields
+        if(isset($mandatory_field_ids) && $mandatory_field_ids != null && count($mandatory_field_ids)>0)
+            $this->storeMandatoryFields($mandatory_field_ids,$this->model->id);
 
         if($this->model->collaborate_type != 'product-review')
         {
@@ -506,7 +514,10 @@ class CollaborateController extends Controller
         {
            $this->storeCity($request->input('city'),$collaborateId,$collaborate);
         }
-
+        if($request->has('mandatory_field_ids')) {
+            $this->storeMandatoryFields($request->mandatory_field_ids,$collaborateId);
+            $inputs['document_required'] = $request->has('document_required') ? $request->document_required : null;
+        }
         if($request->has('occupation_id'))
         {
             $jobIds = $request->input('occupation_id');
@@ -592,7 +603,6 @@ class CollaborateController extends Controller
                 if(!isset($this->model->payload_id))
                     event(new NewFeedable($this->model, $company));
                 \App\Filter\Collaborate::addModel($this->model);
-
             }
             return $this->sendResponse();
 
@@ -1005,5 +1015,14 @@ class CollaborateController extends Controller
         } else {
             return $this->sendError("Invalid status type");
         }
+    }
+    public function storeMandatoryFields($fieldIds, $collaborateId)
+    {
+        \DB::table('collaborate_mandatory_mapping')->where('collaborate_id',$collaborateId)->delete();
+        $insertData = [];
+        foreach ($fieldIds as $fieldId) {
+            $insertData[] = ['mandatory_field_id'=>$fieldId,'collaborate_id'=>$collaborateId];
+        }
+        \DB::table('collaborate_mandatory_mapping')->insert($insertData);
     }
 }

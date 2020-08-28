@@ -25,7 +25,7 @@ class Profile extends Model
         'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete'
         ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user', 
         // palate data
-        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status','tasting_instructions','is_premium'
+        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status','tasting_instructions','is_premium','hometown'
     ];
 
     // palate_visibility 1 visible to all, 0 hidden from everyone, 2 visible to people I follow
@@ -48,7 +48,7 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status','tasting_instructions','is_premium'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status','tasting_instructions','is_premium','hometown'];
 
 
     protected $appends = ['imageUrl','shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
@@ -72,13 +72,15 @@ class Profile extends Model
 
     private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations','phone'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations','phone','verified_phone'];
+
 
     private $profileCompletionMandatoryFieldForCampusConnect = ['phone'];
     
     private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone'];
     
-    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['phone'];
+    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['phone','verified_phone'];
+
 
     public static function boot()
     {
@@ -1178,12 +1180,13 @@ class Profile extends Model
         return true;
     }
 
-    public function getProfileCompletionAttribute()
+    public function getProfileCompletionAttribute($fields = null)
     {
         if (!is_null(request()->user())) {
             if(request()->user()->profile->id == $this->id)
             {
-                $remaningMandatoryItem = [];
+                if($fields == null) {
+                    $remaningMandatoryItem = [];
                 $remaningOptionalItem = [];
                 $remaningAdditionalOptionalItem = [];
                 $profileCompletionMandatoryFieldForCollaborationApply = [];
@@ -1278,6 +1281,26 @@ class Profile extends Model
                 ];
 
                 return $profileCompletion;
+                }   else {
+                    $remaningMandatoryItem = [];
+                    foreach ($fields as $field) {
+                        if($field == 'verified_email' )
+                        {
+                            if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
+                            $remaningMandatoryItem[] = 'verified_email';
+                        } else if($field == 'email' && !isset(request()->user()->email) && is_null(request()->user()->email))
+                        {
+                            $remaningMandatoryItem[] = 'email';
+                        } else if(is_null($this->{$field}) || empty($this->{$field})|| count($this->{$field}) == 0)
+			{
+                            $remaningMandatoryItem[] = $field;
+                        }
+                        if($field == 'document_meta') {
+                            $remaningMandatoryItem[] = $field;
+                        }
+                    }
+                    return $remaningMandatoryItem;
+                }
             }
         }
     }
@@ -1586,5 +1609,3 @@ class Profile extends Model
         return $seo_tags;
     }
 }
-
-

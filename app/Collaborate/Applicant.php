@@ -9,10 +9,10 @@ class Applicant extends Model {
     protected $table = 'collaborate_applicants';
 
     protected $fillable = ['profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','applier_address','message',
-        'hut','created_at','updated_at','city','age_group','gender','company_id','document_meta','terms_verified', 'documents_verified','share_number'];
+        'hut','created_at','updated_at','city','age_group','gender','company_id','document_meta','terms_verified', 'documents_verified','share_number','hometown','current_city'];
 
     protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address',
-        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified','phone','submission_count'];
+        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified','phone','submission_count','hometown','current_city'];
 
     protected $with = ['profile','company'];
 

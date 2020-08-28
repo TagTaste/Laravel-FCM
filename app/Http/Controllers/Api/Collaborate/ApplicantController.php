@@ -157,7 +157,7 @@ class ApplicantController extends Controller
             if($request->applier_address) {
                 $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress,true);
-            $city = $address['city'];
+            $city = (isset($address['collaborate_city'])) ? $address['collaborate_city'] : null;
             } else {
                 $city = null;
                 $applierAddress = null;
@@ -169,7 +169,7 @@ class ApplicantController extends Controller
             }
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
-                'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
+                'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender,'hometown'=>$profile->hometown,'current_city'=>$profile->city];
         }
         
         if ($collaborate->document_required) {
@@ -184,6 +184,7 @@ class ApplicantController extends Controller
                 $inputs['documents_verified'] = $doc->is_verified;
             }
         }
+        $inputs['share_number'] = $request->has('share_number') ? $request->share_number : 0;
         $this->model = $this->model->create($inputs);
 
         if (isset($this->model)) {
@@ -414,7 +415,7 @@ class ApplicantController extends Controller
         $hut = $request->has('hut') ? $request->input('hut') : 0 ;
         $applierAddress = $request->input('applier_address');
         $address = json_decode($applierAddress,true);
-        $city = $address['city'];
+        $city = (isset($address['collaborate_city'])) ? $address['collaborate_city'] : null;
         $profile = Profile::where('id',$loggedInProfileId)->first();
         if(!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender))
         {
@@ -437,7 +438,7 @@ class ApplicantController extends Controller
                 $documents_verified = $doc->is_verified;
             }
         }
-
+        $share_number = $request->has('share_number') ? $request->share_number : 0;
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')
             ->where('collaborate_id',$id)
@@ -453,7 +454,8 @@ class ApplicantController extends Controller
                 'gender'=>$profile->gender,
                 'document_meta'=>$document_meta,
                 'terms_verified'=>$terms_verified,
-                'documents_verified'=>$documents_verified
+                'documents_verified'=>$documents_verified,
+                'share_number'=>$share_number
             ]);
 
         if ($this->model) {
@@ -847,7 +849,6 @@ class ApplicantController extends Controller
 
         //filters data
         $filters = $request->input('filters');
-        // $profileIds = $this->getFilterProfileIds($filters, $collaborateId);
         $profileIds = $this->getFilteredProfile($filters, $collaborateId);
         $type = true;
         $boolean = 'and' ;
@@ -878,15 +879,29 @@ class ApplicantController extends Controller
                     }
                 } 
             }
+            $allergens = '';
+            foreach ($applicant->profile->allergens as $allergens_key => $profile_allergen) {
+                if (isset($profile_allergen->name)) {
+                    if ($allergens_key == 0) {
+                        $allergens .= $profile_allergen->name;
+                    } else {
+                        $allergens .= ", ".$profile_allergen->name;
+                    }
+                } 
+            }
 
             $temp = array(
                 "S. No" => $key+1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
+                "Gender" => $applicant->profile->gender, 
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
                 "Phone Number" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
+                "Allergens" => $allergens,
+                "Hometown" => $applicant->hometown,
+                "Current City" => $applicant->current_city
             );
 
             if ($collaborate->collaborate_type == 'collaborate') {
@@ -1124,15 +1139,29 @@ class ApplicantController extends Controller
                     }
                 } 
             }
+            $allergens = '';
+            foreach ($applicant->profile->allergens as $allergens_key => $profile_allergen) {
+                if (isset($profile_allergen->name)) {
+                    if ($allergens_key == 0) {
+                        $allergens .= $profile_allergen->name;
+                    } else {
+                        $allergens .= ", ".$profile_allergen->name;
+                    }
+                } 
+            }
 
             $temp = array(
                 "S. No" => $key+1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
+                "Gender" => $applicant->profile->gender,
                 "Profile link" => env('APP_URL')."/@".$applicant->profile->handle,
                 "Email" => $applicant->profile->email,
                 "Phone Number" => $applicant->profile->getContactDetail(),
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
+                "Allergens" => $allergens,
+                "Hometown" => $applicant->hometown,
+                "Current City" => $applicant->current_city
             );
 
             if ($collaborate->collaborate_type == 'collaborate') {

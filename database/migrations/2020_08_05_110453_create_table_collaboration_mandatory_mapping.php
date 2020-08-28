@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableCollaborateRoles extends Migration
+class CreateTableCollaborationMandatoryMapping extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class AlterTableCollaborateRoles extends Migration
      */
     public function up()
     {
-        Schema::table('collaborate_role', function(Blueprint $table){
-            $table->string('can_action');
-         });
+        Schema::create('collaborate_mandatory_mapping', function(Blueprint $table){
+            $table->integer('collaborate_id');
+            $table->integer('mandatory_field_id');
+        });
     }
 
     /**
@@ -25,8 +26,6 @@ class AlterTableCollaborateRoles extends Migration
      */
     public function down()
     {
-        Schema::table('collaborate_role', function (Blueprint $table){
-            $table->dropColumn(['can_action']);
-        });
+        Schema::drop('collaborate_mandatory_mapping');
     }
 }
