@@ -1261,6 +1261,33 @@ class CollaborateController extends Controller
                     }
                 }
             }
+
+            if (!isset($temp["Delivery Address"])) {
+               if (isset($collaborate->mandatory_fields) && count($collaborate->mandatory_fields)) {
+                    foreach ($collaborate->mandatory_fields as $key => $mandatory_field) {
+                        if ($mandatory_field->field == "address" && $mandatory_field->name  == "Delivery address") {
+                            $temp['Delivery Address'] = '';
+                            if (isset($applicant->applier_address['label']))
+                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
+                            if (isset($applicant->applier_address['house_no']))
+                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
+                            if (isset($applicant->applier_address['landmark']))
+                                $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
+                            if (isset($applicant->applier_address['locality']))
+                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
+                            if (isset($applicant->applier_address['city']))
+                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
+                            if (isset($applicant->applier_address['state']))
+                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
+                            if (isset($applicant->applier_address['country']))
+                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
+                            if (isset($applicant->applier_address['pincode']))
+                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
+                        }
+                    }
+                }
+            }
+            
             array_push($finalData, $temp);
         }
         $relativePath = "images/collaborateArchivedApplicantExcel/$id";
