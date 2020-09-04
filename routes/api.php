@@ -490,6 +490,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
+            Route::get("headers/{id}/question/{questionId}/searchNestedParent","QuestionController@getNestedOptionSearchNestedParent");
             Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
             Route::post("headers/{headerId}/review","ReviewController@reviewAnswers");
             Route::get("headers/{id}","QuestionController@reviewQuestions");
