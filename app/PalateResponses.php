@@ -162,44 +162,44 @@ class PalateResponses extends Model
             switch ($this->point_scale_result) {
                 case 1:
                     //'Barely Detectable'
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case 2:
                     //'Weak
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case 3:
                     //'Mild'
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case 4:
                     //'Moderate'
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case 5:
                     //'Intense'
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case 6:
                     //'Very Intense'
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case 7:
                     //'Extremely Intense'
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 default:
@@ -209,23 +209,23 @@ class PalateResponses extends Model
         } else if (!is_null($this->palate->has_concentration) && $this->palate->has_concentration) {
             switch ($this->palate->concentration) {
                 case "0.01%":
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case "0.1%":
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case "1%":
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 case "10%":
-                    $response['border_color'] = "#00000010";
-                    $response['background_color'] = "#00000004";
+                    $response['border_color'] = "#E5E5E5";
+                    $response['background_color'] = "#F5F5F5";
                     return $response;
                     break;
                 default:
