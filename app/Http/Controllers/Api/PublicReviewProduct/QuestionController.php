@@ -192,11 +192,17 @@ class QuestionController extends Controller
     {
         $this->model = [];
 
-        if(!$request->has('sequence_id'))
+        if(!$request->has('parent_id'))
         {
-            return $this->sendError("Please provide sequence id to search");
+            return $this->sendError("Please provide parent id to search");
         }
-        $parent_id = (int)$request->input('sequence_id');
+        $parent_id = (int)$request->input('parent_id');
+
+        if(!$request->has('parent_value'))
+        {
+            return $this->sendError("Please provide parent value to search");
+        }
+        $parent_value = $request->input('parent_value');
 
         $term = $request->input('term');
         $product = PublicReviewProduct::where('id',$productId)->first();
@@ -207,7 +213,7 @@ class QuestionController extends Controller
             ->where('question_id',$questionId)
             ->where('global_question_id',$product->global_question_id)
             ->where('is_active',1)
-            ->where('parent_id',$parent_id)
+            ->where('path',$parent_value)
             ->where('value','like',"%$term%")
             ->get();
         return $this->sendResponse();

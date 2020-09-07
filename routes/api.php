@@ -466,6 +466,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::post('acceptInvitation','ApplicantController@acceptInvitation');
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
+            Route::get("headers/{id}/question/{questionId}/searchNestedParent","QuestionController@getNestedOptionSearchNestedParent");
             Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
             Route::post("headers/{headerId}","ReviewController@reviewAnswers");
             Route::get("headers/{id}","QuestionController@reviewQuestions");
