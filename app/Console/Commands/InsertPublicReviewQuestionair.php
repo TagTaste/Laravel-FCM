@@ -108,7 +108,21 @@ class InsertPublicReviewQuestionair extends Command
             "is_mandatory": 1,
             "is_nested_option": 1,
             "nested_option_list": "AROMA",
-            "nested_option_title": "AROMAS"
+            "nested_option_title": "AROMAS",
+            "min_aroma_selection":[
+                {
+                    "sequence_id":1,
+                    "min_selection":2
+                },
+                {
+                    "sequence_id":2,
+                    "min_selection":2
+                },
+                {
+                    "sequence_id":3,
+                    "min_selection":1
+                }
+            ],
         },
         {
             "title": "Overall Preference of Aroma",
@@ -687,7 +701,7 @@ class InsertPublicReviewQuestionair extends Command
     ]
 }';
 
-        $data = ['name'=>'DeletedHeaderPublicReview1','keywords'=>"DeletedHeaderPublicReview1",'description'=>null,
+        $data = ['name'=>'with_minimum_aroma_selection','keywords'=>"DeletedHeaderPublicReview1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
