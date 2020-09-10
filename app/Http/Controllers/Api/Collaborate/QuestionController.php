@@ -316,7 +316,7 @@ class QuestionController extends Controller
                     if (!is_null($aroma)) {
                         $is_intensity = $aroma->is_intensity;
                     }
-                    $data[] = ['value'=>$item->value,'is_intensity'=>$is_intensity,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id, 'sequence_id'=>$aroma->sequence_id,'is_nested_option'=>$is_nested];
+                    $data[] = ['value'=>$item->value,'is_intensity'=>$is_intensity,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id, 'sequence_id'=>$aroma->sequence_id,'is_nested_option'=>$is_nested,'parent_id'=>$aroma->parent_id];
                 } else {
                     $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
                 }
