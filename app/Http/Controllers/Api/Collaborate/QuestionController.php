@@ -308,11 +308,15 @@ class QuestionController extends Controller
                     $aroma = \DB::table('collaborate_tasting_nested_options')
                         ->where('id',$item->leaf_id)
                         ->first();
+                    $is_nested = \DB::table('collaborate_tasting_nested_options')
+                    ->where('collaborate_id',$collaborateId)
+                    ->where('parent_id',$aroma->sequence_id)
+                    ->exists();
                     $is_intensity = 0;
                     if (!is_null($aroma)) {
                         $is_intensity = $aroma->is_intensity;
                     }
-                    $data[] = ['value'=>$item->value,'is_intensity'=>$is_intensity,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id];
+                    $data[] = ['value'=>$item->value,'is_intensity'=>$is_intensity,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id, 'sequence_id'=>$aroma->sequence_id,'is_nested_option'=>$is_nested];
                 } else {
                     $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
                 }
