@@ -1291,13 +1291,13 @@ class Profile extends Model
                         } else if($field == 'email' && !isset(request()->user()->email) && is_null(request()->user()->email))
                         {
                             $remaningMandatoryItem[] = 'email';
-                        } else if(is_null($this->{$field}) || empty($this->{$field})|| count($this->{$field}) == 0)
-			                {  
+
+                        }else if($field == 'document_meta' || $field == 'address') {
+                            $remaningMandatoryItem[] = $field;
+                        } else if(is_null($this->{$field}) || empty($this->{$field})|| count($this->{$field}) == 0) {  
                             $remaningMandatoryItem[] = $field;
                         }
-                        if($field == 'document_meta' || $field == 'address') {
-                            $remaningMandatoryItem[] = $field;
-                        }
+                        
                     }
                     return $remaningMandatoryItem;
                 }
