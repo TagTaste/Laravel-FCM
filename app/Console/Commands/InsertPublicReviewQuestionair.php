@@ -51,7 +51,7 @@ class InsertPublicReviewQuestionair extends Command
         ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Aroma+(1)+(1).png"]],'header_selection_type'=>"1"],
 
 
-        ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taste-2.png"]] ,'header_selection_type'=>"1"],
+        ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more."],'header_selection_type'=>"1"],
 
 
         ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Aromatics+(1).png"]],'header_selection_type'=>"1"],
@@ -411,7 +411,11 @@ class InsertPublicReviewQuestionair extends Command
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 0,
-           
+             "info": 
+                {
+                
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/4090md9c2mv5knoo162pg.png"]
+                },
             "option": [{
                     "value": "Smooth",
                     
@@ -561,6 +565,11 @@ class InsertPublicReviewQuestionair extends Command
             "is_mandatory": 1,
             "select_type": 2,
            
+            "info": 
+                {
+                
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Basic+Tastes.png"]
+                },
             "option": [{
                     "value": "Sweet",
                      
@@ -616,6 +625,11 @@ class InsertPublicReviewQuestionair extends Command
             "is_mandatory": 1,
             "is_nested_question": 0,
             "is_nested_option": 0,
+              "info": 
+                {
+                
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Ayurvedic+Tastes.png"]
+                },
             "option": [{
                     "value": "Astringent (Dryness - Raw Banana)",
                     "is_intensity": 1,
@@ -811,12 +825,6 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "All of them",
-                    "is_intensity": 0,
-                    "option_type": 2
-                   
-                },
-                {
                     "value": "None",
                     "is_intensity": 0,
                     "option_type": 2
@@ -973,7 +981,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Any other",
+                    "value": "Any other (Be specific)",
                      "option_type": 1,
                     "is_intensity": 0
                 }
@@ -1125,6 +1133,10 @@ class InsertPublicReviewQuestionair extends Command
                 },
                 {
                     "value": "Prickly",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Grainy",
                     "is_intensity": 0
                 },
                 {
@@ -1467,7 +1479,7 @@ class InsertPublicReviewQuestionair extends Command
     ]
 }';
 
-        $data = ['name'=>'Public - Energy Bar second','keywords'=>"Public - Energy Bar second",'description'=>null,
+        $data = ['name'=>'Public_Nutritional_Bar','keywords'=>"Public_Nutritional_Bar",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
