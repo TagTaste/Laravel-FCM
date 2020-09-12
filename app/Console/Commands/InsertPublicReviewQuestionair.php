@@ -343,7 +343,7 @@ class InsertPublicReviewQuestionair extends Command
                   "info": 
                 {
                 
-                "image": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/w8xuw0k7kmq2iz3ws6w6iq.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/w8xuw0k7kmq2iz3ws6w6iq.png"]
                 },
             "option": [{
                     "value": "Layered",
@@ -378,7 +378,7 @@ class InsertPublicReviewQuestionair extends Command
                   "info": 
                 {
                 
-                "image": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/3ssqgerf6gq9likrjn9ypa.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/3ssqgerf6gq9likrjn9ypa.png"]
                 },
             "option": [{
                     "value": "Cakey",
