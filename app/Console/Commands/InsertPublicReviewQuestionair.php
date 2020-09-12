@@ -1467,7 +1467,7 @@ class InsertPublicReviewQuestionair extends Command
     ]
 }';
 
-        $data = ['name'=>'Public - Energy Bar','keywords'=>"Public - Energy Bar",'description'=>null,
+        $data = ['name'=>'Public - Energy Bar second','keywords'=>"Public - Energy Bar second",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
