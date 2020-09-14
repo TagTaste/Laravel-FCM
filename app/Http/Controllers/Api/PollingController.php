@@ -237,7 +237,35 @@ class PollingController extends Controller
             }
         }
         $imageQuestion = $request->image_meta != null ? $request->image_meta : null;
-        $this->model = $poll->update(['title'=>$data,'image_meta'=>$imageQuestion]);
+
+        // compute preview
+        $inputs = $request->all();
+        if (isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])) {
+            $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $loggedInProfileId . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            $ext= pathinfo($resp);
+            $ext = isset($ext['extension']) ? $ext['extension'] : null;
+            
+            if ($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')) {
+                $inputs['preview']['image'] = $resp;
+            } else {
+                $inputs['preview']['image'] = null;
+            }
+            
+            if ($resp) {
+                \File::delete(storage_path($image));
+            }
+        }
+
+        if (isset($inputs['preview'])) {
+            $preview = json_encode($inputs['preview']);
+        } else {
+            $preview = null;
+        }
+
+        $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion, 'preview'=>$preview]);
         $poll = Polling::find($pollId);
         $poll->addToCache();
         $this->model = $poll;
