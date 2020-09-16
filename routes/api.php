@@ -69,6 +69,9 @@ Route::get('allCategories','FaqsController@allCategories');
 Route::post('storeCategories','FaqsController@storeCategories');
 Route::resource('faqs','FaqsController');
 
+// career email controller
+Route::post('career-mail','CareerEmailController@careerMail');
+
 /**
  * Route to report content and profile password.
  */
