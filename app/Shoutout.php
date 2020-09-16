@@ -321,7 +321,7 @@ class Shoutout extends Model implements Feedable
 
     public function getOgTitle()
     {
-        if($this->preview != null) {
+        if($this->preview != null && isset($this->preview["title"])) {
             return  $this->preview["title"];
         }
 
