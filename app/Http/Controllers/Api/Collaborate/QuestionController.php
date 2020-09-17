@@ -286,7 +286,7 @@ class QuestionController extends Controller
         {
             return $this->sendError("Please provide parent value to search");
         }
-        $parent_value = $request->input('parent_value');
+        $parent_value = htmlspecialchars_decode($request->input('parent_value'));
 
         $term = $request->input('term');
 
