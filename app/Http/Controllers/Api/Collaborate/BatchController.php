@@ -556,12 +556,6 @@ class BatchController extends Controller
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
-                        if(isset($item->is_nested_option) && $item->is_nested_option && $answer->option_type == 1) {
-                            $answer->value = \DB::table('collaborate_tasting_nested_options')
-                                                ->where('id',$answer->leaf_id)
-                                                ->first()
-                                                ->value;
-                        }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                         {
@@ -747,6 +741,12 @@ class BatchController extends Controller
                     {
                         foreach($reports['answer'] as &$item)
                         {
+                            if($item->option_type == 1) {
+                                $item->value = \DB::table('collaborate_tasting_nested_options')
+                                                ->where('id',$answer->leaf_id)
+                                                ->first()
+                                                ->value;
+                            }
                             $nestedOption = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
                                 ->where('question_id',$data->id)->where('id',$item->leaf_id)->where('value','like',$item->value)->first();
                             $item->path = isset($nestedOption->path) ? $nestedOption->path : null;
