@@ -467,14 +467,21 @@ class BatchController extends Controller
                         $options = isset($item->option) ? $item->option : [];
                         foreach ($answers as &$answer)
                         {
-                            $value = [];
-                            if($answer->option_type == '1') {
-                                $answer->value = "Any other";
+                            if(isset($item->is_nested_option) && $item->is_nested_option && $answer->option_type == 1) {
+                                $answer->value = \DB::table('collaborate_tasting_nested_options')
+                                                    ->where('id',$answer->leaf_id)
+                                                    ->first()
+                                                    ->value;
                             }
+
+                            $value = [];
                             foreach ($options as $option)
                             {
                                 if($option->id == $answer->leaf_id)
                                 {
+                                    if($answer->option_type == '1') {
+                                        $answer->value = $option->value;
+                                    }
                                     if(isset($option->is_intensity) && $option->is_intensity == 1 && $option->intensity_type == 2)
                                     {
                                         $answerIntensity = $answer->intensity;
@@ -549,8 +556,11 @@ class BatchController extends Controller
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
-                        if($answer->option_type == 1) {
-                            $answer->value = 'Any other';
+                        if(isset($item->is_nested_option) && $item->is_nested_option && $answer->option_type == 1) {
+                            $answer->value = \DB::table('collaborate_tasting_nested_options')
+                                                ->where('id',$answer->leaf_id)
+                                                ->first()
+                                                ->value;
                         }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
@@ -639,6 +649,9 @@ class BatchController extends Controller
                             {
                                 if($option->id == $answer->leaf_id)
                                 {
+                                    if($answer->option_type == '1') {
+                                        $answer->value = $option->value;
+                                    }
                                     if(isset($option->is_intensity) && $option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 2)
                                     {   
                                         $answerIntensity = $answer->intensity;
@@ -1974,6 +1987,35 @@ class BatchController extends Controller
         $this->model = $data;
         return $this->sendResponse();
     }
+
+    public function optionIdReports(Request $request, $collaborateId,$id, $headerId, $questionId,$optionId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = \DB::table('collaborate_tasting_user_review')
+            ->select('value','intensity')
+            ->where('batch_id',$id)
+            ->where('collaborate_id',$collaborateId)
+            ->where('question_id',$questionId)
+            ->where('option_type',1)
+            ->where('current_status',3)
+            ->where('leaf_id',$optionId);
+            //->groupBy('intensity','value');
+        $data["values"] = $this->model
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        $data["count"] = $data["values"]->count();
+        $this->model = $data;
+        return $this->sendResponse();
+    }
+    
 
     //status = 0 batchassigned
         //status = 1 foodBill shot submitted
