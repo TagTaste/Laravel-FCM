@@ -25,7 +25,7 @@ class CareerEmailController extends Controller
           'job' => $request->input('job')
         );
         Mail::send(
-            'emails.jobapplyMail',
+            'emails.jobApplyMail',
             [
                 'data' => $data
             ], 
