@@ -28,6 +28,6 @@ class FoodCompositionMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Food Composition Table for development of Energy Bars')->view('emails.food-composition');
+        return $this->subject('(1) Food Composition Table; (2) RDA for Indians, ICMR 2010')->view('emails.food-composition');
     }
 }
