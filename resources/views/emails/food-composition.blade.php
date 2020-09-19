@@ -46,7 +46,7 @@
                                                         </tr>
                                                         <tr>
                                                             <td valign="top" align="center" bgcolor="#FFFFFF">
-                                                                <a href="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/food_composition_table_for_development_of_energy_bars.zip"
+                                                                <a href="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/food_composition_table_for_development_of_energy_bars_v1.zip"
                                                                    style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">
                                                                     Download Files
                                                                 </a>
