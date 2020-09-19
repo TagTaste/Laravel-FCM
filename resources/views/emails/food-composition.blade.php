@@ -34,7 +34,7 @@
                                                                         Hi,
                                                                         <br />
                                                                         <br />
-                                                                        Thank you for showing interest in our "Food Composition Table for development of Energy Bars". Please click on the link below to download the table.
+                                                                        Thank you for showing interest in our "(1) Food Composition Table; (2) RDA for Indians, ICMR 2010". Please click on the link below to download the document.
                                                                         <br />
                                                                         <br />
                                                                         Regards,
@@ -48,7 +48,7 @@
                                                             <td valign="top" align="center" bgcolor="#FFFFFF">
                                                                 <a href="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/food_composition_table_for_development_of_energy_bars.zip"
                                                                    style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">
-                                                                    Download
+                                                                    Download Files
                                                                 </a>
                                                             </td>
                                                         </tr>
