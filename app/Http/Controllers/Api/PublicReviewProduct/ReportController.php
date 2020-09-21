@@ -468,7 +468,8 @@ class ReportController extends Controller
 
                             }
                         }
-                        $answer->intensity = $value;
+                        $count = array_column($inventory, 'count');
+                        $answer->intensity = array_multisort($count, SORT_DESC, $value);
 
                     }
 
@@ -482,6 +483,12 @@ class ReportController extends Controller
                     {
                         foreach($reports['answer'] as &$item)
                         {
+                            if($item->option_type == 1) {
+                                $item->value = \DB::table('public_review_nested_options')
+                                                ->where('id',$answer->leaf_id)
+                                                ->first()
+                                                ->value;
+                            }
                             $nestedOption = \DB::table('public_review_nested_options')->where('header_id',$headerId)
                                 ->where('question_id',$data->id)->where('id',$item->leaf_id)->where('value','like',$item->value)->first();
                             $item->path = isset($nestedOption->path) ? $nestedOption->path : null;
@@ -678,9 +685,17 @@ class ReportController extends Controller
     public function getAnswer(Request $request,$productId,$headerId,$questionId,$optionId)
     {
         $option = $request->input('q');
-        $this->model = \DB::table('public_product_user_review')->select('intensity',\DB::raw('count(*) as total'))->where('current_status',2)
-            ->where('product_id',$productId)->where('question_id',$questionId)->where('leaf_id',$optionId)->where('value','like',$option)
-            ->orderBy('total','DESC')->groupBy('intensity')->get();
+        $this->model = \DB::table('public_product_user_review')->select('intensity',\DB::raw('count(*) as total','value'))->where('current_status',2)
+            ->where('product_id',$productId)->where('question_id',$questionId)->where('leaf_id',$optionId);
+            if(isset($option)) {
+                $this->model = \DB::table('public_product_user_review')->select('intensity',\DB::raw('count(*) as total','value'))->where('current_status',2)
+                ->where('product_id',$productId)->where('question_id',$questionId)->where('leaf_id',$optionId)->where('value','like',$option)->orderBy('total','DESC')->groupBy('intensity','value')->get();
+            } else {
+                $this->model = \DB::table('public_product_user_review')->select('value')->where('current_status',2)->where('product_id',$productId)->where('question_id',$questionId)->where('leaf_id',$optionId);
+                $data["values"] = $this->model->get();
+                $data["count"] = $data["values"]->count();
+                $this->model = $data;
+            }
         return $this->sendResponse();
     }
 
