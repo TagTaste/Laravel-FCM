@@ -439,6 +439,20 @@ class InsertGlobalQuestion extends Command
             "is_nested_option": 1,
             "nested_option_list": "AROMA",
             "nested_option_title": "AROMAS"
+            "min_aroma_selection":[
+                {
+                    "sequence_id":1,
+                    "min_selection":2
+                },
+                {
+                    "sequence_id":2,
+                    "min_selection":2
+                },
+                {
+                    "sequence_id":3,
+                    "min_selection":1
+                }
+            ],
         },
         {
             "title": "Overall Preference of Aroma",
@@ -1088,7 +1102,7 @@ class InsertGlobalQuestion extends Command
     ]
 }';
 
-        $data = ['name'=>'private_modern_fruit_bread','keywords'=>"private_modern_fruit_bread",'description'=>null,
+        $data = ['name'=>'with_minimum_aroma_selection','keywords'=>"private_modern_fruit_bread",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true),'track_consistency'=>$track_consistency];
         \DB::table('global_questions')->insert($data);
 

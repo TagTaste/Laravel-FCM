@@ -478,7 +478,7 @@ class ReviewController extends Controller
                         $this->model = false;
                         return $this->sendError("Leaf id can not null");
                     }
-                    if($optionVals == "AROMA") {
+                    if($optionVals == "AROMA" || $optionVals == "OFFAROMA" || $optionVals == "AROMAFLAVORTASTE" || $optionVals == "Aromatics" || $optionVals == "OFF_AROMAOFF_FLAVOUROFF_TASTE" || $optionVals == "Trigeminal (MouthFeel)" ) {
                         $option_type = \DB::table('public_review_nested_options')->where('id',$leafId)->select('option_type')->first()->option_type;
                     } else {
                         $option_type = isset($optionVals[$leafId-1]->option_type) ? $optionVals[$leafId-1]->option_type : 0;
