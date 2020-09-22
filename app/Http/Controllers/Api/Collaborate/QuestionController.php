@@ -272,6 +272,38 @@ class QuestionController extends Controller
         return $this->sendResponse();
     }
 
+    public function getNestedOptionSearchNestedParent(Request $request, $collaborateId, $headerId, $questionId)
+    {
+        $this->model = [];
+
+        if(!$request->has('parent_id'))
+        {
+            return $this->sendError("Please provide parent id to search");
+        }
+        $parent_id = (int)$request->input('parent_id');
+
+        if(!$request->has('parent_value'))
+        {
+            return $this->sendError("Please provide parent value to search");
+        }
+        $parent_value = htmlspecialchars_decode($request->input('parent_value'));
+
+        $term = $request->input('term');
+
+        if (!$request->has('batch_id')) {
+            return $this->sendError("No product id found");
+        }
+
+        $this->model['option'] = \DB::table('collaborate_tasting_nested_options')
+            ->where('question_id',$questionId)
+            ->where('collaborate_id',$collaborateId)
+            ->where('is_active',1)
+            ->where('path',$parent_value)
+            ->where('value','like',"%$term%")
+            ->get();
+        return $this->sendResponse();
+    }
+
     public function userAnswer($loggedInProfileId,$collaborateId,$batchId,$id)
     {
         $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)

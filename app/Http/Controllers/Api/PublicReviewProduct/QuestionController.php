@@ -188,6 +188,37 @@ class QuestionController extends Controller
         return $this->sendResponse();
     }
 
+    public function getNestedOptionSearchNestedParent(Request $request, $productId, $headerId, $questionId)
+    {
+        $this->model = [];
+
+        if(!$request->has('parent_id'))
+        {
+            return $this->sendError("Please provide parent id to search");
+        }
+        $parent_id = (int)$request->input('parent_id');
+
+        if(!$request->has('parent_value'))
+        {
+            return $this->sendError("Please provide parent value to search");
+        }
+        $parent_value = htmlspecialchars_decode($request->input('parent_value'));
+
+        $term = $request->input('term');
+        $product = PublicReviewProduct::where('id',$productId)->first();
+        if($product === null){
+            return $this->sendError("Product not found.");
+        }
+        $this->model['option'] = \DB::table('public_review_nested_options')
+            ->where('question_id',$questionId)
+            ->where('global_question_id',$product->global_question_id)
+            ->where('is_active',1)
+            ->where('path',$parent_value)
+            ->where('value','like',"%$term%")
+            ->get();
+        return $this->sendResponse();
+    }
+
     public function userAnswer($loggedInProfileId,$productId,$headerId)
     {
         $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
