@@ -25,6 +25,7 @@ Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'], function() {
 });
 Route::get('privacy','Api\PrivacyController@index');
 Route::post('mail/tieReport','GeneralMailController@tieReportMail');
+Route::post('mail/foodComposition','GeneralMailController@foodCompositionMail');
 Route::post('login',function(Request $request) {
     $credentials = $request->only('email','password');
 //    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
@@ -68,6 +69,9 @@ Route::get('categoriesQuestionAnswer/{id}','FaqsController@categoriesQuestionAns
 Route::get('allCategories','FaqsController@allCategories');
 Route::post('storeCategories','FaqsController@storeCategories');
 Route::resource('faqs','FaqsController');
+
+// career email controller
+Route::post('career-mail','CareerEmailController@careerMail');
 
 /**
  * Route to report content and profile password.

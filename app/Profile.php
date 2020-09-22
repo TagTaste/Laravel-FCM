@@ -1291,13 +1291,13 @@ class Profile extends Model
                         } else if($field == 'email' && !isset(request()->user()->email) && is_null(request()->user()->email))
                         {
                             $remaningMandatoryItem[] = 'email';
-                        } else if(is_null($this->{$field}) || empty($this->{$field})|| count($this->{$field}) == 0)
-			                {  
+
+                        }else if($field == 'document_meta' || $field == 'address') {
+                            $remaningMandatoryItem[] = $field;
+                        } else if(is_null($this->{$field}) || empty($this->{$field})|| count($this->{$field}) == 0) {  
                             $remaningMandatoryItem[] = $field;
                         }
-                        if($field == 'document_meta' || $field == 'address') {
-                            $remaningMandatoryItem[] = $field;
-                        }
+                        
                     }
                     return $remaningMandatoryItem;
                 }
@@ -1521,8 +1521,8 @@ class Profile extends Model
                     $palate_result[$group_key] = array(
                         'value' => $group_key,
                         'ui_style_meta' => array(
-                            "border_color" => "#00000010",
-                            "background_color" => "#00000004"
+                            "border_color" => "#E5E5E5",
+                            "background_color" => "#F5F5F5"
                         ),
                         'status' => "Very Low"
                     );
