@@ -375,7 +375,8 @@ class Photo extends Model implements Feedable
                 ),
                 array(
                     "property" => "og:image",
-                    "content" => $this->photoUrl,
+                    // "content" => $this->photoUrl,
+                    "content" => json_decode($this->image_meta)->original_photo
                 )
             ),
         ];

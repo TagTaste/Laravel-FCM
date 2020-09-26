@@ -19,7 +19,25 @@ class Preview
     }
 
     public static function get($url)
-    {
+    {   
+        $match = "https://tagtaste.app.link/";
+        if ("https://dev.tagtaste.com" == env("APP_URL")) {
+            $match = "https://tagtaste.test-app.link/";
+        }
+        if (str_contains($url,$match)) {
+            $client = new \GuzzleHttp\Client();
+            $res = $client->request('GET', 'https://api.branch.io/v1/url?url='.$url.'&branch_key='.env('BRANCH_KEY'));
+            if (200 == $res->getStatusCode()) {
+                $body = json_decode((string)$res->getBody());
+                if (!is_null($body) && isset($body->data)) {
+                    $desktop_url = '$desktop_url';
+                    if (isset($body->data->$desktop_url)) {
+                        $url = $body->data->$desktop_url;    
+                    } 
+                }
+            }
+        }
+        
         $key = "preview:" . sha1($url);
         if(!Redis::exists($key)){
             $self = new self($url);
