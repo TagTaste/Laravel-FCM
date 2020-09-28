@@ -86,7 +86,7 @@ class PollingController extends Controller
             $ext= pathinfo($resp);
             $ext = isset($ext['extension']) ? $ext['extension'] : null;
             
-            if ($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')) {
+            if ($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png' || $ext == 'gif')) {
                 $inputs['preview']['image'] = $resp;
             } else {
                 $inputs['preview']['image'] = null;
@@ -248,7 +248,7 @@ class PollingController extends Controller
             $ext= pathinfo($resp);
             $ext = isset($ext['extension']) ? $ext['extension'] : null;
             
-            if ($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')) {
+            if ($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png' || $ext == 'gif')) {
                 $inputs['preview']['image'] = $resp;
             } else {
                 $inputs['preview']['image'] = null;
