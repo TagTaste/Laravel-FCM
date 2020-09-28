@@ -74,7 +74,7 @@ class ShoutoutController extends Controller
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             $ext= pathinfo($resp);
             $ext = isset($ext['extension']) ? $ext['extension'] : null;
-            if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')){
+            if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png' || $ext == 'gif')){
                 $inputs['preview']['image'] = $resp;
             }
             else
@@ -171,7 +171,7 @@ class ShoutoutController extends Controller
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             $ext= pathinfo($resp);
             $ext = isset($ext['extension']) ? $ext['extension'] : null;
-            if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')){
+            if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png' || $ext == 'gif')){
                 $inputs['preview']['image'] = $resp;
             }
             else
