@@ -202,7 +202,7 @@ class Shoutout extends Model implements Feedable
         return is_null($value) ? null : \Storage::url($value);
     }
 
-   public function getPreviewAttribute($value)
+    public function getPreviewAttribute($value)
     {
 
         try {

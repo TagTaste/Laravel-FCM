@@ -17,6 +17,7 @@ use App\PollingVote;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Http\File;
 
 class PollingController extends Controller
 {
@@ -74,6 +75,32 @@ class PollingController extends Controller
         $data['title'] = $request->input('title');
         $data['image_meta'] = $image;
         $data['type'] = $this->type;
+
+        // compute preview
+        $inputs = $request->all();
+        if (isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])) {
+            $image = $this->getExternalImage($inputs['preview']['image'],$profileId);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $profileId . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            $ext= pathinfo($resp);
+            $ext = isset($ext['extension']) ? $ext['extension'] : null;
+            
+            if ($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png' || $ext == 'gif')) {
+                $inputs['preview']['image'] = $resp;
+            } else {
+                $inputs['preview']['image'] = null;
+            }
+            
+            if ($resp) {
+                \File::delete(storage_path($image));
+            }
+        }
+        
+        if (isset($inputs['preview'])) {
+            $data['preview'] = json_encode($inputs['preview']);
+        }
+
         $poll = Polling::create($data);
         $data = [];
         $i = 0 ;
@@ -102,7 +129,6 @@ class PollingController extends Controller
             'polling'=>$poll,
             'meta'=>$poll->getMetaFor($profileId)
         ];
-
 
         //add to feed
         if ($request->has('company_id')) {
@@ -211,7 +237,35 @@ class PollingController extends Controller
             }
         }
         $imageQuestion = $request->image_meta != null ? $request->image_meta : null;
-        $this->model = $poll->update(['title'=>$data,'image_meta'=>$imageQuestion]);
+
+        // compute preview
+        $inputs = $request->all();
+        if (isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])) {
+            $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $loggedInProfileId . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            $ext= pathinfo($resp);
+            $ext = isset($ext['extension']) ? $ext['extension'] : null;
+            
+            if ($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png' || $ext == 'gif')) {
+                $inputs['preview']['image'] = $resp;
+            } else {
+                $inputs['preview']['image'] = null;
+            }
+            
+            if ($resp) {
+                \File::delete(storage_path($image));
+            }
+        }
+
+        if (isset($inputs['preview'])) {
+            $preview = json_encode($inputs['preview']);
+        } else {
+            $preview = null;
+        }
+
+        $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion, 'preview'=>$preview]);
         $poll = Polling::find($pollId);
         $poll->addToCache();
         $this->model = $poll;
@@ -461,6 +515,24 @@ class PollingController extends Controller
         event(new Create($poll,$request->user()->profile));
         $this->model = true;
         return $this->sendResponse();
+    }
+
+    public function getExternalImage($url,$profileId){
+        $path = 'images/p/' . $profileId . "/simages/";
+        \Storage::disk('local')->makeDirectory($path);
+        $filename = str_random(10) . ".jpg";
+        $saveto = storage_path("app/" . $path) .  $filename;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+        $raw=curl_exec($ch);
+        curl_close ($ch);
+
+        $fp = fopen($saveto,'a');
+        fwrite($fp, $raw);
+        fclose($fp);
+        return "app/" . $path . $filename;
     }
 
 }

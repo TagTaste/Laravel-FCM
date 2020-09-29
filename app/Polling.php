@@ -17,13 +17,13 @@ class Polling extends Model implements Feedable
 
     protected $table = 'poll_questions';
 
-    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image_meta','type'];
+    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image_meta','type','preview'];
 
     protected $with = ['profile','company'];
 
     protected $appends = ['options','owner','meta'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image_meta','type'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image_meta','type','preview'];
 
     public static function boot()
     {
@@ -52,6 +52,7 @@ class Polling extends Model implements Feedable
             'updated_at' => $this->updated_at->toDateTimeString(),
             'profile_id'=>$this->profile_id,
             'image_meta'=>$this->image_meta,
+            'preview'=>$this->preview,
             'type'=>$this->type,
         ];
         Redis::set("polling:" . $this->id,json_encode($data));
@@ -223,6 +224,24 @@ class Polling extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
+    }
+
+    public function getPreviewAttribute($value)
+    {
+        try {
+            $preview = json_decode($value,true);
+            if (isset($preview['image']) && !is_null($preview['image'])) {
+                $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
+            }
+            return $preview;
+
+        } catch(\Exception $e){
+            \Log::error("Could not load preview image");
+//            \Log::error($preview);
+//            \Log::error($e->getLine());
+//            \Log::error($e->getMessage());
+        }
+        return empty($preview) ? null : $preview;
     }
 
     /**
