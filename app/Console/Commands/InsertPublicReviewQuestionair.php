@@ -336,7 +336,7 @@ class InsertPublicReviewQuestionair extends Command
             "is_mandatory": 1,
             "is_nested_option": 1,
             "can_select_parent": 1,
-            "nested_option_list": "WATER_AROMA_LIST",
+            "nested_option_list": "ICE_TEA_AROMA_LIST",
             "nested_option_title": "AROMAS",
             "nested_option_type":2
         },
@@ -793,7 +793,7 @@ class InsertPublicReviewQuestionair extends Command
             "nested_option_type":2,
            
             "nested_option_title": "AROMATICS",
-            "nested_option_list": "WATER_AROMATICS_LIST"
+            "nested_option_list": "ICE_TEA_AROMA_LIST"
         },
         {
             "title": "How is the flavor experience?",
