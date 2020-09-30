@@ -66,7 +66,7 @@ class InsertPublicReviewQuestionair extends Command
 
     "INSTRUCTIONS": [{
         "title": "Instruction",
-        "subtitle": "Welcome to the Product Review!\n\n<b>If a product involves stirring, shaking  (like cold coffee), serving temperature then the taster must follow the instructions fully, as mentioned on the package.</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please <b>click (i) / \'Learn more\'</b> on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+        "subtitle": "Welcome to the Product Review!\n\n<b>If a product involves stirring, shaking  (like cold coffee), serving temperature then the taster must follow the instructions fully, as mentioned on the package.</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click <b>(i) / \'Learn\'</b> on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
         
         "select_type": 4
 
@@ -335,10 +335,10 @@ class InsertPublicReviewQuestionair extends Command
             "is_nested_question": 0,
             "is_mandatory": 1,
             "is_nested_option": 1,
-            "can_select_parent": 1,
+            "can_select_parent": 0,
             "nested_option_list": "ICE_TEA_AROMA_LIST",
             "nested_option_title": "AROMAS",
-            "nested_option_type":2
+            "nested_option_type":1
         },
         
         {
@@ -655,7 +655,7 @@ class InsertPublicReviewQuestionair extends Command
         },
         {
             "title": "Body notes: Powerful and stable aromatics that give the overall impression of the tea. <b>Which head note/s have you perceived?</b>",
-            "subtitle":"To experience body notes, please follow the same instructions under \'i\'/ \'Learn more\' as mentioned in the previous question.",
+            "subtitle":"To experience body notes, please follow the same instructions under \'i\'/\'Learn\' as mentioned in the previous question.",
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_nested_option": 0,
@@ -789,8 +789,8 @@ class InsertPublicReviewQuestionair extends Command
             "is_nested_question": 0,
             "is_mandatory": 1,
             "is_nested_option": 1,
-             "can_select_parent": 1,
-            "nested_option_type":2,
+             "can_select_parent": 0,
+            "nested_option_type":1,
            
             "nested_option_title": "AROMATICS",
             "nested_option_list": "ICE_TEA_AROMA_LIST"
@@ -917,7 +917,7 @@ class InsertPublicReviewQuestionair extends Command
             "is_mandatory": 1,
             "select_type": 1,
             "option": [{
-                    "value": "Plain like water",
+                    "value": "Very thin",
                     "is_intensity": 0
                 },
                 {
@@ -925,15 +925,15 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Wispy (Weak)",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Full body",
+                    "value": "Medium (Moderate)",
                     "is_intensity": 0
                 },
                 {
                     "value": "Thick",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Very thick",
                     "is_intensity": 0
                 }
             ]
