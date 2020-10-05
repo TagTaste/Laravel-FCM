@@ -476,7 +476,7 @@ class InsertPublicReviewQuestionair extends Command
             "is_mandatory": 1,
             "is_nested_option": 1,
             "can_select_parent": 0,
-            "nested_option_list": "ICE_TEA_AROMA_LIST",
+            "nested_option_list": "AROMA",
             "nested_option_title": "AROMAS",
             "nested_option_type":1
         },
@@ -700,7 +700,7 @@ class InsertPublicReviewQuestionair extends Command
             "nested_option_type":1,
            
             "nested_option_title": "AROMATICS",
-            "nested_option_list": "ICE_TEA_AROMA_LIST"
+            "nested_option_list": "AROMA"
         },
 {
             "title": "Please swallow the product and pause. How is the aftertaste?",
