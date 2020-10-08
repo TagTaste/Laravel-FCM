@@ -468,7 +468,8 @@ class ReportController extends Controller
 
                             }
                         }
-                        $answer->intensity = $value;
+                        $count = array_column($inventory, 'count');
+                        $answer->intensity = array_multisort($count, SORT_DESC, $value);
 
                     }
 
