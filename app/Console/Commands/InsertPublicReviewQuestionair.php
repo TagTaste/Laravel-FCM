@@ -45,6 +45,7 @@ class InsertPublicReviewQuestionair extends Command
 
  ['header_name' => "Your Food Shot",'header_selection_type' => "3"],
 
+
         ['header_name' => "APPEARANCE", "header_info" => ["text" => "Take a piece of the product and keep it on a white plate or white paper. Examine the product and answer the questions outlined below. Please don't eat in this entire appearance section."],'header_selection_type'=>"1"],
 
 
@@ -62,13 +63,16 @@ class InsertPublicReviewQuestionair extends Command
 
  
 
+
 ];
         $questions2 = '{
 
     "INSTRUCTIONS": [{
         "title": "Instruction",
+
         
         "subtitle": "Welcome to the Product Review!\n\nIf the product involves cooking (like noodles) then the taster must follow the instructions fully, as mentioned on the packaging.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please <b>click (i)/ \'Learn\'</b> on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+
         
         "select_type": 4
 
@@ -103,13 +107,142 @@ class InsertPublicReviewQuestionair extends Command
     
     "APPEARANCE": [{
             "title": "What is the serving temperature of the product?",
-            
+           
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
             
             "option": [{
+                    "value": "Frozen",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Chilled",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Cold",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Room temperature",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Warm",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Hot",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Steaming hot",
+                    "is_intensity": 0
+                }
+                
+            ]
+        },
+        {
+            "title": "How is the appeal of the product?",
+           
+            "select_type": 2,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            
+            "option": [{
+                    "value": "Deep",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Bright",
+                    "is_intensity": 0
+                },
+                {
+                   "value": "Dull",
+                    "is_intensity": 0
+                    
+                },
+                {
+                    "value": "Glowing",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Dark",
+                    "is_intensity": 0
+                },
+                {
+                   "value": "Neutral",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Mellow",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Pale",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Washed out",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Natural",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Processed",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Fresh",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Stale",
+                    "is_intensity": 0
+                    
+                }
+                
+            ]
+        },
+        {
+            "title": "How is the clarity of the product?",
+           
+            "select_type": 1,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            
+            "info": 
+                {
+               
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/t8ywpx4noim180iuyr7stv.png"]
+
+
+    ],
+    
+    "APPEARANCE": [{
+            "title": "What is the serving temperature of the product?",
+            
+            "select_type": 1,
+
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            
+            "option": [{
+
                     "value": "Frozen",
                     "is_intensity": 0
                 },
@@ -193,7 +326,9 @@ class InsertPublicReviewQuestionair extends Command
                 }
                 
             ]
+
         },
+        
         {
             "title": "What is the prominent color of the product?",
            
@@ -216,6 +351,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
+
                     "value": "Dark brown",
                     "is_intensity": 0
                 },
@@ -538,11 +674,13 @@ class InsertPublicReviewQuestionair extends Command
               {
               
                     "value": "Sweet",
+
                      
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
                 },
                 {
                     "value": "Salt",
@@ -899,11 +1037,13 @@ class InsertPublicReviewQuestionair extends Command
                 },
                 {
                     "value": "Excess",
+
                     "is_intensity": 0
                 }
             ]
         },
         {
+
             "title": "As you chew, what is your opinion about the product?",
             
             "is_nested_question": 0,
@@ -936,6 +1076,7 @@ class InsertPublicReviewQuestionair extends Command
         {
             "title": "How does the product feel inside the mouth?",
 
+
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_mandatory": 1,
@@ -957,6 +1098,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
+
                     "value": "Prickly",
                     "is_intensity": 0
                 },
@@ -986,11 +1128,13 @@ class InsertPublicReviewQuestionair extends Command
                       "option_type": 1,
                     "is_intensity": 0
                    
+
                 }
             ]
         },
       
         {
+
             "title": "As you chew, which of these can you sense/feel inside your mouth?",
             "subtitle":"Please chew the product 3-4 times and pause.",
             
@@ -1103,10 +1247,12 @@ class InsertPublicReviewQuestionair extends Command
                 },
                 {
                     "value": "No mass",
+
                     "is_intensity": 0
                 }
             ]
         },
+
        {
             "title": "How easy or difficult is this product to swallow?",
           
@@ -1132,11 +1278,13 @@ class InsertPublicReviewQuestionair extends Command
                 },
                 {
                     "value": "Difficult",
+
                     "is_intensity": 0
                 }
             ]
         },
         {
+
             "title": "After swallowing the product, do you feel anything left in the mouth?",
             
             "is_nested_question": 0,
@@ -1153,10 +1301,12 @@ class InsertPublicReviewQuestionair extends Command
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
                 },
                 {
               
                     "value": "Loose particles",
+
                      
                     "is_intensity": 1,
                     "intensity_type": 2,
@@ -1171,10 +1321,12 @@ class InsertPublicReviewQuestionair extends Command
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
                 },
                 {
               
                     "value": "Stuck between teeth",
+
                      
                     "is_intensity": 1,
                     "intensity_type": 2,
@@ -1206,6 +1358,7 @@ class InsertPublicReviewQuestionair extends Command
                 }
             ]
         },
+
         {
             "title": "Overall Preference of Texture",
             "select_type": 5,
@@ -1248,17 +1401,22 @@ class InsertPublicReviewQuestionair extends Command
     "PRODUCT EXPERIENCE": [
       
        {
+
             "title": "Did this product succeed in satisfying your basic senses?",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
             "option": [{
-                    "value": "Yes",
+                    "value": "Generous",
                     "is_intensity": 0
                 },
                 {
-                    "value": "No",
+                    "value": "Modest",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Limited",
                     "is_intensity": 0
                 }
             ]
@@ -1291,6 +1449,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
+
                     "value": "Balanced product",
                     "is_intensity": 0,
                     "option_type": 2
@@ -1345,7 +1504,9 @@ class InsertPublicReviewQuestionair extends Command
     ]
 }';
 
+
         $data = ['name'=>'Public_Rusk','keywords'=>"Public_Rusk",'description'=>null,
+
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
