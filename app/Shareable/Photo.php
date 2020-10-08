@@ -5,6 +5,7 @@ namespace App\Shareable;
 use App\PeopleLike;
 use App\Shareable\Share;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\HashtagFactory;
 
 class Photo extends Share
 {
@@ -13,7 +14,24 @@ class Photo extends Share
 
     public static function boot()
     {
+        static::created(function($model){
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Shareable\Photo',$model->id);
+            }
+        });
+        static::updated(function($model){
+            $model->deleteExistingHashtag('App\Shareable\Photo',$model->id);
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Shareable\Photo',$model->id);
+            }
+        });
         static::deleted(function($model){
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->deleteExistingHashtag('App\Shareable\Photo',$model->id);
+            }
             $model->payload->delete();
         });
     }

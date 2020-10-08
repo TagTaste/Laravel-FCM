@@ -8,6 +8,7 @@ use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use App\Traits\IdentifiesContentIsReported;
+use App\Traits\HashtagFactory;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported, HashtagFactory;
 
     protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
         'description','project_commences','image1','image2','image3','image4','image5',
@@ -57,13 +58,17 @@ class Collaborate extends Model implements Feedable
     ];
 
     private $interestedCount = 0;
-    
+
     public static function boot()
     {
         self::created(function($model){
             $model->addToCache();
             $model->addToCacheV2();
             \App\Documents\Collaborate::create($model);
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Collaborate',$model->id);
+            }
         });
         
         self::updated(function($model){
@@ -71,6 +76,11 @@ class Collaborate extends Model implements Feedable
             $model->addToCacheV2();
             //update the search
             \App\Documents\Collaborate::create($model);
+            $matches = $model->hasHashtags($model);
+            $model->deleteExistingHashtag('App\Collaborate',$model->id);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Collaborate',$model->id);
+            }
     
         });
     }
@@ -716,5 +726,18 @@ class Collaborate extends Model implements Feedable
 //    {
 //        return $this->owner();
 //    }
+
+    public function hasHashtags($data) 
+    {
+
+        $totalMatches = [];
+        if(preg_match_all('/#[a-zA-Z]{1,50}/i',$data->title,$matches)) {
+            $totalMatches = array_merge($totalMatches,$matches[0]);
+        }
+        if(preg_match_all('/#[a-zA-Z]{1,50}/i',$data->description,$matches)) {
+            $totalMatches = array_merge($totalMatches,$matches[0]);
+        }
+        return $totalMatches;
+    }
 
 }

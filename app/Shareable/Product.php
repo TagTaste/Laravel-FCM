@@ -5,6 +5,7 @@ namespace App\Shareable;
 use App\Channel\Payload;
 use App\PeopleLike;
 use App\PublicReviewProduct;
+use App\Traits\HashtagFactory;
 use App\PublicReviewProduct\Review;
 use App\Shareable\Share;
 use Illuminate\Support\Facades\Redis;
@@ -26,7 +27,24 @@ class Product extends Share
 
     public static function boot()
     {
+        static::created(function($model){
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Shareable\Product',$model->id);
+            }
+        });
+        static::updated(function($model){
+            $matches = $model->hasHashtags($model);
+            $model->deleteExistingHashtag('App\Shareable\Product',$model->id);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Shareable\Product',$model->id);
+            }
+        });
         static::deleted(function($model){
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->deleteExistingHashtag('App\Shareable\Product',$model->id);
+            }
             $model->payload->delete();
         });
     }

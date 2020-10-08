@@ -14,6 +14,7 @@ use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
 use App\Traits\IdentifiesContentIsReported;
+use App\Traits\HashtagFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
@@ -70,6 +71,10 @@ class Photo extends Model implements Feedable
         //so it can't be pushed to the feed since there won't be any "owner".
 
         self::created(function($photo){
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\V2\Photo',$model->id);
+            }
             //Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
 
@@ -77,9 +82,13 @@ class Photo extends Model implements Feedable
 //            $photo->addToCache();
 //        });
 //
-//        self::updated(function($photo){
-//            $photo->addToCache();
-//        });
+       self::updated(function($photo){
+        $matches = $model->hasHashtags($model);
+        $model->deleteExistingHashtag('App\V2\Photo',$model->id);
+        if(count($matches)) {
+            $model->createHashtag($matches,'App\V2\Photo',$model->id);
+        }
+       });
     }
 
     public function addToCache()
@@ -458,4 +467,13 @@ class Photo extends Model implements Feedable
         return $seo_tags;
     }
 
+    public function hasHashtags($data) 
+    {
+
+        $totalMatches = [];
+        if(preg_match_all('/#[a-zA-Z]{1,50}/i',$data->caption,$matches)) {
+            $totalMatches = array_merge($totalMatches,$matches[0]);
+        }
+        return $totalMatches;
+    }
 }

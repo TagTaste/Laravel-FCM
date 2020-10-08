@@ -8,6 +8,7 @@ use App\Traits\CachedPayload;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
+use App\Traits\HashtagFactory;
 use App\Traits\IdentifiesContentIsReported;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -40,11 +41,20 @@ class Shoutout extends Model implements Feedable
     public static function boot()
     {
         self::created(function($shoutout){
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Shoutout',$model->id);
+            }
             $shoutout->addToCache();
             $shoutout->addToCacheV2();
         });
 
         self::updated(function($shoutout){
+            $matches = $model->hasHashtags($model);
+            $model->deleteExistingHashtag('App\Shoutout',$model->id);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Shoutout',$model->id);
+            }
             $shoutout->addToCache();
             $shoutout->addToCacheV2();
         });    
@@ -346,5 +356,14 @@ class Shoutout extends Model implements Feedable
             return $thumbnail;
         }
         return 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
+    }
+    public function hasHashtags($data) 
+    {
+
+        $totalMatches = [];
+        if(preg_match_all('/#[a-zA-Z]{1,50}/i',$data->content,$matches)) {
+            $totalMatches = array_merge($totalMatches,$matches[0]);
+        }
+        return $totalMatches;
     }
 }
