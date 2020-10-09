@@ -13,7 +13,7 @@ trait HashtagFactory
     {
         foreach($hashtags as $hashtag) {
             $hash = $this->hashtagExist($hashtag);
-            if(!$hash['hits']['total']['value']) {
+            if(!$hash['hits']['total']) {
                 $model = new \App\Hashtag();  
                 $model->id =Carbon::now()->timestamp;          
                 $model->tag=$hashtag;
@@ -29,6 +29,7 @@ trait HashtagFactory
                 $model = new \App\Hashtag($hashDocument);
             }
             \App\Documents\Hashtag::create($model);
+            sleep(3);
         }
     }
     public function deleteExistingHashtag($modelName, $modelId)
@@ -106,7 +107,7 @@ trait HashtagFactory
         $params['type'] = 'hashtag';
         $client = SearchClient::get();
         $response = $client->search($params);
-        if($response['hits']['total']['value'] == 0){
+        if($response['hits']['total']== 0){
             return null;
         } else {
             $response = $response['hits']['hits'];
@@ -128,6 +129,12 @@ trait HashtagFactory
             'index' => "api",
             'body' => [
                 "from" => 0, "size" => 1000,
+                'query'=>[
+                    'query_string' => [
+                        'query' => $key,
+                            'fields'=>['tag']
+                         ]
+                ],
                 'suggest' => [
                     'my-suggestion-1'=> [
                             'text'=> $key,
@@ -151,8 +158,17 @@ trait HashtagFactory
                         'tag'=>$tags['text']
                     ];
                 }
-                return $tag;
+                
             }
+            if($response['hits']['total'] != 0){
+                $response = $response['hits']['hits'];
+                foreach($response as $tags) {
+                $tag[] = [
+                    'tag'=>$tags['_source']['tag']
+                ];
+            }   
+            }
+            return $tag;
     }
 
     public function getModelsForFeed($key)
@@ -171,7 +187,7 @@ trait HashtagFactory
         $params['type'] = 'hashtag';
         $client = SearchClient::get();
         $response = $client->search($params);
-        if($response['hits']['total']['value'] == 0){
+        if($response['hits']['total'] == 0){
             return null;
         }
         $response = $response['hits']['hits'][0]['_source']['public_use'];
