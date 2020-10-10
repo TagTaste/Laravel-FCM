@@ -41,19 +41,19 @@ class Shoutout extends Model implements Feedable
     public static function boot()
     {
         self::created(function($shoutout){
-            $matches = $model->hasHashtags($model);
+            $matches = $shoutout->hasHashtags($shoutout);
             if(count($matches)) {
-                $model->createHashtag($matches,'App\Shoutout',$model->id);
+                $shoutout->createHashtag($matches,'App\Shoutout',$shoutout->id);
             }
             $shoutout->addToCache();
             $shoutout->addToCacheV2();
         });
 
         self::updated(function($shoutout){
-            $matches = $model->hasHashtags($model);
-            $model->deleteExistingHashtag('App\Shoutout',$model->id);
+            $matches = $shoutout->hasHashtags($shoutout);
+            $shoutout->deleteExistingHashtag('App\Shoutout',$shoutout->id);
             if(count($matches)) {
-                $model->createHashtag($matches,'App\Shoutout',$model->id);
+                $shoutout->createHashtag($matches,'App\Shoutout',$shoutout->id);
             }
             $shoutout->addToCache();
             $shoutout->addToCacheV2();
