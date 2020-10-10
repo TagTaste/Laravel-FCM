@@ -71,9 +71,9 @@ class Photo extends Model implements Feedable
         //so it can't be pushed to the feed since there won't be any "owner".
 
         self::created(function($photo){
-            $matches = $model->hasHashtags($model);
+            $matches = $photo->hasHashtags($photo);
             if(count($matches)) {
-                $model->createHashtag($matches,'App\V2\Photo',$model->id);
+                $photo->createHashtag($matches,'App\V2\Photo',$photo->id);
             }
             //Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
@@ -83,10 +83,10 @@ class Photo extends Model implements Feedable
 //        });
 //
        self::updated(function($photo){
-        $matches = $model->hasHashtags($model);
-        $model->deleteExistingHashtag('App\V2\Photo',$model->id);
+        $matches = $photo->hasHashtags($photo);
+        $photo->deleteExistingHashtag('App\V2\Photo',$photo->id);
         if(count($matches)) {
-            $model->createHashtag($matches,'App\V2\Photo',$model->id);
+            $photo->createHashtag($matches,'App\V2\Photo',$photo->id);
         }
        });
     }
