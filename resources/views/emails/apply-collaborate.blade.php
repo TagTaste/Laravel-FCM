@@ -65,7 +65,7 @@
                                                                         <div style="padding-top:8px;color: #717171;">
                                                                             <!-- message -->
                                                                             @if(strlen($model['message']['content']) > 140)
-                                                                            {{ substr($model['message']['content'], 0, 140)}}...<a href="{{env('APP_URL')}}/collaborations/{{$model['id']}}/applications" style="color: #4397E7; text-decoration: none;">(more)</a>
+                                                                            {{ substr($model['message']['content'], 0, 140)}}...<a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}/applications" style="color: #4397E7; text-decoration: none;">(more)</a>
                                                                             @else
                                                                             {{$model['message']['content']}}
                                                                             @endif
@@ -95,7 +95,7 @@
                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%"  style="border-radius:12px;padding-left:20px;" >
                                                                 <tr>
                                                                     <td >
-                                                                        <a href="{{env('APP_URL')}}/collaborations/{{$model['id']}}/applications" style="text-decoration:none; display:inline-block;background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: bold;border: none;border-radius: 4px;">Reply</a>
+                                                                        <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}/applications" style="text-decoration:none; display:inline-block;background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: bold;border: none;border-radius: 4px;">Reply</a>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -109,7 +109,7 @@
                                             <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
                                                 <tr>
                                                     <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                        <a href="{{env('APP_URL')}}/collaborations/{{$model['id']}}/applications" style="display: inline-block; text-decoration: none; padding: 15px 30px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: normal;">SEE ALL APPLICANTS</a>
+                                                        <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}/applications" style="display: inline-block; text-decoration: none; padding: 15px 30px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: normal;">SEE ALL APPLICANTS</a>
                                                     </td>
                                                 </tr>
 
