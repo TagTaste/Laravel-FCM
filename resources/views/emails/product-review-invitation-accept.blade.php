@@ -58,7 +58,7 @@
                                                                 @if($deep_link_status) 
                                                                     <a href='{{ \App\Deeplink::getShortLink("collaborate", $model["id"]) }}' style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">View Collaboration</a>
                                                                 @else
-                                                                    <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}"style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">View Collaboration</a>
+                                                                    <a href="{{env('APP_URL')}}/collaborations/{{$model['id']}}"style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">View Collaboration</a>
                                                                 @endif
                                                             </td>
                                                         </tr>
