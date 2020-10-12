@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Product extends Share
 {
+    use HashtagFactory;
     protected $fillable = ['profile_id','product_id','payload_id','privacy_id','content'];
     protected $visible = ['id','profile_id','product_id','created_at','content'];
 

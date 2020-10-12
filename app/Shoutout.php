@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent, IdentifiesContentIsReported;
+    use HashtagFactory, IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent, IdentifiesContentIsReported;
 
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','preview',
         'media_url','cloudfront_media_url','media_json'];

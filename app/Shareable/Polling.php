@@ -8,6 +8,7 @@ use App\Traits\HashtagFactory;
 
 class Polling extends Share
 {
+    use HashtagFactory;
     protected $fillable = ['profile_id','poll_id','payload_id','privacy_id','content'];
     protected $visible = ['id','profile_id','created_at','content'];
 

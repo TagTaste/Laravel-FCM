@@ -9,6 +9,7 @@ use App\Traits\HashtagFactory;
 
 class Photo extends Share
 {
+    use HashtagFactory;
 
     protected $with = ['photo'];
 
