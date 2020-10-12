@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Polling extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported,HashtagFactory;
 
     protected $table = 'poll_questions';
 

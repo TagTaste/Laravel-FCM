@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Photo extends Model implements Feedable
 {
-    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags, HasPreviewContent, IdentifiesContentIsReported;
+    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags, HasPreviewContent, IdentifiesContentIsReported, HashtagFactory;
 
     use IdentifiesOwner, CachedPayload;
 

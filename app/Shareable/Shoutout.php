@@ -8,6 +8,7 @@ use App\Traits\HashtagFactory;
 
 class Shoutout extends Share
 {
+    use HashtagFactory;
     protected $with = ['shoutout'];
     
     public static function boot()
