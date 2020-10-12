@@ -60,8 +60,7 @@ class HashtagController extends Controller
             ->take($take)
             ->get();
         if($payloads->count() === 0){
-            $this->errors[] = 'No more feed';
-            return $this->sendResponse();
+            return [];
         }
         return $this->getMeta($payloads, $profileId, $request->user()->profile);
     }
