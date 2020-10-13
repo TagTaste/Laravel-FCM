@@ -83,7 +83,7 @@ class ExplorePageController extends Controller
                     "sub_type" => "trending",
                     "see_more" => 'false',
                     "filter_meta" => (object)[],
-                    "elements" => $this->trendingHashtags()
+                    "elements" => $this->getTrendingHashtags()
                 ];
                 /* ui type = 2 is start */
                 $model[] = [
@@ -364,7 +364,7 @@ class ExplorePageController extends Controller
                     "sub_type" => "suggestions",
                     "see_more" => false,
                     "filter_meta" => (object)[],
-                    "elements" => $this->hashtagSuggestions($search_value)
+                    "elements" => $this->getHashtagSuggestions($search_value)
                 ];
                 /* ui type = 4 is start */
                 $model[] = [
@@ -748,6 +748,26 @@ class ExplorePageController extends Controller
             "type" => "product"
         );
         return $products_suggestion_detail;     
+    }
+
+    public function getTrendingHashtags()
+    {
+        $hashtags = $this->trendingHashtags();
+        return array(
+            "hashtag"=>$hashtags,
+            "count"=>count($hashtags),
+            "type"=>"hashtag"
+        );
+    }
+
+    public function getHashtagSuggestions($key)
+    {
+        $hashtags = $this->hashtagSuggestions($key);
+        return array(
+            "hashtag"=>$hashtags,
+            "count"=>count($hashtags),
+            "type"=>"hashtag"
+        );
     }
 
     public function getRecentReviewedProductsUserCanReview($profile, $profile_id)

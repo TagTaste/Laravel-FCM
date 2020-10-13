@@ -79,10 +79,11 @@ class HashtagController extends Controller
         for($i = $skip; $i < $take ; $i++) {
             if(isset($models[$i])) {
                 $temp = explode("'",$models[$i]);
-                $payloadIds[] = Payload::where('model',$temp[0])
+                $temp1 = Payload::where('model',$temp[0])
                                 ->where('model_id',$temp[1])
-                                ->first()
-                                ->id;
+                                ->first();
+                if($temp1 != null && isset($temp1))
+                $payloadIds[] = $temp1->id;
             }
         }
        return $payloadIds;
