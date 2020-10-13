@@ -148,8 +148,8 @@ trait HashtagFactory
             $client = SearchClient::get();
             $response = $client->search($params);
             $suggestions = $response['suggest']['my-suggestion-1'][0]['options'];
+            $tag = [];
             if(count($suggestions) != 0){
-                $tag = [];
                 foreach($suggestions as $tags) {
                     $tag[] = [
                         'tag'=>'#'.$tags['text']
