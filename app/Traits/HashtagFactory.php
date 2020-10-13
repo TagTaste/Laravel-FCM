@@ -11,7 +11,7 @@ trait HashtagFactory
 
     public function createHashtag($hashtags, $modelName, $modelId)
     {
-        foreach($hashtags as $hashtag) {
+         foreach($hashtags as $hashtag) {
             $hash = $this->hashtagExist($hashtag);
             if(!$hash['hits']['total']) {
                 $model = new \App\Hashtag();  
@@ -35,7 +35,7 @@ trait HashtagFactory
     public function deleteExistingHashtag($modelName, $modelId)
     {
         $document = $this->getDocumentContainingModel($modelName.'\''.$modelId);
-        if($document['hits']['total']['value']) {
+        if($document['hits']['total']) {
             foreach($document['hits']['hits'] as $hit) {
                 if(count($hit['_source']['public_use']) == 1) {
                     $model = new \App\Hashtag($hit['_source']);
