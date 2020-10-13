@@ -4,6 +4,7 @@ namespace App\Shareable;
 
 use App\PeopleLike;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\HashtagFactory;
 
 class Collaborate extends Share
 {
