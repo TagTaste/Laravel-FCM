@@ -361,7 +361,7 @@ class Shoutout extends Model implements Feedable
     {
 
         $totalMatches = [];
-        if(preg_match_all('/#[a-zA-Z]{1,50}/i',$data->content,$matches)) {
+        if(preg_match_all('/#[A-Za-z0-9_]{1,50}/i',$data->content,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
