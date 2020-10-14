@@ -12,11 +12,11 @@ trait HashtagFactory
     public function createHashtag($hashtags, $modelName, $modelId)
     {
          foreach($hashtags as $hashtag) {
-            $hash = $this->hashtagExist($hashtag);
+            $hash = $this->hashtagExist(strtolower($hashtag));
             if(!$hash['hits']['total']) {
                 $model = new \App\Hashtag();  
                 $model->id =Carbon::now()->timestamp;          
-                $model->tag=$hashtag;
+                $model->tag=strtolower($hashtag);
                 $model->public_use = [$modelName.'\''.$modelId];
                 $model->created=Carbon::now()->timestamp; 
                 $model->updated=Carbon::now()->timestamp; 
