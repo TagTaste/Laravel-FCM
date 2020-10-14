@@ -23,7 +23,7 @@ class Comment extends Action
     {
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
-        $this->sub = $this->data->who['name'] ." commented on your post";
+        $this->sub = htmlspecialchars_decode($this->data->who['name']) ." commented on your post";
         if(method_exists($this->model,'getNotificationContent')){
             $this->allData = $this->model->getNotificationContent();
 //            $this->sub = $this->data->who['name'] ." commented on your review of ".$this->allData['title'];
@@ -67,7 +67,7 @@ class Comment extends Action
                 }
                 $unsubscribeLink = env('APP_URL')."/settingUpdate/unsubscribe/?k=".$encrypted;
                 return (new MailMessage())->subject($this->sub)->view(
-                    $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
+                    $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>strip_tags($this->getContent($this->allData['content'])),'unsubscribeLink'=>$unsubscribeLink]
                 );
             }
 //        }
