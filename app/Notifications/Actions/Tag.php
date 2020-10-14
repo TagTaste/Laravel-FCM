@@ -22,7 +22,7 @@ class Tag extends Action
     {
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
-        $this->sub = $this->data->who['name'] ." mentioned you in a post";
+        $this->sub = htmlspecialchars_decode($this->data->who['name']) ." mentioned you in a post";
         $this->notification = $this->data->who['name'] . " tagged you in a post.";
     }
 
