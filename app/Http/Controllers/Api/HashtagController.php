@@ -56,8 +56,8 @@ class HashtagController extends Controller
             //Ofcourse, unless you know what you are doing.
 //            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->orderBy('channel_payloads.created_at','desc')
-            ->skip($skip)
-            ->take($take)
+            // ->skip($skip)
+            // ->take($take)
             ->get();
         if($payloads->count() === 0){
             return [];
@@ -76,7 +76,7 @@ class HashtagController extends Controller
     protected function getPayloadIds($models, $skip, $take)
     {
         $payloadIds = [];
-        for($i = $skip; $i < $take ; $i++) {
+        for($i = $skip; $i < ($skip+$take) ; $i++) {
             if(isset($models[$i])) {
                 $temp = explode("'",$models[$i]);
                 $temp1 = Payload::where('model',$temp[0])
