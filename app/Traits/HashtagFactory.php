@@ -147,15 +147,18 @@ trait HashtagFactory
             $params['type'] = 'hashtag';
             $client = SearchClient::get();
             $response = $client->search($params);
-            $suggestions = $response['suggest']['my-suggestion-1'][0]['options'];
             $tag = [];
-            if(count($suggestions) != 0){
-                foreach($suggestions as $tags) {
-                    $tag[] = [
-                        'tag'=>'#'.$tags['text']
-                    ];
+            if(isset($response['suggest']['my-suggestion-1'][0])) {
+                $suggestions = $response['suggest']['my-suggestion-1'][0]['options'];
+                if(count($suggestions) != 0){
+                    foreach($suggestions as $tags) {
+                        $tag[] = [
+                            'tag'=>'#'.$tags['text']
+                        ];
+                    }
                 }
             }
+            
             if($response['hits']['total'] != 0){
                 $response = $response['hits']['hits'];
                 foreach($response as $tags) {

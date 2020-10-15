@@ -75,13 +75,13 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 8,
                     "ui_style_meta" => (object)[],
-                    "title" => "Products for Review", 
+                    "title" => "Trending Hashtags", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
                     "type" => "hashtag",
                     "sub_type" => "trending",
-                    "see_more" => 'false',
+                    "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $this->getTrendingHashtags()
                 ];
