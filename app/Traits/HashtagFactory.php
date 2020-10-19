@@ -125,19 +125,20 @@ trait HashtagFactory
 
     public function hashtagSuggestions($key) 
     {
+        dd('here');
         $params = [
             'index' => "api",
             'body' => [
                 "from" => 0, "size" => 1000,
                 'query'=>[
                     'query_string' => [
-                        'query' => $key,
+                        'query' => $key.'*',
                             'fields'=>['tag']
                          ]
                 ],
                 'suggest' => [
                     'my-suggestion-1'=> [
-                            'text'=> $key,
+                            'text'=> $key.'*',
                             'term'=> [
                                  'field'=> 'tag'
                             ]

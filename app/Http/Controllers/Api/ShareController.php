@@ -330,10 +330,11 @@ class ShareController extends Controller
             return $this->sendError("Model not found.");
         }
         $this->model->update(['content'=>$content]);
-        $matches = $this->hasHashtags($this->model);
-            $this->deleteExistingHashtag('App\Shareable\Product',$this->model->id);
+        $mod = $class::where($this->column,$modelId)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
+        $matches = $this->hasHashtags($mod);
+            $this->deleteExistingHashtag('App\Shareable\Product',$mod->id);
             if(count($matches)) {
-                $this->createHashtag($matches,'App\Shareable\Product',$this->model->id);
+                $this->createHashtag($matches,'App\Shareable\Product',$mod->id);
             }
         $this->model = $class::where($this->column,$modelId)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
         $this->model->addToCache();
@@ -348,9 +349,13 @@ class ShareController extends Controller
 
     public function hasHashtags($data) 
     {
-
         $totalMatches = [];
-        if(preg_match_all('/#[A-Za-z0-9_]{1,50}/i',$data->content,$matches)) {
+        if(gettype($data->content) == 'array') {
+            $content = $data->content['text'];
+        } else {
+            $content = $data->content;
+        }
+        if(preg_match_all('/#[A-Za-z0-9_]{1,50}/i',$content,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
