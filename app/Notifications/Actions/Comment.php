@@ -50,7 +50,7 @@ class Comment extends Action
             }
 
             $langKey = $langKey.':title';
-            $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
+            $this->sub = __('mails.'.$langKey, ['name' => htmlspecialchars_decode($this->data->who['name'])]);
             $this->allData['title'] = $this->sub;
             if(view()->exists($this->view)){
                 $action = $this->data->action;
