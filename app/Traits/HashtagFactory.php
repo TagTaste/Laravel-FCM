@@ -16,7 +16,7 @@ trait HashtagFactory
             $hash = $this->hashtagExist(strtolower($hashtag));
             if(!$hash['hits']['total']) {
                 $model = new \App\Hashtag();  
-                $model->id =Carbon::now()->timestamp;          
+                $model->id =mt_rand(1000000000, 9999999999);          
                 $model->tag=strtolower($hashtag);
                 $model->public_use = [$modelName.'\''.$modelId];
                 $model->created=Carbon::now()->timestamp; 
@@ -29,8 +29,8 @@ trait HashtagFactory
                 $hashDocument['updated'] = Carbon::now()->timestamp; 
                 $model = new \App\Hashtag($hashDocument);
             }
-            $job = (new StoreElasticModel($model))->delay(Carbon::now()->addSeconds(3));
-            dispatch(new StoreElasticModel($model));
+            $job = (new StoreElasticModel($model));
+            dispatch($job);
             // \App\Documents\Hashtag::create($model);
             // sleep(3);
         }
@@ -49,7 +49,8 @@ trait HashtagFactory
                     unset($doc['public_use'][$index]);
                     $doc['public_use'] = array_values($doc['public_use']);
                     $model = new \App\Hashtag($doc);
-                    dispatch(new StoreElasticModel($model));
+                    $job = (new StoreElasticModel($model));
+                    dispatch($job);
                     // \App\Documents\Hashtag::create($model);
                     // sleep(5);
                 }
