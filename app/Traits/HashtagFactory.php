@@ -5,6 +5,7 @@ namespace App\Traits;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\SearchClient;
+use App\Jobs\StoreElasticModel;
 
 trait HashtagFactory
 {
@@ -28,8 +29,10 @@ trait HashtagFactory
                 $hashDocument['updated'] = Carbon::now()->timestamp; 
                 $model = new \App\Hashtag($hashDocument);
             }
-            \App\Documents\Hashtag::create($model);
-            sleep(3);
+            $job = (new StoreElasticModel($model))->delay(Carbon::now()->addSeconds(3));
+            dispatch(new StoreElasticModel($model));
+            // \App\Documents\Hashtag::create($model);
+            // sleep(3);
         }
     }
     public function deleteExistingHashtag($modelName, $modelId)
@@ -46,8 +49,9 @@ trait HashtagFactory
                     unset($doc['public_use'][$index]);
                     $doc['public_use'] = array_values($doc['public_use']);
                     $model = new \App\Hashtag($doc);
-                    \App\Documents\Hashtag::create($model);
-                    sleep(5);
+                    dispatch(new StoreElasticModel($model));
+                    // \App\Documents\Hashtag::create($model);
+                    // sleep(5);
                 }
             }
         }
@@ -125,7 +129,6 @@ trait HashtagFactory
 
     public function hashtagSuggestions($key) 
     {
-        dd('here');
         $params = [
             'index' => "api",
             'body' => [
