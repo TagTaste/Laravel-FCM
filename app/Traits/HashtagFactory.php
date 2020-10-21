@@ -132,6 +132,7 @@ trait HashtagFactory
 
     public function hashtagSuggestions($key) 
     {
+        $key = str_replace('#','',$key);
         $params = [
             'index' => "api",
             'body' => [
@@ -179,6 +180,7 @@ trait HashtagFactory
 
     public function getModelsForFeed($key)
     {
+        $key = str_replace('#','',$key);
         $params = [
             'index' => "api",
             'body' => [
