@@ -116,6 +116,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Search\Profile::class,
         \App\Console\Commands\Build\Search\Recipe::class,
         \App\Console\Commands\Build\Search\PublicReviewProduct::class,
+        \App\Console\Commands\Build\Search\Hashtag::class,
         
         //Meta
             //Collab

@@ -46,6 +46,7 @@ class Polling extends Model implements Feedable
         });
         self::deleted(function($model){
             $model->removeFromCache();
+            $model->deleteExistingHashtag('App\Polling',$model->id);
             //update the search
         });
     }

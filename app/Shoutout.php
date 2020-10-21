@@ -57,6 +57,9 @@ class Shoutout extends Model implements Feedable
             }
             $shoutout->addToCache();
             $shoutout->addToCacheV2();
+        });
+        static::deleting(function($shoutout) {
+            $shoutout->deleteExistingHashtag('App\Shoutout',$shoutout->id);
         });    
     }
 
