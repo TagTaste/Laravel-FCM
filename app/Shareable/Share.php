@@ -172,7 +172,7 @@ class Share extends Model implements CommentNotification
         } else {
             $content = $data->content;
         }
-        if(preg_match_all('/#[A-Za-z0-9_]{1,50}/i',$content,$matches)) {
+        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$content,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
