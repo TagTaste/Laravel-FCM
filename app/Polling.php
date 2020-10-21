@@ -316,9 +316,8 @@ class Polling extends Model implements Feedable
     // }
     public function hasHashtags($data) 
     {
-
         $totalMatches = [];
-        if(preg_match_all('/#[A-Za-z0-9_]{1,50}/i',$data->title,$matches)) {
+        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',$data->title,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
