@@ -11,7 +11,7 @@ class Hashtag extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'build:search:hashtag';
 
     /**
      * The console command description.
@@ -37,6 +37,6 @@ class Hashtag extends Command
      */
     public function handle()
     {
-        //
+        
     }
 }
