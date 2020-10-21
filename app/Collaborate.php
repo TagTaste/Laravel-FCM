@@ -81,7 +81,9 @@ class Collaborate extends Model implements Feedable
             if(count($matches)) {
                 $model->createHashtag($matches,'App\Collaborate',$model->id);
             }
-    
+        static::deleting(function($model) {
+                $model->deleteExistingHashtag('App\Shoutout',$model->id);
+            });
         });
     }
     

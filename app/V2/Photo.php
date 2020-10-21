@@ -58,7 +58,7 @@ class Photo extends Model implements Feedable
         self::deleting(function($photo){
 //            \DB::transaction(function() use ($photo){
 //                $photo->ideabooks()->detach();
-
+            $photo->deleteExistingHashtag('App\V2\Photo',$photo->id);
             $photo->profile()->detach();
             $photo->company()->detach();
 
@@ -471,7 +471,12 @@ class Photo extends Model implements Feedable
     {
 
         $totalMatches = [];
-        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$data->caption,$matches)) {
+        if(gettype($data->caption) == 'array') {
+            $content = $data->caption['text'];
+        } else {
+            $content = $data->caption;
+        }
+        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$data->content,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
