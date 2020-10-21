@@ -13,7 +13,8 @@ trait HashtagFactory
     public function createHashtag($hashtags, $modelName, $modelId)
     {
          foreach($hashtags as $hashtag) {
-            $hash = $this->hashtagExist(strtolower($hashtag));
+             if(strlen($hashtag)<=51) {
+                $hash = $this->hashtagExist(strtolower($hashtag));
             if(!$hash['hits']['total']) {
                 $model = new \App\Hashtag();  
                 $model->id =mt_rand(1000000000, 9999999999);          
@@ -33,6 +34,7 @@ trait HashtagFactory
             dispatch($job);
             // \App\Documents\Hashtag::create($model);
             // sleep(3);
+             }
         }
     }
     public function deleteExistingHashtag($modelName, $modelId)
