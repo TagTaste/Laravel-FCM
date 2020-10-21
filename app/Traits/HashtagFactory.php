@@ -156,7 +156,14 @@ trait HashtagFactory
             $client = SearchClient::get();
             $response = $client->search($params);
             $tag = [];
-            if(isset($response['suggest']['my-suggestion-1'][0])) {
+            if($response['hits']['total'] != 0){
+                $response = $response['hits']['hits'];
+                foreach($response as $tags) {
+                $tag[] = [
+                    'tag'=>$tags['_source']['tag']
+                ];
+            }   
+            } else if(isset($response['suggest']['my-suggestion-1'][0])) {
                 $suggestions = $response['suggest']['my-suggestion-1'][0]['options'];
                 if(count($suggestions) != 0){
                     foreach($suggestions as $tags) {
@@ -165,16 +172,7 @@ trait HashtagFactory
                         ];
                     }
                 }
-            }
-            
-            if($response['hits']['total'] != 0){
-                $response = $response['hits']['hits'];
-                foreach($response as $tags) {
-                $tag[] = [
-                    'tag'=>$tags['_source']['tag']
-                ];
-            }   
-            }
+            } 
             return $tag;
     }
 
