@@ -12,6 +12,7 @@ trait HashtagFactory
 
     public function createHashtag($hashtags, $modelName, $modelId)
     {
+        $hashtags = array_unique($hashtags);
          foreach($hashtags as $hashtag) {
              if(strlen($hashtag)<=51) {
                 $hash = $this->hashtagExist(strtolower($hashtag));
