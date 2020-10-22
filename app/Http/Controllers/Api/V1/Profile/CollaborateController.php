@@ -46,6 +46,7 @@ class CollaborateController extends Controller
         $data = [];
         $type = isset($request->type)?$request->type:null;
         $state = isset($request->state)?$request->state:null;
+        $title = isset($request->title)?$request->title:null;
         
         //Get compnaies of the logged in user.
         $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
@@ -72,7 +73,14 @@ class CollaborateController extends Controller
         } else if ($type == 'product-review') {
             $collaborations = $collaborations->where('collaborate_type','product-review');
         }
+
+        if (!is_null($title)) {
+            $collaborations = $collaborations->where('title','like','%'.$title.'%');
+        
+        }
+
         $this->model['count'] = $collaborations->count();
+
         $collaborations = $collaborations->skip($skip)->take($take)
         ->get();
         foreach ($collaborations as $collaboration) {
