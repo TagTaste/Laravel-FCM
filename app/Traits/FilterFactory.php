@@ -223,7 +223,7 @@ trait FilterFactory
                             ->whereNUll('company_id')
                             ->join('profiles','collaborate_applicants.profile_id','=','profiles.id')
                             ->join('users','profiles.user_id','=','users.id')
-                            ->where('users.name','LIKE',$q.'%')
+                            ->where('users.name','LIKE','%'.$q.'%')
                             ->pluck('collaborate_applicants.id');
 
             $searchByCompany = \DB::table('collaborate_applicants')
