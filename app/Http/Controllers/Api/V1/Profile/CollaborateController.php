@@ -73,13 +73,14 @@ class CollaborateController extends Controller
         } else if ($type == 'product-review') {
             $collaborations = $collaborations->where('collaborate_type','product-review');
         }
-        $this->model['count'] = $collaborations->count();
 
         if (!is_null($title)) {
             $collaborations = $collaborations->where('title','like','%'.$title.'%');
         
         }
-        
+
+        $this->model['count'] = $collaborations->count();
+
         $collaborations = $collaborations->skip($skip)->take($take)
         ->get();
         foreach ($collaborations as $collaboration) {
