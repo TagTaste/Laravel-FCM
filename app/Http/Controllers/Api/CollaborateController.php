@@ -661,7 +661,7 @@ class CollaborateController extends Controller
         }
 
         $this->model['count'] = $questionaire->count();
-        $this->model['questionaire'] = $questionaire
+        $this->model['questionnaire'] = $questionaire
             ->orderBy('id', 'DESC')
             ->skip($skip)
             ->take($take)
