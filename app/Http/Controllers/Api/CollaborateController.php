@@ -672,7 +672,9 @@ class CollaborateController extends Controller
 
     public function globalQuestionParticular(Request $request,$id)
     {
-        $this->model = \DB::table('global_questions')->where('id',$id)->get();
+        $this->model = [];
+        $this->model['questionnaire'] = \DB::table('global_questions')->where('id',$id)->get();
+        $this->model['count'] = \DB::table('global_questions')->where('id',$id)->count();
         return $this->sendResponse();
     }
 
