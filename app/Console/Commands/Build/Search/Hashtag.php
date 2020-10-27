@@ -53,7 +53,7 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\Collaborate',$data->id);
+                $this->createHashtag($totalMatches,'App\Collaborate',$data->id,$data->updated_at,$data->created_at);
             }
         }
 
@@ -72,7 +72,7 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\Shoutout',$data->id);
+                $this->createHashtag($totalMatches,'App\Shoutout',$data->id,$data->updated_at,$data->created_at);
             }
         }
 
@@ -89,7 +89,7 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\V2\Photo',$data->id);
+                $this->createHashtag($totalMatches,'App\V2\Photo',$data->id,$data->updated_at,$data->created_at);
             }
         }  
 
@@ -101,11 +101,11 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\Polling',$data->id);
+                $this->createHashtag($totalMatches,'App\Polling',$data->id,$data->updated_at,$data->created_at);
             }
         }
 
-        $photo_shares = \Db::table('photo_shares')->where('content','like','%#%')->get();
+        $photo_shares = \DB::table('photo_shares')->where('content','like','%#%')->get();
         foreach($photo_shares as $data)
         {
             $totalMatches = [];
@@ -118,11 +118,11 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\Shareable\Photo',$data->id);
+                $this->createHashtag($totalMatches,'App\Shareable\Photo',$data->id,$data->updated_at,$data->created_at);
             }
         }
 
-        $photo_shares = \Db::table('product_shares')->where('content','like','%#%')->get();
+        $photo_shares = \DB::table('public_review_product_shares')->where('content','like','%#%')->get();
         foreach($photo_shares as $data)
         {
             $totalMatches = [];
@@ -135,11 +135,11 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\Shareable\Product',$data->id);
+                $this->createHashtag($totalMatches,'App\Shareable\Product',$data->id,$data->updated_at,$data->created_at);
             }
         }
 
-        $photo_shares = \Db::table('collaborate_shares')->where('content','like','%#%')->get();
+        $photo_shares = \DB::table('collaborate_shares')->where('content','like','%#%')->get();
         foreach($photo_shares as $data)
         {
             $totalMatches = [];
@@ -152,11 +152,11 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\Shareable\Collaborate',$data->id);
+                $this->createHashtag($totalMatches,'App\Shareable\Collaborate',$data->id,$data->updated_at,$data->created_at);
             }
         }
 
-        $photo_shares = \Db::table('poll_shares')->where('content','like','%#%')->get();
+        $photo_shares = \DB::table('polling_shares')->where('content','like','%#%')->get();
         foreach($photo_shares as $data)
         {
             $totalMatches = [];
@@ -169,11 +169,11 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\Shareable\Polling',$data->id);
+                $this->createHashtag($totalMatches,'App\Shareable\Polling',$data->id,$data->updated_at,$data->created_at);
             }
         }
 
-        $photo_shares = \Db::table('shoutout_shares')->where('content','like','%#%')->get();
+        $photo_shares = \DB::table('shoutout_shares')->where('content','like','%#%')->get();
         foreach($photo_shares as $data)
         {
             
@@ -187,7 +187,7 @@ class Hashtag extends Command
                 $totalMatches = array_merge($totalMatches,$matches[0]);
             }
             if(count($totalMatches)) {
-                $this->createHashtag($totalMatches,'App\Shareable\Shoutout',$data->id);
+                $this->createHashtag($totalMatches,'App\Shareable\Shoutout',$data->id,$data->updated_at,$data->created_at);
             }
         }
         return 1;
