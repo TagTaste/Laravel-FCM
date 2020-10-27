@@ -45,7 +45,6 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
         }
         catch (\Exception $e){
             //Possibly Search Engine is down.
-            dd($e->getMessage());
             \Log::warning($e->getMessage());
         }
     }
