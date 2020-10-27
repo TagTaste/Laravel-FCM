@@ -69,8 +69,79 @@ class BatchController extends Controller
      */
     public function store(Request $request, $collaborateId)
     {
+        // check inputs
         $inputs = $request->except(['_method','_token']);
-        $this->model = $this->model->create($inputs);
+
+        // check if collaboration exists in our system
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state',Collaborate::$state[0])->first();
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        
+        // check if batch of same name exist
+        $check_if_batch_name_exist = $this->model
+            ->where('collaborate_id', $collaborateId)
+            ->where('name', $inputs['name'])
+            ->exists();
+        if ($check_if_batch_name_exist) {
+            $this->model = null;
+            return $this->sendError("Batch with the same name already exists.");
+        }
+
+        // current time
+        $now = Carbon::now()->toDateTimeString();
+
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+            // create a new batch
+            $this->model = $this->model->create($inputs);
+            $batch_id = $this->model->id;
+        
+            // compute all the batch assign inputs
+            $batch_inputs = [];
+
+            // fetch all the active applicants
+            $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
+                ->whereNotNull('shortlisted_at')            
+                ->whereNull('rejected_at')
+                ->pluck('profile_id');
+
+            foreach ($applicants as $applicant_id) {
+                // update the redis for the applicant info
+                Redis::sAdd("collaborate:$collaborateId:profile:$applicant_id:", $batch_id);
+                Redis::set("current_status:batch:$batch_id:profile:$applicant_id" ,0);
+                
+                // compute all the batch applicant assign input data
+                if ($collaborate->track_consistency) {
+                    $batch_inputs[] = [
+                        'profile_id' => $applicant_id,
+                        'batch_id' => $batch_id,
+                        'begin_tasting' => 0,
+                        'created_at' => $now,
+                        'collaborate_id' => (int)$collaborateId,
+                        'bill_verified' => 0
+                    ];
+                } else {
+                    $batch_inputs[] = [
+                        'profile_id' => $applicant_id,
+                        'batch_id' => $batch_id,
+                        'begin_tasting' => 0,
+                        'created_at' => $now,
+                        'collaborate_id' => (int)$collaborateId
+                    ];
+                }
+            }
+            // collaborate assign all the batches to the user
+            \DB::table('collaborate_batches_assign')->insert($batch_inputs);
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendError("Please try again after some time.");
+        }
 
         return $this->sendResponse();
     }
