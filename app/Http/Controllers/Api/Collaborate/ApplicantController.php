@@ -206,8 +206,38 @@ class ApplicantController extends Controller
             $this->model = false;
         }
 
-        return $this->sendResponse();
+        try {
+            $batch_inputs = [];
+            $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+            foreach ($batches as $batch) {
+                Redis::sAdd("collaborate:$collaborateId:profile:$loggedInprofileId:", $batch->id);
+                Redis::set("current_status:batch:$batch->id:profile:$loggedInprofileId" ,0);
+                if ($collaborate->track_consistency) {
+                    $batch_inputs[] = [
+                        'profile_id' => $loggedInprofileId,
+                        'batch_id' => $batch->id,
+                        'begin_tasting' => 0,
+                        'created_at' => $now,
+                        'collaborate_id' => (int)$collaborateId,
+                        'bill_verified' => 0
+                    ];
+                } else {
+                    $batch_inputs[] = [
+                        'profile_id' => $loggedInprofileId,
+                        'batch_id' => $batch->id,
+                        'begin_tasting' => 0,
+                        'created_at' => $now,
+                        'collaborate_id' => (int)$collaborateId
+                    ];
+                }
+            }
 
+            \DB::table('collaborate_batches_assign')->insert($batch_inputs);
+        } catch (Exception $e) {
+            \Log::info($e->getMessage());
+        }
+
+        return $this->sendResponse();
     }
 
     /**
