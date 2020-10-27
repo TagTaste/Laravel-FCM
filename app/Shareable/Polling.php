@@ -4,11 +4,9 @@ namespace App\Shareable;
 
 use App\PeopleLike;
 use Illuminate\Support\Facades\Redis;
-use App\Traits\HashtagFactory;
 
 class Polling extends Share
 {
-    use HashtagFactory;
     protected $fillable = ['profile_id','poll_id','payload_id','privacy_id','content'];
     protected $visible = ['id','profile_id','created_at','content'];
 
@@ -16,24 +14,7 @@ class Polling extends Share
 
     public static function boot()
     {
-        static::created(function($model){
-            $matches = $model->hasHashtags($model);
-            if(count($matches)) {
-                $model->createHashtag($matches,'App\Shareable\Polling',$model->id);
-            }
-        });
-        static::updated(function($model){
-            $matches = $model->hasHashtags($model);
-            $model->deleteExistingHashtag('App\Shareable\Polling',$model->id);
-            if(count($matches)) {
-                $model->createHashtag($matches,'App\Shareable\Polling',$model->id);
-            }
-        });
         static::deleted(function($model){
-            $matches = $model->hasHashtags($model);
-            if(count($matches)) {
-                $model->deleteExistingHashtag('App\Shareable\Polling',$model->id);
-            }
             $model->payload->delete();
         });
     }

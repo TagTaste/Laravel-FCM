@@ -18,12 +18,9 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\V2\FeedController;
 use App\ReviewCollection;
 use App\ElasticHelper;
-use App\Traits\HashtagFactory;
 
 class ExplorePageController extends Controller
 {
-    use HashtagFactory;
-
     public function exploreTest(Request $request)
     {
         $search_value = null !== $request->input('q') ? $request->input('q') : null;
@@ -71,23 +68,9 @@ class ExplorePageController extends Controller
 
         if (is_null($search_value)) {
             if ($search_filter === "everything" || $search_filter == null) {
-                $model[] = [
-                    "position" => 2,
-                    "ui_type" => 8,
-                    "ui_style_meta" => (object)[],
-                    "title" => "Trending Hashtags", 
-                    "subtitle" => null,
-                    "description" => null,
-                    "images_meta" => null,
-                    "type" => "hashtag",
-                    "sub_type" => "trending",
-                    "see_more" => false,
-                    "filter_meta" => (object)[],
-                    "elements" => $this->getTrendingHashtags()
-                ];
                 /* ui type = 2 is start */
                 $model[] = [
-                    "position" => 3,
+                    "position" => 2,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
                     "title" => "Products for Review", 
@@ -104,7 +87,7 @@ class ExplorePageController extends Controller
                
                 /* ui type = 3 is start */
                 $model[] = [
-                    "position" => 4,
+                    "position" => 3,
                     "ui_type" => 3,
                     "ui_style_meta" => (object)[],
                     "title" => "Product Collections", 
@@ -121,7 +104,7 @@ class ExplorePageController extends Controller
                 
                 /* ui type = 4 is start */
                 $model[] = [
-                    "position" => 5,
+                    "position" => 4,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
                     "title" => "Suggested People", 
@@ -138,7 +121,7 @@ class ExplorePageController extends Controller
 
                 /* ui type = 5 is start */
                 $model[] = [
-                    "position" => 6,
+                    "position" => 5,
                     "ui_type" => 5,
                     "ui_style_meta" => (object)[],
                     "title" => "Explore by Specialization", 
@@ -155,7 +138,7 @@ class ExplorePageController extends Controller
 
                 /* ui type = 6 is start */
                 $model[] = [
-                    "position" => 7,
+                    "position" => 6,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
                     "title" => "Collaborations for you", 
@@ -352,23 +335,10 @@ class ExplorePageController extends Controller
             if ($search_filter === "everything" || $search_filter == null) {
                 $profile_elastic_data = $this->getSearchProfileElastic($profile, $profile_id, $search_value, 20);
 
-                $model[] = [
-                    "position" => 2,
-                    "ui_type" => 8,
-                    "ui_style_meta" => (object)[],
-                    "title" => "Hashtag Suggestions", 
-                    "subtitle" => null,
-                    "description" => null,
-                    "images_meta" => null,
-                    "type" => "hashtag",
-                    "sub_type" => "suggestions",
-                    "see_more" => false,
-                    "filter_meta" => (object)[],
-                    "elements" => $this->getHashtagSuggestions($search_value)
-                ];
+
                 /* ui type = 4 is start */
                 $model[] = [
-                    "position" => 3,
+                    "position" => 2,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
                     "title" => "Top ".str_plural("Result", $profile_elastic_data['top_result']['count'])." in People", 
@@ -383,7 +353,7 @@ class ExplorePageController extends Controller
                 ];
 
                 $model[] = [
-                    "position" => 4,
+                    "position" => 3,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
                     "title" => '"'.$search_value.'"'.' in People', 
@@ -401,7 +371,7 @@ class ExplorePageController extends Controller
                 $product_elastic_data = $this->getSearchProductElastic($profile, $profile_id, $search_value, 20);
                 // /* ui type = 2 is start */
                 $model[] = [
-                    "position" => 5,
+                    "position" => 4,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
                     "title" => "Top ".str_plural("Result", $product_elastic_data['top_result']['count'])." in Products",
@@ -416,7 +386,7 @@ class ExplorePageController extends Controller
                 ];
 
                 $model[] = [
-                    "position" => 6,
+                    "position" => 5,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
                     "title" => '"'.$search_value.'"'.' in Products', 
@@ -434,7 +404,7 @@ class ExplorePageController extends Controller
                 $collaborate_elastic_data = $this->getSearchCollaborationElastic($profile, $profile_id, $search_value, 20);
                 // /* ui type = 6 is start */
                 $model[] = [
-                    "position" => 7,
+                    "position" => 6,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
                     "title" => "Top ".str_plural("Result", $collaborate_elastic_data['top_result']['count'])." in Collaborations", 
@@ -449,7 +419,7 @@ class ExplorePageController extends Controller
                 ];
 
                  $model[] = [
-                    "position" => 8,
+                    "position" => 7,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
                     "title" => '"'.$search_value.'"'.' in Collaborations', 
@@ -467,7 +437,7 @@ class ExplorePageController extends Controller
                 $company_elastic_data = $this->getSearchCompanyElastic($profile, $profile_id, $search_value, 20);
                 /* ui type = 7 is start */
                 $model[] = [
-                    "position" => 9,
+                    "position" => 8,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
                     "title" => "Top ".str_plural("Result", $company_elastic_data['top_result']['count'])." in Companies", 
@@ -481,7 +451,7 @@ class ExplorePageController extends Controller
                     "elements" => $company_elastic_data['top_result']
                 ];
                 $model[] = [
-                    "position" => 10,
+                    "position" => 9,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
                     "title" => '"'.$search_value.'"'.' in Companies', 
@@ -748,26 +718,6 @@ class ExplorePageController extends Controller
             "type" => "product"
         );
         return $products_suggestion_detail;     
-    }
-
-    public function getTrendingHashtags()
-    {
-        $hashtags = $this->trendingHashtags();
-        return array(
-            "hashtag"=>$hashtags,
-            "count"=>count($hashtags),
-            "type"=>"hashtag"
-        );
-    }
-
-    public function getHashtagSuggestions($key)
-    {
-        $hashtags = $this->hashtagSuggestions($key);
-        return array(
-            "hashtag"=>$hashtags,
-            "count"=>count($hashtags),
-            "type"=>"hashtag"
-        );
     }
 
     public function getRecentReviewedProductsUserCanReview($profile, $profile_id)

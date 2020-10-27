@@ -4,11 +4,9 @@ namespace App\Shareable;
 
 use App\PeopleLike;
 use Illuminate\Support\Facades\Redis;
-use App\Traits\HashtagFactory;
 
 class Collaborate extends Share
 {
-    use HashtagFactory;
     protected $fillable = ['profile_id','collaborate_id','payload_id','privacy_id','content'];
     protected $visible = ['id','profile_id','created_at','content'];
 
@@ -16,22 +14,7 @@ class Collaborate extends Share
 
     public static function boot()
     {
-        static::created(function($model){
-            $matches = $model->hasHashtags($model);
-            if(count($matches)) {
-                $model->createHashtag($matches,'App\Shareable\Collaborate',$model->id);
-            }
-        });
-        static::updated(function($model){
-            $model->deleteExistingHashtag('App\Shareable\Collaborate',$model->id);
-            $matches = $model->hasHashtags($model);
-            if(count($matches)) {
-                $model->createHashtag($matches,'App\Shareable\Collaborate',$model->id);
-            }
-        });
         static::deleted(function($model){
-            
-                $model->deleteExistingHashtag('App\Shareable\Collaborate',$model->id);
             $model->payload->delete();
         });
     }
