@@ -7,14 +7,13 @@ use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use App\Traits\IdentifiesContentIsReported;
-use App\Traits\HashtagFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 
 class Polling extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported,HashtagFactory;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported;
 
     protected $table = 'poll_questions';
 
@@ -28,25 +27,16 @@ class Polling extends Model implements Feedable
 
     public static function boot()
     {
-        self::created(function($model){
-            $matches = $model->hasHashtags($model);
-            if(count($matches)) {
-                $model->createHashtag($matches,'App\Polling',$model->id);
-            }
-        });
+        // self::created(function($model){
+        //     $model->addToCache();
+        //     });
 
         self::updated(function($model){
-            $matches = $model->hasHashtags($model);
-            $model->deleteExistingHashtag('App\Polling',$model->id);
-            if(count($matches)) {
-                $model->createHashtag($matches,'App\Polling',$model->id);
-            }
             $model->addToCache();
             //update the search
         });
         self::deleted(function($model){
             $model->removeFromCache();
-            $model->deleteExistingHashtag('App\Polling',$model->id);
             //update the search
         });
     }
@@ -315,12 +305,4 @@ class Polling extends Model implements Feedable
     // {
     //     return $this->image_meta != null ? 1 : ($this->options[0]['image_meta'] != null ? 2 : 3);
     // }
-    public function hasHashtags($data) 
-    {
-        $totalMatches = [];
-        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$data->title,$matches)) {
-            $totalMatches = array_merge($totalMatches,$matches[0]);
-        }
-        return $totalMatches;
-    }
 }

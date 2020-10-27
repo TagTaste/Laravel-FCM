@@ -8,7 +8,6 @@ use App\Traits\CachedPayload;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
-use App\Traits\HashtagFactory;
 use App\Traits\IdentifiesContentIsReported;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,7 +16,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Shoutout extends Model implements Feedable
 {
-    use HashtagFactory, IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent, IdentifiesContentIsReported;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent, IdentifiesContentIsReported;
 
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','preview',
         'media_url','cloudfront_media_url','media_json'];
@@ -41,25 +40,13 @@ class Shoutout extends Model implements Feedable
     public static function boot()
     {
         self::created(function($shoutout){
-            $matches = $shoutout->hasHashtags($shoutout);
-            if(count($matches)) {
-                $shoutout->createHashtag($matches,'App\Shoutout',$shoutout->id);
-            }
             $shoutout->addToCache();
             $shoutout->addToCacheV2();
         });
 
         self::updated(function($shoutout){
-            $matches = $shoutout->hasHashtags($shoutout);
-            $shoutout->deleteExistingHashtag('App\Shoutout',$shoutout->id);
-            if(count($matches)) {
-                $shoutout->createHashtag($matches,'App\Shoutout',$shoutout->id);
-            }
             $shoutout->addToCache();
             $shoutout->addToCacheV2();
-        });
-        static::deleting(function($shoutout) {
-            $shoutout->deleteExistingHashtag('App\Shoutout',$shoutout->id);
         });    
     }
 
@@ -359,19 +346,5 @@ class Shoutout extends Model implements Feedable
             return $thumbnail;
         }
         return 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
-    }
-    public function hasHashtags($data) 
-    {
-
-        $totalMatches = [];
-        if(gettype($data->content) == 'array') {
-            $content = $data->content['text'];
-        } else {
-            $content = $data->content;
-        }
-        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$content,$matches)) {
-            $totalMatches = array_merge($totalMatches,$matches[0]);
-        }
-        return $totalMatches;
     }
 }

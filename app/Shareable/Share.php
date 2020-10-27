@@ -162,19 +162,4 @@ class Share extends Model implements CommentNotification
         }
         return $value;
     }
-
-    public function hasHashtags($data) 
-    {
-
-        $totalMatches = [];
-        if(gettype($data->content) == 'array') {
-            $content = $data->content['text'];
-        } else {
-            $content = $data->content;
-        }
-        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$content,$matches)) {
-            $totalMatches = array_merge($totalMatches,$matches[0]);
-        }
-        return $totalMatches;
-    }
 }
