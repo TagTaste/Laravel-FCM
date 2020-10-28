@@ -115,8 +115,8 @@ class BatchController extends Controller
                 // compute all the batch applicant assign input data
                 if ($collaborate->track_consistency) {
                     $batch_inputs[] = [
-                        'profile_id' => $applicant_id,
-                        'batch_id' => $batch_id,
+                        'profile_id' => (int)$applicant_id,
+                        'batch_id' => (int)$batch_id,
                         'begin_tasting' => 0,
                         'created_at' => $now,
                         'collaborate_id' => (int)$collaborateId,
@@ -124,8 +124,8 @@ class BatchController extends Controller
                     ];
                 } else {
                     $batch_inputs[] = [
-                        'profile_id' => $applicant_id,
-                        'batch_id' => $batch_id,
+                        'profile_id' => (int)$applicant_id,
+                        'batch_id' => (int)$batch_id,
                         'begin_tasting' => 0,
                         'created_at' => $now,
                         'collaborate_id' => (int)$collaborateId
