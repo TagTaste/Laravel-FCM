@@ -346,8 +346,60 @@ class ApplicantController extends Controller
         }
         $now = Carbon::now()->toDateTimeString();
 
-        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+            // check all the batches in of collaboration
+            $batch_inputs = [];
+            $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->pluck('id');
+            foreach ($batches as $batchId) {
+                foreach ($shortlistedProfiles as $profileId) {
+                    Redis::sAdd("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
+                    Redis::set("current_status:batch:$batchId:profile:$profileId" ,0);
+
+                    if ($collaborate->track_consistency) {
+                        $batch_inputs[] = [
+                            'profile_id' => (int)$profileId,
+                            'batch_id' => (int)$batchId,
+                            'begin_tasting' => 0,
+                            'created_at' => $now,
+                            'collaborate_id' => (int)$collaborateId,
+                            'bill_verified' => 0
+                        ];
+                    } else {
+                        $batch_inputs[] = [
+                            'profile_id' => (int)$profileId,
+                            'batch_id' => (int)$batchId,
+                            'begin_tasting' => 0,
+                            'created_at' => $now,
+                            'collaborate_id' => (int)$collaborateId,
+                        ];    
+                    }
+                }
+            }
+
+            // collaborate assign all the batches to the user
+            \DB::table('collaborate_batches_assign')->insert($batch_inputs);
+
+            // shortlist applicant
+            $this->model = \DB::table('collaborate_applicants')
+                ->where('collaborate_id',$collaborateId)
+                ->whereIn('profile_id',$shortlistedProfiles)
+                ->update([
+                    'shortlisted_at'=>$now,
+                    'rejected_at'=>null
+                ]);
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendError("Please try again after some time.");
+        }
+
+        
 
         return $this->sendResponse();
 }
@@ -376,16 +428,46 @@ class ApplicantController extends Controller
         if(!is_array($shortlistedProfiles)){
             $shortlistedProfiles = [$shortlistedProfiles];
         }
+
+        // check if any user is already notified or not
         $checkAssignUser = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->whereIn('profile_id',$shortlistedProfiles)
-            ->where('begin_tasting',1)->exists();
-        if($checkAssignUser)
-        {
+            ->where('begin_tasting',1)
+            ->exists();
+        if ($checkAssignUser) {
             return $this->sendError("You can not remove from batch.");
         }
         $now = Carbon::now()->toDateTimeString();
 
-        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id',$shortlistedProfiles)->update(['rejected_at'=>$now]);
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+            // check all the batches in of collaboration
+            $batch_inputs = [];
+            $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->pluck('id');
+            foreach ($batches as $batchId) {
+                foreach ($shortlistedProfiles as $profileId) {
+                    Redis::sRem("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
+                    \DB::table('collaborate_batches_assign')
+                        ->where('batch_id',(int)$batchId)
+                        ->where('profile_id',(int)$profileId)
+                        ->delete();
+                }
+                
+            }
+            // remove applicant
+            $this->model = \DB::table('collaborate_applicants')
+                ->where('collaborate_id',$collaborateId)
+                ->whereIn('profile_id',$shortlistedProfiles)
+                ->update(['rejected_at'=>$now]);
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendError("Please try again after some time.");
+        }
 
         return $this->sendResponse();
     }
