@@ -5,6 +5,7 @@ namespace App\Shareable;
 use App\Channel\Payload;
 use App\PeopleLike;
 use App\PublicReviewProduct;
+use App\Traits\HashtagFactory;
 use App\PublicReviewProduct\Review;
 use App\Shareable\Share;
 use Illuminate\Support\Facades\Redis;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Product extends Share
 {
+    use HashtagFactory;
     protected $fillable = ['profile_id','product_id','payload_id','privacy_id','content'];
     protected $visible = ['id','profile_id','product_id','created_at','content'];
 
@@ -26,7 +28,14 @@ class Product extends Share
 
     public static function boot()
     {
+        static::created(function($model){
+            
+        });
+        static::updated(function($model){
+            
+        });
         static::deleted(function($model){
+            
             $model->payload->delete();
         });
     }
