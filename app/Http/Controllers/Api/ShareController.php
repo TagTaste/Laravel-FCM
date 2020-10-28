@@ -13,10 +13,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\CheckTags;
 use App\Events\Actions\Tag;
+use App\Traits\HashtagFactory;
 
 class ShareController extends Controller
 {
-    use CheckTags;
+    use CheckTags,HashtagFactory;
     private $column = "_id";
     
     private function setColumn(&$modelName)
@@ -267,6 +268,10 @@ class ShareController extends Controller
 //            'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         $share->save();
         $this->model = $share;
+        $matches = $this->hasHashtags($this->model);
+        if(count($matches)) {
+            $this->createHashtag($matches,'App\Shareable\Product',$this->model->id);
+        }
         $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
             $modelName => $modelName . ":" . $id, 'shared' => "shared:$modelName:" . $this->model->id
         ];
@@ -304,6 +309,10 @@ class ShareController extends Controller
             return $this->sendError("Model not found.");
         }
         $this->model = $this->model->delete() ? true : false;
+        $matches = $this->hasHashtags($this->model);
+            if(count($matches)) {
+                $this->deleteExistingHashtag('App\Shareable\Product',$this->model->id);
+            }
         if($this->model)
             Payload::where("payload->product","public-review/product:".$id)->where("payload->sharedBy","profile:small:".$loggedInId)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
         return $this->sendResponse();
@@ -321,6 +330,12 @@ class ShareController extends Controller
             return $this->sendError("Model not found.");
         }
         $this->model->update(['content'=>$content]);
+        $mod = $class::where($this->column,$modelId)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
+        $matches = $this->hasHashtags($mod);
+            $this->deleteExistingHashtag('App\Shareable\Product',$mod->id);
+            if(count($matches)) {
+                $this->createHashtag($matches,'App\Shareable\Product',$mod->id);
+            }
         $this->model = $class::where($this->column,$modelId)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
         $this->model->addToCache();
         $this->model->addToCacheV2();
@@ -332,5 +347,18 @@ class ShareController extends Controller
         return $this->sendResponse();
     }
 
+    public function hasHashtags($data) 
+    {
+        $totalMatches = [];
+        if(gettype($data->content) == 'array') {
+            $content = $data->content['text'];
+        } else {
+            $content = $data->content;
+        }
+        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$content,$matches)) {
+            $totalMatches = array_merge($totalMatches,$matches[0]);
+        }
+        return $totalMatches;
+    }
 
 }

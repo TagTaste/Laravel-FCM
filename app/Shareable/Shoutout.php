@@ -4,14 +4,33 @@ namespace App\Shareable;
 
 use App\PeopleLike;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\HashtagFactory;
 
 class Shoutout extends Share
 {
+    use HashtagFactory;
     protected $with = ['shoutout'];
     
     public static function boot()
     {
+        static::created(function($model){
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Shareable\Shoutout',$model->id);
+            }
+        });
+        static::updated(function($model){
+            $model->deleteExistingHashtag('App\Shareable\Shoutout',$model->id);
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->createHashtag($matches,'App\Shareable\Shoutout',$model->id);
+            }
+        });
         static::deleted(function($model){
+            $matches = $model->hasHashtags($model);
+            if(count($matches)) {
+                $model->deleteExistingHashtag('App\Shareable\Shoutout',$model->id);
+            }
             $model->payload->delete();
         });
     }
