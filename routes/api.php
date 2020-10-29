@@ -152,6 +152,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get('social/link/{provider}','UserController@socialLink');
         Route::get('suggestion/{modelName}','SuggestionEngineController@suggestion');
         Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
+        /**
+         * Routes for hashtag
+         */
+        Route::get('/hashtag/suggestions', 'HashtagController@suggestions');
+        Route::get('/hashtag/trending', 'HashtagController@trending');
+        Route::get('/hashtag/feed', 'HashtagController@feed');
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
