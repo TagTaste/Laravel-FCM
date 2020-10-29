@@ -82,6 +82,12 @@ class HashtagController extends Controller
                 $temp1 = Payload::where('model',$temp[0])
                                 ->where('model_id',$temp[1])
                                 ->first();
+                if($temp1 == null && $temp[0] == 'App\\V2\\Photo') {
+                    $temp[0] = 'App\\Photo';
+                    $temp1 = Payload::where('model',$temp[0])
+                                ->where('model_id',$temp[1])
+                                ->first();
+                }
                 if($temp1 != null && isset($temp1))
                 $payloadIds[] = $temp1->id;
             }
