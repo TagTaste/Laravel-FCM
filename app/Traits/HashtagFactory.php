@@ -15,7 +15,7 @@ trait HashtagFactory
         $hashtags = array_unique($hashtags);
          foreach($hashtags as $hashtag) {
              if(strlen($hashtag)<=51) {
-                $hash = $this->hashtagExist(strtolower($hashtag));
+                $hash = $this->hashtagExist(trim(strtolower($hashtag),' '));
             if(!$hash['hits']['total']) {
                 $model = new \App\Hashtag();  
                 $model->id =mt_rand(1000000000, 9999999999);          
@@ -172,7 +172,7 @@ trait HashtagFactory
                 $response = $response['hits']['hits'];
                 foreach($response as $tags) {
                 $tag[] = [
-                    'tag'=>$tags['_source']['tag']
+                    'tag'=>trim($tags['_source']['tag'],' ')
                 ];
             }   
             } else if(isset($response['suggest']['my-suggestion-1'][0])) {
@@ -180,12 +180,19 @@ trait HashtagFactory
                 if(count($suggestions) != 0){
                     foreach($suggestions as $tags) {
                         $tag[] = [
-                            'tag'=>'#'.$tags['text']
+                            'tag'=>'#'.trim($tags['text'],' ')
                         ];
                     }
                 }
             } 
-            return $tag;
+            $final  = array();
+
+            foreach ($tag as $current) {
+                if ( ! in_array($current, $final)) {
+                    $final[] = $current;
+                }
+            }
+            return $final;
     }
 
     public function getModelsForFeed($key)
