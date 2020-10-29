@@ -54,7 +54,7 @@ class ExplorePageController extends Controller
             "position" => 1,
             "ui_type" => 1,
             "ui_style_meta" => (object)[],
-            "title" => "Search people, products, collaborations...", 
+            "title" => "Search people, collaborations, etc...", 
             "subtitle" => null,
             "description" => null,
             "images_meta" => null,
