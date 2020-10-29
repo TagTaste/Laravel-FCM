@@ -21,8 +21,8 @@ trait HashtagFactory
                 $model->id =mt_rand(1000000000, 9999999999);          
                 $model->tag=strtolower($hashtag);
                 $model->public_use = [$modelName.'\''.$modelId];
-                $model->updated= $updated == null ? Carbon::now()->timestamp : $updated->timestamp; 
-                $model->created= $created == null ? Carbon::now()->timestamp : $created->timestamp;
+                $model->updated= $updated == null ? Carbon::now()->timestamp : Carbon::parse($updated)->timestamp; 
+                $model->created= $created == null ? Carbon::now()->timestamp : Carbon::parse($created)->timestamp;
             } else {
                 $hashDocument = $hash['hits']['hits'][0]['_source'];
                 $public_use = $hashDocument['public_use'];
@@ -132,7 +132,8 @@ trait HashtagFactory
                 if(!in_array(trim($tags['_source']['tag'],' #'),$bannedWordsArray)) {
                     $tag[] = [
                         'tag'=>$tags['_source']['tag'],
-                        'count'=>count($tags['_source']['public_use'])
+                        'count'=>count($tags['_source']['public_use']),
+                        'updated_at'=>Carbon::createFromTimestamp($tags['_source']['updated'])
                     ];
                 }
             }
