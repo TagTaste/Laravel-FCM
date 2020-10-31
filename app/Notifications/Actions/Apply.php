@@ -20,7 +20,7 @@ class Apply extends Action
 
         if($this->modelName == 'collaborate')
         {
-            $this->sub = $this->data->who['name'] ." has shown interest in your collaboration ".$this->model->title;
+            $this->sub = htmlspecialchars_decode($this->data->who['name']) ." has shown interest in your collaboration ".$this->model->title;
             if(!is_null($this->data->content)) {
                 $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
 

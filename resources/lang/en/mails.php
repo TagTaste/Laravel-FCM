@@ -16,6 +16,12 @@ return [
     'comment:photo:owner:shared:title' => ':name commented on your shared post',
     'comment:photo:subscriber:shared:title' => ':name also commented on a post',
 
+    // polling
+    'comment:polling:owner:original:title' => ':name commented on your poll',
+    'comment:polling:subscriber:original:title' => ':name commented on a poll',
+    'comment:polling:owner:shared:title' => ':name commented on your shared post',
+    'comment:polling:subscriber:shared:title' => ':name also commented on a post',
+
     // collaboration
     'comment:collaborate:owner:original:title' => ':name commented on your collaboration',
     'comment:collaborate:subscriber:original:title' => ':name commented on a collaboration',
