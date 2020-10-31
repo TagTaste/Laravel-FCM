@@ -71,6 +71,8 @@ class ExplorePageController extends Controller
 
         if (is_null($search_value)) {
             if ($search_filter === "everything" || $search_filter == null) {
+                if(($request->header('x-version') == null 
+                || $request->header('x-version') > 106))   {
                 $model[] = [
                     "position" => 2,
                     "ui_type" => 8,
@@ -84,7 +86,7 @@ class ExplorePageController extends Controller
                     "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $this->getTrendingHashtags()
-                ];
+                ];}
                 /* ui type = 2 is start */
                 $model[] = [
                     "position" => 3,
@@ -352,6 +354,8 @@ class ExplorePageController extends Controller
             if ($search_filter === "everything" || $search_filter == null) {
                 $profile_elastic_data = $this->getSearchProfileElastic($profile, $profile_id, $search_value, 20);
 
+                if(($request->header('x-version') == null 
+                || $request->header('x-version') > 106))   {
                 $model[] = [
                     "position" => 2,
                     "ui_type" => 8,
@@ -365,7 +369,7 @@ class ExplorePageController extends Controller
                     "see_more" => false,
                     "filter_meta" => (object)[],
                     "elements" => $this->getHashtagSuggestions($search_value)
-                ];
+                ];}
                 /* ui type = 4 is start */
                 $model[] = [
                     "position" => 3,
