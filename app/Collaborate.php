@@ -25,7 +25,7 @@ class Collaborate extends Model implements Feedable
         'created_at','updated_at','category_id','step','financial_min','financial_max',
         'type_id','images','collaborate_type','is_taster_residence','product_review_meta',
         'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
-        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta','document_required','track_consistency','is_contest','max_submissions','show_interest_state'];
+        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta','document_required','track_consistency','is_contest','max_submissions','show_interest_state','admin_note'];
 
     protected $with = ['profile','company','fields','categories','collaborate_occupations',
         'collaborate_specializations','collaborate_allergens'];
@@ -43,10 +43,10 @@ class Collaborate extends Model implements Feedable
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
         'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
         'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
-        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required','track_consistency','is_contest','max_submissions','mandatory_fields','show_interest_state'];
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner','document_required','track_consistency','is_contest','max_submissions','mandatory_fields','show_interest_state', 'closing_reason','admin_note'];
 
 
-    protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner','addresses','mandatory_fields'];
+    protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner','addresses','mandatory_fields', 'closing_reason'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -528,6 +528,23 @@ class Collaborate extends Model implements Feedable
         }
         return $imageArray;
 
+    }
+
+    public function getClosingReasonAttribute()
+    {
+        $reason = [
+            'reason' => null,
+            'other_reason' => null
+        ];
+        $reason_value = \DB::table('collaborate_close_reason')
+            ->where('collaborate_id',(int)$this->id)
+            ->orderBy('id', 'desc')
+            ->first();
+        if (!is_null($reason_value)) {
+            $reason['reason'] = $reason_value->reason;
+            $reason['other_reason'] = $reason_value->other_reason;
+        }
+        return $reason;
     }
 
     public function getImagesMetaAttribute($value)
