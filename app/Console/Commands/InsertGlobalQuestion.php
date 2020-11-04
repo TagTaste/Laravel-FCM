@@ -51,7 +51,7 @@ class InsertGlobalQuestion extends Command
 
         ['header_name' => "TASTE","header_info" => ["text" => "Eat a little of this paste and assess the tastes."],'header_selection_type'=>"1"],
 
-['header_name' => "AROMATICS TO FLAVOR","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE or instead of exhaling you can simply PINCH YOUR NOSE for minimum 5-6 seconds and release. Identify the odors that come from inside the mouth; these identified odors are called Aromatics. - Remove","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/q68nk9r6bpns5bj803k78.png"]],'header_selection_type'=>"1"],
+['header_name' => "AROMATICS TO FLAVOR","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE or instead of exhaling you can simply PINCH YOUR NOSE for minimum 5-6 seconds and release. Identify the odors that come from inside the mouth; these identified odors are called Aromatics.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/q68nk9r6bpns5bj803k78.png"]],'header_selection_type'=>"1"],
        
         ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
 
@@ -66,7 +66,7 @@ class InsertGlobalQuestion extends Command
     "INSTRUCTIONS": [{
         "title": "Instruction",
         
-        "subtitle": "Welcome to the Product Review!\n\nIf a product involves stirring, shaking etc (like cold coffee), serving temperature then the taster must follow the instructions fully, as mentioned on the packaging.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of each section.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+        "subtitle": "Welcome to the Product Review!\n\nIf a product involves mixing, serving temperature instructions etc., then the taster must follow them fully, as mentioned on the packaging.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of each section.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
         
         "select_type": 4
 
@@ -184,13 +184,13 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                    "value": "Syrup",
-                    "image_url":" https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/btxn4kuktvj53bhljs0ye.jpg",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/btxn4kuktvj53bhljs0ye.jpg",
                     "is_intensity": 0
                     
                 },
                 {
                    "value": "Chocolate",
-                    "image_url":" https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/3nphkecdjfz0y6koeoqslt.jpg",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/3nphkecdjfz0y6koeoqslt.jpg",
                     "is_intensity": 0
                     
                 },
@@ -236,6 +236,49 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                     
                 }
+            ]
+        },
+        {
+            "title": "How is the visual impression of the product?",
+           
+            "select_type": 2,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            
+            "option": [{
+                    "value": "Bright",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Dull",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Shiny",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Glazed",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Light",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Dark",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Natural",
+                    "is_intensity": 0
+                },
+                 {
+                    "value": "Processed",
+                    "is_intensity": 0
+                }
+                
             ]
         },
         {
@@ -344,9 +387,7 @@ class InsertGlobalQuestion extends Command
         },
         {
             "title": "How is the consistency (uniformity) of the product?",
-            "subtitle": "Dome - Arch shaped",
-          
-           
+            
             "select_type": 2,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -851,7 +892,7 @@ class InsertGlobalQuestion extends Command
     "TEXTURE": [
       {
             "title": "Did you experience any mouth - watering? If yes, then to what extent.",
-            "subtitle":"Place appropriate quanity of this product (tamarind paste) on your tongue.",
+            "subtitle":"Place appropriate quanity of this product on your tongue.",
             
             "is_nested_question": 0,
             "is_intensity": 0,
@@ -1156,7 +1197,7 @@ class InsertGlobalQuestion extends Command
     "PRODUCT EXPERIENCE": [
       
        {
-            "title": "In your opinion, this product (tamarind paste) is suitable to make which of the following foods/ beverages?",
+            "title": "In your opinion, this product is suitable to make which of the following foods/ beverages?",
             "select_type": 2,
             "is_intensity": 0,
             "is_nested_question": 0,
