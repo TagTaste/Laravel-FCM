@@ -686,13 +686,6 @@ class InsertGlobalQuestion extends Command
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
-                
-                {
-                    "value": "No Ayurvedic Taste",
-                    
-                    "option_type": 2,
-                    "is_intensity": 0
                 }
             ]
         },
