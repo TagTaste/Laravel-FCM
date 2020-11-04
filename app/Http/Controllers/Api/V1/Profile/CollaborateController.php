@@ -446,8 +446,10 @@ class CollaborateController extends Controller
             $description = null;
             if ($reasonId == 1) {
                 $reason = 'Completed';
+                $description = $request->input('description');
             } else if ($reasonId == 2) {
                 $reason = 'Did not find enough responses for this collaboration';
+                $description = $request->input('description');
             } else {
                 $reason = 'Other';
                 $description = $request->input('description');
