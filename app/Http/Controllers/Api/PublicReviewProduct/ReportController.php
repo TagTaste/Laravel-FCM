@@ -39,7 +39,7 @@ class ReportController extends Controller
 
     public function reportSummary(Request $request,$productId)
     {
-        $minimum_report_count = 10;
+        $minimum_report_count = 2;
         if ("https://dev.tagtaste.com" == env("APP_URL")) {
             $minimum_report_count = 2;
         }
