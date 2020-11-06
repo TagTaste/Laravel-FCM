@@ -77,6 +77,10 @@ class BatchController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
+
+        if (is_null($collaborate->global_question_id)) {
+            return $this->sendError("You can not update your products as questionaire is not attached.");
+        }
         
         // check if batch of same name exist
         $check_if_batch_name_exist = $this->model
