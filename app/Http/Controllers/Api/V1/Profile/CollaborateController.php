@@ -105,6 +105,11 @@ class CollaborateController extends Controller
 
 
         $profile = $request->user()->profile;
+        
+        if(!$profile->is_premium){
+            return $this->sendError("User profile ain't premium");
+        }
+
         $profileId = $profile->id ;
         $inputs = $request->all();
         $inputs['state'] = 1;
