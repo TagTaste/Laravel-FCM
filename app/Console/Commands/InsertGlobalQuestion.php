@@ -40,28 +40,20 @@ class InsertGlobalQuestion extends Command
         $track_consistency = 0;
           $headerInfo2 = [
 
-        ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
+            ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
 
 
-
-        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Take a slice of bread & place it on a white plate. Examine the product visually and answer the questions outlined below.\nFor this tasting process, the top and bottom most slice should be <b>excluded</b>."],'header_selection_type'=>"1"],
-
-
-        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Aroma+(1)+(1).png"]],'header_selection_type'=>"1"],
+        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Empty the package in a white bowl. Examine the product and answer the questions outlined below. <b>Please don't eat in this entire appearance section.</b>"],'header_selection_type'=>"1"],
 
 
+        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, <b>so please don't eat it yet.</b> Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/a1gaoh15hzv4hgsicr4m7h.png"]],'header_selection_type'=>"1"],
 
 
-        ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taste-2.png"]] ,'header_selection_type'=>"1"],
+        ['header_name' => "TASTE","header_info" => ["text" => "Eat a little of this paste and assess the tastes."],'header_selection_type'=>"1"],
 
-
-        ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these identified odors are called Aromatics.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Aromatics+(1).png"]],'header_selection_type'=>"1"],
-
-
-
+['header_name' => "AROMATICS TO FLAVOR","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE or instead of exhaling you can simply PINCH YOUR NOSE for minimum 5-6 seconds and release. Identify the odors that come from inside the mouth; these identified odors are called Aromatics.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/q68nk9r6bpns5bj803k78.png"]],'header_selection_type'=>"1"],
+       
         ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
-
-
 
     ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
@@ -69,26 +61,21 @@ class InsertGlobalQuestion extends Command
     ];
 
         $questions2 = '
-
 {
 
     "INSTRUCTIONS": [{
         "title": "Instruction",
-        "subtitle": "<b>Welcome to Fruit Bread Tasting!</b>\n\nHope you have attended the training on sensory tasting. Now please answer the questions. Every question will have many options. To answer, please select option/s which match your feelings and observations. For help, please click \"i\" on every page/screen.\n\nRemember, there are no right or wrong answers. If you feel anything about the bread to be very good or very bad, then please write about it in the comment box. You will find the comment box at the end of every section.\n\nPlease make sure your fruit bread is at room temperature. Now let\'s start by opening the package. Please select any slice from the centre of the bread.",
-        "select_type": 4,
-        "question_info": {
-          "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/sample/welcome_image.png"]
-           
-        }
+        
+        "subtitle": "Welcome to the Product Review!\n\nIf a product involves mixing, serving temperature instructions etc., then the taster must follow them fully, as mentioned on the packaging.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of each section.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+        
+        "select_type": 4
 
     }],
-   
-   
-
+    
     "APPEARANCE": [{
-            "title": "What is the serving temperature of the slice of bread?",
-            "subtitle": "You may also touch the bread to assess the serving temperature.",
-           
+            "title": "What is the serving temperature of the product?",
+            "subtitle":"You may also touch the product to assess the serving temperature.",
+            
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -119,19 +106,146 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Burning hot",
+                    "value": "Steaming hot",
                     "is_intensity": 0
+                }
+                
+            ]
+        },
+        {
+            "title": "What is the color of the product?",
+           
+            "select_type": 1,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            
+            "option": [{
+                    "value": "Brown",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/nm13pnprtfcuo0porqfnq.jpg",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Coffee",
+                     "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/8xapumdqxuw8djffnrhq2q.jpg",
+                    "is_intensity": 0
+                },
+                {
+                   "value": "Mocha",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/f5yz08bh3pk9k8b1fez464.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                    "value": "Peanut",
+                     "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/18xbp5hpqhh8t8vl88xwo4.jpg",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Carob",
+                     "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/bfxlfkcl0fkuqjkloct94d.jpg",
+                    "is_intensity": 0
+                },
+                {
+                   "value": "Hickory",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/obst2pglfkm7pop8lduzi9.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Wood",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/rlpynwtzhgowoj20fjfepi.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Pecan",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/6hag32ak8uukngnshwira.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Walnut",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/f3w5xowwm0tc2tps1m8tal.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Caramel",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/77uakr4tco7700cz5gvtss.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Gingerbread",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/175l79uixmhibxvq7pur6v.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Syrup",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/btxn4kuktvj53bhljs0ye.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Chocolate",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/3nphkecdjfz0y6koeoqslt.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Tortilla",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/zasixzpqefz4vgxdnwxt.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Umber",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/b93egof0f599m8wi57k96n.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Tawny",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/693i41mx5ns8b1l0rih6e.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Brunette",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/rfrhi1l5br8i9o7ospxxm9.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Cinnamon",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/oziqti85bwns85if9xnf8.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Penny",
+                    "image_url":"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/gucfwfxtiob9beh1aqd4xd.jpg",
+                    "is_intensity": 0
+                    
+                },
+                {
+                   "value": "Cedar",
+                    "image_url":" https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/g627ktgo6oe4zfilcc6i1a.jpg",
+                    "is_intensity": 0
+                    
                 }
             ]
         },
-        
         {
-            "title": "How does this slice of bread appear to you?",
+            "title": "How is the visual impression of the product?",
+           
             "select_type": 2,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
-             
+            
             "option": [{
                     "value": "Bright",
                     "is_intensity": 0
@@ -157,181 +271,27 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Fresh",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Stale",
-                    "is_intensity": 0
-                },
-                {
                     "value": "Natural",
                     "is_intensity": 0
                 },
-                {
-                    "value": "Artificial",
+                 {
+                    "value": "Processed",
                     "is_intensity": 0
                 }
-            ]
-        },
-        
-        {
-          
-            "title": "What is the colour of the crumb (inner part of the bread)?",
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-           
-            "option": [{
-                    "value": "White",
-                    
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Yellow",
-                    
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Beige",
-                   
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Brown",
-                    
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Any other",
-                    "is_intensity": 0,
-                     "option_type": 1
-
-                }
-               
-            ]
-        },
-        {
-            "title": "What are the colors of tutti frutti in the crumb (inner part of the bread). Also, please give the intensity of the colors.",
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_nested_option": 0,
-            "is_mandatory": 1,
-            "select_type": 2,
-            
-            "option": [{
-                    "value": "Yellow",
-                   
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
-                {
-                    "value": "Red",
-                   
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
                 
-                {
-                    "value": "Green",
-                    
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
-                {
-                    "value": "Any other",
-                    "option_type": 1,
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-                  
-                }
             ]
         },
         {
-            "title": "What is the size of the slice of bread?",
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-            
-            "option": [{
-                    "value": "Very small",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Small",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Medium",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Large",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Very large",
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": "What is the quantity of (tutti frutti) on crumb (inner part of the bread)?",
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-            
-            "option": [{
-                    "value": "Very less",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Less",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Sufficient",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Extra",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Excess",
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": "Please touch the bread with your finger. What do you feel?",
+            "title": "How does the product feel between your fingers?",
+           
             "select_type": 2,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
             
+                
             "option": [{
-                    "value": "Soft",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Moist",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Dry",
+                    "value": "Smooth",
                     "is_intensity": 0
                 },
                 {
@@ -339,46 +299,122 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Rough",
+                    "value": "Pasty",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Smooth",
+                    "value": "Oily",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Loose particles",
+                    "value": "Semi-gelled",
                     "is_intensity": 0
+                },
+                {
+                    "value": "Pulpy",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Grainy",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Gritty",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Seed awareness",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Skin awareness",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Fibrous",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Slimy",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Any other (Be specific)",
+                    
+                    "option_type": 1,
+                    "is_intensity": 0
+                    
                 }
             ]
         },
-        {
-            "title": "How spongy is this slice of bread?",
-            "subtitle": "Place one finger in the centre of the bread and press down with normal force.",
+       {
+            "title": "How does the product drop / flow from the spoon?",
+           "subtitle": "Take a teaspoonful of the product and tilt it slightly.",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
             
             "option": [{
-                    "value": "Very spongy",
+                    "value": "Does not drop",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Spongy",
+                    "value": "Flows reluctantly",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Dense",
+                    "value": "Flows slowly",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Very dense",
+                    "value": "Flows moderately",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Flows quickly",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Flows slightly faster",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Flows freely (water)",
                     "is_intensity": 0
                 }
             ]
         },
-
+        {
+            "title": "How is the consistency (uniformity) of the product?",
+            
+            "select_type": 2,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            
+            "option": [{
+                    "value": "Homogenous",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Water separated",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Lumpy",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Any other (Be specific)",
+                    
+                    "option_type": 1,
+                    "is_intensity": 0
+                    
+                }
+            ]
+        },
+       
         {
             "title": "Overall Preference of Appearance",
             "select_type": 5,
@@ -425,10 +461,10 @@ class InsertGlobalQuestion extends Command
         }
     ],
 
-    "AROMA": [{
+    "AROMA": [
+        {
             "title": "What all aromas have you sensed?",
             "subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
-           
             "select_type": 2,
             "is_intensity": 1,
             "intensity_type": 2,
@@ -437,23 +473,12 @@ class InsertGlobalQuestion extends Command
             "is_nested_question": 0,
             "is_mandatory": 1,
             "is_nested_option": 1,
+            "can_select_parent": 0,
             "nested_option_list": "AROMA",
-            "nested_option_title": "AROMAS"
-            "min_aroma_selection":[
-                {
-                    "sequence_id":1,
-                    "min_selection":2
-                },
-                {
-                    "sequence_id":2,
-                    "min_selection":2
-                },
-                {
-                    "sequence_id":3,
-                    "min_selection":1
-                }
-            ],
+            "nested_option_title": "AROMAS",
+            "nested_option_type":1
         },
+        
         {
             "title": "Overall Preference of Aroma",
             "select_type": 5,
@@ -508,8 +533,16 @@ class InsertGlobalQuestion extends Command
             "is_nested_option": 0,
             "is_mandatory": 1,
             "select_type": 2,
-           
-            "option": [{
+            "info": 
+                {
+               
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/oltmsxj16b8kppgitb8yld.png"]
+
+                },
+            "option": [
+              
+              {
+              
                     "value": "Sweet",
                      
                     "is_intensity": 1,
@@ -559,13 +592,23 @@ class InsertGlobalQuestion extends Command
         },
         {
             "title": "Which Ayurvedic tastes have you sensed?",
-            "select_type": 2,
-            "is_intensity": 0,
-            "is_mandatory": 1,
             "is_nested_question": 0,
+            "is_intensity": 0,
             "is_nested_option": 0,
-            "option": [{
-                    "value": "Astringent (Puckery - Raw Banana)",
+            "is_mandatory": 1,
+            "select_type": 2,
+            "info": 
+                {
+               
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/4c84c50v2oc1d92ch3x063.png"]
+
+                },
+            "option": [
+              
+              {
+              
+                    "value": "Astringent (Dryness - Raw Banana)",
+                     
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
@@ -573,13 +616,15 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                     "value": "Pungent (Spices / Garlic)",
+                     
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
                     "value": "Pungent Cool Sensation (Mint)",
+                  
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
@@ -587,16 +632,60 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                     "value": "Pungent Chilli",
+                     
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense, Very Intense, Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
                     "value": "No Ayurvedic Taste",
-                    "is_intensity": 0,
-                    "option_type": 2
-                   
+                    
+                    "option_type": 2,
+                    "is_intensity": 0
+                }
+            ]
+        },
+        {
+            "title": "How will you describe the acidity of this paste?",
+            "subtitle": "To understand options, please go to \"i\" section.",
+            "is_nested_question": 0,
+            "is_intensity": 0,
+            "is_nested_option": 0,
+            "is_mandatory": 1,
+            "select_type": 1,
+            "info": 
+                {
+               
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/6yhy9yhq4by1j6vgcqq4cw.png"]
+
+                },
+            "option": [
+              
+              {
+              
+                    "value": "Sour",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
+                },
+                {
+                    "value": "Tart",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Tangy",
+                  
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 }
             ]
         },
@@ -646,10 +735,17 @@ class InsertGlobalQuestion extends Command
         }
     ],
 
-    "AROMATICS TO FLAVORS": [{
+    "AROMATICS TO FLAVOR": [
+      {
             "title": "What all aromatics have you sensed?",
             "subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\".",
             "select_type": 2,
+             "info": 
+                {
+               
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/9klac7hj64bntb23vjwdqh.png"]
+
+                },
             "is_intensity": 1,
             "intensity_type": 2,
              "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
@@ -657,15 +753,19 @@ class InsertGlobalQuestion extends Command
             "is_nested_question": 0,
             "is_mandatory": 1,
             "is_nested_option": 1,
+             "can_select_parent": 0,
+            "nested_option_type":1,
+           
             "nested_option_title": "AROMATICS",
             "nested_option_list": "AROMA"
         },
-        {
-            "title": "Please swallow the slice of bread and pause. How is the aftertaste?",
-            "select_type": 1,
-            "is_intensity": 0,
+{
+            "title": "Please swallow the product and pause. How is the aftertaste?",
+          
             "is_nested_question": 0,
+            "is_intensity": 0,
             "is_mandatory": 1,
+            "select_type": 1,
             "option": [{
                     "value": "Pleasant",
                     "is_intensity": 0
@@ -682,10 +782,12 @@ class InsertGlobalQuestion extends Command
         },
         {
             "title": "What is the length of the aftertaste?",
-            "select_type": 1,
-            "is_intensity": 0,
+            
+           
             "is_nested_question": 0,
+            "is_intensity": 0,
             "is_mandatory": 1,
+            "select_type": 1,
             "option": [{
                     "value": "Long",
                     "is_intensity": 0
@@ -706,12 +808,12 @@ class InsertGlobalQuestion extends Command
         },
         {
             "title": "How is the flavor experience?",
-            "subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
-            "select_type": 1,
-            "is_intensity": 0,
+            "subtitle":"Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
+           
             "is_nested_question": 0,
+            "is_intensity": 0,
             "is_mandatory": 1,
-            
+            "select_type": 1,
             "option": [{
                     "value": "Natural & pleasant",
                     "is_intensity": 0
@@ -780,183 +882,264 @@ class InsertGlobalQuestion extends Command
         }
     ],
 
-    "TEXTURE": [{
-            "title": "Place the slice of bread between the lips. What do you feel?",
-           
+    "TEXTURE": [
+      {
+            "title": "Did you experience any mouth - watering? If yes, then to what extent.",
+            "subtitle":"Place appropriate quanity of this product on your tongue.",
+            
             "is_nested_question": 0,
             "is_intensity": 0,
+            "is_nested_option": 0,
+            "is_mandatory": 1,
+            "select_type": 1,
+            "option": [
+              {
+              
+                    "value": "Yes",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                
+                {
+              
+                    "value": "No",
+                      "option_type": 2,
+                    "is_intensity": 0
+                   
+                }
+                
+                
+            ]
+        },
+        {
+            "title": "While eating, which textures can you experience inside your mouth?",
+            "subtitle":"Please select a maximum of 3 options.",
+            
+            "is_nested_question": 0,
+            "is_intensity": 0,
+            "is_nested_option": 0,
             "is_mandatory": 1,
             "select_type": 2,
-            "option": [{
+            "option": [
+              {
+              
                     "value": "Smooth",
-                    "is_intensity": 0
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Rough",
-                    "is_intensity": 0
+              
+                    "value": "Pasty",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "No loose particles",
-                    "is_intensity": 0
+              
+                    "value": "Silky",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Few loose particles",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Many loose particles",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "No moisture (Dry)",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Moist",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Damp",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Wet",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Oily",
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": "How much <b>force</b> is needed to chew the bread? ",
-            "subtitle": "Please chew the product 3-4 times and pause.",
-           
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Less force",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Normal force",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Extra force",
-                    "is_intensity": 0
-                }
-            ]
-        },
-    {
-            "title": "While chewing, which textures can you feel inside your mouth?",
-           
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 2,
-            "option": [{
+              
                     "value": "Soft",
-                    "is_intensity": 0
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Spongy",
-                    "is_intensity": 0
+              
+                    "value": "Pulpy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
+              
                     "value": "Lumpy",
-                    "is_intensity": 0
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
+              
                     "value": "Sticky",
-                    "is_intensity": 0
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Chewy",
-                    "is_intensity": 0
+              
+                    "value": "Grainy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Rough",
-                    "is_intensity": 0
+              
+                    "value": "Gritty",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Firm",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Rubbery",
-                    "is_intensity": 0
+              
+                    "value": "Seeds",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Any other",
-                     "option_type": 1,
+              
+                    "value": "Fibre",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Skin",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Any other (Be specific)",
+                      "option_type": 1,
                     "is_intensity": 0
+                   
                 }
+                
+                
             ]
         },
-        {
-            "title": "How does the bread <b>dissolve</b> in your mouth?",
-            "subtitle": "Eat normally and pause. Please don\'t swallow the bread yet.",
+      {
+            "title": "How does the product <b>dissolve</b> in your mouth?",
+            "subtitle": "Eat normally and pause. Please don\'t swallow the product yet.",
+           
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_mandatory": 1,
             "select_type": 1,
             "option": [{
-                    "value": "Dissolves slowly",
+                    "value": "Very quickly",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Dissolves normally",
+                    "value": "Quickly",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Dissolves quickly",
+                    "value": " Moderately",
+                    "is_intensity": 0
+                },
+                 {
+                    "value": "Slowly",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Very slowly",
+                    "is_intensity": 0
+                },
+                 {
+                    "value": "Doesn\'t dissolve",
                     "is_intensity": 0
                 }
             ]
         },
+      
         {
-            "title": "After swallowing the bread, do you feel anything left inside your mouth?",
+            "title": "After swallowing the product, do you feel anything left inside the mouth?",
+            
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_mandatory": 1,
             "select_type": 2,
-            "option": [{
-                    "value": "Oily layer",
-                    "is_intensity": 0
-                },
+            "option": [
+              
                 {
+              
                     "value": "Loose particles",
+                     
                     "is_intensity": 0
                 },
                 {
-                    "value": "Sticking on tooth/ palate",
+              
+                    "value": "Sticking on tooth / palate",
+                     
                     "is_intensity": 0
                 },
                 {
+              
                     "value": "Stuck between teeth",
+                     
                     "is_intensity": 0
                 },
                 {
-                    "value": "Powdery layer",
+              
+                    "value": "Chalky",
+                     
                     "is_intensity": 0
                 },
                 {
-                    "value": "Any other",
-                     "option_type": 1,
+              
+                    "value": "Starchy",
+                     
                     "is_intensity": 0
                 },
                 {
+              
+                    "value": "Oily mouth coating",
+                     
+                    "is_intensity": 0
+                },
+                
+                {
+              
                     "value": "No residue",
-                     "option_type": 2,
+                      "option_type": 2,
                     "is_intensity": 0
+                   
+                },
+                {
+              
+                    "value": "Any other (Be specific)",
+                      "option_type": 1,
+                    "is_intensity": 0
+                   
                 }
             ]
         },
-       
         {
             "title": "Overall Preference of Texture",
             "select_type": 5,
@@ -1006,8 +1189,39 @@ class InsertGlobalQuestion extends Command
 
     "PRODUCT EXPERIENCE": [
       
+       {
+            "title": "In your opinion, this product is suitable to make which of the following foods/ beverages?",
+            "select_type": 2,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            "option": [{
+                    "value": "Saunth",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Sambhar",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Beverage (Tamarind juice)",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Tamarind rice",
+                    "is_intensity": 0
+                },
+                {
+              
+                    "value": "Any other (Be specific)",
+                      "option_type": 1,
+                    "is_intensity": 0
+                   
+                }
+            ]
+        },
         {
-            "title": "Did this bread succeed in satisfying your basic senses?",
+            "title": "Did this product succeed in satisfying your basic senses?",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -1050,11 +1264,12 @@ class InsertGlobalQuestion extends Command
                 },
                 {
                     "value": "Balanced product",
-                     "option_type": 2,
-                    "is_intensity": 0
+                    "is_intensity": 0,
+                    "option_type": 2
                 }
             ]
         },
+        
         {
             "title": "Overall Product Preference",
             "select_type": 5,
@@ -1102,7 +1317,7 @@ class InsertGlobalQuestion extends Command
     ]
 }';
 
-        $data = ['name'=>'with_minimum_aroma_selection','keywords'=>"private_modern_fruit_bread",'description'=>null,
+        $data = ['name'=>'BEC_private_tamarind_paste_v1','keywords'=>"BEC_private_tamarind_paste_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true),'track_consistency'=>$track_consistency];
         \DB::table('global_questions')->insert($data);
 

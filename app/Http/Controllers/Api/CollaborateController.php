@@ -645,17 +645,36 @@ class CollaborateController extends Controller
 
     public function globalQuestion(Request $request)
     {
+        $this->model = [];
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page, 10);
+        $keywords = isset($request->keywords)?$request->keywords:null;
+
         if($request->track_consistency != null && $request->track_consistency == 1) {
-            $this->model = \DB::table('global_questions')->where('track_consistency',1)->get();
+            $questionaire = \DB::table('global_questions')->where('track_consistency',1);
         } else {
-            $this->model = \DB::table('global_questions')->where('track_consistency',0)->get();
+            $questionaire = \DB::table('global_questions')->where('track_consistency',0);
         }
+
+        if (!is_null($keywords)) {
+            $questionaire = $questionaire->where('keywords','like','%'.$keywords.'%');
+        }
+
+        $this->model['count'] = $questionaire->count();
+        $this->model['questionnaire'] = $questionaire
+            ->orderBy('id', 'DESC')
+            ->skip($skip)
+            ->take($take)
+            ->get();
+
         return $this->sendResponse();
     }
 
     public function globalQuestionParticular(Request $request,$id)
     {
-        $this->model = \DB::table('global_questions')->where('id',$id)->get();
+        $this->model = [];
+        $this->model['questionnaire'] = \DB::table('global_questions')->where('id',$id)->get();
+        $this->model['count'] = \DB::table('global_questions')->where('id',$id)->count();
         return $this->sendResponse();
     }
 

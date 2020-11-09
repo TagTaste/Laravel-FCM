@@ -558,13 +558,13 @@ class CollaborateController extends Controller
             }
         }
         $inputs['privacy_id'] = 1;
-        if($request->has('batches'))
-        {
-            if($collaborate->state == 'Active')
-            {
-                return $this->sendError("You can not update your products.");
-            }
-        }
+        // if($request->has('batches'))
+        // {
+        //     if($collaborate->state == 'Active')
+        //     {
+        //         return $this->sendError("You can not update your products.");
+        //     }
+        // }
         if($collaborate->state != 'Active')
         {
             $now = Carbon::now()->toDateTimeString();
@@ -574,23 +574,27 @@ class CollaborateController extends Controller
         $this->model = $collaborate->update($inputs);
         if($request->has('batches'))
         {
-            $batches = $request->input('batches');
-            $batchList = [];
-            $now = Carbon::now()->toDateTimeString();
-            foreach ($batches as $batch)
-            {
-                $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>isset($batch['notes']) ? $batch['notes'] : null,
-                    'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
-                    'created_at'=>$now,'updated_at'=>$now];
-            }
-            if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
-            {
-                Collaborate\Batches::insert($batchList);
-                $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+            if (!is_null($collaborate->global_question_id)) {
+                $batches = $request->input('batches');
+                $batchList = [];
+                $now = Carbon::now()->toDateTimeString();
                 foreach ($batches as $batch)
                 {
-                    $batch->addToCache();
+                    $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>isset($batch['notes']) ? $batch['notes'] : null,
+                        'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
+                        'created_at'=>$now,'updated_at'=>$now];
                 }
+                if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
+                {
+                    Collaborate\Batches::insert($batchList);
+                    $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+                    foreach ($batches as $batch)
+                    {
+                        $batch->addToCache();
+                    }
+                }
+            } else {
+                return $this->sendError("You can not update your products as questionaire is not attached.");
             }
         }
         $this->model = Collaborate::where('id',$id)->first();
@@ -702,22 +706,25 @@ class CollaborateController extends Controller
             $this->model = false;
             return $this->sendError("You can not update your question");
         }
-        if($collaborate->state == 'Save')
-        {
+        // if($collaborate->state == 'Save')
+        // {
             $globalQuestionId = $request->input('global_question_id');
-            $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->where('track_consistency',$collaborate->track_consistency)->exists();
-            if(!$checkQuestionexist)
-            {
-                $this->model = false;
-                return $this->sendError("Global question id is not exists.");
+            if (!is_null($globalQuestionId)) {
+                $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->where('track_consistency',$collaborate->track_consistency)->exists();
+                if(!$checkQuestionexist)
+                {
+                    $this->model = false;
+                    return $this->sendError("Global question id is not exists.");
+                }
+                //check again when going live
+                event(new UploadQuestionEvent($collaborate->id,$globalQuestionId));
             }
-            //check again when going live
-            event(new UploadQuestionEvent($collaborate->id,$globalQuestionId));
+
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
             $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
             $this->model = $collaborate;
             return $this->sendResponse();
-        }
+        // }
         $this->model = $collaborate;
         return $this->sendResponse();
     }
@@ -775,12 +782,13 @@ class CollaborateController extends Controller
         if($reasonId == 1 || $reasonId == 2 || $reasonId == 3 )
         {
             $description = null;
-            if($reasonId == 1)
+            if ($reasonId == 1) {
                 $reason = 'Completed';
-            else if($reasonId == 2)
+                $description = $request->input('description');
+            } else if ($reasonId == 2) {
                 $reason = 'Did not find enough responses for this collaboration';
-            else
-            {
+                $description = $request->input('description');
+            } else {
                 $reason = 'Other';
                 $description = $request->input('description');
             }
