@@ -233,6 +233,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                 Route::get('collaborate/{collaborateId}/allSubmissions/{userId}', 'CollaborateController@allSubmissions');
                 Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
+                Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
+                Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
                 Route::resource("collaborate","CollaborateController");
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                     Route::post('collaborate/{collaborateId}/assignRole', 'CollaborateController@assignRole');
