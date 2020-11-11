@@ -240,86 +240,109 @@ class CollaborateController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
+        $loggedInProfileId = $request->user()->profile->id;
+
         $inputs = $request->all();
-        $profileId = $request->user()->profile->id;
-
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
-
-
-        if ($collaborate === null) {
-            return $this->sendError( "Collaboration not found.");
+        unset($inputs['profile_id']);
+        unset($inputs['state']);
+        unset($inputs['step']);
+        $collaborate = $this->model->where('profile_id',$loggedInProfileId)->where('id',$id)->first();
+        if($collaborate === null){
+            return $this->sendError("Collaboration not found.");
         }
-        
-        // image computation
+
+        if($collaborate->collaborate_type == 'collaborate')
+            unset($inputs['expires_on']);
+
         $imagesArray = [];
-        if ($request->has("images")) {
+        if ($request->has("images"))
+        {
             $images = $request->input('images');
-            $imageMeta = [];
             $i = 1;
-            if (count($images) && is_array($images)) {
-                foreach ($images as $image) {
-                    if (is_null($image))
+            $imageMeta = [];
+            if(count($images) > 0 && !empty($images) && is_array($images))
+            {
+                foreach ($images as $image)
+                {
+                    if(is_null($image))
                         continue;
                     $imagesArray[]['image'.$i] = $image['original_photo'];
                     $imageMeta[] = $image;
                     $i++;
                 }
                 $inputs['images_meta'] = json_encode($imageMeta,true);
-            } else {
+                $inputs['images'] = json_encode($imagesArray,true);
+            }
+            else
+            {
                 $inputs['images_meta'] = null;
                 $inputs['images'] = null;
             }
-
         }
         unset($inputs['images']);
-
-
-        if ($request->hasFile('file1')) {
+        if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
-            $inputs["file1"] = $request->file("file1")
-                ->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
-        } else {
+            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        }
+        else
+        {
             if (isset($inputs['file1']) && ($inputs['file1'] == $collaborate->file1))
                 unset($inputs['file1']);
             else
                 $inputs['file1'] = null;
         }
-//        $categories = $request->input('categories');
-//        $this->model->categories()->sync($categories);
-        // if ($collaborate->state == 'Expired'||$collaborate->state == 'Close') {
+        if($request->has('allergens_id'))
+        {
+            $allergensIds = $request->input('allergens_id');
+            $allergens = [];
+            if(count($allergensIds) > 0 && !empty($allergensIds) && is_array($allergensIds))
+            {
+                foreach ($allergensIds as $allergensId)
+                {
+                    $allergens[] = ['collaborate_id'=>$collaborate->id,'allergens_id'=>$allergensId];
+                }
+                Collaborate\Allergens::where('collaborate_id',$collaborate->id)->delete();
+                $collaborate->collaborate_allergens()->insert($allergens);
+            }
+            else
+            {
+                Collaborate\Allergens::where('collaborate_id',$collaborate->id)->delete();
+            }
+        }
+
+        // if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
+        // {
         //     $inputs['state'] = Collaborate::$state[0];
         //     $inputs['deleted_at'] = null;
         //     $inputs['created_at'] = Carbon::now()->toDateTimeString();
         //     $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         //     $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-
         //     $this->model = $collaborate->update($inputs);
+
         //     $collaborate->addToCache();
 
-        //     $profile = Profile::find($profileId);
+        //     $company = Company::find($companyId);
         //     $this->model = Collaborate::find($id);
 
-        //     event(new NewFeedable($this->model, $profile));
+        //     event(new NewFeedable($this->model, $company));
         //     \App\Filter\Collaborate::addModel($this->model);
+
         //     return $this->sendResponse();
         // }
+        $inputs['privacy_id'] = 1;
         if($request->expires_on != null) {
             $inputs['expires_on'] = $request->expires_on;
             if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
                 $inputs['state'] = Collaborate::$state[0];
                 $inputs['deleted_at'] = null;
                 $collaborate->addToCache();
-                $profile = Profile::find($profileId);
-                 $this->model = Collaborate::find($id);
+                $profile = \App\Profile::find($profileId);
+                $this->model = Collaborate::find($id);
 
-             event(new NewFeedable($this->model, $profile));
+                event(new NewFeedable($this->model, $profile));
             }
-        }
-        if($request->has('mandatory_field_ids')) {
-            $mandatory_field_ids = $request->mandatory_field_ids;
-            $this->storeMandatoryFields($mandatory_field_ids,$id);
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         $this->model = $collaborate->update($inputs);
@@ -855,5 +878,138 @@ class CollaborateController extends Controller
         {
             Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
         }
+    }
+
+    public function getRoles(Request $request,$proifleId,$id)
+    {
+        $canAction = Collaborate::where('id',$id)->pluck('state')[0] == "Active" ? true : false;
+        $roles = \DB::table('collaborate_role')
+        ->leftJoin('collaborate_user_roles',function($join) use ($id){
+            $join->on('collaborate_role.id','=', 'collaborate_user_roles.role_id')
+            ->where('collaborate_user_roles.collaborate_id','=',$id);
+        })
+        ->leftJoin('profiles','collaborate_user_roles.profile_id','=','profiles.id')
+        ->leftJoin('users','profiles.user_id','=','users.id')
+        ->select('collaborate_role.role',
+                'users.name',
+                'profiles.image',
+                'collaborate_role.id as role_id',
+                'collaborate_role.helper_text',
+                'collaborate_role.can_action',
+                'profiles.id',
+                'profiles.handle',
+                'profiles.city',
+                'profiles.tagline',
+                'profiles.image_meta',
+                'profiles.verified',
+                'profiles.is_tasting_expert'
+            )
+        ->orderBy('collaborate_role.id','asc')
+        ->get();
+        $roles = $roles->groupBy("role");
+        $this->model = [];
+        foreach($roles as $role => $value) {
+            $model = [];
+            if($role == 'Panel Partners' && $canAction == false) {
+                $model['can_action'] = filter_var('false', FILTER_VALIDATE_BOOLEAN);
+            } else {
+                $model['can_action'] = filter_var('true', FILTER_VALIDATE_BOOLEAN);
+            }
+            $model['role'] = $role;
+            $model['role_id'] = $value[0]->role_id;
+            $model['name'] = $role;
+            $model['description'] = $value[0]->helper_text;
+            $model['profiles'] = [];
+            
+            if($value[0]->id != null)
+            $model['profiles'] = $value;
+            $this->model[] = $model;
+        }
+        return $this->sendResponse();
+    }
+    public function assignRole(Request $request,$profileId,$collaborateId)
+    {
+        $checkIfExists = \DB::table('collaborates')
+            // ->whereNull('deleted_at')
+            // ->where('state',1)
+            ->where('id',$collaborateId)
+            ->where('profile_id',$profileId)
+            ->count();
+       if(!$checkIfExists) {
+           return $this->sendError("Invalid Collaboration");
+       }
+        $loggedInProfileId = $request->user()->profile->id;
+       $roleId = $request->role_id;
+       if(!isset($roleId) || $roleId == null) {
+           $this->sendError("please enter role id");
+       }
+       if(!is_array($roleId))
+           $roleId = [$roleId];
+
+       $data = [];
+       $profileId = $request->profile_id;
+       foreach ($roleId as $role) {
+           $exists = \DB::table('collaborate_role')->where('id',$role)->count();
+           if(!$exists) {
+               return $this->sendError('Invalid role id');
+           }
+           $rolesAssigned = \DB::table('collaborate_user_roles')->where('collaborate_id',$collaborateId)->where('profile_id',$profileId)->where('role_id',$roleId)->count();
+           if(!$rolesAssigned) {
+               $data[] = ['profile_id'=>$profileId,'collaborate_id'=>$collaborateId,'role_id'=>$role];
+           }
+       }
+       $this->model = \DB::table('collaborate_user_roles')->insert($data);
+       return $this->sendResponse();
+
+    }
+    public function deleteRoles(Request $request,$profileId,$collaborateId)
+    {
+        $checkIfExists = \DB::table('collaborates')
+            // ->whereNull('deleted_at')
+            // ->where('state',1)
+            ->where('profile_id',$profileId)
+            ->where('id',$collaborateId)
+            ->count();
+        if(!$checkIfExists) {
+            return $this->sendError("Invalid Collaboration");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
+            return $this->sendError("Invalid Admin.");
+        }
+        $profileId = $request->profile_id;
+        $roleId = $request->role_id;
+        if(!isset($profileId) || !isset($roleId)) {
+            return $this->sendError("Invalid Inputs given");
+        }
+        $this->model = \DB::table('collaborate_user_roles')
+                        ->where('collaborate_id',$collaborateId)
+                        ->where('profile_id',$profileId)
+                        ->where('role_id',$roleId)
+                        ->delete();
+        return $this->sendResponse();
+    }
+    public function getProfileRole(Request $request,$profileId,$collaborateId)
+    {
+        $checkIfExists = \DB::table('collaborates')
+            // ->whereNull('deleted_at')
+            // ->where('state',1)
+            ->where('profile_id',$profileId)
+            ->where('id',$collaborateId)
+            ->count();
+        if(!$checkIfExists) {
+            return $this->sendError("Invalid Collaboration");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
+            return $this->sendError("Invalid Admin.");
+        }
+        $profileId = $request->profile_id;
+        $this->model = \DB::table('collaborate_user_roles')
+            ->join('collaborate_role','collaborate_role.id','=','collaborate_user_roles.role_id')
+            ->where('collaborate_user_roles.profile_id',$profileId)->get();
+        return $this->sendResponse();
     }
 }
