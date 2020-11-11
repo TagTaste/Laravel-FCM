@@ -711,26 +711,22 @@ class CollaborateController extends Controller
         if ($collaborate->state == 'Save') {
             $step = 2;
         }
-        
-        // if($collaborate->state == 'Save')
-        // {
-            $globalQuestionId = $request->input('global_question_id');
-            if (!is_null($globalQuestionId)) {
-                $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->where('track_consistency',$collaborate->track_consistency)->exists();
-                if(!$checkQuestionexist)
-                {
-                    $this->model = false;
-                    return $this->sendError("Global question id is not exists.");
-                }
-                //check again when going live
-                // event(new UploadQuestionEvent($collaborate->id,$globalQuestionId));
-            }
 
-            $collaborate->update(['step'=>$step,'global_question_id'=>$globalQuestionId]);
-            $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
-            $this->model = $collaborate;
-            return $this->sendResponse();
-        // }
+        
+        $globalQuestionId = $request->input('global_question_id');
+        if (!is_null($globalQuestionId)) {
+            $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->where('track_consistency',$collaborate->track_consistency)->exists();
+            if(!$checkQuestionexist)
+            {
+                $this->model = false;
+                return $this->sendError("Global question id is not exists.");
+            }
+            //check again when going live
+            event(new UploadQuestionEvent($collaborate->id,$globalQuestionId));
+        }
+
+        $collaborate->update(['step'=>$step,'global_question_id'=>$globalQuestionId]);
+        $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
         $this->model = $collaborate;
         return $this->sendResponse();
     }
