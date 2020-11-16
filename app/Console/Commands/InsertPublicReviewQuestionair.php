@@ -40,7 +40,6 @@ class InsertPublicReviewQuestionair extends Command
     {
 
          $headerInfo2 = [
-
 ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
 
  ['header_name' => "Your Food Shot",'header_selection_type' => "3"],
@@ -60,22 +59,56 @@ class InsertPublicReviewQuestionair extends Command
 
     ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor and Texture; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
 
-
-
 ];
         $questions2 = '
 {
 
-    "INSTRUCTIONS": [{
+    "INSTRUCTIONS": [
+      {
         "title": "Instruction",
         
         "subtitle": "<b>Welcome to the Product Review!</b>\n\nIf a product involves mixing, serving temperature instructions etc., then the taster must follow them fully, as mentioned on the packaging.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
         
         "select_type": 4
 
-    }],
+    }
+    ],
     
-    "APPEARANCE": [{
+    "Your Food Shot": [
+
+
+
+        {
+
+
+
+
+            "title": "Take a selfie with the product",
+
+
+
+            "subtitle": "Reviews look more authentic when you post them with a photograph.",
+
+
+
+            "select_type": 6
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+    ],
+    
+    "APPEARANCE": [
+      {
             "title": "How is the visual impression of the product?",
             "subtitle":"Just view the product kept on the butter paper.",
             
@@ -322,7 +355,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 },
                 {
               
@@ -331,7 +364,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 },
                 {
                     "value": "Egg patty",
@@ -339,7 +372,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 },
                 {
                     "value": "Veggies",
@@ -347,7 +380,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 },
                 {
                     "value": "Condiments",
@@ -355,7 +388,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 },
                 {
                     "value": "Any other (Be specific)",
@@ -364,7 +397,7 @@ class InsertPublicReviewQuestionair extends Command
                    "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 }
             ]
         },
@@ -753,7 +786,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Half Boiled egg",
+                    "value": "Half boiled egg",
                     "is_intensity": 0
                 },
                 {
@@ -761,7 +794,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Fried Egg",
+                    "value": "Fried egg",
                     "is_intensity": 0
                 },
                 {
@@ -818,18 +851,6 @@ class InsertPublicReviewQuestionair extends Command
                 },
                 {
                     "value": "Bland",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Strong",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Balanced",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Weak",
                     "is_intensity": 0
                 }
             ]
@@ -932,14 +953,6 @@ class InsertPublicReviewQuestionair extends Command
                     "value": "Solid",
                      
                     "is_intensity": 0
-                },
-                {
-                    "value": "Not applicable",
-                  
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 }
             ]
         },
@@ -948,7 +961,7 @@ class InsertPublicReviewQuestionair extends Command
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_mandatory": 1,
-            "select_type": 1,
+            "select_type": 2,
             "option": [{
                     "value": "Fluffy",
                     "is_intensity": 0
@@ -983,6 +996,10 @@ class InsertPublicReviewQuestionair extends Command
                 },
                 {
                     "value": "Rubbery",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Firm",
                     "is_intensity": 0
                 },
                 {
@@ -1115,7 +1132,11 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": " Sticking on tooth",
+                    "value": "Sticking on tooth/ palate",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Stuck between teeth",
                     "is_intensity": 0
                 },
                  {
