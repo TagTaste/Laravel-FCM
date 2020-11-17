@@ -584,8 +584,13 @@ class CollaborateController extends Controller
     public function uploadQuestion(Request $request, $profileId, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
+            return $this->sendError("Invalid Admin.");
+        }
 
-        $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
+
+        $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
@@ -595,22 +600,25 @@ class CollaborateController extends Controller
             $this->model = false;
             return $this->sendError("You can not update your question");
         }
-        if($collaborate->state == 'Save')
-        {
+        // if($collaborate->state == 'Save')
+        // {
             $globalQuestionId = $request->input('global_question_id');
-            $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->where('track_consistency',$collaborate->track_consistency)->exists();
-            if(!$checkQuestionexist)
-            {
-                $this->model = false;
-                return $this->sendError("Global question id is not exists.");
+            if (!is_null($globalQuestionId)) {
+                $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->where('track_consistency',$collaborate->track_consistency)->exists();
+                if(!$checkQuestionexist)
+                {
+                    $this->model = false;
+                    return $this->sendError("Global question id is not exists.");
+                }
+                //check again when going live
+                event(new UploadQuestionEvent($collaborate->id,$globalQuestionId));
             }
-            //check again when going live
-            event(new UploadQuestionEvent($collaborate->id,$globalQuestionId));
+
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
-            $collaborate = Collaborate::where('profile_id',$profileId)->where('id',$id)->first();
+            $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
             $this->model = $collaborate;
             return $this->sendResponse();
-        }
+        // }
         $this->model = $collaborate;
         return $this->sendResponse();
     }
@@ -1001,5 +1009,28 @@ class CollaborateController extends Controller
             ->join('collaborate_role','collaborate_role.id','=','collaborate_user_roles.role_id')
             ->where('collaborate_user_roles.profile_id',$profileId)->get();
         return $this->sendResponse();
+    }
+    public function getOutlets(Request $request,$profileId,$collaborateId,$cityId)
+    {
+        $this->model = \DB::table('collaborate_addresses')->select('collaborate_addresses.address_id','outlets.name','collaborate_addresses.is_active')
+                        ->where('collaborate_id',$collaborateId)
+                        ->join('outlets','outlets.id','=','collaborate_addresses.outlet_id')
+                        ->where('city_id',$cityId)
+                        ->get();
+        return $this->sendResponse();
+    }
+
+    public function outletStatus(Request $request,$profileId,$collaborateId,$cityId,$addressId)
+    {   
+        $status = $request->status != null ? $request->status : null;
+        if($status != null) {
+            $this->model = \DB::table('collaborate_addresses')
+                            ->where('address_id',$addressId)
+                            ->where('collaborate_id',$collaborateId)
+                            ->update(['is_active'=>$status]);
+            return $this->sendResponse();
+        } else {
+            return $this->sendError("Invalid status type");
+        }
     }
 }
