@@ -584,11 +584,6 @@ class CollaborateController extends Controller
     public function uploadQuestion(Request $request, $profileId, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
-        if (!$checkAdmin) {
-            return $this->sendError("Invalid Admin.");
-        }
-
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
