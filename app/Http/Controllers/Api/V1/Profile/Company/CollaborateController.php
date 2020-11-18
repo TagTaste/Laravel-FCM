@@ -97,8 +97,6 @@ class CollaborateController extends Controller
         }
         $inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
-        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         if(!empty($fields)){
@@ -136,6 +134,12 @@ class CollaborateController extends Controller
             $mandatory_field_ids = $request->mandatory_field_ids;
             unset($inputs['mandatory_field_ids']);
         }
+        
+        $inputs['is_taster_residence'] = 0;
+        if ($request->has('is_taster_residence')) {
+            $inputs['is_taster_residence'] = (int)$request->input('is_taster_residence');
+        }
+
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
@@ -161,6 +165,12 @@ class CollaborateController extends Controller
                 Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
             }
         }
+
+        if($request->has('city'))
+        {
+           $this->storeCity($request->input('city'),$this->model->id,$this->model);
+        }
+
         $this->model = $this->model->fresh();
         
         //storing mandatory fields
@@ -499,7 +509,10 @@ class CollaborateController extends Controller
             return $this->sendError("json is not valid.");
         }
 
-        $inputs['is_taster_residence'] = is_null($inputs['is_taster_residence']) ? 0 : $inputs['is_taster_residence'];
+        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+
+        $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
 
         if(isset($inputs['step']))
         {
@@ -510,10 +523,10 @@ class CollaborateController extends Controller
             $inputs['state'] = Collaborate::$state[0];
         }
 
-        if($request->has('city'))
-        {
-           $this->storeCity($request->input('city'),$collaborateId,$collaborate);
-        }
+        // if($request->has('city'))
+        // {
+        //    $this->storeCity($request->input('city'),$collaborateId,$collaborate);
+        // }
         if($request->has('mandatory_field_ids')) {
             $this->storeMandatoryFields($request->mandatory_field_ids,$collaborateId);
             $inputs['document_required'] = $request->has('document_required') ? $request->document_required : null;
