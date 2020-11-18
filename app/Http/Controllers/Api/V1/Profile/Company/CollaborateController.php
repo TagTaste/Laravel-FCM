@@ -95,6 +95,13 @@ class CollaborateController extends Controller
             $inputs['step'] = 1;
             $inputs['state'] = 4;
         }
+
+        if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
+        {
+            $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+        }
+
         $inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
         $fields = $request->has("fields") ? $request->input('fields') : [];
@@ -139,6 +146,8 @@ class CollaborateController extends Controller
         if ($request->has('is_taster_residence')) {
             $inputs['is_taster_residence'] = (int)$request->input('is_taster_residence');
         }
+
+        $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
 
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
