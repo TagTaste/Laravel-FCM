@@ -304,6 +304,11 @@ class CollaborateController extends Controller
             }
         }
 
+        if($request->has('city'))
+        {
+           $this->storeCity($request->input('city'),$this->model->id,$this->model);
+        }
+
         // if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
         // {
         //     $inputs['state'] = Collaborate::$state[0];
@@ -337,6 +342,11 @@ class CollaborateController extends Controller
             }
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
+        $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
+        $inputs['is_taster_residence'] = 0;
+        if ($request->has('is_taster_residence')) {
+            $inputs['is_taster_residence'] = (int)$request->input('is_taster_residence');
+        }
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
