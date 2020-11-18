@@ -306,7 +306,7 @@ class CollaborateController extends Controller
 
         if($request->has('city'))
         {
-           $this->storeCity($request->input('city'),$this->model->id,$this->model);
+           $this->storeCity($request->input('city'),$collaborate->id,$collaborate);
         }
 
         // if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
