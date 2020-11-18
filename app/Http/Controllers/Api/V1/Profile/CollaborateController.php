@@ -595,7 +595,7 @@ class CollaborateController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
 
-        $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
+        $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
