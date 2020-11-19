@@ -113,9 +113,9 @@ class CollaborateController extends Controller
 
 
         $profile = $request->user()->profile;
-        
-        if(!$profile->is_premium){
-            return $this->sendError("User profile ain't premium");
+
+        if(!$profile->is_premium) {
+            return $this->sendError('profile is not premium');
         }
 
         $profileId = $profile->id ;
@@ -123,12 +123,21 @@ class CollaborateController extends Controller
         $inputs['state'] = 1;
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
         {
+            $checkCompanyPremium = Company::where('id',$companyId)->where('is_premium',1)->exists();
+            if(!$checkCompanyPremium)
+            {
+                return $this->sendError("This company do not have premium account");
+            }
             $inputs['step'] = 1;
             $inputs['state'] = 4;
         }
-        $inputs['profile_id'] = $profileId;
-        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+
+        if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
+        {
+            $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
                     ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+        }
+        $inputs['profile_id'] = $profileId;
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         if(!empty($fields)){
@@ -166,11 +175,19 @@ class CollaborateController extends Controller
             $mandatory_field_ids = $request->mandatory_field_ids;
             unset($inputs['mandatory_field_ids']);
         }
+        
+        $inputs['is_taster_residence'] = 0;
+        if ($request->has('is_taster_residence')) {
+            $inputs['is_taster_residence'] = (int)$request->input('is_taster_residence');
+        }
+
+        $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
+
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
 //        $this->model->syncFields($fields);
-        //$company = Company::find($companyId);
+        $company = Company::find($companyId);
         $this->model = $this->model->fresh();
 
         if($request->has('allergens_id'))
@@ -191,6 +208,12 @@ class CollaborateController extends Controller
                 Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
             }
         }
+
+        if($request->has('city'))
+        {
+           $this->storeCity($request->input('city'),$this->model->id,$this->model);
+        }
+
         $this->model = $this->model->fresh();
         
         //storing mandatory fields
@@ -246,7 +269,7 @@ class CollaborateController extends Controller
         unset($inputs['profile_id']);
         unset($inputs['state']);
         unset($inputs['step']);
-        $collaborate = $this->model->where('profile_id',$loggedInProfileId)->where('id',$id)->first();
+        $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
@@ -312,6 +335,11 @@ class CollaborateController extends Controller
             }
         }
 
+        if($request->has('city'))
+        {
+           $this->storeCity($request->input('city'),$collaborate->id,$collaborate);
+        }
+
         // if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
         // {
         //     $inputs['state'] = Collaborate::$state[0];
@@ -338,13 +366,18 @@ class CollaborateController extends Controller
                 $inputs['state'] = Collaborate::$state[0];
                 $inputs['deleted_at'] = null;
                 $collaborate->addToCache();
-                $profile = \App\Profile::find($profileId);
+                $profile = Profile::find($profileId);
                 $this->model = Collaborate::find($id);
 
                 event(new NewFeedable($this->model, $profile));
             }
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
+        $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
+        $inputs['is_taster_residence'] = 0;
+        if ($request->has('is_taster_residence')) {
+            $inputs['is_taster_residence'] = (int)$request->input('is_taster_residence');
+        }
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
@@ -636,9 +669,7 @@ class CollaborateController extends Controller
         $this->checkInputForScopeReview($inputs);
         if(!isset($inputs['is_product_endorsement']) || is_null($inputs['is_product_endorsement']))
             $inputs['is_product_endorsement'] = 0;
-        $profile = $request->user()->profile;
         $loggedInProfileId = $request->user()->profile->id;
-
 
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         if($collaborate === null){
@@ -655,7 +686,10 @@ class CollaborateController extends Controller
             return $this->sendError("json is not valid.");
         }
 
-        $inputs['is_taster_residence'] = is_null($inputs['is_taster_residence']) ? 0 : $inputs['is_taster_residence'];
+        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+
+        $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
 
         if(isset($inputs['step']))
         {
@@ -666,10 +700,10 @@ class CollaborateController extends Controller
             $inputs['state'] = Collaborate::$state[0];
         }
 
-        if($request->has('city'))
-        {
-           $this->storeCity($request->input('city'),$collaborateId,$collaborate);
-        }
+        // if($request->has('city'))
+        // {
+        //    $this->storeCity($request->input('city'),$collaborateId,$collaborate);
+        // }
         if($request->has('mandatory_field_ids')) {
             $this->storeMandatoryFields($request->mandatory_field_ids,$collaborateId);
             $inputs['document_required'] = $request->has('document_required') ? $request->document_required : null;
@@ -714,13 +748,13 @@ class CollaborateController extends Controller
             }
         }
         $inputs['privacy_id'] = 1;
-        if($request->has('batches'))
-        {
-            if($collaborate->state == 'Active')
-            {
-                return $this->sendError("You can not update your products.");
-            }
-        }
+        // if($request->has('batches'))
+        // {
+        //     if($collaborate->state == 'Active')
+        //     {
+        //         return $this->sendError("You can not update your products.");
+        //     }
+        // }
         if($collaborate->state != 'Active')
         {
             $now = Carbon::now()->toDateTimeString();
@@ -730,23 +764,27 @@ class CollaborateController extends Controller
         $this->model = $collaborate->update($inputs);
         if($request->has('batches'))
         {
-            $batches = $request->input('batches');
-            $batchList = [];
-            $now = Carbon::now()->toDateTimeString();
-            foreach ($batches as $batch)
-            {
-                $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>isset($batch['notes']) ? $batch['notes'] : null,
-                    'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
-                    'created_at'=>$now,'updated_at'=>$now];
-            }
-            if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
-            {
-                Collaborate\Batches::insert($batchList);
-                $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+            if (!is_null($collaborate->global_question_id)) {
+                $batches = $request->input('batches');
+                $batchList = [];
+                $now = Carbon::now()->toDateTimeString();
                 foreach ($batches as $batch)
                 {
-                    $batch->addToCache();
+                    $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>isset($batch['notes']) ? $batch['notes'] : null,
+                        'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
+                        'created_at'=>$now,'updated_at'=>$now];
                 }
+                if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
+                {
+                    Collaborate\Batches::insert($batchList);
+                    $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+                    foreach ($batches as $batch)
+                    {
+                        $batch->addToCache();
+                    }
+                }
+            } else {
+                return $this->sendError("You can not update your products as questionaire is not attached.");
             }
         }
         $this->model = Collaborate::where('id',$id)->first();
@@ -755,6 +793,7 @@ class CollaborateController extends Controller
             if($inputs['step'] == 3 && $collaborate->state == 'Active')
             {
                 $this->model->addToCache();
+                $profile = Profile::find($profileId);
                 if(!isset($this->model->payload_id))
                     event(new NewFeedable($this->model, $profile));
                 \App\Filter\Collaborate::addModel($this->model);
