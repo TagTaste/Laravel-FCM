@@ -115,11 +115,6 @@ class CollaborateController extends Controller
         $inputs['state'] = 1;
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
         {
-            $checkCompanyPremium = Company::where('id',$companyId)->where('is_premium',1)->exists();
-            if(!$checkCompanyPremium)
-            {
-                return $this->sendError("This company do not have premium account");
-            }
             $inputs['step'] = 1;
             $inputs['state'] = 4;
         }
@@ -179,7 +174,7 @@ class CollaborateController extends Controller
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
 //        $this->model->syncFields($fields);
-        $company = Company::find($companyId);
+        $profile = Profile::find($profileId);
         $this->model = $this->model->fresh();
 
         if($request->has('allergens_id'))
@@ -643,7 +638,7 @@ class CollaborateController extends Controller
             }
 
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
-            $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
+            $collaborate = Collaborate::where('profile_id',$profileId)->where('id',$id)->first();
             $this->model = $collaborate;
             return $this->sendResponse();
         // }
@@ -1006,10 +1001,6 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid Collaboration");
         }
         $loggedInProfileId = $request->user()->profile->id;
-        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
-        if (!$checkAdmin) {
-            return $this->sendError("Invalid Admin.");
-        }
         $profileId = $request->profile_id;
         $roleId = $request->role_id;
         if(!isset($profileId) || !isset($roleId)) {
@@ -1034,10 +1025,6 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid Collaboration");
         }
         $loggedInProfileId = $request->user()->profile->id;
-        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
-        if (!$checkAdmin) {
-            return $this->sendError("Invalid Admin.");
-        }
         $profileId = $request->profile_id;
         $this->model = \DB::table('collaborate_user_roles')
             ->join('collaborate_role','collaborate_role.id','=','collaborate_user_roles.role_id')
