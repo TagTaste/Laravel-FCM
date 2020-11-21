@@ -45,42 +45,38 @@ class InsertPublicReviewQuestionair extends Command
  ['header_name' => "Your Food Shot",'header_selection_type' => "3"],
 
 
-        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Please open the wrapper (butter paper) and examine the product visually. Answer the questions outlined below. <b>Please don't eat</b> in this entire appearance section."],'header_selection_type'=>"1"],
+        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the Pear and answer the questions outlined below. <b>Please don't eat in this entire appearance section.</b>"],'header_selection_type'=>"1"],
 
 
-        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are only assessing the aromas (odors through the nose), so please don't eat/ drink it yet. Now bring the product closer to your nose and take a deep breath; you may also try taking 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like fermentation, distillation etc.), which the product might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/7dcl0du5gurpcez5cfa97.png"]],'header_selection_type'=>"1"],
+        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the pear closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the pear can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the pear might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/qya2wxnw6lcx5sbiacs3n.png"]],'header_selection_type'=>"1"],
 
 
-        ['header_name' => "TASTE","header_info" => ["text" => "Please eat normally to assess the temperature and tastes."],'header_selection_type'=>"1"],
+        ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes."],'header_selection_type'=>"1"],
 
-['header_name' => "Aromatics To Flavor","header_info" => ["text" => "Aromatics is the odor/s of food/ beverage coming from inside the mouth.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/2bj2vyw320yvn55lzrbw0k.png"]],'header_selection_type'=>"1"],
+['header_name' => "Aromatics To Flavor","header_info" => ["text" => "Aromatics is the odor/s of food/ beverage coming from inside the mouth.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/7vfdy1fesnxep1vrjdazxg.png"]],'header_selection_type'=>"1"],
        
-        ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
+        ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the pear is put inside the mouth; FEEL changes when the pear is chewed and, it may even last after the pear is swallowed. pear may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
 
-    ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor and Texture; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
+    ['header_name' => "Pear Experience","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the pear on all parameters taken together."],'header_selection_type'=>"2"]
+
 
 ];
-        $questions2 = '
-{
+        $questions2 = '{
 
     "INSTRUCTIONS": [
       {
         "title": "Instruction",
         
-        "subtitle": "<b>Welcome to the Product Review!</b>\n\nIf a product involves mixing, serving temperature instructions etc., then the taster must follow them fully, as mentioned on the packaging.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+        "subtitle": "<b>Welcome to Pear Appreciation!</b>\n\nThe taster is requested to follow the instructions as mentioned on the packaging.\n\nPlease follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nRemember, there are no right or wrong answers. ",
         
         "select_type": 4
 
-    }
+      }
     ],
     
     "Your Food Shot": [
 
-
-
         {
-
-
 
 
             "title": "Take a selfie with the product",
@@ -94,23 +90,14 @@ class InsertPublicReviewQuestionair extends Command
             "select_type": 6
 
 
-
-
         }
-
-
-
-
-
-
-
 
     ],
     
     "APPEARANCE": [
       {
-            "title": "How is the visual impression of the product?",
-            "subtitle":"Just view the product kept on the butter paper.",
+            "title": "Hold the pear in your hand and explore the color, shape, freshness, visual impression etc. What do observe?",
+            "subtitle":"Mature - is the stage in the fruit\'s life cycle where it has grown fully but not yet ripened. Pears are plucked from the tree after they mature. They then are kept at room temperature to ripen.",
             
             "select_type": 2,
             "is_intensity": 0,
@@ -126,7 +113,7 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Shiny (Oily)",
+                    "value": "Shiny",
                     "is_intensity": 0
                 },
                 {
@@ -138,19 +125,55 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Dry",
+                    "value": "Fresh",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Natural",
+                    "value": "Stale",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Processed",
+                    "value": "Raw",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Toasted",
+                    "value": "Mature",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Ripe",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Over - ripe",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Green",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Grey/ Pink spots",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Red blush",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Soft",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Mushy",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Firm",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Hard",
                     "is_intensity": 0
                 },
                 {
@@ -164,102 +187,8 @@ class InsertPublicReviewQuestionair extends Command
             ]
         },
         {
-            "title": "Hold the product in your hand/s. How will you describe your experience?",
-           
-            "select_type": 2,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-            "info": 
-                {
-               
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/xlasdvxae1ng6pzqdaqev.png"]
-
-                },
-            "option": [{
-                    "value": "Messy & fun",
-                   
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Popping out",
-                   
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Dripping cheese",
-                   
-                    "is_intensity": 0
-                },
-                {
-                   "value": "Balanced",
-                   
-                    "is_intensity": 0
-                    
-                },
-                {
-                    "value": "Clean",
-                   
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Messy & falling apart",
-                     
-                    "is_intensity": 0
-                },
-                {
-                   "value": "Flattened",
-                   
-                    "is_intensity": 0
-                    
-                },
-                {
-                   "value": "Smooth bun",
-                  
-                    "is_intensity": 0
-                    
-                },
-                {
-                   "value": "Wrinkled (shrivelled) bun",
-                   
-                    "is_intensity": 0
-                    
-                },
-                {
-                   "value": "Cracked bun",
-                
-                    "is_intensity": 0
-                    
-                },
-                {
-                   "value": "Colorful",
-                   
-                    "is_intensity": 0
-                    
-                },
-                {
-                   "value": "Plain",
-                   
-                    "is_intensity": 0
-                    
-                },
-                {
-                   "value": "Oily",
-                    
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Any other (Be specific)",
-                    "option_type": 1,
-                    "is_intensity": 0
-                    
-                }
-                
-            ]
-        },
-        {
-            "title": "Burgers always have components with different temperatures, textures and different tastes. However, a good burger follows a sequence in stacking these components (sequence is mentioned below) from heel to crown. Has this sequence been followed?",
-            "subtitle": "Heel/ Bottom Bun (toasted), Condiments (Mustard or Ketchup), Pickle/Seasoning, Patty, Cheese (melting), Tomato, Lettuce, Onion, Condiments (Mayonnaise), Top Bun/ Crown (toasted). Your burger may not have some of the components but the sequence should still be followed. Proper sequencing ensures the best sensory experience. For e.g., cheese slice should always be placed only on the hot patty so that the cheese melts.",
+            "title": "Ripening in Pears - Some pears do not change color as they ripen, for e.g Green Anjou will remain green even when fully ripe. There is another way to find out if the pear is ripe or mature.\n\n<b>Perform the \"Check the Neck\" test as shared in the \'i\'. What do you observe?</b>",
+            "subtitle": "Why do you check only the neck?\nPears are unique. They ripen from inside out, and the neck is the narrowest part of the pear, which is closest to the core. If you wait for the wider, bottom half of the pear to become soft to the touch, you will find the inside to be over-ripe.",
            
             "select_type": 1,
             "is_intensity": 0,
@@ -268,140 +197,33 @@ class InsertPublicReviewQuestionair extends Command
             "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/fmjhfgtbo17lb6s42vlk5g.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/naex9na2btkk4lmoffce.jpg","https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/16os19q7w7fv9gyowh352s.jpg"]
 
                 },
             "option": [{
-                    "value": "Yes",
+                    "value": "Squishy (Mushy)",
+                   
                     "is_intensity": 0
                 },
                 {
-                    "value": "No",
+                    "value": "Soft (Yields)",
+                   
                     "is_intensity": 0
+                },
+                {
+                    "value": "Firm",
+                   
+                    "is_intensity": 0
+                },
+                {
+                   "value": "Hard",
+                   
+                    "is_intensity": 0
+                    
                 }
-            ]
-        },
-        {
-            "title": "Select options that are relevant for your product?",
-       
-            "select_type": 2,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-            
                 
-            "option": [{
-                    "value": "Slightly toasted bun",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Cheese",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Egg patty",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Onion",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Tomato",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Lettuce",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Mayonnaise / sauce",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Ketchup",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "All of them",
-                    
-                    "option_type": 2,
-                    "is_intensity": 0
-                    
-                },
-                {
-                    "value": "Any other (Be specific)",
-                    
-                    "option_type": 1,
-                    "is_intensity": 0
-                    
-                }
             ]
         },
-        {
-            "title": "In terms of quantity, what is the proportion of the ingredients in the product?",
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_nested_option": 0,
-            "is_mandatory": 1,
-            "select_type": 2,
-            
-            "option": [
-              
-              {
-              
-                    "value": "Bun",
-                     
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-                },
-                {
-              
-                    "value": "Cheese",
-                     
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-                },
-                {
-                    "value": "Egg patty",
-                     
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-                },
-                {
-                    "value": "Veggies",
-                  
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-                },
-                {
-                    "value": "Condiments",
-                     
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-                },
-                {
-                    "value": "Any other (Be specific)",
-                    
-                    "option_type": 1,
-                   "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-                }
-            ]
-        },
-      
         {
             "title": "Overall Preference of Appearance",
             "select_type": 5,
@@ -499,46 +321,7 @@ class InsertPublicReviewQuestionair extends Command
    
 
     "TASTE": [
-      {
-            "title": "What is the temperature of the product?",
-            "subtitle": "Please eat normally.",
-       
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-            
-                
-            "option": [{
-                    "value": "Frozen",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Chilled",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Cold",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Room temperature",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Warm",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Hot",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Burning hot",
-                    "is_intensity": 0
-                }
-            ]
-        },
+      
         {
             "title": "Which Basic tastes have you sensed?",
             "is_nested_question": 0,
@@ -549,7 +332,7 @@ class InsertPublicReviewQuestionair extends Command
             "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/t1aidimrx49f7679sq5f6.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/yp9hiwknz1drfp4s521g9.png"]
 
                 },
             "option": [
@@ -557,7 +340,6 @@ class InsertPublicReviewQuestionair extends Command
               {
               
                     "value": "Sweet",
-                     
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
@@ -597,62 +379,6 @@ class InsertPublicReviewQuestionair extends Command
                 },
                 {
                     "value": "No Basic Taste",
-                    
-                    "option_type": 2,
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": "Which Ayurvedic tastes have you sensed?",
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_nested_option": 0,
-            "is_mandatory": 1,
-            "select_type": 2,
-            "info": 
-                {
-               
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/s84sogo8lzism850n7g9xd.png"]
-
-                },
-            "option": [
-              
-              {
-              
-                    "value": "Astringent (Dryness - Raw Banana)",
-                     
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
-                {
-                    "value": "Pungent (Spices / Garlic)",
-                     
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
-                {
-                    "value": "Pungent Cool Sensation (Mint)",
-                  
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
-                {
-                    "value": "Pungent Chilli",
-                     
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
-                {
-                    "value": "No Ayurvedic Taste",
                     
                     "option_type": 2,
                     "is_intensity": 0
@@ -706,7 +432,7 @@ class InsertPublicReviewQuestionair extends Command
              "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/2dy6cvw16goty0xcwsp39k.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/b2n67pwiw4olm9tqb0yy.jpg"]
 
                 },
             "is_intensity": 1,
@@ -722,8 +448,38 @@ class InsertPublicReviewQuestionair extends Command
             "nested_option_title": "AROMATICS",
             "nested_option_list": "AROMA"
         },
+        {
+            "title": "How is the flavor experience?",
+            "subtitle":"Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
+           
+            "is_nested_question": 0,
+            "is_intensity": 0,
+            "is_mandatory": 1,
+            "select_type": 1,
+            "option": [{
+                    "value": "Natural & pleasant",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Natural but unpleasant",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Processed but pleasant",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Processed & unpleasant",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Bland",
+                    "is_intensity": 0
+                }
+            ]
+        },
 {
-            "title": "Please swallow the product and pause, how is the aftertaste?",
+            "title": "Please swallow the pear and pause, how is the aftertaste?",
           
             "is_nested_question": 0,
             "is_intensity": 0,
@@ -769,92 +525,7 @@ class InsertPublicReviewQuestionair extends Command
                 }
             ]
         },
-        {
-            "title": "Which <b>prominent flavor</b> do you experience inside the mouth?",
-            
-           
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Bun",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Boiled egg",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Half boiled egg",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Raw egg",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Fried egg",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Only yolk",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Onion",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Mayonnaise",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Cheese",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Spices/ Seasoning",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Any other (Be specific)",
-                    
-                    "option_type": 1,
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": " How is the overall flavor experience?",
-            "subtitle":"Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
-           
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Natural & pleasant",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Natural but unpleasant",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Processed but pleasant",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Processed & unpleasant",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Bland",
-                    "is_intensity": 0
-                }
-            ]
-        },
+        
         {
             "title": "Overall Preference of Aromatics",
             "select_type": 5,
@@ -895,54 +566,19 @@ class InsertPublicReviewQuestionair extends Command
 
     "TEXTURE": [
       {
-        
-            "title": "How much force is needed to bite through the product?",
-           
-           
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Barely any",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Weak",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Moderate",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Extra",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Excess",
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": "How is the cheese experience inside the mouth?",
+            "title": "Take sufficient quantity of the pear, bite the pear just once then identify the sound and its intensity. Which prominent sound do you hear?",
+            "subtitle": "Crispy - One sharp, clean, fast, and high pitched sound. Eg., Chips\n.Crunchy - Multiple low pitched crushing sounds perceived as a series of small events. Eg., Rusks.\nCrackly - One sudden low pitched sound that brittles the pear. Eg., Puffed rice. ",
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_nested_option": 0,
             "is_mandatory": 1,
             "select_type": 1,
-            "info": 
-                {
-               
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/s84sogo8lzism850n7g9xd.png"]
-
-                },
+            
             "option": [
               
               {
               
-                    "value": "Creamy",
+                    "value": "Crispy",
                      
                     "is_intensity": 1,
                     "intensity_type": 2,
@@ -950,135 +586,151 @@ class InsertPublicReviewQuestionair extends Command
                     "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Solid",
+              
+                    "value": "Crunchy",
                      
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Crackly",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "No Sound",
+                    "option_type": 2,
                     "is_intensity": 0
                 }
             ]
         },
-            {
-            "title": "How does the egg patty feel inside your mouth?",
+        {
+            "title": "As you bite, how much juice is being released from the pear?",
+            "is_nested_question": 0,
+            "is_intensity": 0,
+            "is_nested_option": 0,
+            "is_mandatory": 1,
+            "select_type": 1,
+            
+            "option": [
+              
+              {
+              
+                    "value": "Barely Juicy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely any,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Very less Juicy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely any,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Less Juicy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely any,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Moderately Juicy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely any,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Very Juicy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely any,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Extra Juicy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely any,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+              
+                    "value": "Excessively Juicy",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely any,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                }
+            ]
+        },
+        
+        {
+            "title": "As you chew, what is your feeling about the flesh of the pear?",
+            "subtitle": "Flesh is the inner white part of the pear.",
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_mandatory": 1,
             "select_type": 2,
             "option": [{
-                    "value": "Fluffy",
+                    "value": "Refreshing",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Tender",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Velvety",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Gooey",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Dense",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Moist",
+                    "value": "Soft",
                     "is_intensity": 0
                 },
                 {
                     "value": "Chewy",
                     "is_intensity": 0
                 },
-                {
-                    "value": "Dry",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Rubbery",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Firm",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Any other (Be specific)",
-                    
-                    "option_type": 1,
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": "How is the egg patty cooked?",
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Well cooked",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Overcooked",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Undercooked",
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": "While chewing, which textures can you feel inside your mouth?",
-            "subtitle": "Please select a maximum of 4 options.",
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 2,
-            "option": [{
-                    "value": "Soft",
+                 {
+                    "value": "Buttery (Smooth)",
                     "is_intensity": 0
                 },
                 {
                     "value": "Mushy",
                     "is_intensity": 0
                 },
-                {
-                    "value": "Crispy",
-                    "is_intensity": 0
-                },
                  {
-                    "value": "Chewy",
+                    "value": "Melting",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Fibrous",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Rubbery",
+                    "value": "Crunchy",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Rough",
+                    "value": "Grainy (Mealy)",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Sticky",
+                    "value": "Dry (Astringency)",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Gooey",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Firm",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Gritty",
+                    "value": "Succulent",
                     "is_intensity": 0
                 },
                 {
@@ -1089,44 +741,14 @@ class InsertPublicReviewQuestionair extends Command
                 }
             ]
         },
+      
       {
-            "title": "How easy/difficult is the product to swallow?",
+            "title": "After swallowing, do you feel any of these left inside your mouth?",
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Easy",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Somewhat easy",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Moderate",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Somewhat difficult",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Difficult",
-                    "is_intensity": 0
-                }
-            ]
-        },
-      {
-            "title": "After swallowing the product, do you feel anything left inside the mouth?",
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Oily film",
-                    "is_intensity": 0
-                },
+            "select_type": 2,
+            "option": [
                 {
                     "value": "Loose particles",
                     "is_intensity": 0
@@ -1144,10 +766,15 @@ class InsertPublicReviewQuestionair extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Dry crumb",
+                    "value": "Fibres",
                     "is_intensity": 0
                 },
-                 
+                 {
+                    "value": "Any other (Be specific)",
+                    
+                    "option_type": 1,
+                    "is_intensity": 0
+                },
                 {
                     "value": "No residue",
                     
@@ -1196,30 +823,11 @@ class InsertPublicReviewQuestionair extends Command
     ],
    
 
-    "PRODUCT EXPERIENCE": [
+    "Pear Experience": [
       
-       {
-            "title": "How would you describe the \"serve size\" of this product?",
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-            "option": [{
-                    "value": "Generous",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Modest",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Limited",
-                    "is_intensity": 0
-                }
-                ]
-        },
+       
         {
-            "title": "Did this product succeed in satisfying your basic senses?",
+            "title": "Did this pear succeed in satisfying your basic senses?",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -1235,41 +843,24 @@ class InsertPublicReviewQuestionair extends Command
             ]
         },
         {
-            "title": "Which attributes can be improved further?",
-            "select_type": 2,
+            "title": "Spilling of juice and melting of buttery flesh are the Hallmark of the best pear experience. Crunchy pear on the other hand is only half the joy.  Do you agree/ disagree?",
+            "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
             "option": [{
-                    "value": "Appearance",
+                    "value": "Agree",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Aroma",
+                    "value": "Disagree",
                     "is_intensity": 0
-                },
-                {
-                    "value": "Taste",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Aromatics to flavor",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Texture",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Balanced product",
-                    "is_intensity": 0,
-                    "option_type": 2
                 }
             ]
         },
         
         {
-            "title": "Overall Product Preference",
+            "title": "Overall Pear Preference",
             "select_type": 5,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -1316,7 +907,7 @@ class InsertPublicReviewQuestionair extends Command
 }';
 
 
-        $data = ['name'=>'public_McD_egg_burger_with_cheese','keywords'=>"public_McD_egg_burger_with_cheese",'description'=>null,
+        $data = ['name'=>'Taste_appreciation_pears','keywords'=>"Taste_appreciation_pears",'description'=>null,
 
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
