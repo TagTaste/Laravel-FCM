@@ -48,12 +48,12 @@ class InsertPublicReviewQuestionair extends Command
         ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the Pear and answer the questions outlined below. <b>Please don't eat in this entire appearance section.</b>"],'header_selection_type'=>"1"],
 
 
-        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the pear closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the pear can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the pear might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/7dcl0du5gurpcez5cfa97.png"]],'header_selection_type'=>"1"],
+        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the pear closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the pear can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the pear might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/qya2wxnw6lcx5sbiacs3n.png"]],'header_selection_type'=>"1"],
 
 
         ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes."],'header_selection_type'=>"1"],
 
-['header_name' => "Aromatics To Flavor","header_info" => ["text" => "Aromatics is the odor/s of food/ beverage coming from inside the mouth.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/2bj2vyw320yvn55lzrbw0k.png"]],'header_selection_type'=>"1"],
+['header_name' => "Aromatics To Flavor","header_info" => ["text" => "Aromatics is the odor/s of food/ beverage coming from inside the mouth.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/7vfdy1fesnxep1vrjdazxg.png"]],'header_selection_type'=>"1"],
        
         ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the pear is put inside the mouth; FEEL changes when the pear is chewed and, it may even last after the pear is swallowed. pear may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
 
@@ -197,7 +197,7 @@ class InsertPublicReviewQuestionair extends Command
             "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/xlasdvxae1ng6pzqdaqev.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/naex9na2btkk4lmoffce.jpg","https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/16os19q7w7fv9gyowh352s.jpg"]
 
                 },
             "option": [{
@@ -332,7 +332,7 @@ class InsertPublicReviewQuestionair extends Command
             "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/t1aidimrx49f7679sq5f6.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/yp9hiwknz1drfp4s521g9.png"]
 
                 },
             "option": [
@@ -340,7 +340,6 @@ class InsertPublicReviewQuestionair extends Command
               {
               
                     "value": "Sweet",
-                     
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
@@ -433,7 +432,7 @@ class InsertPublicReviewQuestionair extends Command
              "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/2dy6cvw16goty0xcwsp39k.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/b2n67pwiw4olm9tqb0yy.jpg"]
 
                 },
             "is_intensity": 1,
