@@ -501,7 +501,7 @@ class CollaborateController extends Controller
     public function scopeOfReview(Request $request, $profileId, $companyId, $id)
     {
         $collaborateId = $id;
-        $inputs = $request->only(['methodology_id','age_group','is_taster_residence',
+        $inputs = $request->only(['methodology_id','age_group',
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
         $this->checkInputForScopeReview($inputs);
         if(!isset($inputs['is_product_endorsement']) || is_null($inputs['is_product_endorsement']))
@@ -520,7 +520,7 @@ class CollaborateController extends Controller
 
         if($inputs['no_of_veterans'] > 0 || $inputs['no_of_expert'] > 0)
         {
-            $inputs['is_taster_residence'] = 1;
+            //$inputs['is_taster_residence'] = 1;
         }
         if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
         {
@@ -531,7 +531,8 @@ class CollaborateController extends Controller
         $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
                     ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
 
-        $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
+        $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : $collaborate->admin_note;
+        //$inputs['is_taster_residence'] = is_null($inputs['is_taster_residence']) ? 0 : $inputs['is_taster_residence'];
 
         if(isset($inputs['step']))
         {
