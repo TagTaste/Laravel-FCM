@@ -19,6 +19,7 @@ class collaborateRoles
         // if($request->isMethod("GET")){
         //     return $next($request);
         // }
+        $loggedInProfileId = $request->user()->profile->id;
         $path = $request->getPathInfo();
        $ids = preg_split('#([/a-zA-Z]+)#', $path);
        $ids = array_reverse($ids);
@@ -33,11 +34,11 @@ class collaborateRoles
             // ->where('state',1)
             ->where('id',$collabId)
             ->first();
-        if($collab->collaborate_type != 'product-review') {
+        if($collab->collaborate_type != 'product-review' || (isset($collab->profile_id) && $collab->profile_id == $loggedInProfileId)) {
             return $next($request);
         }
         $companyId = $collab->company_id;
-        $loggedInProfileId = $request->user()->profile->id;
+        
         
         $path = preg_replace('#([0-9]+)#','id',$path); 
         $checkPermissionExist = \DB::table('collaborate_permissions')->where('route',$path)->where('method',$request->method())->count();
