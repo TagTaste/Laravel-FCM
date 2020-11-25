@@ -604,6 +604,10 @@ class CollaborateController extends Controller
             $inputs['updated_at'] = $now;
         }
         $this->model = $collaborate->update($inputs);
+        
+        // current time
+        $now = Carbon::now()->toDateTimeString();
+
         if($request->has('batches'))
         {
             if (!is_null($collaborate->global_question_id)) {
@@ -623,6 +627,53 @@ class CollaborateController extends Controller
                     foreach ($batches as $batch)
                     {
                         $batch->addToCache();
+                        // begin transaction
+                        \DB::beginTransaction();
+                        try {
+                            $batch_id = $batch->id;
+
+                            // compute all the batch assign inputs
+                            $batch_inputs = [];
+
+                            // fetch all the active applicants
+                            $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
+                                ->whereNotNull('shortlisted_at')            
+                                ->whereNull('rejected_at')
+                                ->pluck('profile_id');
+
+                            foreach ($applicants as $applicant_id) {
+                                // update the redis for the applicant info
+                                Redis::sAdd("collaborate:$collaborateId:profile:$applicant_id:", $batch_id);
+                                Redis::set("current_status:batch:$batch_id:profile:$applicant_id" ,0);
+                                
+                                // compute all the batch applicant assign input data
+                                if ($collaborate->track_consistency) {
+                                    $batch_inputs[] = [
+                                        'profile_id' => (int)$applicant_id,
+                                        'batch_id' => (int)$batch_id,
+                                        'begin_tasting' => 0,
+                                        'created_at' => $now,
+                                        'collaborate_id' => (int)$collaborateId,
+                                        'bill_verified' => 0
+                                    ];
+                                } else {
+                                    $batch_inputs[] = [
+                                        'profile_id' => (int)$applicant_id,
+                                        'batch_id' => (int)$batch_id,
+                                        'begin_tasting' => 0,
+                                        'created_at' => $now,
+                                        'collaborate_id' => (int)$collaborateId
+                                    ];
+                                }
+                            }
+                            // collaborate assign all the batches to the user
+                            \DB::table('collaborate_batches_assign')->insert($batch_inputs);
+                            \DB::commit();
+                        } catch (\Exception $e) {
+                            // roll in case of error
+                            \DB::rollback();
+                            \Log::info($e->getMessage());
+                        }
                     }
                 }
             } else {
