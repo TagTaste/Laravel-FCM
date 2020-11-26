@@ -98,8 +98,10 @@ class CollaborateController extends Controller
 
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
         {
-            $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+            if ($request->has('expires_on') && !is_null($request->input('expires_on'))) {
+                $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $request->input('expires_on'))->toDateTimeString();
+            }
         }
 
         $inputs['company_id'] = $companyId;
@@ -330,7 +332,8 @@ class CollaborateController extends Controller
         // }
         $inputs['privacy_id'] = 1;
         if($request->expires_on != null) {
-            $inputs['expires_on'] = $request->expires_on;
+            $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $request->input('expires_on'))->toDateTimeString();
+            
             if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
                 $inputs['state'] = Collaborate::$state[0];
                 $inputs['deleted_at'] = null;
@@ -528,8 +531,10 @@ class CollaborateController extends Controller
             return $this->sendError("json is not valid.");
         }
 
-        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        if ($request->has('expires_on') && !is_null($request->input('expires_on'))) {
+            $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $request->input('expires_on'))->toDateTimeString();
+        }
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : $collaborate->admin_note;
         //$inputs['is_taster_residence'] = is_null($inputs['is_taster_residence']) ? 0 : $inputs['is_taster_residence'];
