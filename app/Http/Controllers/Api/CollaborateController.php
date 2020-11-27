@@ -852,7 +852,7 @@ class CollaborateController extends Controller
     public function collaborateCloseReason()
     {
         $data[] = ['id'=>1,'reason'=>'Completed'];
-        $data[] = ['id'=>2,'reason'=>'Did not find enough responses for this collaboration'];
+        $data[] = ['id'=>2,'reason'=>'Not enough responses'];
         $data[] = ['id'=>3,'reason'=>'Other'];
         $this->model = $data;
         return $this->sendResponse();
