@@ -100,7 +100,8 @@ class CollaborateController extends Controller
         {
             $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
             if ($request->has('expires_on') && !is_null($request->input('expires_on'))) {
-                $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $request->input('expires_on'))->toDateTimeString();
+                $format_date = date("Y-m-d", strtotime($request->input('expires_on')));
+                $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $format_date)->toDateTimeString();
             }
         }
 
@@ -332,8 +333,9 @@ class CollaborateController extends Controller
         // }
         $inputs['privacy_id'] = 1;
         if($request->expires_on != null) {
-            $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $request->input('expires_on'))->toDateTimeString();
-            
+            $format_date = date("Y-m-d", strtotime($request->input('expires_on')));
+            $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $format_date)->toDateTimeString();
+
             if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
                 $inputs['state'] = Collaborate::$state[0];
                 $inputs['deleted_at'] = null;
@@ -533,7 +535,8 @@ class CollaborateController extends Controller
 
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         if ($request->has('expires_on') && !is_null($request->input('expires_on'))) {
-            $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $request->input('expires_on'))->toDateTimeString();
+            $format_date = date("Y-m-d", strtotime($request->input('expires_on')));
+            $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $format_date)->toDateTimeString();
         }
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
