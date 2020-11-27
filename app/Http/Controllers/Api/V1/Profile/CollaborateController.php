@@ -114,15 +114,14 @@ class CollaborateController extends Controller
 
         $profile = $request->user()->profile;
 
-        if(!$profile->is_premium) {
-            return $this->sendError('profile is not premium');
-        }
-
         $profileId = $profile->id ;
         $inputs = $request->all();
         $inputs['state'] = 1;
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
         {
+            if(!$profile->is_premium) {
+                return $this->sendError('profile is not premium');
+            }
             $inputs['step'] = 1;
             $inputs['state'] = 4;
         }
@@ -681,8 +680,8 @@ class CollaborateController extends Controller
             return $this->sendError("json is not valid.");
         }
 
-        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+        //$inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+        //            ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
 
