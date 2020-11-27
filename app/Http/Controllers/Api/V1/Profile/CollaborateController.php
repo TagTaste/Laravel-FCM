@@ -680,8 +680,8 @@ class CollaborateController extends Controller
             return $this->sendError("json is not valid.");
         }
 
-        //$inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-        //            ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
 
