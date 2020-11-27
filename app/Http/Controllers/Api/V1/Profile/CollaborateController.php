@@ -106,15 +106,14 @@ class CollaborateController extends Controller
 
         $profile = $request->user()->profile;
 
-        if(!$profile->is_premium) {
-            return $this->sendError('profile is not premium');
-        }
-
         $profileId = $profile->id ;
         $inputs = $request->all();
         $inputs['state'] = 1;
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
         {
+            if(!$profile->is_premium) {
+                return $this->sendError('profile is not premium');
+            }
             $inputs['step'] = 1;
             $inputs['state'] = 4;
         }
