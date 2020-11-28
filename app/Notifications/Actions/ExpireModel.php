@@ -56,7 +56,7 @@ class ExpireModel extends Action
             ],
 
             'master_btn_text' => 'RENEW NOW',
-            'master_btn_url' => env('APP_URL').'/'.$this->modelName.'/'.$this->model->id.'/edit',
+            'master_btn_url' => env('APP_URL').'/collaborations/'.$this->model->id.'/edit',
 
         ];
 

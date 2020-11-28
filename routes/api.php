@@ -152,6 +152,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get('social/link/{provider}','UserController@socialLink');
         Route::get('suggestion/{modelName}','SuggestionEngineController@suggestion');
         Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
+        /**
+         * Routes for hashtag
+         */
+        Route::get('/hashtag/suggestions', 'HashtagController@suggestions');
+        Route::get('/hashtag/trending', 'HashtagController@trending');
+        Route::get('/hashtag/feed', 'HashtagController@feed');
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
@@ -227,7 +233,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::post("collaborate/{id}/close","CollaborateController@collaborateClose");
                 Route::get('collaborate/{collaborateId}/allSubmissions/{userId}', 'CollaborateController@allSubmissions');
                 Route::post('collaborate/{collaborateId}/updateSubmissionStatus', 'CollaborateController@updateSubmissionStatus');
+                Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
+                Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
                 Route::resource("collaborate","CollaborateController");
+                Route::post('collaborate/{collaborateId}/assignRole', 'CollaborateController@assignRole');
+                Route::get('collaborate/{collaborateId}/roles', 'CollaborateController@getRoles');
+                Route::delete('collaborate/{collaborateId}/deleteRoles','CollaborateController@deleteRoles');
+                Route::get('collaborate/{collaborateId}/getRole','CollaborateController@getProfileRole');
+                Route::get("collaborate/{id}/cities","CollaborateController@getCities");
+                Route::get("collaborate/{id}/cities/{cityId}/outlets","CollaborateController@getOutlets");
+                Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}","CollaborateController@outletStatus");
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                     Route::post('collaborate/{collaborateId}/assignRole', 'CollaborateController@assignRole');
                     Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
