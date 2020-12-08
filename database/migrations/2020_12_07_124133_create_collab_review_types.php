@@ -16,7 +16,7 @@ class CreateCollabReviewTypes extends Migration
         Schema::create('collaborate_product_review_type',function(Blueprint $table){
             $table->increments('id');
             $table->string('type');
-            $table->boolean('address_required')->default(0);
+            $table->boolean('city_required')->default(0);
         });
     }
 
