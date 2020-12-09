@@ -746,8 +746,6 @@ class CollaborateController extends Controller
                                 'is_active'=>$isActive
                             ];    
                     }
-                } else if (!isset($address['outlets']) && $collaborate->track_consistency) {
-                    return $this->sendError('Outlet cannot be null for consistency tracking collaboration');
                 } else {
                     $cities[] = ['collaborate_id'=>$collaborateId,'city_id'=>$address['id'],'no_of_taster'=>$address['no_of_taster']];
                 }
