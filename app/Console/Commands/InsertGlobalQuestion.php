@@ -43,43 +43,81 @@ class InsertGlobalQuestion extends Command
 
 
 
-        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Please open the wrapper (butter paper) and examine the product visually. Answer the questions outlined below. <b>Please don't eat</b> in this entire appearance section."],'header_selection_type'=>"1"],
+        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product and answer the questions outlined below. <b>Please don't eat in this entire appearance section.</b>"],'header_selection_type'=>"1"],
 
 
-        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are only assessing the aromas (odors through the nose), <b>so please don't eat/ drink it yet</b>. Now bring the product closer to your nose and take a deep breath; you may also try taking 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like fermentation, distillation etc.), which the product might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/c4pm1dnfxg6i22pxdwty1q.png"]],'header_selection_type'=>"1"],
+        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are only assessing the aromas (odors through the nose), <b>so please don't eat/ drink it yet. Now bring two or three strips of medium length fries</b> closer to your nose and take a deep breath; you may also try taking 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like fermentation, distillation etc.), which the product might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/u5yypm6hxb8ujwb528tw4r.png"]],'header_selection_type'=>"1"],
 
 
-
-        ['header_name' => "TASTE","header_info" => ["text" => "Eat normally to assess the temperature and tastes."] ,'header_selection_type'=>"1"],
-
-
-        ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Aromatics is the odor/s of food/ beverage coming from inside the mouth.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/2qk5m2kpffqxhy96pevkd.png"]],'header_selection_type'=>"1"],
+        ['header_name' => "TASTE","header_info" => ["text" => "Eat two or three strips of medium length fries at one time and assess the tastes."] ,'header_selection_type'=>"1"],
 
 
-
-        ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
+        ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Aromatics is the odor/s of food/ beverage coming from inside the mouth.\n\nNote: To anser the questions please <b>eat two or three strips of medium length fries at one time.</b>","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/jgjdj9w7ajaaw5f7cc1ee.png"]],'header_selection_type'=>"1"],
 
 
 
-    ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor and Texture; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
+        ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we drink.\n\n<b>Note: Eat two or three strips of medium length fries at one time and then answer the questions</b>."],'header_selection_type'=>"1"],
 
-       
+
+
+    ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+
     ];
 
-        $questions2 = '
-{
+        $questions2 = '{
     "INSTRUCTIONS": [{
         "title": "Instruction",
         
-        "subtitle": "<b>Welcome to the Product Review!</b>\n\nIf a product involves mixing, serving temperature instructions etc., then the taster must follow them fully, as mentioned on the packaging.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+        "subtitle": "Welcome to the Product Review!\n\nThis product involves mixing. Please do not mix yet. During the course of the questionnaire, you will be requested to mix the seasoning. Please wait till then.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of each section.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.\nNote: Here \'Product\' refers to Prepared Shake Shake Fries which is French Fries mixed with seasoning.",
         
         "select_type": 4
 
     }],
     
-"APPEARANCE": [{
-            "title": "How is the visual impression of the product?",
-             "subtitle": "Just assess the look of the product.",
+"APPEARANCE": [
+  {
+            "title": "What is the serving temperature of the French Fries?",
+             "subtitle": "You may also touch the French Fries inside the bag to assess the serving temperature.",
+            "select_type": 1,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            
+           
+            "option": [{
+                    "value": "Frozen",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Chilled",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Cold",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Room temperature",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Warm",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Hot",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Burning hot",
+                    "is_intensity": 0
+                }
+               
+            ]
+        },
+  {
+            "title": "How does the product (Prepared Shake Shake Fries) appear to you?",
+             "subtitle": "<b>Follow the instructions carefully. Add the full quantity of seasoning to the bag of French Fries. Close the bag and shake it vigorously. Now empty all the contents (prepared Shake Shake Fries and leftover seasoning) on the provided tray.</b>",
 
            
             "select_type": 2,
@@ -97,7 +135,7 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Shiny (Oily)",
+                    "value": "Dark",
                     "is_intensity": 0
                 },
                 {
@@ -105,19 +143,31 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Dark",
+                    "value": "Shiny",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Dry",
+                    "value": "Glazed",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Natural",
+                    "value": "Dehydrated",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Processed",
+                    "value": "Oily",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Soggy",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Limp",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Firm",
                     "is_intensity": 0
                 },
                 {
@@ -130,8 +180,8 @@ class InsertGlobalQuestion extends Command
         },
        
         {
-            "title": "Hold the product in your hand/s. How will you describe your experience?",
-            "select_type": 2,
+            "title": "<b>How many French Fries</b> do you think have been <b>coated with the seasoning</b>?",
+            "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
@@ -142,74 +192,28 @@ class InsertGlobalQuestion extends Command
 
                 },
             "option": [{
-                    "value": "Messy & fun",
+                    "value": "All French Fries are coated",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Popping out",
+                    "value": "Less than half coated",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Dripping cheese",
+                    "value": "More than half coated",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Balanced",
+                    "value": "Very few coated",
                     "is_intensity": 0
-                },
-                {
-                    "value": "Clean",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Messy & falling apart",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Flattened ",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Smooth bun",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Wrinkled (Shrivelled) bun",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Cracked bun",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Colorful",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Plain",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Oily",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Loose Egg (Runny)",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Any other (Be specific)",
-                    "is_intensity": 0,
-                    "option_type": 1
                 }
             ]
         },
        
         {
-            "title": "In terms of quantity, what is the proportion of the ingredients in the product?",
+            "title": "Now look at the seasoning, what can you spot in the seasoning?",
             "is_nested_question": 0,
             "is_intensity": 0,
-            "is_nested_option": 0,
             "is_mandatory": 1,
             "select_type": 2,
             "info": 
@@ -219,124 +223,102 @@ class InsertGlobalQuestion extends Command
 
                 },
             "option": [{
-                    "value": "Toasted Bun",
+                    "value": "Spice mix",
                    
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "is_intensity": 0
                 },
                 {
-                    "value": "Cheese",
+                    "value": "Crystals/ Chunk",
                    
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "is_intensity": 0
                 },
                
                 {
-                    "value": "Omelette",
+                    "value": "Powder",
                    
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Herbs",
+                   
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Flakes",
+                   
+                    "is_intensity": 0
+                },
+                {
+                   "value": "Any other (Be specific)",
+                    "is_intensity": 0,
+                     "option_type": 1
                 }
             ]
 
         },
         {
-            "title": "What is the color of the omelette?",
+            "title": "Pick up <b>two or three strips of medium length fries. How well has the seasoning stuck to the French Fries</b>?",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
            
             "option": [{
-                    "value": "White",
+                    "value": "Evenly",
+                    "image_url": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/iudl4m9uurwaou0koik69.png",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Beige ",
+                    "value": "Missing somewhere",
+                     "image_url": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/xhds87kp09edeg8ywi1pr.png",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Yellow",
+                    "value": "Clumpy somewhere",
+                     "image_url": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/c072v3oqzkorqd2zxfqsa.png",
                     "is_intensity": 0
-                },
-                {
-                    "value": "Brown spots",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Burnt spots",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Any other (Be specific)",
-                    "is_intensity": 0,
-                    "option_type": 1
-                   
                 }
             ]
         },
         {
-         "title": "How does the omelette appear to you?",
-            "select_type": 2,
-            "is_intensity": 0,
+         "title": "Using fingers, hold two or three strips of medium length fries for a few seconds and put them back on the plate. What do you observe on your fingers?",
             "is_nested_question": 0,
+            "is_intensity": 0,
+            "is_nested_option": 0,
             "is_mandatory": 1,
-           
+            "select_type": 2,
+            "info": 
+                {
+               
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/fms5pe12t58z2jiyonugm9.png"]
+
+                },
             "option": [{
-                    "value": "Flat ",
-                    "is_intensity": 0
+                    "value": "Oily film",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Any,Very Less,Less,Moderate,Extra,Little Extra,Excess"
                 },
                 {
-                    "value": "Fluffy",
-                    "is_intensity": 0
+                    "value": "Loose particles",
+                     
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Any,Very Less,Less,Moderate,Extra,Little Extra,Excess"
                 },
                 {
-                    "value": "Oily/Greasy",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Very oily/greasy",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Creamy",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Dry",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Rubbery",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Overcooked",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Undercooked",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Well cooked",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Any other (Be specific)",
+                    "value": "None",
+                 
                     "is_intensity": 0,
-                    "option_type": 1
+                    "option_type": 2
+                    
                 }
             ]
         },
-
-
+      
         {
             "title": "Overall preference of Appearance",
             "select_type": 5,
@@ -385,7 +367,7 @@ class InsertGlobalQuestion extends Command
    
      "AROMA": [{
             "title": "What all aromas have you sensed?",
-            "subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
+            "subtitle": "Directly use the search box to select the aromas that you observed or follow the category based aroma list. In case you can\'t find the observed aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\". If you select \"Any other\", then please mention it in the Comment Box.",
            
             "select_type": 2,
             "is_intensity": 1,
@@ -445,45 +427,7 @@ class InsertGlobalQuestion extends Command
     ],
     
     "TASTE": [
-      {
-    "title": "What is the temperature of the product?",
-            "subtitle": "Please eat normally.",
-           
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-           
-            "option": [{
-                    "value": "Frozen",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Chilled",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Cold",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Room temperature",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Warm",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Hot",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Burning hot",
-                    "is_intensity": 0
-                }
-            ]
-        },
+      
         {
          "title": "Which Basic tastes have you sensed?",
             "is_nested_question": 0,
@@ -494,7 +438,7 @@ class InsertGlobalQuestion extends Command
             "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/fms5pe12t58z2jiyonugm9.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/um5rd36uiiqgt0s4qp1fio.png"]
 
                 },
             "option": [{
@@ -555,11 +499,11 @@ class InsertGlobalQuestion extends Command
              "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/w1fav2g56qlw3c5tr8q7g.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/05prz5rwk44mm8u4065g3.png"]
 
                 },
             "option": [{
-                    "value": "Astringent (Puckery - Raw Banana)",
+                    "value": "Astringent (Dryness - Raw Banana)",
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
@@ -641,7 +585,7 @@ class InsertGlobalQuestion extends Command
     ],
 "AROMATICS TO FLAVORS": [{
             "title": "What all aromatics have you sensed?",
-            "subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\".",
+            "subtitle": "Directly use the search box to select the aromatics that you have observed or follow the category based aromatics list. In case you can\'t find the observed aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\". If you select \"Any other\", then please mention it in the Comment Box.",
             "select_type": 2,
             "is_intensity": 1,
             "intensity_type": 2,
@@ -651,7 +595,7 @@ class InsertGlobalQuestion extends Command
              "info": 
                 {
                
-                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/ztcnnowqkwg9in8yhuohi.png"]
+                "images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/mpvtfg5zbjlluwzw8bah3n.jpg"]
 
                 },
             "is_mandatory": 1,
@@ -660,7 +604,7 @@ class InsertGlobalQuestion extends Command
             "nested_option_list": "AROMA"
         },
  {
-            "title": "How is the flavor experience?",
+            "title": "How is the overall flavor experience?",
             "subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
             "select_type": 1,
             "is_intensity": 0,
@@ -686,45 +630,26 @@ class InsertGlobalQuestion extends Command
                 {
                     "value": "Bland",
                     "is_intensity": 0
-                },
-                {
-                    "value": "Strong",
-                    "is_intensity": 0
-                },{
-                    "value": "Balanced",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Weak",
-                    "is_intensity": 0
                 }
             ]
         },
  {
-            "title": "Which <b>prominent flavor</b> do you experience in an omelette?",
-            "select_type": 2,
+            "title": "Which <b>prominent flavor do you feel in the product</b>?",
+            "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
            
             "option": [{
-                    "value": "Bun",
+                    "value": "Fried potato",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Omelette",
+                    "value": "Seasoning",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Cheese ",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Masala ",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Egg",
+                    "value": "Oil",
                     "is_intensity": 0
                 },
                 {
@@ -734,8 +659,40 @@ class InsertGlobalQuestion extends Command
                 }
             ]
         },
+        {
+            "title": "In terms of flavor, what is the effect of seasoning on French Fries?",
+            "select_type": 1,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            "option": [{
+                    "value": "Enhancing",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Complimenting (Pairs well)",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "No Change",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Clashing",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Diminishing",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Completely Diluted",
+                    "is_intensity": 0
+                }
+            ]
+        },
          {
-            "title": "Please swallow the product and pause, how is the aftertaste?",
+            "title": "How is the aftertaste?",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
@@ -761,11 +718,7 @@ class InsertGlobalQuestion extends Command
             "is_nested_question": 0,
             "is_mandatory": 1,
             "option": [{
-                    "value": "Long",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Sufficient",
+                    "value": "None",
                     "is_intensity": 0
                 },
                 {
@@ -773,54 +726,16 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "None",
+                    "value": "Sufficient",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Long",
                     "is_intensity": 0
                 }
             ]
         },
- {
-            "title": "In terms of aftertaste, what is lingering in your mouth?",
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-            "option": [{
-                    "value": "Masala",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Egg",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Masala omelette",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Omelette",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Cheese",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Bun",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Oil/ Butter",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Any other (Be specific)",
-                    "is_intensity": 0,
-                    "option_type": 1
-                   
-                }
-               
-            ]
-        },
+ 
          {
             "title": "Overall Preference of Aromatics",
             "select_type": 5,
@@ -866,185 +781,193 @@ class InsertGlobalQuestion extends Command
             "is_nested_question": 0
         }
     ],
-  "TEXTURE": [{
-            "title": "How much force is needed to bite through the entire product?",
-           
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Barely any",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Weak",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Moderate ",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Extra",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Excess",
-                    "is_intensity": 0
-                }
-            ]
-        },
-        {
-            "title": "How is the cheese experience inside the mouth?",
+  "TEXTURE": [
+    {
+            "title": "Bite 2-3 times and pause. What kind of sound do you hear?",
+            "subtitle": "Crispy- one sound event which is sharp, clean, fast and high pitched, e.g., Chips.\nCrunchy (Crushing sound) - multiple low pitched sounds perceived as a series of small events,e.g., Rusks.\nCrackly- bite only once without grinding, it is one sudden low pitched sound event that brittles the product,e.g., Puffed rice.",
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_mandatory": 1,
             "select_type": 1,
              "option": [
                {
+                    "value": "Crispy",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Crunchy",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Crackly",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "No Sound",
+                   
+                    "option_type": 2,
+                    "is_intensity": 0
+                }
+              ]
+        },
+        {
+            "title": "As you chew, you may be feeling sensations like tingling, numbing, etc. where are these sensations most prominent?",
+            "is_nested_question": 0,
+            "is_intensity": 0,
+            "is_mandatory": 1,
+            "select_type": 2,
+             "option": [
+               {
+                    "value": "Lips",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Inner cheeks",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Nose",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Palate",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Ears",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Eyes",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Back of the throat",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Forehead",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Head",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Nowhere",
+                   
+                    "option_type": 2,
+                    "is_intensity": 0
+                }
+                
+              ]
+        },
+        {
+            "title": "As you chew, which of these are being released from the product?",
+            "is_nested_question": 0,
+            "is_intensity": 0,
+            "is_mandatory": 1,
+            "select_type": 2,
+             "option": [
+               {
+                    "value": "Oil",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+                },
+                {
                     "value": "Creamy",
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 },
                 {
-                    "value": "Solid",
-                    "is_intensity": 0
-                   
-                },
-                {
-                    "value": "Not applicable",
+                    "value": "Starch",
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                }
-              ]
-        },
-                 {
-            "title": "How is the omelette cooked?",
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-           
-            "option": [{
-                    "value": "Well cooked ",
-                    "is_intensity": 0
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 },
                 {
-                    "value": "Overcooked ",
-                    "is_intensity": 0
+                    "value": "Moisture",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
                 },
                 {
-                    "value": "Undercooked ",
-                    "is_intensity": 0
-                }
-            ]
-        },
-         {
-            "title": "How does the <b>omelette</b> feel inside your mouth?",
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-           
-            "option": [{
-                    "value": "Fluffy",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Oily/ Buttery",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Tender",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Velvety",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Gooey",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Dense",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Moist",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Chewy",
-                    "is_intensity": 0
-                },
-                 {
                     "value": "Dry",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Rubbery",
-                    "is_intensity": 0
-                },
-                 {
-                    "value": "Any other (Be specific)",
-                    "is_intensity": 0,
-                    "option_type": 1
-                }
-            ]
-        },
-        {
-            "title": "What is the proportion of egg and masala in an omelette?",
-            "is_nested_question": 0,
-            "is_intensity": 0,
-            "is_mandatory": 1,
-            "select_type": 2,
-             "option": [
-               {
-                    "value": "Masala",
                     "is_intensity": 1,
                     "intensity_type": 2,
                      "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                },
+                    "intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+                }
                 
-                {
-                    "value": "Egg",
-                    "is_intensity": 1,
-                    "intensity_type": 2,
-                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-                }
               ]
         },
- 
- {
-            "title": "While chewing (the entire product), which textures can you feel inside your mouth?",
-             "subtitle": " Please select a maximum of 4 options.",
-            "select_type": 2,
-            "is_intensity": 0,
+    {
+            "title": "While chewing, which textures can you feel inside your mouth?",
+           "subtitle": "Please select a maximum of 4 options.",
             "is_nested_question": 0,
+            "is_intensity": 0,
             "is_mandatory": 1,
-           
+            "select_type": 2,
             "option": [{
                     "value": "Soft",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Mushy",
+                    "value": "Fluffy",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Skin awareness (peels)",
+                    "value": "Mushy ",
                     "is_intensity": 0
                 },
                 {
                     "value": "Chewy",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Sticky",
                     "is_intensity": 0
                 },
                 {
@@ -1056,23 +979,7 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                 },
                 {
-                    "value": "Rough",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Grainy",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Dry",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Sticky",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Gritty",
+                    "value": "Coarse",
                     "is_intensity": 0
                 },
                 {
@@ -1084,78 +991,137 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
                 },
                 {
+                    "value": "Prickly",
+                    "is_intensity": 0
+                },
+                {
                     "value": "Any other (Be specific)",
-                    "is_intensity": 0,
-                    "option_type": 1
+                    "option_type": 1,
+                    "is_intensity": 0
                 }
             ]
         },
-         {
+        {
             "title": "How easy/difficult is the product to swallow?",
-            "select_type": 1,
-            "is_intensity": 0,
             "is_nested_question": 0,
+            "is_intensity": 0,
             "is_mandatory": 1,
-           
-            "option": [{
+            "select_type": 1,
+             "option": [
+               {
                     "value": "Easy",
                     "is_intensity": 0
                 },
                 {
                     "value": "Somewhat easy",
                     "is_intensity": 0
+                   
                 },
                 {
-                    "value": "Moderate ",
+                    "value": "Moderate",
                     "is_intensity": 0
                 },
-                {
+                 {
                     "value": "Somewhat difficult",
                     "is_intensity": 0
                 },
-                 {
+                {
                     "value": "Difficult",
                     "is_intensity": 0
+                   
                 }
-            ]
+              ]
         },
-   {
-            "title": "After swallowing, do you feel anything left inside the mouth?",
+        {
+            "title": "After swallowing, do you feel any mouth coating inside your mouth and to what extent?",
             "is_nested_question": 0,
             "is_intensity": 0,
             "is_mandatory": 1,
-            "select_type": 1,
-            "option": [{
-                    "value": "Oily/ Buttery film",
-                    "is_intensity": 0
+            "select_type": 2,
+             "option": [
+               {
+                    "value": "Oil",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Loose particles",
-                    "is_intensity": 0
+                    "value": "Seasoning",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Sticking on tooth",
-                    "is_intensity": 0
+                    "value": "No mouth coating",
+                    "is_intensity": 0,
+                    "option_type": 2
+                }
+                
+              ]
+        },
+        {
+            "title": "Do you feel anything left inside the mouth?",
+            "is_nested_question": 0,
+            "is_intensity": 0,
+            "is_mandatory": 1,
+            "select_type": 2,
+             "option": [
+               {
+                    "value": "Oily film",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
-                 {
-                    "value": "Stuck between teeth",
-                    "is_intensity": 0
+                {
+                    "value": "Greasy film",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                  {
                     "value": "Chalky",
-                    "is_intensity": 0
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
                 },
                 {
-                    "value": "Dry crumb",
-                    "is_intensity": 0
+                    "value": "Loose particles",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                 {
+                    "value": "Sticking on tooth/ palate",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Stuck between teeth",
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                     "intensity_color": "#FCEFCC,#FAE7B2,#F9DF99,#F7D77F,#F4C74C,#F2BC26,#EDAE00",
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                },
+                {
+                    "value": "Any other (Be specific)",
+                    "is_intensity": 0,
+                    "option_type": 1
                 },
                 {
                     "value": "No residue",
                     "is_intensity": 0,
-                   
                     "option_type": 2
                 }
-           ]
+                
+              ]
         },
  {
             "title": "Overall Preference of Texture",
@@ -1205,48 +1171,71 @@ class InsertGlobalQuestion extends Command
   "PRODUCT EXPERIENCE": [
      
         {
-            "title": "Which bun masala omelette did you like/enjoy the most?",
+            "title": "What do you feel about the quantity of the seasoning?",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
             "option": [{
-                    "value": "This is Perfect",
+                    "value": "Barely Any",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Street style",
+                    "value": "Less",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Homemade",
+                    "value": "Sufficient",
                     "is_intensity": 0
+                },
+                {
+                    "value": "Little Extra",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Excess",
+                    "is_intensity": 0
+                }
+                
+            ]
+        },
+ {
+            "title": "In your opinion, which is the best season to enjoy these Shake Shake Fries?",
+            "select_type": 2,
+            "is_intensity": 0,
+            "is_nested_question": 0,
+            "is_mandatory": 1,
+            "option": [{
+                    "value": "Winter",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Summer",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Autumn",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Monsoon",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "Spring",
+                    "is_intensity": 0
+                },
+                {
+                    "value": "All Season",
+                    "is_intensity": 0,
+                    "option_type": 2
                 },
                 {
                     "value": "Any other (Be specific)",
                     "is_intensity": 0,
                     "option_type": 1
                 }
-            ]
-        },
- {
-            "title": "How would you describe the \"serve size\" of this product?",
-            "select_type": 1,
-            "is_intensity": 0,
-            "is_nested_question": 0,
-            "is_mandatory": 1,
-            "option": [{
-                    "value": "Generous",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Modest",
-                    "is_intensity": 0
-                },
-                {
-                    "value": "Limited",
-                    "is_intensity": 0
-                }
+                
             ]
         },
  {
@@ -1266,35 +1255,35 @@ class InsertGlobalQuestion extends Command
             ]
         },
  {
-            "title": "The obvious names for this product can be Masala Omelette Burger, Masala Omelette Sandwich and Masala Bun Omelette. Will you like to suggest any other name to personify the experience of this product inside your mouth or go with one these obvious options. ",
+            "title": "Which attributes can be improved further?",
             "select_type": 1,
             "is_intensity": 0,
             "is_nested_question": 0,
             "is_mandatory": 1,
             "option": [{
-                    "value": "Masala Omelette Burger",
+                    "value": "Appearance",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Masala Omelette Sandwich",
+                    "value": "Aroma",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Masala Omelette Bun",
+                    "value": "Taste",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Bun Masala Omelette",
+                    "value": "Aromatics To Flavor",
                     "is_intensity": 0
                 },
                 {
-                    "value": "BMO",
+                    "value": "Texture",
                     "is_intensity": 0
                 },
                 {
-                    "value": "Any other (Be specific)",
+                    "value": "Balanced product",
                     "is_intensity": 0,
-                    "option_type": 1
+                    "option_type": 2
                 }
             ]
         },
@@ -1345,7 +1334,7 @@ class InsertGlobalQuestion extends Command
     ]
 }';
 
-        $data = ['name'=>'Private_McD_Bun_Omelette_CheeseSlice','keywords'=>"Private_McD_Bun_Omelette_CheeseSlice",'description'=>null,
+        $data = ['name'=>'Private_McD_Shake_Shake_Fries_21Dec2020','keywords'=>"Private_McD_Shake_Shake_Fries_21Dec2020",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true),'track_consistency'=>$track_consistency];
         \DB::table('global_questions')->insert($data);
 
