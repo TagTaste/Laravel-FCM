@@ -41,15 +41,13 @@ class InsertGlobalQuestion extends Command
           $headerInfo2 = [
 ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
 
-
-
-        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product and answer the questions outlined below. <b>Please don't eat in this entire appearance section.</b>"],'header_selection_type'=>"1"],
+        ['header_name' => "APPEARANCE","header_info" => ["text" => "Examine the product and answer the questions outlined below. <b>Please don't eat in this entire appearance section.</b>"],'header_selection_type'=>"1"],
 
 
         ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are only assessing the aromas (odors through the nose), <b>so please don't eat/ drink it yet. Now bring two or three strips of medium length fries</b> closer to your nose and take a deep breath; you may also try taking 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like fermentation, distillation etc.), which the product might have undergone.","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/u5yypm6hxb8ujwb528tw4r.png"]],'header_selection_type'=>"1"],
 
 
-        ['header_name' => "TASTE","header_info" => ["text" => "Eat two or three strips of medium length fries at one time and assess the tastes."] ,'header_selection_type'=>"1"],
+        ['header_name' => "TASTE","header_info" => ["text" => "Eat two or three strips of medium length fries at one time and assess the tastes."],'header_selection_type'=>"1"],
 
 
         ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Aromatics is the odor/s of food/ beverage coming from inside the mouth.\n\nNote: To anser the questions please <b>eat two or three strips of medium length fries at one time.</b>","images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/dashboard/images/jgjdj9w7ajaaw5f7cc1ee.png"]],'header_selection_type'=>"1"],
@@ -68,7 +66,7 @@ class InsertGlobalQuestion extends Command
     "INSTRUCTIONS": [{
         "title": "Instruction",
         
-        "subtitle": "Welcome to the Product Review!\n\nThis product involves mixing. Please do not mix yet. During the course of the questionnaire, you will be requested to mix the seasoning. Please wait till then.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of each section.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.\nNote: Here \'Product\' refers to Prepared Shake Shake Fries which is French Fries mixed with seasoning.",
+        "subtitle": "<b>Welcome to the Product Review!\n\nThis product involves mixing. Please do not mix yet. During the course of the questionnaire, you will be requested to mix the seasoning. Please wait till then.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of each section.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.\nNote: Here \'Product\' refers to Prepared Shake Shake Fries which is French Fries mixed with seasoning.",
         
         "select_type": 4
 
