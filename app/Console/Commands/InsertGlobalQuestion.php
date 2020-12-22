@@ -65,7 +65,7 @@ class InsertGlobalQuestion extends Command
         $questions2 = '{
     "INSTRUCTIONS": [{
         "title": "Instruction",
-        
+
         "subtitle": "<b>Welcome to the Product Review!</b>\n\nThis product involves mixing. Please do not mix yet. During the course of the questionnaire, you will be requested to mix the seasoning. Please wait till then.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i)/ \'Learn\' on every screen/page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of each section.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.\nNote: Here \'Product\' refers to Prepared Shake Shake Fries which is French Fries mixed with seasoning.",
         
         "select_type": 4
