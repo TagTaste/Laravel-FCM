@@ -35,7 +35,7 @@ class ReviewController extends Controller
         $batchId = $request->input('batch_id');
 
         if(!$request->has('address_id') && 
-        \App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->Where('outlet_id', !null)){
+        \App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->Where('outlet_id', !null)->exists()){
         return $this->sendError('Please send the respective outlet (address id) as query parameter');
         }
         
