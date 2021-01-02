@@ -666,7 +666,7 @@ class CollaborateController extends Controller
     {
         $collaborateId = $id;
 
-        $inputs = $request->only(['methodology_id','age_group','is_taster_residence','expires_on',
+        $inputs = $request->only(['methodology_id','age_group','expires_on',
 
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
         $this->checkInputForScopeReview($inputs);

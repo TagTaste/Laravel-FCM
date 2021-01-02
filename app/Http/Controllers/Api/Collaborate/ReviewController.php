@@ -48,7 +48,7 @@ class ReviewController extends Controller
             return $this->sendError("No prodcut id found");
         }
         $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
-
+        
         if(!$checkAssign)
         {
             return $this->sendError("Wrong product assigned");
