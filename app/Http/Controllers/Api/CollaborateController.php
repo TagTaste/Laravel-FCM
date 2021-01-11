@@ -1345,4 +1345,11 @@ class CollaborateController extends Controller
 
         return $this->sendResponse();
     }
+
+    public function getProductReviewType(Request $request)
+    {
+        $this->model = \DB::table('collaborate_product_review_type')
+                            ->get();
+        return $this->sendResponse();
+    }
 }

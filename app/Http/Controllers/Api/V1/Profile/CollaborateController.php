@@ -179,7 +179,7 @@ class CollaborateController extends Controller
         }
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
-
+        
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
@@ -666,7 +666,7 @@ class CollaborateController extends Controller
     {
         $collaborateId = $id;
 
-        $inputs = $request->only(['methodology_id','age_group','is_taster_residence','expires_on',
+        $inputs = $request->only(['methodology_id','age_group','expires_on',
 
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
         $this->checkInputForScopeReview($inputs);
@@ -962,8 +962,6 @@ class CollaborateController extends Controller
                                 'is_active'=>$isActive
                             ];    
                     }
-                } else if (!isset($address['outlets']) && $collaborate->track_consistency) {
-                    return $this->sendError('Outlet cannot be null for consistency tracking collaboration');
                 } else {
                     $cities[] = ['collaborate_id'=>$collaborateId,'city_id'=>$address['id'],'no_of_taster'=>$address['no_of_taster']];
                 }
