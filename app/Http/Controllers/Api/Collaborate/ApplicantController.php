@@ -163,10 +163,11 @@ class ApplicantController extends Controller
                 $applierAddress = null;
             }
             $profile = Profile::where('id',$loggedInprofileId)->first();
-            if (!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender)) {
-                $this->model = null;
-                return $this->sendError("Please fill mandatory feild.");
-            }
+            // Commented by nikhil because some users are not able to show interest
+            // if (!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender)) {
+            //     $this->model = null;
+            //     return $this->sendError("Please fill mandatory feild.");
+            // }
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
                 'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender,'hometown'=>$profile->hometown,'current_city'=>$profile->city];
@@ -529,11 +530,12 @@ class ApplicantController extends Controller
         $address = json_decode($applierAddress,true);
         $city = (isset($address['collaborate_city'])) ? $address['collaborate_city'] : null;
         $profile = Profile::where('id',$loggedInProfileId)->first();
-        if(!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender))
-        {
-            $this->model = null;
-            return $this->sendError("Please fill mandatory feild.");
-        }
+        // Commented by nikhil because some users are not able to show interest
+        // if(!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender))
+        // {
+        //     $this->model = null;
+        //     return $this->sendError("Please fill mandatory feild.");
+        // }
 
         $terms_verified = 0;
         $document_meta = null;
