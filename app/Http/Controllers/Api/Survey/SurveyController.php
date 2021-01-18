@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\Survey;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Survey;
+use App\SurveyQuestionsType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Webpatser\Uuid\Uuid;
 
 class SurveyController extends Controller
 {
@@ -50,7 +52,7 @@ class SurveyController extends Controller
         $return = ["status" => false, "message" => "Failed to create survery"];
 
         $prepData = $request->all();
-        $prepData["id"] =  strtolower(str_random(5) . "-" . str_random(5) . "-" . str_random(5) . "-" . str_random(5));
+        $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
         $prepData["profile_updated_by"] = null;
         if ($request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
@@ -146,5 +148,10 @@ class SurveyController extends Controller
             $return = ["status" => true, "message" => "Survey Deleted"];
         }
         return response($return);
+    }
+
+    public function question_list(){
+        $getListFromDb = SurveyQuestionsType::where("is_active","=",1)->get();
+        return response($getListFromDb);
     }
 }
