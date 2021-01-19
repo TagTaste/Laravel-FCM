@@ -38,7 +38,7 @@ class SurveyController extends Controller
             'description' => 'required|max:5000 ',
             'image_meta' => 'nullable|json',
             'media_meta' => 'nullable|json',
-            'form_json' => 'required|json',
+            'form_json' => 'required|json|survey_question_form',
             'profile_updated_by' => 'nullable',
             'invited_profile_ids' => 'nullable',
             'expiry_date' => 'required',
@@ -150,7 +150,7 @@ class SurveyController extends Controller
         return response($return);
     }
 
-    public function question_list(){
+    public function question_list(){    
         $getListFromDb = SurveyQuestionsType::where("is_active","=",1)->get();
         return response($getListFromDb);
     }
