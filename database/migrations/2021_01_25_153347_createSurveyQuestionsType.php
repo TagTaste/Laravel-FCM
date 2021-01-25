@@ -15,7 +15,7 @@ class CreateSurveyQuestionsType extends Migration
     public function up()
     {
         Schema::create('survey_question_type', function(Blueprint $table){
-            $table->unsignedInteger('id');
+            $table->increments('id');
             $table->string('title');
             $table->text('description');
             $table->string('media');

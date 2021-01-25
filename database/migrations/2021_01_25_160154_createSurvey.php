@@ -15,14 +15,14 @@ class CreateSurvey extends Migration
     public function up()
     {
         Schema::create('surveys', function(Blueprint $table){
-            $table->char('id');
+            $table->char('id',36);
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('company_id');
             $table->string('title');
             $table->text('description');
             $table->string('media_meta');
             $table->string('image_meta');
-            $table->longText("form_json");
+            $table->json("form_json");
             $table->unsignedInteger('profile_updated_by');
             $table->text('invited_profile_ids');
             $table->timestamp('expiry_date')->nullable();
