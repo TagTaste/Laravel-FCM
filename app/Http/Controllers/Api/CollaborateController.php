@@ -660,6 +660,7 @@ class CollaborateController extends Controller
             $questionaire = $questionaire->where('keywords','like','%'.$keywords.'%');
         }
 
+
         $this->model['count'] = $questionaire->count();
         $this->model['questionnaire'] = $questionaire
             ->orderBy('id', 'DESC')
@@ -1343,6 +1344,13 @@ class CollaborateController extends Controller
         $this->model = \Storage::url($resp);
         unlink($excel_save_path);
 
+        return $this->sendResponse();
+    }
+
+    public function getProductReviewType(Request $request)
+    {
+        $this->model = \DB::table('collaborate_product_review_type')
+                            ->get();
         return $this->sendResponse();
     }
 }

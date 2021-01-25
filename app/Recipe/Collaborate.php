@@ -10,7 +10,7 @@ class Collaborate extends BaseCollaborate
 {
     protected $fillable = [];
 
-    protected $visible = ['id','title', 'i_am', 'looking_for',
+    protected $visible = ['id','title', 'i_am', 'looking_for', 'product_review_type_id',
         'expires_on','video','location','categories',
         'description','project_commences',
         'duration','financials','eligibility_criteria','occassion',
