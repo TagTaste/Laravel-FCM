@@ -17,6 +17,7 @@ class Collaborate extends BaseCollaborate
 
     protected $appends = ['description_updated', 'applicationCount', 'product_review_meta', 'type','tasting_methodology','addresses','mandatory_fields', 'closing_reason','product_review_type'];
 
+
     /**
      * Which profile created the collaboration project.
      *
