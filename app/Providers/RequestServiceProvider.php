@@ -17,15 +17,17 @@ class RequestServiceProvider extends ServiceProvider
     {
         Validator::extend('survey_question_form', function ($attribute, $value, $parameters, $validator) {
             $decodeJson = json_decode($value, true);
-            $requiredNode = ["type", "title", "image_meta", "media_meta", "description", "id", "is_mandatory", "options"];
-            $optionNodeChecker = ["id", "value", "label", "option_type", "image_meta", "media_meta"];
-            $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("id")->toArray();
+            $requiredNode = ["question_type", "title", "image_meta", "video_meta", "description", "id", "is_mandatory", "options"];
+            $optionNodeChecker = ["id", "title", "option_type", "image_meta", "video_meta"];
+            $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
+            
             foreach ($decodeJson as $values) {
-                if (in_array($values["type"], $getListOfFormQuestions)) {
+                if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
                     $diff = array_diff($requiredNode, array_keys($values));
                     if (empty($diff) && isset($values["options"])) {
                         foreach($values["options"] as $opt){
                         $diffOptions = array_diff($optionNodeChecker, array_keys($opt));
+                        
                         if (!empty($diffOptions)) {
                             return false;
                         }
