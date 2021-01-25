@@ -403,7 +403,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("collaborate/{id}/applicantFilters","CollaborateController@applicantFilters");
         //collaborate
         Route::get("collaborate/all","CollaborateController@all");
-        Route::get("collaborate/productReview/types","CollaborateController@getProductReviewType");
         Route::get("collaborate/filters","CollaborateController@filters");
         Route::post("collaborate/{id}/like","CollaborateController@like");
         Route::get("collaborate/{id}/applications","CollaborateController@applications");
@@ -847,4 +846,15 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         return response($str, 200, $headers);
 
     });
+
+
+    Route::group(['namespace'=>'Survey','prefix'=>'survey','as'=>'survey.'],function() {
+        Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
+        Route::get('/{id}','SurveyController@index');        
+        Route::post('/','SurveyController@store');
+        Route::post('/{id}','SurveyController@update');
+        Route::delete('/{id}','SurveyController@destroy');
+        
+    });
+    
 });
