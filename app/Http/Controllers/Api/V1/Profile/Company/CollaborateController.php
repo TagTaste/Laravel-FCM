@@ -349,6 +349,7 @@ class CollaborateController extends Controller
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
+
         $inputs['is_taster_residence'] = 0;
         if ($request->has('is_taster_residence')) {
             $inputs['is_taster_residence'] = (int)$request->input('is_taster_residence');
@@ -535,13 +536,9 @@ class CollaborateController extends Controller
         }
 
 
-        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-        if ($request->has('expires_on') && !is_null($request->input('expires_on'))) {
-            $format_date = date("Y-m-d", strtotime($request->input('expires_on')));
-            $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $format_date)->toDateTimeString();
-        }
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
+
 
         //$inputs['is_taster_residence'] = is_null($inputs['is_taster_residence']) ? 0 : $inputs['is_taster_residence'];
 
@@ -688,6 +685,7 @@ class CollaborateController extends Controller
                         }
                     }
                 }
+
             } else {
                 return $this->sendError("You can not update your products as questionaire is not attached.");
             }
