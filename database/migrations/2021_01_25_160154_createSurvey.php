@@ -25,14 +25,15 @@ class CreateSurvey extends Migration
             $table->longText("form_json");
             $table->unsignedInteger('profile_updated_by');
             $table->text('invited_profile_ids');
-            $table->timestamp('expiry_date');
+            $table->timestamp('expiry_date')->nullable();
             $table->enum('state',["1","2"])->default("1");
             $table->boolean('is_active');
-            $table->timestamps();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')  ->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
             $table->softDeletes();
             $table->timestamp('published_at')->nullable();
 
-
+            $table->primary("id");
             $table->foreign('profile_id')->references('id')->on('profiles');
             $table->foreign('company_id')->references('id')->on('companies');
 
