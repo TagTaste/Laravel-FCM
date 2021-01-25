@@ -25,7 +25,7 @@ class CreateSurvey extends Migration
             $table->json("form_json");
             $table->unsignedInteger('profile_updated_by');
             $table->text('invited_profile_ids');
-            $table->timestamp('expiry_date')->nullable();
+            $table->date('expired_at')->nullable();
             $table->enum('state',["1","2"])->default("1");
             $table->boolean('is_active');
             $table->timestamp('created_at')->useCurrent();
