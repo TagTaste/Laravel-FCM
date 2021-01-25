@@ -12,6 +12,6 @@ class SurveyQuestionsType extends Model
 
     const UPDATED_AT = 'updated_at';
 
-    protected $fillable = ["id","title","description","media","is_active","deleted_at"];
+    protected $fillable = ["id","title","description","media","is_active","deleted_at","question_type_id","sort_id"];
     
 }
