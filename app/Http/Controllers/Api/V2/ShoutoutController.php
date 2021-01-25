@@ -41,9 +41,9 @@ class ShoutoutController extends BaseController
     public function show(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
-        
-        
+        $shoutout = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+
+
         if (!$shoutout) {
             return $this->sendError("Shoutout not found.");
         }
@@ -51,15 +51,15 @@ class ShoutoutController extends BaseController
         $meta = $shoutout->getMetaForV2($loggedInProfileId);
         $seoTags = $shoutout->getSeoTags();
         $shoutout = $shoutout->toArray();
-        
+
         foreach ($shoutout as $key => $value) {
             if (is_null($value) || $value == '')
                 unset($shoutout[$key]);
         }
         $this->model = [
-            'shoutout'=>$shoutout,
-            'meta'=>$meta,
-            'seoTags'=>$seoTags
+            'shoutout' => $shoutout ,
+            'meta' => $meta ,
+            'seoTags' => $seoTags
         ];
 
         if (isset($shoutout['profile_id'])) {
