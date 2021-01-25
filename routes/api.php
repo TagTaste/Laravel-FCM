@@ -848,12 +848,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
     });
 
 
-    Route::group(['namespace'=>'Survey','prefix'=>'survey','as'=>'survey.'],function() {
+    Route::group(['namespace'=>'Survey','prefix'=>'survey','as'=>'survey.','middleware'=>'api.auth'],function() {
+              
         Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
-        Route::get('/{id}','SurveyController@index');        
-        Route::post('/','SurveyController@store');
+        Route::get('/{id}','SurveyController@index');  
         Route::post('/{id}','SurveyController@update');
         Route::delete('/{id}','SurveyController@destroy');
+        Route::post('/','SurveyController@store');
         
     });
     
