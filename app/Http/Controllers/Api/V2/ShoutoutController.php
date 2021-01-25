@@ -43,6 +43,7 @@ class ShoutoutController extends BaseController
         $loggedInProfileId = $request->user()->profile->id;
         $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
         
+        
         if (!$shoutout) {
             return $this->sendError("Shoutout not found.");
         }
