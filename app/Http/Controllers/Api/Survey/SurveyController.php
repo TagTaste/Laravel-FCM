@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\Survey;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\SurveyAnswers;
 use App\Surveys;
 use App\SurveyQuestionsType;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tagtaste\Api\SendsJsonResponse;
@@ -81,7 +83,7 @@ class SurveyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update($id,Request $request)
+    public function update($id, Request $request)
     {
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
@@ -99,6 +101,11 @@ class SurveyController extends Controller
         $this->messages = "Survey Failed";
         if ($validator->fails()) {
             $this->errors = $validator->messages();
+            return $this->sendResponse();
+        }
+        $checkIfResponsesReceived = SurveyAnswers::where("survey_id", "=", $id)->first();
+        if (!empty($checkIfResponsesReceived)) {
+            $this->errors = ["Cannot update survey once response is received"];
             return $this->sendResponse();
         }
 
@@ -163,6 +170,63 @@ class SurveyController extends Controller
         $getListFromDb = SurveyQuestionsType::where("is_active", "=", 1)->get();
         $this->model = $getListFromDb;
         return $this->sendResponse();
-        // return response($getListFromDb);
+    }
+
+    public function saveAnswers(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'survey_id' => 'required|exists:surveys,id',
+                'current_status' => 'required|numeric',
+                'answer_json' => 'required|json|survey_answer_scrutiny'
+            ]);
+
+            $this->model = false;
+            $this->messages = "Answer Submission Failed";
+            if ($validator->fails()) {
+                $this->errors = $validator->messages();
+                return $this->sendResponse();
+            }
+
+            $id = Surveys::where("id", "=", $request->id)->first();
+            if (isset($id->profile_id) && $id->profile_id == $request->profile_id) {
+                $this->errors = ["Admin Cannot Fill the Surveys"];
+                return $this->sendResponse();
+            }
+
+            $checkIFAlreadyFilled = SurveyAnswers::where("survey_id", "=", $request->survey_id)->where('profile_id', "=", $request->user()->id)->first();
+
+            if (!empty($checkIFAlreadyFilled) && $checkIFAlreadyFilled->current_status == config("constants.SURVEY_STATUS.COMPLETED")) {
+                $this->errors = ["Survey is already completed"];
+                return $this->sendResponse();
+            }
+
+            $optionArray = json_decode($request->answer_json, true);
+            DB::beginTransaction();
+            $commit = true;
+            foreach ($optionArray as $values) {
+                $answerArray = [];
+                $answerArray["profile_id"] = $request->user()->id;
+                $answerArray["question_id"] = $values["question_id"];
+                $answerArray["question_type"] = $values["question_type_id"];
+                foreach ($values["option"] as $optVal) {
+                    $answerArray["option_id"] = $optVal["id"];
+                    $answerArray["option_type"] = $optVal["option_type"];
+                    $answerArray["answer_value"] = $optVal["value"];
+                    $answerArray["media"] = $optVal["media"];
+                    $surveyAnswer = SurveyAnswers::create($answerArray);
+                    if (!$surveyAnswer) {
+                        $commit = false;
+                    }
+                }
+            }
+            if ($commit) {
+                DB::commit();
+                $this->model = true;
+                $this->messages = "Answer Submitted succesfully";
+            }
+        } catch (Exception $ex) {
+            DB::rollback();
+        }
     }
 }
