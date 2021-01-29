@@ -23,8 +23,18 @@ class SurveyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Surveys $id)
+    public function index($id)
     {
+        $getSurvey = Surveys::where("id", "=", $id)->where("is_active","=",1)->first();
+
+        $this->model = false;
+        $this->messages = "Survey Doesn't Exists";
+        if(empty($getSurvey)){
+            $this->errors = ["Survey Doesn't Exists"];
+            return $this->sendResponse();
+        }
+        $this->model = false;
+        $this->messages = "Request successfull";
         $this->model[] = $id;
         return $this->sendResponse();
     }
@@ -129,7 +139,14 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
+        $create = Surveys::where("id", "=", $id);
+        $getSurvey = $create->first();
         
+        if(empty($getSurvey)){
+            $this->errors = ["Survey Id is Invalid"];
+            return $this->sendResponse();
+        }
+
         $checkIfResponsesReceived = SurveyAnswers::where("survey_id", "=", $id)->first();
         if (!empty($checkIfResponsesReceived)) {
             $this->errors = ["Cannot update survey once response is received"];
@@ -138,13 +155,7 @@ class SurveyController extends Controller
 
         $prepData = (object)[];
 
-        $create = Surveys::where("id", "=", $id);
-        $getSurvey = $create->first();
         
-        if(empty($getSurvey)){
-            $this->errors = ["Survey Id is Invalid"];
-            return $this->sendResponse();
-        }
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
