@@ -128,6 +128,8 @@ class SurveyController extends Controller
             $this->errors = $validator->messages();
             return $this->sendResponse();
         }
+
+        
         $checkIfResponsesReceived = SurveyAnswers::where("survey_id", "=", $id)->first();
         if (!empty($checkIfResponsesReceived)) {
             $this->errors = ["Cannot update survey once response is received"];
@@ -138,6 +140,12 @@ class SurveyController extends Controller
 
         $create = Surveys::where("id", "=", $id);
         $getSurvey = $create->first();
+        
+        if(empty($getSurvey)){
+            $this->errors = ["Survey Id is Invalid"];
+            return $this->sendResponse();
+        }
+
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
         }
