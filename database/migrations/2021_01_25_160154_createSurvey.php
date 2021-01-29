@@ -17,17 +17,17 @@ class CreateSurvey extends Migration
         Schema::create('surveys', function(Blueprint $table){
             $table->char('id',36);
             $table->unsignedInteger('profile_id');
-            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('company_id')->nullable();
             $table->string('title');
             $table->text('description');
-            $table->string('media_meta');
-            $table->string('image_meta');
-            $table->json("form_json");
-            $table->unsignedInteger('profile_updated_by');
-            $table->text('invited_profile_ids');
+            $table->json('video_meta')->nullable();
+            $table->json('image_meta')->nullable();
+            $table->json("form_json")->nullable();
+            $table->unsignedInteger('profile_updated_by')->nullable();
+            $table->json('invited_profile_ids')->nullable();
             $table->date('expired_at')->nullable();
             $table->enum('state',["1","2"])->default("1");
-            $table->boolean('is_active');
+            $table->boolean('is_active')->default("1");
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')  ->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
             $table->softDeletes();
@@ -36,7 +36,8 @@ class CreateSurvey extends Migration
             $table->primary("id");
             $table->foreign('profile_id')->references('id')->on('profiles');
             $table->foreign('company_id')->references('id')->on('companies');
-
+            $table->foreign('profile_updated_by')->references('id')->on('profiles');
+            
         });
     }
 
