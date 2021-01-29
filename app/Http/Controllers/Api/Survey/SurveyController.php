@@ -57,14 +57,39 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-        $prepData = $request->all();
+
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
         $prepData["profile_id"] = $request->user()->id;
-        $prepData["profile_updated_by"] = null;
+        $prepData["state"] = $request->state;
+        $prepData["title"] = $request->title;
+        $prepData["description"] = $request->description;
+
+        if ($request->has("company_id")) {
+            $prepData["company_id"] = $request->company_id;
+        }
+        if ($request->has("image_meta")) {
+            $prepData["image_meta"] = $request->image_meta;
+        }
+        if ($request->has("video_meta")) {
+            $prepData["video_meta"] = $request->video_meta;
+        }
+        if ($request->has("form_json")) {
+            $prepData["form_json"] = $request->form_json;
+        }
         if ($request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData["published_at"] = date("Y-m-d H:i:s");
         }
+        if ($request->has("invited_profile_ids")) {
+            $prepData["invited_profile_ids"] = $request->invited_profile_ids;
+        }
+
+        if ($request->has("expired_at")) {
+            $prepData["expired_at"] = $request->expired_at;
+        }
+
+
+
 
         $create = Surveys::create($prepData);
 
@@ -181,6 +206,7 @@ class SurveyController extends Controller
                 'answer_json' => 'required|json|survey_answer_scrutiny'
             ]);
 
+
             $this->model = false;
             $this->messages = "Answer Submission Failed";
             if ($validator->fails()) {
@@ -195,8 +221,8 @@ class SurveyController extends Controller
             }
 
             $checkIFAlreadyFilled = SurveyAnswers::where("survey_id", "=", $request->survey_id)->where('profile_id', "=", $request->user()->id)->first();
-
-            if (!empty($checkIFAlreadyFilled) && $checkIFAlreadyFilled->current_status == config("constants.SURVEY_STATUS.COMPLETED")) {
+            
+            if (!empty($checkIFAlreadyFilled) && $checkIFAlreadyFilled->current_status == config("constant.SURVEY_STATUS.COMPLETED")) {
                 $this->errors = ["Survey is already completed"];
                 return $this->sendResponse();
             }
@@ -207,13 +233,27 @@ class SurveyController extends Controller
             foreach ($optionArray as $values) {
                 $answerArray = [];
                 $answerArray["profile_id"] = $request->user()->id;
+                $answerArray["survey_id"] = $request->survey_id;
                 $answerArray["question_id"] = $values["question_id"];
                 $answerArray["question_type"] = $values["question_type_id"];
+                $answerArray["current_status"] = $request->current_status;
                 foreach ($values["option"] as $optVal) {
                     $answerArray["option_id"] = $optVal["id"];
                     $answerArray["option_type"] = $optVal["option_type"];
                     $answerArray["answer_value"] = $optVal["value"];
-                    $answerArray["media"] = $optVal["media"];
+                    $answerArray["is_active"] = 1;
+                    if (isset($optVal["video_meta"]) && !empty($optVal["video_meta"])) {
+                        $answerArray["image_meta"] = $optVal["image_meta"];
+                    }
+                    if (isset($optVal["video_meta"]) && !empty($optVal["video_meta"])) {
+                        $answerArray["video_meta"] = $optVal["video_meta"];
+                    }
+                    if (isset($optVal["video_meta"]) && !empty($optVal["video_meta"])) {
+                        $answerArray["document_meta"] = $optVal["document_meta"];
+                    }
+                    if (isset($optVal["video_meta"]) && !empty($optVal["video_meta"])) {
+                        $answerArray["media_url"] = $optVal["media_url"];
+                    }
                     $surveyAnswer = SurveyAnswers::create($answerArray);
                     if (!$surveyAnswer) {
                         $commit = false;
@@ -225,7 +265,10 @@ class SurveyController extends Controller
                 $this->model = true;
                 $this->messages = "Answer Submitted succesfully";
             }
+
+            return $this->sendResponse();
         } catch (Exception $ex) {
+            echo $ex->getMessage() . " " . $ex->getLine();
             DB::rollback();
         }
     }
