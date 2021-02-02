@@ -41,9 +41,9 @@ class SurveyController extends Controller
         }
         $this->model = false;
         $this->messages = "Request successfull";
-        $this->model[] = $id;
+        $this->model[] = $getSurvey;
         return $this->sendResponse();
-    }
+    }   
 
 
     /**
@@ -120,7 +120,7 @@ class SurveyController extends Controller
         $survey = Surveys::find($create->id);
         if (isset($create->id)) {
             $this->model = $create;
-            $this->messages = "Survey Deleted Successfully";
+            $this->messages = "Survey Created Successfully";
         }
 
         if ($request->has('company_id')) {
