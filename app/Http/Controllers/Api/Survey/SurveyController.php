@@ -3,7 +3,13 @@
 namespace App\Http\Controllers\Api\Survey;
 
 use Illuminate\Http\Request;
+use App\Company;
+use App\Events\Model\Subscriber\Create;
+
 use App\Http\Controllers\Controller;
+use App\Events\NewFeedable;
+
+
 use App\SurveyAnswers;
 use App\Surveys;
 use App\SurveyQuestionsType;
@@ -67,13 +73,24 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if ($request->has('company_id')) {
+            $companyId = $request->input('company_id');
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if(!$userBelongsToCompany){
+                return $this->sendError("User does not belong to this company");
+            }
+        }
+ 
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
         $prepData["profile_id"] = $request->user()->id;
         $prepData["state"] = $request->state;
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
+        $prepData["privacy_id"] = 1;
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
@@ -98,16 +115,20 @@ class SurveyController extends Controller
             $prepData["expired_at"] = $request->expired_at;
         }
 
-
-
-
         $create = Surveys::create($prepData);
 
+        $survey = Surveys::find($create->id);
         if (isset($create->id)) {
             $this->model = $create;
             $this->messages = "Survey Deleted Successfully";
         }
 
+        if ($request->has('company_id')) {
+            event(new NewFeedable($survey, $company));
+        } else {
+            event(new NewFeedable($survey, $request->user()->profile));
+        }
+        event(new Create($survey,$request->user()->profile));
         return $this->sendResponse();
     }
 
