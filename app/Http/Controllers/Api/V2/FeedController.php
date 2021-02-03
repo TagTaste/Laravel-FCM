@@ -129,7 +129,7 @@ class FeedController extends Controller
         }
 
         $this->getMeta($payloads, $profileId, $request->user()->profile);
-        return $this->sendResponse($payloads);
+        return $this->sendResponse();
     }
     
     //things that is displayed on my public feed
@@ -314,7 +314,7 @@ class FeedController extends Controller
         }
         
 
-        $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate","surveys");
+        $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
         $index = 0;
         foreach ($payloads as $payload) {
