@@ -66,7 +66,7 @@ class Surveys extends Model implements Feedable
 
     public function isSurveyReported()
     {
-        return $this->isReported(request()->user()->profile->id, "polling", (string)$this->id);
+        return $this->isReported(request()->user()->profile->id, "surveys", (string)$this->id);
     }
 
     public function getMetaFor(int $profileId) : array
