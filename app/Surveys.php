@@ -18,7 +18,7 @@ class Surveys extends Model implements Feedable
 
     protected $table = "surveys";
     const CREATED_AT = 'created_at';
-    
+
     const UPDATED_AT = 'updated_at';
 
     public $incrementing = false;
@@ -27,8 +27,11 @@ class Surveys extends Model implements Feedable
     protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at"];
     
     protected $with = ['profile','company'];
-
+    
     protected $appends = ['owner','meta'];
+
+    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta",
+    "video_meta","expired_at","published_at"];
 
     protected $cast = [
         "form_json" => 'array'
