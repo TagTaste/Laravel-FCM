@@ -31,11 +31,11 @@ class SurveyController extends Controller
      */
     public function index($id)
     {
-        $getSurvey = Surveys::where("id", "=", $id)->where("is_active","=",1)->first();
+        $getSurvey = Surveys::where("id", "=", $id)->where("is_active", "=", 1)->first();
 
         $this->model = false;
         $this->messages = "Survey Doesn't Exists";
-        if(empty($getSurvey)){
+        if (empty($getSurvey)) {
             $this->errors = ["Survey Doesn't Exists"];
             return $this->sendResponse();
         }
@@ -43,7 +43,7 @@ class SurveyController extends Controller
         $this->messages = "Request successfull";
         $this->model[] = $getSurvey;
         return $this->sendResponse();
-    }   
+    }
 
 
     /**
@@ -79,11 +79,11 @@ class SurveyController extends Controller
             $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
-            if(!$userBelongsToCompany){
+            if (!$userBelongsToCompany) {
                 return $this->sendError("User does not belong to this company");
             }
         }
- 
+
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
         $prepData["profile_id"] = $request->user()->id;
@@ -128,7 +128,7 @@ class SurveyController extends Controller
         } else {
             event(new NewFeedable($survey, $request->user()->profile));
         }
-        event(new Create($survey,$request->user()->profile));
+        event(new Create($survey, $request->user()->profile));
         return $this->sendResponse();
     }
 
@@ -162,8 +162,8 @@ class SurveyController extends Controller
 
         $create = Surveys::where("id", "=", $id);
         $getSurvey = $create->first();
-        
-        if(empty($getSurvey)){
+
+        if (empty($getSurvey)) {
             $this->errors = ["Survey Id is Invalid"];
             return $this->sendResponse();
         }
@@ -176,7 +176,7 @@ class SurveyController extends Controller
 
         $prepData = (object)[];
 
-        
+
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
@@ -261,7 +261,7 @@ class SurveyController extends Controller
             }
 
             $checkIFAlreadyFilled = SurveyAnswers::where("survey_id", "=", $request->survey_id)->where('profile_id', "=", $request->user()->id)->first();
-            
+
             if (!empty($checkIFAlreadyFilled) && $checkIFAlreadyFilled->current_status == config("constant.SURVEY_STATUS.COMPLETED")) {
                 $this->errors = ["Survey is already completed"];
                 return $this->sendResponse();
@@ -311,5 +311,65 @@ class SurveyController extends Controller
             echo $ex->getMessage() . " " . $ex->getLine();
             DB::rollback();
         }
+    }
+
+
+    public function reports($id, Request $request)
+    {
+
+        $checkIFExists = Surveys::where("id", "=", $id)->first();
+
+        $colorCodeList = ["#fcba03", "#fcda02", "#fcpa0g", "#fcfa12", "#acaaf3", "#fcba03", "#faac11"];
+        $this->model = false;
+        $this->messages = "Answer Submission Failed";
+        if (empty($checkIFExists)) {
+            $this->errors = ["Invalid Survey"];
+            return $this->sendResponse();
+        }
+
+        $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id);
+
+        $getCount = $getSurveyAnswers->groupBy("profile_id")->get();
+
+        $prepareNode = ["answer_count" => $getCount->count(), "reports" => []];
+
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $counter = 0;
+        foreach ($getJson as $values) {
+            shuffle($colorCodeList);
+            $questionId = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->groupBy("profile_id")->get();
+
+            $getAvg = $this->array_avg($questionId->pluck("option_id")->toArray());
+
+
+            $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $optCounter = 0;
+            foreach ($values["options"] as $optVal) {
+                // $prepareNode["reports"][$counter]["option"][$optCounter] = $optVal;
+                $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
+                $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $optVal["title"];
+                $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
+                $prepareNode["reports"][$counter]["option"][$optCounter]["count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+                $prepareNode["reports"][$counter]["option"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
+                $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+                $optCounter++;
+            }
+            $questionId = [];
+            $counter++;
+        }
+        dd($prepareNode);
+    }
+
+    function array_avg($array, $round = 1)
+    {
+        $num = count($array);
+        return array_map(
+            function ($val) use ($num, $round) {
+                return array('count' => $val, 'avg' => round($val / $num * 100, $round));
+            },
+            array_count_values($array)
+        );
     }
 }
