@@ -18,13 +18,15 @@ class Surveys extends Model implements Feedable
 
     protected $table = "surveys";
     const CREATED_AT = 'created_at';
-
+    
     const UPDATED_AT = 'updated_at';
 
     public $incrementing = false;
 
 
     protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at"];
+    
+    protected $with = ['profile','company'];
 
     protected $appends = ['owner','meta'];
 
@@ -59,6 +61,29 @@ class Surveys extends Model implements Feedable
         return $this->belongsTo(\App\Recipe\Company::class);
     }
 
+    public function isSurveyReported()
+    {
+        return $this->isReported(request()->user()->profile->id, "polling", (string)$this->id);
+    }
+
+    public function getMetaFor(int $profileId) : array
+    {
+        $meta = [];
+        $meta['expired_at'] = $this->expired_at;
+        $key = "meta:surveys:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+        $meta['answerCount'] = 40;        
+        
+        //NOTE NIKHIL : Add answer count in here like poll count 
+        // $meta['answer_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        $meta['isReported'] =  $this->isSurveyReported();
+        return $meta;
+    }
+
     public function privacy()
     {
         return $this->belongsTo(Privacy::class);
@@ -69,11 +94,21 @@ class Surveys extends Model implements Feedable
         return $this->belongsTo(Payload::class,'payload_id');
     }
     
-    public function comments()
+    public function getCommentNotificationMessage() : string
     {
-        return $this->belongsToMany('App\Comment','comment_surveys','surveys_id','comment_id');
+        return "New comment on " . $this->title . ".";
     }
-    
+
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->title,
+            'image' => $this->image_meta,
+        ];
+    }
+
     public function getRelatedKey() : array
     {
         if(empty($this->relatedKey) && $this->company_id === null){
@@ -81,7 +116,29 @@ class Surveys extends Model implements Feedable
         }
         return ['company'=>'company:small:' . $this->company_id];
     }
+    
+    public function comments()
+    {
+        return $this->belongsToMany('App\Comment','comment_surveys','surveys_id','comment_id');
+    }
+    
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
+        $data['title'] = substr($this->title,0,65);
+        $data['description'] = "by ".$this->owner->name;
+        $data['ogTitle'] = "Survey: ".substr($this->title,0,65);
+        $data['ogDescription'] = "by ".$this->owner->name;
+        $images = $this->image_meta != null ? $this->image_meta : null;
+        $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
+        $data['ogUrl'] = env('APP_URL').'/survey/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/survey/'.$this->id;
 
+        return $data;
+    }
 
     public function getOwnerAttribute()
     {
@@ -100,24 +157,6 @@ class Surveys extends Model implements Feedable
         //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
-    }
-
-    public function getPreviewContent()
-    {
-        $data = [];
-        $data['modelId'] = $this->id;
-        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
-        $data['title'] = substr($this->title,0,65);
-        $data['description'] = "by ".$this->owner->name;
-        $data['ogTitle'] = "Survey: ".substr($this->title,0,65);
-        $data['ogDescription'] = "by ".$this->owner->name;
-        $images = $this->image_meta != null ? $this->image_meta : null;
-        $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
-        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
-        $data['ogUrl'] = env('APP_URL').'/survey/'.$this->id;
-        $data['redirectUrl'] = env('APP_URL').'/survey/'.$this->id;
-
-        return $data;
     }
 
     public function getSeoTags() : array
