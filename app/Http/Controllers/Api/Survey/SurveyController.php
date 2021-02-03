@@ -41,7 +41,7 @@ class SurveyController extends Controller
         }
         $this->messages = "Request successfull";
         $this->model = [ 
-            "survey" => $getSurvey,
+            "surveys" => $getSurvey,
             "meta" => $getSurvey->getMetaAttribute(),
             "seoTags" => $getSurvey->getSeoTags(),
         ];
