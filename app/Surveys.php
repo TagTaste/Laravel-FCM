@@ -36,7 +36,7 @@ class Surveys extends Model implements Feedable
     protected $cast = [
         "form_json" => 'array'
     ];
-
+    
     public function addToCache()
     {
         $data = [
@@ -87,23 +87,23 @@ class Surveys extends Model implements Feedable
         return $meta;
     }
     
-    // public function getMetaForV2(int $profileId) : array
-    // {
-    //     $meta = [];
-    //     $meta['expired_at'] = $this->expired_at;
-    //     $key = "meta:surveys:likes:" . $this->id;
-    //     $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
-    //     $meta['likeCount'] = Redis::sCard($key);
-    //     $meta['commentCount'] = $this->comments()->count();
-    //     $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-    //         ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-    //     $meta['answerCount'] = 40;        
+    public function getMetaForV2(int $profileId) : array
+    {
+        $meta = [];
+        $meta['expired_at'] = $this->expired_at;
+        $key = "meta:surveys:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+        $meta['answerCount'] = 40;        
         
-    //     //NOTE NIKHIL : Add answer count in here like poll count 
-    //     // $meta['answer_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
-    //     $meta['isReported'] =  $this->isSurveyReported();
-    //     return $meta;
-    // }
+        //NOTE NIKHIL : Add answer count in here like poll count 
+        // $meta['answer_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        $meta['isReported'] =  $this->isSurveyReported();
+        return $meta;
+    }
 
     public function privacy()
     {
