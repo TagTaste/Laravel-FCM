@@ -127,8 +127,9 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
+
         $this->getMeta($payloads, $profileId, $request->user()->profile);
-        return $this->sendResponse();
+        return $this->sendResponse($payloads);
     }
     
     //things that is displayed on my public feed

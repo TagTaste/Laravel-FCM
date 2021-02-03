@@ -18,6 +18,8 @@ class CommentController extends Controller {
         'collaborate'=> \App\Collaborate::class,
         'recipe' => \App\Recipe::class,
         'shoutout' =>\App\Shoutout::class,
+        'surveys' =>\App\Surveys::class,
+
         'collaborate_share' => \App\Shareable\Collaborate::class,
         'photo_share' => \App\Shareable\Photo::class,
 //        'job_share' => \App\Shareable\Occupation::class,
@@ -25,12 +27,13 @@ class CommentController extends Controller {
         'shoutout_share' => \App\Shareable\Shoutout::class,
         'polling' => Polling::class,
         'polling_share' => \App\Shareable\Polling::class,
-        'product_share' => \App\Shareable\Product::class
+        'product_share' => \App\Shareable\Product::class,
+        'surveys_share' => \App\Shareable\Surveys::class
     ];
     
     private function getModel(&$modelName, &$modelId){
         $model = isset($this->models[$modelName]) ? new $this->models[$modelName] : false;
-        
+
         if(!$model){
             throw new \Exception("Invalid model $modelName.");
         }
@@ -85,6 +88,7 @@ class CommentController extends Controller {
 	public function store(Request $request, $model, $modelId)
 	{
         $model = $this->getModel($model,$modelId);
+        
         $this->checkRelationship($model);
         if(!method_exists($model, 'comments')){
             throw new \Exception("This model does not have comments defined.");
