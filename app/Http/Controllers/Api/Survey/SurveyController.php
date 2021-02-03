@@ -39,9 +39,12 @@ class SurveyController extends Controller
             $this->errors = ["Survey Doesn't Exists"];
             return $this->sendResponse();
         }
-        $this->model = false;
         $this->messages = "Request successfull";
-        $this->model[] = $getSurvey;
+        $this->model = [ 
+            "survey" => $getSurvey,
+            "meta" => $getSurvey->getMetaAttribute(),
+            "seoTags" => $getSurvey->getSeoTags(),
+        ];
         return $this->sendResponse();
     }
 

@@ -117,10 +117,10 @@ class Surveys extends Model implements Feedable
 
     public function getSeoTags() : array
     {
-        $title = "TagTaste | Survey";
+        $title = "TagTaste | ".$this->title." | Survey";
         $description = "";
-        if (!is_null($this->title)) {
-            $description = substr(htmlspecialchars_decode($this->title),0,160)."...";
+        if (!is_null($this->description)) {
+            $description = substr(htmlspecialchars_decode($this->description),0,160)."...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
