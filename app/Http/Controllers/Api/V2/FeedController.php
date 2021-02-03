@@ -127,7 +127,7 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
-
+        
         $this->getMeta($payloads, $profileId, $request->user()->profile);
         return $this->sendResponse();
     }
@@ -315,7 +315,7 @@ class FeedController extends Controller
         
 
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
-        $indexTypeV1 = array("photo", "polling");
+        $indexTypeV1 = array("photo", "polling","surveys");
         $index = 0;
         foreach ($payloads as $payload) {
             $type = null;
@@ -1036,7 +1036,7 @@ class FeedController extends Controller
                 if (!is_null($advertisement['payload'])) {
                     $cached = json_decode($advertisement['payload'], true);
                     $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
-                    $indexTypeV1 = array("photo", "polling");
+                    $indexTypeV1 = array("photo", "polling","surveys");
                     foreach ($cached as $name => $key) {
                         $cachedData = null;
                         if (in_array($name, $indexTypeV2)) {
@@ -1120,7 +1120,7 @@ class FeedController extends Controller
                     if (!is_null($advertisement['payload'])) {
                         $cached = json_decode($advertisement['payload'], true);
                         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
-                        $indexTypeV1 = array("photo", "polling");
+                        $indexTypeV1 = array("photo", "polling","surveys");
                         foreach ($cached as $name => $key) {
                             $cachedData = null;
                             if (in_array($name, $indexTypeV2)) {
