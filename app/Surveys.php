@@ -90,10 +90,68 @@ class Surveys extends Model implements Feedable
         $meta['likeCount'] = 20;
         $meta['commentCount'] = 30;
         $meta['answerCount'] = 40;        
-        // $key = "meta:polling:likes:" . $this->id;
+        // $key = "meta:surveys:likes:" . $this->id;
         // $meta['likeCount'] = Redis::sCard($key);
         // $meta['commentCount'] = $this->comments()->count();
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
+    }
+
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
+        $data['title'] = substr($this->title,0,65);
+        $data['description'] = "by ".$this->owner->name;
+        $data['ogTitle'] = "Survey: ".substr($this->title,0,65);
+        $data['ogDescription'] = "by ".$this->owner->name;
+        $images = $this->image_meta != null ? $this->image_meta : null;
+        $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
+        $data['ogUrl'] = env('APP_URL').'/survey/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/survey/'.$this->id;
+
+        return $data;
+    }
+
+    public function getSeoTags() : array
+    {
+        $title = "TagTaste | Survey";
+        $description = "";
+        if (!is_null($this->title)) {
+            $description = substr(htmlspecialchars_decode($this->title),0,160)."...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "survey, surveys, online survey, food survey, TagTaste survey",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png",
+                )
+            ),
+        ];
+        return $seo_tags;
     }
 }
