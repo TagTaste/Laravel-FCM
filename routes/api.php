@@ -857,7 +857,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::delete('/{id}','SurveyController@destroy');
         Route::post('/','SurveyController@store');
         
-        
     });
     
 });

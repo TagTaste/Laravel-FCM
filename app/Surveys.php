@@ -29,7 +29,7 @@ class Surveys extends Model implements Feedable
     protected $appends = ['owner','meta'];
 
     protected $cast = [
-        "form_json" => 'json'
+        "form_json" => 'array'
     ];
 
     public function addToCache()
