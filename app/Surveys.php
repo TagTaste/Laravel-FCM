@@ -68,7 +68,12 @@ class Surveys extends Model implements Feedable
     {
         return $this->belongsTo(Payload::class,'payload_id');
     }
-
+    
+    public function comments()
+    {
+        return $this->belongsToMany('App\Comment','comment_surveys','surveys_id','comment_id');
+    }
+    
     public function getRelatedKey() : array
     {
         if(empty($this->relatedKey) && $this->company_id === null){
@@ -87,12 +92,12 @@ class Surveys extends Model implements Feedable
     {
         $meta = [];
         $meta['expired_at'] = $this->expired_at;
-        $meta['likeCount'] = 20;
-        $meta['commentCount'] = 30;
+        $key = "meta:surveys:likes:" . $this->id;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
         $meta['answerCount'] = 40;        
-        // $key = "meta:surveys:likes:" . $this->id;
-        // $meta['likeCount'] = Redis::sCard($key);
-        // $meta['commentCount'] = $this->comments()->count();
+        
+        //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
     }

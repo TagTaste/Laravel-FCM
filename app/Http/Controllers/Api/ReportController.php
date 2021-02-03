@@ -77,7 +77,7 @@ class ReportController extends Controller
         }
 
         // category of content
-        $valid_content_type = array("shoutout", "photo", "product", "polling", "collaborate");
+        $valid_content_type = array("shoutout", "photo", "product", "polling", "collaborate", "surveys");
         $content_type = null !== $request->input('content_type') ? $request->input('content_type') : null;
         if (!in_array($content_type, $valid_content_type)) {
             $this->errors['status'] = 1;
@@ -92,7 +92,7 @@ class ReportController extends Controller
             $this->errors['message'] = 'Please provide valid content id to which you want to report.';
             return $this->sendResponse();
         } else {
-            if ($content_type != "product") {
+            if ($content_type != "product" && $content_type != "surveys") {
                 if (preg_match('/[^0-9]/', $content_id)) {
                   $this->errors['status'] = 1;
                   $this->errors['message'] = 'Please provide valid content id to whom you want to report.';
@@ -163,11 +163,13 @@ class ReportController extends Controller
             "shoutout" => array("App\Shoutout"),
             "polling"=> array("App\Polling"),
             "collaborate"=> array("App\Collaborate"),
+            "surveys"=> array("App\Surveys"),
             "shareable_photo" => array("App\Shareable\Photo"),
             "shareable_shoutout" => array("App\Shareable\Shoutout"),
             "shareable_polling"=> array("App\Shareable\Polling"),
             "shareable_product"=> array("App\Shareable\Product"),
             "shareable_collaborate"=> array("App\Shareable\Collaborate"),
+            "shareable_surveys"=> array("App\Shareable\Surveys"),
 
         );
 
@@ -189,6 +191,9 @@ class ReportController extends Controller
             } else if ("polling" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_polling"], $shared_id);
                 $payload_url = env('APP_URL')."/shared/".$shared_id."/polling/".$content_id;
+            } else if ("surveys" == $content_type) {
+                $payload_id = $this->getPayloadId($payload_info["shareable_surveys"], $shared_id);
+                $payload_url = env('APP_URL')."/shared/".$shared_id."/survey/".$content_id;
             }
         } else {
             if ("photo" == $content_type) {
@@ -203,6 +208,9 @@ class ReportController extends Controller
             } else if ("polling" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["polling"], $content_id);
                 $payload_url = env('APP_URL')."/polling/".$content_id;
+            } else if ("surveys" == $content_type) {
+                $payload_id = $this->getPayloadId($payload_info["surveys"], $content_id);
+                $payload_url = env('APP_URL')."/survey/".$content_id;
             }
         }
 

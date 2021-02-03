@@ -8,16 +8,18 @@ use App\Events\Model\Subscriber\Create;
 
 use App\Http\Controllers\Controller;
 use App\Events\NewFeedable;
-
-
+use App\Events\Actions\Like;
+use App\PeopleLike;
 use App\SurveyAnswers;
 use App\Surveys;
+use App\SurveysLike;
 use App\SurveyQuestionsType;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tagtaste\Api\SendsJsonResponse;
 use Webpatser\Uuid\Uuid;
+use Illuminate\Support\Facades\Redis;
 
 class SurveyController extends Controller
 {
@@ -267,6 +269,32 @@ class SurveyController extends Controller
             $this->model = true;
             $this->messages = "Survey Deleted Successfully";
         }
+        return $this->sendResponse();
+    }
+
+    public function like(Request $request, $surveyId)
+    {
+        $profileId = $request->user()->profile->id;
+        $key = "meta:surveys:likes:" . $surveyId;
+        $surveyLike = Redis::sIsMember($key,$profileId);
+        $this->model = [];
+        
+        if ($surveyLike) {
+            SurveysLike::where('profile_id', $profileId)->where('surveys_id', $surveyId)->delete();
+            Redis::sRem($key,$profileId);
+            $this->model['liked'] = false;
+        } else {
+            SurveysLike::insert(['profile_id' => $profileId, 'surveys_id' => $surveyId]);
+            Redis::sAdd($key,$profileId);
+            $this->model['liked'] = true;
+            $recipe = Surveys::find($surveyId);
+            event(new Like($recipe, $request->user()->profile));
+        }
+        $this->model['likeCount'] = Redis::sCard($key);
+
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($surveyId, "surveys",request()->user()->profile->id);
+
         return $this->sendResponse();
     }
 
