@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Redis;
 use \Carbon\Carbon;
 use App\PublicReviewProduct\Review;
 use App\Profile;
+use App\Surveys;
 
 class ExploreController extends Controller
 {
@@ -86,6 +87,9 @@ class ExploreController extends Controller
                             unset($data[$interface->id]['elements']);
                         } else if (isset($collection->type) && "collaborate" === $collection->type && isset($collection->category_type) && "collaborate" === $collection->category_type) {
                             $data[$interface->id]['elements'] = $this->exploreCollaboration($loggedInProfileId, 0, 2);
+                            $data[$interface->id]['see_more'] = true;
+                        } else if (isset($collection->type) && "surveys" === $collection->type && isset($collection->category_type) && "surveys" === $collection->category_type) {
+                            $data[$interface->id]['elements'] = $this->exploreSurveys($loggedInProfileId, 0, 2);
                             $data[$interface->id]['see_more'] = true;
                         } else if (isset($collection->type) && "top_taster" === $collection->type && isset($collection->category_type) && "profile" === $collection->category_type) {
                             $data[$interface->id]['elements'] = $this->exploreTopTaster($loggedInProfileId, 0, 20);
@@ -336,6 +340,31 @@ class ExploreController extends Controller
             }
         }
         return $collaborate_data;
+    }
+
+    public static function exploreSurveys($profileId, $skip, $limit) 
+    {
+        $survey_data = [];
+        
+        $survey = Surveys::where('state',2)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->skip($skip)
+            ->take($limit)
+            ->pluck('id')
+            ->toArray();
+
+        if (count($survey)) {
+            foreach ($survey as $key => $id) {
+                $cached_data = \App\Surveys::where('id', $id)->first();
+                if (!is_null($cached_data)) {
+                    $data = $cached_data->toArray(); 
+                    $data['element_type'] = 'surveys';
+                    array_push($survey_data, $data); 
+                }
+            }
+        }
+        return $survey_data;
     }
 
      public static function exploreTopTaster($profileId, $skip, $limit) 

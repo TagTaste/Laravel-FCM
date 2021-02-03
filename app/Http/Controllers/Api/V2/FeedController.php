@@ -314,7 +314,7 @@ class FeedController extends Controller
         }
         
 
-        $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
+        $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate","surveys");
         $indexTypeV1 = array("photo", "polling");
         $index = 0;
         foreach ($payloads as $payload) {
