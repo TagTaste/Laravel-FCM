@@ -41,8 +41,9 @@ class SurveyController extends Controller
             $this->errors = ["Survey Doesn't Exists"];
             return $this->sendResponse();
         }
+        $getSurvey["form_json"] = json_decode($getSurvey["form_json"], true);
         $this->messages = "Request successfull";
-        $this->model = [ 
+        $this->model = [
             "surveys" => $getSurvey,
             "meta" => $getSurvey->getMetaAttribute(),
             "seoTags" => $getSurvey->getSeoTags(),
@@ -63,13 +64,14 @@ class SurveyController extends Controller
             'company_id' => 'nullable|exists:companies,id',
             'title' => 'required|max:191',
             'description' => 'required|max:5000 ',
-            'image_meta' => 'nullable|json',
-            'video_meta' => 'nullable|json',
-            'form_json' => 'required|json|survey_question_form',
-            'invited_profile_ids' => 'nullable',
-            'expired_at' => 'required',
+            'image_meta' => 'array',
+            'video_meta' => 'array',
+            'form_json' => 'required',
+            'invited_profile_ids' => 'nullable|array',
+            'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2'
         ]);
+
 
         $this->model = false;
         $this->messages = "Survey Failed";
@@ -78,10 +80,17 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
+
+        $this->validateSurveyFormJson($request);
+
+        if (!empty($this->errors)) {
+            return $this->sendResponse();
+        }
+
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if ($request->has('company_id')) {
             $companyId = $request->input('company_id');
-            $userId = $request->user()->id;
+            $userId = $request->user()->profile->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
@@ -91,7 +100,7 @@ class SurveyController extends Controller
 
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
-        $prepData["profile_id"] = $request->user()->id;
+        $prepData["profile_id"] = $request->user()->profile->id;
         $prepData["state"] = $request->state;
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
@@ -101,39 +110,43 @@ class SurveyController extends Controller
             $prepData["company_id"] = $request->company_id;
         }
         if ($request->has("image_meta")) {
-            $prepData["image_meta"] = $request->image_meta;
+            $prepData["image_meta"] = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
         }
         if ($request->has("video_meta")) {
-            $prepData["video_meta"] = $request->video_meta;
+            $prepData["video_meta"] = (is_array($request->video_meta) ? json_encode($request->video_meta) : $request->video_meta);
         }
+
         if ($request->has("form_json")) {
-            $prepData["form_json"] = $request->form_json;
+            $prepData["form_json"] = (is_array($request->form_json) ? json_encode($request->form_json) : $request->form_json);
         }
+
         if ($request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData["published_at"] = date("Y-m-d H:i:s");
         }
         if ($request->has("invited_profile_ids")) {
-            $prepData["invited_profile_ids"] = $request->invited_profile_ids;
+            $prepData["invited_profile_ids"] = (is_array($request->invited_profile_ids) ? json_encode($request->invited_profile_ids) : $request->invited_profile_ids);
         }
 
         if ($request->has("expired_at")) {
-            $prepData["expired_at"] = $request->expired_at;
+            $prepData["expired_at"] = date("Y-m-d", strtotime($request->expired_at));
         }
 
         $create = Surveys::create($prepData);
+        $create->image_meta = json_decode($create->image_meta);
+        $create->video_meta = json_decode($create->video_meta);
+        $create->form_json = json_decode($create->form_json);
 
-        $survey = Surveys::find($create->id);
         if (isset($create->id)) {
+            $survey = Surveys::find($create->id);
             $this->model = $create;
             $this->messages = "Survey Created Successfully";
+            if ($request->has('company_id')) {
+                event(new NewFeedable($survey, $company));
+            } else {
+                event(new NewFeedable($survey, $request->user()->profile));
+            }
+            event(new Create($survey, $request->user()->profile));
         }
-
-        if ($request->has('company_id')) {
-            event(new NewFeedable($survey, $company));
-        } else {
-            event(new NewFeedable($survey, $request->user()->profile));
-        }
-        event(new Create($survey, $request->user()->profile));
         return $this->sendResponse();
     }
 
@@ -146,24 +159,9 @@ class SurveyController extends Controller
      */
     public function update($id, Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'company_id' => 'nullable|exists:companies,id',
-            'title' => 'required|max:191',
-            'description' => 'required|max:5000 ',
-            'image_meta' => 'nullable|json',
-            'video_meta' => 'nullable|json',
-            'form_json' => 'required|json|survey_question_form',
-            'invited_profile_ids' => 'nullable',
-            'expired_at' => 'required',
-            'state' => 'required|in:1,2'
-        ]);
 
         $this->model = false;
         $this->messages = "Survey Failed";
-        if ($validator->fails()) {
-            $this->errors = $validator->messages();
-            return $this->sendResponse();
-        }
 
         $create = Surveys::where("id", "=", $id);
         $getSurvey = $create->first();
@@ -173,15 +171,41 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
+        $validator = Validator::make($request->all(), [
+            'company_id' => 'nullable|exists:companies,id',
+            'title' => 'required|max:191',
+            'description' => 'required|max:5000 ',
+            'image_meta' => 'array',
+            'video_meta' => 'array',
+            'form_json' => 'required|array',
+            'invited_profile_ids' => 'nullable',
+            'expired_at' => 'date_format:Y-m-d',
+            'state' => 'required|in:1,2'
+        ]);
+
+        if ($validator->fails()) {
+            $this->errors = $validator->messages();
+            return $this->sendResponse();
+        }
+
+        $this->validateSurveyFormJson($request);
+
+        if (!empty($this->errors)) {
+            return $this->sendResponse();
+        }
+
         $checkIfResponsesReceived = SurveyAnswers::where("survey_id", "=", $id)->first();
         if (!empty($checkIfResponsesReceived)) {
             $this->errors = ["Cannot update survey once response is received"];
             return $this->sendResponse();
         }
 
+        if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
+            $this->errors = ["Survey Once Published cannot be changed to draft"];
+            return $this->sendResponse();
+        }
+
         $prepData = (object)[];
-
-
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
@@ -191,21 +215,26 @@ class SurveyController extends Controller
         $prepData->description = $request->description;
 
         if ($request->has("image_meta")) {
-            $prepData->image_meta = $request->image_meta;
+            $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
         }
+
         if ($request->has("video_meta")) {
-            $prepData->video_meta = $request->video_meta;
+            $prepData->video_meta = (is_array($request->video_meta) ? json_encode($request->video_meta) : $request->video_meta);
         }
-        $prepData->form_json = $request->form_json;
+
+        if ($request->has("form_json")) {
+            $prepData->form_json = (is_array($request->form_json) ? json_encode($request->form_json) : $request->form_json);
+        }
+
         if ($request->has("profile_updated_by")) {
-            $prepData->profile_updated_by = $request->profile_updated_by;
+            $prepData->profile_updated_by = $request->user()->profile->id;
         }
         if ($request->has("invited_profile_ids")) {
-            $prepData->invited_profile_ids = $request->invited_profile_ids;
+            $prepData->invited_profile_ids = (is_array($request->invited_profile_ids) ? json_encode($request->invited_profile_ids) : $request->invited_profile_ids);
         }
 
         if ($request->has("expired_at")) {
-            $prepData->expired_at = $request->expired_at;
+            $prepData->expired_at = date("Y-m-d", strtotime($request->expired_at));
         }
 
 
@@ -213,6 +242,14 @@ class SurveyController extends Controller
 
         $this->model = true;
         $this->messages = "Survey Updated Successfully";
+
+
+        if ($request->has('company_id')) {
+            event(new NewFeedable($getSurvey, $request->company_id));
+        } else {
+            event(new NewFeedable($getSurvey, $request->user()->profile));
+        }
+        event(new Create($getSurvey, $request->user()->profile));
 
         return $this->sendResponse();
     }
@@ -291,7 +328,7 @@ class SurveyController extends Controller
                 return $this->sendResponse();
             }
 
-            $checkIFAlreadyFilled = SurveyAnswers::where("survey_id", "=", $request->survey_id)->where('profile_id', "=", $request->user()->id)->first();
+            $checkIFAlreadyFilled = SurveyAnswers::where("survey_id", "=", $request->survey_id)->where('profile_id', "=", $request->user()->profile->id)->first();
 
             if (!empty($checkIFAlreadyFilled) && $checkIFAlreadyFilled->current_status == config("constant.SURVEY_STATUS.COMPLETED")) {
                 $this->errors = ["Survey is already completed"];
@@ -303,7 +340,7 @@ class SurveyController extends Controller
             $commit = true;
             foreach ($optionArray as $values) {
                 $answerArray = [];
-                $answerArray["profile_id"] = $request->user()->id;
+                $answerArray["profile_id"] = $request->user()->profile->id;
                 $answerArray["survey_id"] = $request->survey_id;
                 $answerArray["question_id"] = $values["question_id"];
                 $answerArray["question_type"] = $values["question_type_id"];
@@ -369,28 +406,28 @@ class SurveyController extends Controller
         foreach ($getJson as $values) {
             shuffle($colorCodeList);
             $questionId = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->groupBy("profile_id")->get();
-
             $getAvg = $this->array_avg($questionId->pluck("option_id")->toArray());
-
-
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
-            $optCounter = 0;
-            foreach ($values["options"] as $optVal) {
-                // $prepareNode["reports"][$counter]["option"][$optCounter] = $optVal;
-                $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
-                $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $optVal["title"];
-                $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
-                $prepareNode["reports"][$counter]["option"][$optCounter]["count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
-                $prepareNode["reports"][$counter]["option"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
-                $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
-                $optCounter++;
+
+            if ($values["question_type"] != 7) {
+                $optCounter = 0;
+                foreach ($values["options"] as $optVal) {
+                    // $prepareNode["reports"][$counter]["option"][$optCounter] = $optVal;
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $optVal["title"];
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+                    $optCounter++;
+                }
+            } else {
             }
             $questionId = [];
             $counter++;
         }
-        dd($prepareNode);
     }
 
     function array_avg($array, $round = 1)
@@ -402,5 +439,49 @@ class SurveyController extends Controller
             },
             array_count_values($array)
         );
+    }
+
+    private function validateSurveyFormJson($request)
+    {
+        //FORM JSON Validation;
+        $decodeJson = (is_array($request->form_json) ? $request->form_json : json_decode($request->form_json, true));
+        if (!empty($decodeJson)) {
+            //required node for questions    
+            $requiredNode = ["question_type", "title", "image_meta", "video_meta", "description", "id", "is_mandatory", "options"];
+            //required option nodes
+            $optionNodeChecker = ["id", "option_type", "image_meta", "video_meta", "title"];
+            //getTypeOfQuestions
+            $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
+
+            foreach ($decodeJson as $values) {
+
+                if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
+
+                    $diff = array_diff($requiredNode, array_keys($values));
+
+                    if (empty($diff) && isset($values["options"])) {
+                        foreach ($values["options"] as $opt) {
+                            $diffOptions = array_diff($optionNodeChecker, array_keys($opt));
+                            if (!empty($diffOptions)) {
+                                $this->errors["form_json"] = "Option Nodes Missing " . implode(",", $diffOptions);
+                            }
+                        }
+                    } else {
+                        $this->errors["form_json"] = "Question Nodes Missing " . implode(",", $diff);
+                    }
+                } else {
+                    $this->errors["form_json"] = "Invalid Question Type " . $values["question_type"];
+                }
+            }
+        } else {
+            $this->errors["image_meta"] = "Invalid Form Json";
+        }
+        if (!is_array($request->image_meta)) {
+            $this->errors["image_meta"] = "The image meta must be an array.";
+        }
+
+        if (!is_array($request->video_meta)) {
+            $this->errors["video_meta"] = "The image meta must be an array.";
+        }
     }
 }
