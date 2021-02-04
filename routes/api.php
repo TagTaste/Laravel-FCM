@@ -865,5 +865,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
     Route::group(['namespace'=>'Survey','prefix'=>'surveys','as'=>'surveys.','middleware'=>'api.auth'],function() {
         Route::post('/{id}/like','SurveyController@like');
+        Route::get('/similar/{id}','SurveyController@similarSurveys');        
     });
 });
