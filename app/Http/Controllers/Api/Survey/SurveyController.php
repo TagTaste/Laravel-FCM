@@ -66,7 +66,7 @@ class SurveyController extends Controller
         $surveys = $this->model->orderBy('state', 'asc')->orderBy('created_at','desc');
         $profileId = $request->user()->profile->id;
         $title = isset($request->title)?$request->title:null;
-        
+
         $this->model = [];
         $data = [];
         
@@ -93,7 +93,7 @@ class SurveyController extends Controller
         $this->model['surveys'] = $data;
         return $this->sendResponse();
     }
-
+    
     /**
      * Store a newly created resource in storage.
      *

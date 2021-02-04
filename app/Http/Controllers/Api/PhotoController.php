@@ -47,6 +47,7 @@ class PhotoController extends Controller
         }
         $imageName = str_random("32") . ".jpg";
         $randnum = rand(10,1000);
+        
         $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original/$randnum",$imageName,['visibility'=>'public']));
         //create a tiny image
         try{
@@ -71,4 +72,42 @@ class PhotoController extends Controller
         $this->model = $response;
         return $this->sendResponse();
     }
+
+    public function globalFileUpload(Request $request)
+    {
+        $data=$request->all();
+        $rules=['document'=>'mimes:pdf,doc,docx,txt,xls,xlsx|max:10240|required'];
+        $validator = Validator($data,$rules);
+        if ($validator->fails()){
+            return $this->sendError("This file type not allowed or max limit(10 MB)reached.");
+        }
+
+        if(!$request->hasFile('document')){
+            return $this->sendError("Could not find document to upload.");
+        }
+        $file = $request->file('document');
+        $profileId = $request->user()->profile->id;
+        $extension = $file->getClientOriginalExtension();
+
+        $modelName = strtolower($request->input('model_name'));
+        if(is_null($modelName) || $modelName == ''){
+            return $this->sendError("Model name missing.");
+        }
+
+        $originalName = $file->getClientOriginalName();
+        $path = "document/$modelName/$profileId";
+        $fileSize = $request->file('document')->getSize(); //return in Bytes divide by 1024 for KB
+ 
+        $response['document_url'] = \Storage::url($request->file('document')->storeAs($path,$originalName,['visibility'=>'public']));
+        $response['orignal_name'] = $originalName;
+        $response['meta']['profile_id'] = $profileId;
+        $response['meta']['name'] = $request->user()->name;
+        
+        if(!$response){
+            throw new \Exception("Could not save image " . $originalName . " at " . $path);
+        }
+        $this->model = $response;
+        return $this->sendResponse();
+    }
+
 }

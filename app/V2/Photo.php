@@ -97,7 +97,7 @@ class Photo extends Model implements Feedable
             'updated_at'=>$this->updated_at->toDateTimeString(),'image_meta'=>$this->image_meta];
         Redis::set("photo:".$this->id,json_encode($data));
     }
-
+    
     public function deleteFromCache()
     {
         Redis::del("photo:".$this->id);

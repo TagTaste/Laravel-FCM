@@ -330,6 +330,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         //global image upload function
         Route::post("globalImageUpload","PhotoController@globalImageUpload");
+        Route::post("globalFileUpload","PhotoController@globalFileUpload");
+
+
+        
 
         //invites
         Route::post("invites","InviteController@invite");
@@ -846,7 +850,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         return response($str, 200, $headers);
 
     });
-    
+
 
     Route::group(['namespace'=>'Survey','prefix'=>'survey','as'=>'survey.','middleware'=>'api.auth'],function() {
         Route::get('/reports/{id}','SurveyController@reports')->name("reports");      

@@ -79,10 +79,7 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-        $meta['answerCount'] = 40;        
-        
-        //NOTE NIKHIL : Add answer count in here like poll count 
-        // $meta['answer_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
         $meta['isReported'] =  $this->isSurveyReported();
         return $meta;
     }
@@ -97,10 +94,7 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-        $meta['answerCount'] = 40;        
-        
-        //NOTE NIKHIL : Add answer count in here like poll count 
-        // $meta['answer_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
         $meta['isReported'] =  $this->isSurveyReported();
         return $meta;
     }
