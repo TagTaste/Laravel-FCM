@@ -93,12 +93,13 @@ class PhotoController extends Controller
         if(is_null($modelName) || $modelName == ''){
             return $this->sendError("Model name missing.");
         }
-
+        $fileNameRandom = str_random("32") . ".$extension";
         $originalName = $file->getClientOriginalName();
+        
         $path = "document/$modelName/$profileId";
         $fileSize = $request->file('document')->getSize(); //return in Bytes divide by 1024 for KB
  
-        $response['document_url'] = \Storage::url($request->file('document')->storeAs($path,$originalName,['visibility'=>'public']));
+        $response['document_url'] = \Storage::url($request->file('document')->storeAs($path,$fileNameRandom,['visibility'=>'public']));
         $response['orignal_name'] = $originalName;
         $response['meta']['profile_id'] = $profileId;
         $response['meta']['name'] = $request->user()->name;
