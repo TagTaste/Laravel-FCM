@@ -330,6 +330,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         //global image upload function
         Route::post("globalImageUpload","PhotoController@globalImageUpload");
+        Route::post("globalFileUpload","PhotoController@globalFileUpload");
+
+
+        
 
         //invites
         Route::post("invites","InviteController@invite");
@@ -852,11 +856,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get('/reports/{id}','SurveyController@reports')->name("reports");      
         Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
         Route::post('/save-survey','SurveyController@saveAnswers');
+        Route::get('/my-list','SurveyController@getMySurvey'); 
         Route::get('/{id}','SurveyController@index');  
         Route::post('/{id}','SurveyController@update');
         Route::delete('/{id}','SurveyController@destroy');
-        Route::post('/','SurveyController@store');    
-
+        Route::post('/','SurveyController@store');
     });
 
     Route::group(['namespace'=>'Survey','prefix'=>'surveys','as'=>'surveys.','middleware'=>'api.auth'],function() {

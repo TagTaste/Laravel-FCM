@@ -8,6 +8,8 @@ use App\Events\Model\Subscriber\Create;
 
 use App\Http\Controllers\Controller;
 use App\Events\NewFeedable;
+use App\Events\UpdateFeedable;
+use App\Events\DeleteFeedable;
 use App\Events\Actions\Like;
 use App\PeopleLike;
 use App\SurveyAnswers;
@@ -25,6 +27,13 @@ class SurveyController extends Controller
 {
 
     use SendsJsonResponse;
+
+    protected $model;
+
+    public function __construct(Surveys $model)
+    {
+        $this->model = $model;
+    }
 
     /**
      * Display a listing of the resource.
@@ -51,7 +60,41 @@ class SurveyController extends Controller
         return $this->sendResponse();
     }
 
+    public function getMySurvey(Request $request)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $surveys = $this->model->orderBy('state', 'asc')->orderBy('created_at','desc');
+        $profileId = $request->user()->profile->id;
+        $title = isset($request->title)?$request->title:null;
 
+        $this->model = [];
+        $data = [];
+        
+        //Get compnaies of the logged in user.
+        $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
+        
+        $surveys = $surveys->where('profile_id', $profileId)
+                    ->orWhereIn('company_id', $companyIds);
+
+        if (!is_null($title)) {
+            $surveys = $surveys->where('title','like','%'.$title.'%');
+        
+        }
+        $this->model['count'] = $surveys->count();
+        
+        $surveys = $surveys->skip($skip)->take($take)
+        ->get();
+        foreach ($surveys as $survey) {
+            $data[] = [
+                'survey' => $survey,
+                'meta' => $survey->getMetaFor($profileId)
+            ];
+        }
+        $this->model['surveys'] = $data;
+        return $this->sendResponse();
+    }
+    
     /**
      * Store a newly created resource in storage.
      *
@@ -135,17 +178,19 @@ class SurveyController extends Controller
         $create->image_meta = json_decode($create->image_meta);
         $create->video_meta = json_decode($create->video_meta);
         $create->form_json = json_decode($create->form_json);
-
+        
         if (isset($create->id)) {
             $survey = Surveys::find($create->id);
             $this->model = $create;
             $this->messages = "Survey Created Successfully";
-            if ($request->has('company_id')) {
-                event(new NewFeedable($survey, $company));
-            } else {
-                event(new NewFeedable($survey, $request->user()->profile));
+            if($survey->state == '2'){
+                if ($request->has('company_id')) {
+                    event(new NewFeedable($survey, $company));
+                } else {
+                    event(new NewFeedable($survey, $request->user()->profile));
+                }
+                event(new Create($survey, $request->user()->profile));    
             }
-            event(new Create($survey, $request->user()->profile));
         }
         return $this->sendResponse();
     }
@@ -182,7 +227,7 @@ class SurveyController extends Controller
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2'
         ]);
-
+        
         if ($validator->fails()) {
             $this->errors = $validator->messages();
             return $this->sendResponse();
@@ -207,9 +252,16 @@ class SurveyController extends Controller
 
         $prepData = (object)[];
 
+        $oldState = $getSurvey->state;
+        $newReqState = $request->state || null;
+
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
+        }else if($getSurvey->state != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")){
+            $this->errors = ["Cannot update survey back to draft once its published"];
+            return $this->sendResponse();
         }
+        
         $prepData->state = $request->state;
         $prepData->title = $request->title;
         $prepData->description = $request->description;
@@ -237,20 +289,27 @@ class SurveyController extends Controller
             $prepData->expired_at = date("Y-m-d", strtotime($request->expired_at));
         }
 
-
+        
         $create->update((array)$prepData);
 
         $this->model = true;
         $this->messages = "Survey Updated Successfully";
-
-
-        if ($request->has('company_id')) {
-            event(new NewFeedable($getSurvey, $request->company_id));
-        } else {
-            event(new NewFeedable($getSurvey, $request->user()->profile));
+        
+        if($getSurvey->state == config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")){
+            //create new cache
+            $getSurvey = $create->first();
+            if ($request->has('company_id')) {
+                event(new NewFeedable($getSurvey, $request->company_id));
+            } else {
+                event(new NewFeedable($getSurvey, $request->user()->profile));
+            }
+            event(new Create($getSurvey, $request->user()->profile));
+        }else if($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED")){
+            //update cache
+            $getSurvey = $create->first();
+            $getSurvey->addToCache();
+            event(new UpdateFeedable($getSurvey));
         }
-        event(new Create($getSurvey, $request->user()->profile));
-
         return $this->sendResponse();
     }
 
@@ -263,11 +322,16 @@ class SurveyController extends Controller
     public function destroy(Surveys $id)
     {
         $this->model = false;
+        $delete = Surveys::where("id", "=", $id->id);
+        $survey = $delete->first();
+
         $this->messages = "Survey Delete Failed";
         $deleteSurvey = Surveys::where("id", "=", $id->id)->update(["is_active" => 0, "deleted_at" => date("Y-m-d H:i:s")]);
         if ($deleteSurvey) {
             $this->model = true;
             $this->messages = "Survey Deleted Successfully";
+            event(new DeleteFeedable($survey));
+            $survey->removeFromCache();
         }
         return $this->sendResponse();
     }
