@@ -262,8 +262,9 @@ class SearchController extends Controller
 
         if(null == $type || "surveys" === $type)
         {
-            $surveyList = \DB::table('surveys')->where('title', 'like','%'.$term.'%')->
-                whereNull('deleted_at')->orderBy('id','desc')->skip($skip)
+            $surveyList = \DB::table('surveys')->where('state','!=',1)
+                ->where('title', 'like','%'.$term.'%')
+                ->whereNull('deleted_at')->orderBy('id','desc')->skip($skip)
                 ->take($take)->get();
 
             if(count($surveyList)){
