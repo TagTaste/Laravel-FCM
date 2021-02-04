@@ -857,12 +857,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
         Route::post('/save-survey','SurveyController@saveAnswers');
         Route::get('/my-list','SurveyController@getMySurvey'); 
+        Route::get('/similar/{id}','SurveyController@similarSurveys');        
         Route::post('/{id}/like','SurveyController@like');
+        Route::post('/{id}/like','SurveyController@like');
+        
         Route::get('/{id}','SurveyController@index');  
         Route::post('/{id}','SurveyController@update');
         Route::delete('/{id}','SurveyController@destroy');
         Route::post('/','SurveyController@store');
-    
-    
+
     });
 });

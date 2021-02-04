@@ -492,6 +492,8 @@ class SearchController extends Controller
                 $surveys = $this->model['surveys'];
                 $this->model['surveys'] = [];
                 foreach($surveys as $survey){
+                    $survey->image_meta = json_decode($survey->image_meta);
+                    $survey->video_meta = json_decode($survey->video_meta);
                     $this->model['surveys'][] = ['survey' => $survey, 'meta' => $survey->getMetaFor($profileId)];
                 }
             }

@@ -85,6 +85,8 @@ class SurveyController extends Controller
         $surveys = $surveys->skip($skip)->take($take)
             ->get();
         foreach ($surveys as $survey) {
+            $survey->image_meta = json_decode($survey->image_meta);
+            $survey->video_meta = json_decode($survey->video_meta);
             $data[] = [
                 'survey' => $survey,
                 'meta' => $survey->getMetaFor($profileId)
@@ -191,6 +193,31 @@ class SurveyController extends Controller
                 event(new Create($survey, $request->user()->profile));
             }
         }
+        return $this->sendResponse();
+    }
+
+
+    public function similarSurveys(Request $request, $surveyId)
+    {
+        $survey = $this->model->where('id', $surveyId)->first();
+        if($survey == null)
+        {
+            return $this->sendError("Invalid Survey Id");
+        }
+
+        $profileId = $request->user()->profile->id;
+        $surveys = $this->model->where('state',2)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->take(3)->get();
+
+        $this->model = [];
+        foreach($surveys as $survey){
+            $meta = $survey->getMetaFor($profileId);
+            $survey->image_meta = json_decode($survey->image_meta);
+            $survey->video_meta = json_decode($survey->video_meta);
+            $this->model[] = ['surveys'=>$survey,'meta'=>$meta];
+        }   
         return $this->sendResponse();
     }
 
