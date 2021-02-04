@@ -58,13 +58,15 @@ class SurveyController extends Controller
         return $this->sendResponse();
     }
 
-    
+
     public function getMySurvey(Request $request)
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $surveys = $this->model->orderBy('state', 'asc')->orderBy('created_at','desc');
         $profileId = $request->user()->profile->id;
+        $title = isset($request->title)?$request->title:null;
+        
         $this->model = [];
         $data = [];
         
@@ -74,6 +76,10 @@ class SurveyController extends Controller
         $surveys = $surveys->where('profile_id', $profileId)
                     ->orWhereIn('company_id', $companyIds);
 
+        if (!is_null($title)) {
+            $surveys = $surveys->where('title','like','%'.$title.'%');
+        
+        }
         $this->model['count'] = $surveys->count();
         
         $surveys = $surveys->skip($skip)->take($take)
