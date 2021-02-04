@@ -26,6 +26,13 @@ class SurveyController extends Controller
 
     use SendsJsonResponse;
 
+    protected $model;
+
+    public function __construct(Surveys $model)
+    {
+        $this->model = $model;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -51,6 +58,35 @@ class SurveyController extends Controller
         return $this->sendResponse();
     }
 
+    
+    public function getMySurvey(Request $request)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $surveys = $this->model->orderBy('state', 'asc')->orderBy('created_at','desc');
+        $profileId = $request->user()->profile->id;
+        $this->model = [];
+        $data = [];
+        
+        //Get compnaies of the logged in user.
+        $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
+        
+        $surveys = $surveys->where('profile_id', $profileId)
+                    ->orWhereIn('company_id', $companyIds);
+
+        $this->model['count'] = $surveys->count();
+        
+        $surveys = $surveys->skip($skip)->take($take)
+        ->get();
+        foreach ($surveys as $survey) {
+            $data[] = [
+                'survey' => $survey,
+                'meta' => $survey->getMetaFor($profileId)
+            ];
+        }
+        $this->model['surveys'] = $data;
+        return $this->sendResponse();
+    }
 
     /**
      * Store a newly created resource in storage.
