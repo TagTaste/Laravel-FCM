@@ -276,16 +276,16 @@ class SurveyController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $key = "meta:surveys:likes:" . $surveyId;
-        $surveyLike = Redis::sIsMember($key,$profileId);
+        $surveyLike = Redis::sIsMember($key, $profileId);
         $this->model = [];
-        
+
         if ($surveyLike) {
             SurveysLike::where('profile_id', $profileId)->where('surveys_id', $surveyId)->delete();
-            Redis::sRem($key,$profileId);
+            Redis::sRem($key, $profileId);
             $this->model['liked'] = false;
         } else {
             SurveysLike::insert(['profile_id' => $profileId, 'surveys_id' => $surveyId]);
-            Redis::sAdd($key,$profileId);
+            Redis::sAdd($key, $profileId);
             $this->model['liked'] = true;
             $recipe = Surveys::find($surveyId);
             event(new Like($recipe, $request->user()->profile));
@@ -293,7 +293,7 @@ class SurveyController extends Controller
         $this->model['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
-        $this->model['peopleLiked'] = $peopleLike->peopleLike($surveyId, "surveys",request()->user()->profile->id);
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($surveyId, "surveys", request()->user()->profile->id);
 
         return $this->sendResponse();
     }
@@ -405,27 +405,48 @@ class SurveyController extends Controller
         $counter = 0;
         foreach ($getJson as $values) {
             shuffle($colorCodeList);
-            $questionId = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->groupBy("profile_id")->get();
-            $getAvg = $this->array_avg($questionId->pluck("option_id")->toArray());
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->groupBy("profile_id")->get();
+            $getAvg = $this->array_avg($answers->pluck("option_id")->toArray());
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
 
-            if ($values["question_type"] != 7) {
-                $optCounter = 0;
-                foreach ($values["options"] as $optVal) {
-                    // $prepareNode["reports"][$counter]["option"][$optCounter] = $optVal;
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $optVal["title"];
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
+
+            $optCounter = 0;
+            foreach ($values["options"] as $optVal) {
+                // $prepareNode["reports"][$counter]["option"][$optCounter] = $optVal;
+                $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
+                $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $optVal["title"];
+                $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
+                if ($values["question_type"] != 7) {
                     $prepareNode["reports"][$counter]["option"][$optCounter]["count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
                     $prepareNode["reports"][$counter]["option"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
                     $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
-                    $optCounter++;
+                } else {
+                    $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
+                    foreach($answers as $ansVal){
+                        if(count($imageMeta) < 10){
+                            $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta): $ansVal->image_meta);
+                            array_map(function($value) use($ansVal,&$imageMeta){
+                                $imageMeta[] = ["url"=>$value["tiny_photo"],"author"=>$ansVal->profile()->name];
+                            },$decodeImg);
+                        }
+                    }
+                    $imageMeta = $answers->pluck("image_meta")->toArray();
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["image_meta"] = $imageMeta;
+                    
+                    // $videoMeta = $answers->pluck("video_meta")->toArray();
+                    // $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["video_meta"] = $videoMeta;
+                    // $documentMeta = $answers->pluck("document_meta")->toArray();
+                    // $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["document_meta"] = $documentMeta;
+                    // $mediaUrl = $answers->pluck("media_url")->toArray();
+                    // $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["media_url"] = $mediaUrl;
+                    
                 }
-            } else {
+                $optCounter++;
             }
-            $questionId = [];
+
+            $answers = [];
             $counter++;
         }
     }

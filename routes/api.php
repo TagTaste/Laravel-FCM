@@ -848,7 +848,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
     });
 
 
-    Route::group(['namespace'=>'Survey','prefix'=>'survey','as'=>'survey.','middleware'=>'api.auth'],function() {
+    Route::group(['namespace'=>'Survey','prefix'=>'surveys','as'=>'surveys.','middleware'=>'api.auth'],function() {
         Route::get('/reports/{id}','SurveyController@reports')->name("reports");      
         Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
         Route::post('/save-survey','SurveyController@saveAnswers');

@@ -28,9 +28,15 @@ class Surveys extends Model implements Feedable
 
     protected $appends = ['owner','meta'];
 
-    protected $cast = [
-        "form_json" => 'array'
+    protected $casts = [
+        "form_json" => 'array',
+        "image_meta" => 'booleans',
+        'video_meta' => 'array'
     ];
+
+    public function getImageMetaAttribute($value){
+        return json_decode($value,true);
+    }
 
     public function addToCache()
     {
@@ -111,6 +117,7 @@ class Surveys extends Model implements Feedable
         $data['description'] = "by ".$this->owner->name;
         $data['ogTitle'] = "Survey: ".substr($this->title,0,65);
         $data['ogDescription'] = "by ".$this->owner->name;
+        die;
         $images = $this->image_meta != null ? $this->image_meta : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
