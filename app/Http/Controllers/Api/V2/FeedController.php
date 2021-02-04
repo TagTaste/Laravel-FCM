@@ -327,7 +327,7 @@ class FeedController extends Controller
                     $key = $key.":V2";
                     $cachedData = Redis::connection('V2')->get($key);
                 } else {
-                    die;
+                    
                     $cachedData = Redis::get($key);
                 }
                 if (!$cachedData) {
