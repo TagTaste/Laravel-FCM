@@ -86,6 +86,8 @@ class SurveyController extends Controller
         $surveys = $surveys->skip($skip)->take($take)
         ->get();
         foreach ($surveys as $survey) {
+            $survey->image_meta = json_decode($survey->image_meta);
+            $survey->video_meta = json_decode($survey->video_meta);
             $data[] = [
                 'survey' => $survey,
                 'meta' => $survey->getMetaFor($profileId)
@@ -213,6 +215,8 @@ class SurveyController extends Controller
         $this->model = [];
         foreach($surveys as $survey){
             $meta = $survey->getMetaFor($profileId);
+            $survey->image_meta = json_decode($survey->image_meta);
+            $survey->video_meta = json_decode($survey->video_meta);
             $this->model[] = ['surveys'=>$survey,'meta'=>$meta];
         }   
         return $this->sendResponse();

@@ -341,7 +341,7 @@ class ExploreController extends Controller
         }
         return $collaborate_data;
     }
-
+    
     public static function exploreSurveys($profileId, $skip, $limit) 
     {
         $survey_data = [];
