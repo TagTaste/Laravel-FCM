@@ -63,28 +63,27 @@ class SurveyController extends Controller
     public function getMySurvey(Request $request)
     {
         $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $surveys = $this->model->orderBy('state', 'asc')->orderBy('created_at','desc');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $surveys = $this->model->orderBy('state', 'asc')->orderBy('created_at', 'desc');
         $profileId = $request->user()->profile->id;
-        $title = isset($request->title)?$request->title:null;
+        $title = isset($request->title) ? $request->title : null;
 
         $this->model = [];
         $data = [];
-        
+
         //Get compnaies of the logged in user.
-        $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
-        
+        $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
+
         $surveys = $surveys->where('profile_id', $profileId)
-                    ->orWhereIn('company_id', $companyIds);
+            ->orWhereIn('company_id', $companyIds);
 
         if (!is_null($title)) {
-            $surveys = $surveys->where('title','like','%'.$title.'%');
-        
+            $surveys = $surveys->where('title', 'like', '%' . $title . '%');
         }
         $this->model['count'] = $surveys->count();
-        
+
         $surveys = $surveys->skip($skip)->take($take)
-        ->get();
+            ->get();
         foreach ($surveys as $survey) {
             $data[] = [
                 'survey' => $survey,
@@ -94,7 +93,7 @@ class SurveyController extends Controller
         $this->model['surveys'] = $data;
         return $this->sendResponse();
     }
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -178,18 +177,18 @@ class SurveyController extends Controller
         $create->image_meta = json_decode($create->image_meta);
         $create->video_meta = json_decode($create->video_meta);
         $create->form_json = json_decode($create->form_json);
-        
+
         if (isset($create->id)) {
             $survey = Surveys::find($create->id);
             $this->model = $create;
             $this->messages = "Survey Created Successfully";
-            if($survey->state == '2'){
+            if ($survey->state == '2') {
                 if ($request->has('company_id')) {
                     event(new NewFeedable($survey, $company));
                 } else {
                     event(new NewFeedable($survey, $request->user()->profile));
                 }
-                event(new Create($survey, $request->user()->profile));    
+                event(new Create($survey, $request->user()->profile));
             }
         }
         return $this->sendResponse();
@@ -227,7 +226,7 @@ class SurveyController extends Controller
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2'
         ]);
-        
+
         if ($validator->fails()) {
             $this->errors = $validator->messages();
             return $this->sendResponse();
@@ -257,11 +256,11 @@ class SurveyController extends Controller
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
-        }else if($getSurvey->state != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")){
+        } else if ($getSurvey->state != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
             $this->errors = ["Cannot update survey back to draft once its published"];
             return $this->sendResponse();
         }
-        
+
         $prepData->state = $request->state;
         $prepData->title = $request->title;
         $prepData->description = $request->description;
@@ -289,13 +288,13 @@ class SurveyController extends Controller
             $prepData->expired_at = date("Y-m-d", strtotime($request->expired_at));
         }
 
-        
+
         $create->update((array)$prepData);
 
         $this->model = true;
         $this->messages = "Survey Updated Successfully";
-        
-        if($getSurvey->state == config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")){
+
+        if ($getSurvey->state == config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //create new cache
             $getSurvey = $create->first();
             if ($request->has('company_id')) {
@@ -304,7 +303,7 @@ class SurveyController extends Controller
                 event(new NewFeedable($getSurvey, $request->user()->profile));
             }
             event(new Create($getSurvey, $request->user()->profile));
-        }else if($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED")){
+        } else if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //update cache
             $getSurvey = $create->first();
             $getSurvey->addToCache();
@@ -467,6 +466,7 @@ class SurveyController extends Controller
 
         $getJson = json_decode($checkIFExists["form_json"], true);
         $counter = 0;
+
         foreach ($getJson as $values) {
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->groupBy("profile_id")->get();
@@ -482,30 +482,63 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
                 $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $optVal["title"];
                 $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
-                if ($values["question_type"] != 7) {
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+                if ($values["question_type"] != 5) {
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
                     $prepareNode["reports"][$counter]["option"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
                     $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
                 } else {
-                    $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
-                    foreach($answers as $ansVal){
-                        if(count($imageMeta) < 10){
-                            $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta): $ansVal->image_meta);
-                            array_map(function($value) use($ansVal,&$imageMeta){
-                                $imageMeta[] = ["url"=>$value["tiny_photo"],"author"=>$ansVal->profile()->name];
-                            },$decodeImg);
+                    if ($answers->count() == 0) {
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["answer_count"] = 0;
+                    } else {
+                        $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
+                        foreach ($answers as $ansVal) {
+
+                            if (count($imageMeta) < 10) {
+                                $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
+                                if (is_array($decodeImg) && !empty($decodeImg)) {
+                                    array_map(function ($value) use ($ansVal, &$imageMeta) {
+                                        $imageMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                    }, $decodeImg);
+                                }
+                            }
+
+                            if (count($videoMeta) < 10) {
+                                $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
+                                if (is_array($decodeVid) && !empty($decodeVid)) {
+                                    array_map(function ($value) use ($ansVal, &$videoMeta) {
+                                        $videoMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                    }, $decodeVid);
+                                }
+                            }
+
+                            if (count($documentMeta) < 10) {
+                                $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
+                                if (is_array($decodeDoc) && !empty($decodeDoc)) {
+                                    array_map(function ($value) use ($ansVal, &$documentMeta) {
+                                        $documentMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                    }, $decodeDoc);
+                                }
+                            }
+
+                            if (count($mediaUrl) < 10) {
+                                $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
+                                if (is_array($decodeUrl) && !empty($decodeUrl)) {
+                                    array_map(function ($value) use ($ansVal, &$mediaUrl) {
+                                        $mediaUrl[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                    }, $decodeUrl);
+                                }
+                            }
                         }
+                        // $imageMeta = $answers->pluck("image_meta")->toArray();
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["image_meta"] = $imageMeta;
+
+                        // $videoMeta = $answers->pluck("video_meta")->toArray();
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["video_meta"] = $videoMeta;
+                        // $documentMeta = $answers->pluck("document_meta")->toArray();
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["document_meta"] = $documentMeta;
+                        // $mediaUrl = $answers->pluck("media_url")->toArray();
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["media_url"] = $mediaUrl;
                     }
-                    $imageMeta = $answers->pluck("image_meta")->toArray();
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["image_meta"] = $imageMeta;
-                    
-                    // $videoMeta = $answers->pluck("video_meta")->toArray();
-                    // $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["video_meta"] = $videoMeta;
-                    // $documentMeta = $answers->pluck("document_meta")->toArray();
-                    // $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["document_meta"] = $documentMeta;
-                    // $mediaUrl = $answers->pluck("media_url")->toArray();
-                    // $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["media_url"] = $mediaUrl;
-                    
                 }
                 $optCounter++;
             }
@@ -513,6 +546,9 @@ class SurveyController extends Controller
             $answers = [];
             $counter++;
         }
+        $this->messages = "Report Successful";
+        $this->model = $prepareNode;
+        return $this->sendResponse();
     }
 
     function array_avg($array, $round = 1)
