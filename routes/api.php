@@ -846,7 +846,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         return response($str, 200, $headers);
 
     });
-
+    
 
     Route::group(['namespace'=>'Survey','prefix'=>'survey','as'=>'survey.','middleware'=>'api.auth'],function() {
         Route::get('/reports/{id}','SurveyController@reports')->name("reports");      
@@ -858,7 +858,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::delete('/{id}','SurveyController@destroy');
         Route::post('/','SurveyController@store');
     });
-    
+
     Route::group(['namespace'=>'Survey','prefix'=>'surveys','as'=>'surveys.','middleware'=>'api.auth'],function() {
         Route::post('/{id}/like','SurveyController@like');
     });
