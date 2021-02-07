@@ -41,11 +41,11 @@ class Surveys extends Share
 
         $meta['commentCount'] = $this->comments()->count();
 
-        // $poll = \App\Polling::where('id',$this->poll_id)->whereNull('deleted_at')->first();
-        // if ($poll) {
-        //     $meta['originalPostMeta'] = $poll->getMetaFor($profileId);//Because off android this response is changes 
-        //                                                               //from original_post_meta to originalPostMeta 
-        // }
+        $survey = \App\Surveys::where('id',$this->surveys_id)->whereNull('deleted_at')->first();
+        if ($survey) {
+            $meta['originalPostMeta'] = $survey->getMetaFor($profileId);//Because off android this response is changes 
+                                                                      //from original_post_meta to originalPostMeta 
+        }
         $meta['isReported'] =  $this->isSurveyReported();
         return $meta;
     }
@@ -57,10 +57,11 @@ class Surveys extends Share
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
-        // $poll = \App\Polling::where('id',$this->poll_id)->whereNull('deleted_at')->first();
-        // if ($poll) {
-        //     $meta['originalPostMeta'] = $poll->getMetaFor($profileId);
-        // }
+        $survey = \App\Surveys::where('id',$this->surveys_id)->whereNull('deleted_at')->first();
+        if ($survey) {
+            $meta['originalPostMeta'] = $survey->getMetaFor($profileId);//Because off android this response is changes 
+                                                                      //from original_post_meta to originalPostMeta 
+        }
         $meta['isReported'] =  $this->isSurveyReported();
         return $meta;
     }

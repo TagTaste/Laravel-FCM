@@ -161,7 +161,7 @@ class ShareController extends Controller
         $this->model = $this->model->delete() ? true : false;
         return $this->sendResponse();
     }
-
+    
     public function show(Request $request, $modelName, $id,$modelId)
     {
         //photo

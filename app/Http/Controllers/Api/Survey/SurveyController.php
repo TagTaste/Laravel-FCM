@@ -181,7 +181,7 @@ class SurveyController extends Controller
         $create->video_meta = json_decode($create->video_meta);
         // $create->form_json = json_decode($create->final_json);
         $create->form_json = $final_json;
-
+        
         if (isset($create->id)) {
             $survey = Surveys::find($create->id);
             $this->model = $create;
@@ -193,6 +193,9 @@ class SurveyController extends Controller
                     event(new NewFeedable($survey, $request->user()->profile));
                 }
                 event(new Create($survey, $request->user()->profile));
+
+                $survey->addToCache();
+                event(new UpdateFeedable($survey));
             }
         }
         return $this->sendResponse();
