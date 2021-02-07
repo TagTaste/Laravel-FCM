@@ -125,7 +125,7 @@ class SurveyController extends Controller
         }
 
 
-        $this->validateSurveyFormJson($request);
+        $final_json = $this->validateSurveyFormJson($request);
 
         if (!empty($this->errors)) {
             return $this->sendResponse();
@@ -161,9 +161,10 @@ class SurveyController extends Controller
         }
 
         if ($request->has("form_json")) {
-            $prepData["form_json"] = (is_array($request->form_json) ? json_encode($request->form_json) : $request->form_json);
+            // $prepData["form_json"] = (is_array($request->form_json) ? json_encode($request->form_json) : $request->form_json);
+            $prepData["form_json"] = json_encode($final_json);
         }
-
+        
         if ($request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData["published_at"] = date("Y-m-d H:i:s");
         }
@@ -178,7 +179,8 @@ class SurveyController extends Controller
         $create = Surveys::create($prepData);
         $create->image_meta = json_decode($create->image_meta);
         $create->video_meta = json_decode($create->video_meta);
-        $create->form_json = json_decode($create->form_json);
+        // $create->form_json = json_decode($create->final_json);
+        $create->form_json = $final_json;
 
         if (isset($create->id)) {
             $survey = Surveys::find($create->id);
@@ -259,7 +261,7 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-        $this->validateSurveyFormJson($request);
+        $final_json = $this->validateSurveyFormJson($request, true);
 
         if (!empty($this->errors)) {
             return $this->sendResponse();
@@ -301,7 +303,8 @@ class SurveyController extends Controller
         }
 
         if ($request->has("form_json")) {
-            $prepData->form_json = (is_array($request->form_json) ? json_encode($request->form_json) : $request->form_json);
+            $prepData->form_json = json_encode($final_json);
+            // $prepData->form_json = (is_array($request->form_json) ? json_encode($request->form_json) : $request->form_json);
         }
 
         if ($request->has("profile_updated_by")) {
@@ -589,7 +592,7 @@ class SurveyController extends Controller
         );
     }
 
-    private function validateSurveyFormJson($request)
+    private function validateSurveyFormJson($request, $isUpdation = false)
     {
         //FORM JSON Validation;
         $decodeJson = (is_array($request->form_json) ? $request->form_json : json_decode($request->form_json, true));
@@ -600,15 +603,35 @@ class SurveyController extends Controller
             $optionNodeChecker = ["id", "option_type", "image_meta", "video_meta", "title"];
             //getTypeOfQuestions
             $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
+            $maxQueId = 1;
+            if($isUpdation){
+                $maxQueId = max(array_column($decodeJson, 'id'));
+                $maxQueId++;
+            }
 
-            foreach ($decodeJson as $values) {
-
+            foreach ($decodeJson as &$values) {
                 if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
-
                     $diff = array_diff($requiredNode, array_keys($values));
+                    // echo (isset($values['id']));
+                    if(!$isUpdation || !isset($values['id']) || empty($values['id'])){
+                        $values['id'] = $maxQueId;
+                        $maxQueId++;
+                        // echo "cehcking que";
+                        // echo $maxQueId;
+                    }
 
                     if (empty($diff) && isset($values["options"])) {
-                        foreach ($values["options"] as $opt) {
+                        $maxOptionId = 1;
+                        if($isUpdation){
+                            $maxOptionId = max(array_column($values["options"], 'id'));
+                            $maxOptionId++;
+                        }
+                        
+                        foreach ($values["options"] as &$opt) {
+                            if(!$isUpdation || !isset($opt['id']) || empty($opt['id'])){
+                                $opt['id'] = $maxOptionId;
+                                $maxOptionId++;
+                            }
                             $diffOptions = array_diff($optionNodeChecker, array_keys($opt));
                             if (!empty($diffOptions)) {
                                 $this->errors["form_json"] = "Option Nodes Missing " . implode(",", $diffOptions);
@@ -621,6 +644,9 @@ class SurveyController extends Controller
                     $this->errors["form_json"] = "Invalid Question Type " . $values["question_type"];
                 }
             }
+            // echo '<pre>'; print_r($decodeJson); echo '</pre>';
+
+            
         } else {
             $this->errors["image_meta"] = "Invalid Form Json";
         }
@@ -631,5 +657,6 @@ class SurveyController extends Controller
         if (!is_array($request->video_meta)) {
             $this->errors["video_meta"] = "The image meta must be an array.";
         }
+        return $decodeJson;
     }
 }
