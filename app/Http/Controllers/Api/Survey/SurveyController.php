@@ -40,7 +40,7 @@ class SurveyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($id)
+    public function index(Request $request, $id)
     {
         $getSurvey = Surveys::where("id", "=", $id)->where("is_active", "=", 1)->first();
 
@@ -54,7 +54,7 @@ class SurveyController extends Controller
         $this->messages = "Request successfull";
         $this->model = [
             "surveys" => $getSurvey,
-            "meta" => $getSurvey->getMetaAttribute(),
+            "meta" => $getSurvey->getMetaFor($request->user()->profile->id),
             "seoTags" => $getSurvey->getSeoTags(),
         ];
         return $this->sendResponse();
