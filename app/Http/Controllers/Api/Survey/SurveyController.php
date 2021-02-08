@@ -164,7 +164,7 @@ class SurveyController extends Controller
             // $prepData["form_json"] = (is_array($request->form_json) ? json_encode($request->form_json) : $request->form_json);
             $prepData["form_json"] = json_encode($final_json);
         }
-        
+
         if ($request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData["published_at"] = date("Y-m-d H:i:s");
         }
@@ -181,7 +181,7 @@ class SurveyController extends Controller
         $create->video_meta = json_decode($create->video_meta);
         // $create->form_json = json_decode($create->final_json);
         $create->form_json = $final_json;
-        
+
         if (isset($create->id)) {
             $survey = Surveys::find($create->id);
             $this->model = $create;
@@ -205,24 +205,23 @@ class SurveyController extends Controller
     public function similarSurveys(Request $request, $surveyId)
     {
         $survey = $this->model->where('id', $surveyId)->first();
-        if($survey == null)
-        {
+        if ($survey == null) {
             return $this->sendError("Invalid Survey Id");
         }
 
         $profileId = $request->user()->profile->id;
-        $surveys = $this->model->where('state',2)
+        $surveys = $this->model->where('state', 2)
             ->whereNull('deleted_at')
             ->inRandomOrder()
             ->take(3)->get();
 
         $this->model = [];
-        foreach($surveys as $survey){
+        foreach ($surveys as $survey) {
             $meta = $survey->getMetaFor($profileId);
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
-            $this->model[] = ['surveys'=>$survey,'meta'=>$meta];
-        }   
+            $this->model[] = ['surveys' => $survey, 'meta' => $meta];
+        }
         return $this->sendResponse();
     }
 
@@ -407,7 +406,7 @@ class SurveyController extends Controller
             $validator = Validator::make($request->all(), [
                 'survey_id' => 'required|exists:surveys,id',
                 'current_status' => 'required|numeric',
-                'answer_json' => 'required|json|survey_answer_scrutiny'
+                'answer_json' => 'required|array|survey_answer_scrutiny'
             ]);
 
 
@@ -431,7 +430,7 @@ class SurveyController extends Controller
                 return $this->sendResponse();
             }
 
-            $optionArray = json_decode($request->answer_json, true);
+            $optionArray = (is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
             DB::beginTransaction();
             $commit = true;
             foreach ($optionArray as $values) {
@@ -481,14 +480,26 @@ class SurveyController extends Controller
     public function reports($id, Request $request)
     {
 
-        $checkIFExists = Surveys::where("id", "=", $id)->first();
+        $checkIFExists = $this->model->where("id", "=", $id)->first();
 
         $colorCodeList = ["#fcba03", "#fcda02", "#fcpa0g", "#fcfa12", "#acaaf3", "#fcba03", "#faac11"];
-        $this->model = false;
-        $this->messages = "Answer Submission Failed";
+
+
         if (empty($checkIFExists)) {
-            $this->errors = ["Invalid Survey"];
-            return $this->sendResponse();
+            return $this->sendError("Invalid Survey");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $request->input('company_id');
+            $userId = $request->user()->profile->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Survey Admin can view this report");
         }
 
         $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id);
@@ -607,7 +618,7 @@ class SurveyController extends Controller
             //getTypeOfQuestions
             $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
             $maxQueId = 1;
-            if($isUpdation){
+            if ($isUpdation) {
                 $maxQueId = max(array_column($decodeJson, 'id'));
                 $maxQueId++;
             }
@@ -616,7 +627,7 @@ class SurveyController extends Controller
                 if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
                     $diff = array_diff($requiredNode, array_keys($values));
                     // echo (isset($values['id']));
-                    if(!$isUpdation || !isset($values['id']) || empty($values['id'])){
+                    if (!$isUpdation || !isset($values['id']) || empty($values['id'])) {
                         $values['id'] = $maxQueId;
                         $maxQueId++;
                         // echo "cehcking que";
@@ -625,13 +636,13 @@ class SurveyController extends Controller
 
                     if (empty($diff) && isset($values["options"])) {
                         $maxOptionId = 1;
-                        if($isUpdation){
+                        if ($isUpdation) {
                             $maxOptionId = max(array_column($values["options"], 'id'));
                             $maxOptionId++;
                         }
-                        
+
                         foreach ($values["options"] as &$opt) {
-                            if(!$isUpdation || !isset($opt['id']) || empty($opt['id'])){
+                            if (!$isUpdation || !isset($opt['id']) || empty($opt['id'])) {
                                 $opt['id'] = $maxOptionId;
                                 $maxOptionId++;
                             }
@@ -649,7 +660,7 @@ class SurveyController extends Controller
             }
             // echo '<pre>'; print_r($decodeJson); echo '</pre>';
 
-            
+
         } else {
             $this->errors["image_meta"] = "Invalid Form Json";
         }
@@ -661,5 +672,159 @@ class SurveyController extends Controller
             $this->errors["video_meta"] = "The image meta must be an array.";
         }
         return $decodeJson;
+    }
+
+    public function surveyRespondents($id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->first();
+        if (empty($checkIFExists)) {
+            return $this->sendError("Invalid Survey");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $request->input('company_id');
+            $userId = $request->user()->profile->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Survey Admin can view this report");
+        }
+
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
+        $profileId = $request->user()->profile->id;
+
+        $this->model = [];
+        $data = ["answer_count" => $answers->get()->count()];
+
+        $this->model['count'] = $answers->count();
+
+        $respondent = $answers->skip($skip)->take($take)
+            ->get();
+        foreach ($respondent as $profile) {
+            $data['report'][] = $profile->profile;
+        }
+        $this->model = $data;
+        return $this->sendResponse();
+    }
+
+    public function inputAnswers($id, $question_id, $option_id, Request $request)
+    {
+
+        $checkIFExists = $this->model->where("id", "=", $id)->first();
+        if (empty($checkIFExists)) {
+            return $this->sendError("Invalid Survey");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $request->input('company_id');
+            $userId = $request->user()->profile->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Survey Admin can view this report");
+        }
+
+
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
+
+        $this->model = [];
+        $data = ["answer_count" => $answers->get()->count()];
+
+        $this->model['count'] = $answers->count();
+
+        $respondent = $answers->skip($skip)->take($take)
+            ->get();
+
+        foreach ($respondent as $profile) {
+            $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
+        }
+
+        $this->model = $data;
+        return $this->sendResponse();
+    }
+
+    public function userReport($id, $profile_id, Request $request)
+    {
+
+        $checkIFExists = $this->model->where("id", "=", $id)->first();
+        if (empty($checkIFExists)) {
+            return $this->sendError("Invalid Survey");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $request->input('company_id');
+            $userId = $request->user()->profile->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Survey Admin can view this report");
+        }
+
+        $colorCodeList = ["#fcba03", "#fcda02", "#fcpa0g", "#fcfa12", "#acaaf3", "#fcba03", "#faac11"];
+
+        $prepareNode = ["reports" => []];
+
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $counter = 0;
+
+        foreach ($getJson as $values) {
+            shuffle($colorCodeList);
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->first();
+
+            if (!empty($answers)) {
+                $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+                $prepareNode["reports"][$counter]["title"] = $values["title"];
+                $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+                $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
+                $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
+                $optCounter = 0;
+                foreach ($values["options"] as $optVal) {
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
+
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $answers->answer_value;
+
+                    if ($values["question_type"] != 5) {
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+                    } else {
+                        // $imageMeta = $answers->pluck("image_meta")->toArray();
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["image_meta"] = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
+
+                        // $videoMeta = $answers->pluck("video_meta")->toArray();
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["video_meta"] = (!is_array($answers->video_meta) ? json_decode($answers->video_meta, true) : $answers->video_meta);
+
+                        // $documentMeta = $answers->pluck("document_meta")->toArray();
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["document_meta"] = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
+
+                        // $mediaUrl = $answers->pluck("media_url")->toArray();
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["media_url"] = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
+                    }
+                }
+                $optCounter++;
+
+                $answers = [];
+
+                $counter++;
+            }
+        }
+        $this->messages = "Report Successful";
+        $this->model = $prepareNode;
+        return $this->sendResponse();
     }
 }
