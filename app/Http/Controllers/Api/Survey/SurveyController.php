@@ -444,6 +444,7 @@ class SurveyController extends Controller
                 $answerArray["question_type"] = $values["question_type_id"];
                 $answerArray["current_status"] = $request->current_status;
                 foreach ($values["option"] as $optVal) {
+                    
                     $answerArray["option_id"] = $optVal["id"];
                     $answerArray["option_type"] = $optVal["option_type"];
                     $answerArray["answer_value"] = $optVal["value"];
@@ -474,7 +475,7 @@ class SurveyController extends Controller
 
             return $this->sendResponse();
         } catch (Exception $ex) {
-            echo $ex->getMessage() . " " . $ex->getLine()." ".$ex->getFile();
+            $this->sendError("Invalid Answer Json");
             DB::rollback();
         }
     }
