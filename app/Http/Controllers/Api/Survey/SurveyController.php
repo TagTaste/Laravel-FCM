@@ -474,7 +474,7 @@ class SurveyController extends Controller
 
             return $this->sendResponse();
         } catch (Exception $ex) {
-            echo $ex->getMessage() . " " . $ex->getLine();
+            echo $ex->getMessage() . " " . $ex->getLine()." ".$ex->getFile();
             DB::rollback();
         }
     }
