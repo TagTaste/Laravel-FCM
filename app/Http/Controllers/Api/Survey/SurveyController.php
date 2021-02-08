@@ -51,6 +51,9 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
         $getSurvey["form_json"] = json_decode($getSurvey["form_json"], true);
+        $getSurvey["video_meta"] = json_decode($getSurvey["video_meta"], true);
+        $getSurvey["image_meta"] = json_decode($getSurvey["image_meta"], true);
+        
         $this->messages = "Request successfull";
         $this->model = [
             "surveys" => $getSurvey,
