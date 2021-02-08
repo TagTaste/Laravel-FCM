@@ -433,7 +433,7 @@ class SurveyController extends Controller
                 return $this->sendResponse();
             }
 
-            $optionArray = (is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
+            $optionArray = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
             DB::beginTransaction();
             $commit = true;
             foreach ($optionArray as $values) {
