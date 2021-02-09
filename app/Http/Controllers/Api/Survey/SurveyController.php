@@ -135,7 +135,6 @@ class SurveyController extends Controller
         }
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
-        dd($request->user()->id);
         if ($request->has('company_id')) {
             $companyId = $request->input('company_id');
             $userId = $request->user()->id;
