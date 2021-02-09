@@ -91,7 +91,7 @@ class Surveys extends Model implements Feedable
         $meta['isReported'] =  $this->isSurveyReported();
 
         $answered = \DB::table('survey_answers')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('current_status',2)->first();
-        $meta['isReviewd'] = isset($answered) ? true : false;
+        $meta['isReviewed'] = isset($answered) ? true : false;
 
         return $meta;
     }
@@ -110,7 +110,7 @@ class Surveys extends Model implements Feedable
         $meta['isReported'] =  $this->isSurveyReported();
         
         $answered = \DB::table('survey_answers')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('current_status',2)->first();
-        $meta['isReviewd'] = isset($answered) ? true : false;
+        $meta['isReviewed'] = isset($answered) ? true : false;
 
         return $meta;
     }
