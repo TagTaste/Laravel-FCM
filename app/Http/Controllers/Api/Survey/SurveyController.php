@@ -109,8 +109,8 @@ class SurveyController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
-            'title' => 'required|max:191',
-            'description' => 'required|max:5000 ',
+            'title' => 'required|size:191',
+            'description' => 'required|size:2000',
             'image_meta' => 'array',
             'video_meta' => 'array',
             'form_json' => 'required',
@@ -251,8 +251,8 @@ class SurveyController extends Controller
 
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
-            'title' => 'required|max:191',
-            'description' => 'required|max:5000 ',
+            'title' => 'required|size:191',
+            'description' => 'required|size:2000',
             'image_meta' => 'array',
             'video_meta' => 'array',
             'form_json' => 'required|array',
@@ -338,6 +338,10 @@ class SurveyController extends Controller
                 event(new NewFeedable($getSurvey, $request->user()->profile));
             }
             event(new Create($getSurvey, $request->user()->profile));
+            
+            $getSurvey->addToCache();
+            event(new UpdateFeedable($getSurvey));
+            
         } else if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //update cache
             $getSurvey = $create->first();
@@ -830,5 +834,9 @@ class SurveyController extends Controller
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
         return $this->sendResponse();
+    }
+
+    public function mediaList(Request $request){
+
     }
 }
