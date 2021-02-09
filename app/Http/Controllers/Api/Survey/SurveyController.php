@@ -109,8 +109,8 @@ class SurveyController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
-            'title' => 'required|max:191',
-            'description' => 'required|max:5000 ',
+            'title' => 'required|between:1,191',
+            'description' => 'required|between:1,2000',
             'image_meta' => 'array',
             'video_meta' => 'array',
             'form_json' => 'required',
@@ -137,7 +137,7 @@ class SurveyController extends Controller
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if ($request->has('company_id')) {
             $companyId = $request->input('company_id');
-            $userId = $request->user()->profile->id;
+            $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
@@ -251,8 +251,8 @@ class SurveyController extends Controller
 
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
-            'title' => 'required|max:191',
-            'description' => 'required|max:5000 ',
+            'title' => 'required|between:1,191',
+            'description' => 'required|between:1,2000',
             'image_meta' => 'array',
             'video_meta' => 'array',
             'form_json' => 'required|array',
@@ -335,6 +335,10 @@ class SurveyController extends Controller
                 event(new NewFeedable($getSurvey, $request->user()->profile));
             }
             event(new Create($getSurvey, $request->user()->profile));
+
+            $getSurvey->addToCache();
+            event(new UpdateFeedable($getSurvey));
+            
         } else if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //update cache
             $getSurvey = $create->first();
@@ -493,7 +497,7 @@ class SurveyController extends Controller
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
             $companyId = $request->input('company_id');
-            $userId = $request->user()->profile->id;
+            $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
@@ -683,7 +687,7 @@ class SurveyController extends Controller
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
             $companyId = $request->input('company_id');
-            $userId = $request->user()->profile->id;
+            $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
@@ -723,7 +727,7 @@ class SurveyController extends Controller
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
             $companyId = $request->input('company_id');
-            $userId = $request->user()->profile->id;
+            $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
@@ -765,7 +769,7 @@ class SurveyController extends Controller
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
             $companyId = $request->input('company_id');
-            $userId = $request->user()->profile->id;
+            $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
@@ -825,5 +829,9 @@ class SurveyController extends Controller
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
         return $this->sendResponse();
+    }
+
+    public function mediaList(Request $request){
+
     }
 }
