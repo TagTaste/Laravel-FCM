@@ -181,6 +181,8 @@ class Deeplink
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;
                 case 'reviewCollection':     return env('APP_URL').'/collection/'.$modelId;
                 case 'feedCard':     return env('APP_URL').'/feed/card/'.$modelId;
+                case 'surveys':     return env('APP_URL').'/surveys/'.$modelId;
+
             }
         }
     }
@@ -204,6 +206,7 @@ class Deeplink
                 case 'product':     return Deeplink::getProductText($model);
                 case 'polling':     return Deeplink::getPollingText($model);
                 case 'feedCard':     return Deeplink::getFeedCardText($model);
+                case 'surveys':     return Deeplink::getSurveyText($model);
             }
         } else {
             return null;
@@ -279,5 +282,10 @@ class Deeplink
             return Str::words(substr($model->about,0,155))."...\r\nCheckout this company on TagTaste! \r\n";
         else
             return strip_tags("Checkout this company on TagTaste! \r\n");
+    }
+
+    public static function getSurveyText($model)
+    {
+        return "Checkout this survey on TagTaste! \r\n";
     }
 }
