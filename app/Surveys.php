@@ -89,6 +89,10 @@ class Surveys extends Model implements Feedable
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
         $meta['isReported'] =  $this->isSurveyReported();
+
+        $answered = \DB::table('survey_answers')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('current_status',2)->first();
+        $meta['isReviewd'] = isset($answered) ? true : false;
+
         return $meta;
     }
     
@@ -104,6 +108,10 @@ class Surveys extends Model implements Feedable
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
         $meta['isReported'] =  $this->isSurveyReported();
+        
+        $answered = \DB::table('survey_answers')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('current_status',2)->first();
+        $meta['isReviewd'] = isset($answered) ? true : false;
+
         return $meta;
     }
 
