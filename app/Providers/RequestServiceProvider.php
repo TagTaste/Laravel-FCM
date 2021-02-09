@@ -17,13 +17,14 @@ class RequestServiceProvider extends ServiceProvider
     {
         Validator::extend('survey_answer_scrutiny', function ($attribute, $value, $parameters, $validator) {
             
-            $decodeJson = json_decode($value, true);
-
+            $decodeJson = (!is_array($value) ? json_decode($value, true) : $value ); 
+            
             $requiredNode = ["question_id", "question_type_id", "option"];
             $optionNodeChecker = ["id", "value", "option_type"];
             
             if (is_array($decodeJson)) {
                 foreach ($decodeJson as $values) {
+                
                     $diff = array_diff($requiredNode, array_keys($values));
                     if (empty($diff) && isset($values["option"])) {
                         foreach ($values["option"] as $opt) {
