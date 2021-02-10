@@ -53,7 +53,7 @@ class SurveyController extends Controller
         $getSurvey["form_json"] = json_decode($getSurvey["form_json"], true);
         $getSurvey["video_meta"] = json_decode($getSurvey["video_meta"], true);
         $getSurvey["image_meta"] = json_decode($getSurvey["image_meta"], true);
-        
+
         $this->messages = "Request successfull";
         $this->model = [
             "surveys" => $getSurvey,
@@ -329,9 +329,9 @@ class SurveyController extends Controller
         $this->model = true;
         $this->messages = "Survey Updated Successfully";
 
+        $getSurvey =  Surveys::find($id);
         if ($getSurvey->state == config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //create new cache
-            $getSurvey = $create->first();
             if ($request->has('company_id')) {
                 event(new NewFeedable($getSurvey, $request->company_id));
             } else {
@@ -341,10 +341,8 @@ class SurveyController extends Controller
 
             $getSurvey->addToCache();
             event(new UpdateFeedable($getSurvey));
-            
         } else if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //update cache
-            $getSurvey = $create->first();
             $getSurvey->addToCache();
             event(new UpdateFeedable($getSurvey));
         }
@@ -448,7 +446,7 @@ class SurveyController extends Controller
                 $answerArray["question_type"] = $values["question_type_id"];
                 $answerArray["current_status"] = $request->current_status;
                 foreach ($values["option"] as $optVal) {
-                    
+
                     $answerArray["option_id"] = $optVal["id"];
                     $answerArray["option_type"] = $optVal["option_type"];
                     $answerArray["answer_value"] = $optVal["value"];
@@ -836,7 +834,44 @@ class SurveyController extends Controller
         return $this->sendResponse();
     }
 
-    public function mediaList(Request $request){
+    public function mediaList($id, $question_id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->first();
+        if (empty($checkIFExists)) {
+            return $this->sendError("Invalid Survey");
+        }
 
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $request->input('company_id');
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Survey Admin can view this report");
+        }
+
+        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id);
+
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        
+
+        $this->model = [];
+        $data = ["answer_count" => $retrieveAnswers->get()->count()];
+
+        $this->model['count'] = $retrieveAnswers->count();
+
+        $answers = $retrieveAnswers->skip($skip)->take($take)
+            ->get();
+
+        foreach ($answers as $ans) {
+
+
+
+        }
     }
 }

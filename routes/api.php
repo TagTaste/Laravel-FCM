@@ -857,7 +857,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get('/respondents/{id}','SurveyController@surveyRespondents');
         Route::get('/text-answers/{id}/{question_id}/{option_id}','SurveyController@inputAnswers');
         Route::get('/user-report/{id}/{profile_id}','SurveyController@userReport');
-        Route::get('/media-list/{id}/{question_id}','SurveyController@userReport');
+        Route::get('/media-list/{id}/{question_id}','SurveyController@mediaList');
         Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
         Route::post('/save-survey','SurveyController@saveAnswers');
         Route::get('/my-list','SurveyController@getMySurvey'); 
