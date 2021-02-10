@@ -322,13 +322,14 @@ class SurveyController extends Controller
 
 
         $create->update((array)$prepData);
-
+        
         $this->model = true;
         $this->messages = "Survey Updated Successfully";
-
-        $getSurvey =  Surveys::find($id);
+        
+        
         if ($getSurvey->state == config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //create new cache
+            $getSurvey = $create->first();
             if ($request->has('company_id')) {
                 event(new NewFeedable($getSurvey, $request->company_id));
             } else {
@@ -340,6 +341,8 @@ class SurveyController extends Controller
             event(new UpdateFeedable($getSurvey));
         } else if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //update cache
+            $getSurvey = $create->first();
+            
             $getSurvey->addToCache();
             event(new UpdateFeedable($getSurvey));
         }
