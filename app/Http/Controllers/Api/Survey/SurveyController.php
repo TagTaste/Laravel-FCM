@@ -285,9 +285,6 @@ class SurveyController extends Controller
 
         $prepData = (object)[];
 
-        $oldState = $getSurvey->state;
-        $newReqState = $request->state || null;
-
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
         } else if ($getSurvey->state != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
@@ -360,7 +357,7 @@ class SurveyController extends Controller
         $this->model = false;
         $delete = Surveys::where("id", "=", $id->id);
         $survey = $delete->first();
-
+        
         $this->messages = "Survey Delete Failed";
         $deleteSurvey = Surveys::where("id", "=", $id->id)->update(["is_active" => 0, "deleted_at" => date("Y-m-d H:i:s")]);
         if ($deleteSurvey) {
@@ -636,8 +633,6 @@ class SurveyController extends Controller
                     if (!$isUpdation || !isset($values['id']) || empty($values['id'])) {
                         $values['id'] = $maxQueId;
                         $maxQueId++;
-                        // echo "cehcking que";
-                        // echo $maxQueId;
                     }
 
                     if (empty($diff) && isset($values["options"])) {

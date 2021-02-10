@@ -170,7 +170,6 @@ class ReportController extends Controller
             "shareable_product"=> array("App\Shareable\Product"),
             "shareable_collaborate"=> array("App\Shareable\Collaborate"),
             "shareable_surveys"=> array("App\Shareable\Surveys"),
-
         );
 
         $payload_id = null;
@@ -193,7 +192,7 @@ class ReportController extends Controller
                 $payload_url = env('APP_URL')."/shared/".$shared_id."/polling/".$content_id;
             } else if ("surveys" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["shareable_surveys"], $shared_id);
-                $payload_url = env('APP_URL')."/shared/".$shared_id."/survey/".$content_id;
+                $payload_url = env('APP_URL')."/shared/".$shared_id."/surveys/".$content_id;
             }
         } else {
             if ("photo" == $content_type) {
@@ -210,7 +209,7 @@ class ReportController extends Controller
                 $payload_url = env('APP_URL')."/polling/".$content_id;
             } else if ("surveys" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["surveys"], $content_id);
-                $payload_url = env('APP_URL')."/survey/".$content_id;
+                $payload_url = env('APP_URL')."/surveys/".$content_id;
             }
         }
 
