@@ -451,18 +451,15 @@ class SurveyController extends Controller
                     $answerArray["option_type"] = $optVal["option_type"];
                     $answerArray["answer_value"] = $optVal["value"];
                     $answerArray["is_active"] = 1;
-                    if (isset($optVal["video_meta"]) && !empty($optVal["video_meta"])) {
-                        $answerArray["image_meta"] = $optVal["image_meta"];
-                    }
-                    if (isset($optVal["video_meta"]) && !empty($optVal["video_meta"])) {
-                        $answerArray["video_meta"] = $optVal["video_meta"];
-                    }
-                    if (isset($optVal["video_meta"]) && !empty($optVal["video_meta"])) {
-                        $answerArray["document_meta"] = $optVal["document_meta"];
-                    }
-                    if (isset($optVal["video_meta"]) && !empty($optVal["video_meta"])) {
-                        $answerArray["media_url"] = $optVal["media_url"];
-                    }
+                    $answerArray["image_meta"] = json_encode($optVal["image_meta"] ?? []);
+                    
+                    $answerArray["video_meta"] = json_encode($optVal["video_meta"] ?? []);
+                    
+                    $answerArray["document_meta"] = json_decode($optVal["document_meta"] ?? []);
+                    
+                    $answerArray["media_url"] = json_encode($optVal["media_url"] ?? []);
+                    
+                    
                     $surveyAnswer = SurveyAnswers::create($answerArray);
                     if (!$surveyAnswer) {
                         $commit = false;
@@ -472,7 +469,7 @@ class SurveyController extends Controller
             if ($commit) {
                 DB::commit();
                 $this->model = true;
-                $this->messages = "Answer Submitted succesfully";
+                $this->messages = "Answer Submitted Successfully";
             }
 
             return $this->sendResponse();

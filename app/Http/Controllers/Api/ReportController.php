@@ -11,6 +11,7 @@ use App\ReportContent;
 use App\ReportUser;
 use Carbon\Carbon;
 use App\Channel\Payload;
+use App\Surveys;
 
 class ReportController extends Controller
 {
@@ -208,7 +209,7 @@ class ReportController extends Controller
                 $payload_id = $this->getPayloadId($payload_info["polling"], $content_id);
                 $payload_url = env('APP_URL')."/polling/".$content_id;
             } else if ("surveys" == $content_type) {
-                $payload_id = $this->getPayloadId($payload_info["surveys"], $content_id);
+                $payload_id = $this->getSurveyPayloadId($content_id);
                 $payload_url = env('APP_URL')."/surveys/".$content_id;
             }
         }
@@ -273,6 +274,15 @@ class ReportController extends Controller
             return null;
         }
         return $payload_detail['id'];
+    }
+
+    public function getSurveyPayloadId($model_id){
+        $payload_detail = Surveys::where("id", $model_id)
+            ->first();
+        if (is_null($payload_detail)) {
+            return null;
+        }
+        return $payload_detail['payload_id'];
     }
 
     public function reportUser(Request $request)
