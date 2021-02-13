@@ -474,7 +474,7 @@ class SurveyController extends Controller
 
             return $this->sendResponse();
         } catch (Exception $ex) {
-            $this->sendError("Invalid Answer Json");
+           return $this->sendError("Error Saving Answers" .$ex->getMessage()." ".$ex->getFile()." ".$ex->getLine());
             DB::rollback();
         }
     }
