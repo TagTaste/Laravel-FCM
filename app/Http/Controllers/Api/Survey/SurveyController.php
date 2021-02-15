@@ -30,6 +30,9 @@ class SurveyController extends Controller
 
     protected $model;
 
+    protected $colorCodeList = ["#f60e3a", "#efb920", "#4990e2", "#00a146", 
+    "#00aeb3","#f47816","#16d3f4","#163ff4","#9116f4","#f416a4","#294d75","#752975","#752933","#a4610f","#2e308d","#888d2e","#c45fbb","#6c5e64","#d59f74","#30093b"];
+
     public function __construct(Surveys $model)
     {
         $this->model = $model;
@@ -485,7 +488,7 @@ class SurveyController extends Controller
 
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = ["#fcba03", "#fcda02", "#fcpa0g", "#fcfa12", "#acaaf3", "#fcba03", "#faac11"];
+        $colorCodeList = $this->colorCodeList;
 
 
         if (empty($checkIFExists)) {
@@ -697,7 +700,7 @@ class SurveyController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
+        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("is_active", "=", 1)->orderBy('created_at', 'desc')->groupBy("profile_id");
         $profileId = $request->user()->profile->id;
 
         $this->model = [];
@@ -777,7 +780,7 @@ class SurveyController extends Controller
             return $this->sendError("Only Survey Admin can view this report");
         }
 
-        $colorCodeList = ["#fcba03", "#fcda02", "#fcpa0g", "#fcfa12", "#acaaf3", "#fcba03", "#faac11"];
+        $colorCodeList = $this->colorCodeList;
 
         $prepareNode = ["reports" => []];
 
