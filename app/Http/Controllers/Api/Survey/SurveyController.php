@@ -30,8 +30,8 @@ class SurveyController extends Controller
 
     protected $model;
 
-    protected $colorCodeList = ["#f60e3a", "#efb920", "#4990e2", "#00a146", 
-    "#00aeb3","#f47816","#16d3f4","#163ff4","#9116f4","#f416a4","#294d75","#752975","#752933","#a4610f","#2e308d","#888d2e","#c45fbb","#6c5e64","#d59f74","#30093b"];
+    protected $colorCodeList = ["#F3C4CD","#F1E6C7","#D0DEEF", "#C1E2CF", 
+    "#C1E4E5","#F2D9C6","#C6ECF2","#C6CEF2","#DEC6F2","#F2C6E1","#CAD1D9","#D9CAD9","#D9CACC","#E2D5C4","#CBCBDE","#DDDECB","#E9D4E7","#D7D4D5","#ECE1D8","#CBC3CD"];
 
     public function __construct(Surveys $model)
     {
