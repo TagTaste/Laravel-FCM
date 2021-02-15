@@ -17,6 +17,7 @@ use App\Surveys;
 use App\SurveysLike;
 use App\SurveyQuestionsType;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tagtaste\Api\SendsJsonResponse;
@@ -30,8 +31,10 @@ class SurveyController extends Controller
 
     protected $model;
 
-    protected $colorCodeList = ["#F3C4CD","#F1E6C7","#D0DEEF", "#C1E2CF", 
-    "#C1E4E5","#F2D9C6","#C6ECF2","#C6CEF2","#DEC6F2","#F2C6E1","#CAD1D9","#D9CAD9","#D9CACC","#E2D5C4","#CBCBDE","#DDDECB","#E9D4E7","#D7D4D5","#ECE1D8","#CBC3CD"];
+    protected $colorCodeList = [
+        "#F3C4CD", "#F1E6C7", "#D0DEEF", "#C1E2CF",
+        "#C1E4E5", "#F2D9C6", "#C6ECF2", "#C6CEF2", "#DEC6F2", "#F2C6E1", "#CAD1D9", "#D9CAD9", "#D9CACC", "#E2D5C4", "#CBCBDE", "#DDDECB", "#E9D4E7", "#D7D4D5", "#ECE1D8", "#CBC3CD"
+    ];
 
     public function __construct(Surveys $model)
     {
@@ -325,11 +328,11 @@ class SurveyController extends Controller
 
 
         $create->update((array)$prepData);
-        
+
         $this->model = true;
         $this->messages = "Survey Updated Successfully";
-        
-        
+
+
         if ($getSurvey->state == config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //create new cache
             $getSurvey = $create->first();
@@ -345,7 +348,7 @@ class SurveyController extends Controller
         } else if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             //update cache
             $getSurvey = $create->first();
-            
+
             $getSurvey->addToCache();
             event(new UpdateFeedable($getSurvey));
         }
@@ -363,7 +366,7 @@ class SurveyController extends Controller
         $this->model = false;
         $delete = Surveys::where("id", "=", $id->id);
         $survey = $delete->first();
-        
+
         $this->messages = "Survey Delete Failed";
         $deleteSurvey = Surveys::where("id", "=", $id->id)->update(["is_active" => 0, "deleted_at" => date("Y-m-d H:i:s")]);
         if ($deleteSurvey) {
@@ -454,15 +457,15 @@ class SurveyController extends Controller
                     $answerArray["option_type"] = $optVal["option_type"];
                     $answerArray["answer_value"] = $optVal["value"];
                     $answerArray["is_active"] = 1;
-                        $answerArray["image_meta"] = ((isset($optVal["image_meta"])  && is_array($optVal["image_meta"])) ? json_encode($optVal["image_meta"]) : json_encode([]));
-                    
+                    $answerArray["image_meta"] = ((isset($optVal["image_meta"])  && is_array($optVal["image_meta"])) ? json_encode($optVal["image_meta"]) : json_encode([]));
+
                     $answerArray["video_meta"] = ((isset($optVal["video_meta"])  && is_array($optVal["video_meta"])) ? json_encode($optVal["video_meta"]) : json_encode([]));
-                    
+
                     $answerArray["document_meta"] = ((isset($optVal["document_meta"])  && is_array($optVal["document_meta"])) ? json_encode($optVal["document_meta"]) : json_encode([]));
-                    
+
                     $answerArray["media_url"] = ((isset($optVal["media_url"])  && is_array($optVal["media_url"])) ? json_encode($optVal["media_url"]) : json_encode([]));
-                    
-                    
+
+
                     $surveyAnswer = SurveyAnswers::create($answerArray);
                     if (!$surveyAnswer) {
                         $commit = false;
@@ -477,7 +480,7 @@ class SurveyController extends Controller
 
             return $this->sendResponse();
         } catch (Exception $ex) {
-           return $this->sendError("Error Saving Answers" .$ex->getMessage()." ".$ex->getFile()." ".$ex->getLine());
+            return $this->sendError("Error Saving Answers" . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
             DB::rollback();
         }
     }
@@ -524,7 +527,8 @@ class SurveyController extends Controller
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
-
+            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
+            $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ?  json_decode($values["video_meta"], true) : $values["video_meta"]);
 
             $optCounter = 0;
             foreach ($values["options"] as $optVal) {
@@ -744,7 +748,7 @@ class SurveyController extends Controller
         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
 
         $this->model = [];
-        $data = ["answer_count" => $answers->get()->count()];
+        $data = ["answer_count" => $answers->get()->count(), "report" => []];
 
         $this->model['count'] = $answers->count();
 
@@ -832,8 +836,13 @@ class SurveyController extends Controller
         return $this->sendResponse();
     }
 
-    public function mediaList($id, $question_id, Request $request)
+    public function mediaList($id, $question_id, $media_type, Request $request)
     {
+
+        if (!in_array($media_type, ["image_meta", "video_meta", "document_meta", "media_url"])) {
+            return $this->sendError("Invalid Media Type");
+        }
+
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             return $this->sendError("Invalid Survey");
@@ -849,27 +858,37 @@ class SurveyController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            return $this->sendError("Only Survey Admin can view this report");
+            // return $this->sendError("Only Survey Admin can view this report");
         }
 
-        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id);
+        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", 5)->get();
+
 
         $page = $request->input('page');
+
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+
+        $elements = [];
         
+        foreach ($retrieveAnswers as $answers) {
+            if (isset($answers->$media_type)) {
+                
+                $decode = (!is_null($answers->$media_type) ? json_decode($answers->$media_type, true) : []);
+                dd($decode);
+                if (is_array($decode) && count($decode)) {
+                    foreach ($decode as $d) {
+                        $elements[] = ["author" => $answers->profile->name];
+                    }
+                }
+            }
+        }
 
         $this->model = [];
-        $data = ["answer_count" => $retrieveAnswers->get()->count()];
+        $data = ["answer_count" => $retrieveAnswers->count(),"total_files"=>count($elements)];
 
-        $this->model['count'] = $retrieveAnswers->count();
-
-        $answers = $retrieveAnswers->skip($skip)->take($take)
-            ->get();
-
-        foreach ($answers as $ans) {
-
-
-
-        }
+        $data["media"] = array_slice($elements,$skip,$take);
+        $this->messages = "Report Successful";
+        $this->model = $data;
+        return $this->sendResponse();
     }
 }
