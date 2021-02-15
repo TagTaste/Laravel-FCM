@@ -874,10 +874,11 @@ class SurveyController extends Controller
             if (isset($answers->$media_type)) {
                 
                 $decode = (!is_null($answers->$media_type) ? json_decode($answers->$media_type, true) : []);
-                dd($decode);
+                    
                 if (is_array($decode) && count($decode)) {
-                    foreach ($decode as $d) {
-                        $elements[] = ["author" => $answers->profile->name];
+                    
+                    foreach ($decode as $value) {                        
+                        $elements[] = ["author" => $answers->profile->name, "media" => $value];
                     }
                 }
             }
@@ -887,7 +888,7 @@ class SurveyController extends Controller
         $data = ["answer_count" => $retrieveAnswers->count(),"total_files"=>count($elements)];
 
         $data["media"] = array_slice($elements,$skip,$take);
-        $this->messages = "Report Successful";
+        $this->messages = "Media List Successful";
         $this->model = $data;
         return $this->sendResponse();
     }
