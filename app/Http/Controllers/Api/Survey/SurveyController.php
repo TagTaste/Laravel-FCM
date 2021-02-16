@@ -500,7 +500,7 @@ class SurveyController extends Controller
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-            $companyId = $request->input('company_id');
+            $companyId = $checkIFExists->company_id;
             $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
@@ -691,7 +691,7 @@ class SurveyController extends Controller
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-            $companyId = $request->input('company_id');
+            $companyId = $checkIFExists->company_id;
             $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
@@ -731,7 +731,7 @@ class SurveyController extends Controller
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-            $companyId = $request->input('company_id');
+            $companyId = $checkIFExists->company_id;
             $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
@@ -773,7 +773,7 @@ class SurveyController extends Controller
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-            $companyId = $request->input('company_id');
+            $companyId = $checkIFExists->company_id;
             $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
@@ -850,7 +850,7 @@ class SurveyController extends Controller
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-            $companyId = $request->input('company_id');
+            $companyId = $checkIFExists->company_id;
             $userId = $request->user()->id;
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
