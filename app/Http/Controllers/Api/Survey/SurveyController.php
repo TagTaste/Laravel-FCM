@@ -551,7 +551,9 @@ class SurveyController extends Controller
                                 $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
                                 if (is_array($decodeImg) && !empty($decodeImg)) {
                                     array_map(function ($value) use ($ansVal, &$imageMeta) {
-                                        $imageMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                        if(isset($value["tiny_photo"])){
+                                            $imageMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                        }
                                     }, $decodeImg);
                                 }
                             }
@@ -560,7 +562,9 @@ class SurveyController extends Controller
                                 $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
                                 if (is_array($decodeVid) && !empty($decodeVid)) {
                                     array_map(function ($value) use ($ansVal, &$videoMeta) {
-                                        $videoMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                        if(isset($value["tiny_photo"])){
+                                            $videoMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                        }
                                     }, $decodeVid);
                                 }
                             }
@@ -568,8 +572,11 @@ class SurveyController extends Controller
                             if (count($documentMeta) < 10) {
                                 $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
                                 if (is_array($decodeDoc) && !empty($decodeDoc)) {
+                                    
                                     array_map(function ($value) use ($ansVal, &$documentMeta) {
-                                        $documentMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                        if(isset($value["document_url"])){
+                                            $documentMeta[] = ["url" => $value["document_url"], "author" => $ansVal->profile->name];
+                                        }
                                     }, $decodeDoc);
                                 }
                             }
@@ -577,8 +584,11 @@ class SurveyController extends Controller
                             if (count($mediaUrl) < 10) {
                                 $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
                                 if (is_array($decodeUrl) && !empty($decodeUrl)) {
+                                    
                                     array_map(function ($value) use ($ansVal, &$mediaUrl) {
-                                        $mediaUrl[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                        if(isset($value["url"])){
+                                            $mediaUrl[] = ["url" => $value["url"], "author" => $ansVal->profile->name];
+                                        }
                                     }, $decodeUrl);
                                 }
                             }
