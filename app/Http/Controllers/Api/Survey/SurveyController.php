@@ -551,8 +551,9 @@ class SurveyController extends Controller
                                 $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
                                 if (is_array($decodeImg) && !empty($decodeImg)) {
                                     array_map(function ($value) use ($ansVal, &$imageMeta) {
-                                        if(isset($value["tiny_photo"])){
-                                            $imageMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                        if (!empty($value)) {
+                                            $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                            $imageMeta[] = ["data" => $value, "meta" => $meta];
                                         }
                                     }, $decodeImg);
                                 }
@@ -562,8 +563,9 @@ class SurveyController extends Controller
                                 $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
                                 if (is_array($decodeVid) && !empty($decodeVid)) {
                                     array_map(function ($value) use ($ansVal, &$videoMeta) {
-                                        if(isset($value["tiny_photo"])){
-                                            $videoMeta[] = ["url" => $value["tiny_photo"], "author" => $ansVal->profile->name];
+                                        if (!empty($value)) {
+                                            $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                            $videoMeta[] = ["data" => $value, "meta" => $meta];
                                         }
                                     }, $decodeVid);
                                 }
@@ -572,10 +574,11 @@ class SurveyController extends Controller
                             if (count($documentMeta) < 10) {
                                 $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
                                 if (is_array($decodeDoc) && !empty($decodeDoc)) {
-                                    
+
                                     array_map(function ($value) use ($ansVal, &$documentMeta) {
-                                        if(isset($value["document_url"])){
-                                            $documentMeta[] = ["url" => $value["document_url"], "author" => $ansVal->profile->name];
+                                        if (!empty($value)) {
+                                            $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                            $documentMeta[] = ["data" => $value, "meta" => $meta];
                                         }
                                     }, $decodeDoc);
                                 }
@@ -584,10 +587,11 @@ class SurveyController extends Controller
                             if (count($mediaUrl) < 10) {
                                 $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
                                 if (is_array($decodeUrl) && !empty($decodeUrl)) {
-                                    
+
                                     array_map(function ($value) use ($ansVal, &$mediaUrl) {
-                                        if(isset($value["url"])){
-                                            $mediaUrl[] = ["url" => $value["url"], "author" => $ansVal->profile->name];
+                                        if (!empty($value)) {
+                                            $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                            $mediaUrl[] = ["data" => $value, "meta" => $meta];;
                                         }
                                     }, $decodeUrl);
                                 }
@@ -879,15 +883,15 @@ class SurveyController extends Controller
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
 
         $elements = [];
-        
+
         foreach ($retrieveAnswers as $answers) {
             if (isset($answers->$media_type)) {
-                
+
                 $decode = (!is_null($answers->$media_type) ? json_decode($answers->$media_type, true) : []);
-                    
+
                 if (is_array($decode) && count($decode)) {
-                    
-                    foreach ($decode as $value) {                        
+
+                    foreach ($decode as $value) {
                         $elements[] = ["author" => $answers->profile->name, "media" => $value];
                     }
                 }
@@ -895,9 +899,9 @@ class SurveyController extends Controller
         }
 
         $this->model = [];
-        $data = ["answer_count" => $retrieveAnswers->count(),"total_files"=>count($elements)];
+        $data = ["answer_count" => $retrieveAnswers->count(), "total_files" => count($elements)];
 
-        $data["media"] = array_slice($elements,$skip,$take);
+        $data["media"] = array_slice($elements, $skip, $take);
         $this->messages = "Media List Successful";
         $this->model = $data;
         return $this->sendResponse();
