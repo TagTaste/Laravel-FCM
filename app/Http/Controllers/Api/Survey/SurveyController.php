@@ -878,7 +878,7 @@ class SurveyController extends Controller
             // return $this->sendError("Only Survey Admin can view this report");
         }
 
-        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->get();
+        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id","=",$id)->get();
 
 
         $page = $request->input('page');
@@ -895,7 +895,8 @@ class SurveyController extends Controller
                 if (is_array($decode) && count($decode)) {
 
                     foreach ($decode as $value) {
-                        $elements[] = ["author" => $answers->profile->name, "media" => $value];
+                        $meta = ["profile_id" =>$answers->profile->id,"name"=>$answers->profile->name,"handle"=>$answers->profile->handle ];
+                        $elements[] = ["meta" => $meta,  "data" => $value];
                     }
                 }
             }
