@@ -536,11 +536,12 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
                 $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $optVal["title"];
                 $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
-                if ($values["question_type"] != 5) {
+                if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                     $prepareNode["reports"][$counter]["option"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
                     $prepareNode["reports"][$counter]["option"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
                     $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
                 } else {
+                    $prepareNode["reports"][$counter]["option"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                     if ($answers->count() == 0) {
                         $prepareNode["reports"][$counter]["option"][$optCounter]["answer_count"] = 0;
                     } else {
@@ -816,15 +817,17 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
                 $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
                 $optCounter = 0;
+
                 foreach ($values["options"] as $optVal) {
                     $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
                     $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
-
+                    
                     $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $answers->answer_value;
 
-                    if ($values["question_type"] != 5) {
+                    if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                         $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
                     } else {
+                        $prepareNode["reports"][$counter]["option"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                         // $imageMeta = $answers->pluck("image_meta")->toArray();
                         $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["image_meta"] = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
 
@@ -875,7 +878,7 @@ class SurveyController extends Controller
             // return $this->sendError("Only Survey Admin can view this report");
         }
 
-        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", 5)->get();
+        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->get();
 
 
         $page = $request->input('page');
