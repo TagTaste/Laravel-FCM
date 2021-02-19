@@ -420,53 +420,63 @@ class SurveyController extends Controller
                 'answer_json' => 'required|array|survey_answer_scrutiny'
             ]);
 
-
-            $this->model = false;
-            $this->messages = "Answer Submission Failed";
             if ($validator->fails()) {
-                $this->errors = $validator->messages();
-                return $this->sendResponse();
+                return $this->sendError(implode(",", $validator->messages()));
             }
 
-            $id = Surveys::where("id", "=", $request->id)->first();
+            $id = $this->model->where("id", "=", $request->survey_id)->first();
             if (isset($id->profile_id) && $id->profile_id == $request->profile_id) {
-                $this->errors = ["Admin Cannot Fill the Surveys"];
-                return $this->sendResponse();
+                return $this->sendError("Admin Cannot Fill the Surveys");
             }
 
             $checkIFAlreadyFilled = SurveyAnswers::where("survey_id", "=", $request->survey_id)->where('profile_id', "=", $request->user()->profile->id)->first();
 
             if (!empty($checkIFAlreadyFilled) && $checkIFAlreadyFilled->current_status == config("constant.SURVEY_STATUS.COMPLETED")) {
-                $this->errors = ["Survey is already completed"];
-                return $this->sendResponse();
+                return $this->sendError("Survey is already completed");
             }
 
+            $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
             $optionArray = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
             DB::beginTransaction();
             $commit = true;
             foreach ($optionArray as $values) {
+
+                if (isset($prepareQuestionJson[$values["question_id"]]["is_mandatory"]) && $prepareQuestionJson[$values["question_id"]]["is_mandatory"] == true && (!isset($values["option"]) || empty($values["option"]))) {
+                    DB::rollback();
+                    return $this->sendError("Mandatory Questions Cannot Be Blank");
+                }
                 $answerArray = [];
                 $answerArray["profile_id"] = $request->user()->profile->id;
                 $answerArray["survey_id"] = $request->survey_id;
                 $answerArray["question_id"] = $values["question_id"];
                 $answerArray["question_type"] = $values["question_type_id"];
                 $answerArray["current_status"] = $request->current_status;
-                foreach ($values["option"] as $optVal) {
+                if (isset($values["option"]) && !empty($values["option"])) {
+                    foreach ($values["option"] as $optVal) {
+                        $answerArray["option_id"] = $optVal["id"];
+                        $answerArray["option_type"] = $optVal["option_type"];
+                        $answerArray["answer_value"] = $optVal["value"];
+                        $answerArray["is_active"] = 1;
+                        $answerArray["image_meta"] = ((isset($optVal["image_meta"])  && is_array($optVal["image_meta"])) ? json_encode($optVal["image_meta"]) : json_encode([]));
 
-                    $answerArray["option_id"] = $optVal["id"];
-                    $answerArray["option_type"] = $optVal["option_type"];
-                    $answerArray["answer_value"] = $optVal["value"];
+                        $answerArray["video_meta"] = ((isset($optVal["video_meta"])  && is_array($optVal["video_meta"])) ? json_encode($optVal["video_meta"]) : json_encode([]));
+
+                        $answerArray["document_meta"] = ((isset($optVal["document_meta"])  && is_array($optVal["document_meta"])) ? json_encode($optVal["document_meta"]) : json_encode([]));
+
+                        $answerArray["media_url"] = ((isset($optVal["media_url"])  && is_array($optVal["media_url"])) ? json_encode($optVal["media_url"]) : json_encode([]));
+
+
+                        $surveyAnswer = SurveyAnswers::create($answerArray);
+                        $answerArray = [];
+                        if (!$surveyAnswer) {
+                            $commit = false;
+                        }
+                    }
+                } else {
+                    $answerArray["image_meta"] = $answerArray["video_meta"] = $answerArray["document_meta"] = $answerArray["media_url"] = json_encode([]);
                     $answerArray["is_active"] = 1;
-                    $answerArray["image_meta"] = ((isset($optVal["image_meta"])  && is_array($optVal["image_meta"])) ? json_encode($optVal["image_meta"]) : json_encode([]));
-
-                    $answerArray["video_meta"] = ((isset($optVal["video_meta"])  && is_array($optVal["video_meta"])) ? json_encode($optVal["video_meta"]) : json_encode([]));
-
-                    $answerArray["document_meta"] = ((isset($optVal["document_meta"])  && is_array($optVal["document_meta"])) ? json_encode($optVal["document_meta"]) : json_encode([]));
-
-                    $answerArray["media_url"] = ((isset($optVal["media_url"])  && is_array($optVal["media_url"])) ? json_encode($optVal["media_url"]) : json_encode([]));
-
-
                     $surveyAnswer = SurveyAnswers::create($answerArray);
+                    $answerArray = [];
                     if (!$surveyAnswer) {
                         $commit = false;
                     }
@@ -480,8 +490,8 @@ class SurveyController extends Controller
 
             return $this->sendResponse();
         } catch (Exception $ex) {
-            return $this->sendError("Error Saving Answers" . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
             DB::rollback();
+            return $this->sendError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
         }
     }
 
@@ -523,7 +533,8 @@ class SurveyController extends Controller
         foreach ($getJson as $values) {
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->get();
-            $getAvg = $this->array_avg($answers->pluck("option_id")->toArray());
+            $ans = $answers->pluck("option_id")->toArray();
+            $getAvg = (count(array_values($ans)) ? $ans : 0);
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
@@ -622,13 +633,15 @@ class SurveyController extends Controller
 
     function array_avg($array, $round = 1)
     {
-        $num = count($array);
-        return array_map(
-            function ($val) use ($num, $round) {
-                return array('count' => $val, 'avg' => round($val / $num * 100, $round));
-            },
-            array_count_values($array)
-        );
+        if (is_array($array)) {
+            $num = count($array);
+            return array_map(
+                function ($val) use ($num, $round) {
+                    return array('count' => $val, 'avg' => round($val / $num * 100, $round));
+                },
+                array_count_values($array)
+            );
+        }
     }
 
     private function validateSurveyFormJson($request, $isUpdation = false)
@@ -816,12 +829,13 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
                 $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
                 $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
+                $prepareNode["reports"][$counter]["is_answered"] = (($answers->option_id==null) ? false : true);
                 $optCounter = 0;
 
                 foreach ($values["options"] as $optVal) {
                     $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
                     $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
-                    
+
                     $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $answers->answer_value;
 
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
@@ -878,7 +892,7 @@ class SurveyController extends Controller
             // return $this->sendError("Only Survey Admin can view this report");
         }
 
-        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id","=",$id)->get();
+        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id)->get();
 
 
         $page = $request->input('page');
@@ -895,7 +909,7 @@ class SurveyController extends Controller
                 if (is_array($decode) && count($decode)) {
 
                     foreach ($decode as $value) {
-                        $meta = ["profile_id" =>$answers->profile->id,"name"=>$answers->profile->name,"handle"=>$answers->profile->handle ];
+                        $meta = ["profile_id" => $answers->profile->id, "name" => $answers->profile->name, "handle" => $answers->profile->handle];
                         $elements[] = ["meta" => $meta,  "data" => $value];
                     }
                 }
@@ -909,5 +923,19 @@ class SurveyController extends Controller
         $this->messages = "Media List Successful";
         $this->model = $data;
         return $this->sendResponse();
+    }
+
+    public function prepQuestionJson($json): array
+    {
+        $decode = json_decode($json, true);
+        if (is_array($decode)) {
+
+            $Ar = [];
+            foreach ($decode as $values) {
+                $Ar[$values["id"]] = $values;
+            }
+            return $Ar;
+        }
+        return [];
     }
 }
