@@ -73,7 +73,7 @@ class SurveyController extends Controller
     {
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $surveys = $this->model->orderBy('state', 'asc')->orderBy('created_at', 'desc');
+        $surveys = $this->model->where("is_active","=",1)->orderBy('state', 'asc')->orderBy('created_at', 'desc');
         $profileId = $request->user()->profile->id;
         $title = isset($request->title) ? $request->title : null;
 
@@ -213,7 +213,7 @@ class SurveyController extends Controller
 
     public function similarSurveys(Request $request, $surveyId)
     {
-        $survey = $this->model->where('id', $surveyId)->first();
+        $survey = $this->model->where('id', $surveyId)->where("is_active","=",1)->first();
         if ($survey == null) {
             return $this->sendError("Invalid Survey Id");
         }
@@ -278,24 +278,23 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-        $checkIfResponsesReceived = SurveyAnswers::where("survey_id", "=", $id)->first();
-        if (!empty($checkIfResponsesReceived)) {
-            $this->errors = ["Cannot update survey once response is received"];
-            return $this->sendResponse();
-        }
+        // $checkIfResponsesReceived = SurveyAnswers::where("survey_id", "=", $id)->where("is_active","=",1)->first();
+        // if (!empty($checkIfResponsesReceived)) {
+        //     $this->errors = ["Cannot update survey once response is received"];
+        //     return $this->sendResponse();
+        // }
 
-        if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
-            $this->errors = ["Survey Once Published cannot be changed to draft"];
-            return $this->sendResponse();
-        }
+        // if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
+        //     $this->errors = ["Survey Once Published cannot be changed to draft"];
+        //     return $this->sendResponse();
+        // }
 
         $prepData = (object)[];
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
         } else if ($getSurvey->state != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
-            $this->errors = ["Cannot update survey back to draft once its published"];
-            return $this->sendResponse();
+            return $this->sendError("Cannot update survey back to draft once its published");
         }
 
         $prepData->state = $request->state;
@@ -421,7 +420,8 @@ class SurveyController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->sendError(implode(",", $validator->messages()));
+                $this->errors = $validator->messages();
+                return $this->sendResponse();
             }
 
             $id = $this->model->where("id", "=", $request->survey_id)->first();
@@ -441,7 +441,7 @@ class SurveyController extends Controller
             $commit = true;
             foreach ($optionArray as $values) {
 
-                if (isset($prepareQuestionJson[$values["question_id"]]["is_mandatory"]) && $prepareQuestionJson[$values["question_id"]]["is_mandatory"] == true && (!isset($values["option"]) || empty($values["option"]))) {
+                if (isset($prepareQuestionJson[$values["question_id"]]["is_mandatory"]) && $prepareQuestionJson[$values["question_id"]]["is_mandatory"] == true && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
                     return $this->sendError("Mandatory Questions Cannot Be Blank");
                 }
@@ -451,8 +451,8 @@ class SurveyController extends Controller
                 $answerArray["question_id"] = $values["question_id"];
                 $answerArray["question_type"] = $values["question_type_id"];
                 $answerArray["current_status"] = $request->current_status;
-                if (isset($values["option"]) && !empty($values["option"])) {
-                    foreach ($values["option"] as $optVal) {
+                if (isset($values["options"]) && !empty($values["options"])) {
+                    foreach ($values["options"] as $optVal) {
                         $answerArray["option_id"] = $optVal["id"];
                         $answerArray["option_type"] = $optVal["option_type"];
                         $answerArray["answer_value"] = $optVal["value"];
@@ -467,7 +467,7 @@ class SurveyController extends Controller
 
 
                         $surveyAnswer = SurveyAnswers::create($answerArray);
-                        $answerArray = [];
+                        
                         if (!$surveyAnswer) {
                             $commit = false;
                         }
@@ -476,7 +476,7 @@ class SurveyController extends Controller
                     $answerArray["image_meta"] = $answerArray["video_meta"] = $answerArray["document_meta"] = $answerArray["media_url"] = json_encode([]);
                     $answerArray["is_active"] = 1;
                     $surveyAnswer = SurveyAnswers::create($answerArray);
-                    $answerArray = [];
+                    
                     if (!$surveyAnswer) {
                         $commit = false;
                     }
@@ -544,17 +544,17 @@ class SurveyController extends Controller
             $optCounter = 0;
             foreach ($values["options"] as $optVal) {
                 // $prepareNode["reports"][$counter]["option"][$optCounter] = $optVal;
-                $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
-                $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $optVal["title"];
-                $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
                 if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
                 } else {
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                     if ($answers->count() == 0) {
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["answer_count"] = 0;
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = 0;
                     } else {
                         $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
                         foreach ($answers as $ansVal) {
@@ -610,14 +610,14 @@ class SurveyController extends Controller
                             }
                         }
                         // $imageMeta = $answers->pluck("image_meta")->toArray();
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["image_meta"] = $imageMeta;
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"] = $imageMeta;
 
                         // $videoMeta = $answers->pluck("video_meta")->toArray();
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["video_meta"] = $videoMeta;
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = $videoMeta;
                         // $documentMeta = $answers->pluck("document_meta")->toArray();
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["document_meta"] = $documentMeta;
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = $documentMeta;
                         // $mediaUrl = $answers->pluck("media_url")->toArray();
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["media_url"] = $mediaUrl;
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = $mediaUrl;
                     }
                 }
                 $optCounter++;
@@ -833,26 +833,31 @@ class SurveyController extends Controller
                 $optCounter = 0;
 
                 foreach ($values["options"] as $optVal) {
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["id"] = $optVal["id"];
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["option_type"] = $optVal["option_type"];
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
 
-                    $prepareNode["reports"][$counter]["option"][$optCounter]["value"] = $answers->answer_value;
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $answers->answer_value;
+
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = $answers->image_meta;
+
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["video_meta"] = $answers->video_meta;
 
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+                        
                     } else {
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                         // $imageMeta = $answers->pluck("image_meta")->toArray();
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["image_meta"] = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"] = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
 
                         // $videoMeta = $answers->pluck("video_meta")->toArray();
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["video_meta"] = (!is_array($answers->video_meta) ? json_decode($answers->video_meta, true) : $answers->video_meta);
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = (!is_array($answers->video_meta) ? json_decode($answers->video_meta, true) : $answers->video_meta);
 
                         // $documentMeta = $answers->pluck("document_meta")->toArray();
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["document_meta"] = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
 
                         // $mediaUrl = $answers->pluck("media_url")->toArray();
-                        $prepareNode["reports"][$counter]["option"][$optCounter]["files"]["media_url"] = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
                     }
                 }
                 $optCounter++;

@@ -19,15 +19,15 @@ class RequestServiceProvider extends ServiceProvider
             
             $decodeJson = (!is_array($value) ? json_decode($value, true) : $value ); 
             
-            $requiredNode = ["question_id", "question_type_id", "option"];
+            $requiredNode = ["question_id", "question_type_id", "options"];
             $optionNodeChecker = ["id", "value", "option_type"];
             
             if (is_array($decodeJson)) {
                 foreach ($decodeJson as $values) {
                 
                     $diff = array_diff($requiredNode, array_keys($values));
-                    if (empty($diff) && isset($values["option"])) {
-                        foreach ($values["option"] as $opt) {
+                    if (empty($diff) && isset($values["options"])) {
+                        foreach ($values["options"] as $opt) {
                             $diffOptions = array_diff($optionNodeChecker, array_keys($opt));
                             if (!empty($diffOptions)) {
                                 return false;
