@@ -534,7 +534,7 @@ class SurveyController extends Controller
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->get();
             $ans = $answers->pluck("option_id")->toArray();
-            $getAvg = (count(array_values($ans)) ? $ans : 0);
+            $getAvg = $this->array_avg($ans);
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
@@ -642,6 +642,7 @@ class SurveyController extends Controller
                 array_count_values($array)
             );
         }
+        return false;
     }
 
     private function validateSurveyFormJson($request, $isUpdation = false)
@@ -838,9 +839,9 @@ class SurveyController extends Controller
 
                     $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $answers->answer_value;
 
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = $answers->image_meta;
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
 
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["video_meta"] = $answers->video_meta;
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["video_meta"] = (!is_array($optVal["video_meta"]) ? json_decode($optVal["video_meta"], true) : $optVal["video_meta"]);
 
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                         $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
