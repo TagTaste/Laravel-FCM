@@ -547,6 +547,11 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                 $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
                 $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
+
+                $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+
+                $prepareNode["reports"][$counter]["options"][$optCounter]["video_meta"] = (!is_array($optVal["video_meta"]) ? json_decode($optVal["video_meta"], true) : $optVal["video_meta"]);
+
                 if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
                     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
