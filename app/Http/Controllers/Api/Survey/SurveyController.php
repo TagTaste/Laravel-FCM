@@ -534,7 +534,8 @@ class SurveyController extends Controller
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->get();
             $ans = $answers->pluck("option_id")->toArray();
-            $getAvg = $this->array_avg($ans);
+            
+            $getAvg = (count(array_filter($ans)) ? $this->array_avg($ans) : 0);
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
@@ -637,16 +638,21 @@ class SurveyController extends Controller
     }
 
     function array_avg($array, $round = 1)
-    {
-        if (is_array($array)) {
+    {try{
+        
+        if (is_array($array) && count($array)) {
             $num = count($array);
             return array_map(
                 function ($val) use ($num, $round) {
+        
                     return array('count' => $val, 'avg' => round($val / $num * 100, $round));
                 },
                 array_count_values($array)
             );
         }
+    }catch(\Exception $ex){
+             dd($array);
+    }
         return false;
     }
 
