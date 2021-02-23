@@ -73,7 +73,7 @@ class SurveyController extends Controller
     {
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $surveys = $this->model->where("is_active","=",1)->orderBy('state', 'asc')->orderBy('created_at', 'desc');
+        $surveys = $this->model->where("is_active", "=", 1)->orderBy('state', 'asc')->orderBy('created_at', 'desc');
         $profileId = $request->user()->profile->id;
         $title = isset($request->title) ? $request->title : null;
 
@@ -213,7 +213,7 @@ class SurveyController extends Controller
 
     public function similarSurveys(Request $request, $surveyId)
     {
-        $survey = $this->model->where('id', $surveyId)->where("is_active","=",1)->first();
+        $survey = $this->model->where('id', $surveyId)->where("is_active", "=", 1)->first();
         if ($survey == null) {
             return $this->sendError("Invalid Survey Id");
         }
@@ -272,28 +272,17 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-        $final_json = $this->validateSurveyFormJson($request, true);
+        $final_json = $this->validateSurveyFormJson($request, $id);
 
         if (!empty($this->errors)) {
             return $this->sendResponse();
         }
 
-        // $checkIfResponsesReceived = SurveyAnswers::where("survey_id", "=", $id)->where("is_active","=",1)->first();
-        // if (!empty($checkIfResponsesReceived)) {
-        //     $this->errors = ["Cannot update survey once response is received"];
-        //     return $this->sendResponse();
-        // }
-
-        // if ($getSurvey->state == config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
-        //     $this->errors = ["Survey Once Published cannot be changed to draft"];
-        //     return $this->sendResponse();
-        // }
-
         $prepData = (object)[];
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
-        } else if ($getSurvey->state != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
+        } else if ($getSurvey->i != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
             return $this->sendError("Cannot update survey back to draft once its published");
         }
 
@@ -467,7 +456,7 @@ class SurveyController extends Controller
 
 
                         $surveyAnswer = SurveyAnswers::create($answerArray);
-                        
+
                         if (!$surveyAnswer) {
                             $commit = false;
                         }
@@ -476,7 +465,7 @@ class SurveyController extends Controller
                     $answerArray["image_meta"] = $answerArray["video_meta"] = $answerArray["document_meta"] = $answerArray["media_url"] = json_encode([]);
                     $answerArray["is_active"] = 1;
                     $surveyAnswer = SurveyAnswers::create($answerArray);
-                    
+
                     if (!$surveyAnswer) {
                         $commit = false;
                     }
@@ -534,7 +523,7 @@ class SurveyController extends Controller
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->get();
             $ans = $answers->pluck("option_id")->toArray();
-            
+
             $getAvg = (count(array_filter($ans)) ? $this->array_avg($ans) : 0);
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
@@ -638,21 +627,22 @@ class SurveyController extends Controller
     }
 
     function array_avg($array, $round = 1)
-    {try{
-        
-        if (is_array($array) && count($array)) {
-            $num = count($array);
-            return array_map(
-                function ($val) use ($num, $round) {
-        
-                    return array('count' => $val, 'avg' => round($val / $num * 100, $round));
-                },
-                array_count_values($array)
-            );
+    {
+        try {
+
+            if (is_array($array) && count($array)) {
+                $num = count($array);
+                return array_map(
+                    function ($val) use ($num, $round) {
+
+                        return array('count' => $val, 'avg' => round($val / $num * 100, $round));
+                    },
+                    array_count_values($array)
+                );
+            }
+        } catch (\Exception $ex) {
+            dd($array);
         }
-    }catch(\Exception $ex){
-             dd($array);
-    }
         return false;
     }
 
@@ -661,6 +651,11 @@ class SurveyController extends Controller
         //FORM JSON Validation;
         $decodeJson = (is_array($request->form_json) ? $request->form_json : json_decode($request->form_json, true));
         if (!empty($decodeJson)) {
+            if ($isUpdation) {
+                $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json")->first()->toArray();
+                $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
+                $listOfQuestionIds = array_keys($oldJsonArray);
+            }
             //required node for questions    
             $requiredNode = ["question_type", "title", "image_meta", "video_meta", "description", "id", "is_mandatory", "options"];
             //required option nodes
@@ -669,7 +664,7 @@ class SurveyController extends Controller
             $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
             $maxQueId = 1;
             if ($isUpdation) {
-                $maxQueId = max(array_column($decodeJson, 'id'));
+                $maxQueId = max($listOfQuestionIds);
                 $maxQueId++;
             }
 
@@ -677,23 +672,33 @@ class SurveyController extends Controller
                 if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
                     $diff = array_diff($requiredNode, array_keys($values));
                     // echo (isset($values['id']));
+                    
                     if (!$isUpdation || !isset($values['id']) || empty($values['id'])) {
-                        $values['id'] = $maxQueId;
+                        $values['id'] = (int) $maxQueId;
                         $maxQueId++;
                     }
 
+                    
                     if (empty($diff) && isset($values["options"])) {
                         $maxOptionId = 1;
                         if ($isUpdation) {
-                            $maxOptionId = max(array_column($values["options"], 'id'));
+                            if(isset($oldJsonArray[$values["id"]]["options"])){
+                                $allOpts = array_column($oldJsonArray[$values["id"]]["options"],"id");
+                                $maxOptionId = (is_array($allOpts) && !empty($allOpts) ? max($allOpts) : max(array_column($values["options"], 'id')));
+                            }else{
+                                $maxOptionId = max(array_column($values["options"], 'id'));
+                            }
                             $maxOptionId++;
                         }
+                        
 
                         foreach ($values["options"] as &$opt) {
                             if (!$isUpdation || !isset($opt['id']) || empty($opt['id'])) {
-                                $opt['id'] = $maxOptionId;
+                                $opt['id'] = (int)$maxOptionId;
                                 $maxOptionId++;
                             }
+
+                            
                             $diffOptions = array_diff($optionNodeChecker, array_keys($opt));
                             if (!empty($diffOptions)) {
                                 $this->errors["form_json"] = "Option Nodes Missing " . implode(",", $diffOptions);
@@ -841,7 +846,7 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
                 $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
                 $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
-                $prepareNode["reports"][$counter]["is_answered"] = (($answers->option_id==null) ? false : true);
+                $prepareNode["reports"][$counter]["is_answered"] = (($answers->option_id == null) ? false : true);
                 $optCounter = 0;
 
                 foreach ($values["options"] as $optVal) {
@@ -856,7 +861,6 @@ class SurveyController extends Controller
 
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                         $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
-                        
                     } else {
                         $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                         // $imageMeta = $answers->pluck("image_meta")->toArray();
