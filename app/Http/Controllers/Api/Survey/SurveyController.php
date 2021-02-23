@@ -628,8 +628,7 @@ class SurveyController extends Controller
 
     function array_avg($array, $round = 1)
     {
-        try {
-
+  
             if (is_array($array) && count($array)) {
                 $num = count($array);
                 return array_map(
@@ -640,9 +639,7 @@ class SurveyController extends Controller
                     array_count_values($array)
                 );
             }
-        } catch (\Exception $ex) {
-            dd($array);
-        }
+       
         return false;
     }
 
