@@ -231,39 +231,39 @@ class FeedController extends Controller
         $random = range(0,7);
         shuffle($random);
         $random_suggestion = array_slice($random,0,1);
-        foreach ($random_suggestion as $key => $value) {
-            switch ($value) {
-                case '0':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByDob($client, $profile, $profileId);
-                    break;
-                case '1':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByFoodieType($client, $profile, $profileId);
-                    break;
-                case '2':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByCuisine($client, $profile, $profileId);
-                    break;
-                case '3':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByEducation($client, $profile, $profileId);
-                    break;
-                case '4':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByExperiance($client, $profile, $profileId);
-                    break;
-                case '5':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionBySpecialization($client, $profile, $profileId);
-                    break;
-                case '6':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByCompany($client, $profile, $profileId);
-                    break;
-                case '7':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionOfFollower($client, $profile, $profileId);
-                    break;
-                default:
-                    break;
-            }
-        }
-        $this->model[$suggestion_position[2]] = $this->suggestionCollaboration($client, $profile, $profileId);
-        $this->model[$suggestion_position[4]] = $this->suggestionProducts($client, $profile, $profileId);
-        $this->model[$suggestion_position[6]] = $this->suggestionCollaboration($client, $profile, $profileId);
+        // foreach ($random_suggestion as $key => $value) {
+        //     switch ($value) {
+        //         case '0':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByDob($client, $profile, $profileId);
+        //             break;
+        //         case '1':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByFoodieType($client, $profile, $profileId);
+        //             break;
+        //         case '2':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByCuisine($client, $profile, $profileId);
+        //             break;
+        //         case '3':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByEducation($client, $profile, $profileId);
+        //             break;
+        //         case '4':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByExperiance($client, $profile, $profileId);
+        //             break;
+        //         case '5':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionBySpecialization($client, $profile, $profileId);
+        //             break;
+        //         case '6':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByCompany($client, $profile, $profileId);
+        //             break;
+        //         case '7':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionOfFollower($client, $profile, $profileId);
+        //             break;
+        //         default:
+        //             break;
+        //     }
+        // }
+        // $this->model[$suggestion_position[2]] = $this->suggestionCollaboration($client, $profile, $profileId);
+        // $this->model[$suggestion_position[4]] = $this->suggestionProducts($client, $profile, $profileId);
+        // $this->model[$suggestion_position[6]] = $this->suggestionCollaboration($client, $profile, $profileId);
         // $this->model[$suggestion_position[2]] = $this->suggestionCompany($client, $profile, $profileId);
         // $this->model[$suggestion_position[1]] = $this->adEngine($client, $profile, $profileId);
 
@@ -340,7 +340,11 @@ class FeedController extends Controller
             if ($payload->model !== null) {
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
-                $model = $model::find($payload->model_id);
+                if($model=="App\Surveys"){
+                    $model = $model::find($data["surveys"]["id"]);
+                }else{
+                    $model = $model::find($payload->model_id);
+                }
                 if ($model !== null && method_exists($model, 'getMetaForV2')) {
                     $data['meta'] = $model->getMetaForV2($profileId);
                 }
