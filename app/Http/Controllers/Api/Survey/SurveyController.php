@@ -115,8 +115,8 @@ class SurveyController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
-            'title' => 'required|between:1,191',
-            'description' => 'required|between:1,2000',
+            'title' => 'required',
+            'description' => 'required',
             'image_meta' => 'array',
             'video_meta' => 'array',
             'form_json' => 'required',
@@ -257,8 +257,8 @@ class SurveyController extends Controller
 
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
-            'title' => 'required|between:1,191',
-            'description' => 'required|between:1,2000',
+            'title' => 'required',
+            'description' => 'required',
             'image_meta' => 'array',
             'video_meta' => 'array',
             'form_json' => 'required|array',

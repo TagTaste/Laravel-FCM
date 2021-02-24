@@ -48,14 +48,16 @@ class Surveys extends BaseSurveys
     {
         $meta = [];
         $meta['expired_at'] = $this->expired_at;
-        $meta['likeCount'] = 20;
-        $meta['commentCount'] = 30;
-        $meta['answerCount'] = 40;    
+        // $meta['likeCount'] = 20;
+        // $meta['commentCount'] = 30;
+        // $meta['answerCount'] = 40;    
 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
-        // $key = "meta:surveys:likes:" . $this->id;
-        // $meta['likeCount'] = Redis::sCard($key);
-        // $meta['commentCount'] = $this->comments()->count();
+        $key = "meta:surveys:likes:" . $this->id;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
+
         return $meta;
     }    
 
