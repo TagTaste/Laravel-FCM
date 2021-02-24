@@ -282,9 +282,10 @@ class SurveyController extends Controller
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $prepData->published_at = date("Y-m-d H:i:s");
-        } else if ($getSurvey->i != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
-            return $this->sendError("Cannot update survey back to draft once its published");
         }
+        //  else if ($getSurvey->i != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
+        //     return $this->sendError("Cannot update survey back to draft once its published");
+        // }
 
         $prepData->state = $request->state;
         $prepData->title = $request->title;
