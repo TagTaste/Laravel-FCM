@@ -828,7 +828,7 @@ class SurveyController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            return $this->sendError("Only Survey Admin can view this report");
+            // return $this->sendError("Only Survey Admin can view this report");
         }
 
         $colorCodeList = $this->colorCodeList;
@@ -853,11 +853,16 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
                 
                 $optCounter = 0;
+                $answers = $answers->toArray();
                 
                 foreach ($values["options"] as $optVal) {
                     if (in_array($optVal["id"], $pluckOpId)) {
                         
-                        $pos = array_search($optVal["id"],array_keys($pluckOpId));
+                        $flip = array_flip($pluckOpId);
+                        
+                        $pos = (isset($flip[$optVal["id"]]) ? $flip[$optVal["id"]] : false);
+                        
+                        if($pos===false){ continue; }
                         
                         $prepareNode["reports"][$counter]["is_answered"] = (($answers[$pos]["option_id"] == null) ? false : true);
                         $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
