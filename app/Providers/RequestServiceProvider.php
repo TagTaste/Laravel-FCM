@@ -16,30 +16,22 @@ class RequestServiceProvider extends ServiceProvider
     public function boot()
     {
         Validator::extend('survey_answer_scrutiny', function ($attribute, $value, $parameters, $validator) {
-            
-            $decodeJson = (!is_array($value) ? json_decode($value, true) : $value ); 
-            
-            $requiredNode = ["question_id", "question_type_id", "options"];
-            $optionNodeChecker = ["id", "value", "option_type"];
-            
+
+            $decodeJson = (!is_array($value) ? json_decode($value, true) : $value);
+
+            $requiredNode = ["question_id", "question_type_id"];
             if (is_array($decodeJson)) {
                 foreach ($decodeJson as $values) {
-                
+
                     $diff = array_diff($requiredNode, array_keys($values));
-                    if (empty($diff) && isset($values["options"])) {
-                        foreach ($values["options"] as $opt) {
-                            $diffOptions = array_diff($optionNodeChecker, array_keys($opt));
-                            if (!empty($diffOptions)) {
-                                return false;
-                            }
-                            return true;
-                        }
+                    if (empty($diff)) {
+                        return true;
                     }
                 }
             }
             return false;
         }, [
-            "Answer JSON Invalid"
+            "Question Id or Type Missing"
         ]);
     }
 
