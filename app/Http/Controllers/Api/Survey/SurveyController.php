@@ -885,19 +885,20 @@ class SurveyController extends Controller
                             // $mediaUrl = $answers->pluck("media_url")->toArray();
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = (!is_array($answers[$pos]["media_url"]) ? json_decode($answers[$pos]["media_url"], true) : $answers[$pos]["media_url"]);
                         }
+                        $optCounter++;
                     }else{
                         $prepareNode["reports"][$counter]["is_answered"] = (($answers[0]["option_id"] == null) ? false : true);
                     }
-                    $optCounter++;
+                    
                 }
-                
-                
+
 
                 $answers = [];
 
                 $counter++;
             }
         }
+        
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
         return $this->sendResponse();
