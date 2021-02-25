@@ -525,7 +525,8 @@ class SurveyController extends Controller
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->get();
             $ans = $answers->pluck("option_id")->toArray();
 
-            $getAvg = (count(array_filter($ans)) ? $this->array_avg($ans) : 0);
+            $ar = array_values(array_filter($ans));
+            $getAvg = (count($ar) ? $this->array_avg($ar) : 0);
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
@@ -629,7 +630,7 @@ class SurveyController extends Controller
 
     function array_avg($array, $round = 1)
     {
-
+        try{
         if (is_array($array) && count($array)) {
             $num = count($array);
             return array_map(
@@ -640,6 +641,9 @@ class SurveyController extends Controller
                 array_count_values($array)
             );
         }
+    }catch(\Exception $e){
+        dd($array);
+    }
 
         return false;
     }
