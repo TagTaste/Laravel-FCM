@@ -73,7 +73,12 @@ class SurveyController extends Controller
     {
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $surveys = $this->model->where("is_active", "=", 1)->orderBy('state', 'asc')->orderBy('created_at', 'desc');
+        $surveys = $this->model->where("is_active", "=", 1);
+        if($request->has('state') && !empty($request->input('state'))){
+            $surveys = $surveys->where("state","=",$request->state);
+        }
+        
+        $surveys = $surveys->orderBy('state', 'asc')->orderBy('created_at', 'desc');
         $profileId = $request->user()->profile->id;
         $title = isset($request->title) ? $request->title : null;
 
@@ -828,7 +833,7 @@ class SurveyController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            // return $this->sendError("Only Survey Admin can view this report");
+            return $this->sendError("Only Survey Admin can view this report");
         }
 
         $colorCodeList = $this->colorCodeList;
@@ -931,7 +936,7 @@ class SurveyController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            // return $this->sendError("Only Survey Admin can view this report");
+            return $this->sendError("Only Survey Admin can view this report");
         }
 
         $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id)->get();
