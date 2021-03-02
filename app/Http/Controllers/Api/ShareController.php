@@ -43,7 +43,6 @@ class ShareController extends Controller
             return $class::where('id',$id)->whereNull('deleted_at')->first();
         }
         else{
-            echo $modelName;die;
             $class = "\\App\\" . ucfirst ($modelName);
             if($modelName == 'collaborate'){
                 return $class::where('id',$id)->where('state',Collaborate::$state[0])->first();
