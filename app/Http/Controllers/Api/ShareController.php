@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Channel\Payload;
+use App\Collaborate;
 use App\Events\Actions\Share;
 use App\Events\DeleteFeedable;
 use App\Events\Model\Subscriber\Create;
@@ -42,9 +43,13 @@ class ShareController extends Controller
             return $class::where('id',$id)->whereNull('deleted_at')->first();
         }
         else{
+            echo $modelName;die;
             $class = "\\App\\" . ucfirst ($modelName);
-            if($modelName == 'collaborate')
-                return $class::where('id',$id)->first();
+            if($modelName == 'collaborate'){
+                return $class::where('id',$id)->where('state',Collaborate::$state[0])->first();
+            }else if($modelName == 'surveys'){
+                return $class::where('id',$id)->where('state',config("constant.SURVEY_STATES.PUBLISHED"))->first();
+            }
             return $class::where('id',$id)->whereNull('deleted_at')->first();
         }
     }
