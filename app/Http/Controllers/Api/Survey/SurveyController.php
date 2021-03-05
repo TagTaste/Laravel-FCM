@@ -996,7 +996,7 @@ class SurveyController extends Controller
     }
 
 
-    public function excelReport($id, $profile_id = null, Request $request)
+    public function excelReport($id, Request $request)
     {
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
@@ -1028,8 +1028,8 @@ class SurveyController extends Controller
 
         $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id);
 
-        if (!is_null($profile_id) && $profile_id !== 0) {
-            $getSurveyAnswers = $getSurveyAnswers->where("profile_id", "=", $profile_id);
+        if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
+            $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids);
         }
 
         $getSurveyAnswers = $getSurveyAnswers->get();

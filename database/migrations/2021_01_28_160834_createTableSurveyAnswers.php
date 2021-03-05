@@ -20,13 +20,13 @@ class CreateTableSurveyAnswers extends Migration
             $table->char('survey_id', 36);
             $table->unsignedInteger('question_id');
             $table->unsignedInteger('question_type');
-            $table->unsignedInteger('option_type');
-            $table->unsignedInteger('option_id');
+            $table->unsignedInteger('option_type')->nullable();
+            $table->unsignedInteger('option_id')->nullable();
             $table->json('image_meta');
             $table->json('video_meta');
             $table->json('document_meta');
             $table->json('media_url');            
-            $table->text('answer_value');
+            $table->text('answer_value')->nullable();
             $table->boolean('current_status');
             $table->boolean('is_active');
             $table->timestamp('created_at')->useCurrent();
