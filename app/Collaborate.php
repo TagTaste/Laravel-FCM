@@ -28,6 +28,7 @@ class Collaborate extends Model implements Feedable
         'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
         'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction','images_meta','document_required','track_consistency','is_contest','max_submissions','show_interest_state','admin_note','product_review_type_id'];
 
+
     protected $with = ['profile','company','fields','categories','collaborate_occupations',
         'collaborate_specializations','collaborate_allergens'];
 
@@ -48,6 +49,7 @@ class Collaborate extends Model implements Feedable
 
 
     protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner','addresses','mandatory_fields', 'closing_reason','product_review_type'];
+
 
     protected $casts = [
         'privacy_id' => 'integer',

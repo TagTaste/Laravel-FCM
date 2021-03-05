@@ -660,6 +660,7 @@ class CollaborateController extends Controller
             $questionaire = $questionaire->where('keywords','like','%'.$keywords.'%');
         }
 
+
         $this->model['count'] = $questionaire->count();
         $this->model['questionnaire'] = $questionaire
             ->orderBy('id', 'DESC')

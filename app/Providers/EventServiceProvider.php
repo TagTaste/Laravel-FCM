@@ -93,8 +93,8 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UploadQuestionEvent' => ['App\Listeners\UploadQuestionListener'],
         'App\Events\UpgradeIosEvent' => ['App\Listeners\UpgradeIosListener'],
         'App\Events\Chat\MessageTypeEvent'=>['App\Listeners\Chat\MessageTypeListener'],
-        'App\Events\DocSubmissionEvent' =>['App\Listeners\Chat\DocSubmissionListener']
-
+        'App\Events\DocSubmissionEvent' =>['App\Listeners\Chat\DocSubmissionListener'],
+        'App\Events\SurveyAnswered' => ['App\Listeners\Notifications\SurveyAnswered']
 
     ];
 

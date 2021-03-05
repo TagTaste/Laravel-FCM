@@ -23,8 +23,8 @@ class SearchController extends Controller
         'companies' => \App\Recipe\Company::class,
         'job' => \App\Recipe\Job::class,
         'jobs' => \App\Recipe\Job::class,
-        'product' => \App\PublicReviewProduct::class
-
+        'product' => \App\PublicReviewProduct::class,
+        'surveys' => \App\Surveys::class
     ];
     
     private $filters = [
@@ -260,6 +260,20 @@ class SearchController extends Controller
             }
         }
 
+        if(null == $type || "surveys" === $type)
+        {
+            $surveyList = \DB::table('surveys')->where('state','!=',1)
+                ->where('title', 'like','%'.$term.'%')
+                ->whereNull('deleted_at')->orderBy('id','desc')->skip($skip)
+                ->take($take)->get();
+
+            if(count($surveyList)){
+                foreach($surveyList as $survey){
+                    $survey->type = "surveys";
+                    $suggestions[] = (array) $survey;
+                }
+            }
+        }
         return $suggestions;
     }
     private function autocomplete(&$term, $type = null)
@@ -339,7 +353,7 @@ class SearchController extends Controller
                 break;
         }
     }
-
+    
     public function filterSearch(Request $request, $type = null)
     {
         $query = $request->input('q');
@@ -428,16 +442,16 @@ class SearchController extends Controller
         
         if($request->input('filters') != null) {
             $suggestions = $this->getModels($type,[],$request->input('filters'),$skip,$take);
-        } else {
+        } else {                
                 $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
                 $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
-            }
+        }
     
         if($suggestions && $suggestions->count()){
 //            if(!array_key_exists($type,$this->model)){
 //                $this->model[$type] = [];
 //            }
-            if($type == 'collaborate' || $type == 'product')
+            if($type == 'collaborate' || $type == 'product' || $type = 'surveys')
             $this->model[$type] = $suggestions;
             else
             $this->model[$type] = $suggestions->toArray();
@@ -470,8 +484,17 @@ class SearchController extends Controller
                 $collaborates = $this->model['collaborate'];
                 $this->model['collaborate'] = [];
                 foreach($collaborates as $collaborate){
-
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                }
+            }
+            if(isset($this->model['surveys']))
+            {
+                $surveys = $this->model['surveys'];
+                $this->model['surveys'] = [];
+                foreach($surveys as $survey){
+                    $survey->image_meta = json_decode($survey->image_meta);
+                    $survey->video_meta = json_decode($survey->video_meta);
+                    $this->model['surveys'][] = ['survey' => $survey, 'meta' => $survey->getMetaFor($profileId)];
                 }
             }
             if(isset($this->model['product']))
@@ -484,6 +507,7 @@ class SearchController extends Controller
                     $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
                 }
             }
+           
             return $this->sendResponse();
         }
         $this->model = (object)[];

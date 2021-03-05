@@ -41,8 +41,9 @@ class ShoutoutController extends BaseController
     public function show(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
-        
+        $shoutout = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+
+
         if (!$shoutout) {
             return $this->sendError("Shoutout not found.");
         }
@@ -50,23 +51,28 @@ class ShoutoutController extends BaseController
         $meta = $shoutout->getMetaForV2($loggedInProfileId);
         $seoTags = $shoutout->getSeoTags();
         $shoutout = $shoutout->toArray();
-        
+
         foreach ($shoutout as $key => $value) {
             if (is_null($value) || $value == '')
                 unset($shoutout[$key]);
         }
         $this->model = [
-            'shoutout'=>$shoutout,
-            'meta'=>$meta,
-            'seoTags'=>$seoTags
+            'shoutout' => $shoutout ,
+            'meta' => $meta ,
+            'seoTags' => $seoTags
+// =======
+//             'shoutout'=>mb_convert_encoding($shoutout, 'UTF-8', 'UTF-8'),
+//             'meta'=>mb_convert_encoding($meta, 'UTF-8', 'UTF-8'),
+//             'seoTags'=>mb_convert_encoding($seoTags, 'UTF-8', 'UTF-8')
+// >>>>>>> develop
         ];
 
         if (isset($shoutout['profile_id'])) {
-            $this->model['profile'] = $owner;
+            $this->model['profile'] = mb_convert_encoding($owner, 'UTF-8', 'UTF-8');
         }
 
         if (isset($shoutout['company_id'])) {
-            $this->model['company'] = $owner;
+            $this->model['company'] = mb_convert_encoding($owner, 'UTF-8', 'UTF-8');
         }
 
         return $this->sendResponse();
