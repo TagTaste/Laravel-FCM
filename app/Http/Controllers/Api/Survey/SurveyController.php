@@ -11,7 +11,7 @@ use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Events\DeleteFeedable;
 use App\Events\Actions\Like;
-use App\Events\Actions\SurveyAnswered;
+// use App\Events\Actions\SurveyAnswered;
 use App\PeopleLike;
 use App\SurveyAnswers;
 use App\Surveys;
@@ -643,8 +643,7 @@ class SurveyController extends Controller
 
     function array_avg($array, $round = 1)
     {
-        try {
-            if (is_array($array) && count($array)) {
+        if (is_array($array) && count($array)) {
                 $num = count($array);
                 return array_map(
                     function ($val) use ($num, $round) {
@@ -653,10 +652,7 @@ class SurveyController extends Controller
                     },
                     array_count_values($array)
                 );
-            }
-        } catch (\Exception $e) {
-            dd($array);
-        }
+        }       
 
         return false;
     }
