@@ -1086,7 +1086,7 @@ class SurveyController extends Controller
         $excel_save_path = storage_path("exports/".$excel->filename.".xlsx");
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility'=>'public']);
-        $this->model = \Storage::url($resp);
+        $this->model = $resp;
         unlink($excel_save_path);
 
         return $this->sendResponse();
