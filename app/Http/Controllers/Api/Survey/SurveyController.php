@@ -11,6 +11,7 @@ use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Events\DeleteFeedable;
 use App\Events\Actions\Like;
+use App\Events\Actions\SurveyAnswered;
 use App\PeopleLike;
 use App\SurveyAnswers;
 use App\Surveys;
@@ -23,6 +24,8 @@ use Illuminate\Support\Facades\Validator;
 use Tagtaste\Api\SendsJsonResponse;
 use Webpatser\Uuid\Uuid;
 use Illuminate\Support\Facades\Redis;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\File;
 
 class SurveyController extends Controller
 {
@@ -74,10 +77,10 @@ class SurveyController extends Controller
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $surveys = $this->model->where("is_active", "=", 1);
-        if($request->has('state') && !empty($request->input('state'))){
-            $surveys = $surveys->where("state","=",$request->state);
+        if ($request->has('state') && !empty($request->input('state'))) {
+            $surveys = $surveys->where("state", "=", $request->state);
         }
-        
+
         $surveys = $surveys->orderBy('state', 'asc')->orderBy('created_at', 'desc');
         $profileId = $request->user()->profile->id;
         $title = isset($request->title) ? $request->title : null;
@@ -479,6 +482,11 @@ class SurveyController extends Controller
             }
             if ($commit) {
                 DB::commit();
+                // if (is_null($id->company_id)) {
+                //     event(new SurveyAnswered($id, null, null, null, null, null));
+                // } else {
+                //     event(new SurveyAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
+                // }
                 $this->model = true;
                 $this->messages = "Answer Submitted Successfully";
             }
@@ -635,20 +643,20 @@ class SurveyController extends Controller
 
     function array_avg($array, $round = 1)
     {
-        try{
-        if (is_array($array) && count($array)) {
-            $num = count($array);
-            return array_map(
-                function ($val) use ($num, $round) {
+        try {
+            if (is_array($array) && count($array)) {
+                $num = count($array);
+                return array_map(
+                    function ($val) use ($num, $round) {
 
-                    return array('count' => $val, 'avg' => round($val / $num * 100, $round));
-                },
-                array_count_values($array)
-            );
+                        return array('count' => $val, 'avg' => round($val / $num * 100, $round));
+                    },
+                    array_count_values($array)
+                );
+            }
+        } catch (\Exception $e) {
+            dd($array);
         }
-    }catch(\Exception $e){
-        dd($array);
-    }
 
         return false;
     }
@@ -846,9 +854,9 @@ class SurveyController extends Controller
         foreach ($getJson as $values) {
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->get();
-            
+
             $pluckOpId = $answers->pluck("option_id")->toArray();
-            
+
             if ($answers->count()) {
                 $prepareNode["reports"][$counter]["question_id"] = $values["id"];
                 $prepareNode["reports"][$counter]["title"] = $values["title"];
@@ -856,19 +864,21 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
                 $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
                 $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
-                
+
                 $optCounter = 0;
                 $answers = $answers->toArray();
-                
+
                 foreach ($values["options"] as $optVal) {
                     if (in_array($optVal["id"], $pluckOpId)) {
-                        
+
                         $flip = array_flip($pluckOpId);
-                        
+
                         $pos = (isset($flip[$optVal["id"]]) ? $flip[$optVal["id"]] : false);
-                        
-                        if($pos===false){ continue; }
-                        
+
+                        if ($pos === false) {
+                            continue;
+                        }
+
                         $prepareNode["reports"][$counter]["is_answered"] = (($answers[$pos]["option_id"] == null) ? false : true);
                         $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                         $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
@@ -896,10 +906,9 @@ class SurveyController extends Controller
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = (!is_array($answers[$pos]["media_url"]) ? json_decode($answers[$pos]["media_url"], true) : $answers[$pos]["media_url"]);
                         }
                         $optCounter++;
-                    }else{
+                    } else {
                         $prepareNode["reports"][$counter]["is_answered"] = (($answers[0]["option_id"] == null) ? false : true);
                     }
-                    
                 }
 
 
@@ -908,7 +917,7 @@ class SurveyController extends Controller
                 $counter++;
             }
         }
-        
+
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
         return $this->sendResponse();
@@ -984,5 +993,102 @@ class SurveyController extends Controller
             return $Ar;
         }
         return [];
+    }
+
+
+    public function excelReport($id, $profile_id = null, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->first();
+
+        if (empty($checkIFExists)) {
+            return $this->sendError("Invalid Survey");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Survey Admin can view this report");
+        }
+
+        $headers = [];
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $questionIdMapping = [];
+
+        foreach ($getJson as $values) {
+            $questionIdMapping[$values["id"]] = $values["title"];
+        }
+
+
+        $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id);
+
+        if (!is_null($profile_id) && $profile_id !== 0) {
+            $getSurveyAnswers = $getSurveyAnswers->where("profile_id", "=", $profile_id);
+        }
+
+        $getSurveyAnswers = $getSurveyAnswers->get();
+        $counter = 0;
+        foreach ($getSurveyAnswers as $answers) {
+            
+            $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta); 
+            $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta); 
+            $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta); 
+            $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url); 
+            if(isset($questionIdMapping[$answers->question_id])){
+                $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s",strtotime($answers->created_at))." GMT +5.30";
+                $headers[$answers->profile_id]["Username"] = $answers->profile->email;
+                $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $answers->answer_value.
+                    ((!empty($image) && is_array($image)) ? "\n\n Image : ".implode(array_column($image,"original_photo")) ?? "" : "").
+                    ((!empty($video) && is_array($video)) ? "\n\n Video : ".implode(array_column($video,"video_url")) ?? "" : "").
+                    ((!empty($doc) && is_array($doc)) ? "\n\n Document : ".implode(array_column($doc,"document_url")) ?? "" : "").
+                    ((!empty($url) && is_array($url)) ? "\n\n Media Url : ".implode(array_column($url,"url")) ??"" : "");
+                
+            }
+
+            
+        }
+        
+        $finalData = array_values($headers);
+        $relativePath = "images/surveysAnsweredExcel/$id";
+        $name = "surveys-".$id."-".uniqid();
+        
+        $excel = Excel::create($name, function($excel) use ($name, $finalData)  {
+                // Set the title
+                $excel->setTitle($name);
+
+                // Chain the setters
+                $excel->setCreator('Tagtaste')
+                      ->setCompany('Tagtaste');
+
+                // Call them separately
+                $excel->setDescription('Survey Response List');
+
+                $excel->sheet('Sheetname', function($sheet) use($finalData) {
+                    $sheet->fromArray($finalData);
+                    foreach ($sheet->getColumnIterator() as $row) {
+                        foreach ($row->getCellIterator() as $cell) {
+                            if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
+                                $cell_link = $cell->getValue();
+                                $cell->getHyperlink()
+                                    ->setUrl($cell_link)
+                                    ->setTooltip('Click here to access profile');
+                            }
+                        }
+                    }
+                })->store('xlsx', false, true);
+            });
+        $excel_save_path = storage_path("exports/".$excel->filename.".xlsx");
+        $s3 = \Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility'=>'public']);
+        $this->model = \Storage::url($resp);
+        unlink($excel_save_path);
+
+        return $this->sendResponse();
     }
 }

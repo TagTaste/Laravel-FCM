@@ -15,6 +15,7 @@ app/storage/
 .DS_Store
 /nbproject
 newrelic_agent.log
+/storage/exports/*
 /storage/app/*
 /storage/purify/*
 /storage/framework/cache/*
