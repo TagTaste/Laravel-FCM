@@ -11,8 +11,9 @@ use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Events\DeleteFeedable;
 use App\Events\Actions\Like;
-// use App\Events\Actions\SurveyAnswered;
+use App\Events\Actions\SurveyAnswered;
 use App\PeopleLike;
+use App\Profile;
 use App\SurveyAnswers;
 use App\Surveys;
 use App\SurveysLike;
@@ -429,9 +430,9 @@ class SurveyController extends Controller
 
             $checkIFAlreadyFilled = SurveyAnswers::where("survey_id", "=", $request->survey_id)->where('profile_id', "=", $request->user()->profile->id)->first();
 
-            if (!empty($checkIFAlreadyFilled) && $checkIFAlreadyFilled->current_status == config("constant.SURVEY_STATUS.COMPLETED")) {
-                return $this->sendError("Survey is already completed");
-            }
+            // if (!empty($checkIFAlreadyFilled) && $checkIFAlreadyFilled->current_status == config("constant.SURVEY_STATUS.COMPLETED")) {
+            //     return $this->sendError("Survey is already completed");
+            // }
 
             $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
             $optionArray = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
@@ -480,13 +481,14 @@ class SurveyController extends Controller
                     }
                 }
             }
+            $user = $request->user()->profile;
             if ($commit) {
                 DB::commit();
-                // if (is_null($id->company_id)) {
-                //     event(new SurveyAnswered($id, null, null, null, null, null));
-                // } else {
-                //     event(new SurveyAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
-                // }
+                if (is_null($id->company_id)) {
+                    event(new SurveyAnswered($id, $user, null, null, null, null));
+                } else {
+                    event(new SurveyAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
+                }
                 $this->model = true;
                 $this->messages = "Answer Submitted Successfully";
             }

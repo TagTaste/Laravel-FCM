@@ -27,6 +27,7 @@ class SurveyAnswered
      */
     public function handle(SurveyAnsweredEvent $event)
     {
+        
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
         if(isset($profile))
