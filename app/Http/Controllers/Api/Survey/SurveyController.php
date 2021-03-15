@@ -634,10 +634,19 @@ class SurveyController extends Controller
                 }
                 $optCounter++;
             }
-
+            
+            
+            uasort($prepareNode["reports"][$counter]["options"],function ($a, $b) {
+                if ($a['answer_percentage'] == $b['answer_percentage']) {
+                    return 0;
+                }
+                return ($a['answer_percentage'] < $b['answer_percentage']) ? 1 : -1;
+            });
             $answers = [];
             $counter++;
         }
+
+
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
         return $this->sendResponse();
