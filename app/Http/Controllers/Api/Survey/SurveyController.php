@@ -640,6 +640,7 @@ class SurveyController extends Controller
                 }
                 return ($a['answer_percentage'] < $b['answer_percentage']) ? 1 : -1;
             });
+            $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
             $answers = [];
             $counter++;
         }
