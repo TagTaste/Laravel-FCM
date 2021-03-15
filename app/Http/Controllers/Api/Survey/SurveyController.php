@@ -541,7 +541,7 @@ class SurveyController extends Controller
             $ans = $answers->pluck("option_id")->toArray();
 
             $ar = array_values(array_filter($ans));
-            $getAvg = (count($ar) ? $this->array_avg($ar) : 0);
+            $getAvg = (count($ar) ? $this->array_avg($ar,$getCount->count()) : 0);
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
@@ -611,7 +611,7 @@ class SurveyController extends Controller
                             if (count($mediaUrl) < 10) {
                                 $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
                                 if (is_array($decodeUrl) && !empty($decodeUrl)) {
-
+                                    
                                     array_map(function ($value) use ($ansVal, &$mediaUrl) {
                                         if (!empty($value)) {
                                             $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
@@ -643,14 +643,14 @@ class SurveyController extends Controller
         return $this->sendResponse();
     }
 
-    function array_avg($array, $round = 1)
+    function array_avg($array,$respCount = 0)
     {
         if (is_array($array) && count($array)) {
-                $num = count($array);
+                $num = $respCount;
                 return array_map(
-                    function ($val) use ($num, $round) {
+                    function ($val) use ($num) {
 
-                        return array('count' => $val, 'avg' => round($val / $num * 100, $round));
+                        return array('count' => $val, 'avg' =>  number_format((float)($val / $num * 100), 2, '.', ''));
                     },
                     array_count_values($array)
                 );
