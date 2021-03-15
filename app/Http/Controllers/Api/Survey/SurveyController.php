@@ -660,7 +660,7 @@ class SurveyController extends Controller
                 return array_map(
                     function ($val) use ($num) {
 
-                        return array('count' => $val, 'avg' =>  number_format((float)($val / $num * 100), 2, '.', ''));
+                        return array('count' => $val, 'avg' =>  bcdiv((float)($val / $num * 100),1,2));
                     },
                     array_count_values($array)
                 );
