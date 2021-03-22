@@ -1200,8 +1200,9 @@ class ApplicantController extends Controller
                             $temp[$batch->name] = "No";    
                         }
                     }
+                }else{  
+                     $temp[$batch->name] = "No";    
                 }
-            $temp[$batch->name] = "No";    
             }
 
             
