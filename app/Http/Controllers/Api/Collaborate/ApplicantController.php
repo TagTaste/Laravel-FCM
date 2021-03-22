@@ -942,6 +942,10 @@ class ApplicantController extends Controller
                             //->where('state','!=',Collaborate::$state[1])
                             ->first();
 
+        $batchList = Collaborate\Batches::where("collaborate_id","=",$collaborateId)->get();
+
+        $batches = $batchList->pluck('name')->toArray();
+        $batchId = $batchList->pluck('id')->toArray();
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -974,7 +978,8 @@ class ApplicantController extends Controller
             ->whereNull('rejected_at')
             ->orderBy("created_at","desc")
             ->get();
-
+            $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+            $batchIds = $batches->pluck("id")->toArray();
         $finalData = array();
         foreach ($applicants as $key => $applicant) {
             $job_profile = '';
@@ -1183,8 +1188,27 @@ class ApplicantController extends Controller
                 }
             }
             
+            $getBatchDetails = Collaborate\Review::where("collaborate_id","=",$collaborateId)->where("profile_id","=",$applicant->profile->id)->whereIn("batch_id",$batchIds)->groupBy("batch_id")->get();
+            
+            foreach($batches as $batch){
+                if($getBatchDetails->count()){
+                    foreach($getBatchDetails as $v){
+                        if($batch->id==$v->batch_id){
+                        $temp[$batch->name] = ($v->current_status==3 ? "Yes" : "No");
+                    ;
+                        }else{
+                            $temp[$batch->name] = "No";    
+                        }
+                    }
+                }else{  
+                     $temp[$batch->name] = "No";    
+                }
+            }
+
+            
             array_push($finalData, $temp);
         }
+
 
         $relativePath = "images/collaborateApplicantExcel/$collaborateId";
         $name = "collaborate-".$collaborateId."-".uniqid();
