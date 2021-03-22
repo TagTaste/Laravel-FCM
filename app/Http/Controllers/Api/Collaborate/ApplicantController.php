@@ -942,6 +942,10 @@ class ApplicantController extends Controller
                             //->where('state','!=',Collaborate::$state[1])
                             ->first();
 
+        $batchList = Collaborate\Batches::where("collaborate_id","=",$collaborateId)->get();
+
+        $batches = $batchList->pluck('name')->toArray();
+        $batchId = $batchList->pluck('id')->toArray();
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -1182,7 +1186,16 @@ class ApplicantController extends Controller
                     }
                 }
             }
+            $getBatchDetails = \DB::table('collaborate_batches')->where("collaborate_batches.collaborate_id","=",$collaborateId)->leftJoin("collaborate_tasting_user_review as ctur","ctur.batch_id","=","collaborate_batches.id")->where("ctur.profile_id","=",$applicant->profile->id)->groupBy("ctur.batch_id")->get();
             
+            foreach($getBatchDetails as $batch){ 
+                $temp['Batch Name'] = ((isset($temp['Batch Name']) ? " , " : "").$batch->name);
+
+                $temp['Tasting Completed'] = ((isset($temp['Tasting Completed']) ? " , " : "").($batch->current_status==3 ? "Yes" : "No"));
+                ;
+            }
+
+
             array_push($finalData, $temp);
         }
 
