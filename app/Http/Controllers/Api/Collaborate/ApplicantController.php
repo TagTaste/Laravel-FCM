@@ -978,7 +978,8 @@ class ApplicantController extends Controller
             ->whereNull('rejected_at')
             ->orderBy("created_at","desc")
             ->get();
-
+            $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+            $batchIds = $batches->pluck("id")->toArray();
         $finalData = array();
         foreach ($applicants as $key => $applicant) {
             $job_profile = '';
@@ -1186,16 +1187,24 @@ class ApplicantController extends Controller
                     }
                 }
             }
-            $getBatchDetails = \DB::table('collaborate_batches')->where("collaborate_batches.collaborate_id","=",$collaborateId)->leftJoin("collaborate_tasting_user_review as ctur","ctur.batch_id","=","collaborate_batches.id")->where("ctur.profile_id","=",$applicant->profile->id)->groupBy("ctur.batch_id")->get();
             
-            foreach($getBatchDetails as $batch){ 
-                $temp[$batch->name] = ($batch->current_status==3 ? "Yes" : "No");
+            $getBatchDetails = Collaborate\Review::where("collaborate_id","=",$collaborateId)->where("profile_id","=",$applicant->profile->id)->whereIn("batch_id",$batchIds)->groupBy("batch_id")->get();
+            
+            foreach($batches as $batch){
+                foreach($getBatchDetails as $v){
+                    if($batch->id==$v->batch_id){
+                    $temp[$batch->name] = ($v->current_status==3 ? "Yes" : "No");
                 ;
+                    }else{
+                        $temp[$batch->name] = "No";    
+                    }
+                }
             }
 
-
+            
             array_push($finalData, $temp);
         }
+
 
         $relativePath = "images/collaborateApplicantExcel/$collaborateId";
         $name = "collaborate-".$collaborateId."-".uniqid();
