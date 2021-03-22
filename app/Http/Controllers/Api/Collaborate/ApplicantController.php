@@ -1189,9 +1189,7 @@ class ApplicantController extends Controller
             $getBatchDetails = \DB::table('collaborate_batches')->where("collaborate_batches.collaborate_id","=",$collaborateId)->leftJoin("collaborate_tasting_user_review as ctur","ctur.batch_id","=","collaborate_batches.id")->where("ctur.profile_id","=",$applicant->profile->id)->groupBy("ctur.batch_id")->get();
             
             foreach($getBatchDetails as $batch){ 
-                $temp['Batch Name'] = ((isset($temp['Batch Name']) ? $temp['Batch Name']." , " : "").$batch->name);
-
-                $temp['Tasting Completed'] = ((isset($temp['Tasting Completed']) ? $temp['Tasting Completed']." , " : "").($batch->current_status==3 ? "Yes" : "No"));
+                $temp[$batch->name] = ($batch->current_status==3 ? "Yes" : "No");
                 ;
             }
 
