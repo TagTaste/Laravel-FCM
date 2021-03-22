@@ -1191,14 +1191,17 @@ class ApplicantController extends Controller
             $getBatchDetails = Collaborate\Review::where("collaborate_id","=",$collaborateId)->where("profile_id","=",$applicant->profile->id)->whereIn("batch_id",$batchIds)->groupBy("batch_id")->get();
             
             foreach($batches as $batch){
-                foreach($getBatchDetails as $v){
-                    if($batch->id==$v->batch_id){
-                    $temp[$batch->name] = ($v->current_status==3 ? "Yes" : "No");
-                ;
-                    }else{
-                        $temp[$batch->name] = "No";    
+                if($getBatchDetails->count()){
+                    foreach($getBatchDetails as $v){
+                        if($batch->id==$v->batch_id){
+                        $temp[$batch->name] = ($v->current_status==3 ? "Yes" : "No");
+                    ;
+                        }else{
+                            $temp[$batch->name] = "No";    
+                        }
                     }
                 }
+            $temp[$batch->name] = "No";    
             }
 
             
