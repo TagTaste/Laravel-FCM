@@ -1049,6 +1049,7 @@ class SurveyController extends Controller
             if(isset($questionIdMapping[$answers->question_id])){
                 $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s",strtotime($answers->created_at))." GMT +5.30";
                 $headers[$answers->profile_id]["Username"] = $answers->profile->email;
+                $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
                 $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $answers->answer_value.
                     ((!empty($image) && is_array($image)) ? "\n\n Image : ".implode(array_column($image,"original_photo")) ?? "" : "").
                     ((!empty($video) && is_array($video)) ? "\n\n Video : ".implode(array_column($video,"video_url")) ?? "" : "").
@@ -1061,7 +1062,7 @@ class SurveyController extends Controller
         }
         
         $finalData = array_values($headers);
-        $relativePath = "images/surveysAnsweredExcel/$id";
+        $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-".$id."-".uniqid();
         
         $excel = Excel::create($name, function($excel) use ($name, $finalData)  {
