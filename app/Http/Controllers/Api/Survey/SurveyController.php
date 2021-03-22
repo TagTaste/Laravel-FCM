@@ -1047,8 +1047,16 @@ class SurveyController extends Controller
             $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta); 
             $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url); 
             if(isset($questionIdMapping[$answers->question_id])){
+                $headers[$answers->profile_id]["Name"] = $answers->profile->name;
+                $headers[$answers->profile_id]["Email"] = $answers->profile->email;
+                $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
+                $headers[$answers->profile_id]["Phone"] = $answers->profile->phone;
+                $headers[$answers->profile_id]["City"] = $answers->profile->city;
+                $headers[$answers->profile_id]["Hometown"] = $answers->profile->hometown;
+                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL')."/@".$answers->profile->handle;                
                 $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s",strtotime($answers->created_at))." GMT +5.30";
-                $headers[$answers->profile_id]["Username"] = $answers->profile->email;
+                
+                
                 $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $answers->answer_value.
                     ((!empty($image) && is_array($image)) ? "\n\n Image : ".implode(array_column($image,"original_photo")) ?? "" : "").
                     ((!empty($video) && is_array($video)) ? "\n\n Video : ".implode(array_column($video,"video_url")) ?? "" : "").
@@ -1061,7 +1069,7 @@ class SurveyController extends Controller
         }
         
         $finalData = array_values($headers);
-        $relativePath = "images/surveysAnsweredExcel/$id";
+        $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-".$id."-".uniqid();
         
         $excel = Excel::create($name, function($excel) use ($name, $finalData)  {
@@ -1077,8 +1085,11 @@ class SurveyController extends Controller
 
                 $excel->sheet('Sheetname', function($sheet) use($finalData) {
                     $sheet->fromArray($finalData);
+                    // ->getFont()->setBold(true);
                     foreach ($sheet->getColumnIterator() as $row) {
+                        
                         foreach ($row->getCellIterator() as $cell) {
+                            
                             if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
                                 $cell_link = $cell->getValue();
                                 $cell->getHyperlink()
@@ -1088,7 +1099,9 @@ class SurveyController extends Controller
                         }
                     }
                 })->store('xlsx', false, true);
+              
             });
+        $excel->getActiveSheet()->getStyle("1:1")->getFont()->setBold( true );
         $excel_save_path = storage_path("exports/".$excel->filename.".xlsx");
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility'=>'public']);
