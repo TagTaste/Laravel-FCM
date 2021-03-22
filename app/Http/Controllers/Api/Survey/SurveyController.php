@@ -1056,12 +1056,19 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id]["Profile Url"] = env('APP_URL')."/@".$answers->profile->handle;                
                 $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s",strtotime($answers->created_at))." GMT +5.30";
                 
-                
-                $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $answers->answer_value.
+                if(isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]])){
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]."\n".html_entity_decode($answers->answer_value).
                     ((!empty($image) && is_array($image)) ? "\n\n Image : ".implode(array_column($image,"original_photo")) ?? "" : "").
                     ((!empty($video) && is_array($video)) ? "\n\n Video : ".implode(array_column($video,"video_url")) ?? "" : "").
                     ((!empty($doc) && is_array($doc)) ? "\n\n Document : ".implode(array_column($doc,"document_url")) ?? "" : "").
                     ((!empty($url) && is_array($url)) ? "\n\n Media Url : ".implode(array_column($url,"url")) ??"" : "");
+                }else{
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = html_entity_decode($answers->answer_value).
+                        ((!empty($image) && is_array($image)) ? "\n\n Image : ".implode(array_column($image,"original_photo")) ?? "" : "").
+                        ((!empty($video) && is_array($video)) ? "\n\n Video : ".implode(array_column($video,"video_url")) ?? "" : "").PHP_EOL.
+                        ((!empty($doc) && is_array($doc)) ? "\n\n Document : ".implode(array_column($doc,"document_url")) ?? "" : "").PHP_EOL.
+                        ((!empty($url) && is_array($url)) ? "\n\n Media Url : ".implode(array_column($url,"url")) ??"" : "");
+                }
                 
             }
 
