@@ -1189,12 +1189,12 @@ class ApplicantController extends Controller
             }
             
             $getBatchDetails = Collaborate\Review::where("collaborate_id","=",$collaborateId)->where("profile_id","=",$applicant->profile->id)->whereIn("batch_id",$batchIds)->groupBy("batch_id")->get();
-            
+            $pluck = $getBatchDetails->pluck("batch_id")->toArray();
             foreach($batches as $batch){
-                if($getBatchDetails->count()){
+                if($getBatchDetails->count() ){
                     foreach($getBatchDetails as $v){
-                        if($batch->id==$v->batch_id){
-                        $temp[$batch->name] = ($v->current_status==3 ? "Yes" : "No");
+                        if(in_array($batch->id,$pluck)){
+                            $temp[$batch->name] = ($v->current_status==3 ? "Yes" : "No");
                     ;
                         }else{
                             $temp[$batch->name] = "No";    
