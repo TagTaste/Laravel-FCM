@@ -190,8 +190,10 @@ class SurveyController extends Controller
             $prepData["invited_profile_ids"] = (is_array($request->invited_profile_ids) ? json_encode($request->invited_profile_ids) : $request->invited_profile_ids);
         }
 
-        if ($request->has("expired_at")) {
+        if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData["expired_at"] = date("Y-m-d", strtotime($request->expired_at));
+        }else{
+            $prepData["expired_at"] = date("Y-m-d",strtotime("+1 month"));
         }
 
         $create = Surveys::create($prepData);
@@ -320,7 +322,7 @@ class SurveyController extends Controller
             $prepData->invited_profile_ids = (is_array($request->invited_profile_ids) ? json_encode($request->invited_profile_ids) : $request->invited_profile_ids);
         }
 
-        if ($request->has("expired_at")) {
+        if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData->expired_at = date("Y-m-d", strtotime($request->expired_at));
         }
 
