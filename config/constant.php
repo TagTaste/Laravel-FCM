@@ -4,7 +4,8 @@ return  [
 
     "SURVEY_STATES" => [
         'DRAFT' => 1,
-        'PUBLISHED' => 2
+        'PUBLISHED' => 2,
+        'CLOSED' => 3
     ],
 
     "SURVEY_STATUS" => [

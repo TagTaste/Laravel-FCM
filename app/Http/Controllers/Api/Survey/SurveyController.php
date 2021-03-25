@@ -142,7 +142,14 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-
+        if($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+1 month"))){
+            return $this->sendError("Expiry time exceeds a month");
+        }
+        if($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()){
+            return $this->sendError("Expiry time invalid");
+        }
+        
+        
         $final_json = $this->validateSurveyFormJson($request);
 
         if (!empty($this->errors)) {
@@ -281,6 +288,14 @@ class SurveyController extends Controller
         if ($validator->fails()) {
             $this->errors = $validator->messages();
             return $this->sendResponse();
+        }
+
+
+        if($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+1 month"))){
+            return $this->sendError("Expiry time exceeds a month");
+        }
+        if($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()){
+            return $this->sendError("Expiry time invalid");
         }
 
         $final_json = $this->validateSurveyFormJson($request, $id);
@@ -1116,9 +1131,41 @@ class SurveyController extends Controller
         $excel_save_path = storage_path("exports/".$excel->filename.".xlsx");
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility'=>'public']);
-        $this->model = $resp;
+        $this->model = \Storage::url($resp);
         unlink($excel_save_path);
 
         return $this->sendResponse();
+    }
+
+    public function closeSurveys(Surveys $id,Request $request){
+
+         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+         if (isset($id->company_id) && !empty($id->company_id)) {
+            $companyId = $id->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($id->profile_id) &&  $id->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Admin can close the survey");
+        }
+
+
+
+        $this->model = false;
+        $close = Surveys::where("id", "=", $id->id);
+        $survey = $close->update(["state"=>config("constant.SURVEY_STATES.CLOSED")]);
+        $get = $close->first();
+        
+        $this->messages = "Survey Close Failed";
+        if ($survey) {
+            $this->model = true;
+            $this->messages = "Survey Closed Successfully";
+            event(new UpdateFeedable($get));
+        }
+        return $this->sendResponse();
+
     }
 }
