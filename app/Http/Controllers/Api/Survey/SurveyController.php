@@ -1165,10 +1165,15 @@ class SurveyController extends Controller
 
         $getReason = $this->surveyCloseReason();
         $reasonList = $getReason->original["data"];
+        
+        $ar = [];
+        foreach($reasonList as $v){
+            $ar[$v["id"]] = $v;
+        }
+        
         $this->model = false;
-        if (isset($reasonList[$reasonId])) {
-
-            $reason = $reasonList[$reasonId]["reason"];
+        if (isset($ar[$reasonId])) {
+            $reason = $ar[$reasonId]["reason"];
             $description = $request->input('description');
 
             $data = ['survey_id' => $survey->id, 'reason' => $reason, 'other_reason' => $description];
@@ -1191,9 +1196,9 @@ class SurveyController extends Controller
 
     public function surveyCloseReason()
     {
-        $data[1] = ['id' => 1, 'reason' => 'Completed'];
-        $data[2] = ['id' => 2, 'reason' => 'Not enough responses'];
-        $data[3] = ['id' => 3, 'reason' => 'Other'];
+        $data[] = ['id' => 1, 'reason' => 'Completed'];
+        $data[] = ['id' => 2, 'reason' => 'Not enough responses'];
+        $data[] = ['id' => 3, 'reason' => 'Other'];
         $this->model = $data;
         return $this->sendResponse();
     }
