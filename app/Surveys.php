@@ -27,10 +27,10 @@ class Surveys extends Model implements Feedable
     
     protected $with = ['profile','company'];
     
-    protected $appends = ['owner','meta'];
+    protected $appends = ['owner','meta',"closing_reason"];
 
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at"];
+    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","closing_reason"];
 
     protected $cast = [
         "form_json" => 'array'
@@ -230,4 +230,22 @@ class Surveys extends Model implements Feedable
         ];
         return $seo_tags;
     }
+
+    public function getClosingReasonAttribute()
+    {
+        $reason = [
+            'reason' => null,
+            'other_reason' => null
+        ];
+        $reason_value = \DB::table('surveys_close_reasons')
+            ->where('survey_id',(int)$this->id)
+            ->orderBy('id', 'desc')
+            ->first();
+        if (!is_null($reason_value)) {
+            $reason['reason'] = $reason_value->reason;
+            $reason['other_reason'] = $reason_value->other_reason;
+        }
+        return $reason;
+    }
+
 }

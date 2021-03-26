@@ -632,7 +632,7 @@ class SurveyController extends Controller
                                     array_map(function ($value) use ($ansVal, &$mediaUrl) {
                                         if (!empty($value)) {
                                             $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                            $mediaUrl[] = ["data" => $value, "meta" => $meta];;
+                                            $mediaUrl[] = ["data" => $value, "meta" => $meta];
                                         }
                                     }, $decodeUrl);
                                 }
@@ -1060,33 +1060,30 @@ class SurveyController extends Controller
         $getSurveyAnswers = $getSurveyAnswers->get();
         $counter = 0;
         foreach ($getSurveyAnswers as $answers) {
-
-            $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
-            $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
-            $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
-            $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
-            if (isset($questionIdMapping[$answers->question_id])) {
+            
+            $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta); 
+            $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta); 
+            $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta); 
+            $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url); 
+            if(isset($questionIdMapping[$answers->question_id])){
+                if(!isset($headers[$answers->profile_id])){
+                    $counter++;    
+                }
+                $headers[$answers->profile_id]["Sr no"] = $counter;
                 $headers[$answers->profile_id]["Name"] = $answers->profile->name;
                 $headers[$answers->profile_id]["Email"] = $answers->profile->email;
                 $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
                 $headers[$answers->profile_id]["Phone"] = $answers->profile->phone;
                 $headers[$answers->profile_id]["City"] = $answers->profile->city;
                 $headers[$answers->profile_id]["Hometown"] = $answers->profile->hometown;
-                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . $answers->profile->handle;
-                $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
-
-                if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]])) {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . "\n" . html_entity_decode($answers->answer_value) .
-                        ((!empty($image) && is_array($image)) ? "\n\n Image : " . implode(array_column($image, "original_photo")) ?? "" : "") .
-                        ((!empty($video) && is_array($video)) ? "\n\n Video : " . implode(array_column($video, "video_url")) ?? "" : "") .
-                        ((!empty($doc) && is_array($doc)) ? "\n\n Document : " . implode(array_column($doc, "document_url")) ?? "" : "") .
-                        ((!empty($url) && is_array($url)) ? "\n\n Media Url : " . implode(array_column($url, "url")) ?? "" : "");
-                } else {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = html_entity_decode($answers->answer_value) .
-                        ((!empty($image) && is_array($image)) ? "\n\n Image : " . implode(array_column($image, "original_photo")) ?? "" : "") .
-                        ((!empty($video) && is_array($video)) ? "\n\n Video : " . implode(array_column($video, "video_url")) ?? "" : "") . PHP_EOL .
-                        ((!empty($doc) && is_array($doc)) ? "\n\n Document : " . implode(array_column($doc, "document_url")) ?? "" : "") . PHP_EOL .
-                        ((!empty($url) && is_array($url)) ? "\n\n Media Url : " . implode(array_column($url, "url")) ?? "" : "");
+                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL')."/@".$answers->profile->handle;                
+                $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s",strtotime($answers->created_at))." GMT +5.30";
+                
+                if(isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]])){
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]].";".html_entity_decode($answers->answer_value).((!empty($image) && is_array($image)) ? ";".implode(";",array_column($image,"original_photo")) ?? "" : "").
+                    ((!empty($video) && is_array($video)) ? ";".implode(";",array_column($video,"video_url")) ?? "" : "").((!empty($doc) && is_array($doc)) ? ";".implode(";",array_column($doc,"document_url")) ?? "" : "").((!empty($url) && is_array($url)) ? ";".implode(";",array_column($url,"url")) ??"" : "");
+                }else{
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = html_entity_decode($answers->answer_value).((!empty($image) && is_array($image)) ? ";".implode(";",array_column($image,"original_photo")) ?? "" : "").((!empty($video) && is_array($video)) ? ";".implode(";",array_column($video,"video_url")) ?? "" : "").((!empty($doc) && is_array($doc)) ? ";".implode(";",array_column($doc,"document_url")) ?? "" : "").((!empty($url) && is_array($url)) ? ";".implode(";",array_column($url,"url")) ??"" : "");
                 }
             }
         }
