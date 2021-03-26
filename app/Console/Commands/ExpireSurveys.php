@@ -39,12 +39,16 @@ class ExpireSurveys extends Command
         if(!\Cache::add(get_class($this), true, 0.5)) {
             return false;
         }
-        Surveys::with([])->where('expired_at','<',date("Y-m-d"))->where('state',"<>,",config("constants.SURVEY_STATES.EXPIRED"))->where('state',"<>,",config("constants.SURVEY_STATES.CLOSED"))->whereNull('deleted_at')
-            ->orderBy('id')->chunk(100,function($models){
+        
+        Surveys::with([])->where('expired_at','<',date("Y-m-d"))->where('state',"=",config("constant.SURVEY_STATES.PUBLISHED"))->whereNull('deleted_at')
+            ->orderBy('created_at')->chunk(100,function($models){
+        
                 foreach($models as $model){
+                
                     $companyId = $model->company_id;
                     if(isset($companyId))
                     {
+                        
                         $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
                         foreach ($profileIds as $profileId)
                         {
@@ -55,8 +59,10 @@ class ExpireSurveys extends Command
                     else {
                         event(new \App\Events\Actions\ExpireModel($model));
                     }
+                    
                     event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
-                    $model->update(['state'=>config("constants.SURVEY_STATES.EXPIRED")]);
+                    $model->update(['state'=>config("constant.SURVEY_STATES.EXPIRED")]);
+                    
                     event(new DeleteFeedable($model));
 
                 }
