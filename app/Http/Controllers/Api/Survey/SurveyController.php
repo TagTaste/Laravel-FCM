@@ -1182,7 +1182,7 @@ class SurveyController extends Controller
         }
 
         $close = Surveys::where("id", "=", $survey->id);
-        $survey = $close->update(["state" => config("constant.SURVEY_STATES.CLOSED"), "deleted_at" => date("y-m-d H:i:s"),"is_active"=>0]);
+        $survey = $close->update(["state" => config("constant.SURVEY_STATES.CLOSED")]);
         $get = $close->first();
 
         $this->messages = "Survey Close Failed";
