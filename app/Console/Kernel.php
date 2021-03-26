@@ -145,6 +145,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SetExpireon::class,
         \App\Console\Commands\ExpireonJob::class,
         \App\Console\Commands\ExpireonCollaboration::class,
+        \App\Console\Commands\ExpireSurveys::class,
         \App\Console\Commands\EmployeeCount::class,
         \App\Console\Commands\Build\CompanyAdmins::class,
         \App\Console\Commands\MandatoryFieldsCollaboration::class,
@@ -284,6 +285,11 @@ class Kernel extends ConsoleKernel
 
         //daily polling expire at 12
         $schedule->command(UpdateProfileCompiledInfo::class)->dailyAt('12:00');
+
+
+        //daily survey expire at 12
+        $schedule->command('expires_on:surveys')->dailyAt('12:00');
+
 
         // $schedule->command('profile_compiled_detail:update')->dailyAt('14:05');
 

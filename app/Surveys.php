@@ -36,6 +36,7 @@ class Surveys extends Model implements Feedable
         "form_json" => 'array'
     ];
     
+    
     public function addToCache()
     {
         $data = [
