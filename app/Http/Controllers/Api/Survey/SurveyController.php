@@ -79,7 +79,11 @@ class SurveyController extends Controller
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $surveys = $this->model->where("is_active", "=", 1);
         if ($request->has('state') && !empty($request->input('state'))) {
-            $surveys = $surveys->where("state", "=", $request->state);
+            $states = [$request->state];
+            if($request->state==config("constant.SURVEY_STATES.PUBLISHED")){
+                $states = [config("constant.SURVEY_STATES.PUBLISHED"),config("constant.SURVEY_STATES.CLOSED"),config("constant.SURVEY_STATES.EXPIRED")];
+            }
+            $surveys = $surveys->whereIn("state",$states);
         }
 
         $surveys = $surveys->orderBy('state', 'asc')->orderBy('created_at', 'desc');
@@ -92,8 +96,10 @@ class SurveyController extends Controller
         //Get compnaies of the logged in user.
         $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
 
-        $surveys = $surveys->where('profile_id', $profileId)
-            ->orWhereIn('company_id', $companyIds);
+        $surveys = $surveys->where(function($q) use($profileId,$companyIds) {
+            $q->orWhere('profile_id',"=", $profileId);
+            $q->orWhereIn('company_id', $companyIds);
+        });
 
         if (!is_null($title)) {
             $surveys = $surveys->where('title', 'like', '%' . $title . '%');
