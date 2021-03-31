@@ -80,10 +80,10 @@ class SurveyController extends Controller
         $surveys = $this->model->where("is_active", "=", 1);
         if ($request->has('state') && !empty($request->input('state'))) {
             $states = [$request->state];
-            if($request->state==config("constant.SURVEY_STATES.PUBLISHED")){
-                $states = [config("constant.SURVEY_STATES.PUBLISHED"),config("constant.SURVEY_STATES.CLOSED"),config("constant.SURVEY_STATES.EXPIRED")];
+            if ($request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
+                $states = [config("constant.SURVEY_STATES.PUBLISHED"), config("constant.SURVEY_STATES.CLOSED"), config("constant.SURVEY_STATES.EXPIRED")];
             }
-            $surveys = $surveys->whereIn("state",$states);
+            $surveys = $surveys->whereIn("state", $states);
         }
 
         $surveys = $surveys->orderBy('state', 'asc')->orderBy('created_at', 'desc');
@@ -96,8 +96,8 @@ class SurveyController extends Controller
         //Get compnaies of the logged in user.
         $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
 
-        $surveys = $surveys->where(function($q) use($profileId,$companyIds) {
-            $q->orWhere('profile_id',"=", $profileId);
+        $surveys = $surveys->where(function ($q) use ($profileId, $companyIds) {
+            $q->orWhere('profile_id', "=", $profileId);
             $q->orWhereIn('company_id', $companyIds);
         });
 
@@ -1066,14 +1066,14 @@ class SurveyController extends Controller
         $getSurveyAnswers = $getSurveyAnswers->get();
         $counter = 0;
         foreach ($getSurveyAnswers as $answers) {
-            
-            $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta); 
-            $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta); 
-            $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta); 
-            $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url); 
-            if(isset($questionIdMapping[$answers->question_id])){
-                if(!isset($headers[$answers->profile_id])){
-                    $counter++;    
+
+            $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
+            $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
+            $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
+            $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
+            if (isset($questionIdMapping[$answers->question_id])) {
+                if (!isset($headers[$answers->profile_id])) {
+                    $counter++;
                 }
                 $headers[$answers->profile_id]["Sr no"] = $counter;
                 $headers[$answers->profile_id]["Name"] = $answers->profile->name;
@@ -1082,14 +1082,14 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id]["Phone"] = $answers->profile->phone;
                 $headers[$answers->profile_id]["City"] = $answers->profile->city;
                 $headers[$answers->profile_id]["Hometown"] = $answers->profile->hometown;
-                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL')."/@".$answers->profile->handle;                
-                $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s",strtotime($answers->created_at))." GMT +5.30";
-                
-                if(isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]])){
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]].";".html_entity_decode($answers->answer_value).((!empty($image) && is_array($image)) ? ";".implode(";",array_column($image,"original_photo")) ?? "" : "").
-                    ((!empty($video) && is_array($video)) ? ";".implode(";",array_column($video,"video_url")) ?? "" : "").((!empty($doc) && is_array($doc)) ? ";".implode(";",array_column($doc,"document_url")) ?? "" : "").((!empty($url) && is_array($url)) ? ";".implode(";",array_column($url,"url")) ??"" : "");
-                }else{
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = html_entity_decode($answers->answer_value).((!empty($image) && is_array($image)) ? ";".implode(";",array_column($image,"original_photo")) ?? "" : "").((!empty($video) && is_array($video)) ? ";".implode(";",array_column($video,"video_url")) ?? "" : "").((!empty($doc) && is_array($doc)) ? ";".implode(";",array_column($doc,"document_url")) ?? "" : "").((!empty($url) && is_array($url)) ? ";".implode(";",array_column($url,"url")) ??"" : "");
+                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . $answers->profile->handle;
+                $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
+
+                if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]])) {
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";" . html_entity_decode($answers->answer_value) . ((!empty($image) && is_array($image)) ? ";" . implode(";", array_column($image, "original_photo")) ?? "" : "") .
+                        ((!empty($video) && is_array($video)) ? ";" . implode(";", array_column($video, "video_url")) ?? "" : "") . ((!empty($doc) && is_array($doc)) ? ";" . implode(";", array_column($doc, "document_url")) ?? "" : "") . ((!empty($url) && is_array($url)) ? ";" . implode(";", array_column($url, "url")) ?? "" : "");
+                } else {
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = html_entity_decode($answers->answer_value) . ((!empty($image) && is_array($image)) ? ";" . implode(";", array_column($image, "original_photo")) ?? "" : "") . ((!empty($video) && is_array($video)) ? ";" . implode(";", array_column($video, "video_url")) ?? "" : "") . ((!empty($doc) && is_array($doc)) ? ";" . implode(";", array_column($doc, "document_url")) ?? "" : "") . ((!empty($url) && is_array($url)) ? ";" . implode(";", array_column($url, "url")) ?? "" : "");
                 }
             }
         }
@@ -1138,9 +1138,9 @@ class SurveyController extends Controller
 
     public function closeSurveys($id, Request $request)
     {
-        
-        $survey = \DB::table("surveys")->where("id","=",trim($id))->first();
-        
+
+        $survey = \DB::table("surveys")->where("id", "=", trim($id))->first();
+
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($survey->company_id) && !empty($survey->company_id)) {
             $companyId = $survey->company_id;
@@ -1154,26 +1154,26 @@ class SurveyController extends Controller
             return $this->sendError("Only Admin can close the survey");
         }
 
-        if($survey->state==config("constant.SURVEY_STATES.CLOSED")){
+        if ($survey->state == config("constant.SURVEY_STATES.CLOSED")) {
             return $this->sendError("Survey Already Closed");
         }
 
-        if($survey->state==config("constant.SURVEY_STATES.EXPIRED")){   
+        if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {
             return $this->sendError("Survey Already Expired");
         }
 
-        
+
 
         $reasonId = $request->input('reason_id');
 
         $getReason = $this->surveyCloseReason();
         $reasonList = $getReason->original["data"];
-        
+
         $ar = [];
-        foreach($reasonList as $v){
+        foreach ($reasonList as $v) {
             $ar[$v["id"]] = $v;
         }
-        
+
         $this->model = false;
         if (isset($ar[$reasonId])) {
             $reason = $ar[$reasonId]["reason"];
@@ -1203,6 +1203,46 @@ class SurveyController extends Controller
         $data[] = ['id' => 2, 'reason' => 'Not enough responses'];
         $data[] = ['id' => 3, 'reason' => 'Other'];
         $this->model = $data;
+        return $this->sendResponse();
+    }
+
+    public function dynamicMandatoryFields(Request $request)
+    {
+        $type = $request->has('type') ? $request->type : [];
+        $this->model = [];
+        $fields = \DB::table('surveys_mandatory_fields')->get();
+        foreach ($fields as $field) {
+            $is_selected = 0;
+            $data = [];
+            foreach ($type as $t) {
+                if ($field->field == 'document_meta' && $t == 'document_required') {
+                    $is_selected = 1;
+                } else if ($field->field == 'address' && $t == 'hut') {
+                    $is_selected = 1;
+                }
+            }
+            $data['id'] = $field->id;
+            $data['is_selected'] = $is_selected;
+            $data['name'] = $field->name;
+            $data['field'] = $field->field;
+            $data['is_mandatory'] = $field->is_mandatory;
+            $data = (object)$data;
+            $this->model[] = $data;
+        }
+
+        return $this->sendResponse();
+    }
+
+    public function surveyMandatoryFields(Surveys $id, Request $request)
+    {
+        unset($this->model);
+        $this->model = [];
+        $fields = \DB::table('surveys_mandatory_fields')
+            ->join('surveys_mandatory_fields_mapping', 'surveys_mandatory_fields.id', '=', 'surveys_mandatory_fields_mapping.mandatory_field_id')
+            ->where('surveys_mandatory_fields_mapping.survey_id', $id->id)
+            ->pluck('surveys_mandatory_fields.field');
+        $this->model['mandatory_fields'] = $fields;
+        $this->model['remaining_mandatory_fields'] = $request->user()->profile->getProfileCompletionAttribute($fields);
         return $this->sendResponse();
     }
 }
