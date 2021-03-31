@@ -138,7 +138,7 @@ class SurveyController extends Controller
             'invited_profile_ids' => 'nullable|array',
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
-            'mandatory_field_ids' => 'required|array'
+            'mandatory_field_ids' => 'array'
         ]);
 
 
@@ -217,10 +217,9 @@ class SurveyController extends Controller
         $create->form_json = $final_json;
 
         if (isset($create->id)) {
-            if($request->has('mandatory_field_ids') && !empty($request->mandatory_field_ids)) {
-                $this->storeMandatoryFields($request->mandatory_field_ids,$create->id);
-                $inputs['document_required'] = $request->has('document_required') ? $request->document_required : null;
-            }
+            
+            $this->storeMandatoryFields($request, $create->id);
+            
             $survey = Surveys::find($create->id);
             $this->model = $create;
             $this->messages = "Survey Created Successfully";
@@ -294,7 +293,7 @@ class SurveyController extends Controller
             'invited_profile_ids' => 'nullable',
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
-            'mandatory_field_ids' => 'required|array'
+            'mandatory_field_ids' => 'array'
         ]);
 
         if ($validator->fails()) {
@@ -316,7 +315,7 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-        
+
         $prepData = (object)[];
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
@@ -360,10 +359,9 @@ class SurveyController extends Controller
         $this->model = true;
         $this->messages = "Survey Updated Successfully";
 
-        if($request->has('mandatory_field_ids') && !empty($request->mandatory_field_ids)) {
-            $this->storeMandatoryFields($request->mandatory_field_ids,$create->id);
-            $inputs['document_required'] = $request->has('document_required') ? $request->document_required : null;
-        }
+
+        $this->storeMandatoryFields($request, $id);
+
 
 
         if ($getSurvey->state == config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
@@ -1258,13 +1256,22 @@ class SurveyController extends Controller
         return $this->sendResponse();
     }
 
-    public function storeMandatoryFields($fieldIds, $surveyId)
+    public function storeMandatoryFields($request, $surveyId)
     {
-        \DB::table('surveys_mandatory_fields_mapping')->where('survey_id',$surveyId)->delete();
-        $insertData = [];
-        foreach ($fieldIds as $fieldId) {
-            $insertData[] = ['mandatory_field_id'=>$fieldId,'survey_id'=>$surveyId];
+        
+        \DB::table('surveys_mandatory_fields_mapping')->where('survey_id', $surveyId)->delete();
+        $get = \DB::table('surveys_mandatory_fields')->where("is_mandatory", "=", 1)->get();
+        $pluckData = $get->pluck("id")->toArray();
+        if (isset($request->mandatory_field_ids) && !empty($request->mandatory_field_ids)) {
+            $pluckData = array_merge($pluckData, $request->mandatory_field_ids);
         }
-        return \DB::table('surveys_mandatory_fields_mapping')->insert($insertData);
+        $pluckData = array_unique($pluckData);
+        if (!empty($pluckData)) {
+            $insertData = [];
+            foreach ($pluckData as $fieldId) {
+                $insertData[] = ['mandatory_field_id' => $fieldId, 'survey_id' => $surveyId];
+            }
+            \DB::table('surveys_mandatory_fields_mapping')->insert($insertData);
+        }
     }
 }
