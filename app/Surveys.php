@@ -27,10 +27,10 @@ class Surveys extends Model implements Feedable
     
     protected $with = ['profile','company'];
     
-    protected $appends = ['owner','meta',"closing_reason"];
+    protected $appends = ['owner','meta',"closing_reason",'mandatory_fields'];
 
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","closing_reason"];
+    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","closing_reason",'mandatory_fields'];
 
     protected $cast = [
         "form_json" => 'array'
@@ -246,6 +246,14 @@ class Surveys extends Model implements Feedable
             $reason['other_reason'] = $reason_value->other_reason;
         }
         return $reason;
+    }
+
+    public function getMandatoryFieldsAttribute()
+    {
+        return \DB::table('surveys_mandatory_fields')
+                ->join('surveys_mandatory_fields_mapping','surveys_mandatory_fields.id','=','surveys_mandatory_fields_mapping.mandatory_field_id')
+                ->where('surveys_mandatory_fields_mapping.survey_id',$this->id)
+                ->get();
     }
 
 }
