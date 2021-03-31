@@ -33,8 +33,7 @@ class SurveyAnswered extends Action
      * @return void
      */
     public function __construct(Model &$model, $who = null, $image = null, $action = null, $company = null)
-    {
-        
+    {        
         parent::__construct($model);
         $this->model = $model;
         $this->who = $who;

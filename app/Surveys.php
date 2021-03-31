@@ -241,9 +241,12 @@ class Surveys extends Model implements Feedable
             ->where('survey_id',(int)$this->id)
             ->orderBy('id', 'desc')
             ->first();
-        if (!is_null($reason_value)) {
+            
+        if (!empty($reason_value)) {
             $reason['reason'] = $reason_value->reason;
             $reason['other_reason'] = $reason_value->other_reason;
+        }else{
+            return [] ;
         }
         return $reason;
     }
