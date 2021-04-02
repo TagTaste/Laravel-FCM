@@ -40,7 +40,7 @@ class SurveyAnswerSync extends Command
      */
     public function handle()
     {
-        $getAnswerDetails = SurveyAnswers::groupBy("profile_id")->get();
+        $getAnswerDetails = SurveyAnswers::groupBy("profile_id")->groupBy("survey_id")->get();
         foreach ($getAnswerDetails as $values) {
             $getApplicantDetails = \DB::table("survey_applicants")->where("profile_id", "=", $values->profile_id)->where("survey_id", "=", $values->survey_id)->first();
             if (empty($getApplicantDetails)) {
