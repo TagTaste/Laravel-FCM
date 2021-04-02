@@ -106,18 +106,21 @@ trait FilterTraits
         
         $filters = $request->input('filter');
 
-        $gender = ['Male'=>'Male','Female'=>'Female','Others' => 'Others'];
-        $age = ['gen-y'=>'Gen-Y','gen-x'=>'Gen-X','millenials'=>'Millenials','yold'=>'YOld'];
+        $gender = [['key'=>'Male', 'value' => 'Male'],['key' => 'Female', 'value' =>'Female'],['key'=>'Others', 'value' =>'Others']];
+        $age = [['key'=>'gen-y', 'value' => 'Gen-Y'],['key'=> 'gen-x', 'value' => 'Gen-X'],['key'=>'millenials', 'value' => 'Millenials'],['key'=>'yold', 'value' =>'YOld']];
 
-        $currentStatus = [1=>"incomplete",2=> "completed"];
+        $currentStatus = [["key" => 1, "value" => 'incomplete'],['key'=>2 , 'value' => "completed"]];
         $applicants = \DB::table('survey_applicants')->where('survey_id',$survey_id)->get();
         $city = [];
+        $i = 0;
         foreach ($applicants as $applicant)
         {
             if(isset($applicant->city))
             {
                 if(!in_array($applicant->city,$city))
-                    $city[] = $applicant->city;
+                    $city[$i]['key'] = $applicant->city;
+                    $city[$i]['value'] = $applicant->city;
+                    $i++;
             }
         }
         $data = [];
