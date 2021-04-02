@@ -48,7 +48,7 @@ class SurveyAnswerSync extends Command
                 $inputs = [
                     'is_invited' => 0, 'profile_id' => $profile->id, 'survey_id' => $values->survey_id,
                     'message' => null, 'address' => null,
-                    'city' => null, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s",strtotime($values->created_at)),'updated_at'=>date("Y-m-d H:i:s",strtotime($values->updated_at)),'deleted_at' => null
+                    'city' => null, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => date("Y-m-d H:i:s",strtotime($values->created_at)), "created_at" => date("Y-m-d H:i:s",strtotime($values->created_at)),'updated_at'=>date("Y-m-d H:i:s",strtotime($values->updated_at)),'deleted_at' => null,'application_status'=>config('constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED')
                 ];
 
                 $ins = \DB::table('survey_applicants')->insert($inputs);
