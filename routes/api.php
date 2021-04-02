@@ -854,6 +854,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
 
     Route::group(['namespace'=>'Survey','prefix'=>'surveys','as'=>'surveys.','middleware'=>'api.auth'],function() {
+        Route::get('filters-list/{id}','SurveyController@getFilters');
         Route::get('/mandatory-fields','SurveyController@dynamicMandatoryFields');
         Route::get("/mandatory-fields/{id}","SurveyController@surveyMandatoryFields");
         Route::post("/survey-applicant/{id}","SurveyController@saveApplicants");

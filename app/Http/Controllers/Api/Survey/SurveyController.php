@@ -1342,8 +1342,8 @@ class SurveyController extends Controller
             return $this->sendError("Already Applied");
         }
 
-        if ($request->has('address')) {
-            $applierAddress = $request->input('address');
+        if ($request->has('applier_address')) {
+            $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress, true);
             $city = (isset($address['survey_city'])) ? $address['survey_city'] : null;
         } else {
@@ -1376,6 +1376,10 @@ class SurveyController extends Controller
         }else{
             return "yold";
         }
+    }
+    
+    public function getFilters($surveyId,Request $request){
+        return $this->getFilterParameters($surveyId,$request);
     }
 
     

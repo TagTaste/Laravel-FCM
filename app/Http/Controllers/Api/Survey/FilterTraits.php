@@ -101,4 +101,48 @@ trait FilterTraits
         else
             return ['profile_id' => $profileIds, 'type' => true];
     }
+
+    public function getFilterParameters($survey_id,Request $request){
+        
+        $filters = $request->input('filter');
+
+        $gender = ['Male'=>'Male','Female'=>'Female','Others' => 'Others'];
+        $age = ['gen-y'=>'Gen-Y','gen-x'=>'Gen-X','millenials'=>'Millenials','yold'=>'YOld'];
+
+        $currentStatus = [1=>"incomplete",2=> "completed"];
+        $applicants = \DB::table('survey_applicants')->where('survey_id',$survey_id)->get();
+        $city = [];
+        foreach ($applicants as $applicant)
+        {
+            if(isset($applicant->city))
+            {
+                if(!in_array($applicant->city,$city))
+                    $city[] = $applicant->city;
+            }
+        }
+        $data = [];
+
+        if(!empty($filters) && is_array($filters))
+        {
+            foreach ($filters as $filter)
+            {
+                if($filter == 'gender')
+                    $data['gender'] = $gender;
+                if($filter == 'age')
+                    $data['age'] = $age;
+                if($filter == 'city')
+                    $data['city'] = $city;
+                if($filter == 'application_status')
+                    $data['application_status'] = $currentStatus;
+            }
+        }
+        else
+        {
+            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,'application_status'=>$currentStatus];
+        }
+        $this->model = $data;
+
+        return $this->sendResponse();
+
+    }
 }
