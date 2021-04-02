@@ -64,6 +64,7 @@ use App\Console\Commands\Build\Graph\Build\UserFoodieType as GraphUserFoodieType
 use App\Console\Commands\Build\Graph\Build\UserSpecialization as GraphUserSpecialization;
 use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
+use App\Console\Commands\SurveyAnswerSync;
 
 class Kernel extends ConsoleKernel
 {
@@ -250,7 +251,7 @@ class Kernel extends ConsoleKernel
         CompleteTastingMail::class,
         //\App\Console\Commands\DeleteUsers::class,
         \App\Console\Commands\MailUnverifiedUserVerificationEmail::class,
-
+        SurveyAnswerSync::class,
 
         RemoveDuplicateFromReviewTable::class,
 
