@@ -1524,4 +1524,6 @@ class ApplicantController extends Controller
 
         return $this->sendResponse();
     }
+
+    
 }

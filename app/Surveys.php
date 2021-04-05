@@ -30,7 +30,7 @@ class Surveys extends Model implements Feedable
     protected $appends = ['owner','meta',"closing_reason",'mandatory_fields'];
 
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","closing_reason",'mandatory_fields'];
+    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at"];
 
     protected $cast = [
         "form_json" => 'array'

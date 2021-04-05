@@ -880,10 +880,22 @@ class SurveyController extends Controller
             return $this->sendError("Only Survey Admin can view this report");
         }
 
+        if($request->has('filters') && !empty($request->filters)){
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists,$request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
+
+        if($request->has('filters') && !empty($request->filters)){
+            $answers->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+        
 
         $this->model = [];
         $data = ["answer_count" => $answers->get()->count(), "report" => []];
@@ -1026,9 +1038,21 @@ class SurveyController extends Controller
             return $this->sendError("Only Survey Admin can view this report");
         }
 
-        $retrieveAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id)->get();
+
+        if($request->has('filters') && !empty($request->filters)){
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists,$request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
 
 
+        $retrieveMediaAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id);
+
+        if($request->has('filters') && !empty($request->filters)){
+            $retrieveMediaAnswers->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+        $retrieveAnswers = $retrieveMediaAnswers->get();
         $page = $request->input('page');
 
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
