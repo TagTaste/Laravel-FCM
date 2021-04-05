@@ -1377,7 +1377,7 @@ class SurveyController extends Controller
 
         $loggedInprofileId = $request->user()->profile->id;
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->first();
-        if ($checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+        if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
             return $this->sendError("Already Applied");
         }
 
