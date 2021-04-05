@@ -231,7 +231,7 @@ class Surveys extends Model implements Feedable
         return $seo_tags;
     }
 
-    public function getClosingReasonAttribute()
+    public function getClosingReason()
     {
         $reason = [
             'reason' => null,
@@ -251,12 +251,12 @@ class Surveys extends Model implements Feedable
         return $reason;
     }
 
-    public function getMandatoryFieldsAttribute()
+    public function getMandatoryFields()
     {
         return \DB::table('surveys_mandatory_fields')
                 ->join('surveys_mandatory_fields_mapping','surveys_mandatory_fields.id','=','surveys_mandatory_fields_mapping.mandatory_field_id')
                 ->where('surveys_mandatory_fields_mapping.survey_id',$this->id)
-                ->get();
+                ->get()->toArray();
     }
 
 }

@@ -65,12 +65,15 @@ class SurveyController extends Controller
         $getSurvey["form_json"] = json_decode($getSurvey["form_json"], true);
         $getSurvey["video_meta"] = json_decode($getSurvey["video_meta"], true);
         $getSurvey["image_meta"] = json_decode($getSurvey["image_meta"], true);
-
+        $getData = $getSurvey->toArray(); 
+        $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
+        $getData["closing_reason"] = $getSurvey->getClosingReason();
         $this->messages = "Request successfull";
         $this->model = [
-            "surveys" => $getSurvey,
+            "surveys" => $getData,
             "meta" => $getSurvey->getMetaFor($request->user()->profile->id),
             "seoTags" => $getSurvey->getSeoTags(),
+            
         ];
         return $this->sendResponse();
     }
