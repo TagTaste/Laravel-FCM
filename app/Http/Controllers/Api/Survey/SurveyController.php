@@ -33,7 +33,7 @@ use Illuminate\Http\File;
 class SurveyController extends Controller
 {
 
-    use SendsJsonResponse,FilterTraits;
+    use SendsJsonResponse, FilterTraits;
 
     protected $model;
 
@@ -65,7 +65,7 @@ class SurveyController extends Controller
         $getSurvey["form_json"] = json_decode($getSurvey["form_json"], true);
         $getSurvey["video_meta"] = json_decode($getSurvey["video_meta"], true);
         $getSurvey["image_meta"] = json_decode($getSurvey["image_meta"], true);
-        $getData = $getSurvey->toArray(); 
+        $getData = $getSurvey->toArray();
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
         $this->messages = "Request successfull";
@@ -73,7 +73,7 @@ class SurveyController extends Controller
             "surveys" => $getData,
             "meta" => $getSurvey->getMetaFor($request->user()->profile->id),
             "seoTags" => $getSurvey->getSeoTags(),
-            
+
         ];
         return $this->sendResponse();
     }
@@ -449,7 +449,7 @@ class SurveyController extends Controller
 
     public function saveAnswers(Request $request)
     {
-        
+
         try {
             $validator = Validator::make($request->all(), [
                 'survey_id' => 'required|exists:surveys,id',
@@ -464,7 +464,7 @@ class SurveyController extends Controller
 
             $id = $this->model->where("id", "=", $request->survey_id)->first();
             $this->model = [];
-            if(empty($id)){
+            if (empty($id)) {
                 return $this->sendError("Invalid Survey");
             }
 
@@ -472,21 +472,21 @@ class SurveyController extends Controller
                 return $this->sendError("Admin Cannot Fill the Surveys");
             }
 
-            
+
             $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->first();
-            
-            $checkIfMandatoryOptionsActive = \DB::table("surveys_mandatory_fields_mapping")->where("survey_id","=",$id->id)->get();
-            
-            if($checkIfMandatoryOptionsActive->count() && empty($checkApplicant)){
+
+            $checkIfMandatoryOptionsActive = \DB::table("surveys_mandatory_fields_mapping")->where("survey_id", "=", $id->id)->get();
+
+            if ($checkIfMandatoryOptionsActive->count() && empty($checkApplicant)) {
                 $this->sendError("Mandatory Information is not completed");
             }
 
             if (empty($checkApplicant)) {
 
-                $this->saveApplicants($id,$request);
+                $this->saveApplicants($id, $request);
             }
 
-            if(!empty($checkApplicant) && $checkApplicant->application_status==config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")){
+            if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 return $this->sendError("Already Answered");
             }
 
@@ -541,16 +541,16 @@ class SurveyController extends Controller
             $user = $request->user()->profile;
             if ($commit) {
                 DB::commit();
-                
+
                 // if (is_null($id->company_id)) {
                 //     event(new SurveyAnswered($id, $user, null, null, null, null));
                 // } else {
                 //     event(new SurveyAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
                 // }
-                
+
                 $this->model = [];
                 $this->messages = "Answer Submitted Successfully";
-                $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status"=>config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"),"completion_date"=>date("Y-m-d H:i:s")]);
+                $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
             }
 
             return $this->sendResponse();
@@ -569,13 +569,13 @@ class SurveyController extends Controller
 
         $colorCodeList = $this->colorCodeList;
 
-        
+
 
         if (empty($checkIFExists)) {
             return $this->sendError("Invalid Survey");
         }
-        if($request->has('filters') && !empty($request->filters)){
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists,$request);
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
@@ -592,9 +592,9 @@ class SurveyController extends Controller
             return $this->sendError("Only Survey Admin can view this report");
         }
 
-        $applicants = surveyApplicants::where("survey_id", "=", $id)->where("application_status","=",config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at","=",null);
+        $applicants = surveyApplicants::where("survey_id", "=", $id)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null);
 
-        if($request->has('filters') && !empty($request->filters)){
+        if ($request->has('filters') && !empty($request->filters)) {
             $applicants->whereIn('profile_id', $profileIds, 'and', $type);
         }
 
@@ -609,7 +609,7 @@ class SurveyController extends Controller
 
         foreach ($getJson as $values) {
             shuffle($colorCodeList);
-            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("profile_id",$pluck)->get();
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->get();
             $ans = $answers->pluck("option_id")->toArray();
 
             $ar = array_values(array_filter($ans));
@@ -828,7 +828,7 @@ class SurveyController extends Controller
         if (empty($checkIFExists)) {
             return $this->sendError("Invalid Survey");
         }
-        
+
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
@@ -843,19 +843,19 @@ class SurveyController extends Controller
             return $this->sendError("Only Survey Admin can view this report");
         }
 
-        if($request->has('filters') && !empty($request->filters)){
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists,$request);
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
 
-        
+
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $count = surveyApplicants::where("survey_id", "=", $id)->where("deleted_at", "=", null)->where("application_status","=",config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
+        $count = surveyApplicants::where("survey_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
         $profileId = $request->user()->profile->id;
 
-        if($request->has('filters') && !empty($request->filters)){
+        if ($request->has('filters') && !empty($request->filters)) {
             $count->whereIn('profile_id', $profileIds, 'and', $type);
         }
 
@@ -895,8 +895,8 @@ class SurveyController extends Controller
             return $this->sendError("Only Survey Admin can view this report");
         }
 
-        if($request->has('filters') && !empty($request->filters)){
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists,$request);
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
@@ -907,10 +907,10 @@ class SurveyController extends Controller
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
 
-        if($request->has('filters') && !empty($request->filters)){
+        if ($request->has('filters') && !empty($request->filters)) {
             $answers->whereIn('profile_id', $profileIds, 'and', $type);
         }
-        
+
 
         $this->model = [];
         $data = ["answer_count" => $answers->get()->count(), "report" => []];
@@ -1054,8 +1054,8 @@ class SurveyController extends Controller
         }
 
 
-        if($request->has('filters') && !empty($request->filters)){
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists,$request);
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
@@ -1063,7 +1063,7 @@ class SurveyController extends Controller
 
         $retrieveMediaAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id);
 
-        if($request->has('filters') && !empty($request->filters)){
+        if ($request->has('filters') && !empty($request->filters)) {
             $retrieveMediaAnswers->whereIn('profile_id', $profileIds, 'and', $type);
         }
 
@@ -1121,8 +1121,8 @@ class SurveyController extends Controller
             return $this->sendError("Invalid Survey");
         }
 
-        if($request->has('filters') && !empty($request->filters)){
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists,$request);
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
@@ -1147,22 +1147,22 @@ class SurveyController extends Controller
             $questionIdMapping[$values["id"]] = $values["title"];
         }
 
-        $applicants = surveyApplicants::where("survey_id", "=", $id)->where("application_status","=",config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at","=",null);
+        $applicants = surveyApplicants::where("survey_id", "=", $id)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null);
 
-        if($request->has('filters') && !empty($request->filters)){
+        if ($request->has('filters') && !empty($request->filters)) {
             $applicants->whereIn('profile_id', $profileIds, 'and', $type);
         }
 
         $getCount = $applicants->get();
 
-        
+
         $pluck = $getCount->pluck("profile_id")->toArray();
 
         $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id);
 
         if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
             $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids);
-        }else if($request->has('filters') && !empty($request->filters)){
+        } else if ($request->has('filters') && !empty($request->filters)) {
             $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $pluck);
         }
 
@@ -1370,16 +1370,17 @@ class SurveyController extends Controller
 
     public function saveApplicants(Surveys $id, Request $request)
     {
-        
+
         $loggedInprofileId = $request->user()->profile->id;
 
         $isInvited = 0;
 
         $loggedInprofileId = $request->user()->profile->id;
-        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->exists();
-        if ($checkApplicant) {
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->first();
+        if ($checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
             return $this->sendError("Already Applied");
         }
+
 
         if ($request->has('applier_address')) {
             $applierAddress = $request->input('applier_address');
@@ -1392,34 +1393,52 @@ class SurveyController extends Controller
 
 
         $profile = $request->user()->profile;
+        if (empty($checkApplicant)) {
+            $inputs = [
+                'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
+                'message' => $request->input('message'), 'address' => $applierAddress,
+                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s")
+            ];
 
-        $inputs = [
-            'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
-            'message' => $request->input('message'), 'address' => $applierAddress,
-            'city' => $city, 'age_group' => $this->calcDobRange(date("Y",strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null,"created_at"=>date("Y-m-d H:i:s")
-        ];
 
-        $ins = \DB::table('survey_applicants')->insert($inputs);
+            $ins = \DB::table('survey_applicants')->insert($inputs);
+        } else {
+            $update = [];
+            if (empty($checkApplicant->address)) {
+                $update['address'] = $applierAddress;
+            }
+            if (empty($checkApplicant->city)) {
+                $update['city'] = $city;
+            }
+
+            if (empty($checkApplicant->age_group)) {
+                $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
+            }
+
+            if (!empty($update)) {
+                $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
+            }
+        }
 
         return $this->sendResponse();
     }
 
-    public function calcDobRange($year){
-        
-        if($year > 2000){
+    public function calcDobRange($year)
+    {
+
+        if ($year > 2000) {
             return "gen-z";
-        }else if($year >= 1981 && $year <= 2000){
+        } else if ($year >= 1981 && $year <= 2000) {
             return "millenials";
-        }else if($year >= 1961 && $year <=1980 ){
+        } else if ($year >= 1961 && $year <= 1980) {
             return "gen-x";
-        }else{
+        } else {
             return "yold";
         }
     }
-    
-    public function getFilters($surveyId,Request $request){
-        return $this->getFilterParameters($surveyId,$request);
-    }
 
-    
+    public function getFilters($surveyId, Request $request)
+    {
+        return $this->getFilterParameters($surveyId, $request);
+    }
 }
