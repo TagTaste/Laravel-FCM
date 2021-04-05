@@ -825,6 +825,7 @@ class SurveyController extends Controller
         if (empty($checkIFExists)) {
             return $this->sendError("Invalid Survey");
         }
+        
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
@@ -839,10 +840,21 @@ class SurveyController extends Controller
             return $this->sendError("Only Survey Admin can view this report");
         }
 
+        if($request->has('filters') && !empty($request->filters)){
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists,$request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+        
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $count = surveyApplicants::where("survey_id", "=", $id)->where("deleted_at", "=", null)->where("application_status","=",config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
         $profileId = $request->user()->profile->id;
+
+        if($request->has('filters') && !empty($request->filters)){
+            $count->whereIn('profile_id', $profileIds, 'and', $type);
+        }
 
         $this->model = [];
         $countInt = $count->count();
@@ -1177,7 +1189,7 @@ class SurveyController extends Controller
                     $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";" . html_entity_decode($answers->answer_value) . ((!empty($image) && is_array($image)) ? ";" . implode(";", array_column($image, "original_photo")) ?? "" : "") .
                         ((!empty($video) && is_array($video)) ? ";" . implode(";", array_column($video, "video_url")) ?? "" : "") . ((!empty($doc) && is_array($doc)) ? ";" . implode(";", array_column($doc, "document_url")) ?? "" : "") . ((!empty($url) && is_array($url)) ? ";" . implode(";", array_column($url, "url")) ?? "" : "");
                 } else {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = html_entity_decode($answers->answer_value) . ((!empty($image) && is_array($image)) ? ";" . implode(";", array_column($image, "original_photo")) ?? "" : "") . ((!empty($video) && is_array($video)) ? ";" . implode(";", array_column($video, "video_url")) ?? "" : "") . ((!empty($doc) && is_array($doc)) ? ";" . implode(";", array_column($doc, "document_url")) ?? "" : "") . ((!empty($url) && is_array($url)) ? ";" . implode(";", array_column($url, "url")) ?? "" : "");
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] =     ($answers->answer_value) . ((!empty($image) && is_array($image)) ? ";" . implode(";", array_column($image, "original_photo")) ?? "" : "") . ((!empty($video) && is_array($video)) ? ";" . implode(";", array_column($video, "video_url")) ?? "" : "") . ((!empty($doc) && is_array($doc)) ? ";" . implode(";", array_column($doc, "document_url")) ?? "" : "") . ((!empty($url) && is_array($url)) ? ";" . implode(";", array_column($url, "url")) ?? "" : "");
                 }
             }
         }
