@@ -1187,7 +1187,7 @@ class SurveyController extends Controller
 
                 $ans = "";
 
-                if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]])) {
+                if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($answers->answer_value)) {
                     $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";";
                 }
 
