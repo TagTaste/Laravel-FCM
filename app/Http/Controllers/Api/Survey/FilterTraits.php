@@ -107,7 +107,7 @@ trait FilterTraits
         $filters = $request->input('filter');
 
         $gender = [['key'=>'Male', 'value' => 'Male'],['key' => 'Female', 'value' =>'Female'],['key'=>'Others', 'value' =>'Others']];
-        $age = [['key'=>'gen-y', 'value' => 'Gen-Y'],['key'=> 'gen-x', 'value' => 'Gen-X'],['key'=>'millenials', 'value' => 'Millenials'],['key'=>'yold', 'value' =>'YOld']];
+        $age = [['key'=>'gen-z', 'value' => 'Gen-Z'],['key'=> 'gen-x', 'value' => 'Gen-X'],['key'=>'millenials', 'value' => 'Millenials'],['key'=>'yold', 'value' =>'YOld']];
 
         $currentStatus = [["key" => 1, "value" => 'incomplete'],['key'=>2 , 'value' => "completed"]];
         $applicants = \DB::table('survey_applicants')->where('survey_id',$survey_id)->get();
