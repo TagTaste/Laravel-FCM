@@ -135,13 +135,15 @@ trait FilterTraits
                     $data['age'] = $age;
                 if($filter == 'city')
                     $data['city'] = $city;
-                if($filter == 'application_status')
-                    $data['application_status'] = $currentStatus;
+                // if($filter == 'application_status')
+                    // $data['application_status'] = $currentStatus;
             }
         }
         else
         {
-            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,'application_status'=>$currentStatus];
+            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city
+            // ,'application_status'=>$currentStatus
+        ];
         }
         $this->model = $data;
 

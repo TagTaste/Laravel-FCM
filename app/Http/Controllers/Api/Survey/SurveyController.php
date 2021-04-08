@@ -1188,12 +1188,44 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . $answers->profile->handle;
                 $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
 
-                if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]])) {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";" . html_entity_decode($answers->answer_value) . ((!empty($image) && is_array($image)) ? ";" . implode(";", array_column($image, "original_photo")) ?? "" : "") .
-                        ((!empty($video) && is_array($video)) ? ";" . implode(";", array_column($video, "video_url")) ?? "" : "") . ((!empty($doc) && is_array($doc)) ? ";" . implode(";", array_column($doc, "document_url")) ?? "" : "") . ((!empty($url) && is_array($url)) ? ";" . implode(";", array_column($url, "url")) ?? "" : "");
-                } else {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] =     ($answers->answer_value) . ((!empty($image) && is_array($image)) ? ";" . implode(";", array_column($image, "original_photo")) ?? "" : "") . ((!empty($video) && is_array($video)) ? ";" . implode(";", array_column($video, "video_url")) ?? "" : "") . ((!empty($doc) && is_array($doc)) ? ";" . implode(";", array_column($doc, "document_url")) ?? "" : "") . ((!empty($url) && is_array($url)) ? ";" . implode(";", array_column($url, "url")) ?? "" : "");
+                $ans = "";
+
+                if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]])) {
+                    $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";";
                 }
+
+                $ans .= html_entity_decode($answers->answer_value);
+                $p = false;
+                if (!empty($image) && is_array($image)) {
+                    if (!empty($answers->answer_value)) {
+                        $ans .= ";";
+                    }
+                    $ans .= implode(";", array_column($image, "original_photo"));
+                    $p = true;
+                }
+
+                if (!empty($video) && is_array($video)) {
+                    if ($p) {
+                        $ans .= ";";
+                    }
+                    $ans .= implode(";", array_column($video, "video_url"));
+                }
+
+                if (!empty($doc) && is_array($doc)) {
+                    if ($p) {
+                        $ans .= ";";
+                    }
+                    $ans .= implode(";", array_column($doc, "document_url"));
+                }
+
+                if (!empty($url) && is_array($url)) {
+                    if ($p) {
+                        $ans .= ";";
+                    }
+                    $ans .=   implode(";", array_column($url, "url"));
+                }
+
+                $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $ans;
             }
         }
 
@@ -1393,7 +1425,7 @@ class SurveyController extends Controller
 
 
         $profile = $request->user()->profile;
-        if (empty($checkApplicant)) {   
+        if (empty($checkApplicant)) {
             $inputs = [
                 'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
                 'message' => $request->input('message'), 'address' => $applierAddress,
