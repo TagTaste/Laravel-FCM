@@ -477,9 +477,6 @@ class SurveyController extends Controller
 
             $checkIfMandatoryOptionsActive = \DB::table("surveys_mandatory_fields_mapping")->where("survey_id", "=", $id->id)->get();
 
-            if ($checkIfMandatoryOptionsActive->count() && empty($checkApplicant)) {
-                return $this->sendError("Mandatory Information is not completed");
-            }
 
             if (empty($checkApplicant)) {
 
