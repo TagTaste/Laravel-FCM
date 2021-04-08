@@ -548,7 +548,7 @@ class SurveyController extends Controller
                 //     event(new SurveyAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
                 // }
 
-                $this->model = [];
+                $this->model = true;
                 $this->messages = "Answer Submitted Successfully";
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
             }
@@ -556,7 +556,7 @@ class SurveyController extends Controller
             return $this->sendResponse();
         } catch (Exception $ex) {
             DB::rollback();
-            $this->model = [];
+            $this->model = false;
             return $this->sendError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
         }
     }
