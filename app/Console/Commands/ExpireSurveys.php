@@ -60,7 +60,7 @@ class ExpireSurveys extends Command
                         event(new \App\Events\Actions\ExpireModel($model));
                     }
                     
-                    event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
+                    // event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
                     $model->update(['state'=>config("constant.SURVEY_STATES.EXPIRED")]);
                     
                     event(new DeleteFeedable($model));
