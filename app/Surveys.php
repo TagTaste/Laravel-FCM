@@ -246,7 +246,7 @@ class Surveys extends Model implements Feedable
             $reason['reason'] = $reason_value->reason;
             $reason['other_reason'] = $reason_value->other_reason;
         }else{
-            return [] ;
+            return null;
         }
         return $reason;
     }

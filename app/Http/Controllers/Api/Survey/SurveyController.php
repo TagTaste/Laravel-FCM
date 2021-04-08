@@ -1393,7 +1393,7 @@ class SurveyController extends Controller
 
 
         $profile = $request->user()->profile;
-        if (empty($checkApplicant)) {
+        if (empty($checkApplicant)) {   
             $inputs = [
                 'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
                 'message' => $request->input('message'), 'address' => $applierAddress,
@@ -1419,7 +1419,7 @@ class SurveyController extends Controller
                 $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
             }
         }
-
+        $this->model = true;
         return $this->sendResponse();
     }
 
