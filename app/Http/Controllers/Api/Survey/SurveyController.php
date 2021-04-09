@@ -959,7 +959,7 @@ class SurveyController extends Controller
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
 
-            if ($answers->count()) {
+            
                 $prepareNode["reports"][$counter]["question_id"] = $values["id"];
                 $prepareNode["reports"][$counter]["title"] = $values["title"];
                 $prepareNode["reports"][$counter]["description"] = $values["description"];
@@ -967,6 +967,7 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
                 $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
 
+                if ($answers->count()) {
                 $optCounter = 0;
                 $answers = $answers->toArray();
 
@@ -993,7 +994,7 @@ class SurveyController extends Controller
 
                         if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
-                        } else {
+                        } else {    
                             $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                             // $imageMeta = $answers->pluck("image_meta")->toArray();
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"] = (!is_array($answers[$pos]["image_meta"]) ? json_decode($answers[$pos]["image_meta"], true) : $answers[$pos]["image_meta"]);
@@ -1013,11 +1014,11 @@ class SurveyController extends Controller
                     }
                 }
 
-
+            }
                 $answers = [];
 
                 $counter++;
-            }
+            
         }
 
         $this->messages = "Report Successful";
