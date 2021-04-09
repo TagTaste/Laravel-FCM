@@ -1176,7 +1176,7 @@ class SurveyController extends Controller
                     $counter++;
                 }
                 $headers[$answers->profile_id]["Sr no"] = $counter;
-                $headers[$answers->profile_id]["Name"] = $answers->profile->name;
+                $headers[$answers->profile_id]["Name"] = html_entity_decode($answers->profile->name);
                 $headers[$answers->profile_id]["Email"] = $answers->profile->email;
                 $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
                 $headers[$answers->profile_id]["Phone"] = $answers->profile->phone;
@@ -1194,7 +1194,7 @@ class SurveyController extends Controller
                 $ans .= html_entity_decode($answers->answer_value);
                 $p = false;
                 if (!empty($image) && is_array($image)) {
-                    if (!empty($answers->answer_value)) {
+                    if (!empty($answers->answer_value) && !empty(array_column($image, "original_photo"))) {
                         $ans .= ";";
                     }
                     $ans .= implode(";", array_column($image, "original_photo"));
@@ -1202,21 +1202,21 @@ class SurveyController extends Controller
                 }
 
                 if (!empty($video) && is_array($video)) {
-                    if ($p) {
+                    if ($p && !empty(array_column($video, "video_url"))) {
                         $ans .= ";";
                     }
                     $ans .= implode(";", array_column($video, "video_url"));
                 }
 
                 if (!empty($doc) && is_array($doc)) {
-                    if ($p) {
+                    if ($p && !empty(array_column($doc, "document_url"))) {
                         $ans .= ";";
                     }
                     $ans .= implode(";", array_column($doc, "document_url"));
                 }
 
                 if (!empty($url) && is_array($url)) {
-                    if ($p) {
+                    if ($p && !empty(array_column($url, "url"))) {
                         $ans .= ";";
                     }
                     $ans .=   implode(";", array_column($url, "url"));
