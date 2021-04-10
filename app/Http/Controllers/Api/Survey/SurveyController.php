@@ -1180,7 +1180,7 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id]["Name"] = html_entity_decode($answers->profile->name);
                 $headers[$answers->profile_id]["Email"] = $answers->profile->email;
                 $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
-                $headers[$answers->profile_id]["Phone"] = $answers->profile->phone;
+                $headers[$answers->profile_id]["Phone"] = \DB::Table("profiles")->where("id","=",$answers->profile->id)->first()->phone;
                 $headers[$answers->profile_id]["City"] = $answers->profile->city;
                 $headers[$answers->profile_id]["Hometown"] = $answers->profile->hometown;
                 $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . $answers->profile->handle;

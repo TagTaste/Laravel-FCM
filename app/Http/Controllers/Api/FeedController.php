@@ -134,7 +134,7 @@ class FeedController extends Controller
                 }
                 $data[$name] = json_decode($cachedData,true);
             }
-            $data['pylod'] = $payload;
+            
             if($payload->model !== null){
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
@@ -147,7 +147,7 @@ class FeedController extends Controller
                     $data['meta'] = $model->getMetaFor($profileId);;
                 }
             }
-            $data['type'] = $type;
+            $data['type'] = $type;  
             $this->model[] = $data;
         }
     }

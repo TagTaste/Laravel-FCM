@@ -88,12 +88,12 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-            
+
         $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
         $meta['isReported'] =  $this->isSurveyReported();
         $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
-        $meta['review_dump'] = $reviewed;
-        $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
+        // $meta['review_dump'] = $reviewed;
+        // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
 
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
