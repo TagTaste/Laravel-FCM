@@ -1134,7 +1134,7 @@ class SurveyController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            return $this->sendError("Only Survey Admin can view this report");
+            // return $this->sendError("Only Survey Admin can view this report");
         }
 
         $headers = [];
@@ -1167,16 +1167,23 @@ class SurveyController extends Controller
         $getSurveyAnswers = $getSurveyAnswers->get();
         $counter = 0;
         foreach ($getSurveyAnswers as $answers) {
-
+            if(!isset($headers[$answers->profile_id])){
+                $counter++;
+                $headers[$answers->profile_id] =  ["Sr no"=>$counter,"Name"=>null,"Email"=>null,"Age"=>null,"Phone"=>null,"City"=>null,"Hometown"=>null,"Profile Url"=>null,"Timestamp"=>null];
+                foreach($questionIdMapping as $v){
+                    
+                    $headers[$answers->profile_id][$v] = null; 
+                }
+            }
             $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
             $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
             $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
             $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
             if (isset($questionIdMapping[$answers->question_id])) {
-                if (!isset($headers[$answers->profile_id])) {
-                    $counter++;
-                }
-                $headers[$answers->profile_id]["Sr no"] = $counter;
+                // if (!isset($headers[$answers->profile_id])) {
+                //     ;
+                // }
+                // $headers[$answers->profile_id]["Sr no"] = $counter;
                 $headers[$answers->profile_id]["Name"] = html_entity_decode($answers->profile->name);
                 $headers[$answers->profile_id]["Email"] = $answers->profile->email;
                 $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
@@ -1226,7 +1233,7 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $ans;
             }
         }
-
+        // print_r($headers);die;
         $finalData = array_values($headers);
         $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-" . $id . "-" . uniqid();
@@ -1243,7 +1250,7 @@ class SurveyController extends Controller
             $excel->setDescription('Survey Response List');
 
             $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
-                $sheet->fromArray($finalData);
+                $sheet->fromArray($finalData,null,'A1',true,true);
                 // ->getFont()->setBold(true);
                 foreach ($sheet->getColumnIterator() as $row) {
 
