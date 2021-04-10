@@ -90,7 +90,7 @@ class Surveys extends Model implements Feedable
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
         $meta['isReported'] =  $this->isSurveyReported();
-        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->first();
+        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         return $meta;
@@ -109,7 +109,7 @@ class Surveys extends Model implements Feedable
         $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
         $meta['isReported'] =  $this->isSurveyReported();
         
-        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->first();
+        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         return $meta;
