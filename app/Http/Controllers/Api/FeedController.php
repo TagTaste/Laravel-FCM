@@ -134,6 +134,7 @@ class FeedController extends Controller
                 }
                 $data[$name] = json_decode($cachedData,true);
             }
+            $data['pylod'] = $payload;
             if($payload->model !== null){
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
