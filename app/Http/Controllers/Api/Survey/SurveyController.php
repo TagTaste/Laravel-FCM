@@ -959,7 +959,7 @@ class SurveyController extends Controller
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
 
-            if ($answers->count()) {
+            
                 $prepareNode["reports"][$counter]["question_id"] = $values["id"];
                 $prepareNode["reports"][$counter]["title"] = $values["title"];
                 $prepareNode["reports"][$counter]["description"] = $values["description"];
@@ -967,6 +967,7 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
                 $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
 
+                if ($answers->count()) {
                 $optCounter = 0;
                 $answers = $answers->toArray();
 
@@ -993,7 +994,7 @@ class SurveyController extends Controller
 
                         if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
-                        } else {
+                        } else {    
                             $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                             // $imageMeta = $answers->pluck("image_meta")->toArray();
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"] = (!is_array($answers[$pos]["image_meta"]) ? json_decode($answers[$pos]["image_meta"], true) : $answers[$pos]["image_meta"]);
@@ -1013,11 +1014,11 @@ class SurveyController extends Controller
                     }
                 }
 
-
+            }
                 $answers = [];
 
                 $counter++;
-            }
+            
         }
 
         $this->messages = "Report Successful";
@@ -1133,7 +1134,7 @@ class SurveyController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            return $this->sendError("Only Survey Admin can view this report");
+            // return $this->sendError("Only Survey Admin can view this report");
         }
 
         $headers = [];
@@ -1166,20 +1167,27 @@ class SurveyController extends Controller
         $getSurveyAnswers = $getSurveyAnswers->get();
         $counter = 0;
         foreach ($getSurveyAnswers as $answers) {
-
+            if(!isset($headers[$answers->profile_id])){
+                $counter++;
+                $headers[$answers->profile_id] =  ["Sr no"=>$counter,"Name"=>null,"Email"=>null,"Age"=>null,"Phone"=>null,"City"=>null,"Hometown"=>null,"Profile Url"=>null,"Timestamp"=>null];
+                foreach($questionIdMapping as $v){
+                    
+                    $headers[$answers->profile_id][$v] = null; 
+                }
+            }
             $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
             $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
             $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
             $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
             if (isset($questionIdMapping[$answers->question_id])) {
-                if (!isset($headers[$answers->profile_id])) {
-                    $counter++;
-                }
-                $headers[$answers->profile_id]["Sr no"] = $counter;
-                $headers[$answers->profile_id]["Name"] = $answers->profile->name;
+                // if (!isset($headers[$answers->profile_id])) {
+                //     ;
+                // }
+                // $headers[$answers->profile_id]["Sr no"] = $counter;
+                $headers[$answers->profile_id]["Name"] = html_entity_decode($answers->profile->name);
                 $headers[$answers->profile_id]["Email"] = $answers->profile->email;
                 $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
-                $headers[$answers->profile_id]["Phone"] = $answers->profile->phone;
+                $headers[$answers->profile_id]["Phone"] = \DB::Table("profiles")->where("id","=",$answers->profile->id)->first()->phone;
                 $headers[$answers->profile_id]["City"] = $answers->profile->city;
                 $headers[$answers->profile_id]["Hometown"] = $answers->profile->hometown;
                 $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . $answers->profile->handle;
@@ -1194,7 +1202,7 @@ class SurveyController extends Controller
                 $ans .= html_entity_decode($answers->answer_value);
                 $p = false;
                 if (!empty($image) && is_array($image)) {
-                    if (!empty($answers->answer_value)) {
+                    if (!empty($answers->answer_value) && !empty(array_column($image, "original_photo"))) {
                         $ans .= ";";
                     }
                     $ans .= implode(";", array_column($image, "original_photo"));
@@ -1202,21 +1210,21 @@ class SurveyController extends Controller
                 }
 
                 if (!empty($video) && is_array($video)) {
-                    if ($p) {
+                    if ($p && !empty(array_column($video, "video_url"))) {
                         $ans .= ";";
                     }
                     $ans .= implode(";", array_column($video, "video_url"));
                 }
 
                 if (!empty($doc) && is_array($doc)) {
-                    if ($p) {
+                    if ($p && !empty(array_column($doc, "document_url"))) {
                         $ans .= ";";
                     }
                     $ans .= implode(";", array_column($doc, "document_url"));
                 }
 
                 if (!empty($url) && is_array($url)) {
-                    if ($p) {
+                    if ($p && !empty(array_column($url, "url"))) {
                         $ans .= ";";
                     }
                     $ans .=   implode(";", array_column($url, "url"));
@@ -1225,7 +1233,7 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $ans;
             }
         }
-
+        // print_r($headers);die;
         $finalData = array_values($headers);
         $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-" . $id . "-" . uniqid();
@@ -1242,7 +1250,7 @@ class SurveyController extends Controller
             $excel->setDescription('Survey Response List');
 
             $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
-                $sheet->fromArray($finalData);
+                $sheet->fromArray($finalData,null,'A1',true,true);
                 // ->getFont()->setBold(true);
                 foreach ($sheet->getColumnIterator() as $row) {
 

@@ -88,9 +88,13 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-        $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
+
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
         $meta['isReported'] =  $this->isSurveyReported();
-        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->first();
+        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
+        // $meta['review_dump'] = $reviewed;
+        // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
+
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         return $meta;
@@ -106,10 +110,10 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-        $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
         $meta['isReported'] =  $this->isSurveyReported();
         
-        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->first();
+        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         return $meta;
@@ -183,7 +187,7 @@ class Surveys extends Model implements Feedable
         $key = "meta:surveys:likes:" . $this->id;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
-        $meta['answerCount'] = 40;        
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();        
         
         //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
