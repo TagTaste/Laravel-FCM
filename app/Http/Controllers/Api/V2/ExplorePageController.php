@@ -192,6 +192,25 @@ class ExplorePageController extends Controller
                 /* ui type = 3 is end */
             }
 
+            if ($search_filter === "survey") {
+                /* ui type = 7 is start */
+                $model[] = [
+                    "position" => 2,
+                    "ui_type" => 6,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Latest Surveys", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "survey",
+                    "see_more" => true,
+                    "filter_meta" => (object)[],
+                    "elements" => $this->getSurvey($profile, $profile_id)
+                ];
+                /* ui type = 6 is end */
+            }
+
             if ($search_filter === "product") {
                 /* ui type = 2 is start */
                 $model[] = [
@@ -920,10 +939,13 @@ class ExplorePageController extends Controller
             "count" => 0,
             "type" => "survey"
         );
-        
+
         foreach ($surveys as $key => $id) {
             $cached_data = \App\Surveys::where('id', $id)->first();
             if (!is_null($cached_data)) {
+                $cached_data->image_meta = json_decode($cached_data->image_meta);
+                $cached_data->video_meta = json_decode($cached_data->video_meta);
+
                 array_push($survey_detail["survey"], $cached_data);
                 $survey_detail["count"] += 1;    
             }
