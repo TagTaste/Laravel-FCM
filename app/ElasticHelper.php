@@ -27,6 +27,9 @@ class ElasticHelper
             case "collaborate":
                 $fields  = ['title^3','keywords^2'];
                 break;  
+            case "surveys":
+                $fields  = ['title^3'];
+                break;  
             default:
                 $fields = ['name^3','title^3','brand_name^2','company_name^2','handle^1','keywords^2','productCategory','subCategory'];
         }
