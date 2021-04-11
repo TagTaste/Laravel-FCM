@@ -19,6 +19,8 @@ use App\Http\Controllers\Api\V2\FeedController;
 use App\ReviewCollection;
 use App\ElasticHelper;
 use App\Traits\HashtagFactory;
+use App\Surveys;
+
 
 class ExplorePageController extends Controller
 {
@@ -171,6 +173,23 @@ class ExplorePageController extends Controller
                     "elements" => $this->getCollaborationSuggestion($profile, $profile_id)
                 ];
                 /* ui type = 6 is end */
+
+                /* ui type = 3 is start */
+                $model[] = [
+                    "position" => 8,
+                    "ui_type" => 3,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Latest Surveys", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "survey",
+                    "see_more" => true,
+                    "filter_meta" => (object)[],
+                    "elements" => $this->getSurvey($profile, $profile_id)
+                ];
+                /* ui type = 3 is end */
             }
 
             if ($search_filter === "product") {
@@ -883,6 +902,34 @@ class ExplorePageController extends Controller
             $specialization_detail["count"] += 1;
         }
         return $specialization_detail;     
+    }
+
+    public function getSurvey($profile, $profile_id)
+    {
+        
+        $surveys = Surveys::where('state',2)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->take(10)
+            ->pluck('id')
+            ->toArray();
+
+
+        $survey_detail = array(
+            "survey" => array(),
+            "count" => 0,
+            "type" => "survey"
+        );
+        
+        foreach ($surveys as $key => $id) {
+            $cached_data = \App\Surveys::where('id', $id)->first();
+            if (!is_null($cached_data)) {
+                array_push($survey_detail["survey"], $cached_data);
+                $survey_detail["count"] += 1;    
+            }
+        }
+        return $survey_detail; 
+
     }
 
     public function getCollaborationSuggestion($profile, $profile_id)
