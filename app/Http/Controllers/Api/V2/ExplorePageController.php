@@ -792,6 +792,23 @@ class ExplorePageController extends Controller
             $product_search_filter
         );
 
+        // surveys search filter
+        $surveys_search_filter = array(
+            "name" => "Surveys",
+            "key" => "type",
+            "value" => "surveys",
+            "is_selected" => false
+        );
+
+        if ($filter_type === "surveys") {
+            $surveys_search_filter["is_selected"] = true;
+        }
+
+        array_push(
+            $search_filter_detail['search_filter'],
+            $surveys_search_filter
+        );
+
         // company search filter
         $company_search_filter = array(
             "name" => "Companies",
