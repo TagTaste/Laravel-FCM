@@ -184,7 +184,7 @@ class ExplorePageController extends Controller
                     "description" => null,
                     "images_meta" => null,
                     "type" => "collection",
-                    "sub_type" => "survey",
+                    "sub_type" => "surveys",
                     "see_more" => true,
                     "filter_meta" => (object)[],
                     "elements" => $this->getSurvey($profile, $profile_id)
@@ -196,7 +196,7 @@ class ExplorePageController extends Controller
                 /* ui type = 7 is start */
                 $model[] = [
                     "position" => 2,
-                    "ui_type" => 6,
+                    "ui_type" => 3,
                     "ui_style_meta" => (object)[],
                     "title" => "Latest Surveys", 
                     "subtitle" => null,
@@ -647,7 +647,7 @@ class ExplorePageController extends Controller
                 // /* ui type = 6 is start */
                 $model[] = [
                     "position" => 2,
-                    "ui_type" => 6,
+                    "ui_type" => 3,
                     "ui_style_meta" => (object)[],
                     "title" => "Top ".str_plural("Result", $survey_elastic_data['top_result']['count'])." in Surveys", 
                     "subtitle" => null,
@@ -662,7 +662,7 @@ class ExplorePageController extends Controller
 
                  $model[] = [
                     "position" => 3,
-                    "ui_type" => 6,
+                    "ui_type" => 3,
                     "ui_style_meta" => (object)[],
                     "title" => '"'.$search_value.'"'.' in Surveys', 
                     "subtitle" => null,
