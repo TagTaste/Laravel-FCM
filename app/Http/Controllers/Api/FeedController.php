@@ -139,7 +139,7 @@ class FeedController extends Controller
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
                 if($model=='App\Surveys'){
-                    $model = $model::with([])->where('payload_id',$payload->id)->first();
+                    $model = $model::with([])->where('payload_id',$payload->id)->where('state','=',config("constant.SURVEY_STATES.PUBLISHED"))->first();
                 }else{
                     $model = $model::with([])->where('id',$payload->model_id)->first();
                 }
