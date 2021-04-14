@@ -119,6 +119,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Search\PublicReviewProduct::class,
         \App\Console\Commands\Build\Search\Hashtag::class,
         \App\Console\Commands\Build\Search\UniqueHashtag::class,
+        \App\Console\Commands\Build\Search\Surveys::class,
         //Meta
             //Collab
             \App\Console\Commands\Build\Meta\Collaboration\CountApplications::class,
