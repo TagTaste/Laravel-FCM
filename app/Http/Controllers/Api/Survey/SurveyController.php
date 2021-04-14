@@ -1298,9 +1298,9 @@ class SurveyController extends Controller
             return $this->sendError("Survey Already Closed");
         }
 
-        if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {
-            return $this->sendError("Survey Already Expired");
-        }
+        // if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {
+        //     return $this->sendError("Survey Already Expired");
+        // }
 
 
 
