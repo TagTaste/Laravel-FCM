@@ -993,11 +993,14 @@ class ExplorePageController extends Controller
 
         foreach ($surveys as $key => $id) {
             $cached_data = \App\Surveys::where('id', $id)->first();
+            
             if (!is_null($cached_data)) {
-                $cached_data->image_meta = json_decode($cached_data->image_meta);
-                $cached_data->video_meta = json_decode($cached_data->video_meta);
-
-                array_push($survey_detail["surveys"], $cached_data);
+                $data = $cached_data->toArray();
+                $data["image_meta"] = json_decode($cached_data->image_meta);
+                $data["video_meta"] = json_decode($cached_data->video_meta);
+                
+                $data["meta"] = $cached_data->getMetaFor($profile_id);
+                array_push($survey_detail["surveys"], $data);
                 $survey_detail["count"] += 1;    
             }
         }
