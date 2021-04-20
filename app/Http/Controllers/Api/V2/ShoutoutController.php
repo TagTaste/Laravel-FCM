@@ -68,11 +68,13 @@ class ShoutoutController extends BaseController
         ];
 
         if (isset($shoutout['profile_id'])) {
-            $this->model['profile'] = mb_convert_encoding($owner, 'UTF-8', 'UTF-8');
+            $this->model['profile'] = $owner;
+            // $this->model['profile'] = mb_convert_encoding($owner, 'UTF-8', 'UTF-8');
         }
 
         if (isset($shoutout['company_id'])) {
-            $this->model['company'] = mb_convert_encoding($owner, 'UTF-8', 'UTF-8');
+            $this->model['company'] = $owner;
+            // $this->model['company'] = mb_convert_encoding($owner, 'UTF-8', 'UTF-8');
         }
 
         return $this->sendResponse();

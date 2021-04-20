@@ -451,7 +451,7 @@ class SearchController extends Controller
 //            if(!array_key_exists($type,$this->model)){
 //                $this->model[$type] = [];
 //            }
-            if($type == 'collaborate' || $type == 'product' || $type = 'surveys')
+            if($type == 'collaborate' || $type == 'product' || $type == 'surveys')
             $this->model[$type] = $suggestions;
             else
             $this->model[$type] = $suggestions->toArray();
