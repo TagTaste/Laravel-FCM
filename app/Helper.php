@@ -84,4 +84,18 @@ class Helper
             },
             array_count_values($array));
     }
+
+    public function calcDobRange($year){
+        if($year > 2000){
+            return "gen-z";
+        }else if($year >= 1981 && $year <= 2000){
+            return "millenials";
+        }else if($year >= 1961 && $year <=1980 ){
+            return "gen-x";
+        }else{
+            return "yold";
+        }
+    }
+    
+
 }

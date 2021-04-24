@@ -27,7 +27,7 @@ class Surveys extends Model implements Feedable
     
     protected $with = ['profile','company'];
     
-    protected $appends = ['owner','meta'];
+    protected $appends = ['owner','meta',"closing_reason",'mandatory_fields'];
 
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
     "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at"];
@@ -35,6 +35,7 @@ class Surveys extends Model implements Feedable
     protected $cast = [
         "form_json" => 'array'
     ];
+    
     
     public function addToCache()
     {
@@ -87,11 +88,14 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-        $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
-        $meta['isReported'] =  $this->isSurveyReported();
 
-        $answered = \DB::table('survey_answers')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('current_status',2)->first();
-        $meta['isReviewed'] = isset($answered) ? true : false;
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
+        $meta['isReported'] =  $this->isSurveyReported();
+        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
+        // $meta['review_dump'] = $reviewed;
+        // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
+
+        $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         return $meta;
     }
@@ -106,11 +110,11 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-        $meta['answerCount'] = \DB::table('survey_answers')->where('survey_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
         $meta['isReported'] =  $this->isSurveyReported();
         
-        $answered = \DB::table('survey_answers')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('current_status',2)->first();
-        $meta['isReviewed'] = isset($answered) ? true : false;
+        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
+        $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         return $meta;
     }
@@ -164,7 +168,7 @@ class Surveys extends Model implements Feedable
         $data['ogDescription'] = "by ".$this->owner->name;
         $images = $this->image_meta != null ? $this->image_meta : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
-        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/icon_survey.png';
         $data['ogUrl'] = env('APP_URL').'/surveys/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/surveys/'.$this->id;
 
@@ -183,7 +187,7 @@ class Surveys extends Model implements Feedable
         $key = "meta:surveys:likes:" . $this->id;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
-        $meta['answerCount'] = 40;        
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();        
         
         //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
@@ -223,10 +227,39 @@ class Surveys extends Model implements Feedable
                 ),
                 array(
                     "property" => "og:image",
-                    "content" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png",
+                    "content" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/icon_survey.png",
                 )
             ),
         ];
         return $seo_tags;
     }
+
+    public function getClosingReason()
+    {
+        $reason = [
+            'reason' => null,
+            'other_reason' => null
+        ];
+        $reason_value = \DB::table('surveys_close_reasons')
+            ->where('survey_id',(int)$this->id)
+            ->orderBy('id', 'desc')
+            ->first();
+            
+        if (!empty($reason_value)) {
+            $reason['reason'] = $reason_value->reason;
+            $reason['other_reason'] = $reason_value->other_reason;
+        }else{
+            return null;
+        }
+        return $reason;
+    }
+
+    public function getMandatoryFields()
+    {
+        return \DB::table('surveys_mandatory_fields')
+                ->join('surveys_mandatory_fields_mapping','surveys_mandatory_fields.id','=','surveys_mandatory_fields_mapping.mandatory_field_id')
+                ->where('surveys_mandatory_fields_mapping.survey_id',$this->id)
+                ->get()->toArray();
+    }
+
 }

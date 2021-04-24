@@ -33,13 +33,15 @@ class SurveyAnswered extends Action
      * @return void
      */
     public function __construct(Model &$model, $who = null, $image = null, $action = null, $company = null)
-    {
-        parent::__construct($model,$who = null);
+    {        
+        parent::__construct($model);
         $this->model = $model;
+        $this->who = $who;
         if(isset($company))
         {
             $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline, 'verified'=>$company->verified];
         }
+        
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->actionModel = null;

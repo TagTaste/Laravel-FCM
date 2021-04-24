@@ -19,6 +19,8 @@ use App\Http\Controllers\Api\V2\FeedController;
 use App\ReviewCollection;
 use App\ElasticHelper;
 use App\Traits\HashtagFactory;
+use App\Surveys;
+
 
 class ExplorePageController extends Controller
 {
@@ -169,6 +171,42 @@ class ExplorePageController extends Controller
                     "see_more" => true,
                     "filter_meta" => (object)[],
                     "elements" => $this->getCollaborationSuggestion($profile, $profile_id)
+                ];
+                /* ui type = 6 is end */
+
+                /* ui type = 3 is start */
+                $model[] = [
+                    "position" => 8,
+                    "ui_type" => 6,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Latest Surveys", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "surveys",
+                    "see_more" => true,
+                    "filter_meta" => (object)[],
+                    "elements" => $this->getSurvey($profile, $profile_id)
+                ];
+                /* ui type = 3 is end */
+            }
+
+            if ($search_filter === "surveys") {
+                /* ui type = 7 is start */
+                $model[] = [
+                    "position" => 2,
+                    "ui_type" => 6,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Latest Surveys", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "surveys",
+                    "see_more" => true,
+                    "filter_meta" => (object)[],
+                    "elements" => $this->getSurvey($profile, $profile_id)
                 ];
                 /* ui type = 6 is end */
             }
@@ -604,6 +642,40 @@ class ExplorePageController extends Controller
                 ];
                 // /* ui type = 6 is end */
             }
+            if ($search_filter === "surveys") {
+                $survey_elastic_data = $this->getSearchSurveysElastic($profile, $profile_id, $search_value, 20);
+                // /* ui type = 6 is start */
+                $model[] = [
+                    "position" => 2,
+                    "ui_type" => 6,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Top ".str_plural("Result", $survey_elastic_data['top_result']['count'])." in Surveys", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "surveys",
+                    "see_more" => false,
+                    "filter_meta" => (object)[],
+                    "elements" => $survey_elastic_data['top_result']
+                ];
+
+                 $model[] = [
+                    "position" => 3,
+                    "ui_type" => 6,
+                    "ui_style_meta" => (object)[],
+                    "title" => '"'.$search_value.'"'.' in Surveys', 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "surveys",
+                    "see_more" => true,
+                    "filter_meta" => (object)[],
+                    "elements" => $survey_elastic_data['match']
+                ];
+                // /* ui type = 6 is end */
+            }
             if ($search_filter === "company") {
                 $company_elastic_data = $this->getSearchCompanyElastic($profile, $profile_id, $search_value, 20);
                 /* ui type = 7 is start */
@@ -718,6 +790,23 @@ class ExplorePageController extends Controller
         array_push(
             $search_filter_detail['search_filter'],
             $product_search_filter
+        );
+
+        // surveys search filter
+        $surveys_search_filter = array(
+            "name" => "Surveys",
+            "key" => "type",
+            "value" => "surveys",
+            "is_selected" => false
+        );
+
+        if ($filter_type === "surveys") {
+            $surveys_search_filter["is_selected"] = true;
+        }
+
+        array_push(
+            $search_filter_detail['search_filter'],
+            $surveys_search_filter
         );
 
         // company search filter
@@ -885,6 +974,37 @@ class ExplorePageController extends Controller
         return $specialization_detail;     
     }
 
+    public function getSurvey($profile, $profile_id)
+    {
+        
+        $surveys = Surveys::where('state',2)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->take(10)
+            ->pluck('id')
+            ->toArray();
+
+
+        $survey_detail = array(
+            "surveys" => array(),
+            "count" => 0,
+            "type" => "surveys"
+        );
+
+        foreach ($surveys as $key => $id) {
+            $cached_data = \App\Surveys::where('id', $id)->first();
+            if (!is_null($cached_data)) {
+                $cached_data->image_meta = json_decode($cached_data->image_meta);
+                $cached_data->video_meta = json_decode($cached_data->video_meta);
+
+                array_push($survey_detail["surveys"], $cached_data);
+                $survey_detail["count"] += 1;    
+            }
+        }
+        return $survey_detail; 
+
+    }
+
     public function getCollaborationSuggestion($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
@@ -1023,6 +1143,59 @@ class ExplorePageController extends Controller
             }
         }
         return $elastic_product;
+    }
+
+    public function getSearchSurveysElastic($profile, $profile_id, $query, $count)
+    {
+        $elastic_surveys = array(
+            "top_result" => array(
+                "surveys" => array(),
+                "count" => 0,
+                "type" => "surveys"
+            ),
+            "match" => array(
+                "surveys" => array(),
+                "count" => 0,
+                "type" => "surveys"
+            )
+        );
+        $elastic_survey_details = ElasticHelper::suggestedSearch($query,"surveys",0,1);
+        if (isset($elastic_survey_details['hits']) && isset($elastic_survey_details['hits']['total']) && $elastic_survey_details['hits']['total'] > 0) {
+            foreach ($elastic_survey_details['hits']['hits'] as $key => $hit) {
+                if ($hit["_type"] == "surveys") {
+                    if ($count == $elastic_surveys['top_result']["count"] && $count == $elastic_surveys['match']["count"]) {
+                        break;
+                    } else {
+                        $survey = Surveys::where('id',$hit["_id"])
+                        ->where('is_active',1)
+                        ->where('state',2)
+                        ->whereNull('deleted_at')
+                        ->get()
+                        ->first();
+
+                        if (!is_null($survey)) {
+                            $data = $survey->toArray();
+                            if ($hit["_score"] > 9) {
+                                if ($count == $elastic_surveys['top_result']["count"]) {
+                                    continue;
+                                } else {
+                                    $elastic_surveys['top_result']["count"]++;
+                                    array_push($elastic_surveys['top_result']["surveys"], $data);
+                                }
+                            } else {
+                                if ($count == $elastic_surveys['match']["count"]) {
+                                    continue;
+                                } else {
+                                    $elastic_surveys['match']["count"]++;
+                                    array_push($elastic_surveys['match']["collaborate"], $data);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $elastic_surveys;
     }
 
     public function getSearchCollaborationElastic($profile, $profile_id, $query, $count)

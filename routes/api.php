@@ -854,6 +854,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
 
     Route::group(['namespace'=>'Survey','prefix'=>'surveys','as'=>'surveys.','middleware'=>'api.auth'],function() {
+        Route::get('filters-list/{id}','SurveyController@getFilters');
+        Route::get('/mandatory-fields','SurveyController@dynamicMandatoryFields');
+        Route::get("/mandatory-fields/{id}","SurveyController@surveyMandatoryFields");
+        Route::post("/survey-applicant/{id}","SurveyController@saveApplicants");
+        Route::get('/close-reasons','SurveyController@surveyCloseReason');        
         Route::post('/download-reports/{id}','SurveyController@excelReport');
         Route::get('/reports/{id}','SurveyController@reports')->name("reports");      
         Route::get('/respondents/{id}','SurveyController@surveyRespondents');
@@ -863,6 +868,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
         Route::post('/save-survey','SurveyController@saveAnswers');
         Route::get('/my-list','SurveyController@getMySurvey'); 
+        Route::post('/close/{id}','SurveyController@closeSurveys');
         Route::get('/similar/{id}','SurveyController@similarSurveys');        
         Route::post('/{id}/like','SurveyController@like');        
         Route::get('/{id}','SurveyController@index');  

@@ -21,7 +21,7 @@ class SurveyAnswered extends Action
         parent::__construct($event);
         $this->view = 'emails.survey-answered';
 
-        $this->sub = $this->data->who['name'] ." has responded your Survey".$this->data->model->title.".";
+        $this->sub = $this->data->who['name'] ." has responded your Survey.";
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
 

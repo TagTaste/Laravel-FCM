@@ -489,7 +489,7 @@ class SearchController extends Controller
             }
             if(isset($this->model['surveys']))
             {
-                $surveys = $this->model['surveys'];
+                $surveys = $this->model['surveys']->where("state","=",config("constant.SURVEY_STATES.PUBLISHED"));
                 $this->model['surveys'] = [];
                 foreach($surveys as $survey){
                     $survey->image_meta = json_decode($survey->image_meta);
