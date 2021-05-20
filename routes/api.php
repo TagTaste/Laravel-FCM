@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\SearchClient;
+use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Crypt;
 
@@ -877,5 +878,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post('/','SurveyController@store');
         
 
+    });
+
+    Route::get('/uploadQuestion/{id}/{question_id}',function ($id,$question_id){
+        return Artisan::call("TTFB:Question", ['id'=>$id,'question_id'=>$question_id]);
     });
 });
