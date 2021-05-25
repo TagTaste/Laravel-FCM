@@ -273,7 +273,10 @@ class CompanyController extends Controller
     //This is to allow all the users to follow a company
     public function followCompanyAll(Request $request, $profileId, $id)
     {
-        $profiled_IdList = \DB::table('profiles')->select('id')->whereNull('deleted_at')->get();
+        $startProfileId = $request["start_profile_id"];
+        $profiled_IdList = \DB::table('profiles')->select('id')->where('id','>=',$startProfileId)->whereNull('deleted_at')->get();
+        $count = 0;
+
         foreach ($profiled_IdList as $key => $pid) {
             $profile_id = $pid->id;
 
