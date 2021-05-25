@@ -94,7 +94,7 @@ class FeedController extends Controller
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
         $profileId = $request->user()->profile->id;
-        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
+        $payloads = Payload::join(' ','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             //not my things, but what others have posted.
             ->where('subscribers.channel_name','not like','feed.' . $profileId)
@@ -134,15 +134,20 @@ class FeedController extends Controller
                 }
                 $data[$name] = json_decode($cachedData,true);
             }
+            
             if($payload->model !== null){
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
-                $model = $model::with([])->where('id',$payload->model_id)->first();
+                if($model=='App\Surveys'){
+                    $model = $model::with([])->where('payload_id',$payload->id)->where('state','=',config("constant.SURVEY_STATES.PUBLISHED"))->first();
+                }else{
+                    $model = $model::with([])->where('id',$payload->model_id)->first();
+                }
                 if($model !== null && method_exists($model, 'getMetaFor') && $profileId != null){
                     $data['meta'] = $model->getMetaFor($profileId);;
                 }
             }
-            $data['type'] = $type;
+            $data['type'] = $type;  
             $this->model[] = $data;
         }
     }

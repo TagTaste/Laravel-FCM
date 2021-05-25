@@ -27,7 +27,7 @@ class LikeController extends Controller
         return $this->sendResponse();
         
     }
-
+    
     public function peopleLiked(Request $request,$modelName,$modelId)
     {
         $loggedInProfileId = $request->user()->profile->id ;
@@ -35,6 +35,5 @@ class LikeController extends Controller
         $peopleLike = new PeopleLike();
         $this->model = $peopleLike->peopleLike($modelId, $modelName ,$loggedInProfileId, $page,20);
         return $this->sendResponse();
-
     }
 }

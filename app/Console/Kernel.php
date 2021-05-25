@@ -64,6 +64,7 @@ use App\Console\Commands\Build\Graph\Build\UserFoodieType as GraphUserFoodieType
 use App\Console\Commands\Build\Graph\Build\UserSpecialization as GraphUserSpecialization;
 use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
+use App\Console\Commands\SurveyAnswerSync;
 
 class Kernel extends ConsoleKernel
 {
@@ -118,6 +119,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Search\PublicReviewProduct::class,
         \App\Console\Commands\Build\Search\Hashtag::class,
         \App\Console\Commands\Build\Search\UniqueHashtag::class,
+        \App\Console\Commands\Build\Search\Surveys::class,
         //Meta
             //Collab
             \App\Console\Commands\Build\Meta\Collaboration\CountApplications::class,
@@ -145,6 +147,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SetExpireon::class,
         \App\Console\Commands\ExpireonJob::class,
         \App\Console\Commands\ExpireonCollaboration::class,
+        \App\Console\Commands\ExpireSurveys::class,
         \App\Console\Commands\EmployeeCount::class,
         \App\Console\Commands\Build\CompanyAdmins::class,
         \App\Console\Commands\MandatoryFieldsCollaboration::class,
@@ -249,7 +252,7 @@ class Kernel extends ConsoleKernel
         CompleteTastingMail::class,
         //\App\Console\Commands\DeleteUsers::class,
         \App\Console\Commands\MailUnverifiedUserVerificationEmail::class,
-
+        SurveyAnswerSync::class,
 
         RemoveDuplicateFromReviewTable::class,
 
@@ -284,6 +287,11 @@ class Kernel extends ConsoleKernel
 
         //daily polling expire at 12
         $schedule->command(UpdateProfileCompiledInfo::class)->dailyAt('12:00');
+
+
+        //daily survey expire at 12
+        $schedule->command('expires_on:surveys')->dailyAt('12:00');
+
 
         // $schedule->command('profile_compiled_detail:update')->dailyAt('14:05');
 

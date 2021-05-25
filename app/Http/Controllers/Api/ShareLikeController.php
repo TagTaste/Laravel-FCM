@@ -20,7 +20,8 @@ class ShareLikeController extends Controller
             'collaborate'=> \App\Collaborate::class,
             'recipe' => \App\Recipe::class,
             'shoutout' =>\App\Shoutout::class,
-            'polling' => Polling::class
+            'polling' => Polling::class,
+            'surveys' =>\App\Surveys::class
         ];
 
         if((!array_key_exists($model,$models))){

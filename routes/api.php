@@ -330,6 +330,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         //global image upload function
         Route::post("globalImageUpload","PhotoController@globalImageUpload");
+        Route::post("globalFileUpload","PhotoController@globalFileUpload");
+
+
+        
 
         //invites
         Route::post("invites","InviteController@invite");
@@ -403,6 +407,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("collaborate/{id}/applicantFilters","CollaborateController@applicantFilters");
         //collaborate
         Route::get("collaborate/all","CollaborateController@all");
+        Route::get("collaborate/productReview/types","CollaborateController@getProductReviewType");
         Route::get("collaborate/filters","CollaborateController@filters");
         Route::post("collaborate/{id}/like","CollaborateController@like");
         Route::get("collaborate/{id}/applications","CollaborateController@applications");
@@ -687,7 +692,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::resource('comments','CommentController');
                 Route::resource('like','PhotoLikeController');
             });
-
+            
+            Route::post("companies/{id}/followAll","CompanyController@followCompanyAll");
+            
             Route::post('companies/{id}/follow','CompanyController@follow');
             Route::post('companies/{id}/unfollow','CompanyController@unfollow');
             Route::get('companies/{id}/followers','CompanyController@followers');
@@ -848,14 +855,29 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
     });
 
 
-    Route::group(['namespace'=>'Survey','prefix'=>'survey','as'=>'survey.','middleware'=>'api.auth'],function() {
-              
+    Route::group(['namespace'=>'Survey','prefix'=>'surveys','as'=>'surveys.','middleware'=>'api.auth'],function() {
+        Route::get('filters-list/{id}','SurveyController@getFilters');
+        Route::get('/mandatory-fields','SurveyController@dynamicMandatoryFields');
+        Route::get("/mandatory-fields/{id}","SurveyController@surveyMandatoryFields");
+        Route::post("/survey-applicant/{id}","SurveyController@saveApplicants");
+        Route::get('/close-reasons','SurveyController@surveyCloseReason');        
+        Route::post('/download-reports/{id}','SurveyController@excelReport');
+        Route::get('/reports/{id}','SurveyController@reports')->name("reports");      
+        Route::get('/respondents/{id}','SurveyController@surveyRespondents');
+        Route::get('/text-answers/{id}/{question_id}/{option_id}','SurveyController@inputAnswers');
+        Route::get('/user-report/{id}/{profile_id}','SurveyController@userReport');
+        Route::get('/media-list/{id}/{question_id}/{media_type}','SurveyController@mediaList');
         Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
+        Route::post('/save-survey','SurveyController@saveAnswers');
+        Route::get('/my-list','SurveyController@getMySurvey'); 
+        Route::post('/close/{id}','SurveyController@closeSurveys');
+        Route::get('/similar/{id}','SurveyController@similarSurveys');        
+        Route::post('/{id}/like','SurveyController@like');        
         Route::get('/{id}','SurveyController@index');  
         Route::post('/{id}','SurveyController@update');
         Route::delete('/{id}','SurveyController@destroy');
         Route::post('/','SurveyController@store');
         
+
     });
-    
 });
