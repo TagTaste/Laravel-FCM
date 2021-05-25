@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
+use App\Profile;
 use App\CompanyRating;
 use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
