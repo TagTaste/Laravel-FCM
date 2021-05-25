@@ -271,39 +271,39 @@ class CompanyController extends Controller
     }
 
     //This is to allow all the users to follow a company
-    public function followCompanyAll(Request $request, $profileId, $id)
-    {
-        $startProfileId = $request["start_profile_id"];
-        $profiled_IdList = \DB::table('profiles')->select('id')->where('id','>=',$startProfileId)->whereNull('deleted_at')->get();
-        $count = 0;
-
-        foreach ($profiled_IdList as $key => $pid) {
-            $profile_id = $pid->id;
-
-            $channel_owner = Company::find($id);
-            $profile_owner = Profile::find($profile_id);
-            
-            $this->model = $profile_owner->subscribeNetworkOf($channel_owner);
-
-            if (!$this->model) {
-                
-            }else{
-                
-                // add companies the logged in user is following
-                Redis::sAdd("following:profile:" . $profile_id, "company.$id");
-            
-                // add companies that are following $channel_owner
-                Redis::sAdd("followers:company:".$id, $profile_id);
+    // public function followCompanyAll(Request $request, $profileId, $id)
+    // {
+    //     $startProfileId = $request["start_profile_id"];
+    //     $profiled_IdList = \DB::table('profiles')->select('id')->where('id','>=',$startProfileId)->whereNull('deleted_at')->get();
+    //     $count = 0;
         
-                Redis::sRem('suggested:company:'.$profile_id, $id);
-                
-                $subscriber = new Subscriber();
-                $subscriber->followCompanySuggestion((int)$profile_id, (int)$id);
-            }
-        }
+    //     foreach ($profiled_IdList as $key => $pid) {
+    //         $profile_id = $pid->id;
 
-        return $this->sendResponse();
-    }
+    //         $channel_owner = Company::find($id);
+    //         $profile_owner = Profile::find($profile_id);
+            
+    //         $this->model = $profile_owner->subscribeNetworkOf($channel_owner);
+
+    //         if (!$this->model) {
+                
+    //         }else{
+                
+    //             // add companies the logged in user is following
+    //             Redis::sAdd("following:profile:" . $profile_id, "company.$id");
+            
+    //             // add companies that are following $channel_owner
+    //             Redis::sAdd("followers:company:".$id, $profile_id);
+        
+    //             Redis::sRem('suggested:company:'.$profile_id, $id);
+                
+    //             $subscriber = new Subscriber();
+    //             $subscriber->followCompanySuggestion((int)$profile_id, (int)$id);
+    //         }
+    //     }
+
+    //     return $this->sendResponse();
+    // }
     
     public function follow(Request $request, $profileId, $id)
     {
