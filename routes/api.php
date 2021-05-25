@@ -692,7 +692,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::resource('comments','CommentController');
                 Route::resource('like','PhotoLikeController');
             });
-
+            
+            Route::post("companies/{id}/followAll","CompanyController@followCompanyAll");
+            
             Route::post('companies/{id}/follow','CompanyController@follow');
             Route::post('companies/{id}/unfollow','CompanyController@unfollow');
             Route::get('companies/{id}/followers','CompanyController@followers');
