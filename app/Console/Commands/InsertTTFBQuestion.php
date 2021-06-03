@@ -323,6 +323,7 @@ class InsertTTFBQuestion extends Command
                         "is_intensity": 0,
                         "is_nested_question": 0,
                         "is_mandatory": 1,
+                        "subtitle" : "1 (Dislike Extremely) - 13 (Can`t Say) - 25 (Like Extremely)",
                         "option": [{
                                 "value": "Dislike Extremely",
                                 "color_code": "#8C0008"
@@ -438,6 +439,7 @@ class InsertTTFBQuestion extends Command
                         "is_intensity": 0,
                         "is_nested_question": 0,
                         "is_mandatory": 1,
+                        "subtitle" : "1 (Dislike Extremely) - 13 (Can`t Say) - 25 (Like Extremely)",
                         "option": [{
                             "value": "Dislike Extremely",
                             "color_code": "#8C0008"
@@ -650,6 +652,7 @@ class InsertTTFBQuestion extends Command
                         "is_intensity": 0,
                         "is_nested_question": 0,
                         "is_mandatory": 1,
+                        "subtitle" : "1 (Dislike Extremely) - 13 (Can`t Say) - 25 (Like Extremely)",
                         "option": [{
                             "value": "Dislike Extremely",
                             "color_code": "#8C0008"
@@ -902,6 +905,7 @@ class InsertTTFBQuestion extends Command
                         "is_intensity": 0,
                         "is_nested_question": 0,
                         "is_mandatory": 1,
+                        "subtitle" : "1 (Dislike Extremely) - 13 (Can`t Say) - 25 (Like Extremely)",
                         "option": [{
                             "value": "Dislike Extremely",
                             "color_code": "#8C0008"
@@ -1343,6 +1347,7 @@ class InsertTTFBQuestion extends Command
                         "is_intensity": 0,
                         "is_nested_question": 0,
                         "is_mandatory": 1,
+                        "subtitle" : "1 (Dislike Extremely) - 13 (Can`t Say) - 25 (Like Extremely)",
                         "option": [{
                             "value": "Dislike Extremely",
                             "color_code": "#8C0008"
