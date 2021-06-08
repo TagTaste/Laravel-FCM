@@ -485,6 +485,10 @@ class ReviewController extends Controller
                     }
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
+                   
+                    //Added by nikhil to decode &amp to & or anyother other encoding issue
+                    $intensity = html_entity_decode($intensity);
+
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,
