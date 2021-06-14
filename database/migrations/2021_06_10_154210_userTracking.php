@@ -19,6 +19,7 @@ class UserTracking extends Migration
             $table->foreign("profile_id")->references("id")->on("profiles");
             $table->string('method')->nullable();
             $table->text("url")->nullable();
+            $table->string('platform')->nullable();
             $table->timestamps();
         });
     }
