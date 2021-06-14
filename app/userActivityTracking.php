@@ -8,7 +8,7 @@ class userActivityTracking extends Model
 {
     protected $table = 'user_activity_tracking';
 
-    protected $fillable = ['profile_id', 'method', 'url'];
+    protected $fillable = ['profile_id', 'method', 'url','platform'];
 
     const CREATED_AT = 'created_at';
 
