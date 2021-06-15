@@ -476,7 +476,7 @@ class Photo extends Model implements Feedable
         } else {
             $content = $data->caption;
         }
-        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$data->content,$matches)) {
+        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$content,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
