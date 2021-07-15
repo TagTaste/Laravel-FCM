@@ -201,6 +201,7 @@ return [
         Vinelab\NeoEloquent\NeoEloquentServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        App\Providers\RequestServiceProvider::class
     ],
 
     /*

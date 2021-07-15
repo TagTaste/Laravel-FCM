@@ -127,6 +127,7 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
+        
         $this->getMeta($payloads, $profileId, $request->user()->profile);
         return $this->sendResponse();
     }
@@ -230,39 +231,39 @@ class FeedController extends Controller
         $random = range(0,7);
         shuffle($random);
         $random_suggestion = array_slice($random,0,1);
-        foreach ($random_suggestion as $key => $value) {
-            switch ($value) {
-                case '0':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByDob($client, $profile, $profileId);
-                    break;
-                case '1':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByFoodieType($client, $profile, $profileId);
-                    break;
-                case '2':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByCuisine($client, $profile, $profileId);
-                    break;
-                case '3':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByEducation($client, $profile, $profileId);
-                    break;
-                case '4':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByExperiance($client, $profile, $profileId);
-                    break;
-                case '5':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionBySpecialization($client, $profile, $profileId);
-                    break;
-                case '6':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionByCompany($client, $profile, $profileId);
-                    break;
-                case '7':
-                    $this->model[$suggestion_position[$key]] = $this->suggestionOfFollower($client, $profile, $profileId);
-                    break;
-                default:
-                    break;
-            }
-        }
-        $this->model[$suggestion_position[2]] = $this->suggestionCollaboration($client, $profile, $profileId);
-        $this->model[$suggestion_position[4]] = $this->suggestionProducts($client, $profile, $profileId);
-        $this->model[$suggestion_position[6]] = $this->suggestionCollaboration($client, $profile, $profileId);
+        // foreach ($random_suggestion as $key => $value) {
+        //     switch ($value) {
+        //         case '0':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByDob($client, $profile, $profileId);
+        //             break;
+        //         case '1':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByFoodieType($client, $profile, $profileId);
+        //             break;
+        //         case '2':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByCuisine($client, $profile, $profileId);
+        //             break;
+        //         case '3':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByEducation($client, $profile, $profileId);
+        //             break;
+        //         case '4':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByExperiance($client, $profile, $profileId);
+        //             break;
+        //         case '5':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionBySpecialization($client, $profile, $profileId);
+        //             break;
+        //         case '6':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionByCompany($client, $profile, $profileId);
+        //             break;
+        //         case '7':
+        //             $this->model[$suggestion_position[$key]] = $this->suggestionOfFollower($client, $profile, $profileId);
+        //             break;
+        //         default:
+        //             break;
+        //     }
+        // }
+        // $this->model[$suggestion_position[2]] = $this->suggestionCollaboration($client, $profile, $profileId);
+        // $this->model[$suggestion_position[4]] = $this->suggestionProducts($client, $profile, $profileId);
+        // $this->model[$suggestion_position[6]] = $this->suggestionCollaboration($client, $profile, $profileId);
         // $this->model[$suggestion_position[2]] = $this->suggestionCompany($client, $profile, $profileId);
         // $this->model[$suggestion_position[1]] = $this->adEngine($client, $profile, $profileId);
 
@@ -314,7 +315,7 @@ class FeedController extends Controller
         
 
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
-        $indexTypeV1 = array("photo", "polling");
+        $indexTypeV1 = array("photo", "polling","surveys");
         $index = 0;
         foreach ($payloads as $payload) {
             $type = null;
@@ -326,6 +327,7 @@ class FeedController extends Controller
                     $key = $key.":V2";
                     $cachedData = Redis::connection('V2')->get($key);
                 } else {
+                    
                     $cachedData = Redis::get($key);
                 }
                 if (!$cachedData) {
@@ -338,7 +340,11 @@ class FeedController extends Controller
             if ($payload->model !== null) {
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
-                $model = $model::find($payload->model_id);
+                if($model=="App\Surveys"){
+                    $model = $model::find($data["surveys"]["id"]);
+                }else{
+                    $model = $model::find($payload->model_id);
+                }
                 if ($model !== null && method_exists($model, 'getMetaForV2')) {
                     $data['meta'] = $model->getMetaForV2($profileId);
                 }
@@ -1035,7 +1041,7 @@ class FeedController extends Controller
                 if (!is_null($advertisement['payload'])) {
                     $cached = json_decode($advertisement['payload'], true);
                     $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
-                    $indexTypeV1 = array("photo", "polling");
+                    $indexTypeV1 = array("photo", "polling","surveys");
                     foreach ($cached as $name => $key) {
                         $cachedData = null;
                         if (in_array($name, $indexTypeV2)) {
@@ -1119,7 +1125,7 @@ class FeedController extends Controller
                     if (!is_null($advertisement['payload'])) {
                         $cached = json_decode($advertisement['payload'], true);
                         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
-                        $indexTypeV1 = array("photo", "polling");
+                        $indexTypeV1 = array("photo", "polling","surveys");
                         foreach ($cached as $name => $key) {
                             $cachedData = null;
                             if (in_array($name, $indexTypeV2)) {

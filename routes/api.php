@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\SearchClient;
+use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Crypt;
 
@@ -330,6 +331,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         //global image upload function
         Route::post("globalImageUpload","PhotoController@globalImageUpload");
+        Route::post("globalFileUpload","PhotoController@globalFileUpload");
+
+
+        
 
         //invites
         Route::post("invites","InviteController@invite");
@@ -688,7 +693,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::resource('comments','CommentController');
                 Route::resource('like','PhotoLikeController');
             });
-
+            // Allowing all users to follow a company
+            // Route::post("companies/{id}/followAll","CompanyController@followCompanyAll");
+            
             Route::post('companies/{id}/follow','CompanyController@follow');
             Route::post('companies/{id}/unfollow','CompanyController@unfollow');
             Route::get('companies/{id}/followers','CompanyController@followers');
@@ -846,5 +853,36 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         return response($str, 200, $headers);
 
+    });
+
+
+    Route::group(['namespace'=>'Survey','prefix'=>'surveys','as'=>'surveys.','middleware'=>'api.auth'],function() {
+        Route::get('filters-list/{id}','SurveyController@getFilters');
+        Route::get('/mandatory-fields','SurveyController@dynamicMandatoryFields');
+        Route::get("/mandatory-fields/{id}","SurveyController@surveyMandatoryFields");
+        Route::post("/survey-applicant/{id}","SurveyController@saveApplicants");
+        Route::get('/close-reasons','SurveyController@surveyCloseReason');        
+        Route::post('/download-reports/{id}','SurveyController@excelReport');
+        Route::get('/reports/{id}','SurveyController@reports')->name("reports");      
+        Route::get('/respondents/{id}','SurveyController@surveyRespondents');
+        Route::get('/text-answers/{id}/{question_id}/{option_id}','SurveyController@inputAnswers');
+        Route::get('/user-report/{id}/{profile_id}','SurveyController@userReport');
+        Route::get('/media-list/{id}/{question_id}/{media_type}','SurveyController@mediaList');
+        Route::get('/questions-list','SurveyController@question_list')->name("questions.list");
+        Route::post('/save-survey','SurveyController@saveAnswers');
+        Route::get('/my-list','SurveyController@getMySurvey'); 
+        Route::post('/close/{id}','SurveyController@closeSurveys');
+        Route::get('/similar/{id}','SurveyController@similarSurveys');        
+        Route::post('/{id}/like','SurveyController@like');        
+        Route::get('/{id}','SurveyController@index');  
+        Route::post('/{id}','SurveyController@update');
+        Route::delete('/{id}','SurveyController@destroy');
+        Route::post('/','SurveyController@store');
+        
+
+    });
+
+    Route::get('/uploadQuestion/{id}/{question_id}',function ($id,$question_id){
+        return Artisan::call("TTFB:Question", ['id'=>$id,'question_id'=>$question_id]);
     });
 });
