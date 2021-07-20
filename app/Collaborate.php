@@ -755,7 +755,8 @@ class Collaborate extends Model implements Feedable
         if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$data->title,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
-        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$data->description,$matches)) {
+        $descp = strip_tags($data->description);
+        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$descp,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
