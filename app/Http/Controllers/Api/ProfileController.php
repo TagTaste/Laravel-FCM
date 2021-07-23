@@ -1191,20 +1191,22 @@ class ProfileController extends Controller
             $prf["name"] = $v->name;
             $prf["notificationCount"] = $v->notification_count;
             $prf["messageCount"] = $v->message_count;
-            $prf["profileCompletion"] = json_decode('{
-                "complete_percentage": 100,
-                "overall_percentage": 100,
-                "mandatory_remaining_field": [],
-                "optional_remaining_field": [],
-                "additional_optional_field": [],
-                "mandatory_field_for_collaboration_apply": [],
-                "mandatory_field_for_collaboration_apply_v1": [],
-                "mandatory_field_for_campus_connect": [],
-                "mandatory_field_for_get_product_sample": []
-            }', true);
-            // $proCompletion = Profile::find($request->user()->profile->id);
+            // $prf["profileCompletion"] = json_decode('{
+            //     "complete_percentage": 100,
+            //     "overall_percentage": 100,
+            //     "mandatory_remaining_field": [],
+            //     "optional_remaining_field": [],
+            //     "additional_optional_field": [],
+            //     "mandatory_field_for_collaboration_apply": [],
+            //     "mandatory_field_for_collaboration_apply_v1": [],
+            //     "mandatory_field_for_campus_connect": [],
+            //     "mandatory_field_for_get_product_sample": []
+            // }', true);
+            $proCompletion = Profile::where("id",$request->user()->profile->id)->get()->map->append("profileCompletion");
             // //ProfileCompletion
-            // $prf["profileCompletion"] = $proCompletion->getAttribute("profileCompletion");
+            foreach($proCompletion as $v){
+            $prf["profileCompletion"] = $v->profileCompletion;
+            }
             $data["profile"] = $prf;
         }
 
