@@ -16,10 +16,10 @@ use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
-
+use App\Traits\HashtagFactory;
 class PhotoController extends Controller
 {
-    use CheckTags;
+    use CheckTags,HashtagFactory;
     /**
      * Display a listing of the resource.
      *
@@ -94,6 +94,10 @@ class PhotoController extends Controller
                 'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(), 'image_meta'=>json_encode($this->model->images[0])];
             Redis::set("photo:" . $this->model->id,json_encode($data));
             event(new NewFeedable($this->model,$company));
+            $matches = $this->model->hasHashtags($this->model);
+            if(count($matches)) {
+                $this->createHashtag($matches,'App\V2\Photo',$this->model->id);
+            }
 
             //add subscriber
             event(new \App\Events\Model\Subscriber\Create($this->model,$request->user()->profile));
@@ -199,6 +203,11 @@ class PhotoController extends Controller
             $this->model = $company->photos()->where('id',$id)->update($data);
 
             $this->model = \App\V2\Photo::find($id);
+            $matches = $this->model->hasHashtags($this->model);
+            $this->deleteExistingHashtag('App\photo', $id);
+            if (count($matches)) {
+                $this->createHashtag($matches, 'App\V2\Photo', $id);
+            }
             if(isset($datum['has_tags']) && $datum['has_tags']){
                 event(new Tag($this->model, $profile, $this->model->caption));
             }
@@ -218,6 +227,11 @@ class PhotoController extends Controller
             unset($inputs['has_tags']);
             \App\V2\Photo::where('id',$id)->update($inputs);
             $this->model = \App\V2\Photo::find($id);
+            $matches = $this->model->hasHashtags($this->model);
+            $this->deleteExistingHashtag('App\photo', $id);
+            if (count($matches)) {
+                $this->createHashtag($matches, 'App\V2\Photo', $id);
+            }
             if(isset($data['has_tags']) && $data['has_tags']){
                 event(new Tag($this->model, $request->user()->profile, $this->model->caption));
             }
@@ -275,6 +289,7 @@ class PhotoController extends Controller
             }
             event(new DeleteFeedable($this->model));
             $this->model = $this->model->delete();
+            $this->deleteExistingHashtag('App\V2\Photo',$id);
             //remove from recent photos
             Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);
             return $this->sendResponse();
