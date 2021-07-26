@@ -653,7 +653,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("people/filters", "ProfileController@filters");
         // Route::post("profile/filters", "ProfileController@filtersData");
         Route::resource('profile','ProfileController');
-
+        Route::get("/short_profile","ProfileController@shortProfile");
         // onboarding routes
         Route::get("onboarding/network","OnboardingController@getNetworkFollowers");
         Route::get('onboarding/skills', 'OnboardingController@skills');
