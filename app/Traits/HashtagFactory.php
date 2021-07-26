@@ -26,9 +26,9 @@ trait HashtagFactory
                     $model->created = $created == null ? Carbon::now()->timestamp : Carbon::parse($created)->timestamp;
                 } else {
                     $hashDocument = $hash['hits']['hits'][0]['_source'];
-                    $public_use = array_unique($hashDocument['public_use']);
+                    $public_use = $hashDocument['public_use'];
                     array_unshift($public_use, $modelName . '\'' . $modelId);
-                    $hashDocument['public_use'] = $public_use;
+                    $hashDocument['public_use'] = array_unique($public_use);
                     $hashDocument['updated'] = Carbon::now()->timestamp;
                     $model = new \App\Hashtag($hashDocument);
                 }
