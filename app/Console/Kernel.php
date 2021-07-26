@@ -65,6 +65,8 @@ use App\Console\Commands\Build\Graph\Build\UserSpecialization as GraphUserSpecia
 use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
 use App\Console\Commands\SurveyAnswerSync;
+use App\Console\Commands\InsertTTFBQuestion as TTFBQuestionaire;
+use App\Console\Commands\TTFBQuestionUpload;
 
 class Kernel extends ConsoleKernel
 {
@@ -234,7 +236,8 @@ class Kernel extends ConsoleKernel
         ShoutoutPreviewUpdate::class,
 
         \App\Console\Commands\InsertGlobalQuestion::class,
-
+        TTFBQuestionaire::class,
+        TTFBQuestionUpload::class,
         \App\Console\Commands\UpdateGlobalQuestion::class,
         CloseCollaborate::class,
 
