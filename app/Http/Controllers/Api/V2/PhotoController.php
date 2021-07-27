@@ -110,7 +110,7 @@ class PhotoController extends Controller
             if(!$photo){
                 return $this->sendError("Could not create photo.");
             }
-            $matches = $this->model->hasHashtags($photo);
+            $matches = $photo->hasHashtags($photo);
             if(count($matches)) {
                 $this->createHashtag($matches,'App\V2\Photo',$photo->id);
             }
