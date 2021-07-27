@@ -110,6 +110,10 @@ class PhotoController extends Controller
             if(!$photo){
                 return $this->sendError("Could not create photo.");
             }
+            $matches = $this->model->hasHashtags($photo);
+            if(count($matches)) {
+                $this->createHashtag($matches,'App\V2\Photo',$photo->id);
+            }
             $photo->images = json_decode($photo->images);
             $res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
             $data = ['id'=>$photo->id,'caption'=>$photo->caption,'images'=>$photo->images,
