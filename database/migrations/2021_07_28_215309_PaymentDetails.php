@@ -17,6 +17,7 @@ class PaymentDetails extends Migration
             $table->increments("id");
             $table->string("model_id");
             $table->integer("sub_model_id")->nullable();
+            $table->string("model_type");
             $table->integer("user_count");
             $table->json("amount_json");
             $table->boolean("is_active")->default(1);
