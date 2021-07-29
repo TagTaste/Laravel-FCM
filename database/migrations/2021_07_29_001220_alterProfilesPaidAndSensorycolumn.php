@@ -15,8 +15,8 @@ class AlterProfilesPaidAndSensorycolumn extends Migration
     {
         Schema::table('profiles', function (Blueprint $table) {
             //
-            $table->boolean('is_paid_taster')->nullable();
-            $table->boolean('is_sensory_trained')->nullable();
+            $table->boolean('is_paid_taster')->default(0);
+            $table->boolean('is_sensory_trained')->default(0);
         });
     }
 
