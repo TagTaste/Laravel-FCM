@@ -94,7 +94,8 @@ class Surveys extends Model implements Feedable
         $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
         // $meta['review_dump'] = $reviewed;
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
-
+        $meta["is_paid_taster"] = $request->user()->profile->is_paid_taster;
+        $meta["is_sensory_trained"] = $request->user()->profile->is_sensory_trained;
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         return $meta;
@@ -112,7 +113,8 @@ class Surveys extends Model implements Feedable
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
         $meta['isReported'] =  $this->isSurveyReported();
-        
+        $meta["is_paid_taster"] = request()->user()->profile->is_paid_taster;
+        $meta["is_sensory_trained"] = request()->user()->profile->is_sensory_trained;
         $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 

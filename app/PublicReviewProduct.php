@@ -285,6 +285,8 @@ class PublicReviewProduct extends Model
         $meta['current_status'] = $this->getCurrentStatusAttribute();
         $meta['is_sample_available'] = false;
         $meta['is_sample_requested'] = false;
+        $meta["is_paid_taster"] = request()->user()->profile->is_paid_taster;
+        $meta["is_sensory_trained"] = request()->user()->profile->is_sensory_trained;
         if ($this->is_newly_launched) {
             $meta['is_sample_available'] = true;
             $loggedInProfileId = request()->user()->profile->id;
