@@ -22,4 +22,16 @@ class PaymentLinks extends Model
 
 
     protected $visible = ["id", "transaction_id", "amount", "payout_link_id", "link", "is_active", "status_id", "expired_at", "comments", "phone", "profile_id", "model_id", "sub_model_id", "model_type", "created_at", "updated_at"];
+ 
+    public function profile()
+    {
+        return $this->belongsTo('App\Profile');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo('App\Payment\PaymentStatus',"status_id");
+    }
+
+    
 }

@@ -4,6 +4,7 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Events\SuggestionEngineEvent;
+use App\Payment\PaymentLinks;
 use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -48,13 +49,13 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status','tasting_instructions','is_premium','hometown','is_paid_taster','is_sensory_trained'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status','tasting_instructions','is_premium','hometown','is_paid_taster','is_sensory_trained','payment'];
 
 
     protected $appends = ['imageUrl','shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount','privateReviewCount','totalPostCount', 'imagePostCount','document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount'];
+        'cuisines','allergens','interested_collections','fb_info','reviewCount','privateReviewCount','totalPostCount', 'imagePostCount','document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount','payment'];
 
     /**
         profile completion mandatory field
@@ -919,6 +920,10 @@ class Profile extends Model
         return $this->hasMany(Subscriber::class);
     }
 
+    public function payment()
+    {
+        return $this->hasMany('App\Payment\PaymentLinks');
+    }
     private function getChannel(&$channelName, &$owner, $createIfNotExist = true)
     {
         $prefix = $owner instanceof Company ? "company." : null;
@@ -1607,5 +1612,12 @@ class Profile extends Model
             ),
         ];
         return $seo_tags;
+    }
+
+    public function getPaymentAttribute()
+    {
+        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->select("amount")->get()->pluck('amount');
+        $sum = array_sum($getPaymentDetails->toArray());
+        return ["earning" => $sum];
     }
 }

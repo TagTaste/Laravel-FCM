@@ -215,14 +215,4 @@ class LoginController extends Controller
         $data['token'] = $accessToken;
         return $data;
     }
-
-    public function verifyPassword(Request $request)
-    {
-        $get = User::where("id", $request->user()->id)->select("password")->first();
-        if (Hash::check($request->password, $get->password)) {
-             
-            return response(["data"=>true,"errors"=>[],"messages"=>"Request Successfull"],200);
-        }
-        return response(["data"=>false,"errors"=>["Invalid Password"],"messages"=>"Request Failed"],400);
-    }
 }
