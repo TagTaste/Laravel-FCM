@@ -182,8 +182,9 @@ class PaymentController extends Controller
             $title = "Fill review carefully, correct data will lead you to earn money";
         }else{
             $this->model = "This model is not allowed";
+            return $this->sendResponse();
         }
-        
+
         $headers = [
             ["title" => "Get paid rules", 
             "child" => [
@@ -195,11 +196,6 @@ class PaymentController extends Controller
         $pop_up["sub_title"] = "You will get paid once you complete.";
         $data = ["title"=>$title,"pop_up"=>$pop_up,"headers"=>$headers];
         $this->model = $data;
-
-        // $this->model = [$model,$modelId,$subModelId];
-        
-
-
         return $this->sendResponse();
     }
 }
