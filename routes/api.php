@@ -883,9 +883,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
     Route::post('/verify/password', '\App\Http\Controllers\Api\Payment\PaymentController@verifyPassword')->middleware("api.auth");
     Route::group(['namespace' => 'Payment', 'prefix' => 'payment', 'as' => 'payment.', 'middleware' => 'api.auth'], function () {
-        Route::get("/passbook-transaction", "PaymentController@passbookTxns");
+        Route::get("/transaction", "PaymentController@passbookTxns");
         Route::get("/transaction/{id}", "PaymentController@getTxnsById");
-        Route::get("/status-list", "PaymentController@getPaymentStatus");
+        Route::get("/status/list", "PaymentController@getPaymentStatus");
         Route::get("/filters", "PaymentController@getFilters");
         Route::get("/overview", "PaymentController@paymentOverview");
         Route::get("/taster/program", "PaymentController@getTasterProgram");
