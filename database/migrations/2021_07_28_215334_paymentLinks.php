@@ -18,6 +18,7 @@ class PaymentLinks extends Migration
             $table->string("transaction_id");
             $table->unique("transaction_id");
             $table->decimal("amount", 13, 2);
+            $table->bigInteger("payment_id");
             $table->string("payout_link_id")->nullable();
             $table->string("link")->nullable();
             $table->boolean("is_active")->default(1);
