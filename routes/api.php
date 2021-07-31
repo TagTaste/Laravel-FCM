@@ -881,12 +881,15 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         return Artisan::call("TTFB:Question", ['id' => $id, 'question_id' => $question_id]);
     });
 
-    Route::post('/verify-password', '\App\Http\Controllers\Api\Payment\PaymentController@verifyPassword')->middleware("api.auth");
+    Route::post('/verify/password', '\App\Http\Controllers\Api\Payment\PaymentController@verifyPassword')->middleware("api.auth");
     Route::group(['namespace' => 'Payment', 'prefix' => 'payment', 'as' => 'payment.', 'middleware' => 'api.auth'], function () {
         Route::get("/passbook-transaction", "PaymentController@passbookTxns");
         Route::get("/transaction/{id}", "PaymentController@getTxnsById");
         Route::get("/status-list", "PaymentController@getPaymentStatus");
-        Route::get("/filter-list", "PaymentController@getFilters");
+        Route::get("/filters", "PaymentController@getFilters");
         Route::get("/overview", "PaymentController@paymentOverview");
+        Route::get("/taster/program", "PaymentController@getTasterProgram");
+        Route::get("/review/rules/{model}/{modelId}/{subModelId?}", "PaymentController@getReviewConditions");
+        
     });
 });
