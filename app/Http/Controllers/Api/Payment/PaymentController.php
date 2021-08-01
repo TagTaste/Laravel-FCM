@@ -167,8 +167,11 @@ class PaymentController extends Controller
         return $this->sendResponse();
     }
 
-    public function getReviewConditions(Request $request, $model, $modelId, $subModelId)
+    public function getReviewConditions(Request $request, $model, $modelId, $subModelId = null)
     {
+        //Check for module and submodule for active payment on this.
+        //Then send rules according to this. 
+                
         $pop_up = [];
         $title = "";
         if($model == "collaborate"){

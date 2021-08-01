@@ -890,6 +890,5 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("/overview", "PaymentController@paymentOverview");
         Route::get("/taster/program", "PaymentController@getTasterProgram");
         Route::get("/review/rules/{model}/{modelId}/{subModelId?}", "PaymentController@getReviewConditions");
-        
     });
 });
