@@ -239,4 +239,13 @@ class PaymentController extends Controller
         $this->model = true;
         return $this->sendResponse();
     }
+
+    public function enrollTasterProgram(Request $request){
+
+        //Send email to payment@tagtaste.com
+        //Keep user email in copy 
+        //Take mail template from tanvi or arun sir
+        $data = ["status"=>true,"title"=>"Success","sub_title"=>"You have enrolled successfully. We will keep you posted for further updates."];
+        return $this->sendResponse($data);
+    }
 }
