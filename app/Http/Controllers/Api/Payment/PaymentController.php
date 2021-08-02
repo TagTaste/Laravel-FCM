@@ -136,12 +136,17 @@ class PaymentController extends Controller
         $pending = PaymentLinks::where("status_id", config("constant.PAYMENT_PENDING_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as pending"))->first();
 
         $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as redeemed"))->first();
-
-
+        
         $this->model = [
-            ["title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0), "color_code" => "#e8c3c1", "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true],
-            ["title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0), "color_code" => "#e8c3c1", "icon" => "https://static3.tagtaste.com/images/pending.png"],
-            ["title" => "Reedemed", "value" => (!empty($redeemed->redeemed) ? $redeemed->redeemed : 0), "color_code" => "#b8f5c6", "icon" => "https://static3.tagtaste.com/images/redeemed.png"]
+            ["title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0), 
+                "color_code" => "#dbbdba", "text_color"=>"000000","corder_color"=>"f56262",
+                "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true],
+            ["title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0), 
+                "color_code" => "#bbdba9", "text_color"=>"000000","corder_color"=>"97ed66",
+                "icon" => "https://static3.tagtaste.com/images/pending.png"],
+            ["title" => "Reedemed", "value" => (!empty($redeemed->redeemed) ? $redeemed->redeemed : 0), 
+                "color_code" => "#cec5e3", "text_color"=>"000000","corder_color"=>"b199e8",
+                "icon" => "https://static3.tagtaste.com/images/redeemed.png"]
         ];
 
         return $this->sendResponse();
