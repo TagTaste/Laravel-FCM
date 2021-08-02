@@ -55,7 +55,7 @@ class PaymentController extends Controller
 
         foreach($details as $value){
             $js = json_decode($value->status);
-            $details->status = $js;
+            $value->status = $js;
         }
         // print_r
         $this->model["payments"] = $details;
@@ -77,15 +77,20 @@ class PaymentController extends Controller
         $data = [];
         foreach ($getData as $v) {
             $data = $v;
-
+            $title = "";
             if ($v->model == "Survey") {
                 $getTitile = Surveys::where("id", $v->model_id)->select("title")->first();
+                $title = (isset($getTitile->title) ? $getTitile->title : "");
             } else if ($v->model == "Private Review") {
                 $getTitile = Collaborate::where("id", $v->model_id)->select("title")->first();
+                $title = (isset($getTitile->title) ? $getTitile->title : "");
             } else if ($v->model == "Public Review") {
                 $getTitile = Product::where("id", $v->model_id)->select("name")->first();
+                $title = (isset($getTitile->name) ? $getTitile->name : "");
             }
-            $data->title = $getTitile->name;
+            $data->title = $title;
+            $js = json_decode($v->status);
+            $v->status = $js;
         }
 
         // print_r
@@ -97,7 +102,12 @@ class PaymentController extends Controller
                 "amount" => $data->amount
             ];
         }
+        // foreach($data as $value){
+        //     $js = json_decode($value->status);
+        //     $value->status = $js;
+        // }
         $this->model = $data;
+        
 
         return $this->sendResponse();
     }
