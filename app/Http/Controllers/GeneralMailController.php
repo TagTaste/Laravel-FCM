@@ -12,6 +12,14 @@ class GeneralMailController extends Controller
 {
     use SendsJsonResponse;
 
+    public function paymentCallback(Request $request){
+        $inputs = $request->all();
+        $dataStr = json_encode($inputs);
+        file_put_contents(storage_path("logs/") ."nikhil.txt", $dataStr, FILE_APPEND);
+        file_put_contents(storage_path("logs/") ."nikhil.txt", "++++++++++++++++++++++\n\n", FILE_APPEND);        
+        return "Success";
+    }
+
     public function tieReportMail(Request $request)
     {
         $failed = $this->verifyEMail($request->email);
