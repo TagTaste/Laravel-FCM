@@ -25,7 +25,10 @@ return  [
         "COMPLETED" => 2
     ],
 
-    "MEDIA_SURVEY_QUESTION_TYPE" => 5
+    "MEDIA_SURVEY_QUESTION_TYPE" => 5,
+
+    'PAYMENT_SUCCESS_STATUS_ID' => 3,
+    'PAYMENT_PENDING_STATUS_ID' => 2,
 ];
 
 

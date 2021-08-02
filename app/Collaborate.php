@@ -337,15 +337,17 @@ class Collaborate extends Model implements Feedable
             $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
             $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
             $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
+            
             $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
             $meta['interestedCount'] = $this->interestedCount;
+            $meta["is_paid_taster"] = request()->user()->profile->is_paid_taster;
+            $meta["is_sensory_trained"] = request()->user()->profile->is_sensory_trained;
             $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
                 ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
             $meta['isReported'] =  $this->isCollaborateReported();  
             return $meta;
         }
-
+        
         $this->setInterestedAsProfiles($meta,$profileId);
 
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
@@ -358,7 +360,8 @@ class Collaborate extends Model implements Feedable
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
+        $meta["is_paid_taster"] = request()->user()->profile->is_paid_taster;
+        $meta["is_sensory_trained"] = request()->user()->profile->is_sensory_trained;
         $meta['interestedCount'] = (int) Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
@@ -411,7 +414,9 @@ class Collaborate extends Model implements Feedable
         $meta['isReported'] =  $this->isCollaborateReported();
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
                 ->first();
-        $meta['is_address_uploaded'] = ($applicants!= null && $applicants->applier_address) != null ? 1 : 0;   
+        $meta['is_address_uploaded'] = ($applicants!= null && $applicants->applier_address) != null ? 1 : 0;  
+        $meta["is_paid_taster"] = request()->user()->profile->is_paid_taster;
+        $meta["is_sensory_trained"] = request()->user()->profile->is_sensory_trained; 
         if($this->is_contest) {
             $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id);
             if($applicant->exists()){

@@ -10,6 +10,8 @@ use function GuzzleHttp\uri_template;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
@@ -44,7 +46,7 @@ class LoginController extends Controller
     public function __construct(Request $request)
     {
         $this->middleware('guest', ['except' => 'logout']);
-        if($request->token){
+        if ($request->token) {
             $request->merge(['code' => $request->token]);
         }
     }
@@ -83,7 +85,7 @@ class LoginController extends Controller
      */
     public function getRedirectPath()
     {
-        if(Auth::user()->hasRole('admin')){
+        if (Auth::user()->hasRole('admin')) {
             return route("admin.dashboard");
         }
 
@@ -105,19 +107,18 @@ class LoginController extends Controller
      *
      * @return Response
      */
-    public function handleProviderCallback(Request $request,$provider)
+    public function handleProviderCallback(Request $request, $provider)
     {
-        $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
+        $result = ['status' => 'success', 'newRegistered' => $this->newRegistered];
         $input = $request->all();
         $authUser = $this->findOrCreateUser($input, $provider);
-        if(!$authUser)
-        {
-            return ['status'=>'failed','errors'=>"Could not login.",'result'=>[],'newRegistered' => false];
+        if (!$authUser) {
+            return ['status' => 'failed', 'errors' => "Could not login.", 'result' => [], 'newRegistered' => false];
         }
 
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
-        $result['result'] = ['user'=>$authUser,'token'=>$token];
+        $result['result'] = ['user' => $authUser, 'token' => $token];
         $result['newRegistered'] = $this->newRegistered;
 
         return response()->json($result);
@@ -134,34 +135,42 @@ class LoginController extends Controller
     {
         try {
             $this->newRegistered = false;
-            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
-            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id'],$socialiteUser,$socialiteUserLink);
-
-        } catch (SocialAccountUserNotFound $e){
+            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link'] : (isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
+            $user = \App\Profile\User::findSocialAccount($provider, $socialiteUser['id'], $socialiteUser, $socialiteUserLink);
+        } catch (SocialAccountUserNotFound $e) {
             //check if user exists,
             //then add social login
-            if($socialiteUser['email']){
-                $user = User::where('email','like',$socialiteUser['email'])->first();
-            }
-            else
-            {
+            if ($socialiteUser['email']) {
+                $user = User::where('email', 'like', $socialiteUser['email'])->first();
+            } else {
                 return null;
             }
-            if($user){
+            if ($user) {
                 //create social account;
                 $this->newRegistered = false;
                 $userInfo = isset($socialiteUser['user']) ? $socialiteUser['user'] : null;
-                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink,false,$userInfo);
+                $user->createSocialAccount($provider, $socialiteUser['id'], $socialiteUser['avatar_original'], $socialiteUser['token'], $socialiteUserLink, false, $userInfo);
             } else {
 
                 $this->newRegistered = true;
                 $userInfo = isset($socialiteUser['user']) ? $socialiteUser['user'] : null;
-                $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],null,
-                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink,$userInfo);
-                $companies = \App\Company::whereIn('id',[111,137,322])->get();
+                $user = \App\Profile\User::addFoodie(
+                    $socialiteUser['name'],
+                    $socialiteUser['email'],
+                    null,
+                    true,
+                    $provider,
+                    $socialiteUser['id'],
+                    $socialiteUser['avatar_original'],
+                    false,
+                    $socialiteUser['token'],
+                    $socialiteUserLink,
+                    $userInfo
+                );
+                $companies = \App\Company::whereIn('id', [111, 137, 322])->get();
                 foreach ($companies as $company) {
                     $model = $user->completeProfile->subscribeNetworkOf($company);
-                    if($model) {
+                    if ($model) {
                         //companies the logged in user is following
                         \Redis::sAdd("following:profile:" . $user->profile->id, "company.$company->id");
 
@@ -170,12 +179,10 @@ class LoginController extends Controller
                     }
                 }
             }
-
         }
         return $user;
-
     }
-    
+
     public function loginLinkedin(Request $request)
     {
         $code = $request->input('code');
@@ -184,28 +191,28 @@ class LoginController extends Controller
         $params['headers'] = ['Content-Type' => 'application/x-www-form-urlencoded'];
         $client_id = env("LINKEDIN_ID");
         $client_secret = env("LINKEDIN_LOGIN_SECRET");
-        $link = 'https://www.linkedin.com/oauth/v2/accessToken?grant_type=authorization_code&code='.$code.'&redirect_uri='.$redirect_uri.'&client_id='.$client_id.'&client_secret='.$client_secret;
+        $link = 'https://www.linkedin.com/oauth/v2/accessToken?grant_type=authorization_code&code=' . $code . '&redirect_uri=' . $redirect_uri . '&client_id=' . $client_id . '&client_secret=' . $client_secret;
         $res = $client->request('POST', $link, [$params]);
         $response = $res->getBody()->getContents();
         $response = json_decode($response);
         $accessToken = $response->access_token;
         $linkedInData = "https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams))";
-        $bearerToken = "Bearer ".$accessToken;
+        $bearerToken = "Bearer " . $accessToken;
         $linkedInParam["headers"] = ["Authorization" => $bearerToken];
         $linkedInRes = $client->request('GET', $linkedInData, $linkedInParam);
         $linkedInResponse = $linkedInRes->getBody()->getContents();
         $linkedInEmailData = "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))";
-        $bearerToken = "Bearer ".$accessToken;
+        $bearerToken = "Bearer " . $accessToken;
         $linkedInEmailParam["headers"] = ["Authorization" => $bearerToken];
         $linkedInEmailRes = $client->request('GET', $linkedInEmailData, $linkedInEmailParam);
         $linkedInEmailResponse = $linkedInEmailRes->getBody()->getContents();
         $data = [];
         $linkedInResponse = json_decode($linkedInResponse);
-        $data['email']=json_decode($linkedInEmailResponse)->elements[0]->{'handle~'}->emailAddress;
-        $data['id']=$linkedInResponse->id;
-        $data['name']=$linkedInResponse->firstName->localized->en_US.' '.$linkedInResponse->lastName->localized->en_US;
-        $data['avatar_original']=$linkedInResponse->profilePicture->{'displayImage~'}->elements[0]->identifiers[0]->identifier;
-        $data['token']=$accessToken;
+        $data['email'] = json_decode($linkedInEmailResponse)->elements[0]->{'handle~'}->emailAddress;
+        $data['id'] = $linkedInResponse->id;
+        $data['name'] = $linkedInResponse->firstName->localized->en_US . ' ' . $linkedInResponse->lastName->localized->en_US;
+        $data['avatar_original'] = $linkedInResponse->profilePicture->{'displayImage~'}->elements[0]->identifiers[0]->identifier;
+        $data['token'] = $accessToken;
         return $data;
     }
 }
