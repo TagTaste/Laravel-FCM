@@ -551,10 +551,11 @@ class SurveyController extends Controller
             
                  //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
                 if($currentStatus == 2){
-                    $responseData = true;
+                    $responseData = ["status"=>true];
                     $paymnetExist = PaymentDetails::where('model_id',$id)->where('is_active', 1)->first();
                     if($paymnetExist != null){
-                        $responseData = ["is_paid"=>true, 
+                        $responseData = ["status"=>true,
+                        "is_paid"=>true, 
                         "title"=>"Congratulations!",
                         "subTitle"=>"You have successfully completed survey.",
                         "icon"=>"https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png",
@@ -564,8 +565,10 @@ class SurveyController extends Controller
                     }
                     return $this->sendResponse($responseData);
                 }
+            }else{
+                $responseData = ["status"=>false];
             }
-            return $this->sendResponse();
+            return $this->sendResponse($responseData);
         } catch (Exception $ex) {
             DB::rollback();
             $this->model = false;

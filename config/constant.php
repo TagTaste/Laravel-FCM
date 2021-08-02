@@ -29,6 +29,7 @@ return  [
 
     'PAYMENT_SUCCESS_STATUS_ID' => 3,
     'PAYMENT_PENDING_STATUS_ID' => 2,
+    'PAYMENT_CANCELLED_STATUS_ID' => 4
 ];
 
 

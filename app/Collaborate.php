@@ -5,6 +5,7 @@ namespace App;
 use App\Channel\Payload;
 use App\Collaborate\Applicant;
 use App\Interfaces\Feedable;
+use App\Payment\PaymentDetails;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use App\Traits\IdentifiesContentIsReported;
@@ -326,6 +327,8 @@ class Collaborate extends Model implements Feedable
     {
         $meta = [];
 
+        $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         if($this->collaborate_type == 'product-review')
         {
             $key = "meta:collaborate:likes:" . $this->id;
@@ -386,7 +389,8 @@ class Collaborate extends Model implements Feedable
     public function getMetaForV2(int $profileId) : array
     {
         $meta = [];
-
+        $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         if ($this->collaborate_type == 'product-review') {
             $key = "meta:collaborate:likes:" . $this->id;
             $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;

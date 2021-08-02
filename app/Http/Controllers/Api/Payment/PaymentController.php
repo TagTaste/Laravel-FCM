@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Payment\PaymentLinks as PaymentLinks;
 use App\Payment\PaymentStatus;
 use App\Product;
+use App\PublicReviewProduct;
 use App\Surveys;
 use App\User;
 use Illuminate\Support\Facades\DB;
@@ -51,8 +52,12 @@ class PaymentController extends Controller
           'id', payment_status.id, 
           'value', payment_status.value
         ) as status"))->get();
-        
 
+
+        foreach ($details as $value) {
+            $js = json_decode($value->status);
+            $value->status = $js;
+        }
         // print_r
         $this->model["payments"] = $details;
 
@@ -73,15 +78,20 @@ class PaymentController extends Controller
         $data = [];
         foreach ($getData as $v) {
             $data = $v;
-
+            $title = "";
             if ($v->model == "Survey") {
                 $getTitile = Surveys::where("id", $v->model_id)->select("title")->first();
+                $title = (isset($getTitile->title) ? $getTitile->title : "");
             } else if ($v->model == "Private Review") {
                 $getTitile = Collaborate::where("id", $v->model_id)->select("title")->first();
+                $title = (isset($getTitile->title) ? $getTitile->title : "");
             } else if ($v->model == "Public Review") {
-                $getTitile = Product::where("id", $v->model_id)->select("name")->first();
+                $getTitile = PublicReviewProduct::where("id", $v->model_id)->select("name")->first();
+                $title = (isset($getTitile->name) ? $getTitile->name : "");
             }
-            $data->title = $getTitile->name;
+            $data->title = $title;
+            $js = json_decode($v->status);
+            $v->status = $js;
         }
 
         // print_r
@@ -93,7 +103,9 @@ class PaymentController extends Controller
                 "amount" => $data->amount
             ];
         }
+
         $this->model = $data;
+
 
         return $this->sendResponse();
     }
@@ -124,7 +136,7 @@ class PaymentController extends Controller
 
         $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as redeemed"))->first();
 
-        
+
         $this->model = [
             ["title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0), "color_code" => "#e8c3c1", "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true],
             ["title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0), "color_code" => "#e8c3c1", "icon" => "https://static3.tagtaste.com/images/pending.png"],
@@ -137,34 +149,40 @@ class PaymentController extends Controller
     {
         $get = User::where("id", $request->user()->id)->select("password")->first();
         if (Hash::check($request->password, $get->password)) {
-             
-            return response(["data"=>true,"errors"=>"","messages"=>"Successfull"],200);
+
+            return response(["data" => true, "errors" => "", "messages" => "Successfull"], 200);
         }
-        return response(["data"=>false,"errors"=>"Invalid Password","messages"=>"Please enter correct password."],400);
+        return response(["data" => false, "errors" => "Invalid Password", "messages" => "Please enter correct password."], 400);
     }
 
     public function getTasterProgram(Request $request)
     {
         $headers = [
-            ["title" => "Benifits of Paid Taster", 
-            "child" => [
-                ["title"=>"You will get Priority to review our paid reviews and earn money."],
-                ["title"=>"After reviewing 50 paid reviews you will achieve a badge of expert."],
-                ["title"=>"You will get notified for our sensory sessions."]
-            ]],
-            ["title" => "Eligibility Criteria for paid taster", 
-            "child" => [
-                ["title"=>"User Should have attended the TagTaste Sensory Workshop - in person or virtual."],
-                ["title"=>"Should have completed a minimum of 5 reviews on the TagTaste (Preferably different categories)."]
-            ]]
+            [
+                "title" => "Benifits of Paid Taster",
+                "child" => [
+                    ["title" => "You will get Priority to review our paid reviews and earn money."],
+                    ["title" => "After reviewing 50 paid reviews you will achieve a badge of expert."],
+                    ["title" => "You will get notified for our sensory sessions."]
+                ]
+            ],
+            [
+                "title" => "Eligibility Criteria for paid taster",
+                "child" => [
+                    ["title" => "User Should have attended the TagTaste Sensory Workshop - in person or virtual."],
+                    ["title" => "Should have completed a minimum of 5 reviews on the TagTaste (Preferably different categories)."]
+                ]
+            ]
         ];
 
-        $pop_up = ["title" => "Uh-oh!", "sub_title"=> "Not a paid taster", "icon"=>"https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];        
-  
-        $data = ["pop_up"=>$pop_up,
-                "title"=>"DON'T WORRY",
-                "sub_title"=>"We have introduced a program for you to certified as a paid taster. Get enroll yourself.",
-                "headers"=>$headers];   
+        $pop_up = ["title" => "Uh-oh!", "sub_title" => "Not a paid taster", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
+
+        $data = [
+            "pop_up" => $pop_up,
+            "title" => "DON'T WORRY",
+            "sub_title" => "We have introduced a program for you to certified as a paid taster. Get enroll yourself.",
+            "headers" => $headers
+        ];
 
         $this->model = $data;
         return $this->sendResponse();
@@ -177,32 +195,33 @@ class PaymentController extends Controller
 
         $pop_up = [];
         $title = "";
-        if($model == "collaborate"){
-            $pop_up = ["title" => "Paid collboration", "icon"=>"https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];        
+        if ($model == "collaborate") {
+            $pop_up = ["title" => "Paid collboration", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
             $title = "Fill review carefully, correct data will lead you to earn money";
-        }else if($model == "survey"){
-            $pop_up = ["title" => "Paid survey", "icon"=>"https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];        
+        } else if ($model == "survey") {
+            $pop_up = ["title" => "Paid survey", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
             $title = "Fill survey carefully, correct data will lead you to earn money";
-        }else if($model == "product"){
-            $pop_up = ["title" => "Paid product", "icon"=>"https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];        
+        } else if ($model == "product") {
+            $pop_up = ["title" => "Paid product", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
             $title = "Fill review carefully, correct data will lead you to earn money";
-        }else{
+        } else {
             $this->model = "This model is not allowed";
             return $this->sendResponse();
         }
 
         $headers = [
-            ["title" => "Get paid rules", 
-            "child" => [
-                ["title"=>"First come firts earn."],
-                ["title"=>"First 150 people get paid T&C apply."]
-            ]]
+            [
+                "title" => "Get paid rules",
+                "child" => [
+                    ["title" => "First come firts earn."],
+                    ["title" => "First 150 people get paid T&C apply."]
+                ]
+            ]
         ];
 
         $pop_up["sub_title"] = "You will get paid once you complete.";
-        $data = ["title"=>$title,"pop_up"=>$pop_up,"headers"=>$headers];
+        $data = ["title" => $title, "pop_up" => $pop_up, "headers" => $headers];
         $this->model = $data;
         return $this->sendResponse();
     }
 }
-

@@ -539,13 +539,14 @@ class ReviewController extends Controller
                 }
             }
         }
-        
+            
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
-        $responseData = true;
+        $responseData = ["status"=>true];
         if($currentStatus == 2){
             $paymnetExist = PaymentDetails::where('model_id',$productId)->where('is_active', 1)->first();
             if($paymnetExist != null){
-                $responseData = ["is_paid"=>true, 
+                $responseData = ["status"=>true,
+                "is_paid"=>true, 
                 "title"=>"Congratulations!",
                 "subTitle"=>"You have successfully completed review.",
                 "icon"=>"https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png",
