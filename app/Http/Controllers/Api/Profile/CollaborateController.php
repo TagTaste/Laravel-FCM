@@ -9,11 +9,13 @@ use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Listeners\Subscriber\Create;
 use App\Profile;
+use App\Traits\HashtagFactory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CollaborateController extends Controller
 {
+    use HashtagFactory;
     /**
      * Variable to model
      *
@@ -255,6 +257,7 @@ class CollaborateController extends Controller
         \App\Filter\Collaborate::removeModel($id);
 
         $this->model = $collaborate->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[1]]);;
+        $this->deleteExistingHashtag('App\Collaborate',$id);
         return $this->sendResponse();
     }
 
