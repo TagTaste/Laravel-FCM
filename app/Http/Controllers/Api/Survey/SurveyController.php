@@ -548,8 +548,23 @@ class SurveyController extends Controller
                 $this->model = true;
                 $this->messages = "Answer Submitted Successfully";
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
+            
+                 //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
+                if($currentStatus == 2){
+                    $responseData = true;
+                    $paymnetExist = PaymentDetails::where('model_id',$id)->where('is_active', 1)->first();
+                    if($paymnetExist != null){
+                        $responseData = ["is_paid"=>true, 
+                        "title"=>"Congratulations!",
+                        "subTitle"=>"You have successfully completed survey.",
+                        "icon"=>"https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png",
+                        "helper"=>"We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy."];
+                    }else{
+                        $responseData = ["is_paid"=>false];
+                    }
+                    return $this->sendResponse($responseData);
+                }
             }
-
             return $this->sendResponse();
         } catch (Exception $ex) {
             DB::rollback();
