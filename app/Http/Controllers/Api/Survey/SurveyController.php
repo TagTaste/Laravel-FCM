@@ -14,6 +14,7 @@ use App\Events\Actions\Like;
 use App\Events\Actions\SurveyAnswered;
 use App\Events\TransactionInit;
 use App\Payment\PaymentDetails;
+use App\Payment\PaymentLinks;
 use App\PeopleLike;
 use App\Profile;
 use App\SurveyAnswers;
@@ -554,32 +555,23 @@ class SurveyController extends Controller
 
                 //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
                 if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                    $responseData["status"] = true;
                     $responseData = [];
                     $paymnetExist = PaymentDetails::where('model_id', $id)->where('is_active', 1)->first();
                     if ($paymnetExist != null) {
                         $responseData["is_paid"] = true;
                         //check for paid user
                         if ($request->user()->profile->is_paid_taster) {
-                            //check for count and amount
-                            $getAmount = json_decode($paymnetExist->amount_json, true);
-                            if ($request->user()->profile->is_tasting_expert) {
-                                $key = "expert";
-                            } else {
-                                $key = "consumer";
-                            }
-                            $amount = ((isset($getAmount["current"][$key])) ? $getAmount["current"][$key] : 0);
-                            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
-                            $createPaymentTxn = event(new TransactionInit($data));
-                            if ($createPaymentTxn) {
-                                $flag = true;
-                            } else {
-                                Log::info("Payment Returned False");
-                                $flag = false;
-                            }
+                            //check for count and amount (payment details)
+                            $flag = $this->verifyPayment($paymnetExist, $request);
                         } else {
+                            $flag = false;
                             //check for global user rules and update euser
 
-                            $flag = false;
+                            $profile = false; //when user become paid taster make it true
+                            if ($profile) {
+                                $flag = $this->verifyPayment($paymnetExist, $request);
+                            }
                         }
                         if ($flag) {
                             $responseData["title"] = "Congratulations!";
@@ -608,7 +600,28 @@ class SurveyController extends Controller
         }
     }
 
+    public function verifyPayment($paymentDetails, Request $request)
+    {
+        $count = PaymentLinks::where("model_id", $request->survey_id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
+        if ($count->count() < $paymentDetails->user_count) {
+            $getAmount = json_decode($paymentDetails->amount_json, true);
+            if ($request->user()->profile->is_tasting_expert) {
+                $key = "expert";
+            } else {
+                $key = "consumer";
+            }
+            $amount = ((isset($getAmount["current"][$key])) ? $getAmount["current"][$key] : 0);
+            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
+            $createPaymentTxn = event(new TransactionInit($data));
+            if ($createPaymentTxn) {
+                return true;
+            } else {
+                Log::info("Payment Returned False" . " " . json_encode($data));
+            }
+        }
 
+        return false;
+    }
     public function reports($id, Request $request)
     {
 
