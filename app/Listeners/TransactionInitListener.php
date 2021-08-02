@@ -28,12 +28,12 @@ class TransactionInitListener
     public function handle(TransactionInit $event)
     {
 
-        if ($event->model == "Survey") {
+        if ($event->model_type == "Survey") {
             $initials = "TXN_SUR_" . date("dmy");
-        } else if ($event->model == "Private Review") {
+        } else if ($event->model_type == "Private Review") {
 
             $initials = "TXN_SUR_" . date("dmy");
-        } else if ($event->model == "Public Review") {
+        } else if ($event->model_type == "Public Review") {
 
             $initials = "TXN_SUR_" . date("dmy");
         }

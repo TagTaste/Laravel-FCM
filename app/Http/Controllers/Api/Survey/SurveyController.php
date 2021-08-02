@@ -12,6 +12,7 @@ use App\Events\UpdateFeedable;
 use App\Events\DeleteFeedable;
 use App\Events\Actions\Like;
 use App\Events\Actions\SurveyAnswered;
+use App\Events\TransactionInit;
 use App\Payment\PaymentDetails;
 use App\PeopleLike;
 use App\Profile;
@@ -30,6 +31,7 @@ use Webpatser\Uuid\Uuid;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Log;
 
 class SurveyController extends Controller
 {
@@ -559,15 +561,21 @@ class SurveyController extends Controller
                         //check for paid user
                         if ($request->user()->profile->is_paid_taster) {
                             //check for count and amount
-                            $getAmount = json_decode($paymnetExist->amount_json,true);
-                            if($request->user()->profile->is_tasting_expert){
+                            $getAmount = json_decode($paymnetExist->amount_json, true);
+                            if ($request->user()->profile->is_tasting_expert) {
                                 $key = "expert";
-                            }else{
+                            } else {
                                 $key = "consumer";
                             }
-                            $amount = ((isset($getAmount["current"][$key])) ? $getAmount["current"][$key] : 0) ;
-                            $createPaymentTxn = 
-                            $flag = true;
+                            $amount = ((isset($getAmount["current"][$key])) ? $getAmount["current"][$key] : 0);
+                            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
+                            $createPaymentTxn = event(new TransactionInit($data));
+                            if ($createPaymentTxn) {
+                                $flag = true;
+                            } else {
+                                Log::info("Payment Returned False");
+                                $flag = false;
+                            }
                         } else {
                             //check for global user rules and update euser
 
@@ -589,8 +597,10 @@ class SurveyController extends Controller
                     }
                     return $this->sendResponse($responseData);
                 }
+            } else {
+                $responseData = ["status" => false];
             }
-            return $this->sendResponse();
+            return $this->sendResponse($responseData);
         } catch (Exception $ex) {
             DB::rollback();
             $this->model["status"] = false;

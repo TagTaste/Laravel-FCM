@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Payment\PaymentLinks as PaymentLinks;
 use App\Payment\PaymentStatus;
+use App\Payment\PaymentReport;
 use App\Product;
 use App\PublicReviewProduct;
 use App\Surveys;
@@ -223,5 +224,28 @@ class PaymentController extends Controller
         $data = ["title" => $title, "pop_up" => $pop_up, "headers" => $headers];
         $this->model = $data;
         return $this->sendResponse();
+    }
+        
+    public function transactionComplain(Request $request, $txn_id){
+        
+        $title = $request->title;
+        if(empty($title)){
+            return $this->sendError("Title is mandatory.");
+        }
+        $description = !empty($request->description)? $request->description : NULL;
+
+        $profileId = $request->user()->profile->id;
+        PaymentReport::insert(['transaction_id'=>$txn_id,'profile_id' => $profileId, 'title' => $title, 'description'=>$description]);
+        $this->model = true;
+        return $this->sendResponse();
+    }
+
+    public function enrollTasterProgram(Request $request){
+
+        //Send email to payment@tagtaste.com
+        //Keep user email in copy 
+        //Take mail template from tanvi or arun sir
+        $data = ["status"=>true,"title"=>"Success","sub_title"=>"You have enrolled successfully. We will keep you posted for further updates."];
+        return $this->sendResponse($data);
     }
 }
