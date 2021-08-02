@@ -121,11 +121,11 @@ class PaymentController extends Controller
 
         $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as redeemed"))->first();
 
-
+        
         $this->model = [
-            ["title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0), "color_code" => "#3f3f3f", "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true],
-            ["title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0), "color_code" => "#3f3f3f", "icon" => "https://static3.tagtaste.com/images/pending.png"],
-            ["title" => "Reedemed", "value" => (!empty($redeemed->redeemed) ? $redeemed->redeemed : 0), "color_code" => "#3f3f3f", "icon" => "https://static3.tagtaste.com/images/redeemed.png"]
+            ["title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0), "color_code" => "#e8c3c1", "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true],
+            ["title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0), "color_code" => "#e8c3c1", "icon" => "https://static3.tagtaste.com/images/pending.png"],
+            ["title" => "Reedemed", "value" => (!empty($redeemed->redeemed) ? $redeemed->redeemed : 0), "color_code" => "#b8f5c6", "icon" => "https://static3.tagtaste.com/images/redeemed.png"]
         ];
 
         return $this->sendResponse();
@@ -135,9 +135,9 @@ class PaymentController extends Controller
         $get = User::where("id", $request->user()->id)->select("password")->first();
         if (Hash::check($request->password, $get->password)) {
              
-            return response(["data"=>true,"errors"=>[],"messages"=>"Request Successfull"],200);
+            return response(["data"=>true,"errors"=>"","messages"=>"Successfull"],200);
         }
-        return response(["data"=>false,"errors"=>["Invalid Password"],"messages"=>"Request Failed"],400);
+        return response(["data"=>false,"errors"=>"Invalid Password","messages"=>"Please enter correct password."],400);
     }
 
     public function getTasterProgram(Request $request)
@@ -171,7 +171,7 @@ class PaymentController extends Controller
     {
         //Check for module and submodule for active payment on this.
         //Then send rules according to this. 
-                
+
         $pop_up = [];
         $title = "";
         if($model == "collaborate"){
