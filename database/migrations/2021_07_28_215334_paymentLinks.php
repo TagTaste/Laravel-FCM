@@ -25,6 +25,7 @@ class PaymentLinks extends Migration
             $table->string("status_id");
             $table->timestamp("expired_at")->nullable();
             $table->string("comments")->nullable();
+            $table->json("status_json")->nullable();            
             $table->bigInteger("phone");
             $table->unsignedInteger('profile_id');
             $table->foreign("profile_id")->references("id")->on("profiles");

@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\TransactionInit;
+use App\Jobs\paymentInit;
 use App\Payment\PaymentLinks;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,16 +39,16 @@ class TransactionInitListener
             $initials = "TXN_SUR_" . date("dmy");
         }
         $getOldTxnId = PaymentLinks::where("tranaction_id", "LIKE", '%' . $initials)->orderBy("id", "desc")->first();
-        $number = 1;
+        $number = 0;
         if (!empty($getOldTxnId) && isset($getOldTxnId->transaction_id)) {
             $explode = explode("_", $getOldTxnId);
             $number = (int)array_pop($explode);
         }
-        $buildTxnId = $initials . "_" . $number;
+        $buildTxnId = $initials . "_" . $number++;
 
-        $data = PaymentLinks::create(["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->model_type, "model_id" => $event->model_id, "sub_model_id" => $event->sub_model_id, "amount" => $event->amount, "phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_PENDING_STATUS_ID")]);
+        $data = PaymentLinks::create(["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->model_type, "model_id" => $event->model_id, "sub_model_id" => $event->sub_model_id, "amount" => $event->amount, "phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID")]);
         if ($data) {
-            //dispach jon for paytm
+            dispatch(new paymentInit(["transaction_id" => $buildTxnId, "amount" => $event->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->model_type, "title" => $event->model_id]));
             return true;
         }
         return false;
