@@ -10,6 +10,7 @@ use App\Traits\HashtagFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
+use App\Payment\PaymentDetails;
 
 class Surveys extends Model implements Feedable
 {
@@ -94,8 +95,8 @@ class Surveys extends Model implements Feedable
         $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
         // $meta['review_dump'] = $reviewed;
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
-        $meta["is_paid_taster"] = $request->user()->profile->is_paid_taster;
-        $meta["is_sensory_trained"] = $request->user()->profile->is_sensory_trained;
+        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         return $meta;
@@ -113,11 +114,11 @@ class Surveys extends Model implements Feedable
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
         $meta['isReported'] =  $this->isSurveyReported();
-        $meta["is_paid_taster"] = request()->user()->profile->is_paid_taster;
-        $meta["is_sensory_trained"] = request()->user()->profile->is_sensory_trained;
+        
         $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
-
+        $payment = PaymentDetails::where("model_type","Public Review")->where("model_id",$this->id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         return $meta;
     }
 
@@ -190,7 +191,8 @@ class Surveys extends Model implements Feedable
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();        
-        
+        $payment = PaymentDetails::where("model_type","Public Review")->where("model_id",$this->id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
