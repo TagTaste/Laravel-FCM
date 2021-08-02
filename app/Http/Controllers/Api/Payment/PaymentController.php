@@ -53,6 +53,10 @@ class PaymentController extends Controller
         ) as status"))->get();
         
 
+        foreach($details as $value){
+            $js = json_decode($value->status);
+            $details->status = $js;
+        }
         // print_r
         $this->model["payments"] = $details;
 
