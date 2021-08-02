@@ -74,14 +74,14 @@ class PaymentController extends Controller
         foreach ($getData as $v) {
             $data = $v;
 
-            if ($v->model == "survey") {
+            if ($v->model == "Survey") {
                 $getTitile = Surveys::where("id", $v->model_id)->select("title")->first();
-            } else if ($v->model == "collaboration") {
+            } else if ($v->model == "Private Review") {
                 $getTitile = Collaborate::where("id", $v->model_id)->select("title")->first();
-            } else if ($v->model == "product") {
-                $getTitile = Product::where("id", $v->model_id)->select("title")->first();
+            } else if ($v->model == "Public Review") {
+                $getTitile = Product::where("id", $v->model_id)->select("name")->first();
             }
-            $data->title = $getTitile->title;
+            $data->title = $getTitile->name;
         }
 
         // print_r
@@ -112,6 +112,9 @@ class PaymentController extends Controller
 
     public function paymentOverview(Request $request)
     {
+
+        //total - All - cancelled
+        //to be reedemed = total - (cancelled + success)
         $earning = PaymentLinks::where(function ($q) {
             $q->orWhere("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"));
             $q->orWhere("status_id", config("constant.PAYMENT_PENDING_STATUS_ID"));

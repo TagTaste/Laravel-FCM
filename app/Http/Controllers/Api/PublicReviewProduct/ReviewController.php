@@ -539,7 +539,7 @@ class ReviewController extends Controller
                 }
             }
         }
-
+        
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
         $responseData = true;
         if($currentStatus == 2){
@@ -547,13 +547,14 @@ class ReviewController extends Controller
             if($paymnetExist != null){
                 $responseData = ["is_paid"=>true, 
                 "title"=>"Congratulations!",
-                "subTitle"=>"You have successfully completed survey.",
+                "subTitle"=>"You have successfully completed review.",
                 "icon"=>"https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png",
                 "helper"=>"We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy."];
             }else{
                 $responseData = ["is_paid"=>false];
             }
         }
+
         return $this->sendResponse($responseData);
     }
 
