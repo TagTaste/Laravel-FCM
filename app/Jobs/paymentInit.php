@@ -22,7 +22,7 @@ class paymentInit implements ShouldQueue
 
     public $tries = 5;
 
-
+    
     public function __construct($data)
     {
         $this->data = $data;
@@ -35,6 +35,7 @@ class paymentInit implements ShouldQueue
      */
     public function handle()
     {
+     
         return $this->createLink($this->data);
     }
 }

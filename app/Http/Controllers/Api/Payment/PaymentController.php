@@ -11,6 +11,7 @@ use App\Payment\PaymentReport;
 use App\Product;
 use App\PublicReviewProduct;
 use App\Surveys;
+use App\Traits\PaymentTransaction;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +19,7 @@ use Tagtaste\Api\SendsJsonResponse;
 
 class PaymentController extends Controller
 {
-    use SendsJsonResponse;
+    use SendsJsonResponse, PaymentTransaction;
 
     protected $model;
     public function __construct(PaymentLinks $model)
@@ -68,6 +69,8 @@ class PaymentController extends Controller
     public function getTxnsById($txn_id, Request $request)
     {
         $this->model = [];
+
+        $this->getStatus($txn_id);
 
         $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
         (
@@ -136,17 +139,23 @@ class PaymentController extends Controller
         $pending = PaymentLinks::where("status_id", config("constant.PAYMENT_PENDING_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as pending"))->first();
 
         $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as redeemed"))->first();
-        
+
         $this->model = [
-            ["title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0), 
-                "color_code" => "#dbbdba", "text_color"=>"000000","corder_color"=>"f56262",
-                "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true],
-            ["title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0), 
-                "color_code" => "#bbdba9", "text_color"=>"000000","corder_color"=>"97ed66",
-                "icon" => "https://static3.tagtaste.com/images/pending.png"],
-            ["title" => "Reedemed", "value" => (!empty($redeemed->redeemed) ? $redeemed->redeemed : 0), 
-                "color_code" => "#cec5e3", "text_color"=>"000000","corder_color"=>"b199e8",
-                "icon" => "https://static3.tagtaste.com/images/redeemed.png"]
+            [
+                "title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0),
+                "color_code" => "#dbbdba", "text_color" => "000000", "corder_color" => "f56262",
+                "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true
+            ],
+            [
+                "title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0),
+                "color_code" => "#bbdba9", "text_color" => "000000", "corder_color" => "97ed66",
+                "icon" => "https://static3.tagtaste.com/images/pending.png"
+            ],
+            [
+                "title" => "Reedemed", "value" => (!empty($redeemed->redeemed) ? $redeemed->redeemed : 0),
+                "color_code" => "#cec5e3", "text_color" => "000000", "corder_color" => "b199e8",
+                "icon" => "https://static3.tagtaste.com/images/redeemed.png"
+            ]
         ];
 
         return $this->sendResponse();
@@ -230,27 +239,48 @@ class PaymentController extends Controller
         $this->model = $data;
         return $this->sendResponse();
     }
-        
-    public function transactionComplain(Request $request, $txn_id){
-        
+
+    public function transactionComplain(Request $request, $txn_id)
+    {
+
         $title = $request->title;
-        if(empty($title)){
+        if (empty($title)) {
             return $this->sendError("Title is mandatory.");
         }
-        $description = !empty($request->description)? $request->description : NULL;
+        $description = !empty($request->description) ? $request->description : NULL;
 
         $profileId = $request->user()->profile->id;
-        PaymentReport::insert(['transaction_id'=>$txn_id,'profile_id' => $profileId, 'title' => $title, 'description'=>$description]);
+        PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description]);
         $this->model = true;
         return $this->sendResponse();
     }
 
-    public function enrollTasterProgram(Request $request){
+    public function enrollTasterProgram(Request $request)
+    {
 
         //Send email to payment@tagtaste.com
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
-        $data = ["status"=>true,"title"=>"Success","sub_title"=>"You have enrolled successfully. We will keep you posted for further updates."];
+        $data = ["status" => true, "title" => "Success", "sub_title" => "You have enrolled successfully. We will keep you posted for further updates."];
         return $this->sendResponse($data);
+    }
+
+    public function paymentCallback(Request $request)
+    {
+        if ($request->has("status") && $request->has("result") && !empty($request->result->orderId)) {
+
+            $resp = $request->all();
+            $data = ["status_json" => json_encode($resp)];
+            if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
+                $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
+                $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
+                $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
+                $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
+            }
+            return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data);
+        }
     }
 }

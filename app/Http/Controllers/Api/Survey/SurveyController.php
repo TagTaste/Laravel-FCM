@@ -491,7 +491,7 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                return $this->sendError("Already Answered");
+                // return $this->sendError("Already Answered");
             }
 
             $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
@@ -565,18 +565,19 @@ class SurveyController extends Controller
                     if ($paymnetExist != null) {
                         $responseData["is_paid"] = true;
                         //check for paid user
-                        if (empty($request->user()->profile->phone)) {
-                            $responseData["title"] = "Uh Oh!";
-                            $responseData["subTitle"] = "Please Contact Admin.";
-                            $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
-                            $responseData["helper"] = "Phone number not updated";
-                        } else if ($request->user()->profile->is_paid_taster) {
+                        // if (empty($request->user()->profile->phone)) {
+                        //     $responseData["title"] = "Uh Oh!";
+                        //     $responseData["subTitle"] = "Please Contact Admin.";
+                        //     $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                        //     $responseData["helper"] = "Phone number not updated";
+                        // } else
+                         if ($request->user()->profile->is_paid_taster) {
                             //check for count and amount (payment details)
                             $flag = $this->verifyPayment($paymnetExist, $request);
                         } else {
                             $flag = false;
                             //check for global user rules and update euser
-                            $getPublicCount = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id,batch_id")->where("current_status", 3)->get();
+                            $getPublicCount = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id")->where("current_status", 3)->get();
                             $getPrivateReview = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
                             $profile = false;
                             if ($request->user()->profile->is_sensory_trained && ($getPublicCount->count() >= 3 || $getPrivateReview->count() >= 3)) {
@@ -627,7 +628,9 @@ class SurveyController extends Controller
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
+            echo "till here";
             $createPaymentTxn = event(new TransactionInit($data));
+            
             if ($createPaymentTxn) {
                 return true;
             } else {

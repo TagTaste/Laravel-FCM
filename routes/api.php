@@ -899,4 +899,5 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/issue/{txn_id}", "PaymentController@transactionComplain");
         Route::post("/taster/enroll", "PaymentController@enrollTasterProgram");        
     });
+    Route::post('link/status/callback','PaymentController@paymentCallback');
 });
