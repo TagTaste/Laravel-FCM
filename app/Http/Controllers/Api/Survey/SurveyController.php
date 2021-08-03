@@ -610,7 +610,7 @@ class SurveyController extends Controller
             return $this->sendResponse($responseData);
         } catch (Exception $ex) {
             DB::rollback();
-            $this->model["status"] = false;
+            $this->model = ["status"=>false];
             return $this->sendError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
         }
     }
@@ -625,7 +625,7 @@ class SurveyController extends Controller
             } else {
                 $key = "consumer";
             }
-            $amount = ((isset($getAmount["current"][$key])) ? $getAmount["current"][$key] : 0);
+            $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
             $createPaymentTxn = event(new TransactionInit($data));
             if ($createPaymentTxn) {
