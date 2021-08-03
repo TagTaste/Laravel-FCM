@@ -494,8 +494,8 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                // $this->model = ["status"=>false];
-                // return $this->sendError("Already Answered");
+                $this->model = ["status"=>false];
+                return $this->sendError("Already Answered");
             }
 
             $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
@@ -587,6 +587,7 @@ class SurveyController extends Controller
             $responseData["status"] = true;
             $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
             if ($paymnetExist != null) {
+                
                 $responseData["is_paid"] = true;
                 //check for paid user
                 // if (empty($request->user()->profile->phone)) {
@@ -607,7 +608,7 @@ class SurveyController extends Controller
 
                     $profile = false;
 
-                    if ($request->user()->profile->is_sensory_trained && (($getPublicCount->count() + $getPrivateReview->count()) >= 3)) {
+                    if ($request->user()->profile->is_sensory_trained && (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
 
                         Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
                         $profile = true;
