@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Jobs\AddUserInfoWithReview;
 use App\Collaborate\Review as PrivateReviewProductReview;
 use App\Profile;
+use Illuminate\Support\Facades\Log;
 
 class ReviewController extends Controller
 {
@@ -585,12 +586,12 @@ class ReviewController extends Controller
             }
             if ($flag) {
                 $responseData["title"] = "Congratulations!";
-                $responseData["subTitle"] = "You have successfully completed survey.";
+                $responseData["subTitle"] = "You have successfully completed Review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
                 $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
             } else {
                 $responseData["title"] = "Uh Oh!";
-                $responseData["subTitle"] = "You have successfully completed survey.";
+                $responseData["subTitle"] = "You have successfully completed Review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
                 $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
             }
@@ -602,7 +603,7 @@ class ReviewController extends Controller
     }
     public function verifyPayment($paymentDetails, Request $request)
     {
-        $count = PaymentLinks::where("model_id", $request->survey_id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
+        $count = PaymentLinks::where("model_id", $paymentDetails->model_id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
             if ($request->user()->profile->is_tasting_expert) {
@@ -611,7 +612,7 @@ class ReviewController extends Controller
                 $key = "consumer";
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
-            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
+            $data = ["amount" => $amount, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => null,"payment_id"=>$paymentDetails->id];
 
             $createPaymentTxn = event(new TransactionInit($data));
 
