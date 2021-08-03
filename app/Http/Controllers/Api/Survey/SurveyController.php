@@ -561,7 +561,7 @@ class SurveyController extends Controller
 
                     $responseData = [];
                     $responseData["status"] = true;
-                    $paymnetExist = PaymentDetails::where('model_id', $id)->where('is_active', 1)->first();
+                    $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
                     if ($paymnetExist != null) {
                         $responseData["is_paid"] = true;
                         //check for paid user
