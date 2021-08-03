@@ -38,7 +38,7 @@ class TransactionInitListener
 
             $initials = "TXN_SUR_" . date("dmy");
         }
-        $getOldTxnId = PaymentLinks::where("tranaction_id", "LIKE", '%' . $initials)->orderBy("id", "desc")->first();
+        $getOldTxnId = PaymentLinks::where("transaction_id", "LIKE", '%' . $initials)->orderBy("id", "desc")->first();
         $number = 0;
         if (!empty($getOldTxnId) && isset($getOldTxnId->transaction_id)) {
             $explode = explode("_", $getOldTxnId);
