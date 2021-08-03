@@ -143,6 +143,9 @@ class ReviewController extends Controller
         $responseData = [];
         if (count($data) > 0) {
             $this->model = Review::insert($data);
+            if($this->model==true){
+                $responseData["status"] = true;
+            }
             if ($currentStatus == 3) {
                 $mandatoryQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id', $collaborateId)
                     ->where('is_mandatory', 1)->where('is_nested_question', 0)->get();
