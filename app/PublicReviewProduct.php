@@ -286,8 +286,6 @@ class PublicReviewProduct extends Model
         $meta['current_status'] = $this->getCurrentStatusAttribute();
         $meta['is_sample_available'] = false;
         $meta['is_sample_requested'] = false;
-        $meta["is_paid_taster"] = request()->user()->profile->is_paid_taster;
-        $meta["is_sensory_trained"] = request()->user()->profile->is_sensory_trained;
         $payment = PaymentDetails::where("model_type","Public Review")->where("model_id",$this->id)->where("is_active",1)->first();
         $meta['isPaid'] = (!empty($payment) ? true : false);
         if ($this->is_newly_launched) {
