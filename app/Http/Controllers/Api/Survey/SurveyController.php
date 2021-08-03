@@ -478,6 +478,7 @@ class SurveyController extends Controller
             }
 
             if (isset($id->profile_id) && $id->profile_id == $request->profile_id) {
+                $this->model = ["status" => false];
                 return $this->sendError("Admin Cannot Fill the Surveys");
             }
 
@@ -505,6 +506,7 @@ class SurveyController extends Controller
 
                 if (isset($prepareQuestionJson[$values["question_id"]]["is_mandatory"]) && $prepareQuestionJson[$values["question_id"]]["is_mandatory"] == true && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
+                    $this->model = ["status" => false];
                     return $this->sendError("Mandatory Questions Cannot Be Blank");
                 }
                 $answerArray = [];
@@ -566,6 +568,9 @@ class SurveyController extends Controller
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true) {
                 $responseData = $this->paidProcessing($request);
+                if(empty($responseData)){
+                    $responseData = ["status" => true];
+                }
             }
             return $this->sendResponse($responseData);
         } catch (Exception $ex) {
@@ -577,9 +582,8 @@ class SurveyController extends Controller
 
     public function paidProcessing(Request $request)
     {
+        $responseData = [];
         if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-
-            $responseData = [];
             $responseData["status"] = true;
             $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
             if ($paymnetExist != null) {
