@@ -519,6 +519,7 @@ class ReviewController extends Controller
         $responseData = [];
         if (count($data) > 0) {
             $this->model = Review::insert($data);
+            $responseData = ["status" => true];
             if ($currentStatus == 2) {
                 $mandatoryQuestion = \DB::table('public_review_questions')->where('global_question_id', $product->global_question_id)->where('is_mandatory', 1)->where('is_nested_question', 0)->get();
                 $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
@@ -531,6 +532,7 @@ class ReviewController extends Controller
                     dispatch(new AddUserInfoWithReview($productId, $loggedInProfileId));
                 } else {
                     $this->model = false;
+                    $responseData = ["status" => false];
                 }
             }
         }
