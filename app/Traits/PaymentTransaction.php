@@ -19,7 +19,7 @@ trait PaymentTransaction
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
             $pay["notifyMode"] = ["SMS", "EMAIL"];
-            $pay["comments"] = "Payout Link For " . $data["model_type"] . " - " . $data["title"];
+            $pay["comments"] = "Payout Link from Tagtaste";
             $pay["callbackUrl"] = config("payment.PAYTM_CALLBACK_URL");
 
             $post_data = json_encode($pay, JSON_UNESCAPED_SLASHES);
@@ -37,15 +37,18 @@ trait PaymentTransaction
             curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($ch);
-            
+
             if (!empty($response)) {
                 $resp = $response;
                 if (!is_array($response)) {
                     $resp = json_decode($response, true);
                 }
+                
                 if ($resp["status"] == "SUCCESS") {
-                    return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update(["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp)]);
+                    $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp),"status_id"=>config("constant.PAYMENT_PENDING_STATUS_ID")];
+                    return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($dataToUpdate);
                 } else {
+                    
                     PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode(["status" => "Failed to create link"])]);
                     return false;
                 }
@@ -53,7 +56,7 @@ trait PaymentTransaction
         }
     }
 
-    public function getStatus($transaction_id, Request $request)
+    public function getStatus($transaction_id)
     {
         $link = '/pls/api/v2/payout-link/fetch';
         $paytmParams = [];
@@ -85,10 +88,14 @@ trait PaymentTransaction
             }
             if ($resp["status"] == "SUCCESS") {
                 $data = ["link" => $resp["result"]["payoutLink"], "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp)];
-                if (isset($resp["paymentDetails"]["status"]) && $resp["paymentDetails"]["status"] == "SUCCESS") {
+                if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
                     $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
-                } else {
-                    $data["status_id"] = config("constant.PAYMENT_PENDING_STATUS_ID");
+                }else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
+                    $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
+                } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
+                    $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
+                } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
+                    $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
                 }
                 return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data);
             } else {

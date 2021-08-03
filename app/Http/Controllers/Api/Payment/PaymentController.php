@@ -11,6 +11,7 @@ use App\Payment\PaymentReport;
 use App\Product;
 use App\PublicReviewProduct;
 use App\Surveys;
+use App\Traits\PaymentTransaction;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +19,7 @@ use Tagtaste\Api\SendsJsonResponse;
 
 class PaymentController extends Controller
 {
-    use SendsJsonResponse;
+    use SendsJsonResponse, PaymentTransaction;
 
     protected $model;
     public function __construct(PaymentLinks $model)
@@ -232,27 +233,48 @@ class PaymentController extends Controller
         $this->model = $data;
         return $this->sendResponse();
     }
-        
-    public function transactionComplain(Request $request, $txn_id){
-        
+
+    public function transactionComplain(Request $request, $txn_id)
+    {
+
         $title = $request->title;
-        if(empty($title)){
+        if (empty($title)) {
             return $this->sendError("Title is mandatory.");
         }
-        $description = !empty($request->description)? $request->description : NULL;
+        $description = !empty($request->description) ? $request->description : NULL;
 
         $profileId = $request->user()->profile->id;
-        PaymentReport::insert(['transaction_id'=>$txn_id,'profile_id' => $profileId, 'title' => $title, 'description'=>$description]);
+        PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description]);
         $this->model = true;
         return $this->sendResponse();
     }
 
-    public function enrollTasterProgram(Request $request){
+    public function enrollTasterProgram(Request $request)
+    {
 
         //Send email to payment@tagtaste.com
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
-        $data = ["status"=>true,"title"=>"Success","sub_title"=>"You have enrolled successfully. We will keep you posted for further updates."];
+        $data = ["status" => true, "title" => "Success", "sub_title" => "You have enrolled successfully. We will keep you posted for further updates."];
         return $this->sendResponse($data);
+    }
+
+    public function paymentCallback(Request $request)
+    {
+        if ($request->has("status") && $request->has("result") && !empty($request->result->orderId)) {
+
+            $resp = $request->all();
+            $data = ["status_json" => json_encode($resp)];
+            if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
+                $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
+                $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
+                $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
+                $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
+            }
+            return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data);
+        }
     }
 }
