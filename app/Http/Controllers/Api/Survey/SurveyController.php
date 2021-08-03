@@ -618,7 +618,7 @@ class SurveyController extends Controller
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("model_id", $request->survey_id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
-        if ($count->count() < $paymentDetails->user_count) {
+        if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
             if ($request->user()->profile->is_tasting_expert) {
                 $key = "expert";
