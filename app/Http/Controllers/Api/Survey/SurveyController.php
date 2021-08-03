@@ -465,7 +465,7 @@ class SurveyController extends Controller
             ]);
 
             if ($validator->fails()) {
-                $this->model = ["status"=>false];
+                $this->model = ["status" => false];
                 $this->errors = $validator->messages();
                 return $this->sendResponse();
             }
@@ -473,11 +473,12 @@ class SurveyController extends Controller
             $id = $this->model->where("id", "=", $request->survey_id)->first();
             $this->model = [];
             if (empty($id)) {
-                $this->model = ["status"=>false];
+                $this->model = ["status" => false];
                 return $this->sendError("Invalid Survey");
             }
 
             if (isset($id->profile_id) && $id->profile_id == $request->profile_id) {
+                $this->model = ["status" => false];
                 return $this->sendError("Admin Cannot Fill the Surveys");
             }
 
@@ -505,6 +506,7 @@ class SurveyController extends Controller
 
                 if (isset($prepareQuestionJson[$values["question_id"]]["is_mandatory"]) && $prepareQuestionJson[$values["question_id"]]["is_mandatory"] == true && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
+                    $this->model = ["status" => false];
                     return $this->sendError("Mandatory Questions Cannot Be Blank");
                 }
                 $answerArray = [];
@@ -546,6 +548,7 @@ class SurveyController extends Controller
                 // }
             }
             $user = $request->user()->profile;
+            $responseData = [];
             if ($commit) {
                 DB::commit();
 
@@ -558,65 +561,79 @@ class SurveyController extends Controller
                 $this->model = true;
                 $this->messages = "Answer Submitted Successfully";
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
-
-                //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
-                if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-
-                    $responseData = [];
-                    $responseData["status"] = true;
-                    $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
-                    if ($paymnetExist != null) {
-                        $responseData["is_paid"] = true;
-                        //check for paid user
-                        // if (empty($request->user()->profile->phone)) {
-                        //     $responseData["title"] = "Uh Oh!";
-                        //     $responseData["subTitle"] = "Please Contact Admin.";
-                        //     $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
-                        //     $responseData["helper"] = "Phone number not updated";
-                        // } else
-                         if ($request->user()->profile->is_paid_taster) {
-                            //check for count and amount (payment details)
-                            $flag = $this->verifyPayment($paymnetExist, $request);
-                        } else {
-                            $flag = false;
-                            //check for global user rules and update euser
-                            $getPublicCount = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id")->where("current_status", 3)->get();
-                            $getPrivateReview = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
-                            $profile = false;
-                            if ($request->user()->profile->is_sensory_trained && ($getPublicCount->count() >= 3 || $getPrivateReview->count() >= 3)) {
-                                Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
-                                $profile = true;
-                            }
-
-                            if ($profile) {
-                                $flag = $this->verifyPayment($paymnetExist, $request);
-                            }
-                        }
-                        if ($flag) {
-                            $responseData["title"] = "Congratulations!";
-                            $responseData["subTitle"] = "You have successfully completed survey.";
-                            $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
-                            $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
-                        } else {
-                            $responseData["title"] = "Uh Oh!";
-                            $responseData["subTitle"] = "You have successfully completed survey.";
-                            $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
-                            $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
-                        }
-                    } else {
-                        $responseData["is_paid"] = false;
-                    }
-                    return $this->sendResponse($responseData);
-                }
             } else {
                 $responseData = ["status" => false];
+            }
+
+            //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
+            if ($this->model == true) {
+                $responseData = $this->paidProcessing($request);
+                if(empty($responseData)){
+                    $responseData = ["status" => true];
+                }
             }
             return $this->sendResponse($responseData);
         } catch (Exception $ex) {
             DB::rollback();
-            $this->model = ["status"=>false];
+            $this->model = ["status" => false];
             return $this->sendError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
         }
+    }
+
+    public function paidProcessing(Request $request)
+    {
+        $responseData = [];
+        if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+            $responseData["status"] = true;
+            $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
+            if ($paymnetExist != null) {
+                
+                $responseData["is_paid"] = true;
+                //check for paid user
+                // if (empty($request->user()->profile->phone)) {
+                //     $responseData["title"] = "Uh Oh!";
+                //     $responseData["subTitle"] = "Please Contact Admin.";
+                //     $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                //     $responseData["helper"] = "Phone number not updated";
+                // } else
+                if ($request->user()->profile->is_paid_taster) {
+                    //check for count and amount (payment details)
+                    $flag = $this->verifyPayment($paymnetExist, $request);
+                } else {
+                    $flag = false;
+                    //check for global user rules and update euser
+                    $getPrivateReview = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id", "batch_id")->where("current_status", 3)->get();
+
+                    $getPublicCount = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
+
+                    $profile = false;
+
+                    if ($request->user()->profile->is_sensory_trained && (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
+
+                        Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
+                        $profile = true;
+                    }
+
+                    if ($profile) {
+                        $flag = $this->verifyPayment($paymnetExist, $request);
+                    }
+                }
+                if ($flag) {
+                    $responseData["title"] = "Congratulations!";
+                    $responseData["subTitle"] = "You have successfully completed survey.";
+                    $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                    $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
+                } else {
+                    $responseData["title"] = "Uh Oh!";
+                    $responseData["subTitle"] = "You have successfully completed survey.";
+                    $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                    $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
+                }
+            } else {
+                $responseData["is_paid"] = false;
+            }
+        }
+        return $responseData;
     }
 
     public function verifyPayment($paymentDetails, Request $request)
@@ -631,9 +648,9 @@ class SurveyController extends Controller
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
-            
+
             $createPaymentTxn = event(new TransactionInit($data));
-            
+
             if ($createPaymentTxn) {
                 return true;
             } else {
