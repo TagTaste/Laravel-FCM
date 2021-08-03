@@ -4,10 +4,16 @@ namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate\Review;
 use App\Collaborate\ReviewHeader;
+use App\Events\TransactionInit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use App\Payment\PaymentDetails;
+use App\Payment\PaymentLinks;
+use App\Profile;
 use Illuminate\Support\Facades\Redis;
+use App\PublicReviewProduct\Review as PublicReviewProductReview;
+use Illuminate\Support\Facades\Log;
 
 class ReviewController extends Controller
 {
@@ -36,6 +42,7 @@ class ReviewController extends Controller
 
         if(!$request->has('address_id') && 
         \App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->Where('outlet_id', !null)->exists()){
+            $this->model = ["status" => false];
         return $this->sendError('Please send the respective outlet (address id) as query parameter');
         }
         
@@ -45,6 +52,7 @@ class ReviewController extends Controller
         // } 
         else if($request->has('address_id') && 
                 !\App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->where('address_id',$request->address_id)->exists()) {
+                    $this->model = ["status" => false];
                     return $this->sendError('Invalid Address id');
         } else {
             $address_id = $request->address_id!= null ? $request->address_id : null;
@@ -52,18 +60,21 @@ class ReviewController extends Controller
         
         if(!$request->has('batch_id'))
         {
+            $this->model = ["status" => false];
             return $this->sendError("No prodcut id found");
         }
         $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
 
         if(!$checkAssign)
         {
+            $this->model = ["status" => false];
             return $this->sendError("Wrong product assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
         $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
         if($currentStatus == $latestCurrentStatus && $latestCurrentStatus == 3)
         {
+            $this->model = ["status" => false];
             return $this->sendError("You have already completed this product");
         }
         $this->model = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
@@ -128,6 +139,7 @@ class ReviewController extends Controller
                 }
             }
         }
+        $responseData = [];
         if(count($data)>0)
         {
             $this->model = Review::insert($data);
@@ -137,16 +149,62 @@ class ReviewController extends Controller
                     ->where('is_mandatory',1)->where('is_nested_question',0)->get();
                 $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
                 $mandatoryReviewCount = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->whereIn('question_id',$mandatoryQuestionsId)->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->distinct('question_id')->count('question_id');
+                
                 if($mandatoryQuestion->count() == $mandatoryReviewCount)
                 {
-                    $this->model = true;
+                    
                     \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
                         ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>3]);
+                        
+                        $responseData["status"] = true;
+                        $paymnetExist = PaymentDetails::where('model_id', $collaborateId)->where("sub_model_id",$batchId)->where('is_active', 1)->first();
+                        if ($paymnetExist != null) {
+                            $responseData["is_paid"] = true;
+                            //check for paid user
+                            // if (empty($request->user()->profile->phone)) {
+                            //     $responseData["title"] = "Uh Oh!";
+                            //     $responseData["subTitle"] = "Please Contact Admin.";
+                            //     $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                            //     $responseData["helper"] = "Phone number not updated";
+                            // } else
+                             if ($request->user()->profile->is_paid_taster) {
+                                //check for count and amount (payment details)
+                                $flag = $this->verifyPayment($paymnetExist, $request);
+                            } else {
+                                $flag = false;
+                                //check for global user rules and update euser
+                                $getPublicCount = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id")->where("current_status", 3)->get();
+                                $getPrivateReview = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
+                                $profile = false;
+                                if ($request->user()->profile->is_sensory_trained && ($getPublicCount->count() >= 3 || $getPrivateReview->count() >= 3)) {
+                                    Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
+                                    $profile = true;
+                                }
+    
+                                if ($profile) {
+                                    $flag = $this->verifyPayment($paymnetExist, $request);
+                                }
+                            }
+                            if ($flag) {
+                                $responseData["title"] = "Congratulations!";
+                                $responseData["subTitle"] = "You have successfully completed survey.";
+                                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                                $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
+                            } else {
+                                $responseData["title"] = "Uh Oh!";
+                                $responseData["subTitle"] = "You have successfully completed survey.";
+                                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                                $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
+                            }
+                        } else {
+                            $responseData["is_paid"] = false;
+                        }
+
                 }
                 else
                 {
                     $currentStatus = 2;
-                    $this->model = false;
+                    $responseData["status"] = true;
                 }
 
             }
@@ -158,6 +216,31 @@ class ReviewController extends Controller
             }
             \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
         }
-        return $this->sendResponse();
+        return $this->sendResponse($responseData);
+    }
+
+    public function verifyPayment($paymentDetails, Request $request)
+    {
+        $count = PaymentLinks::where("model_id", $request->survey_id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
+        if ($count->count() < (int)$paymentDetails->user_count) {
+            $getAmount = json_decode($paymentDetails->amount_json, true);
+            if ($request->user()->profile->is_tasting_expert) {
+                $key = "expert";
+            } else {
+                $key = "consumer";
+            }
+            $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
+            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
+            
+            $createPaymentTxn = event(new TransactionInit($data));
+            
+            if ($createPaymentTxn) {
+                return true;
+            } else {
+                Log::info("Payment Returned False" . " " . json_encode($data));
+            }
+        }
+
+        return false;
     }
 }

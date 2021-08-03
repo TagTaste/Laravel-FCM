@@ -465,6 +465,7 @@ class SurveyController extends Controller
             ]);
 
             if ($validator->fails()) {
+                $this->model = ["status"=>false];
                 $this->errors = $validator->messages();
                 return $this->sendResponse();
             }
@@ -472,6 +473,7 @@ class SurveyController extends Controller
             $id = $this->model->where("id", "=", $request->survey_id)->first();
             $this->model = [];
             if (empty($id)) {
+                $this->model = ["status"=>false];
                 return $this->sendError("Invalid Survey");
             }
 
@@ -491,7 +493,8 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                // return $this->sendError("Already Answered");
+                $this->model = ["status"=>false];
+                return $this->sendError("Already Answered");
             }
 
             $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
@@ -628,7 +631,7 @@ class SurveyController extends Controller
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
-            echo "till here";
+            
             $createPaymentTxn = event(new TransactionInit($data));
             
             if ($createPaymentTxn) {

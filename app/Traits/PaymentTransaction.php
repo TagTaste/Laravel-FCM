@@ -37,7 +37,7 @@ trait PaymentTransaction
             curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($ch);
-
+            
             if (!empty($response)) {
                 $resp = $response;
                 if (!is_array($response)) {
@@ -48,7 +48,6 @@ trait PaymentTransaction
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp),"status_id"=>config("constant.PAYMENT_PENDING_STATUS_ID")];
                     return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($dataToUpdate);
                 } else {
-                    
                     PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode(["status" => "Failed to create link"])]);
                     return false;
                 }

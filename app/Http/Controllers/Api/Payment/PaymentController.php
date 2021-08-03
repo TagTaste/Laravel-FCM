@@ -70,7 +70,7 @@ class PaymentController extends Controller
     public function getTxnsById($txn_id, Request $request)
     {
         $this->model = [];
-
+        $this->getStatus($txn_id);
         $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,link,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
         (
           'id', payment_status.id, 
