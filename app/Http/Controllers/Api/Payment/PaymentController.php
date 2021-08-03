@@ -52,9 +52,10 @@ class PaymentController extends Controller
         $details = $getData->skip($skip)->take($take)->select(DB::raw("payment_links.id,transaction_id,model_type as model,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
         (
           'id', payment_status.id, 
-          'value', payment_status.value
+          'value', payment_status.value,
+          'text_color', payment_status.text_color
         ) as status"))->get();
-
+        
 
         foreach ($details as $value) {
             $js = json_decode($value->status);
@@ -75,9 +76,10 @@ class PaymentController extends Controller
         $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
         (
           'id', payment_status.id, 
-          'value', payment_status.value
+          'value', payment_status.value,
+          'text_color', payment_status.text_color
         ) as status"))->get();
-
+        
 
         $data = [];
         foreach ($getData as $v) {
