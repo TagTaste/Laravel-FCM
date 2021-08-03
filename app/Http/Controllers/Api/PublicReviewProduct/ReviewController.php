@@ -549,7 +549,7 @@ class ReviewController extends Controller
             
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
         $responseData = ["status"=>true];
-        if($currentStatus == 2){
+        if($currentStatus == 2 && $this->model){
             $paymnetExist = PaymentDetails::where('model_id',$productId)->where('is_active', 1)->first();
             if ($paymnetExist != null) {
                 $responseData["is_paid"] = true;
