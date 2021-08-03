@@ -36,10 +36,10 @@ class TransactionInitListener
             $initials = "TXN_SUR_" . date("dmy");
         } else if ($event->data->model_type == "Private Review") {
 
-            $initials = "TXN_SUR_" . date("dmy");
+            $initials = "TXN_PRR_" . date("dmy");
         } else if ($event->data->model_type == "Public Review") {
 
-            $initials = "TXN_SUR_" . date("dmy");
+            $initials = "TXN_PUR_" . date("dmy");
         }
         
         $getOldTxnId = PaymentLinks::where("transaction_id", "LIKE", '%' . $initials."%")->orderBy("id", "desc")->first();
