@@ -171,7 +171,7 @@ class PaymentController extends Controller
 
             return response(["data" => true, "errors" => "", "messages" => "Successfull"], 200);
         }
-        return response(["data" => false, "errors" => "Invalid Password", "messages" => "Please enter correct password."], 400);
+        return response(["data" => false, "errors" => "Invalid Password", "messages" => "Please enter correct password."], 200);
     }
 
     public function getTasterProgram(Request $request)
