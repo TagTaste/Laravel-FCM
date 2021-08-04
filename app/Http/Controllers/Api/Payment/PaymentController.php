@@ -46,9 +46,7 @@ class PaymentController extends Controller
         }
         $getStatusId = config("constant.PAYMENT_STATUS");
         if ($request->has('q') && !empty($request->q) && $request->q != "total") {
-            if (isset($getStatusId[$request->q])) {
-                $getData->where("status_id", $getStatusId[$request->q]);
-            }
+                $getData->where("status_id", $request->q);
         }
         //Filters here for q=total and all statuses
         if ($request->has("status") && !empty($request->status)) {
