@@ -139,7 +139,7 @@ class Surveys extends Model implements Feedable
     
     public function getNotificationContent()
     {
-        return [
+        return [    
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->title,

@@ -518,6 +518,7 @@ class ReviewController extends Controller
             }
         }
         $responseData = [];
+        $responseData["status"] = true;
         if (count($data) > 0) {
             $this->model = Review::insert($data);
             $responseData = ["status" => true];
@@ -538,11 +539,10 @@ class ReviewController extends Controller
             }
         }
 
+        //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
         if ($currentStatus == 2 && $this->model) {
             $responseData = $this->paidProcessing($productId, $request);
         }
-        //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
-
 
         return $this->sendResponse($responseData);
     }
@@ -562,12 +562,12 @@ class ReviewController extends Controller
             // } else
             if ($request->user()->profile->is_paid_taster) {
                 //check for count and amount (payment details)
+                $profile = true;
                 $flag = $this->verifyPayment($paymnetExist, $request);
             } else {
                 $flag = false;
                 //check for global user rules and update euser
-                $getPrivateReview = PrivateReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id")->where("current_status", 3)->get();
-
+                $getPrivateReview = PrivateReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id", "batch_id")->where("current_status", 3)->get();
                 $getPublicCount = Review::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
 
                 $profile = false;
@@ -581,16 +581,22 @@ class ReviewController extends Controller
                     $flag = $this->verifyPayment($paymnetExist, $request);
                 }
             }
-            if ($flag) {
+
+            if(!$profile){
+                $responseData["title"] = "Uh Oh!";
+                $responseData["subTitle"] = "You have successfully completed review.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
+            }else if ($flag) {
                 $responseData["title"] = "Congratulations!";
-                $responseData["subTitle"] = "You have successfully completed Review.";
+                $responseData["subTitle"] = "You have successfully completed review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
                 $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
             } else {
                 $responseData["title"] = "Uh Oh!";
-                $responseData["subTitle"] = "You have successfully completed Review.";
+                $responseData["subTitle"] = "You have successfully completed review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
-                $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
+                $responseData["helper"] = "We appreciate your effort , But unfortunately you missed it this time. Please try again.";
             }
         } else {
             $responseData["status"] = true;
@@ -598,6 +604,7 @@ class ReviewController extends Controller
         }
         return $responseData;
     }
+
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
@@ -609,8 +616,8 @@ class ReviewController extends Controller
                 $key = "consumer";
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
-            $data = ["amount" => $amount, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => null,"payment_id"=>$paymentDetails->id];
-
+            $data = ["amount" => $amount, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "payment_id"=>$paymentDetails->id];
+            
             $createPaymentTxn = event(new TransactionInit($data));
 
             if ($createPaymentTxn) {

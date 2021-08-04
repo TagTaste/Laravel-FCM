@@ -29,7 +29,7 @@ Route::get('privacy','Api\PrivacyController@index');
 Route::post('mail/tieReport','GeneralMailController@tieReportMail');
 Route::post('mail/foodComposition','GeneralMailController@foodCompositionMail');
 
-Route::post('link/status/callback','GeneralMailController@paymentCallback');
+// Route::post('link/status/callback','GeneralMailController@paymentCallback');
 
 Route::post('login',function(Request $request) {
     $credentials = $request->only('email','password');
@@ -899,5 +899,5 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/issue/{txn_id}", "PaymentController@transactionComplain");
         Route::post("/taster/enroll", "PaymentController@enrollTasterProgram");        
     });
-    Route::post('link/status/callback','PaymentController@paymentCallback');
+    Route::post('link/status/callback','\App\Http\Controllers\Api\Payment\PaymentController@paymentCallback');
 });

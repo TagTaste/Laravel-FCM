@@ -1616,7 +1616,7 @@ class Profile extends Model
 
     public function getPaymentAttribute()
     {
-        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->select("amount")->get()->pluck('amount');
+        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->where("status_id", '<>',config("constant.PAYMENT_SUCCESS_STATUS_ID"))->select("amount")->get()->pluck('amount');
         $sum = array_sum($getPaymentDetails->toArray());
         return ["earning" => $sum];
     }
