@@ -143,7 +143,7 @@ class ReviewController extends Controller
         $responseData = [];
         if (count($data) > 0) {
             $this->model = Review::insert($data);
-            if($this->model==true){
+            if ($this->model == true) {
                 $responseData["status"] = true;
             }
             if ($currentStatus == 3) {
@@ -156,9 +156,6 @@ class ReviewController extends Controller
 
                     \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)
                         ->where('batch_id', $batchId)->where('profile_id', $loggedInProfileId)->update(['current_status' => 3]);
-
-                    $responseData = $this->paidProcessing($collaborateId, $batchId, $request);
-                    
                 } else {
                     $currentStatus = 2;
                     $responseData["status"] = true;
@@ -171,6 +168,10 @@ class ReviewController extends Controller
                     ->update(['address_id' => $address_id]);
             }
             \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId", $currentStatus);
+        }
+
+        if ($this->model && $currentStatus == 3) {
+            $responseData = $this->paidProcessing($collaborateId, $batchId, $request);
         }
         return $this->sendResponse($responseData);
     }
@@ -229,7 +230,7 @@ class ReviewController extends Controller
     }
     public function verifyPayment($paymentDetails, Request $request)
     {
-        $count = PaymentLinks::where("model_id", $paymentDetails->model_id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
+        $count = PaymentLinks::where("payment_id", $paymentDetails->idate)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
             if ($request->user()->profile->is_tasting_expert) {
@@ -238,7 +239,7 @@ class ReviewController extends Controller
                 $key = "consumer";
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
-            $data = ["amount" => $amount, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id,"payment_id"=>$paymentDetails->id];
+            $data = ["amount" => $amount, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id, "payment_id" => $paymentDetails->id];
 
             $createPaymentTxn = event(new TransactionInit($data));
 

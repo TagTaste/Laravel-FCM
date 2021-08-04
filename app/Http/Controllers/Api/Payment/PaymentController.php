@@ -42,9 +42,13 @@ class PaymentController extends Controller
             $getData->where("phone", $request->phone);
         }
 
-        if ($request->has("txn_id") && !empty($request->txn_id)) {
-            $getData->where("transaction_id", $request->txn_id);
+        if ($request->has("status") && !empty($request->status)) {
+            $getStatusId = config("constant.PAYMENT_STATUS");
+            if (isset($getStatusId[$request->status])) {
+                $getData->where("status_id", $getStatusId[$request->status]);
+            }
         }
+
 
         $this->model['count'] = $getData->count();
 
@@ -55,7 +59,7 @@ class PaymentController extends Controller
           'value', payment_status.value,
           'text_color', payment_status.text_color
         ) as status"))->get();
-        
+
 
         foreach ($details as $value) {
             $js = json_decode($value->status);
@@ -77,7 +81,7 @@ class PaymentController extends Controller
           'value', payment_status.value,
           'text_color', payment_status.text_color
         ) as status"))->get();
-        
+
 
         $data = [];
         foreach ($getData as $v) {
@@ -141,15 +145,21 @@ class PaymentController extends Controller
         $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as redeemed"))->first();
 
         $this->model = [
-            ["title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0), 
-                "color_code" => "#dbbdba", "text_color"=>"#000000","border_color"=>"#f56262",
-                "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true],
-            ["title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0), 
-                "color_code" => "#bbdba9", "text_color"=>"#000000","border_color"=>"#97ed66",
-                "icon" => "https://static3.tagtaste.com/images/pending.png"],
-            ["title" => "Reedemed", "value" => (!empty($redeemed->redeemed) ? $redeemed->redeemed : 0), 
-                "color_code" => "#cec5e3", "text_color"=>"#000000","border_color"=>"#b199e8",
-                "icon" => "https://static3.tagtaste.com/images/redeemed.png"]
+            [
+                "title" => "Total Earning", "value" => (!empty($earning->total_earnings) ? $earning->total_earnings : 0),
+                "color_code" => "#dbbdba", "text_color" => "#000000", "border_color" => "#f56262",
+                "icon" => "https://static3.tagtaste.com/images/earning.png", "is_main" => true
+            ],
+            [
+                "title" => "To be reedemed", "value" => (!empty($pending->pending) ? $pending->pending : 0),
+                "color_code" => "#bbdba9", "text_color" => "#000000", "border_color" => "#97ed66",
+                "icon" => "https://static3.tagtaste.com/images/pending.png"
+            ],
+            [
+                "title" => "Reedemed", "value" => (!empty($redeemed->redeemed) ? $redeemed->redeemed : 0),
+                "color_code" => "#cec5e3", "text_color" => "#000000", "border_color" => "#b199e8",
+                "icon" => "https://static3.tagtaste.com/images/redeemed.png"
+            ]
         ];
 
         return $this->sendResponse();
@@ -161,7 +171,7 @@ class PaymentController extends Controller
 
             return response(["data" => true, "errors" => "", "messages" => "Successfull"], 200);
         }
-        return response(["data" => false, "errors" => "Invalid Password", "messages" => "Please enter correct password."], 400);
+        return response(["data" => false, "errors" => "Invalid Password", "messages" => "Please enter correct password."], 200);
     }
 
     public function getTasterProgram(Request $request)
