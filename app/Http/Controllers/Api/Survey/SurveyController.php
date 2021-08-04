@@ -597,12 +597,12 @@ class SurveyController extends Controller
             // } else
             if ($request->user()->profile->is_paid_taster) {
                 //check for count and amount (payment details)
+                $profile = true;
                 $flag = $this->verifyPayment($paymnetExist, $request);
             } else {
                 $flag = false;
                 //check for global user rules and update euser
                 $getPrivateReview = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id", "batch_id")->where("current_status", 3)->get();
-
                 $getPublicCount = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
 
                 $profile = false;
@@ -617,7 +617,18 @@ class SurveyController extends Controller
                     $flag = $this->verifyPayment($paymnetExist, $request);
                 }
             }
-            if ($flag) {
+            
+            //NOTE: Response types
+            //profile - not a paid taster
+            //paid taster - Rewarded
+            //paid taster - No Rewarded
+
+            if(!$profile){
+                $responseData["title"] = "Uh Oh!";
+                $responseData["subTitle"] = "You have successfully completed survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
+            }else if ($flag) {
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
@@ -626,7 +637,7 @@ class SurveyController extends Controller
                 $responseData["title"] = "Uh Oh!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
-                $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
+                $responseData["helper"] = "We appreciate your effort , But unfortunately you missed it this time. Please try again.";
             }
         } else {
             $responseData["is_paid"] = false;
@@ -646,7 +657,7 @@ class SurveyController extends Controller
                 $key = "consumer";
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
-            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "sub_model_id" => null];
+            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
 
             $createPaymentTxn = event(new TransactionInit($data));
 

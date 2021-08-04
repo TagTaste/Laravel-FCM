@@ -30,20 +30,17 @@ class TransactionInitListener
     {
 
         $event->data = (object)$event->data;
-
     
         if ($event->data->model_type == "Survey") {
             $initials = "TXN_SUR_" . date("dmy");
         } else if ($event->data->model_type == "Private Review") {
-
             $initials = "TXN_PRR_" . date("dmy");
         } else if ($event->data->model_type == "Public Review") {
-
             $initials = "TXN_PUR_" . date("dmy");
         }
         
         $getOldTxnId = PaymentLinks::where("transaction_id", "LIKE", '%' . $initials."%")->orderBy("id", "desc")->first();
-    
+        
         $number = 0;
         if (!empty($getOldTxnId) && isset($getOldTxnId->transaction_id)) {
             $explode = explode("_", $getOldTxnId->transaction_id);
@@ -53,7 +50,7 @@ class TransactionInitListener
         
         $buildTxnId = $initials . "_" . ++$number;
         
-        $data = PaymentLinks::create(["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->data->model_type, "model_id" => $event->data->model_id, "sub_model_id" => $event->data->sub_model_id, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID")]);
+        $data = PaymentLinks::create(["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->data->model_type, "model_id" => $event->data->model_id, "sub_model_id" => $event->data->sub_model_id ?? NULL, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID")]);
         
         if ($data) {
             $d = ["transaction_id" => $buildTxnId, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->data->model_type, "title" => $event->data->model_id];

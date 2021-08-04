@@ -29,7 +29,7 @@ Route::get('privacy','Api\PrivacyController@index');
 Route::post('mail/tieReport','GeneralMailController@tieReportMail');
 Route::post('mail/foodComposition','GeneralMailController@foodCompositionMail');
 
-Route::post('link/status/callback','GeneralMailController@paymentCallback');
+// Route::post('link/status/callback','GeneralMailController@paymentCallback');
 
 Route::post('login',function(Request $request) {
     $credentials = $request->only('email','password');

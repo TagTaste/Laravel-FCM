@@ -48,13 +48,13 @@ trait PaymentTransaction
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp),"status_id"=>config("constant.PAYMENT_PENDING_STATUS_ID")];
                     return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($dataToUpdate);
                 } else {
-                    PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode(["status" => "Failed to create link"])]);
+                    PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]);
                     return false;
                 }
             }
         }
     }
-
+    
     public function getStatus($transaction_id)
     {
         $link = '/pls/api/v2/payout-link/fetch';
@@ -96,10 +96,29 @@ trait PaymentTransaction
                 } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
                     $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
                 }
-                return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data);
+                return PaymentLinks::where("transaction_id", $transaction_id)->update($data);
             } else {
-                return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update(["status_json" => json_encode($resp)]);
+                return PaymentLinks::where("transaction_id", $transaction_id)->update(["status_json" => json_encode($resp)]);
             }
         }
+    }
+    
+    public function callback(Request $request)
+    {
+        if ($request->has("status") && $request->has("result") && !empty($request->result->orderId)) {
+            $resp = $request->all();
+            $data = ["status_json" => json_encode($resp)];
+            if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
+                $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
+                $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
+                $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
+            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
+                $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
+            }
+            return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data);
+        }
+        return false;
     }
 }
