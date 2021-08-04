@@ -111,14 +111,14 @@ class PaymentController extends Controller
         }
 
         // print_r
-        // if (!empty($data)) {
-        // $data->pop_up = [
-        //     "title" => "Earing",
-        //     "sub_title" => "Claim your earning",
-        //     "icon" => "static3.tagtaste.com/images/pending.png",
-        //     "amount" => $data->amount
-        // ];
-        // }
+        if (!empty($data)) {
+            $data->pop_up = [
+                "title" => "Earing",
+                "sub_title" => "Claim your earning",
+                "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png",
+                "amount" => $data->amount
+            ];
+        }
 
         $this->model = $data;
         return $this->sendResponse();
