@@ -540,9 +540,6 @@ class ReviewController extends Controller
 
         if ($currentStatus == 2 && $this->model) {
             $responseData = $this->paidProcessing($productId, $request);
-            if (empty($responseData)) {
-                $responseData = ["status" => true];
-            }
         }
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
 
@@ -603,7 +600,7 @@ class ReviewController extends Controller
     }
     public function verifyPayment($paymentDetails, Request $request)
     {
-        $count = PaymentLinks::where("model_id", $paymentDetails->model_id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
+        $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
             if ($request->user()->profile->is_tasting_expert) {
