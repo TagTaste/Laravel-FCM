@@ -646,6 +646,7 @@ class SurveyController extends Controller
         return $responseData;
     }
 
+    
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
