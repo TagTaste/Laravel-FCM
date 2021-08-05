@@ -123,6 +123,7 @@ trait PaymentTransaction
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
                 $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
             }
+            file_put_contents(storage_path("logs/") ."nikhil.txt", "DATA TO UPDATE ".$data." TRANSACTION ID : ".$resp["result"]["orderId"]."++++++++++++++++++++++\n\n", FILE_APPEND);        
             return ["status" => PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data)];
         }
         return ["status" => false];
