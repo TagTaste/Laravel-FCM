@@ -110,14 +110,43 @@ class PaymentController extends Controller
 
         // print_r
         if (!empty($data)) {
+            $title = '';
+            $sub_title = '';
+            $icon = 'https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png';
+            if($data->status->id == config("constant.PAYMENT_INITIATED_STATUS_ID")){
+                $title = 'Transaction Initiated';
+                $sub_title = 'Your transaction is initiated';
+                // $icon = '';               
+            }else if($data->status->id == config("constant.PAYMENT_PENDING_STATUS_ID")){
+                $title = 'Earning Pending!';
+                $sub_title = 'Claim your earning';
+                // $icon = ''; 
+            }else if($data->status->id == config("constant.PAYMENT_SUCCESS_STATUS_ID")){
+                $title = 'Reedemed';
+                $sub_title = 'Your earning has successfully claimed';
+                // $icon = ''; 
+            }else if($data->status->id == config("constant.PAYMENT_FAILURE_STATUS_ID")){
+                $title = 'Transaction Failed';
+                $sub_title = 'Your transaction is failed';
+                // $icon = ''; 
+            }else if($data->status->id == config("constant.PAYMENT_CANCELLED_STATUS_ID")){
+                $title = 'Transaction Cancelled';
+                $sub_title = 'Your transaction is cancelled';
+                // $icon = ''; 
+            }else if($data->status->id == config("constant.PAYMENT_EXPIRED_STATUS_ID")){
+                $title = 'Earning Expired';
+                $sub_title = 'Claim your earning';
+                // $icon = ''; 
+            }
+
             $data->pop_up = [
-                "title" => "Earing",
-                "sub_title" => "Claim your earning",
-                "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png",
-                "amount" => $data->amount
+                "title" => $title,
+                "sub_title" => $sub_title,
+                "icon" => $icon,
+                "amount" => "₹".$data->amount
             ];
         }
-
+        
         $this->model = $data;
         return $this->sendResponse();
     }
