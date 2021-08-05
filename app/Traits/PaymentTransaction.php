@@ -105,6 +105,12 @@ trait PaymentTransaction
 
     public function callback(Request $request)
     {
+        $inputs = $request->all();
+        $dataStr = json_encode($inputs);
+        file_put_contents(storage_path("logs/") ."nikhil.txt", $dataStr, FILE_APPEND);
+        file_put_contents(storage_path("logs/") ."nikhil.txt", "++++++++++++++++++++++\n\n", FILE_APPEND);        
+        // return "Success";
+
         if ($request->has("status") && $request->has("result") && !empty($request->result->orderId)) {
             $resp = $request->all();
             $data = ["status_json" => json_encode($resp)];
