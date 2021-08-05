@@ -599,6 +599,12 @@ class CollaborateController extends Controller
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                     $batchInfo->address_id = $batch->address_id;
                     $batchInfo->bill_verified = $batch->bill_verified;
+                    $paymentOnBacth = \DB::table('payment_details')
+                                            ->where('model_id',$batchInfo->collaborate_id)
+                                            ->where('sub_model_id',$batchInfo->id)
+                                            ->where('is_active',1)
+                                            ->first();
+                    $batchInfo->isPaid = isset($paymentOnBacth) ? true : false;
                     if($currentStatus != 0)
                     {
                         $batches[] = $batchInfo;

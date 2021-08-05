@@ -543,6 +543,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('public-review/products/{productId}/get-sample', 'PublicReviewProductController@getSample');
         Route::get('public-review/similarProducts/{productId}', 'PublicReviewProductController@similarProducts');
 
+        Route::get('public-review/products/{productId}/mandatoryFields', 'PublicReviewProductController@productMandatoryFields');
         Route::get("public-review/discover/products", "PublicReviewProductController@discover");
         Route::get("public-review/category/{id}/products", "PublicReviewProductController@categoryProducts");
         Route::post("uploadImageProduct", "PublicReviewProductController@uploadImageProduct");

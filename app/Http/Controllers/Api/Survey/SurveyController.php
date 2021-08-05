@@ -1482,7 +1482,7 @@ class SurveyController extends Controller
 
         return $this->sendResponse();
     }
-
+    
     public function surveyMandatoryFields(Surveys $id, Request $request)
     {
         unset($this->model);
