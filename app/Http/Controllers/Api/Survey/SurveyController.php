@@ -613,7 +613,7 @@ class SurveyController extends Controller
                     $profile = true;
                 }
 
-                if ($profile) {
+                if ($profile) { 
                     $flag = $this->verifyPayment($paymnetExist, $request);
                 }
             }
@@ -621,6 +621,7 @@ class SurveyController extends Controller
             //NOTE: Response types
             //profile - not a paid taster
             //paid taster - Rewarded
+            //phone not updated
             //paid taster - No Rewarded
 
             if(!$profile){
@@ -628,11 +629,16 @@ class SurveyController extends Controller
                 $responseData["subTitle"] = "You have successfully completed survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
                 $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
-            }else if ($flag) {
+            }else if($flag["status"] == true){
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
                 $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
+            } else if ($flag["status"] == false && $flag["reason"] =="phone"){
+                $responseData["title"] = "Uh Oh!";
+                $responseData["subTitle"] = "You have successfully completed survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
+                $responseData["helper"] = "We appreciate your effort , But unfortunately you dont have your phone number updated. Please Contact Admin.";
             } else {
                 $responseData["title"] = "Uh Oh!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
