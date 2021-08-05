@@ -258,7 +258,7 @@ class ReviewController extends Controller
             $createPaymentTxn = event(new TransactionInit($data));
 
             if ($createPaymentTxn) {
-                return $createPaymentTxn;
+                return $createPaymentTxn[0];
             } else {
                 Log::info("Payment Returned False" . " " . json_encode($data));
             }
