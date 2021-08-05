@@ -62,7 +62,7 @@ class SurveyController extends Controller
     public function index(Request $request, $id)
     {
         $getSurvey = Surveys::where("id", "=", $id)->where("is_active", "=", 1)->first();
-
+        
         $this->model = false;
         $this->messages = "Survey Doesn't Exists";
         if (empty($getSurvey)) {
@@ -669,7 +669,7 @@ class SurveyController extends Controller
             $createPaymentTxn = event(new TransactionInit($data));
 
             if ($createPaymentTxn) {
-                return true;
+                return $createPaymentTxn;
             } else {
                 Log::info("Payment Returned False" . " " . json_encode($data));
             }
