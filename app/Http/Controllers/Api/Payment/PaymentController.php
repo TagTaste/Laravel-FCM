@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Payment\PaymentLinks as PaymentLinks;
 use App\Payment\PaymentStatus;
+use App\Payment\PaymentDetails;
 use App\Payment\PaymentReport;
 use App\Product;
 use App\PublicReviewProduct;
@@ -146,7 +147,7 @@ class PaymentController extends Controller
                 "amount" => "₹".$data->amount
             ];
         }
-        
+
         $this->model = $data;
         return $this->sendResponse();
     }
@@ -270,26 +271,43 @@ class PaymentController extends Controller
 
         $pop_up = [];
         $title = "";
-        if ($model == "collaborate") {
+        if ($model == "collaborate" && isset($subModelId)) {
             $pop_up = ["title" => "Paid collboration", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
             $title = "Fill review carefully, correct data will lead you to earn money";
+            $paymentDetail = PaymentDetails::select("user_count")
+                            ->where("model_id", $modelId)
+                            ->where("sub_model_id", $subModelId)
+                            ->where("is_active", 1)
+                            ->get();
+
         } else if ($model == "survey") {
             $pop_up = ["title" => "Paid survey", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
             $title = "Fill survey carefully, correct data will lead you to earn money";
+            $paymentDetail = PaymentDetails::select("user_count")
+                            ->where("model_id", $modelId)
+                            ->where("is_active", 1)
+                            ->get();
         } else if ($model == "product") {
             $pop_up = ["title" => "Paid product", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
             $title = "Fill review carefully, correct data will lead you to earn money";
+            $paymentDetail = PaymentDetails::select("user_count")
+                            ->where("model_id", $modelId)
+                            ->where("is_active", 1)
+                            ->get();
         } else {
-            $this->model = "This model is not allowed";
-            return $this->sendResponse();
+            return $this->sendError("Invalid request. Please check your request.");
         }
-
+        
+        if($paymentDetail->count() == 0 ||  $paymentDetail == null || !isset($paymentDetail)){
+            return $this->sendError("This is not a paid model.");
+        }
+        $userCount = $paymentDetail[0]["user_count"] ?? 0;
         $headers = [
             [
                 "title" => "Get paid rules",
                 "child" => [
                     ["title" => "First come firts earn."],
-                    ["title" => "First 150 people get paid T&C apply."]
+                    ["title" => "First ".$userCount." people get paid T&C apply."]
                 ]
             ]
         ];

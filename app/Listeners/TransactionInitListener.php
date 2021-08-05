@@ -56,7 +56,6 @@ class TransactionInitListener
             if (!empty(request()->user()->profile->phone)) {
                 $d = ["transaction_id" => $buildTxnId, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->data->model_type, "title" => $event->data->model_id];
                 $obj = new paymentInit($d);
-
                 dispatch($obj);
                 return ["status" => true];
             } else {
