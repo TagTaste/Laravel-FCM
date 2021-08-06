@@ -116,7 +116,7 @@ class PaymentController extends Controller
             if($data->status->id == config("constant.PAYMENT_INITIATED_STATUS_ID")){
                 $title = 'Transaction Initiated';
                 $sub_title = 'Your transaction is initiated';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/pending.png'; 
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/initiated.png'; 
             }else if($data->status->id == config("constant.PAYMENT_PENDING_STATUS_ID")){
                 $title = 'Earning Pending!';
                 $sub_title = 'Claim your earning';
@@ -188,32 +188,32 @@ class PaymentController extends Controller
         $this->model = [
             [
                 "title" => "Total Earning", "value" => (float)(!empty($earning->total_earnings) ? $earning->total_earnings : 0),
-                "color_code" => "#dbbdba", "text_color" => "#000000", "border_color" => "#f56262",
+                "color_code" => "#FFFFFF", "text_color" => "#171717", "border_color" => "#f56262","value_color"=>"#DD2E1F",
                 "icon" => "", "is_main" => true
             ],
             [
                 "title" => "Earning Reedemed", "value" => (float)$redeemed->redeemed,
-                "color_code" => "#00a146", "text_color" => "#000000", "border_color" => "#00a146",
+                "color_code" => "#E5F5EC", "text_color" => "#171717", "border_color" => "#CCECDA","value_color"=>"#00A146",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/redeemed.png"
             ],
             [
                 "title" => "To be reedemed", "value" => (float)(($earning->total_earnings ?? 0)  - (($cancelled->cancelled ?? 0) + ($redeemed->redeemed ?? 0))),
-                "color_code" => "#f47816", "text_color" => "#000000", "border_color" => "#f47816",
+                "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0","value_color"=>"#F47816",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
             ],
             [
                 "title" => "Earning Expired", "value" => $expired->expired ??  0,
-                "color_code" => "#dd2e1f", "text_color" => "#000000", "border_color" => "#dd2e1f",
+                "color_code" => "#FBEAE8", "text_color" => "#DD2E1F", "border_color" => "#F8D5D2","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/expired.png"
             ],
             [
                 "title" => "Cancelled TXN", "value" => $cancelled->cancelled ??  0,
-                "color_code" => "#000000", "text_color" => "#000000", "border_color" => "#000000",
+                "color_code" => "#E5E5E5", "text_color" => "#171717", "border_color" => "#CCCCCC","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/cancelled.png"
             ],
             [
                 "title" => "Failure TXN", "value" => $failure->failure ??  0,
-                "color_code" => "#efb920", "text_color" => "#000000", "border_color" => "#efb920",
+                "color_code" => "#EFB920", "text_color" => "#171717", "border_color" => "#EFB920","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/failed.png"
             ]
         ];
