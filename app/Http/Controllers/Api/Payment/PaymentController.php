@@ -65,7 +65,7 @@ class PaymentController extends Controller
           'id', payment_status.id, 
           'value', payment_status.value,
           'text_color', payment_status.text_color
-        ) as status"))->get();
+        ) as status"))->orderBy("payment_links.created_at", "desc")->get();
 
 
         foreach ($details as $value) {
