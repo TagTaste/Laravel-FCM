@@ -187,17 +187,17 @@ class PaymentController extends Controller
 
         $this->model = [
             [
-                "title" => "Total Earning", "value" => "₹".(!empty($earning->total_earnings) ? $earning->total_earnings : 0),
+                "title" => "Total Earning", "value" => "₹".(!empty($earning->total_earnings) ? $earning->total_earnings : 0.00),
                 "color_code" => "#FFFFFF", "text_color" => "#171717", "border_color" => "#f56262","value_color"=>"#DD2E1F",
                 "icon" => "", "is_main" => true
             ],
             [
-                "title" => "Earning Reedemed", "value" => "₹".$redeemed->redeemed,
+                "title" => "Earning Reedemed", "value" => "₹".($redeemed->redeemed ?? 0.00),
                 "color_code" => "#E5F5EC", "text_color" => "#171717", "border_color" => "#CCECDA","value_color"=>"#00A146",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/redeemed.png"
             ],
             [
-                "title" => "To be reedemed", "value" => "₹".(($earning->total_earnings ?? 0)  - ($redeemed->redeemed ?? 0)),
+                "title" => "To be reedemed", "value" => "₹".(($earning->total_earnings ?? 0.00)  - ($redeemed->redeemed ?? 0.00)),
                 "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0","value_color"=>"#F47816",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
             ],
