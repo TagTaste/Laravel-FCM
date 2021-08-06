@@ -65,7 +65,7 @@ class PaymentController extends Controller
           'id', payment_status.id, 
           'value', payment_status.value,
           'text_color', payment_status.text_color
-        ) as status"))->get();
+        ) as status"))->orderBy("payment_links.created_at", "desc")->get();
 
 
         foreach ($details as $value) {
@@ -161,11 +161,12 @@ class PaymentController extends Controller
     {
         $this->model = [
             ["key" => "total", "title" => "Total Transaction"],
+            ["key" => "1", "title" => "Initiated Transactions"],
             ["key" => "2", "title" => "Pending Transactions"],
             ["key" => "3", "title" => "Redeemed Transactions"],
             ["key" => "6", "title" => "Expired Transactions"],
             ["key" => "5", "title" => "Cancelled Transactions"],
-            ["key" => "4", "title" => "FAILED Transactions"]
+            ["key" => "4", "title" => "Failed Transactions"]
         ];
         return $this->sendResponse();
     }
