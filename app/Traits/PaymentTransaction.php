@@ -19,7 +19,13 @@ trait PaymentTransaction
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
             $pay["notifyMode"] = ["SMS", "EMAIL"];
-            $pay["comments"] = "Payout Link from Tagtaste";
+            if($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review"){
+                $pay["comments"] = "Remuneration for reviewing a product on TagTaste.";
+            }else if($data["model_type"] == "Survey"){
+                $pay["comments"] = "Remuneration for taking a survey on TagTaste.";
+            }else{
+                $pay["comments"] = "Payment from Tagtaste.";
+            }
             $pay["callbackUrl"] = config("payment.PAYTM_CALLBACK_URL");
 
             $post_data = json_encode($pay, JSON_UNESCAPED_SLASHES);
@@ -105,7 +111,12 @@ trait PaymentTransaction
 
     public function callback(Request $request)
     {
-        if ($request->has("status") && $request->has("result") && !empty($request->result->orderId)) {
+        $inputs = $request->all();
+        $dataStr = json_encode($inputs);
+        file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", $dataStr, FILE_APPEND);
+        file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);        
+
+        if ($request->has("status") && $request->has("result") && !empty($request->result["orderId"])) {
             $resp = $request->all();
             $data = ["status_json" => json_encode($resp)];
             if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
@@ -117,6 +128,7 @@ trait PaymentTransaction
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
                 $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
             }
+            file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);        
             return ["status" => PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data)];
         }
         return ["status" => false];

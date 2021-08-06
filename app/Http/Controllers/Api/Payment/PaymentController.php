@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Payment\PaymentLinks as PaymentLinks;
 use App\Payment\PaymentStatus;
+use App\Payment\PaymentDetails;
 use App\Payment\PaymentReport;
 use App\Product;
 use App\PublicReviewProduct;
@@ -108,35 +109,34 @@ class PaymentController extends Controller
             $v->status = $js;
         }
 
-        // print_r
         if (!empty($data)) {
             $title = '';
             $sub_title = '';
-            $icon = 'https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png';
+            $icon = '';
             if($data->status->id == config("constant.PAYMENT_INITIATED_STATUS_ID")){
                 $title = 'Transaction Initiated';
                 $sub_title = 'Your transaction is initiated';
-                // $icon = '';               
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/pending.png'; 
             }else if($data->status->id == config("constant.PAYMENT_PENDING_STATUS_ID")){
                 $title = 'Earning Pending!';
                 $sub_title = 'Claim your earning';
-                // $icon = ''; 
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/pending.png'; 
             }else if($data->status->id == config("constant.PAYMENT_SUCCESS_STATUS_ID")){
                 $title = 'Reedemed';
                 $sub_title = 'Your earning has successfully claimed';
-                // $icon = ''; 
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/redeemed.png'; 
             }else if($data->status->id == config("constant.PAYMENT_FAILURE_STATUS_ID")){
                 $title = 'Transaction Failed';
                 $sub_title = 'Your transaction is failed';
-                // $icon = ''; 
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/failed.png'; 
             }else if($data->status->id == config("constant.PAYMENT_CANCELLED_STATUS_ID")){
                 $title = 'Transaction Cancelled';
                 $sub_title = 'Your transaction is cancelled';
-                // $icon = ''; 
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/cancelled.png'; 
             }else if($data->status->id == config("constant.PAYMENT_EXPIRED_STATUS_ID")){
                 $title = 'Earning Expired';
                 $sub_title = 'Claim your earning';
-                // $icon = ''; 
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/expired.png'; 
             }
 
             $data->pop_up = [
@@ -146,7 +146,7 @@ class PaymentController extends Controller
                 "amount" => "₹".$data->amount
             ];
         }
-        
+
         $this->model = $data;
         return $this->sendResponse();
     }
@@ -161,11 +161,12 @@ class PaymentController extends Controller
     {
         $this->model = [
             ["key" => "total", "title" => "Total Transaction"],
+            ["key" => "1", "title" => "Initiated Transactions"],
             ["key" => "2", "title" => "Pending Transactions"],
             ["key" => "3", "title" => "Redeemed Transactions"],
             ["key" => "6", "title" => "Expired Transactions"],
             ["key" => "5", "title" => "Cancelled Transactions"],
-            ["key" => "4", "title" => "FAILED Transactions"]
+            ["key" => "4", "title" => "Failed Transactions"]
         ];
         return $this->sendResponse();
     }
@@ -188,32 +189,32 @@ class PaymentController extends Controller
             [
                 "title" => "Total Earning", "value" => (float)(!empty($earning->total_earnings) ? $earning->total_earnings : 0),
                 "color_code" => "#dbbdba", "text_color" => "#000000", "border_color" => "#f56262",
-                "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/reddemed_card.png", "is_main" => true
+                "icon" => "", "is_main" => true
             ],
             [
                 "title" => "Earning Reedemed", "value" => (float)$redeemed->redeemed,
                 "color_code" => "#00a146", "text_color" => "#000000", "border_color" => "#00a146",
-                "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/reddemed_card.png"
+                "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/redeemed.png"
             ],
             [
                 "title" => "To be reedemed", "value" => (float)(($earning->total_earnings ?? 0)  - (($cancelled->cancelled ?? 0) + ($redeemed->redeemed ?? 0))),
                 "color_code" => "#f47816", "text_color" => "#000000", "border_color" => "#f47816",
-                "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/reddemed_card.png"
+                "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
             ],
             [
                 "title" => "Earning Expired", "value" => $expired->expired ??  0,
                 "color_code" => "#dd2e1f", "text_color" => "#000000", "border_color" => "#dd2e1f",
-                "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/reddemed_card.png"
+                "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/expired.png"
             ],
             [
                 "title" => "Cancelled TXN", "value" => $cancelled->cancelled ??  0,
                 "color_code" => "#000000", "text_color" => "#000000", "border_color" => "#000000",
-                "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/reddemed_card.png"
+                "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/cancelled.png"
             ],
             [
                 "title" => "Failure TXN", "value" => $failure->failure ??  0,
                 "color_code" => "#efb920", "text_color" => "#000000", "border_color" => "#efb920",
-                "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/reddemed_card.png"
+                "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/failed.png"
             ]
         ];
 
@@ -250,7 +251,7 @@ class PaymentController extends Controller
             ]
         ];
 
-        $pop_up = ["title" => "Uh-oh!", "sub_title" => "Not a paid taster", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
+        $pop_up = ["title" => "Uh-oh!", "sub_title" => "Not a paid taster", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png"];
 
         $data = [
             "pop_up" => $pop_up,
@@ -270,26 +271,43 @@ class PaymentController extends Controller
 
         $pop_up = [];
         $title = "";
-        if ($model == "collaborate") {
-            $pop_up = ["title" => "Paid collboration", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
+        if ($model == "collaborate" && isset($subModelId)) {
+            $pop_up = ["title" => "Paid collboration", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/private-review.png"];
             $title = "Fill review carefully, correct data will lead you to earn money";
-        } else if ($model == "survey") {
-            $pop_up = ["title" => "Paid survey", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
-            $title = "Fill survey carefully, correct data will lead you to earn money";
-        } else if ($model == "product") {
-            $pop_up = ["title" => "Paid product", "icon" => "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png"];
-            $title = "Fill review carefully, correct data will lead you to earn money";
-        } else {
-            $this->model = "This model is not allowed";
-            return $this->sendResponse();
-        }
+            $paymentDetail = PaymentDetails::select("user_count")
+                            ->where("model_id", $modelId)
+                            ->where("sub_model_id", $subModelId)
+                            ->where("is_active", 1)
+                            ->get();
 
+        } else if ($model == "survey") {
+            $pop_up = ["title" => "Paid survey", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/survey.png"];
+            $title = "Fill survey carefully, correct data will lead you to earn money";
+            $paymentDetail = PaymentDetails::select("user_count")
+                            ->where("model_id", $modelId)
+                            ->where("is_active", 1)
+                            ->get();
+        } else if ($model == "product") {
+            $pop_up = ["title" => "Paid product", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/public-review.png"];
+            $title = "Fill review carefully, correct data will lead you to earn money";
+            $paymentDetail = PaymentDetails::select("user_count")
+                            ->where("model_id", $modelId)
+                            ->where("is_active", 1)
+                            ->get();
+        } else {
+            return $this->sendError("Invalid request. Please check your request.");
+        }
+        
+        if($paymentDetail->count() == 0 ||  $paymentDetail == null || !isset($paymentDetail)){
+            return $this->sendError("This is not a paid model.");
+        }
+        $userCount = $paymentDetail[0]["user_count"] ?? 0;
         $headers = [
             [
                 "title" => "Get paid rules",
                 "child" => [
                     ["title" => "First come firts earn."],
-                    ["title" => "First 150 people get paid T&C apply."]
+                    ["title" => "First ".$userCount." people get paid T&C apply."]
                 ]
             ]
         ];
