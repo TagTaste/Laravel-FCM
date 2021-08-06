@@ -59,7 +59,7 @@ trait PaymentTransaction
     {
         $link = '/pls/api/v2/payout-link/fetch';
         $paytmParams = [];
-
+        
         $paytmParams["orderId"]  = $transaction_id;
 
         $post_data = json_encode($paytmParams, JSON_UNESCAPED_SLASHES);
