@@ -19,7 +19,13 @@ trait PaymentTransaction
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
             $pay["notifyMode"] = ["SMS", "EMAIL"];
-            $pay["comments"] = "Payout Link from Tagtaste";
+            if($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review"){
+                $pay["comments"] = "Remuneration for reviewing a product on TagTaste.";
+            }else if($data["model_type"] == "Survey"){
+                $pay["comments"] = "Remuneration for taking a survey on TagTaste.";
+            }else{
+                $pay["comments"] = "Payment from Tagtaste.";
+            }
             $pay["callbackUrl"] = config("payment.PAYTM_CALLBACK_URL");
 
             $post_data = json_encode($pay, JSON_UNESCAPED_SLASHES);
