@@ -161,6 +161,7 @@ class PaymentController extends Controller
     {
         $this->model = [
             ["key" => "total", "title" => "Total Transaction"],
+            ["key" => "1", "title" => "Initiated Transactions"],
             ["key" => "2", "title" => "Pending Transactions"],
             ["key" => "3", "title" => "Redeemed Transactions"],
             ["key" => "6", "title" => "Expired Transactions"],
