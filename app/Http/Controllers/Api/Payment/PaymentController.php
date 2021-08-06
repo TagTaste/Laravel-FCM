@@ -165,7 +165,7 @@ class PaymentController extends Controller
             ["key" => "3", "title" => "Redeemed Transactions"],
             ["key" => "6", "title" => "Expired Transactions"],
             ["key" => "5", "title" => "Cancelled Transactions"],
-            ["key" => "4", "title" => "FAILED Transactions"]
+            ["key" => "4", "title" => "Failed Transactions"]
         ];
         return $this->sendResponse();
     }
