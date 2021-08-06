@@ -54,7 +54,7 @@ class PaymentController extends Controller
             if (isset($getStatusId[$request->status])) {
                 $getData->where("status_id", $getStatusId[$request->status]);
             }
-        }
+        }   
 
 
         $this->model['count'] = $getData->count();
@@ -187,32 +187,32 @@ class PaymentController extends Controller
 
         $this->model = [
             [
-                "title" => "Total Earning", "value" => (float)(!empty($earning->total_earnings) ? $earning->total_earnings : 0),
+                "title" => "Total Earning", "value" => "₹".(!empty($earning->total_earnings) ? $earning->total_earnings : 0),
                 "color_code" => "#FFFFFF", "text_color" => "#171717", "border_color" => "#f56262","value_color"=>"#DD2E1F",
                 "icon" => "", "is_main" => true
             ],
             [
-                "title" => "Earning Reedemed", "value" => (float)$redeemed->redeemed,
+                "title" => "Earning Reedemed", "value" => "₹".$redeemed->redeemed,
                 "color_code" => "#E5F5EC", "text_color" => "#171717", "border_color" => "#CCECDA","value_color"=>"#00A146",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/redeemed.png"
             ],
             [
-                "title" => "To be reedemed", "value" => (float)(($earning->total_earnings ?? 0)  - (($cancelled->cancelled ?? 0) + ($redeemed->redeemed ?? 0))),
+                "title" => "To be reedemed", "value" => "₹".(($earning->total_earnings ?? 0)  - ($redeemed->redeemed ?? 0)),
                 "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0","value_color"=>"#F47816",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
             ],
             [
-                "title" => "Earning Expired", "value" => $expired->expired ??  0,
+                "title" => "Earning Expired", "value" => "₹".($expired->expired ?? 0.00),
                 "color_code" => "#FBEAE8", "text_color" => "#DD2E1F", "border_color" => "#F8D5D2","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/expired.png"
             ],
             [
-                "title" => "Cancelled TXN", "value" => $cancelled->cancelled ??  0,
+                "title" => "Cancelled TXN", "value" => "₹".($cancelled->cancelled ?? 0.00),
                 "color_code" => "#E5E5E5", "text_color" => "#171717", "border_color" => "#CCCCCC","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/cancelled.png"
             ],
             [
-                "title" => "Failure TXN", "value" => $failure->failure ??  0,
+                "title" => "Failure TXN", "value" => "₹".($failure->failure ?? 0.00),
                 "color_code" => "#EFB920", "text_color" => "#171717", "border_color" => "#EFB920","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/failed.png"
             ]
