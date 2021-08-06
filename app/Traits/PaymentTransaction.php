@@ -107,11 +107,10 @@ trait PaymentTransaction
     {
         $inputs = $request->all();
         $dataStr = json_encode($inputs);
-        file_put_contents(storage_path("logs/") ."nikhil.txt", $dataStr, FILE_APPEND);
-        file_put_contents(storage_path("logs/") ."nikhil.txt", "++++++++++++++++++++++\n\n", FILE_APPEND);        
-        // return "Success";
+        file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", $dataStr, FILE_APPEND);
+        file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);        
 
-        if ($request->has("status") && $request->has("result") && !empty($request->result->orderId)) {
+        if ($request->has("status") && $request->has("result") && !empty($request->result["orderId"])) {
             $resp = $request->all();
             $data = ["status_json" => json_encode($resp)];
             if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
@@ -123,7 +122,7 @@ trait PaymentTransaction
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
                 $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
             }
-            file_put_contents(storage_path("logs/") ."nikhil.txt", "DATA TO UPDATE ".$data." TRANSACTION ID : ".$resp["result"]["orderId"]."++++++++++++++++++++++\n\n", FILE_APPEND);        
+            file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);        
             return ["status" => PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data)];
         }
         return ["status" => false];
