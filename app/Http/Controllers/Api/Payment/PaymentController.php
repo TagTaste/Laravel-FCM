@@ -54,7 +54,7 @@ class PaymentController extends Controller
             if (isset($getStatusId[$request->status])) {
                 $getData->where("status_id", $getStatusId[$request->status]);
             }
-        }
+        }   
 
 
         $this->model['count'] = $getData->count();
@@ -116,7 +116,7 @@ class PaymentController extends Controller
             if($data->status->id == config("constant.PAYMENT_INITIATED_STATUS_ID")){
                 $title = 'Transaction Initiated';
                 $sub_title = 'Your transaction is initiated';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/pending.png'; 
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/initiated.png'; 
             }else if($data->status->id == config("constant.PAYMENT_PENDING_STATUS_ID")){
                 $title = 'Earning Pending!';
                 $sub_title = 'Claim your earning';
@@ -175,45 +175,52 @@ class PaymentController extends Controller
     {
         //total - All - cancelled
         //to be reedemed = total - (cancelled + success)
-        $earning = PaymentLinks::where("status_id", "<>", config("constant.PAYMENT_STATUS.cancelled"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as total_earnings"))->first();
-
-        $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as redeemed"))->first();
-
-        $cancelled = PaymentLinks::where("status_id", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as cancelled"))->first();
-
-        $failure = PaymentLinks::where("status_id", config("constant.PAYMENT_FAILURE_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as failure"))->first();
-
-        $expired = PaymentLinks::where("status_id", config("constant.PAYMENT_EXPIRED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as expired"))->first();
-
+        $totalEarning = PaymentLinks::where("status_id", "<>", config("constant.PAYMENT_STATUS.cancelled"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
+        $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
+        $pending = PaymentLinks::where("status_id", config("constant.PAYMENT_PENDING_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
+        $cancelled = PaymentLinks::where("status_id", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
+        $failure = PaymentLinks::where("status_id", config("constant.PAYMENT_FAILURE_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
+        $expired = PaymentLinks::where("status_id", config("constant.PAYMENT_EXPIRED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
+        $initiated = PaymentLinks::where("status_id", config("constant.PAYMENT_INITIATED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
+        
+        $totalEarning = number_format(($totalEarning->amount ?? 0),2,'.',"");
+        $toBeRedeemed = number_format((($pending->amount ?? 0)+($initiated->amount ?? 0)),2,'.',"");
+        $redeemed = number_format(($redeemed->amount ?? 0),2,'.',"");
+        $pending = number_format(($pending->amount ?? 0),2,'.',"");
+        $cancelled = number_format(($cancelled->amount ?? 0),2,'.',"");
+        $failure = number_format(($failure->amount ?? 0),2,'.',"");
+        $expired = number_format(($expired->amount ?? 0),2,'.',"");
+        $initiated = number_format(($initiated->amount ?? 0),2,'.',"");
+        
         $this->model = [
             [
-                "title" => "Total Earning", "value" => (float)(!empty($earning->total_earnings) ? $earning->total_earnings : 0),
-                "color_code" => "#dbbdba", "text_color" => "#000000", "border_color" => "#f56262",
+                "title" => "Total Earning", "value" => "₹".$totalEarning,
+                "color_code" => "#FFFFFF", "text_color" => "#171717", "border_color" => "#f56262","value_color"=>"#DD2E1F",
                 "icon" => "", "is_main" => true
             ],
             [
-                "title" => "Earning Reedemed", "value" => (float)$redeemed->redeemed,
-                "color_code" => "#00a146", "text_color" => "#000000", "border_color" => "#00a146",
+                "title" => "Earning Reedemed", "value" => "₹".$redeemed,
+                "color_code" => "#E5F5EC", "text_color" => "#171717", "border_color" => "#CCECDA","value_color"=>"#00A146",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/redeemed.png"
             ],
             [
-                "title" => "To be reedemed", "value" => (float)(($earning->total_earnings ?? 0)  - (($cancelled->cancelled ?? 0) + ($redeemed->redeemed ?? 0))),
-                "color_code" => "#f47816", "text_color" => "#000000", "border_color" => "#f47816",
+                "title" => "To be reedemed", "value" => "₹".$toBeRedeemed,
+                "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0","value_color"=>"#F47816",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
             ],
             [
-                "title" => "Earning Expired", "value" => $expired->expired ??  0,
-                "color_code" => "#dd2e1f", "text_color" => "#000000", "border_color" => "#dd2e1f",
+                "title" => "Earning Expired", "value" => "₹".$expired,
+                "color_code" => "#FBEAE8", "text_color" => "#DD2E1F", "border_color" => "#F8D5D2","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/expired.png"
             ],
             [
-                "title" => "Cancelled TXN", "value" => $cancelled->cancelled ??  0,
-                "color_code" => "#000000", "text_color" => "#000000", "border_color" => "#000000",
+                "title" => "Cancelled TXN", "value" => "₹".$cancelled,
+                "color_code" => "#E5E5E5", "text_color" => "#171717", "border_color" => "#CCCCCC","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/cancelled.png"
             ],
             [
-                "title" => "Failure TXN", "value" => $failure->failure ??  0,
-                "color_code" => "#efb920", "text_color" => "#000000", "border_color" => "#efb920",
+                "title" => "Failed TXN", "value" => "₹".$failure,
+                "color_code" => "#EFB920", "text_color" => "#171717", "border_color" => "#EFB920","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/failed.png"
             ]
         ];
