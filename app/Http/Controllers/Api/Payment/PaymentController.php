@@ -160,7 +160,7 @@ class PaymentController extends Controller
     public function getFilters()
     {
         $this->model = [
-            ["key" => "total", "title" => "Total Transaction"],
+            ["key" => "total", "title" => "Total Transactions"],
             ["key" => "1", "title" => "Initiated Transactions"],
             ["key" => "2", "title" => "Pending Transactions"],
             ["key" => "3", "title" => "Redeemed Transactions"],
