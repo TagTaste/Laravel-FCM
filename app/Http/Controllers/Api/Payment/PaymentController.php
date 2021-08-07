@@ -327,6 +327,10 @@ class PaymentController extends Controller
         $description = !empty($request->description) ? $request->description : NULL;
 
         $profileId = $request->user()->profile->id;
+        \Mail::send('emails.payment-complain', ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description], function($message) use($request,$txn_id)
+        {
+            $message->to($request->user()->email, $request->user()->name)->subject('Transaction Complaint regarding '.$txn_id);
+        });
         PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description]);
         $this->model = true;
         return $this->sendResponse();
@@ -338,6 +342,11 @@ class PaymentController extends Controller
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
         $data = ["status" => true, "title" => "Success", "sub_title" => "You have enrolled successfully. We will keep you posted for further updates."];
+        \Mail::send('emails.enroll-taster', $data, function($message) use($request)
+        {
+            $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
+        });
+
         return $this->sendResponse($data);
     }
 
