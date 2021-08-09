@@ -220,7 +220,7 @@ class PaymentController extends Controller
             ],
             [
                 "title" => "Failed TXN", "value" => "₹".$failure,
-                "color_code" => "#EFB920", "text_color" => "#171717", "border_color" => "#EFB920","value_color"=>"#171717",
+                "color_code" => "#FCF1D2", "text_color" => "#171717", "border_color" => "#EFB920","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/failed.png"
             ]
         ];
