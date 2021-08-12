@@ -162,7 +162,7 @@ class PaymentController extends Controller
     public function getFilters()
     {
         $this->model = [
-            ["key" => "total", "title" => "Total Transaction"],
+            ["key" => "total", "title" => "Total Transactions"],
             ["key" => "1", "title" => "Initiated Transactions"],
             ["key" => "2", "title" => "Pending Transactions"],
             ["key" => "3", "title" => "Redeemed Transactions"],
@@ -177,7 +177,7 @@ class PaymentController extends Controller
     {
         //total - All - cancelled
         //to be reedemed = total - (cancelled + success)
-        $totalEarning = PaymentLinks::where("status_id", "<>", config("constant.PAYMENT_STATUS.cancelled"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
+        $totalEarning = PaymentLinks::where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
         $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
         $pending = PaymentLinks::where("status_id", config("constant.PAYMENT_PENDING_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
         $cancelled = PaymentLinks::where("status_id", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
@@ -221,8 +221,8 @@ class PaymentController extends Controller
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/cancelled.png"
             ],
             [
-                "title" => "Failed TXN", "value" => "₹" . $failure,
-                "color_code" => "#EFB920", "text_color" => "#171717", "border_color" => "#EFB920", "value_color" => "#171717",
+                "title" => "Failed TXN", "value" => "₹".$failure,
+                "color_code" => "#FCF1D2", "text_color" => "#171717", "border_color" => "#EFB920","value_color"=>"#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/failed.png"
             ]
         ];
@@ -346,7 +346,7 @@ class PaymentController extends Controller
         $this->model = true;
         return $this->sendResponse();
     }
-
+    
     public function enrollTasterProgram(Request $request)
     {
 
