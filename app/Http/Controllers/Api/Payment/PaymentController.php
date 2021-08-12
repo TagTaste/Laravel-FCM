@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Payment;
 
 use App\Collaborate;
+use App\Events\Actions\PaymentComplain;
+use App\Events\Actions\TasterEnroll;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Payment\PaymentLinks as PaymentLinks;
@@ -47,14 +49,14 @@ class PaymentController extends Controller
         }
         $getStatusId = config("constant.PAYMENT_STATUS");
         if ($request->has('q') && !empty($request->q) && $request->q != "total") {
-                $getData->where("status_id", $request->q);
+            $getData->where("status_id", $request->q);
         }
         //Filters here for q=total and all statuses
         if ($request->has("status") && !empty($request->status)) {
             if (isset($getStatusId[$request->status])) {
                 $getData->where("status_id", $getStatusId[$request->status]);
             }
-        }   
+        }
 
 
         $this->model['count'] = $getData->count();
@@ -120,8 +122,8 @@ class PaymentController extends Controller
             }else if($data->status->id == config("constant.PAYMENT_PENDING_STATUS_ID")){
                 $title = 'To be Redeemed';
                 $sub_title = 'Claim your earning';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/pending.png'; 
-            }else if($data->status->id == config("constant.PAYMENT_SUCCESS_STATUS_ID")){
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/pending.png';
+            } else if ($data->status->id == config("constant.PAYMENT_SUCCESS_STATUS_ID")) {
                 $title = 'Reedemed';
                 $sub_title = 'Money successfully transferred to your account';
                 $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/redeemed.png'; 
@@ -143,7 +145,7 @@ class PaymentController extends Controller
                 "title" => $title,
                 "sub_title" => $sub_title,
                 "icon" => $icon,
-                "amount" => "₹".$data->amount
+                "amount" => "₹" . $data->amount
             ];
         }
 
@@ -182,35 +184,35 @@ class PaymentController extends Controller
         $failure = PaymentLinks::where("status_id", config("constant.PAYMENT_FAILURE_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
         $expired = PaymentLinks::where("status_id", config("constant.PAYMENT_EXPIRED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
         $initiated = PaymentLinks::where("status_id", config("constant.PAYMENT_INITIATED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
-        
-        $totalEarning = number_format(($totalEarning->amount ?? 0),2,'.',"");
-        $toBeRedeemed = number_format((($pending->amount ?? 0)+($initiated->amount ?? 0)),2,'.',"");
-        $redeemed = number_format(($redeemed->amount ?? 0),2,'.',"");
-        $pending = number_format(($pending->amount ?? 0),2,'.',"");
-        $cancelled = number_format(($cancelled->amount ?? 0),2,'.',"");
-        $failure = number_format(($failure->amount ?? 0),2,'.',"");
-        $expired = number_format(($expired->amount ?? 0),2,'.',"");
-        $initiated = number_format(($initiated->amount ?? 0),2,'.',"");
-        
+
+        $totalEarning = number_format(($totalEarning->amount ?? 0), 2, '.', "");
+        $toBeRedeemed = number_format((($pending->amount ?? 0) + ($initiated->amount ?? 0)), 2, '.', "");
+        $redeemed = number_format(($redeemed->amount ?? 0), 2, '.', "");
+        $pending = number_format(($pending->amount ?? 0), 2, '.', "");
+        $cancelled = number_format(($cancelled->amount ?? 0), 2, '.', "");
+        $failure = number_format(($failure->amount ?? 0), 2, '.', "");
+        $expired = number_format(($expired->amount ?? 0), 2, '.', "");
+        $initiated = number_format(($initiated->amount ?? 0), 2, '.', "");
+
         $this->model = [
             [
-                "title" => "Total Earning", "value" => "₹".$totalEarning,
-                "color_code" => "#FFFFFF", "text_color" => "#171717", "border_color" => "#f56262","value_color"=>"#DD2E1F",
+                "title" => "Total Earning", "value" => "₹" . $totalEarning,
+                "color_code" => "#FFFFFF", "text_color" => "#171717", "border_color" => "#f56262", "value_color" => "#DD2E1F",
                 "icon" => "", "is_main" => true
             ],
             [
-                "title" => "Earning Reedemed", "value" => "₹".$redeemed,
-                "color_code" => "#E5F5EC", "text_color" => "#171717", "border_color" => "#CCECDA","value_color"=>"#00A146",
+                "title" => "Earning Reedemed", "value" => "₹" . $redeemed,
+                "color_code" => "#E5F5EC", "text_color" => "#171717", "border_color" => "#CCECDA", "value_color" => "#00A146",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/redeemed.png"
             ],
             [
-                "title" => "To be reedemed", "value" => "₹".$toBeRedeemed,
-                "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0","value_color"=>"#F47816",
+                "title" => "To be reedemed", "value" => "₹" . $toBeRedeemed,
+                "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0", "value_color" => "#F47816",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
             ],
             [
-                "title" => "Earning Expired", "value" => "₹".$expired,
-                "color_code" => "#FBEAE8", "text_color" => "#DD2E1F", "border_color" => "#F8D5D2","value_color"=>"#171717",
+                "title" => "Earning Expired", "value" => "₹" . $expired,
+                "color_code" => "#FBEAE8", "text_color" => "#DD2E1F", "border_color" => "#F8D5D2", "value_color" => "#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/expired.png"
             ],
             // [
@@ -302,30 +304,29 @@ class PaymentController extends Controller
             $pop_up = ["title" => "Paid Private Review", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/private-review.png"];
             $title = "Read the question carefully before answering. Remember there is no right or wrong answer.";
             $paymentDetail = PaymentDetails::select("user_count")
-                            ->where("model_id", $modelId)
-                            ->where("sub_model_id", $subModelId)
-                            ->where("is_active", 1)
-                            ->get();
-
+                ->where("model_id", $modelId)
+                ->where("sub_model_id", $subModelId)
+                ->where("is_active", 1)
+                ->get();
         } else if ($model == "survey") {
             $pop_up = ["title" => "Paid survey", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/survey.png"];
             $title = "Read the question carefully before answering. Remember there is no right or wrong answer.";
             $paymentDetail = PaymentDetails::select("user_count")
-                            ->where("model_id", $modelId)
-                            ->where("is_active", 1)
-                            ->get();
+                ->where("model_id", $modelId)
+                ->where("is_active", 1)
+                ->get();
         } else if ($model == "product") {
             $pop_up = ["title" => "Paid Public Review", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/public-review.png"];
             $title = "Read the question carefully before answering. Remember there is no right or wrong answer.";
             $paymentDetail = PaymentDetails::select("user_count")
-                            ->where("model_id", $modelId)
-                            ->where("is_active", 1)
-                            ->get();
+                ->where("model_id", $modelId)
+                ->where("is_active", 1)
+                ->get();
         } else {
             return $this->sendError("Invalid request. Please check your request.");
         }
-        
-        if($paymentDetail->count() == 0 ||  $paymentDetail == null || !isset($paymentDetail)){
+
+        if ($paymentDetail->count() == 0 ||  $paymentDetail == null || !isset($paymentDetail)) {
             return $this->sendError("This is not a paid model.");
         }
         // $userCount = $paymentDetail[0]["user_count"] ?? 0;
@@ -351,10 +352,13 @@ class PaymentController extends Controller
         $description = !empty($request->description) ? $request->description : NULL;
         
         $profileId = $request->user()->profile->id;
-        \Mail::send('emails.payment-complain', ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description], function($message) use($request,$txn_id)
-        {
-            $message->to($request->user()->email, $request->user()->name)->subject('Transaction Complaint regarding '.$txn_id);
-        });
+        // \Mail::send('emails.payment-complain', ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description], function($message) use($request,$txn_id)
+        // {
+        //     $message->to($request->user()->email, $request->user()->name)->subject('Transaction Complaint regarding '.$txn_id);
+        // }    );
+        $links = PaymentLinks::where("transaction_id", $txn_id)->first();
+        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description]));
+
         PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description]);
         $this->model = true;
         return $this->sendResponse();
@@ -376,14 +380,18 @@ class PaymentController extends Controller
 
     public function enrollExpertProgram(Request $request)
     {
+
         //Send email to payment@tagtaste.com
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
-        $data = ["status" => true, "title" => "", "sub_title" => "Your enrollment has been successfull. Our team will reach out to you with further details."];
-        \Mail::send('emails.enroll-taster', $data, function($message) use($request)
-        {
-            $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
-        });
+        $data = ["status" => true, "title" => "Success", "sub_title" => "You have enrolled successfully. We will keep you posted for further updates."];
+        // \Mail::send('emails.enroll-taster', $data, function($message) use($request)
+        // {
+        //     $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
+        // });
+        
+        $links = PaymentLinks::where("profile_id", $request->user()->profile->id)->first();
+        event(new TasterEnroll($links, null, $data));
 
         return $this->sendResponse($data);
     }

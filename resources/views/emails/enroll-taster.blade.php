@@ -26,7 +26,7 @@
                                                         <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FFFFFF" >
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF" align="center">
-                                                                    <p style="font-size: 16px;color: #181818;margin:0px; line-height: 1.5;">{{$sub_title}}
+                                                                    <p style="font-size: 16px;color: #181818;margin:0px; line-height: 1.5;">{{$data["sub_title"]}}
                                                                     </p>
                                                                 </td>
                                                             </tr>
