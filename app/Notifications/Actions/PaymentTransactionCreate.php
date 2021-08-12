@@ -26,7 +26,7 @@ class PaymentTransactionCreate extends Action
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
         }
-        ECHO $this->notification = $this->sub;
+        $this->notification = $this->sub;
 
     }
 
