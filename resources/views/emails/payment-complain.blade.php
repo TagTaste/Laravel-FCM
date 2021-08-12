@@ -26,7 +26,7 @@
                                                         <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FFFFFF" >
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF" align="center">
-                                                                    <p style="font-size: 16px;color: #181818;margin:0px; line-height: 1.5;">Complaint on {{$transaction_id}} Received , We will respond you soon
+                                                                    <p style="font-size: 16px;color: #181818;margin:0px; line-height: 1.5;">Complaint on {{$data["transaction_id"]}} Received , We will respond you soon
                                                                     </p>
                                                                 </td>
                                                             </tr>
@@ -50,7 +50,7 @@
 
                                                             <tr>
                                                                 <td valign="top" align="center"  bgcolor="#FFFFFF" >
-                                                                    Title {{$title}}
+                                                                    Title {{$data["title"]}}
                                                                 </td>
                                                             </tr>
 
@@ -61,7 +61,7 @@
 
                                                 <tr>
                                                     <td style="height:31px;background-color:#FFFFFF">
-                                                        Description : {{$description}}
+                                                        Description : {{$data["description"]}}
                                                     </td>
                                                 </tr>
                                             </table>
