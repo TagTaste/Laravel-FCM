@@ -12,6 +12,7 @@ use App\Payment\PaymentStatus;
 use App\Payment\PaymentDetails;
 use App\Payment\PaymentReport;
 use App\Product;
+use App\Profile;
 use App\PublicReviewProduct;
 use App\Surveys;
 use App\Traits\PaymentTransaction;
@@ -370,10 +371,12 @@ class PaymentController extends Controller
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
         $data = ["status" => true, "title" => "", "sub_title" => "Your enrollment has been successfull. Our team will reach out to you with further details."];
-        \Mail::send('emails.enroll-taster', $data, function($message) use($request)
-        {
-            $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
-        });
+        // \Mail::send('emails.enroll-taster', $data, function($message) use($request)
+        // {
+        //     $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
+        // });
+        $links = Profile::where("id", $request->user()->profile->id)->first();
+        event(new TasterEnroll($links, null, $data));
 
         return $this->sendResponse($data);
     }
@@ -390,7 +393,7 @@ class PaymentController extends Controller
         //     $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
         // });
         
-        $links = PaymentLinks::where("profile_id", $request->user()->profile->id)->first();
+        $links = Profile::where("id", $request->user()->profile->id)->first();
         event(new TasterEnroll($links, null, $data));
 
         return $this->sendResponse($data);

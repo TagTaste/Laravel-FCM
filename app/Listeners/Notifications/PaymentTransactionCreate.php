@@ -29,7 +29,8 @@ class PaymentTransactionCreate
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
 
-        if (isset($profile))
+        if (isset($profile)){
             Notification::send($profile, new \App\Notifications\Actions\PaymentTransactionCreate($event));
+        }
     }
 }
