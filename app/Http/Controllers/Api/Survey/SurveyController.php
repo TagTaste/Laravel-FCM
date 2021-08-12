@@ -623,13 +623,14 @@ class SurveyController extends Controller
             //paid taster - Rewarded
             //phone not updated
             //paid taster - No Rewarded
-
+            
+            $responseData['is_paid_taster'] = $profile;
             if(!$profile){
                 $responseData["get_paid"] = false;
-                $responseData["title"] = "Uh Oh!";
-                $responseData["subTitle"] = "You have successfully completed survey.";
-                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
-                $responseData["helper"] = "We appreciate your effort , But unfortunately you are not a paid taster to earn rewards.";
+                // $responseData["title"] = "Uh Oh!";
+                // $responseData["subTitle"] = "You have successfully completed survey.";
+                // $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
+                $responseData["helper"] = "You can earn money for such review by enrolling yourself for paid taster program.";
             }else if($flag["status"] == true){
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
