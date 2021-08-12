@@ -26,7 +26,7 @@ class TasterEnroll
      */
     public function handle(ActionsTasterEnroll $event)
     {
-        $profileId = $event->model->profile_id;
+        $profileId = $event->model->id;
         $profile = Profile::find($profileId);
         if(isset($profile))
         Notification::send($profile, new \App\Notifications\Actions\TastingEnroll($event));
