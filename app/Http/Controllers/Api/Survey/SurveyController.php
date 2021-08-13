@@ -585,45 +585,37 @@ class SurveyController extends Controller
         $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
-        if ($paymnetExist != null) {
-
+        if ($paymnetExist != null || $requestPaid) {
+  
             $responseData["is_paid"] = true;
-            //check for paid user
-            // if (empty($request->user()->profile->phone)) {
-            //     $responseData["title"] = "Uh Oh!";
-            //     $responseData["subTitle"] = "Please Contact Admin.";
-            //     $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
-            //     $responseData["helper"] = "Phone number not updated";
-            // } else
             if ($request->user()->profile->is_paid_taster) {
                 //check for count and amount (payment details)
                 $profile = true;
-                $flag = $this->verifyPayment($paymnetExist, $request);
+                $flag["status"] = false;
             } else {
-                $flag = false;
+                $flag["status"] = false;
                 //check for global user rules and update euser
                 $getPrivateReview = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id", "batch_id")->where("current_status", 3)->get();
                 $getPublicCount = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
-
+                
                 $profile = false;
 
                 if ($request->user()->profile->is_sensory_trained && (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
-
                     Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
                     $profile = true;
                 }
-
-                if ($profile) {
-                    $flag = $this->verifyPayment($paymnetExist, $request);
-                }
             }
-
+            
+            if ($profile && $paymnetExist != null) {
+                $flag = $this->verifyPayment($paymnetExist, $request);
+            }
+            
             //NOTE: Response types
             //profile - not a paid taster
             //paid taster - Rewarded
             //phone not updated
             //paid taster - No Rewarded
-
+            
             $responseData['is_paid_taster'] = $profile;
             if (!$profile) {
                 $responseData["get_paid"] = false;
@@ -656,13 +648,7 @@ class SurveyController extends Controller
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
                 $responseData["helper"] = "We appreciate your effort , But unfortunately you missed it this time. Please try again.";
             }
-        } else if ($request->has("is_paid") && $request->is_paid == true) {
-            $responseData["get_paid"] = true;
-            $responseData["title"] = "Uh Oh!";
-            $responseData["subTitle"] = "You have successfully completed survey.";
-            $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
-            $responseData["helper"] = "We appreciate your effort . Please contact tagtaste to help you with your reward status.";
-        } else {
+        }else {
             $responseData["is_paid"] = false;
         }
 
