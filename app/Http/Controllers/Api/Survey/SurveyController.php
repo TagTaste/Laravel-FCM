@@ -615,7 +615,7 @@ class SurveyController extends Controller
             //paid taster - Rewarded
             //phone not updated
             //paid taster - No Rewarded
-            
+
             $responseData['is_paid_taster'] = $profile;
             if (!$profile) {
                 $responseData["get_paid"] = false;
@@ -670,7 +670,7 @@ class SurveyController extends Controller
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
 
             $createPaymentTxn = event(new TransactionInit($data));
-
+            
             if ($createPaymentTxn) {
                 return $createPaymentTxn[0];
             } else {
