@@ -21,7 +21,7 @@ class PaymentTransactionCreate extends Action
         parent::__construct($event);
         
         $this->view = null;
-
+        
         $this->sub = "Your payout link is generated";
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
