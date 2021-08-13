@@ -540,7 +540,7 @@ class ReviewController extends Controller
         }
 
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
-        if ($currentStatus == 2 && $this->model) {
+        if ($currentStatus == 2 && $this->model && $request->has("is_paid")) {
             $responseData = $this->paidProcessing($productId, $request);
         }
 
@@ -548,9 +548,10 @@ class ReviewController extends Controller
     }
     public function paidProcessing($productId, Request $request)
     {
-        $responseData = [];
+        $responseData = $flag = [];
+        $requestPaid = $request->is_paid ?? false;
         $paymnetExist = PaymentDetails::where('model_id', $productId)->where('is_active', 1)->first();
-        if ($paymnetExist != null) {
+        if ($paymnetExist != null || $requestPaid) {
             $responseData["status"] = true;
             $responseData["is_paid"] = true;
             //check for paid user
@@ -563,9 +564,9 @@ class ReviewController extends Controller
             if ($request->user()->profile->is_paid_taster) {
                 //check for count and amount (payment details)
                 $profile = true;
-                $flag = $this->verifyPayment($paymnetExist, $request);
+                $flag["status"] = false;
             } else {
-                $flag = false;
+                $flag["status"] = false;
                 //check for global user rules and update euser
                 $getPrivateReview = PrivateReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id", "batch_id")->where("current_status", 3)->get();
                 $getPublicCount = Review::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
@@ -576,32 +577,38 @@ class ReviewController extends Controller
                     Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
                     $profile = true;
                 }
-
-                if ($profile) {
-                    $flag = $this->verifyPayment($paymnetExist, $request);
-                }
             }
-            
+            $request->merge(["product_id" => $productId]);
+            if ($profile && $paymnetExist != null) {
+                $flag = $this->verifyPayment($paymnetExist, $request);
+            }
+
             $responseData['is_paid_taster'] = $profile;
-            if(!$profile){
+            if (!$profile) {
                 $responseData["get_paid"] = false;
                 // $responseData["title"] = "Uh Oh!";
                 // $responseData["subTitle"] = "You have successfully completed review.";
                 // $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
                 $responseData["helper"] = "You can earn money for such review by enrolling yourself for paid taster program.";
-            }else if($flag["status"] == true){
+            } else if ($flag["status"] == true) {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
-            } else if ($flag["status"] == false && $flag["reason"] =="phone"){
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "phone") {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort , But unfortunately you don't have your phone number updated. Please updated phone number and contact tagtaste to redeem it.";
-            }else {
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "paid") {
+                $responseData["get_paid"] = true;
+                $responseData["title"] = "Uh Oh!";
+                $responseData["subTitle"] = "You have successfully completed survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
+                $responseData["helper"] = "We appreciate your effort . Please contact tagtaste to help you with your reward status.";
+            } else {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
                 $responseData["subTitle"] = "You have successfully completed review.";
@@ -626,18 +633,26 @@ class ReviewController extends Controller
                 $key = "consumer";
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
-            $data = ["amount" => $amount, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "payment_id"=>$paymentDetails->id];
-            
-            $createPaymentTxn = event(new TransactionInit($data));
+            $data = ["amount" => $amount, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "payment_id" => $paymentDetails->id];
 
+            $createPaymentTxn = event(new TransactionInit($data));
+            $paymentcount = (int)$paymentDetails->user_count;
+            if ($count->count() == ++$paymentcount) {
+                PaymentDetails::where('model_id', $request->product_id)->update(['is_active' => 0]);
+            }
             if ($createPaymentTxn) {
                 return $createPaymentTxn[0];
             } else {
                 Log::info("Payment Returned False" . " " . json_encode($data));
             }
+        } else {
+            PaymentDetails::where('model_id', $request->product_id)->update(['is_active' => 0]);
+            if ($request->has("is_paid") && $request->is_paid == true) {
+                return ["status" => false, "reason" => "paid"];
+            }
         }
 
-        return false;
+        return ["status" => false];
     }
 
     public function uploadImage(Request $request, $productId)
