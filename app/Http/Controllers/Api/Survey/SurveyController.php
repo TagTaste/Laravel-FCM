@@ -62,7 +62,7 @@ class SurveyController extends Controller
     public function index(Request $request, $id)
     {
         $getSurvey = Surveys::where("id", "=", $id)->where("is_active", "=", 1)->first();
-        
+
         $this->model = false;
         $this->messages = "Survey Doesn't Exists";
         if (empty($getSurvey)) {
@@ -581,26 +581,19 @@ class SurveyController extends Controller
 
     public function paidProcessing(Request $request)
     {
-        $responseData = [];
-
+        $responseData = $flag = [];
+        $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
-        if ($paymnetExist != null) {
+        if ($paymnetExist != null || $requestPaid) {
 
             $responseData["is_paid"] = true;
-            //check for paid user
-            // if (empty($request->user()->profile->phone)) {
-            //     $responseData["title"] = "Uh Oh!";
-            //     $responseData["subTitle"] = "Please Contact Admin.";
-            //     $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
-            //     $responseData["helper"] = "Phone number not updated";
-            // } else
             if ($request->user()->profile->is_paid_taster) {
                 //check for count and amount (payment details)
                 $profile = true;
-                $flag = $this->verifyPayment($paymnetExist, $request);
+                $flag["status"] = false;
             } else {
-                $flag = false;
+                $flag["status"] = false;
                 //check for global user rules and update euser
                 $getPrivateReview = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id", "batch_id")->where("current_status", 3)->get();
                 $getPublicCount = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
@@ -608,42 +601,47 @@ class SurveyController extends Controller
                 $profile = false;
 
                 if ($request->user()->profile->is_sensory_trained && (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
-
                     Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
                     $profile = true;
                 }
-
-                if ($profile) { 
-                    $flag = $this->verifyPayment($paymnetExist, $request);
-                }
             }
-            
+
+            if ($profile && $paymnetExist != null) {
+                $flag = $this->verifyPayment($paymnetExist, $request);
+            }
+
             //NOTE: Response types
             //profile - not a paid taster
             //paid taster - Rewarded
             //phone not updated
             //paid taster - No Rewarded
-            
+
             $responseData['is_paid_taster'] = $profile;
-            if(!$profile){
+            if (!$profile) {
                 $responseData["get_paid"] = false;
                 // $responseData["title"] = "Uh Oh!";
                 // $responseData["subTitle"] = "You have successfully completed survey.";
                 // $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
                 $responseData["helper"] = "You can earn money for such review by enrolling yourself for paid taster program.";
-            }else if($flag["status"] == true){
+            } else if ($flag["status"] == true) {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
-            } else if ($flag["status"] == false && $flag["reason"] =="phone"){
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "phone") {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort , But unfortunately you don't have your phone number updated. Please updated phone number and contact tagtaste to redeem it.";
-            }else {
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "paid") {
+                $responseData["get_paid"] = true;
+                $responseData["title"] = "Uh Oh!";
+                $responseData["subTitle"] = "You have successfully completed survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
+                $responseData["helper"] = "We appreciate your effort . Please contact tagtaste to help you with your reward status.";
+            } else {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
@@ -657,7 +655,7 @@ class SurveyController extends Controller
         return $responseData;
     }
 
-    
+
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
@@ -672,15 +670,23 @@ class SurveyController extends Controller
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
 
             $createPaymentTxn = event(new TransactionInit($data));
-
+            $paymentcount = (int)$paymentDetails->user_count;
+            if ($count->count() == ++$paymentcount) {
+                PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
+            }
             if ($createPaymentTxn) {
                 return $createPaymentTxn[0];
             } else {
                 Log::info("Payment Returned False" . " " . json_encode($data));
             }
+        } else {
+            PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
+            if ($request->has("is_paid") && $request->is_paid == true) {
+                return ["status" => false, "reason" => "paid"];
+            }
         }
 
-        return false;
+        return ["status" => false];
     }
     public function reports($id, Request $request)
     {
@@ -1493,7 +1499,7 @@ class SurveyController extends Controller
 
         return $this->sendResponse();
     }
-    
+
     public function surveyMandatoryFields(Surveys $id, Request $request)
     {
         unset($this->model);

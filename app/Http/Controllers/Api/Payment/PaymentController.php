@@ -246,12 +246,12 @@ class PaymentController extends Controller
         $expertButton = ["title"=>"Enroll as an expert","color_code"=>"#efb920","text_color"=>"#000000",
         "url"=>"payment/expert/enroll","method"=>"POST"];
 
-        $sensoryButton = ["title"=>"Enroll for sensory workshop","color_code"=>"#4990e2","text_color"=>"#000000",
+        $sensoryButton = ["title"=>"Enroll for sensory workshop","color_code"=>"#4990e2","text_color"=>"#ffffff",
         "url"=>"payment/sensory/enroll","method"=>"POST"];
 
         $headers = [
             [
-                "title" => "Program benefits",
+                "title" => "PROGRAM BENEFITS",
                 "list_type"=>1, //With bullet
                 "child" => [
                     ["title" => "Earn anywhere between Rs. 100 to Rs. 20,000 in a single assignment."],
@@ -261,15 +261,15 @@ class PaymentController extends Controller
                 ]
             ],
             [
-                "title" => "How to find paid tastings?",
-                "list_type"=>1,// Without bullet
+                "title" => "HOW TO FIND PAID TASTINGS?",
+                "list_type"=>2,// Without bullet
                 "child" => [
                     ["title" => "Regularly visit the collaboration section of our website and apps for all paid tasting assignments."]
                 ]
             ],
             [
-                "title" => "Note",
-                "list_type"=>2,// Without bullet
+                "title" => "NOTE",
+                "list_type"=>1,// With bullet
                 "child" => [
                     ["title" => "Expert tasters: Trained food professionals such as chefs, nutritionists, food technologists, etc. are eligible for product improvement and related assignments beyond product reviews. Click on the following button to initiate the process of registering yourself as an expert.",
                     "button_assets"=>$expertButton],
@@ -387,7 +387,7 @@ class PaymentController extends Controller
         //Send email to payment@tagtaste.com
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
-        $data = ["status" => true, "title" => "Success", "sub_title" => "You have enrolled successfully. We will keep you posted for further updates."];
+        $data = ["status" => true, "title" => "Success", "sub_title" => "Your enrollment has been successfull. Our team will reach out to you with further details."];
         // \Mail::send('emails.enroll-taster', $data, function($message) use($request)
         // {
         //     $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
