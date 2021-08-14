@@ -171,7 +171,7 @@ class ReviewController extends Controller
             \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId", $currentStatus);
         }
 
-        if ($this->model && $currentStatus == 3 && $request->has("is_paid")) {
+        if ($this->model && $currentStatus == 3) {
             $responseData = $this->paidProcessing($collaborateId, $batchId, $request);
         }
         return $this->sendResponse($responseData);
@@ -270,7 +270,7 @@ class ReviewController extends Controller
             $createPaymentTxn = event(new TransactionInit($data));
             $paymentcount = (int)$paymentDetails->user_count;
             if ($count->count() == ++$paymentcount) {
-                PaymentDetails::where('model_id', $request->collaborate_id)->where("sub_model_id", $request->batch_id)->update(["is_active" => 0]);
+                PaymentDetails::where('id', $paymentDetails->id)->update(["is_active" => 0]);
             }
             if ($createPaymentTxn) {
                 return $createPaymentTxn[0];
@@ -278,7 +278,7 @@ class ReviewController extends Controller
                 Log::info("Payment Returned False" . " " . json_encode($data));
             }
         } else {
-            PaymentDetails::where('model_id', $request->collaborate_id)->where("sub_model_id", $request->batch_id)->update(["is_active" => 0]);
+            PaymentDetails::where('id', $paymentDetails->id)->update(["is_active" => 0]);
             if ($request->has("is_paid") && $request->is_paid == true) {
                 return ["status" => false, "reason" => "paid"];
             }

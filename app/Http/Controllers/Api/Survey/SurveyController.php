@@ -567,7 +567,7 @@ class SurveyController extends Controller
             }
 
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
-            if ($this->model == true && $request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && $request->has("is_paid")) {
+            if ($this->model == true && $request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $responseData = $this->paidProcessing($request);
             }
 
@@ -672,7 +672,7 @@ class SurveyController extends Controller
             $createPaymentTxn = event(new TransactionInit($data));
             $paymentcount = (int)$paymentDetails->user_count;
             if ($count->count() == ++$paymentcount) {
-                PaymentDetails::where('model_id', $request->survey_id)->update(['is_active' => 0]);
+                PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
             }
             if ($createPaymentTxn) {
                 return $createPaymentTxn[0];
@@ -680,7 +680,7 @@ class SurveyController extends Controller
                 Log::info("Payment Returned False" . " " . json_encode($data));
             }
         } else {
-            PaymentDetails::where('model_id', $request->survey_id)->update(['is_active' => 0]);
+            PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
             if ($request->has("is_paid") && $request->is_paid == true) {
                 return ["status" => false, "reason" => "paid"];
             }

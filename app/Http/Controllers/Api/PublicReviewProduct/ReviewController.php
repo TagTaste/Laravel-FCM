@@ -540,7 +540,7 @@ class ReviewController extends Controller
         }
 
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
-        if ($currentStatus == 2 && $this->model && $request->has("is_paid")) {
+        if ($currentStatus == 2 && $this->model) {
             $responseData = $this->paidProcessing($productId, $request);
         }
 
@@ -638,7 +638,7 @@ class ReviewController extends Controller
             $createPaymentTxn = event(new TransactionInit($data));
             $paymentcount = (int)$paymentDetails->user_count;
             if ($count->count() == ++$paymentcount) {
-                PaymentDetails::where('model_id', $request->product_id)->update(['is_active' => 0]);
+                PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
             }
             if ($createPaymentTxn) {
                 return $createPaymentTxn[0];
@@ -646,7 +646,7 @@ class ReviewController extends Controller
                 Log::info("Payment Returned False" . " " . json_encode($data));
             }
         } else {
-            PaymentDetails::where('model_id', $request->product_id)->update(['is_active' => 0]);
+            PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
             if ($request->has("is_paid") && $request->is_paid == true) {
                 return ["status" => false, "reason" => "paid"];
             }
