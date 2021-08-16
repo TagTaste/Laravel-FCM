@@ -636,8 +636,8 @@ class ReviewController extends Controller
             $data = ["amount" => $amount, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "payment_id" => $paymentDetails->id];
 
             $createPaymentTxn = event(new TransactionInit($data));
-            $paymentcount = (int)$paymentDetails->user_count;
-            if ($count->count() == ++$paymentcount) {
+            $paymentcount = (int)$count->count();
+            if ((int)$paymentDetails->user_count == ++$paymentcount) {
                 PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
             }
             if ($createPaymentTxn) {
