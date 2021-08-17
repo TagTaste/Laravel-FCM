@@ -4,6 +4,7 @@ namespace App\Listeners\Notifications;
 
 use App\Events\Actions\ExpireModel as ExpireModelEvent;
 use App\Notify\Profile;
+use App\Payment\PaymentDetails;
 use Illuminate\Support\Facades\Notification;
 
 class ExpireModel
@@ -31,6 +32,7 @@ class ExpireModel
             \Log::warning(get_class($event->model) . " doesn't have profile defined. Can't send notification.");
             return;
         }
+        PaymentDetails::where('model_id', $event->model->id)->update(['is_active' => 0]);
         $profile = Profile::find($profileId);
         if(isset($profile))
         Notification::send($profile, new \App\Notifications\Actions\ExpireModel($event));

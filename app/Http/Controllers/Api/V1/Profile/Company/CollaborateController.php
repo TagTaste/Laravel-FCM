@@ -9,6 +9,7 @@ use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Events\UploadQuestionEvent;
 use App\Http\Controllers\Api\Controller;
+use App\Payment\PaymentDetails;
 use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -905,6 +906,7 @@ class CollaborateController extends Controller
         event(new \App\Events\DeleteFilters(class_basename($collaborate), $collaborate->id));
         $collaborate->update(['deleted_at' => Carbon::now()->toDateTimeString(), 'state' => Collaborate::$state[4]]);
         event(new DeleteFeedable($collaborate));
+        PaymentDetails::where("model_id",$id)->update(["is_active"=>0]);
 
         $this->model = \DB::table('collaborate_close_reason')->insert($data);
 
