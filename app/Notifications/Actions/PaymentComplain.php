@@ -22,7 +22,7 @@ class PaymentComplain extends Action
         
         $this->view = 'emails.payment-complain';
 
-        $this->sub = "Transaction Complaint regarding ".$this->data->content["transaction_id"];
+        $this->sub = "Your Complaint regarding Payments";
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
         }

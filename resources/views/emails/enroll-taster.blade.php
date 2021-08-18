@@ -1,4 +1,5 @@
 @include("emails.header.v1.definition")
+
 <body style="margin: 0; padding: 0;">
     <center>
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family:Arial" bgcolor="#F8F6F9">
@@ -6,28 +7,54 @@
             <tr>
                 <td align="center" valign="top">
                     <table class="container" width="620" align="center" border="0" cellspacing="0" cellpadding="0"
-                           border-collapse="collapse">
+                        border-collapse="collapse">
                         <tr>
                             <td align="center" width="100%" bgcolor="#F8F6F9">
                                 <table width="550" align="center" border="0" cellspacing="0" cellpadding="0"
-                                       border-collapse="collapse">
+                                    border-collapse="collapse">
                                     <tr>
-                                        <td align="center" bgcolor="#FFFFFF" style="padding:20px 0 0;border-radius: 4px 4px 0 0;width:100%!important;" width="100%">
-                                            <div style="font-size: 24px;font-weight: normal;color: #171717;padding: 0 40px 0 40px">
-                                                
+                                        <td align="center" bgcolor="#FFFFFF"
+                                            style="padding:20px 0 0;border-radius: 4px 4px 0 0;width:100%!important;"
+                                            width="100%">
+                                            <div
+                                                style="font-size: 24px;font-weight: normal;color: #171717;padding: 0 40px 0 40px">
+
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="width:100%!important;background-color:#FFFFFF!important;padding: 0px 40px 0px 40px;">
-                                            <table style="margin: 20px 0px 0px 0px;" width="100%" bgcolor="#FFFFFF" >
+                                        <td
+                                            style="width:100%!important;background-color:#FFFFFF!important;padding: 0px 40px 0px 40px;">
+                                            <table style="margin: 20px 0px 0px 0px;" width="100%" bgcolor="#FFFFFF">
                                                 <tr>
-                                                    <td align="center" valign="top" width="100%" class="templateColumnContainer" >
-                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FFFFFF" >
+                                                    <td align="center" valign="top" width="100%"
+                                                        class="templateColumnContainer">
+                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                                            bgcolor="#FFFFFF">
                                                             <tr>
-                                                                <td bgcolor="#FFFFFF" align="center">
-                                                                    <p style="font-size: 16px;color: #181818;margin:0px; line-height: 1.5;">{{$data["sub_title"]}}
+                                                                <td bgcolor="#FFFFFF" align="left">
+                                                                    <p
+                                                                        style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
+                                                                        Hi {{ $data['name'] ?? '' }},
                                                                     </p>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td bgcolor="#FFFFFF" align="left">
+                                                                    <p
+                                                                        style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
+                                                                        Your request for enrolment as an expert has been
+                                                                        successfully registered.
+                                                                    </p>
+                                                                    <br />
+                                                                    <p
+                                                                        style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
+                                                                        Our Community Management team will respond to
+                                                                        your request after carefully verifying your
+                                                                        profile.
+                                                                    </p>
+
                                                                 </td>
                                                             </tr>
 
@@ -38,26 +65,14 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td  style="width:100%!important;background-color:#FFFFFF!important;">
-                                            <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
+                                        <td style="width:100%!important;background-color:#FFFFFF!important;">
+                                            <table width="100%" align="center" border="0" cellspacing="0"
+                                                cellpadding="0" border-collapse="collapse" bgcolor="#FFFFFF">
                                                 <tr>
                                                     <td style="height:31px;background-color:#FFFFFF">
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <td style="width:100%!important;background-color:#FFFFFF!important;padding: 18px 36px;" align="center">
-                                                        <table>
 
-                                                            <tr>
-                                                                <td valign="top" align="center"  bgcolor="#FFFFFF" >
-
-                                                                </td>
-                                                            </tr>
-
-
-                                                        </table>
-                                                    </td>
-                                                </tr>
 
                                                 <tr>
                                                     <td style="height:31px;background-color:#FFFFFF">

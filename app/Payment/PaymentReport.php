@@ -16,10 +16,9 @@ class PaymentReport extends Model
 
     const UPDATED_AT = 'updated_at';
 
-    protected $with = ['profile'];
+    // protected $with = ['profile'];
     
     protected $appends = ['owner'];
 
-
-    protected $visible = ["id", "transaction_id", "profile_id", "title", "description"];
+    protected $visible = ["id", "transaction_id", "profile_id", "title", "description","complaint_id"];
 }
