@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Payment;
 
 use App\Collaborate;
 use App\Events\Actions\PaymentComplain;
+use App\Events\Actions\SensoryEnroll;
 use App\Events\Actions\TasterEnroll;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -116,30 +117,30 @@ class PaymentController extends Controller
             $title = '';
             $sub_title = '';
             $icon = '';
-            if($data->status->id == config("constant.PAYMENT_INITIATED_STATUS_ID")){
+            if ($data->status->id == config("constant.PAYMENT_INITIATED_STATUS_ID")) {
                 $title = 'Initiated';
                 $sub_title = 'Your transaction has initiated';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/initiated.png'; 
-            }else if($data->status->id == config("constant.PAYMENT_PENDING_STATUS_ID")){
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/initiated.png';
+            } else if ($data->status->id == config("constant.PAYMENT_PENDING_STATUS_ID")) {
                 $title = 'To be Redeemed';
                 $sub_title = 'Claim your earning';
                 $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/pending.png';
             } else if ($data->status->id == config("constant.PAYMENT_SUCCESS_STATUS_ID")) {
                 $title = 'Reedemed';
                 $sub_title = 'Money successfully transferred to your account';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/redeemed.png'; 
-            }else if($data->status->id == config("constant.PAYMENT_FAILURE_STATUS_ID")){
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/redeemed.png';
+            } else if ($data->status->id == config("constant.PAYMENT_FAILURE_STATUS_ID")) {
                 $title = 'Failed';
                 $sub_title = 'Your transaction has failed';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/failed.png'; 
-            }else if($data->status->id == config("constant.PAYMENT_CANCELLED_STATUS_ID")){
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/failed.png';
+            } else if ($data->status->id == config("constant.PAYMENT_CANCELLED_STATUS_ID")) {
                 $title = 'Cancelled';
                 $sub_title = 'Your transaction has cancelled';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/cancelled.png'; 
-            }else if($data->status->id == config("constant.PAYMENT_EXPIRED_STATUS_ID")){
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/cancelled.png';
+            } else if ($data->status->id == config("constant.PAYMENT_EXPIRED_STATUS_ID")) {
                 $title = 'Expired';
                 $sub_title = 'Your transaction has cancelled';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/expired.png'; 
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/expired.png';
             }
 
             $data->pop_up = [
@@ -222,8 +223,8 @@ class PaymentController extends Controller
             //     "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/cancelled.png"
             // ],
             [
-                "title" => "Failed TXN", "value" => "₹".$failure,
-                "color_code" => "#FCF1D2", "text_color" => "#171717", "border_color" => "#EFB920","value_color"=>"#171717",
+                "title" => "Failed TXN", "value" => "₹" . $failure,
+                "color_code" => "#FCF1D2", "text_color" => "#171717", "border_color" => "#EFB920", "value_color" => "#171717",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/failed.png"
             ]
         ];
@@ -243,16 +244,20 @@ class PaymentController extends Controller
 
     public function getTasterProgram(Request $request)
     {
-        $expertButton = ["title"=>"Enroll as an expert","color_code"=>"#efb920","text_color"=>"#000000",
-        "url"=>"payment/expert/enroll","method"=>"POST"];
+        $expertButton = [
+            "title" => "Enroll as an expert", "color_code" => "#efb920", "text_color" => "#000000",
+            "url" => "payment/expert/enroll", "method" => "POST"
+        ];
 
-        $sensoryButton = ["title"=>"Enroll for sensory workshop","color_code"=>"#4990e2","text_color"=>"#ffffff",
-        "url"=>"payment/sensory/enroll","method"=>"POST"];
+        $sensoryButton = [
+            "title" => "Enroll for sensory workshop", "color_code" => "#4990e2", "text_color" => "#ffffff",
+            "url" => "payment/sensory/enroll", "method" => "POST"
+        ];
 
         $headers = [
             [
                 "title" => "PROGRAM BENEFITS",
-                "list_type"=>1, //With bullet
+                "list_type" => 1, //With bullet
                 "child" => [
                     ["title" => "Earn anywhere between Rs. 100 to Rs. 20,000 in a single assignment."],
                     ["title" => "Get to taste the products before they hit the market."],
@@ -262,21 +267,25 @@ class PaymentController extends Controller
             ],
             [
                 "title" => "HOW TO FIND PAID TASTINGS?",
-                "list_type"=>2,// Without bullet
+                "list_type" => 2, // Without bullet
                 "child" => [
                     ["title" => "Regularly visit the collaboration section of our website and apps for all paid tasting assignments."]
                 ]
             ],
             [
                 "title" => "NOTE",
-                "list_type"=>1,// With bullet
+                "list_type" => 1, // With bullet
                 "child" => [
-                    ["title" => "Expert tasters: Trained food professionals such as chefs, nutritionists, food technologists, etc. are eligible for product improvement and related assignments beyond product reviews. Click on the following button to initiate the process of registering yourself as an expert.",
-                    "button_assets"=>$expertButton],
-                    ["title" => "Sensory workshop: We conduct online and offline workshops for our community members from time to time. We've trained over 7000 tasters from 91 cities across India. Sensory workshop is mandatory for anyone (including experts) who wishes to become a paid taster. Click on the following button to register for upcoming workshops.",
-                    "button_assets"=>$sensoryButton],
-                    ["title"=>"Review 3 products: Click on the 'Review' link in the header (website) or the 'Star' icon in the bottom bar (Android/ iOS apps) to go to the list of all products available on TagTaste. Review any 3 products from this list."],
-                    ["title"=>"Read TagTaste terms & conditions for complete details."]
+                    [
+                        "title" => "Expert tasters: Trained food professionals such as chefs, nutritionists, food technologists, etc. are eligible for product improvement and related assignments beyond product reviews. Click on the following button to initiate the process of registering yourself as an expert.",
+                        "button_assets" => $expertButton
+                    ],
+                    [
+                        "title" => "Sensory workshop: We conduct online and offline workshops for our community members from time to time. We've trained over 7000 tasters from 91 cities across India. Sensory workshop is mandatory for anyone (including experts) who wishes to become a paid taster. Click on the following button to register for upcoming workshops.",
+                        "button_assets" => $sensoryButton
+                    ],
+                    ["title" => "Review 3 products: Click on the 'Review' link in the header (website) or the 'Star' icon in the bottom bar (Android/ iOS apps) to go to the list of all products available on TagTaste. Review any 3 products from this list."],
+                    ["title" => "Read TagTaste terms & conditions for complete details."]
                 ]
             ]
         ];
@@ -351,20 +360,32 @@ class PaymentController extends Controller
             return $this->sendError("Title is mandatory.");
         }
         $description = !empty($request->description) ? $request->description : NULL;
-        
+
         $profileId = $request->user()->profile->id;
         // \Mail::send('emails.payment-complain', ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description], function($message) use($request,$txn_id)
         // {
         //     $message->to($request->user()->email, $request->user()->name)->subject('Transaction Complaint regarding '.$txn_id);
         // }    );
         $links = PaymentLinks::where("transaction_id", $txn_id)->first();
-        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description]));
 
-        PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description]);
+
+        $getOldComplaintId = PaymentReport::where("complaint_id", "LIKE", '%' . date('dmy') . "%")->orderBy("id", "desc")->select("complaint_id")->first();
+
+        $number = 0;
+        if (!empty($getOldComplaintId) && isset($getOldComplaintId->complaint_id)) {
+            $explode = explode("_", $getOldComplaintId->complaint_id);
+
+            $number = (int)array_pop($explode);
+        }
+
+        $buildComplaintId = date('dmy') . "_" . ++$number;
+
+        PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]);
+        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]));
         $this->model = true;
         return $this->sendResponse();
     }
-    
+
     public function enrollSensoryProgram(Request $request)
     {
         //Send email to payment@tagtaste.com
@@ -376,7 +397,7 @@ class PaymentController extends Controller
         //     $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
         // });
         $links = Profile::where("id", $request->user()->profile->id)->first();
-        event(new TasterEnroll($links, null, $data));
+        event(new SensoryEnroll($links, null, ["name" => $request->user()->name]));
 
         return $this->sendResponse($data);
     }
@@ -392,9 +413,9 @@ class PaymentController extends Controller
         // {
         //     $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
         // });
-        
+
         $links = Profile::where("id", $request->user()->profile->id)->first();
-        event(new TasterEnroll($links, null, $data));
+        event(new TasterEnroll($links, null, ["name" => $request->user()->name]));
 
         return $this->sendResponse($data);
     }
