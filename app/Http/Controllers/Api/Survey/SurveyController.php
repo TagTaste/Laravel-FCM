@@ -1454,7 +1454,7 @@ class SurveyController extends Controller
         $close = Surveys::where("id", "=", $survey->id);
         $survey = $close->update(["state" => config("constant.SURVEY_STATES.CLOSED")]);
         $get = $close->first();
-        PaymentDetails::where("model_id",$survey->id)->update(["is_active"=>0]);
+        PaymentDetails::where("model_id",$id)->update(["is_active"=>0]);
         $this->messages = "Survey Close Failed";
         if ($survey) {
             $this->model = \DB::table('surveys_close_reasons')->insert($data);;

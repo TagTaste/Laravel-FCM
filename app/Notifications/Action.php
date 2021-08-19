@@ -129,9 +129,19 @@ class Action extends Notification implements ShouldQueue
                 $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
             }
             $unsubscribeLink = env('APP_URL')."/settingUpdate/unsubscribe/?k=".$encrypted;
+            if(isset($this->from)){
+                return (new MailMessage())->subject($this->sub)->view(
+                    $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
+                )->from($this->from);
+            }
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
             );
+        }
+        if(isset($this->from)){
+            return (new MailMessage())->subject($this->sub)->view(
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content'])]
+            )->from($this->from);
         }
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content'])]
