@@ -20,6 +20,7 @@ use App\Traits\PaymentTransaction;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Tagtaste\Api\SendsJsonResponse;
 
 
@@ -381,7 +382,30 @@ class PaymentController extends Controller
         $buildComplaintId = date('dmy') . "_" . ++$number;
 
         PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]);
-        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]));
+        // event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]));
+
+        $link = "";
+        if ($links->model_type == "Public Review") {
+            $link = config("app.url") . "/collaborations/" . $links->model_id . "/product-review";
+        } else if ($links->model_type == "Private Review") {
+            $link = config("app.url") . "/reviews/products/" . $links->model_id;
+        } else if ($links->model_type == "Survey") {
+            $link = config("app.url") . "/surveys/" . $links->model_id;
+        }
+        $str = [
+            "Name" => $request->user()->name,
+            "Email Address" => $request->user()->email,
+            "Contact No" => $request->user()->profile->phone,
+            "Collaboration/Product Link" => $link,
+            "Ticket/Complaint ID:" => $buildComplaintId,
+            "Complaint" => $title,
+            "Complaint Description" => $description
+        ];
+        $d = ["subject" => "You’ve received a new complaint regarding " . $links->model_type . " Payments", "content" => $str];
+        Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
+            $message->to('payment@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Complain regarding Payments');
+        });
+
         $this->model = true;
         return $this->sendResponse();
     }
@@ -392,10 +416,17 @@ class PaymentController extends Controller
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
         $data = ["status" => true, "title" => "", "sub_title" => "Your enrollment has been successfull. Our team will reach out to you with further details."];
-        // \Mail::send('emails.enroll-taster', $data, function($message) use($request)
-        // {
-        //     $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
-        // });
+
+        $str = [
+            "Name" => $request->user()->name,
+            "Email Address" => $request->user()->email,
+            "Contact No" => $request->user()->profile->phone,
+            "Onboarding Date" => date("Y-m-d")
+        ];
+        $d = ["subject" => "You’ve received a new registration for Sensory Workshop", "content" => $str];
+        Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
+            $message->to('workshop@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Sensory Workshop');
+        });
         $links = Profile::where("id", $request->user()->profile->id)->first();
         event(new SensoryEnroll($links, null, ["name" => $request->user()->name]));
 
@@ -409,10 +440,19 @@ class PaymentController extends Controller
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
         $data = ["status" => true, "title" => "Success", "sub_title" => "Your enrollment has been successfull. Our team will reach out to you with further details."];
-        // \Mail::send('emails.enroll-taster', $data, function($message) use($request)
-        // {
-        //     $message->to($request->user()->email, $request->user()->name)->subject('You Have Been Enrolled');
-        // });
+        $userData = Profile::where("profiles.id", $request->user()->profile->id)->leftJoin("profile_occupations", "profile_occupations.profile_id", "=", 'profiles.id')->leftJoin("occupations", "profile_occupations.occupation_id", "=", "occupations.id")
+            ->leftJoin("profile_specializations", "profile_specializations.profile_id", "=", 'profiles.id')->leftJoin("specializations", "profile_specializations.specialization_id", "=", "specializations.id")->select(["specializations.name as specialization", "occupations.name as job"])->first();
+        $str = [
+            "Name" => $request->user()->name,
+            "Email Address" => $request->user()->email,
+            "Contact No" => $request->user()->profile->phone,
+            "Job Profile" => ($userData->job ?? "N.A"),
+            "Specialisations" => ($userData->specialization ?? "N.A")
+        ];
+        $d = ["subject" => "You’ve received a new registration for enrolment as an Expert", "content" => $str];
+        Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
+            $message->to('workshop@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
+        });
 
         $links = Profile::where("id", $request->user()->profile->id)->first();
         event(new TasterEnroll($links, null, ["name" => $request->user()->name]));
