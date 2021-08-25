@@ -382,7 +382,7 @@ class PaymentController extends Controller
         $buildComplaintId = date('dmy') . "_" . ++$number;
 
         PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]);
-        // event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]));
+        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]));
 
         $link = "";
         if ($links->model_type == "Public Review") {
