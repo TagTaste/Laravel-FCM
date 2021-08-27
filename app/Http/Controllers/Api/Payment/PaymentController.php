@@ -382,7 +382,7 @@ class PaymentController extends Controller
         $buildComplaintId = date('dmy') . "_" . ++$number;
 
         PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]);
-        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]));
+        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId,"name" => $request->user()->name]));
 
         $link = "";
         if ($links->model_type == "Public Review") {
@@ -424,9 +424,9 @@ class PaymentController extends Controller
             "Onboarding Date" => date("Y-m-d")
         ];
         $d = ["subject" => "You’ve received a new registration for Sensory Workshop", "content" => $str];
-        Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-            $message->to('workshop@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Sensory Workshop');
-        });
+        // Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
+        //     $message->to('workshop@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Sensory Workshop');
+        // });
         $links = Profile::where("id", $request->user()->profile->id)->first();
         event(new SensoryEnroll($links, null, ["name" => $request->user()->name]));
 

@@ -57,6 +57,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\InvitationAcceptForReview' => ['App\Listeners\Notifications\InvitationAcceptForReview'],
         'App\Events\Actions\InvitationRejectForReview' => ['App\Listeners\Notifications\InvitationRejectForReview'],
         'App\Events\Actions\TasterEnroll' => ['App\Listeners\Notifications\TasterEnroll'],
+        'App\Events\Actions\SensoryEnroll' => ['App\Listeners\Notifications\SensoryEnroll'],
         'App\Events\Actions\PaymentComplain' => ['App\Listeners\Notifications\PaymentComplain'],
         'App\Events\Actions\PaymentTransactionCreate' => ['App\Listeners\Notifications\PaymentTransactionCreate'],
         'App\Events\Actions\ReviewComment' => ['App\Listeners\Notifications\ReviewComment'],
