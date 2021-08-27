@@ -18,7 +18,7 @@
                                             width="100%">
                                             <div
                                                 style="font-size: 20px;font-weight: normal;color: #171717;padding: 0 40px 0 40px">
-                                                Payment Complaint
+                                                
                                             </div>
                                         </td>
                                     </tr>
@@ -31,6 +31,14 @@
                                                         class="templateColumnContainer">
                                                         <table border="0" cellpadding="0" cellspacing="0" width="100%"
                                                             bgcolor="#FFFFFF">
+                                                            <tr>
+                                                                <td bgcolor="#FFFFFF" align="left">
+                                                                    <p
+                                                                        style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
+                                                                        Hi {{ $data['name'] ?? '' }},
+                                                                    </p>
+                                                                </td>
+                                                            </tr>
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF" align="left">
                                                                     <p
