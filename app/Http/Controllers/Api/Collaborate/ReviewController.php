@@ -237,7 +237,7 @@ class ReviewController extends Controller
             } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "paid") {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Uh Oh!";
-                $responseData["subTitle"] = "You have successfully completed survey.";
+                $responseData["subTitle"] = "You have successfully completed review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort . Please contact tagtaste to help you with your reward status.";
             } else {
