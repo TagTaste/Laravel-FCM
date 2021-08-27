@@ -32,7 +32,7 @@ class TastingEnroll extends Action
 
     public function via($notifiable)
     {
-        $via = ['database',FCMPush::class,'broadcast'];
+        $via = [];
 
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
