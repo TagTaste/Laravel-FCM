@@ -1216,7 +1216,7 @@ class ProfileController extends Controller
             $data["profile"] = $prf;
         }
 
-        $data['companies'] = $this->getCompany($request);
+        // $data['companies'] = $this->getCompany($request);
         return response()->json($data);
     }
 }
