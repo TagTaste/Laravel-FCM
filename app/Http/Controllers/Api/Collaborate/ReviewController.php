@@ -62,6 +62,7 @@ class ReviewController extends Controller
             $address_id = $request->address_id != null ? $request->address_id : null;
         }
 
+
         if (!$request->has('batch_id')) {
             $this->model = ["status" => false];
             return $this->sendError("No prodcut id found");
@@ -73,13 +74,18 @@ class ReviewController extends Controller
             return $this->sendError("Wrong product assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
-        $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
-        if ($currentStatus == $latestCurrentStatus && $latestCurrentStatus == 3) {
-            $this->model = ["status" => false];
-            return $this->sendError("You have already completed this product");
+
+        // $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
+        $latestCurrentStatus = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->first();
+        if(isset($latestCurrentStatus->current_status) && $latestCurrentStatus->current_status==3){
+            return $this->sendError("You have already completed this review");    
         }
-        $this->model = Review::where('profile_id', $loggedInProfileId)->where('collaborate_id', $collaborateId)
-            ->where('batch_id', $batchId)->where('tasting_header_id', $headerId)->delete();
+        // if($currentStatus == $latestCurrentStatus && $latestCurrentStatus == 3)
+        // {
+        //     return $this->sendError("You have already completed this product");
+        // }
+        $this->model = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+            ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
 
         if (count($answers)) {
             foreach ($answers as $answer) {
