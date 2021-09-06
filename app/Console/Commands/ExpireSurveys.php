@@ -3,6 +3,7 @@ namespace App\Console\Commands;
 use App\Events\DeleteFeedable;
 use Carbon\Carbon;
 use App\CompanyUser;
+use App\Payment\PaymentDetails;
 use App\Surveys;
 use Illuminate\Console\Command;
 class ExpireSurveys extends Command
@@ -62,7 +63,7 @@ class ExpireSurveys extends Command
                     
                     // event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
                     $model->update(['state'=>config("constant.SURVEY_STATES.EXPIRED")]);
-                    
+                    PaymentDetails::where('model_id', $model->id)->update(['is_active' => 0]);
                     event(new DeleteFeedable($model));
 
                 }
