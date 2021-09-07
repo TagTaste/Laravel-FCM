@@ -62,8 +62,12 @@ class ReviewController extends Controller
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
         // $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
-        $latestCurrentStatus = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->first();
-        if(isset($latestCurrentStatus->current_status) && $latestCurrentStatus->current_status==3){
+        $latestCurrentStatus = null;
+        $getlatestCurrentStatus = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->first();
+        if(isset($getlatestCurrentStatus->current_status)){
+            $latestCurrentStatus = $getlatestCurrentStatus->current_status;
+        }
+        if($latestCurrentStatus==3){
             return $this->sendError("You have already completed this review");    
         }
         // if($currentStatus == $latestCurrentStatus && $latestCurrentStatus == 3)
