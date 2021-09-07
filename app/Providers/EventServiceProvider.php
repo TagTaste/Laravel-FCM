@@ -56,7 +56,10 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\InviteForReview' => ['App\Listeners\Notifications\InviteForReview'],
         'App\Events\Actions\InvitationAcceptForReview' => ['App\Listeners\Notifications\InvitationAcceptForReview'],
         'App\Events\Actions\InvitationRejectForReview' => ['App\Listeners\Notifications\InvitationRejectForReview'],
-
+        'App\Events\Actions\TasterEnroll' => ['App\Listeners\Notifications\TasterEnroll'],
+        'App\Events\Actions\SensoryEnroll' => ['App\Listeners\Notifications\SensoryEnroll'],
+        'App\Events\Actions\PaymentComplain' => ['App\Listeners\Notifications\PaymentComplain'],
+        'App\Events\Actions\PaymentTransactionCreate' => ['App\Listeners\Notifications\PaymentTransactionCreate'],
         'App\Events\Actions\ReviewComment' => ['App\Listeners\Notifications\ReviewComment'],
 
 
@@ -94,7 +97,8 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UpgradeIosEvent' => ['App\Listeners\UpgradeIosListener'],
         'App\Events\Chat\MessageTypeEvent'=>['App\Listeners\Chat\MessageTypeListener'],
         'App\Events\DocSubmissionEvent' =>['App\Listeners\Chat\DocSubmissionListener'],
-        'App\Events\Actions\SurveyAnswered' => ['App\Listeners\Notifications\SurveyAnswered']
+        'App\Events\Actions\SurveyAnswered' => ['App\Listeners\Notifications\SurveyAnswered'],
+        'App\Events\TransactionInit' => ['App\Listeners\TransactionInitListener'],
 
     ];
 

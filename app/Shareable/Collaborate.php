@@ -2,6 +2,7 @@
 
 namespace App\Shareable;
 
+use App\Payment\PaymentDetails;
 use App\PeopleLike;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\HashtagFactory;
@@ -65,6 +66,8 @@ class Collaborate extends Share
         $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->first();
         $meta['original_post_meta'] = $collaborate->getMetaFor($profileId);
         $meta['isReported'] =  $this->isCollaborateReported();
+        $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->collaborate_id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         return $meta;
     }
 
@@ -76,6 +79,8 @@ class Collaborate extends Share
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['isReported'] =  $this->isCollaborateReported();
+        $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->collaborate_id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         return $meta;
     }
 
@@ -89,6 +94,8 @@ class Collaborate extends Share
         $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->first();
         $meta['originalPostMeta'] = $collaborate->getMetaForV2($profileId);
         $meta['isReported'] =  $this->isCollaborateReported();
+        $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->collaborate_id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         return $meta;
     }
 

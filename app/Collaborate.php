@@ -5,6 +5,7 @@ namespace App;
 use App\Channel\Payload;
 use App\Collaborate\Applicant;
 use App\Interfaces\Feedable;
+use App\Payment\PaymentDetails;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use App\Traits\IdentifiesContentIsReported;
@@ -84,7 +85,7 @@ class Collaborate extends Model implements Feedable
                 $model->createHashtag($matches,'App\Collaborate',$model->id);
             }
         static::deleting(function($model) {
-                $model->deleteExistingHashtag('App\Shoutout',$model->id);
+                $model->deleteExistingHashtag('App\Collaborate',$model->id);
             });
         });
     }
@@ -326,6 +327,8 @@ class Collaborate extends Model implements Feedable
     {
         $meta = [];
 
+        $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         if($this->collaborate_type == 'product-review')
         {
             $key = "meta:collaborate:likes:" . $this->id;
@@ -337,7 +340,7 @@ class Collaborate extends Model implements Feedable
             $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
             $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
             $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
+            
             $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
             $meta['interestedCount'] = $this->interestedCount;
             $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
@@ -345,7 +348,7 @@ class Collaborate extends Model implements Feedable
             $meta['isReported'] =  $this->isCollaborateReported();  
             return $meta;
         }
-
+        
         $this->setInterestedAsProfiles($meta,$profileId);
 
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
@@ -358,7 +361,6 @@ class Collaborate extends Model implements Feedable
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
         $meta['interestedCount'] = (int) Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
@@ -383,7 +385,8 @@ class Collaborate extends Model implements Feedable
     public function getMetaForV2(int $profileId) : array
     {
         $meta = [];
-
+        $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         if ($this->collaborate_type == 'product-review') {
             $key = "meta:collaborate:likes:" . $this->id;
             $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
@@ -411,7 +414,7 @@ class Collaborate extends Model implements Feedable
         $meta['isReported'] =  $this->isCollaborateReported();
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
                 ->first();
-        $meta['is_address_uploaded'] = ($applicants!= null && $applicants->applier_address) != null ? 1 : 0;   
+        $meta['is_address_uploaded'] = ($applicants!= null && $applicants->applier_address) != null ? 1 : 0;  
         if($this->is_contest) {
             $applicant = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id);
             if($applicant->exists()){
@@ -755,7 +758,8 @@ class Collaborate extends Model implements Feedable
         if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$data->title,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
-        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$data->description,$matches)) {
+        $descp = strip_tags($data->description);
+        if(preg_match_all('/\s#[A-Za-z0-9_]{1,50}/i',' '.$descp,$matches)) {
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
