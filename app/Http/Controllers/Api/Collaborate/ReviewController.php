@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Collaborate;
 
+use App\Collaborate;
 use App\Collaborate\Review;
 use App\Collaborate\ReviewHeader;
 use App\Events\TransactionInit;
@@ -40,12 +41,14 @@ class ReviewController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $batchId = $request->input('batch_id');
 
-        if (
-            !$request->has('address_id') &&
-            \App\Collaborate\Addresses::where('collaborate_id', $collaborateId)->Where('outlet_id', !null)->exists()
-        ) {
-            $this->model = ["status" => false];
-            return $this->sendError('Please send the respective outlet (address id) as query parameter');
+        $stateCheck = Collaborate::where("id",$collaborateId)->where('state',Collaborate::$state[0])->first();
+
+        if(empty($stateCheck)){
+            return $this->sendError('Only active collaborations can be reviewed');    
+        }
+        if(!$request->has('address_id') && 
+        \App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->Where('outlet_id', !null)->exists()){
+        return $this->sendError('Please send the respective outlet (address id) as query parameter');
         }
 
         // if(!$request->has('address_id') && 
