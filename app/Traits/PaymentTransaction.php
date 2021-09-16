@@ -13,17 +13,20 @@ trait PaymentTransaction
         $link = '/pls/api/v1/payout-link/create';
         if (isset($data["transaction_id"]) && isset($data["phone"]) && isset($data["email"]) && isset($data["amount"]) && isset($data["title"])) {
             $pay = [];
-            $pay["subwalletGuid"] = config("payment.PAYTM_GUID");
+            
             $pay["orderId"] = $data["transaction_id"];
             $pay["amount"] = $data["amount"];
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
             $pay["notifyMode"] = ["SMS", "EMAIL"];
             if($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review"){
+                $pay["subwalletGuid"] = config("payment.PAYTM_GUID_TASTING");
                 $pay["comments"] = "Remuneration for reviewing a product on TagTaste.";
             }else if($data["model_type"] == "Survey"){
+                $pay["subwalletGuid"] = config("payment.PAYTM_GUID_SURVEY");
                 $pay["comments"] = "Remuneration for taking a survey on TagTaste.";
             }else{
+                $pay["subwalletGuid"] = config("payment.PAYTM_GUID_TASTING");
                 $pay["comments"] = "Payment from Tagtaste.";
             }
             $pay["callbackUrl"] = config("payment.PAYTM_CALLBACK_URL");
