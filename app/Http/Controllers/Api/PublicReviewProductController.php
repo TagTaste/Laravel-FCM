@@ -707,4 +707,20 @@ class PublicReviewProductController extends Controller
                     return null;
                 }
     }
+    
+    public function productMandatoryFields(Request $request, $productId)
+    {
+        $paidProduct = $paymentOnBacth = \DB::table('payment_details')
+                        ->where('model_id',$productId)
+                        ->where('is_active',1)
+                        ->first();
+        
+        $fields = ["verified_email","verified_phone"];
+        $data['mandatory_fields'] = $fields;
+        $data['remaining_mandatory_fields'] = [];
+        if(isset($paidProduct)){
+            $data['remaining_mandatory_fields'] = $request->user()->profile->getProfileCompletionAttribute($fields);    
+        }
+        return $this->sendResponse($data);
+    }
 }
