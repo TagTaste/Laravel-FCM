@@ -49,6 +49,9 @@ class TransactionInitListener
             $number = (int)array_pop($explode);
         }
 
+        if(config("app.env")!="production"){
+            $initials .= "_DEV";
+        }
         $buildTxnId = $initials . "_" . ++$number;
 
         $data = PaymentLinks::create(["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->data->model_type, "model_id" => $event->data->model_id, "sub_model_id" => $event->data->sub_model_id ?? NULL, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID"), "payment_id" => $event->data->payment_id]);
