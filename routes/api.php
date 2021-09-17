@@ -537,6 +537,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
 
         Route::post('products/suggestion','PublicReviewProductController@productSuggestion');
         Route::get('public-review/products/filters','PublicReviewProductController@getFilters');
+        Route::get('public-review/products/{productId}/mandatoryFields', 'PublicReviewProductController@productMandatoryFields');
         Route::get('public-review/products/{productId}/get-sample','PublicReviewProductController@getSample');
         Route::get('public-review/similarProducts/{productId}', 'PublicReviewProductController@similarProducts');
 
