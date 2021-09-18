@@ -1512,7 +1512,7 @@ class BatchController extends Controller
         }
                
 
-        if($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
+        if($isFilterAble && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter)
             {
@@ -1520,10 +1520,7 @@ class BatchController extends Controller
                 $filterNotProfileIds[] = (int)$filter;
             }
             $profileIds = $profileIds->diff($filterNotProfileIds);
-        }
-
-        if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
-        {
+        }else if(isset($filters['exclude_profile_id'])){
             $isFilterAble = false;
             $excludeAble = false;
             $filterNotProfileIds = [];
@@ -1535,7 +1532,7 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->merge($filterNotProfileIds);
         }
-
+        
         if($isFilterAble)
             return ['profile_id'=>$profileIds,'type'=>false]; //data for these profile ids only 
         else
