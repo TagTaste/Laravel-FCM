@@ -1294,16 +1294,6 @@ class BatchController extends Controller
     {
         $profileIds = new Collection([]);
         $isFilterAble = false;
-        if($profileIds->count() == 0 && isset($filters['include_profile_id']))
-        {
-            $filterProfile = [];
-            foreach ($filters['include_profile_id'] as $filter)
-            {
-                //$isFilterAble = true;
-                $filterProfile[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterProfile);
-        }
         // else if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
         // {
         //     $isFilterAble = false;
@@ -1467,8 +1457,8 @@ class BatchController extends Controller
                 $cityFilterIds = $cityFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($cityFilterIds);
-
+            // $profileIds = $profileIds->merge($cityFilterIds);
+            $profileIds = $cityFilterIds;
         }
         if(isset($filters['age']))
         {
@@ -1485,7 +1475,8 @@ class BatchController extends Controller
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($ageFilterIds);
+            // $profileIds = $profileIds->merge($ageFilterIds);
+            $profileIds = $ageFilterIds;
 
         }
         if(isset($filters['gender']))
@@ -1503,8 +1494,24 @@ class BatchController extends Controller
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($genderFilterIds);
+            // $profileIds = $profileIds->merge($genderFilterIds);
+            $profileIds = $genderFilterIds;
         }
+        //if no filter applied - include will work as include only
+        //if filter applied - include will add profile to filtered profiles
+
+        if(isset($filters['include_profile_id']))
+        {
+            $filterProfile = [];
+            foreach ($filters['include_profile_id'] as $filter)
+            {
+                $isFilterAble = true;
+                $filterProfile[] = (int)$filter;
+            }
+            $profileIds = $profileIds->merge($filterProfile);
+        }
+               
+
         if($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter)
@@ -1514,6 +1521,7 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->diff($filterNotProfileIds);
         }
+
         if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
         {
             $isFilterAble = false;
@@ -1527,10 +1535,11 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->merge($filterNotProfileIds);
         }
+
         if($isFilterAble)
-            return ['profile_id'=>$profileIds,'type'=>false];
+            return ['profile_id'=>$profileIds,'type'=>false]; //data for these profile ids only 
         else
-            return ['profile_id'=>$profileIds,'type'=>true];
+            return ['profile_id'=>$profileIds,'type'=>true]; //these profile ids will be excluded from total completed reviews
     }
 
     public function reportPdf(Request $request, $collaborateId,$batchId)
