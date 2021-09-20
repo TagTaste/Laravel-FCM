@@ -588,25 +588,8 @@ class SurveyController extends Controller
         if ($paymnetExist != null || $requestPaid) {
 
             $responseData["is_paid"] = true;
-            if ($request->user()->profile->is_paid_taster) {
-                //check for count and amount (payment details)
-                $profile = true;
-                $flag["status"] = false;
-            } else {
-                $flag["status"] = false;
-                //check for global user rules and update euser
-                $getPrivateReview = Review::where("profile_id", $request->user()->profile->id)->groupBy("collaborate_id", "batch_id")->where("current_status", 3)->get();
-                $getPublicCount = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
 
-                $profile = false;
-
-                if ($request->user()->profile->is_sensory_trained && (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
-                    Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
-                    $profile = true;
-                }
-            }
-
-            if ($profile && $paymnetExist != null) {
+            if ($paymnetExist != null) {
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }
 
@@ -616,14 +599,7 @@ class SurveyController extends Controller
             //phone not updated
             //paid taster - No Rewarded
 
-            $responseData['is_paid_taster'] = $profile;
-            if (!$profile) {
-                $responseData["get_paid"] = false;
-                // $responseData["title"] = "Uh Oh!";
-                // $responseData["subTitle"] = "You have successfully completed survey.";
-                // $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
-                $responseData["helper"] = "You can earn money for such review by enrolling yourself for paid taster program.";
-            } else if ($flag["status"] == true) {
+            if ($flag["status"] == true) {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
