@@ -1709,9 +1709,11 @@ class BatchController extends Controller
                     }
                     else
                     {
-                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
-                            ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                            ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','option_type')->get();
+                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','collaborate_tasting_user_review.value',\DB::raw('count(*) as total'),'collaborate_tasting_user_review.option_type')->selectRaw("GROUP_CONCAT(collaborate_tasting_user_review.intensity) as intensity,collaborate_tasting_nested_options.is_intensity as is_intensity")
+                        ->leftJoin("collaborate_tasting_nested_options","leaf_id","=","collaborate_tasting_nested_options.id")
+                        ->where('current_status',3)
+                            ->where('collaborate_tasting_user_review.collaborate_id',$collaborateId)->where('collaborate_tasting_user_review.batch_id',$batchId)->where('collaborate_tasting_user_review.question_id',$data->id)
+                            ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('collaborate_tasting_user_review.question_id','ASC')->orderBy('total','DESC')->groupBy('collaborate_tasting_user_review.question_id','collaborate_tasting_user_review.value','leaf_id','collaborate_tasting_user_review.option_type')->get();
 
                         $options = isset($data->questions->option) ? $data->questions->option : [];
                         foreach ($answers as &$answer)
@@ -1766,7 +1768,8 @@ class BatchController extends Controller
                                     }
                                 }
                                 $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
-                                $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
+                                $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                                        $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
                                 $answer->intensity_value = $data->questions->intensity_value;
                                 $answer->intensity_type = $data->questions->intensity_type;
                             }
