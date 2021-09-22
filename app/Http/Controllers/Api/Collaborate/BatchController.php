@@ -162,15 +162,12 @@ class BatchController extends Controller
         $filters = $request->input('filters');
         $resp = $this->getFilterProfileIds($filters,$collaborateId,$id);
         $profileIds = $resp['profile_id'];
-        $this->model = [];
-
-            
         $type = $resp['type'];
         $boolean = 'and' ;
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('created_at','desc')->get()->pluck('profile_id');
         $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->orderBy('created_at','desc')->get();
         $profiles = $profiles->toArray();
-        
+        $this->model = [];
         foreach ($profiles as &$profile)
         {
             if(Collaborate::where('id',$collaborateId)->first()->track_consistency) {
@@ -196,7 +193,6 @@ class BatchController extends Controller
             $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
-    
         $this->model['applicants'] = $profiles;
         $this->model['batch'] = Collaborate\Batches::where('id',$id)->first();
         return $this->sendResponse();
@@ -1298,17 +1294,6 @@ class BatchController extends Controller
     {
         $profileIds = new Collection([]);
         $isFilterAble = false;
-        if($profileIds->count() == 0 && isset($filters['include_profile_id']))
-        {
-            $filterProfile = [];
-            foreach ($filters['include_profile_id'] as $filter)
-            {
-                //$isFilterAble = true;
-                $filterProfile[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterProfile);
-        }
-<<<<<<< Updated upstream
         // else if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
         // {
         //     $isFilterAble = false;
@@ -1421,9 +1406,6 @@ class BatchController extends Controller
 
         //     return ['profile_id'=>$profileIds,'type'=>false];
         // }
-=======
-      
->>>>>>> Stashed changes
         if(isset($filters['current_status']) && !is_null($batchId))
         {
             $currentStatusIds = new Collection([]);
@@ -1461,31 +1443,25 @@ class BatchController extends Controller
             $isFilterAble = true;
             $profileIds = $profileIds->merge($currentStatusIds);
         }
+        if(isset($filters['city']))
+        {
+            $cityFilterIds = new Collection([]);
+            foreach ($filters['city'] as $city)
+            {
+                if($isFilterAble)
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
 
-<<<<<<< Updated upstream
                 $cityFilterIds = $cityFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($cityFilterIds);
-
-=======
-
-        if(isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])){
-            $Ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId);
->>>>>>> Stashed changes
+            // $profileIds = $profileIds->merge($cityFilterIds);
+            $profileIds = $cityFilterIds;
         }
-
-        if(isset($filters['city'])){
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach ($filters['city'] as $city){
-                    $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
-                }
-            });
-        }
-
         if(isset($filters['age']))
         {
-<<<<<<< Updated upstream
             $ageFilterIds = new Collection([]);
             foreach ($filters['age'] as $age)
             {
@@ -1499,30 +1475,14 @@ class BatchController extends Controller
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($ageFilterIds);
+            // $profileIds = $profileIds->merge($ageFilterIds);
+            $profileIds = $ageFilterIds;
 
-=======
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach ($filters['age'] as $age)
-                {                    
-                    $age = htmlspecialchars_decode($age);
-                        $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);                    
-                }
-            });
->>>>>>> Stashed changes
         }
-
         if(isset($filters['gender']))
         {
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach ($filters['gender'] as $gender)
-                {
-                    $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
-                }
-            });
-        }
+            $genderFilterIds = new Collection([]);
 
-<<<<<<< Updated upstream
             foreach ($filters['gender'] as $gender)
             {
                 if($isFilterAble)
@@ -1534,21 +1494,25 @@ class BatchController extends Controller
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($genderFilterIds);
+            // $profileIds = $profileIds->merge($genderFilterIds);
+            $profileIds = $genderFilterIds;
         }
-=======
-        if($profileIds->count() > 0 && isset($Ids)){
-            $Ids = $Ids->whereIn('collaborate_applicants.profile_id',$profileIds);
-        }
+        //if no filter applied - include will work as include only
+        //if filter applied - include will add profile to filtered profiles
 
-        if(isset($Ids)){
-            $isFilterAble = true;
-            $Ids = $Ids->get()->pluck('profile_id');
-            $profileIds = $profileIds->merge($Ids);
+        if(isset($filters['include_profile_id']))
+        {
+            $filterProfile = [];
+            foreach ($filters['include_profile_id'] as $filter)
+            {
+                $isFilterAble = true;
+                $filterProfile[] = (int)$filter;
+            }
+            $profileIds = $profileIds->merge($filterProfile);
         }
+               
 
->>>>>>> Stashed changes
-        if($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
+        if($isFilterAble && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter)
             {
@@ -1556,9 +1520,7 @@ class BatchController extends Controller
                 $filterNotProfileIds[] = (int)$filter;
             }
             $profileIds = $profileIds->diff($filterNotProfileIds);
-        }
-        if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
-        {
+        }else if(isset($filters['exclude_profile_id'])){
             $isFilterAble = false;
             $excludeAble = false;
             $filterNotProfileIds = [];
@@ -1570,10 +1532,11 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->merge($filterNotProfileIds);
         }
+        
         if($isFilterAble)
-            return ['profile_id'=>$profileIds,'type'=>false];
+            return ['profile_id'=>$profileIds,'type'=>false]; //data for these profile ids only 
         else
-            return ['profile_id'=>$profileIds,'type'=>true];
+            return ['profile_id'=>$profileIds,'type'=>true]; //these profile ids will be excluded from total completed reviews
     }
 
     public function reportPdf(Request $request, $collaborateId,$batchId)
@@ -1659,7 +1622,7 @@ class BatchController extends Controller
                     $reports['subtitle'] = $data->subtitle;
                     $reports['is_nested_question'] = $data->is_nested_question;
                     $reports['question'] = $data->questions ;
-                    if(isset($data->questions->is_nested_question) &&$data->questions->is_nested_question == 1)
+                    if(isset($data->questions->is_nested_question) && $data->questions->is_nested_question == 1)
                     {
                         $subAnswers = [];
                         foreach ($data->questions->questions as $item)
@@ -1745,7 +1708,7 @@ class BatchController extends Controller
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status',3)->where('tasting_header_id',$headerId)->skip(0)->take(3)->get();
                     }
                     else
-                    {   
+                    {
                         $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','collaborate_tasting_user_review.value',\DB::raw('count(*) as total'),'collaborate_tasting_user_review.option_type')->selectRaw("GROUP_CONCAT(collaborate_tasting_user_review.intensity) as intensity,collaborate_tasting_nested_options.is_intensity as is_intensity")
                         ->leftJoin("collaborate_tasting_nested_options","leaf_id","=","collaborate_tasting_nested_options.id")
                         ->where('current_status',3)
@@ -1761,7 +1724,7 @@ class BatchController extends Controller
                             if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                             {
                                 if($data->questions->intensity_type == 2)
-                                {                                    
+                                {
                                     $answerIntensity = $answer->intensity;
                                     $answerIntensity = explode(",",$answerIntensity);
                                     $questionIntensity = $data->questions->intensity_value;
@@ -1805,7 +1768,8 @@ class BatchController extends Controller
                                     }
                                 }
                                 $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
-                                $answer->is_intensity = (isset($answer->is_intensity) ? $answer->is_intensity : (isset($data->questions->is_intensity) ? $data->questions->is_intensity : null));
+                                $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                                $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
                                 $answer->intensity_value = $data->questions->intensity_value;
                                 $answer->intensity_type = $data->questions->intensity_type;
                             }
@@ -1921,18 +1885,27 @@ class BatchController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
 
+        // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        // {
+        //     $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+        //     if(!$checkUser){
+        //         return $this->sendError("Invalid Collaboration Project.");
+        //     }
+        // }
+        // else if($collaborate->profile_id != $profileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
+
         $filters = $request->input('filters');
         $resp = $this->getFilterProfileIds($filters,$collaborateId);
-        
         $profileIds = $resp['profile_id'];
-        
         $type = $resp['type'];
         $boolean = 'and' ;
         $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
         $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))->where('current_status',3)
             ->where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereIn('question_id',$questionIds)
             ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
-// dd($overAllPreferences);
+
         $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->orderBy('id')->get();
 
         $model = [];
