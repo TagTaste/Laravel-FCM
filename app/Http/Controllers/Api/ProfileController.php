@@ -846,7 +846,7 @@ class ProfileController extends Controller
                                     ->where('id','<>',$request->user()->profile->id)
                                     ->first();
             if(isset($existForOther)){
-                return $this->sendError(["This number is already verified. Please try with another number or contact tagtate for any query."]);
+                return $this->sendError(["This number is already verified. Please try with another number or contact tagtaste for any query."]);
             }else if (($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0) {
                 $profile->update(['verified_phone' => 0]);
                 $number = $data['profile']['phone'];

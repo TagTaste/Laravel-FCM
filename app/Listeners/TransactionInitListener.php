@@ -41,7 +41,7 @@ class TransactionInitListener
         }
 
         $getOldTxnId = PaymentLinks::where("transaction_id", "LIKE", '%' . $initials . "%")->orderBy("id", "desc")->first();
-
+        
         $number = 0;
         if (!empty($getOldTxnId) && isset($getOldTxnId->transaction_id)) {
             $explode = explode("_", $getOldTxnId->transaction_id);
@@ -50,7 +50,7 @@ class TransactionInitListener
         }
 
         if(config("app.env")!="production"){
-            $initials .= "_DEV";
+            $initials .= "_TEST";
         }
         $buildTxnId = $initials . "_" . ++$number;
 

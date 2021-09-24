@@ -589,6 +589,10 @@ class SurveyController extends Controller
 
             $responseData["is_paid"] = true;
 
+            if($requestPaid){
+                $flag = ["status"=>false,"reason"=>"paid"];
+            }
+            
             if ($paymnetExist != null) {
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }
@@ -612,7 +616,7 @@ class SurveyController extends Controller
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort , But unfortunately you don't have your phone number updated. Please updated phone number and contact tagtaste to redeem it.";
             } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "paid") {
-                $responseData["get_paid"] = true;
+                $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
                 $responseData["subTitle"] = "You have successfully completed survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
@@ -631,20 +635,20 @@ class SurveyController extends Controller
         return $responseData;
     }
 
-
+    
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
-            if ($request->user()->profile->is_tasting_expert) {
+            if ($request->user()->profile->is_expert) {
                 $key = "expert";
             } else {
                 $key = "consumer";
             }
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
-
+            
             $createPaymentTxn = event(new TransactionInit($data));
             $paymentcount = (int)$count->count();
             if ((int)$paymentDetails->user_count == ++$paymentcount) {

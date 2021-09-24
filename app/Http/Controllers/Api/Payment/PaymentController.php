@@ -127,7 +127,7 @@ class PaymentController extends Controller
                 $sub_title = 'Claim your earning';
                 $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/pending.png';
             } else if ($data->status->id == config("constant.PAYMENT_SUCCESS_STATUS_ID")) {
-                $title = 'Reedemed';
+                $title = 'Redeemed';
                 $sub_title = 'Money successfully transferred to your account';
                 $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/redeemed.png';
             } else if ($data->status->id == config("constant.PAYMENT_FAILURE_STATUS_ID")) {
@@ -179,7 +179,7 @@ class PaymentController extends Controller
     public function paymentOverview(Request $request)
     {
         //total - All - cancelled
-        //to be reedemed = total - (cancelled + success)
+        //to be redeemed = total - (cancelled + success)
         $totalEarning = PaymentLinks::where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
         $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
         $pending = PaymentLinks::where("status_id", config("constant.PAYMENT_PENDING_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->first();
@@ -204,12 +204,12 @@ class PaymentController extends Controller
                 "icon" => "", "is_main" => true
             ],
             [
-                "title" => "Earning Reedemed", "value" => "₹" . $redeemed,
+                "title" => "Earning Redeemed", "value" => "₹" . $redeemed,
                 "color_code" => "#E5F5EC", "text_color" => "#171717", "border_color" => "#CCECDA", "value_color" => "#00A146",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/redeemed.png"
             ],
             [
-                "title" => "To be reedemed", "value" => "₹" . $toBeRedeemed,
+                "title" => "To be Redeemed", "value" => "₹" . $toBeRedeemed,
                 "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0", "value_color" => "#F47816",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
             ],
