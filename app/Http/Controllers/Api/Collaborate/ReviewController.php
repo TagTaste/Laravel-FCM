@@ -235,7 +235,7 @@ class ReviewController extends Controller
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort , But unfortunately you don't have your phone number updated. Please updated phone number and contact tagtaste to redeem it.";
             } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "paid") {
-                $responseData["get_paid"] = true;
+                $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
                 $responseData["subTitle"] = "You have successfully completed review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
