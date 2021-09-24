@@ -631,13 +631,13 @@ class SurveyController extends Controller
         return $responseData;
     }
 
-
+    
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
-            if ($request->user()->profile->is_tasting_expert) {
+            if ($request->user()->profile->is_expert) {
                 $key = "expert";
             } else {
                 $key = "consumer";

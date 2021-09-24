@@ -204,7 +204,7 @@ class ReviewController extends Controller
                 $getPublicCount = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
 
                 $profile = false;
-
+                
                 if ($request->user()->profile->is_sensory_trained && (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
                     Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
                     $profile = true;
@@ -259,7 +259,7 @@ class ReviewController extends Controller
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
-            if ($request->user()->profile->is_tasting_expert) {
+            if ($request->user()->profile->is_expert) {
                 $key = "expert";
             } else {
                 $key = "consumer";

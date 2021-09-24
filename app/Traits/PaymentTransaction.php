@@ -37,7 +37,7 @@ trait PaymentTransaction
 
             $x_mid      = config("payment.PAYTM_MID");
             $x_checksum = $checksum;
-
+            
             /* for Staging */
             $url = config("payment.PAYTM_ENDPOINT") . $link;
             $ch = curl_init($url);
