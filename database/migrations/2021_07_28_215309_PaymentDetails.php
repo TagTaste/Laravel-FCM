@@ -20,6 +20,7 @@ class PaymentDetails extends Migration
             $table->string("model_type");
             $table->integer("user_count");
             $table->json("amount_json");
+            $table->char('comment',50)->nullable();
             $table->boolean("is_active")->default(1);
             $table->unsignedInteger("created_by");
             $table->unsignedInteger("updated_by")->nullable();
