@@ -589,6 +589,10 @@ class SurveyController extends Controller
 
             $responseData["is_paid"] = true;
 
+            if($requestPaid){
+                $flag = ["status"=>false,"reason"=>"paid"];
+            }
+            
             if ($paymnetExist != null) {
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }

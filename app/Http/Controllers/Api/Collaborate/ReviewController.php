@@ -185,6 +185,9 @@ class ReviewController extends Controller
         if (!empty($paymnetExist) || $requestPaid) {
             $responseData["status"] = true;
             $responseData["is_paid"] = true;
+            if($requestPaid){
+                $flag = ["status"=>false,"reason"=>"paid"];
+            }
             //check for paid user
             // if (empty($request->user()->profile->phone)) {
             //     $responseData["title"] = "Uh Oh!";
