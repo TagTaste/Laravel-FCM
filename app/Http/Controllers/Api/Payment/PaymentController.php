@@ -75,18 +75,6 @@ class PaymentController extends Controller
 
 
         foreach ($details as $value) {
-            if ($value->model == "Survey") {
-                
-                $deeplink = Deeplink::getShortLink('Surveys', $value->model_id);
-            } else if ($value->model == "Private Review") {
-                
-                $deeplink = Deeplink::getShortLink('collaborate', $value->model_id);
-            } else if ($value->model == "Public Review") {
-                
-                $deeplink = Deeplink::getShortLink('product', $value->model_id);
-            }
-            
-            $value->deeplink = $deeplink;
             $js = json_decode($value->status);
             $value->status = $js;
         }
@@ -115,14 +103,18 @@ class PaymentController extends Controller
             if ($v->model == "Survey") {
                 $getTitile = Surveys::where("id", $v->model_id)->select("title")->first();
                 $title = (isset($getTitile->title) ? $getTitile->title : "");
+                $deeplink = Deeplink::getShortLink('Surveys', $v->model_id);
             } else if ($v->model == "Private Review") {
                 $getTitile = Collaborate::where("id", $v->model_id)->select("title")->first();
                 $title = (isset($getTitile->title) ? $getTitile->title : "");
+                $deeplink = Deeplink::getShortLink('collaborate', $v->model_id);
             } else if ($v->model == "Public Review") {
                 $getTitile = PublicReviewProduct::where("id", $v->model_id)->select("name")->first();
                 $title = (isset($getTitile->name) ? $getTitile->name : "");
+                $deeplink = Deeplink::getShortLink('product', $v->model_id);
             }
             $data->title = $title;
+            $v->deeplink = $deeplink;
             $js = json_decode($v->status);
             $v->status = $js;
         }
