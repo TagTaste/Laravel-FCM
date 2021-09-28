@@ -283,6 +283,10 @@ class ReviewController extends Controller
             $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             $data = ["amount" => $amount, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id, "payment_id" => $paymentDetails->id];
 
+            if(isset($paymentDetails->comment) && !empty($paymentDetails->comment)){
+                $data["comment"] = $paymentDetails->comment;
+            }
+            
             $createPaymentTxn = event(new TransactionInit($data));
             $paymentcount = (int)$count->count();
             if ((int)$paymentDetails->user_count == ++$paymentcount) {
