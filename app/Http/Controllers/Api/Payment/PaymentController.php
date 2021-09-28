@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Payment;
 
 use App\Collaborate;
+use App\Deeplink;
 use App\Events\Actions\PaymentComplain;
 use App\Events\Actions\SensoryEnroll;
 use App\Events\Actions\TasterEnroll;
@@ -65,7 +66,7 @@ class PaymentController extends Controller
         $this->model['count'] = $getData->count();
 
         $getData->join("payment_status", "payment_status.id", "=", "payment_links.status_id");
-        $details = $getData->skip($skip)->take($take)->select(DB::raw("payment_links.id,transaction_id,model_type as model,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
+        $details = $getData->skip($skip)->take($take)->select(DB::raw("payment_links.id,payment_links.model_id,transaction_id,model_type as model,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
         (
           'id', payment_status.id, 
           'value', payment_status.value,
@@ -74,6 +75,18 @@ class PaymentController extends Controller
 
 
         foreach ($details as $value) {
+            if ($value->model == "Survey") {
+                
+                $deeplink = Deeplink::getShortLink('Surveys', $value->model_id);
+            } else if ($value->model == "Private Review") {
+                
+                $deeplink = Deeplink::getShortLink('collaborate', $value->model_id);
+            } else if ($value->model == "Public Review") {
+                
+                $deeplink = Deeplink::getShortLink('product', $value->model_id);
+            }
+            
+            $value->deeplink = $deeplink;
             $js = json_decode($value->status);
             $value->status = $js;
         }

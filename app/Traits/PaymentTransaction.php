@@ -21,13 +21,13 @@ trait PaymentTransaction
             $pay["notifyMode"] = ["SMS", "EMAIL"];
             if($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review"){
                 $pay["subwalletGuid"] = config("payment.PAYTM_GUID_TASTING");
-                $pay["comments"] = "Remuneration for reviewing a product on TagTaste.";
+                $pay["comments"] = $data["comment"] ?? "Remuneration for reviewing a product on TagTaste.";
             }else if($data["model_type"] == "Survey"){
                 $pay["subwalletGuid"] = config("payment.PAYTM_GUID_SURVEY");
-                $pay["comments"] = "Remuneration for taking a survey on TagTaste.";
+                $pay["comments"] = $data["comment"] ?? "Remuneration for taking a survey on TagTaste.";
             }else{
                 $pay["subwalletGuid"] = config("payment.PAYTM_GUID_TASTING");
-                $pay["comments"] = "Payment from Tagtaste.";
+                $pay["comments"] = $data["comment"] ?? "Payment from Tagtaste.";
             }
             $pay["callbackUrl"] = config("payment.PAYTM_CALLBACK_URL");
 
