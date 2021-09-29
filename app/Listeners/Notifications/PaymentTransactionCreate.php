@@ -26,6 +26,7 @@ class PaymentTransactionCreate
      */
     public function handle(payment $event)
     {
+        
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
 
