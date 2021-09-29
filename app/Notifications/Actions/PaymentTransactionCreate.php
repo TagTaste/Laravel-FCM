@@ -20,7 +20,7 @@ class PaymentTransactionCreate extends Action
     {
         parent::__construct($event);
         
-        $this->view = null;
+        $this->view = 'emails.payment-create';
         
         $this->sub = "Your payout link is generated";
         if(!is_null($this->data->content)) {
@@ -32,7 +32,7 @@ class PaymentTransactionCreate extends Action
 
     public function via($notifiable)
     {
-        $via = ['database',FCMPush::class,'broadcast'];
+        $via = ['database','broadcast'];
 
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';

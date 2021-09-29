@@ -456,7 +456,6 @@ class SurveyController extends Controller
 
     public function saveAnswers(Request $request)
     {
-
         try {
             $validator = Validator::make($request->all(), [
                 'survey_id' => 'required|exists:surveys,id',
@@ -652,7 +651,7 @@ class SurveyController extends Controller
             if(isset($paymentDetails->comment) && !empty($paymentDetails->comment)){
                 $data["comment"] = $paymentDetails->comment;
             }
-            
+
             $createPaymentTxn = event(new TransactionInit($data));
             $paymentcount = (int)$count->count();
             if ((int)$paymentDetails->user_count == ++$paymentcount) {

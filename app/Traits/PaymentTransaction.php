@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Events\Actions\PaymentTransactionCreate;
 use App\Payment\PaymentLinks;
 use Illuminate\Http\Request;
 use paytm\paytmchecksum\PaytmChecksum;
@@ -55,6 +56,8 @@ trait PaymentTransaction
 
                 if ($resp["status"] == "SUCCESS") {
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp), "status_id" => config("constant.PAYMENT_PENDING_STATUS_ID")];
+                    
+                    event(new PaymentTransactionCreate($data["model"],null,["title"=>"Payment Link Generated","name"=>$data["name"]]));
                     return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($dataToUpdate);
                 } else {
                     PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]);
