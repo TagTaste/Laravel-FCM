@@ -235,33 +235,33 @@ class ReviewController extends Controller
             if (!$profile) {
                 $responseData["get_paid"] = false;
                 // $responseData["title"] = "Uh Oh!";
-                // $responseData["subTitle"] = "You have successfully completed review.";
+                // $responseData["subTitle"] = "You have successfully completed the review.";
                 // $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
-                $responseData["helper"] = "You can earn money for such review by enrolling yourself for paid taster program.";
+                $responseData["helper"] = "You can earn money for such review by enrolling yourself in paid taster program.";
             } else if ($flag["status"] == true) {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
-                $responseData["subTitle"] = "You have successfully completed review.";
+                $responseData["subTitle"] = "You have successfully completed the review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
-                $responseData["helper"] = "We appreciate your effort and send you a reward link to your registered email and phone number redeem it and enjoy.";
+                $responseData["helper"] = "We appreciate your effort and have sent you a reward link to your registered email and phone number, redeem it and enjoy.";
             } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "phone") {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
-                $responseData["subTitle"] = "You have successfully completed review.";
+                $responseData["subTitle"] = "You have successfully completed the review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
-                $responseData["helper"] = "We appreciate your effort , But unfortunately you don't have your phone number updated. Please updated phone number and contact tagtaste to redeem it.";
+                $responseData["helper"] = "We appreciate your effort, but unfortunately you don't have your phone number updated in your profile. Please update phone number and contact us at payment@tagtaste.com to redeem the reward.";
             } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "paid") {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
-                $responseData["subTitle"] = "You have successfully completed review.";
+                $responseData["subTitle"] = "You have successfully completed the review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
-                $responseData["helper"] = "We appreciate your effort . Please contact tagtaste to help you with your reward status.";
+                $responseData["helper"] = "We appreciate your effort but unfortunately you missed the reward. Please contact us at payment@tagtaste.com for any further help.";
             } else {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
-                $responseData["subTitle"] = "You have successfully completed review.";
+                $responseData["subTitle"] = "You have successfully completed the review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
-                $responseData["helper"] = "We appreciate your effort , But unfortunately you missed it this time. Please try again.";
+                $responseData["helper"] = "We appreciate your effort but unfortunately you missed the reward. Please contact us at payment@tagtaste.com for any further help.";
             }
         } else {
             $responseData["status"] = true;
@@ -286,7 +286,7 @@ class ReviewController extends Controller
             if(isset($paymentDetails->comment) && !empty($paymentDetails->comment)){
                 $data["comment"] = $paymentDetails->comment;
             }
-            
+
             $createPaymentTxn = event(new TransactionInit($data));
             $paymentcount = (int)$count->count();
             if ((int)$paymentDetails->user_count == ++$paymentcount) {

@@ -318,26 +318,29 @@ class PaymentController extends Controller
         $title = "";
         if ($model == "collaborate" && isset($subModelId)) {
             $pop_up = ["title" => "Paid Private Review", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/private-review.png"];
-            $title = "Read the question carefully before answering. Remember there is no right or wrong answer.";
+            $title = "Read the questions carefully before answering. Remember, there are no right or wrong answers.";
             $paymentDetail = PaymentDetails::select("user_count")
                 ->where("model_id", $modelId)
                 ->where("sub_model_id", $subModelId)
                 ->where("is_active", 1)
                 ->get();
+                $text = "review";
         } else if ($model == "survey") {
             $pop_up = ["title" => "Paid survey", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/survey.png"];
-            $title = "Read the question carefully before answering. Remember there is no right or wrong answer.";
+            $title = "Read the questions carefully before answering. Remember, there are no right or wrong answers.";
             $paymentDetail = PaymentDetails::select("user_count")
                 ->where("model_id", $modelId)
                 ->where("is_active", 1)
                 ->get();
+                $text = "survey";
         } else if ($model == "product") {
             $pop_up = ["title" => "Paid Public Review", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/public-review.png"];
-            $title = "Read the question carefully before answering. Remember there is no right or wrong answer.";
+            $title = "Read the questions carefully before answering. Remember, there are no right or wrong answers.";
             $paymentDetail = PaymentDetails::select("user_count")
                 ->where("model_id", $modelId)
                 ->where("is_active", 1)
                 ->get();
+                $text = "review";
         } else {
             return $this->sendError("Invalid request. Please check your request.");
         }
@@ -353,7 +356,7 @@ class PaymentController extends Controller
         //     ]
         // ];
 
-        $pop_up["sub_title"] = "You will get paid once you complete.";
+        $pop_up["sub_title"] = "You will get paid once you complete the ".$text;
         $data = ["title" => $title, "pop_up" => $pop_up];
         $this->model = $data;
         return $this->sendResponse();
