@@ -9,7 +9,7 @@ use App\FCMPush;
 use Carbon\Carbon;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class PaymentTransactionCreate extends Action
+class PaymentTransactionStatus extends Action
 {
     public $view;
     public $sub;
@@ -20,9 +20,9 @@ class PaymentTransactionCreate extends Action
     {
         parent::__construct($event);
         
-        $this->view = 'emails.payment-create';
+        $this->view = 'emails.payment-status';
         
-        $this->sub = "Payment Initiated";
+        $this->sub = $this->data->content["subject"];
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
         }

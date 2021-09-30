@@ -2,8 +2,13 @@
 
 namespace App\Traits;
 
+use App\Collaborate;
+use App\Deeplink;
 use App\Events\Actions\PaymentTransactionCreate;
+use App\Events\Actions\PaymentTransactionStatus;
 use App\Payment\PaymentLinks;
+use App\PublicReviewProduct;
+use App\Surveys;
 use Illuminate\Http\Request;
 use paytm\paytmchecksum\PaytmChecksum;
 
@@ -11,22 +16,35 @@ trait PaymentTransaction
 {
     public function createLink($data)
     {
+
         $link = '/pls/api/v1/payout-link/create';
         if (isset($data["transaction_id"]) && isset($data["phone"]) && isset($data["email"]) && isset($data["amount"]) && isset($data["title"])) {
             $pay = [];
-            
             $pay["orderId"] = $data["transaction_id"];
             $pay["amount"] = $data["amount"];
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
             $pay["notifyMode"] = ["SMS", "EMAIL"];
-            if($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review"){
+            if ($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review") {
+                if ($data["model_type"] == "Private Review") {
+                    $getName = Collaborate::where("id", $data["model_id"])->first();
+                    $name = $getName->title ?? "";
+                    $hyperlink = '<a href="' . Deeplink::getShortLink('collaborate', $data["model_id"]) . '">' . $name . '</a>';
+                } else if ($data["model_type"] == "Public Review") {
+                    $getName = PublicReviewProduct::where("id", $data["model_id"])->first();
+                    $name = $getName->title ?? "";
+                    $hyperlink = "<a href='" . Deeplink::getShortLink('product', $data["model_id"]) . "'>" . $name . "</a>";
+                }
                 $pay["subwalletGuid"] = config("payment.PAYTM_GUID_TASTING");
                 $pay["comments"] = $data["comment"] ?? "Remuneration for reviewing a product on TagTaste.";
-            }else if($data["model_type"] == "Survey"){
+            } else if ($data["model_type"] == "Survey") {
+                $getName = Surveys::where("id", $data["model_id"])->first();
+                $name = $getName->title ?? "";
+                $hyperlink = "<a href='" . Deeplink::getShortLink('surveys', $data["model_id"]) . "'>" . $name . "</a>";
                 $pay["subwalletGuid"] = config("payment.PAYTM_GUID_SURVEY");
                 $pay["comments"] = $data["comment"] ?? "Remuneration for taking a survey on TagTaste.";
-            }else{
+            } else {
+                $hyperlink = '';
                 $pay["subwalletGuid"] = config("payment.PAYTM_GUID_TASTING");
                 $pay["comments"] = $data["comment"] ?? "Payment from Tagtaste.";
             }
@@ -38,7 +56,7 @@ trait PaymentTransaction
 
             $x_mid      = config("payment.PAYTM_MID");
             $x_checksum = $checksum;
-            
+
             /* for Staging */
             $url = config("payment.PAYTM_ENDPOINT") . $link;
             $ch = curl_init($url);
@@ -56,8 +74,8 @@ trait PaymentTransaction
 
                 if ($resp["status"] == "SUCCESS") {
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp), "status_id" => config("constant.PAYMENT_PENDING_STATUS_ID")];
-                    
-                    event(new PaymentTransactionCreate($data["model"],null,["title"=>"Payment Link Generated","name"=>$data["name"]]));
+
+                    event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $pay["orderId"], "amount" => $pay["amount"], "pretext" => $hyperlink]));
                     return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($dataToUpdate);
                 } else {
                     PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]);
@@ -119,22 +137,51 @@ trait PaymentTransaction
     {
         $inputs = $request->all();
         $dataStr = json_encode($inputs);
-        file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", $dataStr, FILE_APPEND);
-        file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);        
+        file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", $dataStr, FILE_APPEND);
+        file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
 
         if ($request->has("status") && $request->has("result") && !empty($request->result["orderId"])) {
             $resp = $request->all();
+            $get = PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->first();
+            $content = [];
             $data = ["status_json" => json_encode($resp)];
             if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
+                $content = ["descp" => "We're writing to let you know that your payment has been successfully redeemed.", "status" => "SUCCESSFUL","subject"=>"Redemption Successful"];
                 $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
                 $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
+                $content = ["descp" => "We're writing to let you know that your attempt for payment redemption failed.", "status" => "FAILED","subject"=>"Redemption Failure"];
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
                 $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
+                $content = ["descp" => "We're writing to let you know that payment for ".$resp["result"]["orderId"]." has been Canceled.", "status" => "CANCELED","subject"=>"Redemption Canceled"];
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
                 $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
+                $content = ["descp" => "We're writing to let you know that your payment link has expired.", "status" => "LINK EXPIRED","subject"=>"Redemption Link Expire"];
             }
-            file_put_contents(storage_path("logs/") ."paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);        
+            $content["amount"] = $get->amount;
+            $links = "";
+            if ($get->model_type == "Survey") {
+                $content["title"] = "TagTaste Survey Review Payment";
+                $getName = Surveys::where("id", $get->model_id)->first();
+                $name = $getName->title ?? "";
+                $links = "<a href='" . Deeplink::getShortLink('surveys', $get->model_id) . "'>" . $name . "</a>";
+            } else if ($get->model_type == "Public Review") {
+                $content["title"] = "TagTaste Survey Payment";
+                $getName = Surveys::where("id", $data["model_id"])->first();
+                $name = $getName->title ?? "";
+                $links = "<a href='" . Deeplink::getShortLink('product', $get->model_id) . "'>" . $name . "</a>";
+                
+            } else if ($get->model_type == "Private Review") {
+                $content["title"] = "TagTaste Product Review Payment";
+                $getName = Surveys::where("id", $data["model_id"])->first();
+                $name = $getName->title ?? "";
+                $links = "<a href='" . Deeplink::getShortLink('collaborate', $get->model_id) . "'>" . $name . "</a>";
+            }
+            $content["order_id"] = $resp["result"]["orderId"];
+            $content["pretext"] = $links;
+            
+            event(new PaymentTransactionStatus($get, null, $content));
+            file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
             return ["status" => PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data)];
         }
         return ["status" => false];

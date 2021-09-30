@@ -44,15 +44,16 @@
                                                                 <td bgcolor="#FFFFFF" align="left">
                                                                     <p
                                                                         style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
-                                                                        Payment  Initiated
+                                                                        {{ $data['descp'] }}
+                                                                        <br />
+                                                                        <b>TagTaste Product Review Payment</b>
                                                                     </p>
                                                                     <br />
                                                                     <p
                                                                         style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
-                                                                        Order ID: {{$data["order_id"]}} <br/>
-                                                                        Amount to be Credited: {{$data["amount"]}} <br/> 
-                                                                        Pretext:  {!!$data["pretext"] !!}
-                                                                                   
+                                                                        Payment Status: {{ $data['status'] }} <br />
+                                                                        Transaction ID: {{ $data['order_id'] }}<br />
+                                                                        Pretext : {!! $data['pretext'] !!}
                                                                     </p>
 
                                                                 </td>
