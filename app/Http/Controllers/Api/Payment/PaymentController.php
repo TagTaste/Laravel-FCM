@@ -86,6 +86,7 @@ class PaymentController extends Controller
 
     public function getTxnsById($txn_id, Request $request)
     {
+        
         $this->model = [];
         $this->getStatus($txn_id);
         $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,link,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
@@ -95,7 +96,6 @@ class PaymentController extends Controller
           'text_color', payment_status.text_color
         ) as status"))->get();
 
-
         $data = [];
         foreach ($getData as $v) {
             $data = $v;
@@ -103,7 +103,7 @@ class PaymentController extends Controller
             if ($v->model == "Survey") {
                 $getTitile = Surveys::where("id", $v->model_id)->select("title")->first();
                 $title = (isset($getTitile->title) ? $getTitile->title : "");
-                $deeplink = Deeplink::getShortLink('Surveys', $v->model_id);
+                $deeplink = Deeplink::getShortLink('surveys', $v->model_id);
             } else if ($v->model == "Private Review") {
                 $getTitile = Collaborate::where("id", $v->model_id)->select("title")->first();
                 $title = (isset($getTitile->title) ? $getTitile->title : "");
