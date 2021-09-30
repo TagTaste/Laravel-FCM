@@ -46,7 +46,7 @@
                                                                         style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
                                                                         {{ $data['descp'] }}
                                                                         <br />
-                                                                        <b>TagTaste Product Review Payment</b>
+                                                                        <b>{{$data["headline"]}}</b>
                                                                     </p>
                                                                     <br />
                                                                     <p

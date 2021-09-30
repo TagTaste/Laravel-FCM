@@ -165,21 +165,23 @@ trait PaymentTransaction
                 $getName = Surveys::where("id", $get->model_id)->first();
                 $name = $getName->title ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('surveys', $get->model_id) . "'>" . $name . "</a>";
+                $headline = "TagTaste Survey Payment";
             } else if ($get->model_type == "Public Review") {
                 $content["title"] = "TagTaste Survey Payment";
                 $getName = Surveys::where("id", $data["model_id"])->first();
                 $name = $getName->title ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('product', $get->model_id) . "'>" . $name . "</a>";
-                
+                $headline = "TagTaste Product Review Payment";
             } else if ($get->model_type == "Private Review") {
                 $content["title"] = "TagTaste Product Review Payment";
                 $getName = Surveys::where("id", $data["model_id"])->first();
                 $name = $getName->title ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('collaborate', $get->model_id) . "'>" . $name . "</a>";
+                $headline = "TagTaste Public Review Payment";
             }
             $content["order_id"] = $resp["result"]["orderId"];
             $content["pretext"] = $links;
-            
+            $content["headline"] = $headline;
             event(new PaymentTransactionStatus($get, null, $content));
             file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
             return ["status" => PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data)];
