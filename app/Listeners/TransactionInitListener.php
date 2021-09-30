@@ -58,7 +58,7 @@ class TransactionInitListener
         
         if ($data) {
             if (!empty(request()->user()->profile->phone)) {
-                $d = ["transaction_id" => $buildTxnId, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->data->model_type, "title" => $event->data->model_id,"name"=>request()->user()->name ?? "","model"=>$data];
+                $d = ["transaction_id" => $buildTxnId, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->data->model_type, "title" => $event->data->model_id,"name"=>request()->user()->name ?? "","model"=>$data,"model_id"=>$event->data->model_id];
                 if(isset($event->data->comment)){
                     $d["comment"] = $event->data->comment;
                 }

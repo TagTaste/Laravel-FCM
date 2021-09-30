@@ -60,6 +60,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\SensoryEnroll' => ['App\Listeners\Notifications\SensoryEnroll'],
         'App\Events\Actions\PaymentComplain' => ['App\Listeners\Notifications\PaymentComplain'],
         'App\Events\Actions\PaymentTransactionCreate' => ['App\Listeners\Notifications\PaymentTransactionCreate'],
+        'App\Events\Actions\PaymentTransactionStatus' => ['App\Listeners\Notifications\PaymentTransactionStatus'],
         'App\Events\Actions\ReviewComment' => ['App\Listeners\Notifications\ReviewComment'],
 
 
