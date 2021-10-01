@@ -34,6 +34,8 @@ class PaymentTransactionStatus
         
         if (isset($profile) && isset($user->verified_at) && !empty($user->verified_at)){
             Notification::send($profile, new \App\Notifications\Actions\PaymentTransactionStatus($event));
+        }else{
+            return true ;
         }
     }
 }
