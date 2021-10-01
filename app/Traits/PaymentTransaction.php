@@ -161,23 +161,23 @@ trait PaymentTransaction
             $content["amount"] = $get->amount;
             $links = "";
             if ($get->model_type == "Survey") {
-                $content["title"] = "TagTaste Survey Review Payment";
+                
                 $getName = Surveys::where("id", $get->model_id)->first();
                 $name = $getName->title ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('surveys', $get->model_id) . "'>" . $name . "</a>";
                 $headline = "TagTaste Survey Payment";
             } else if ($get->model_type == "Public Review") {
-                $content["title"] = "TagTaste Survey Payment";
+                
                 $getName = PublicReviewProduct::where("id", $get->model_id)->first();
                 $name = $getName->name ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('product', $get->model_id) . "'>" . $name . "</a>";
                 $headline = "TagTaste Product Review Payment";
             } else if ($get->model_type == "Private Review") {
-                $content["title"] = "TagTaste Product Review Payment";
+                
                 $getName = Collaborate::where("id", $get->model_id)->first();
                 $name = $getName->title ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('collaborate', $get->model_id) . "'>" . $name . "</a>";
-                $headline = "TagTaste Public Review Payment";
+                $headline = "TagTaste Private Review Payment";
             }
             $content["order_id"] = $resp["result"]["orderId"];
             $content["pretext"] = $links;
