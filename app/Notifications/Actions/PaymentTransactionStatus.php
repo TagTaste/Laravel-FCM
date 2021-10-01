@@ -23,6 +23,7 @@ class PaymentTransactionStatus extends Action
         $this->view = 'emails.payment-status';
         
         $this->sub = $this->data->content["subject"];
+        $this->data->content["name"] = $this->data->model->profile->name;
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
         }
