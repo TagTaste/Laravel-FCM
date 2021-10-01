@@ -49,7 +49,7 @@
                                                                     <br />
                                                                     <p
                                                                         style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
-                                                                        Order ID: {{$data["order_id"]}} <br/>
+                                                                        Transaction Id: {{$data["order_id"]}} <br/>
                                                                         Amount to be Credited: {{$data["amount"]}} <br/> 
                                                                         Pretext:  {!!$data["pretext"] !!}
                                                                                    

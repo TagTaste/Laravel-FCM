@@ -30,7 +30,7 @@ class PaymentTransactionCreate
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
 
-        if (isset($profile)){
+        if (isset($profile) && !empty($profile->verified_at)){
             Notification::send($profile, new \App\Notifications\Actions\PaymentTransactionCreate($event));
         }
     }
