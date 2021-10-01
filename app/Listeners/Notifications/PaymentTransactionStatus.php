@@ -4,6 +4,7 @@ namespace App\Listeners\Notifications;
 
 use App\Events\Actions\PaymentTransactionStatus as payment;
 use App\Notify\Profile;
+use App\User;
 use Illuminate\Support\Facades\Notification;
 
 class PaymentTransactionStatus
@@ -29,8 +30,9 @@ class PaymentTransactionStatus
         
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
+        $user = User::where("id",$profile->user_id ?? 0)->first();
         
-        if (isset($profile) && !empty($profile->verified_at)){
+        if (isset($profile) && isset($user->verified_at) && !empty($user->verified_at)){
             Notification::send($profile, new \App\Notifications\Actions\PaymentTransactionStatus($event));
         }
     }
