@@ -34,6 +34,8 @@ class PaymentTransactionCreate
         
         if (isset($profile) && isset($user->verified_at) && !empty($user->verified_at)){
             Notification::send($profile, new \App\Notifications\Actions\PaymentTransactionCreate($event));
+        }else{
+            return true ;
         }
     }
 }
