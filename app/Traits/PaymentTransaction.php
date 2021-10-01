@@ -32,7 +32,7 @@ trait PaymentTransaction
                     $hyperlink = '<a href="' . Deeplink::getShortLink('collaborate', $data["model_id"]) . '">' . $name . '</a>';
                 } else if ($data["model_type"] == "Public Review") {
                     $getName = PublicReviewProduct::where("id", $data["model_id"])->first();
-                    $name = $getName->title ?? "";
+                    $name = $getName->name ?? "";
                     $hyperlink = "<a href='" . Deeplink::getShortLink('product', $data["model_id"]) . "'>" . $name . "</a>";
                 }
                 $pay["subwalletGuid"] = config("payment.PAYTM_GUID_TASTING");
@@ -168,13 +168,13 @@ trait PaymentTransaction
                 $headline = "TagTaste Survey Payment";
             } else if ($get->model_type == "Public Review") {
                 $content["title"] = "TagTaste Survey Payment";
-                $getName = Surveys::where("id", $data["model_id"])->first();
-                $name = $getName->title ?? "";
+                $getName = PublicReviewProduct::where("id", $get->model_id)->first();
+                $name = $getName->name ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('product', $get->model_id) . "'>" . $name . "</a>";
                 $headline = "TagTaste Product Review Payment";
             } else if ($get->model_type == "Private Review") {
                 $content["title"] = "TagTaste Product Review Payment";
-                $getName = Surveys::where("id", $data["model_id"])->first();
+                $getName = Collaborate::where("id", $get->model_id)->first();
                 $name = $getName->title ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('collaborate', $get->model_id) . "'>" . $name . "</a>";
                 $headline = "TagTaste Public Review Payment";
