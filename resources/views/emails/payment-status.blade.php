@@ -51,7 +51,7 @@
                                                                     <br />
                                                                     <p
                                                                         style="font-size: 14px;color: #181818;margin:0px; line-height: 1.5;">
-                                                                        Payment Status: {{ $data['status'] }} <br />
+                                                                        Payment Status: <b>{{ $data['status'] }}</b> <br />
                                                                         Transaction ID: {{ $data['order_id'] }}<br />
                                                                         Pretext : {!! $data['pretext'] !!}
                                                                     </p>
