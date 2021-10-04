@@ -28,7 +28,8 @@
         "graphaware/neo4j-php-client": "^4.8",
         "barryvdh/laravel-cors": "^0.9.3",
         "twilio/sdk":"^6.0",
-        "maatwebsite/excel": "2.1.19"
+        "maatwebsite/excel": "2.1.19",
+        "paytm/paytmchecksum": "^1.1"
     },
 
     "require-dev": {

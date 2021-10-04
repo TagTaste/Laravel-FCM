@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Survey;
 
+use App\Collaborate\Review;
 use Illuminate\Http\Request;
 use App\Company;
 use App\Events\Model\Subscriber\Create;
@@ -12,8 +13,13 @@ use App\Events\UpdateFeedable;
 use App\Events\DeleteFeedable;
 use App\Events\Actions\Like;
 use App\Events\Actions\SurveyAnswered;
+use App\Events\TransactionInit;
+use App\Payment\PaymentDetails;
+use App\Payment\PaymentLinks;
 use App\PeopleLike;
 use App\Profile;
+use App\PublicReviewProduct;
+use App\PublicReviewProduct\Review as PublicReviewProductReview;
 use App\SurveyAnswers;
 use App\surveyApplicants;
 use App\Surveys;
@@ -29,6 +35,7 @@ use Webpatser\Uuid\Uuid;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Log;
 
 class SurveyController extends Controller
 {
@@ -449,7 +456,6 @@ class SurveyController extends Controller
 
     public function saveAnswers(Request $request)
     {
-
         try {
             $validator = Validator::make($request->all(), [
                 'survey_id' => 'required|exists:surveys,id',
@@ -458,6 +464,7 @@ class SurveyController extends Controller
             ]);
 
             if ($validator->fails()) {
+                $this->model = ["status" => false];
                 $this->errors = $validator->messages();
                 return $this->sendResponse();
             }
@@ -465,10 +472,12 @@ class SurveyController extends Controller
             $id = $this->model->where("id", "=", $request->survey_id)->first();
             $this->model = [];
             if (empty($id)) {
+                $this->model = ["status" => false];
                 return $this->sendError("Invalid Survey");
             }
 
             if (isset($id->profile_id) && $id->profile_id == $request->profile_id) {
+                $this->model = ["status" => false];
                 return $this->sendError("Admin Cannot Fill the Surveys");
             }
 
@@ -484,6 +493,7 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                $this->model = ["status" => false];
                 return $this->sendError("Already Answered");
             }
 
@@ -495,6 +505,7 @@ class SurveyController extends Controller
 
                 if (isset($prepareQuestionJson[$values["question_id"]]["is_mandatory"]) && $prepareQuestionJson[$values["question_id"]]["is_mandatory"] == true && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
+                    $this->model = ["status" => false];
                     return $this->sendError("Mandatory Questions Cannot Be Blank");
                 }
                 $answerArray = [];
@@ -536,6 +547,7 @@ class SurveyController extends Controller
                 // }
             }
             $user = $request->user()->profile;
+            $responseData = [];
             if ($commit) {
                 DB::commit();
 
@@ -546,19 +558,119 @@ class SurveyController extends Controller
                 // }
 
                 $this->model = true;
+                $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
+            } else {
+                $responseData = ["status" => false];
             }
 
-            return $this->sendResponse();
+            //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
+            if ($this->model == true && $request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                $responseData = $this->paidProcessing($request);
+            }
+
+            return $this->sendResponse($responseData);
         } catch (Exception $ex) {
             DB::rollback();
-            $this->model = false;
+            $this->model = ["status" => false];
             return $this->sendError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
         }
     }
 
+    public function paidProcessing(Request $request)
+    {
+        $responseData = $flag = [];
+        $requestPaid = $request->is_paid ?? false;
+        $responseData["status"] = true;
+        $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
+        if ($paymnetExist != null || $requestPaid) {
 
+            $responseData["is_paid"] = true;
+
+            if($requestPaid){
+                $flag = ["status"=>false,"reason"=>"paid"];
+            }
+            
+            if ($paymnetExist != null) {
+                $flag = $this->verifyPayment($paymnetExist, $request);
+            }
+
+            //NOTE: Response types
+            //profile - not a paid taster
+            //paid taster - Rewarded
+            //phone not updated
+            //paid taster - No Rewarded
+
+            if ($flag["status"] == true) {
+                $responseData["get_paid"] = true;
+                $responseData["title"] = "Congratulations!";
+                $responseData["subTitle"] = "You have successfully completed the survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
+                $responseData["helper"] = "We appreciate your effort and have sent you a reward link to your registered email and phone number, redeem it and enjoy.";
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "phone") {
+                $responseData["get_paid"] = true;
+                $responseData["title"] = "Congratulations!";
+                $responseData["subTitle"] = "You have successfully completed the survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
+                $responseData["helper"] = "We appreciate your effort, but unfortunately you don't have your phone number updated in your profile. Please update phone number and contact us at payment@tagtaste.com to redeem the reward.";
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "paid") {
+                $responseData["get_paid"] = false;
+                $responseData["title"] = "Uh Oh!";
+                $responseData["subTitle"] = "You have successfully completed the survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
+                $responseData["helper"] = "We appreciate your effort but unfortunately you missed the reward. Please contact us at payment@tagtaste.com for any further help.";
+            } else {
+                $responseData["get_paid"] = false;
+                $responseData["title"] = "Uh Oh!";
+                $responseData["subTitle"] = "You have successfully completed the survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
+                $responseData["helper"] = "We appreciate your effort but unfortunately you missed the reward. Please contact us at payment@tagtaste.com for any further help.";
+            }
+        } else {
+            $responseData["is_paid"] = false;
+        }
+
+        return $responseData;
+    }
+
+    
+    public function verifyPayment($paymentDetails, Request $request)
+    {
+        $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
+        if ($count->count() < (int)$paymentDetails->user_count) {
+            $getAmount = json_decode($paymentDetails->amount_json, true);
+            if ($request->user()->profile->is_expert) {
+                $key = "expert";
+            } else {
+                $key = "consumer";
+            }
+            $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
+            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
+            
+            if(isset($paymentDetails->comment) && !empty($paymentDetails->comment)){
+                $data["comment"] = $paymentDetails->comment;
+            }
+
+            $createPaymentTxn = event(new TransactionInit($data));
+            $paymentcount = (int)$count->count();
+            if ((int)$paymentDetails->user_count == ++$paymentcount) {
+                PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
+            }
+            if ($createPaymentTxn) {
+                return $createPaymentTxn[0];
+            } else {
+                Log::info("Payment Returned False" . " " . json_encode($data));
+            }
+        } else {
+            PaymentDetails::where('id', $paymentDetails->id)->update(['is_active' => 0]);
+            if ($request->has("is_paid") && $request->is_paid == true) {
+                return ["status" => false, "reason" => "paid"];
+            }
+        }
+
+        return ["status" => false];
+    }
     public function reports($id, Request $request)
     {
 
@@ -680,7 +792,7 @@ class SurveyController extends Controller
                             if (count($mediaUrl) < 10) {
                                 $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
                                 if (is_array($decodeUrl) && !empty($decodeUrl)) {
-                                    
+
                                     array_map(function ($value) use ($ansVal, &$mediaUrl) {
                                         if (!empty($value)) {
                                             $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
@@ -959,15 +1071,15 @@ class SurveyController extends Controller
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
 
-            
-                $prepareNode["reports"][$counter]["question_id"] = $values["id"];
-                $prepareNode["reports"][$counter]["title"] = $values["title"];
-                $prepareNode["reports"][$counter]["description"] = $values["description"];
-                $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
-                $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
-                $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
 
-                if ($answers->count()) {
+            $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["description"] = $values["description"];
+            $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
+            $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
+
+            if ($answers->count()) {
                 $optCounter = 0;
                 $answers = $answers->toArray();
 
@@ -994,7 +1106,7 @@ class SurveyController extends Controller
 
                         if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
-                        } else {    
+                        } else {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                             // $imageMeta = $answers->pluck("image_meta")->toArray();
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"] = (!is_array($answers[$pos]["image_meta"]) ? json_decode($answers[$pos]["image_meta"], true) : $answers[$pos]["image_meta"]);
@@ -1013,12 +1125,10 @@ class SurveyController extends Controller
                         $prepareNode["reports"][$counter]["is_answered"] = (($answers[0]["option_id"] == null) ? false : true);
                     }
                 }
-
             }
-                $answers = [];
+            $answers = [];
 
-                $counter++;
-            
+            $counter++;
         }
 
         $this->messages = "Report Successful";
@@ -1167,12 +1277,12 @@ class SurveyController extends Controller
         $getSurveyAnswers = $getSurveyAnswers->get();
         $counter = 0;
         foreach ($getSurveyAnswers as $answers) {
-            if(!isset($headers[$answers->profile_id])){
+            if (!isset($headers[$answers->profile_id])) {
                 $counter++;
-                $headers[$answers->profile_id] =  ["Sr no"=>$counter,"Name"=>null,"Email"=>null,"Age"=>null,"Phone"=>null,"City"=>null,"Hometown"=>null,"Profile Url"=>null,"Timestamp"=>null];
-                foreach($questionIdMapping as $v){
-                    
-                    $headers[$answers->profile_id][$v] = null; 
+                $headers[$answers->profile_id] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
+                foreach ($questionIdMapping as $v) {
+
+                    $headers[$answers->profile_id][$v] = null;
                 }
             }
             $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
@@ -1187,7 +1297,7 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id]["Name"] = html_entity_decode($answers->profile->name);
                 $headers[$answers->profile_id]["Email"] = $answers->profile->email;
                 $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
-                $headers[$answers->profile_id]["Phone"] = \DB::Table("profiles")->where("id","=",$answers->profile->id)->first()->phone;
+                $headers[$answers->profile_id]["Phone"] = \DB::Table("profiles")->where("id", "=", $answers->profile->id)->first()->phone;
                 $headers[$answers->profile_id]["City"] = $answers->profile->city;
                 $headers[$answers->profile_id]["Hometown"] = $answers->profile->hometown;
                 $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . $answers->profile->handle;
@@ -1250,7 +1360,7 @@ class SurveyController extends Controller
             $excel->setDescription('Survey Response List');
 
             $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
-                $sheet->fromArray($finalData,null,'A1',true,true);
+                $sheet->fromArray($finalData, null, 'A1', true, true);
                 // ->getFont()->setBold(true);
                 foreach ($sheet->getColumnIterator() as $row) {
 
@@ -1327,7 +1437,7 @@ class SurveyController extends Controller
         $close = Surveys::where("id", "=", $survey->id);
         $survey = $close->update(["state" => config("constant.SURVEY_STATES.CLOSED")]);
         $get = $close->first();
-
+        PaymentDetails::where("model_id",$id)->update(["is_active"=>0]);
         $this->messages = "Survey Close Failed";
         if ($survey) {
             $this->model = \DB::table('surveys_close_reasons')->insert($data);;

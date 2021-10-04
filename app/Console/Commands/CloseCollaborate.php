@@ -4,6 +4,7 @@ use App\Collaborate;
 use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Job;
+use App\Payment\PaymentDetails;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +46,7 @@ class CloseCollaborate extends Command
                     event(new \App\Events\DeleteFilters(class_basename($model), $model->id));
                     $model->update(['deleted_at' => Carbon::now()->toDateTimeString(), 'state' => Collaborate::$state[4]]);
                     event(new DeleteFeedable($model));
+                    PaymentDetails::where('model_id', $model->id)->update(['is_active' => 0]);
 
                 }
             });

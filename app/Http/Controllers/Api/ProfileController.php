@@ -840,7 +840,14 @@ class ProfileController extends Controller
         ]);
         if (isset($data['profile']['phone']) && !empty($data['profile']['phone'])) {
             $profile = Profile::with([])->where('id', $request->user()->profile->id)->first();
-            if (($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0) {
+            
+            $existForOther = Profile::where('phone',$data['profile']['phone'])
+                                    ->where('verified_phone',1)
+                                    ->where('id','<>',$request->user()->profile->id)
+                                    ->first();
+            if(isset($existForOther)){
+                return $this->sendError(["This number is already verified. Please try with another number or contact tagtaste for any query."]);
+            }else if (($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0) {
                 $profile->update(['verified_phone' => 0]);
                 $number = $data['profile']['phone'];
                 if (strlen($number) == 13) {
@@ -869,7 +876,6 @@ class ProfileController extends Controller
                     echo "Error: " . $e->getMessage();
                 }
                 $this->model = $profile->update(['otp' => $otpNo]);
-
                 $job = ((new PhoneVerify($number, $request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
                 dispatch($job);
             }
@@ -889,7 +895,7 @@ class ProfileController extends Controller
                 return $this->sendError("Could not update.");
             }
         }
-
+        
         \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
 
         return $this->sendResponse();

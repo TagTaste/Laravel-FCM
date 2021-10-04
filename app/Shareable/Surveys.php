@@ -2,6 +2,7 @@
 
 namespace App\Shareable;
 
+use App\Payment\PaymentDetails;
 use App\PeopleLike;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\HashtagFactory;
@@ -46,6 +47,8 @@ class Surveys extends Share
             $meta['originalPostMeta'] = $survey->getMetaFor($profileId);//Because off android this response is changes 
                                                                       //from original_post_meta to originalPostMeta 
         }
+        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->surveys_id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         $meta['isReported'] =  $this->isSurveyReported();
         return $meta;
     }
@@ -62,6 +65,8 @@ class Surveys extends Share
             $meta['originalPostMeta'] = $survey->getMetaFor($profileId);//Because off android this response is changes 
                                                                       //from original_post_meta to originalPostMeta 
         }
+        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->surveys_id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         $meta['isReported'] =  $this->isSurveyReported();
         return $meta;
     }

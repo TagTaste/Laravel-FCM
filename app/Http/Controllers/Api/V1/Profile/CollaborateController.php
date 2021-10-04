@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Events\UploadQuestionEvent;
 use Illuminate\Support\Facades\Redis;
+use App\Payment\PaymentDetails;
 
 class CollaborateController extends Controller
 {
@@ -567,7 +568,7 @@ class CollaborateController extends Controller
         event(new \App\Events\DeleteFilters(class_basename($collaboration), $collaboration->id));
         $collaboration->update(['deleted_at' => Carbon::now()->toDateTimeString(), 'state' => Collaborate::$state[4]]);
         event(new DeleteFeedable($collaboration));
-
+        PaymentDetails::where("model_id",$id)->update(["is_active"=>0]);
         $this->model = \DB::table('collaborate_close_reason')->insert($data);
 
         return $this->sendResponse();

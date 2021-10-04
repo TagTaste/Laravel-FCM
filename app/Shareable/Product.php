@@ -3,6 +3,7 @@
 namespace App\Shareable;
 
 use App\Channel\Payload;
+use App\Payment\PaymentDetails;
 use App\PeopleLike;
 use App\PublicReviewProduct;
 use App\Traits\HashtagFactory;
@@ -77,6 +78,8 @@ class Product extends Share
         $meta['commentCount'] = $this->comments()->count();
         $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
         $meta['isReported'] =  $this->isProductReported();
+        $payment = PaymentDetails::where("model_type","Public Review")->where("model_id",$this->product_id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         return $meta;
     }
 
@@ -92,6 +95,8 @@ class Product extends Share
         $meta['commentCount'] = $this->comments()->count();
         $meta['originalPostMeta'] = $product->getMetaFor(request()->user()->profile->id);
         $meta['isReported'] =  $this->isProductReported();
+        $payment = PaymentDetails::where("model_type","Public Review")->where("model_id",$this->product_id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         return $meta;
     }
 
@@ -107,6 +112,8 @@ class Product extends Share
         $meta['commentCount'] = $this->comments()->count();
         $meta['originalPostMeta'] = $product->getMetaFor(request()->user()->profile->id);
         $meta['isReported'] =  $this->isProductReported();
+        $payment = PaymentDetails::where("model_type","Public Review")->where("model_id",$this->product_id)->where("is_active",1)->first();
+        $meta['isPaid'] = (!empty($payment) ? true : false);
         return $meta;
     }
 

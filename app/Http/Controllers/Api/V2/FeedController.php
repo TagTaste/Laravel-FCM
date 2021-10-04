@@ -181,7 +181,7 @@ class FeedController extends Controller
     {
         $this->model = array_fill(0, 20, null);
         $client = config('database.neo4j_uri_client');
-
+        
         // $suggestion_position = array();
         // $suggestion_position[] = rand(2,4);
         // $suggestion_position[] = rand(6,8);
