@@ -76,5 +76,8 @@ return [
 
     'expire:job:msg2' => 'Here are some applicants:',
 
+
+    //surveys
+    'expire:surveys:expired:notification' => ':title Survey on TagTaste has expired',
 ];
 

@@ -763,8 +763,9 @@ class CollaborateController extends Controller
         if($collaborate->state != 'Active')
         {
             $now = Carbon::now()->toDateTimeString();
-            $inputs['created_at'] = $now;
+            // $inputs['created_at'] = $now;
             $inputs['updated_at'] = $now;
+            $inputs['deleted_at'] = null;
         }
         $this->model = $collaborate->update($inputs);
         if($request->has('batches'))
