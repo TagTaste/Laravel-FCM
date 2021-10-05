@@ -411,7 +411,7 @@ class PaymentController extends Controller
         ];
         $d = ["subject" => "You’ve received a new complaint regarding " . $links->model_type . " Payments", "content" => $str];
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-            $message->to('payment@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Complain regarding Payments');
+            $message->to('payment@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Complain regarding Payments');
         });
 
         $this->model = true;
@@ -432,9 +432,9 @@ class PaymentController extends Controller
             "Onboarding Date" => date("Y-m-d")
         ];
         $d = ["subject" => "You’ve received a new registration for Sensory Workshop", "content" => $str];
-        // Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-        //     $message->to('workshop@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Sensory Workshop');
-        // });
+        Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
+            $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Sensory Workshop');
+        });
         $links = Profile::where("id", $request->user()->profile->id)->first();
         event(new SensoryEnroll($links, null, ["name" => $request->user()->name]));
 
@@ -459,7 +459,7 @@ class PaymentController extends Controller
         ];
         $d = ["subject" => "You’ve received a new registration for enrolment as an Expert", "content" => $str];
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-            $message->to('workshop@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
+            $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
         });
 
         $links = Profile::where("id", $request->user()->profile->id)->first();
