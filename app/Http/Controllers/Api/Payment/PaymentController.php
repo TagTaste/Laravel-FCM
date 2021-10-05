@@ -459,7 +459,7 @@ class PaymentController extends Controller
         ];
         $d = ["subject" => "You’ve received a new registration for enrolment as an Expert", "content" => $str];
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-            $message->to('workshop@tagtaste.com', 'Tech Team')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
+            $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
         });
 
         $links = Profile::where("id", $request->user()->profile->id)->first();
