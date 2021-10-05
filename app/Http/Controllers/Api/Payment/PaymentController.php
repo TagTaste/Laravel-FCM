@@ -243,7 +243,7 @@ class PaymentController extends Controller
         $get = User::where("id", $request->user()->id)->select("password")->first();
         if (Hash::check($request->password, $get->password)) {
 
-            return response(["data" => true, "errors" => "", "messages" => "Successfull"], 200);
+            return response(["data" => true, "errors" => "", "messages" => "Successful"], 200);
         }
         return response(["data" => false, "errors" => "Invalid Password", "messages" => "Please enter correct password."], 200);
     }
@@ -423,7 +423,7 @@ class PaymentController extends Controller
         //Send email to payment@tagtaste.com
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
-        $data = ["status" => true, "title" => "", "sub_title" => "Your enrollment has been successfull. Our team will reach out to you with further details."];
+        $data = ["status" => true, "title" => "", "sub_title" => "Your enrollment has been successful. Our team will reach out to you with further details."];
 
         $str = [
             "Name" => $request->user()->name,
@@ -447,7 +447,7 @@ class PaymentController extends Controller
         //Send email to payment@tagtaste.com
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
-        $data = ["status" => true, "title" => "Success", "sub_title" => "Your enrollment has been successfull. Our team will reach out to you with further details."];
+        $data = ["status" => true, "title" => "Success", "sub_title" => "Your enrollment has been successful. Our team will reach out to you with further details."];
         $userData = Profile::where("profiles.id", $request->user()->profile->id)->leftJoin("profile_occupations", "profile_occupations.profile_id", "=", 'profiles.id')->leftJoin("occupations", "profile_occupations.occupation_id", "=", "occupations.id")
             ->leftJoin("profile_specializations", "profile_specializations.profile_id", "=", 'profiles.id')->leftJoin("specializations", "profile_specializations.specialization_id", "=", "specializations.id")->select(["specializations.name as specialization", "occupations.name as job"])->first();
         $str = [
