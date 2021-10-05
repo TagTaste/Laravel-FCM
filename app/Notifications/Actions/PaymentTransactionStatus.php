@@ -33,7 +33,7 @@ class PaymentTransactionStatus extends Action
 
     public function via($notifiable)
     {
-        $via = ['database','broadcast'];
+        $via = [];
 
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
