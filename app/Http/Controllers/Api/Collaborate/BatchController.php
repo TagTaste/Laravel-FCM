@@ -1300,16 +1300,6 @@ class BatchController extends Controller
     {
         $profileIds = new Collection([]);
         $isFilterAble = false;
-        if($profileIds->count() == 0 && isset($filters['include_profile_id']))
-        {
-            $filterProfile = [];
-            foreach ($filters['include_profile_id'] as $filter)
-            {
-                //$isFilterAble = true;
-                $filterProfile[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterProfile);
-        }
         // else if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
         // {
         //     $isFilterAble = false;
@@ -1473,8 +1463,8 @@ class BatchController extends Controller
                 $cityFilterIds = $cityFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($cityFilterIds);
-
+            // $profileIds = $profileIds->merge($cityFilterIds);
+            $profileIds = $cityFilterIds;
         }
         if(isset($filters['age']))
         {
@@ -1491,7 +1481,8 @@ class BatchController extends Controller
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($ageFilterIds);
+            // $profileIds = $profileIds->merge($ageFilterIds);
+            $profileIds = $ageFilterIds;
 
         }
         if(isset($filters['gender']))
@@ -1509,9 +1500,25 @@ class BatchController extends Controller
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
             $isFilterAble = true;
-            $profileIds = $profileIds->merge($genderFilterIds);
+            // $profileIds = $profileIds->merge($genderFilterIds);
+            $profileIds = $genderFilterIds;
         }
-        if($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
+        //if no filter applied - include will work as include only
+        //if filter applied - include will add profile to filtered profiles
+
+        if(isset($filters['include_profile_id']))
+        {
+            $filterProfile = [];
+            foreach ($filters['include_profile_id'] as $filter)
+            {
+                $isFilterAble = true;
+                $filterProfile[] = (int)$filter;
+            }
+            $profileIds = $profileIds->merge($filterProfile);
+        }
+               
+
+        if($isFilterAble && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter)
             {
@@ -1519,9 +1526,7 @@ class BatchController extends Controller
                 $filterNotProfileIds[] = (int)$filter;
             }
             $profileIds = $profileIds->diff($filterNotProfileIds);
-        }
-        if($profileIds->count() == 0 && isset($filters['exclude_profile_id']))
-        {
+        }else if(isset($filters['exclude_profile_id'])){
             $isFilterAble = false;
             $excludeAble = false;
             $filterNotProfileIds = [];
@@ -1533,10 +1538,11 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->merge($filterNotProfileIds);
         }
+        
         if($isFilterAble)
-            return ['profile_id'=>$profileIds,'type'=>false];
+            return ['profile_id'=>$profileIds,'type'=>false]; //data for these profile ids only 
         else
-            return ['profile_id'=>$profileIds,'type'=>true];
+            return ['profile_id'=>$profileIds,'type'=>true]; //these profile ids will be excluded from total completed reviews
     }
 
     public function reportPdf(Request $request, $collaborateId,$batchId)
@@ -1769,9 +1775,10 @@ class BatchController extends Controller
                                 }
                                 $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
                                 $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
-                                        $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
-                                $answer->intensity_value = $data->questions->intensity_value;
-                                $answer->intensity_type = $data->questions->intensity_type;
+                                $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                                $answer->intensity_type = $data->questions->intensity_type; 
+                              
+                              
                             }
                             else
                             {
