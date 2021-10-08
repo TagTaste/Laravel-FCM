@@ -189,8 +189,8 @@ class LoginController extends Controller
         $redirect_uri = $request->input('redirect_uri');
         $client = new \GuzzleHttp\Client();
         $params['headers'] = ['Content-Type' => 'application/x-www-form-urlencoded'];
-        $client_id = env("LINKEDIN_ID");
-        $client_secret = env("LINKEDIN_LOGIN_SECRET");
+        $client_id = config("constant.LINKEDIN_CLIENTID");
+        $client_secret = config("constant.LINKEDIN_SECRET");
         $link = 'https://www.linkedin.com/oauth/v2/accessToken?grant_type=authorization_code&code=' . $code . '&redirect_uri=' . $redirect_uri . '&client_id=' . $client_id . '&client_secret=' . $client_secret;
         $res = $client->request('POST', $link, [$params]);
         $response = $res->getBody()->getContents();

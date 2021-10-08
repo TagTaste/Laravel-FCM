@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Collaborate;
 
+use App\Collaborate;
 use App\Collaborate\Review;
 use App\Collaborate\ReviewHeader;
 use App\Events\TransactionInit;
@@ -40,12 +41,14 @@ class ReviewController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $batchId = $request->input('batch_id');
 
-        if (
-            !$request->has('address_id') &&
-            \App\Collaborate\Addresses::where('collaborate_id', $collaborateId)->Where('outlet_id', !null)->exists()
-        ) {
-            $this->model = ["status" => false];
-            return $this->sendError('Please send the respective outlet (address id) as query parameter');
+        $stateCheck = Collaborate::where("id",$collaborateId)->where('state',Collaborate::$state[0])->first();
+
+        if(empty($stateCheck)){
+            return $this->sendError('Only active collaborations can be reviewed');    
+        }
+        if(!$request->has('address_id') && 
+        \App\Collaborate\Addresses::where('collaborate_id',$collaborateId)->Where('outlet_id', !null)->exists()){
+        return $this->sendError('Please send the respective outlet (address id) as query parameter');
         }
 
         // if(!$request->has('address_id') && 
@@ -62,6 +65,7 @@ class ReviewController extends Controller
             $address_id = $request->address_id != null ? $request->address_id : null;
         }
 
+
         if (!$request->has('batch_id')) {
             $this->model = ["status" => false];
             return $this->sendError("No prodcut id found");
@@ -73,13 +77,22 @@ class ReviewController extends Controller
             return $this->sendError("Wrong product assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
-        $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
-        if ($currentStatus == $latestCurrentStatus && $latestCurrentStatus == 3) {
-            $this->model = ["status" => false];
-            return $this->sendError("You have already completed this product");
+
+        // $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
+        $latestCurrentStatus = null;
+        $getlatestCurrentStatus = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->first();
+        if(isset($getlatestCurrentStatus->current_status)){
+            $latestCurrentStatus = $getlatestCurrentStatus->current_status;
         }
-        $this->model = Review::where('profile_id', $loggedInProfileId)->where('collaborate_id', $collaborateId)
-            ->where('batch_id', $batchId)->where('tasting_header_id', $headerId)->delete();
+        if($latestCurrentStatus==3){
+            return $this->sendError("You have already completed this review");    
+        }
+        // if($currentStatus == $latestCurrentStatus && $latestCurrentStatus == 3)
+        // {
+        //     return $this->sendError("You have already completed this product");
+        // }
+        $this->model = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+            ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
 
         if (count($answers)) {
             foreach ($answers as $answer) {

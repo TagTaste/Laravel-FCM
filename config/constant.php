@@ -43,8 +43,10 @@ return  [
         'expired' => 6
     ],
 
+    "LINKEDIN_CLIENTID" => env("LINKEDIN_ID"),
+    "LINKEDIN_SECRET" => env("LINKEDIN_LOGIN_SECRET"),
+  
     'NOTIFICATION_DELETE_PERIOD' => 30
 ];
-
 
 ?>
