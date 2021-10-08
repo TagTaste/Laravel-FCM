@@ -493,8 +493,8 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                // $this->model = ["status" => false];
-                // return $this->sendError("Already Answered");
+                $this->model = ["status" => false];
+                return $this->sendError("Already Answered");
             }
 
             $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
