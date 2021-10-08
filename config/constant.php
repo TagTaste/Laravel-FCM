@@ -41,7 +41,9 @@ return  [
         'failure' => 4,
         'cancelled' => 5,
         'expired' => 6
-    ]
+    ],
+
+    'NOTIFICATION_DELETE_PERIOD' => 30
 ];
 
 
