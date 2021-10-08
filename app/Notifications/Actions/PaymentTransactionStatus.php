@@ -20,7 +20,7 @@ class PaymentTransactionStatus extends Action
     {
         parent::__construct($event);
         
-        $this->view = 'emails.payment-status';
+        $this->view = $this->data->content["view"] ?? 'emails.payment-status';
         
         $this->sub = $this->data->content["subject"];
         $this->data->content["name"] = $this->data->model->profile->name;
