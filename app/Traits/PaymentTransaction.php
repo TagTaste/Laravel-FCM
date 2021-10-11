@@ -62,12 +62,14 @@ trait PaymentTransaction
 
             /* for Staging */
             $url = config("payment.PAYTM_ENDPOINT") . $link;
+            print_r($post_data);
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($ch);
+            echo $response;
 
             if (!empty($response)) {
                 $resp = $response;
