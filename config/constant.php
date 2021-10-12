@@ -43,7 +43,7 @@ return  [
         'expired' => 6
     ],
 
-    'NOTIFICATION_DELETE_PERIOD' => 30
+    'NOTIFICATION_DELETE_PERIOD' => 60
 ];
 
 
