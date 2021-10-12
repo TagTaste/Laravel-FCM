@@ -66,6 +66,7 @@ use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
 use App\Console\Commands\SurveyAnswerSync;
 use App\Console\Commands\InsertTTFBQuestion as TTFBQuestionaire;
+use App\Console\Commands\makePaidTasters;
 use App\Console\Commands\TTFBQuestionUpload;
 
 class Kernel extends ConsoleKernel
@@ -270,7 +271,8 @@ class Kernel extends ConsoleKernel
         //update social connection
         SocialConnectedAddFlag::class,
 
-        DispatchJob::class
+        DispatchJob::class,
+        makePaidTasters::class
 
     ];
 
