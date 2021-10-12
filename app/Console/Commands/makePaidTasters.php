@@ -49,7 +49,7 @@ class makePaidTasters extends Command
             $getPublicCount = PublicReviewProductReview::where("profile_id", $v->id)->groupBy("product_id")->where("current_status", 2)->get();
 
 
-            if (($getPrivateReview->count() >= 2) || (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
+            if (($getPrivateReview->count() >= config("constant.MINIMUM_PAID_TASTER_PRIVATE_REVIEWS")) || (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
                 Log::info("Profile Id : ".$v->id." Username :" .$v->name." is paid taster and sensory trained now");
                 echo $v->id."<br/>";
                 Profile::where("id", $v->id)->update(["is_paid_taster" => 1, "is_sensory_trained" => 1]);

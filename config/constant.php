@@ -41,7 +41,8 @@ return  [
         'failure' => 4,
         'cancelled' => 5,
         'expired' => 6
-    ]
+    ],
+    'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2
 ];
 
 
