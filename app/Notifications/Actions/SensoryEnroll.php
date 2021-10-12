@@ -22,7 +22,7 @@ class SensoryEnroll extends Action
         
         $this->view = 'emails.enroll-sensory-program';
 
-        $this->sub = "Regarding your enrolment for the Sensory Workshop";
+        $this->sub = "Your enrolment for the Sensory Workshop";
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
         }

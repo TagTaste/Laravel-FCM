@@ -21,10 +21,10 @@
                                             <div style="
                                   font-size: 18px;
                                   font-weight: bold;
-                                  color: #4990e2;
+                                  color: #dd2e1f;
                                   padding: 0 40px 0 40px;
                                 ">
-                                                Payment Initiated
+                                                Redemption Failed
                                             </div>
                                         </td>
                                     </tr>
@@ -55,7 +55,7 @@
                                               line-height: 1.5;
                                               font-weight: bold;
                                             ">
-                                                                        Congratulations!
+                                                                        Uh ho!
                                                                     </p>
                                                                 </td>
                                                             </tr>
@@ -69,7 +69,19 @@
                                               font-weight: bold;
                                               text-align: center;
                                             ">
-                                                                        Your payment has been initiated
+                                                                        Your payment redemption has failed.
+                                                                    </p>
+                                                                    <p style="
+                                              color: #171717;
+                                              margin: 8px 0px 0px 0px;
+                                              font-size: 16px;
+                                              text-align: center;
+                                              line-height: 1.5;
+                                            ">
+                                                                        Please raise an issue from the
+                                                                        <a href="{{config("app.url")}}/passbook" target="_blank" rel="noreferrer"
+                                                                            style="color: #4990e2">passbook</a>
+                                                                        section on the app to get a new payment link.
                                                                     </p>
                                                                     <div style="
                                               text-align: center;
@@ -88,7 +100,7 @@
                                               text-align: center;
                                               opacity: 0.6;
                                             ">
-                                                                        Transaction ID: {{$data["order_id"]}}
+                                                                        Transaction ID: {{ $data['order_id'] }}
                                                                     </p>
                                                                     <hr style="
                                               margin-top: 24px;
@@ -108,10 +120,10 @@
                                                                             <span style="
                                                   font-size: 14px;
                                                   font-weight: bold;
-                                                  color: #4990e2;
+                                                  color: #dd2e1f;
                                                   margin: 0px;
                                                   line-height: 1.5;
-                                                ">Initiated</span>
+                                                ">Failed</span>
                                                                         </div>
                                                                         <div style="margin-top: 4px">
                                                                             <span style="
@@ -119,14 +131,14 @@
                                                   color: #171717;
                                                   margin: 0px;
                                                   line-height: 1.5;
-                                                ">{{$data["type"]}}:</span>
+                                                ">{!! $data['type'] !!}:</span>
                                                                             <a style="
                                                   font-size: 14px;
                                                   font-weight: normal;
                                                   color: #4990e2;
                                                   margin: 0px;
                                                   line-height: 1.5;
-                                                " href="#" target="_blank" rel="noreferrer">{!!$data["pretext"] !!}</a>
+                                                " href="#" target="_blank" rel="noreferrer">{!! $data['pretext'] !!}</a>
                                                                         </div>
                                                                     </div>
 
