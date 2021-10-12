@@ -54,7 +54,17 @@
                                                                         your request after carefully verifying your
                                                                         profile.
                                                                     </p>
-
+                                                                    <div style="margin-top: 24px">
+                                                                        <p style="
+                                                color: #181818;
+                                                font-size: 14px;
+                                                margin: 0px;
+                                                line-height: 1.5;
+                                              ">
+                                                                            Sincerely,<br />
+                                                                            Team TagTaste
+                                                                        </p>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
 

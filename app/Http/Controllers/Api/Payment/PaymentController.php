@@ -251,12 +251,12 @@ class PaymentController extends Controller
     public function getTasterProgram(Request $request)
     {
         $expertButton = [
-            "title" => "Enroll as an expert", "color_code" => "#efb920", "text_color" => "#000000",
+            "title" => "Enrol as an expert", "color_code" => "#efb920", "text_color" => "#000000",
             "url" => "payment/expert/enroll", "method" => "POST"
         ];
 
         $sensoryButton = [
-            "title" => "Enroll for sensory workshop", "color_code" => "#4990e2", "text_color" => "#ffffff",
+            "title" => "Enrol for sensory workshop", "color_code" => "#4990e2", "text_color" => "#ffffff",
             "url" => "payment/sensory/enroll", "method" => "POST"
         ];
 
@@ -423,7 +423,7 @@ class PaymentController extends Controller
         //Send email to payment@tagtaste.com
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
-        $data = ["status" => true, "title" => "", "sub_title" => "Your enrollment has been successful. Our team will reach out to you with further details."];
+        $data = ["status" => true, "title" => "", "sub_title" => "Your enrolment has been successful. Our team will reach out to you with further details."];
 
         $str = [
             "Name" => $request->user()->name,
@@ -447,7 +447,7 @@ class PaymentController extends Controller
         //Send email to payment@tagtaste.com
         //Keep user email in copy 
         //Take mail template from tanvi or arun sir
-        $data = ["status" => true, "title" => "Success", "sub_title" => "Your enrollment has been successful. Our team will reach out to you with further details."];
+        $data = ["status" => true, "title" => "Success", "sub_title" => "Your enrolment has been successful. Our team will reach out to you with further details."];
         $userData = Profile::where("profiles.id", $request->user()->profile->id)->leftJoin("profile_occupations", "profile_occupations.profile_id", "=", 'profiles.id')->leftJoin("occupations", "profile_occupations.occupation_id", "=", "occupations.id")
             ->leftJoin("profile_specializations", "profile_specializations.profile_id", "=", 'profiles.id')->leftJoin("specializations", "profile_specializations.specialization_id", "=", "specializations.id")->select(["specializations.name as specialization", "occupations.name as job"])->first();
         $str = [
@@ -458,9 +458,9 @@ class PaymentController extends Controller
             "Specialisations" => ($userData->specialization ?? "N.A")
         ];
         $d = ["subject" => "You’ve received a new registration for enrolment as an Expert", "content" => $str];
-        Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-            $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
-        });
+        // Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
+        //     $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
+        // });
 
         $links = Profile::where("id", $request->user()->profile->id)->first();
         event(new TasterEnroll($links, null, ["name" => $request->user()->name]));

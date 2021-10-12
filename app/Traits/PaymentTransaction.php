@@ -142,8 +142,8 @@ trait PaymentTransaction
     {
         $inputs = $request->all();
         $dataStr = json_encode($inputs);
-        file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", $dataStr, FILE_APPEND);
-        file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
+        // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", $dataStr, FILE_APPEND);
+        // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
 
         if ($request->has("status") && $request->has("result") && !empty($request->result["orderId"])) {
             $resp = $request->all();
@@ -191,7 +191,7 @@ trait PaymentTransaction
             $content["pretext"] = $links;
             $content["headline"] = $headline;
             event(new PaymentTransactionStatus($get, null, $content));
-            file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
+            // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
             return ["status" => PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data)];
         }
         return ["status" => false];
