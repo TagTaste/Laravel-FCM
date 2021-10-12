@@ -274,7 +274,8 @@ class Kernel extends ConsoleKernel
         SocialConnectedAddFlag::class,
 
         DispatchJob::class,
-        makePaidTasters::class
+        makePaidTasters::class,
+        removeNotifications::class
 
     ];
 
