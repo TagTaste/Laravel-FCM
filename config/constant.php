@@ -42,7 +42,8 @@ return  [
         'cancelled' => 5,
         'expired' => 6
     ],
-    'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2
+    'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2,
+    'MINIMUM_PAID_TASTER_TOTAL_REVIEWS' => 3
 ];
 
 
