@@ -68,6 +68,7 @@ use App\Console\Commands\SurveyAnswerSync;
 use App\Console\Commands\InsertTTFBQuestion as TTFBQuestionaire;
 use App\Console\Commands\makePaidTasters;
 use App\Console\Commands\TTFBQuestionUpload;
+use App\Console\Commands\removeNotifications;
 
 class Kernel extends ConsoleKernel
 {
@@ -112,6 +113,7 @@ class Kernel extends ConsoleKernel
         GraphUserEducation::class,
         GraphExperiance::class,
         GraphUserExperiance::class,
+        removeNotifications::class,
 
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
@@ -298,6 +300,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:surveys')->dailyAt('12:00');
 
 
+        $schedule->command('command:remove-notification')->dailyAt('01:00');
         // $schedule->command('profile_compiled_detail:update')->dailyAt('14:05');
 
         //$schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
