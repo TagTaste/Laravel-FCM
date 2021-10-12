@@ -155,13 +155,13 @@ trait PaymentTransaction
                 $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
                 $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
-                $content = ["descp" => "We're writing to let you know that your attempt for payment redemption failed.", "status" => "FAILED","subject"=>"Redemption Failure","view"=>"emails.payment-failure"];
+                $content = ["descp" => "We're writing to let you know that your attempt for payment redemption failed.", "status" => "FAILED","subject"=>"Redemption Failed","view"=>"emails.payment-failure"];
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
                 $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
-                $content = ["descp" => "We're writing to let you know that payment for ".$resp["result"]["orderId"]." has been Canceled.", "status" => "CANCELED","subject"=>"Redemption Canceled","view"=>"emails.payment-cancelled"];
+                $content = ["descp" => "We're writing to let you know that payment for ".$resp["result"]["orderId"]." has been Canceled.", "status" => "CANCELED","subject"=>"Payment Cancelled","view"=>"emails.payment-cancelled"];
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
                 $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
-                $content = ["descp" => "We're writing to let you know that your payment link has expired.", "status" => "LINK EXPIRED","subject"=>"Redemption Link Expired","view"=>"emails.payment-expired"];
+                $content = ["descp" => "We're writing to let you know that your payment link has expired.", "status" => "LINK EXPIRED","subject"=>"Payment Link Expired","view"=>"emails.payment-expired"];
             }
             $content["amount"] = $get->amount;
             $links = "";
