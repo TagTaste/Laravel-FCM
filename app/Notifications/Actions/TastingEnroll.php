@@ -22,7 +22,7 @@ class TastingEnroll extends Action
         
         $this->view = 'emails.enroll-taster';
 
-        $this->sub = "Regarding your enrolment as an Expert";
+        $this->sub = "Your enrolment as an Expert";
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
         }

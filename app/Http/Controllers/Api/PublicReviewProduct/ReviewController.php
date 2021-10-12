@@ -592,7 +592,7 @@ class ReviewController extends Controller
                 // $responseData["title"] = "Uh Oh!";
                 // $responseData["subTitle"] = "You have successfully completed the review.";
                 // $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
-                $responseData["helper"] = "You can earn money for such review by enrolling yourself in paid taster program.";
+                $responseData["helper"] = "You can earn money for such review by enroling yourself in paid taster program.";
             } else if ($flag["status"] == true) {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
