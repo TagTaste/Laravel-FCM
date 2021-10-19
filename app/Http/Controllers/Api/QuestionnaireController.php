@@ -20,8 +20,8 @@ class QuestionnaireController extends Controller
                 'title' => 'required',
                 'description' => 'nullable',
                 'keyword' => 'required',
-                'header_info' => 'required|array',
-                'question_json' => 'required|array'
+                'header_info' => 'required|json',
+                'question_json' => 'required|json'
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->messages();
@@ -31,7 +31,7 @@ class QuestionnaireController extends Controller
 
             $data = [
                 'name' => $request->title, 'keywords' => $request->keyword, 'description' => $request->description ?? null,
-                'question_json' => json_encode($request->question_json,true), 'header_info' => json_encode($request->header_info, true), 'track_consistency' => $request->track_consistency
+                'question_json' => $request->question_json, 'header_info' => $request->header_info, 'track_consistency' => $request->track_consistency
             ];
             $this->model = \DB::table('global_questions')->insert($data);
             return $this->sendResponse();
