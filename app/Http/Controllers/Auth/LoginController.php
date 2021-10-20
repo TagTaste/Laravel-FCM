@@ -5,7 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Events\Actions\JoinFriend;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Http\Controllers\Api\Controller;
+use App\OTPMaster;
+use App\Profile;
 use App\Profile\User;
+use App\Services\SMS;
+use App\User as AppUser;
+use Carbon\Carbon;
+
 use function GuzzleHttp\uri_template;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -13,9 +19,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
+use Tagtaste\Api\SendsJsonResponse;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends Controller
 {
+    use  SendsJsonResponse;
     /*
     |--------------------------------------------------------------------------
     | Login Controller
@@ -214,5 +223,98 @@ class LoginController extends Controller
         $data['avatar_original'] = $linkedInResponse->profilePicture->{'displayImage~'}->elements[0]->identifiers[0]->identifier;
         $data['token'] = $accessToken;
         return $data;
+    }
+
+    public function loginViaOTP(Request $request)
+    {
+
+
+        $verifyNumber = Profile::where("phone", $request->profile["mobile"])->where("country_code", trim(str_replace("+", "", $request->profile["country_code"])))->get();
+
+        if ($verifyNumber->count() == 0) {
+            return $this->sendError('The number is not registered');
+        }
+
+        $id = $verifyNumber->first();
+
+        if ($id->verified_phone != 1) {
+            return $this->sendError('The number is not verified');
+        }
+        //verifyIfOtpAlreadySent 
+
+        $check = OTPMaster::where("profile_id", $id->id)->where('mobile', "=", $request->profile["mobile"])->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))->where("expired_at", null)->orderBy("id", "desc")->first();
+        if ($check) {
+            //Send OTP     
+            $otpNo = mt_rand(100000, 999999);
+            $text =  "Use OTP " . $otpNo . " to login to your TagTaste account. DO NOT share OTP with anyone.";
+            if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
+                $service = "gupshup";
+                $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
+            } else {
+                $service = "twilio";
+                $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
+            }
+
+            $insert = OTPMaster::create(["profile_id" => $id->id, "otp" => $otpNo, "mobile" => $request->profile["mobile"], "service" => $service]);
+            if ($getResp && $insert) {
+                $this->model = true;
+                return $this->sendResponse();
+            }
+        } else {
+            return $this->sendError("OTP already sent");
+        }
+        return $this->sendError("Failed to send otp");
+    }
+
+    public function resendOTP(Request $request)
+    {
+        $verifyNumber = Profile::where("phone", $request->mobile)->where("country_code", trim(str_replace("+", "", $request->profile["country_code"])))->get();
+
+        if ($verifyNumber->count() == 0) {
+            return $this->sendError('The number is not registered.');
+        }
+
+        $id = $verifyNumber->first();
+
+        $check = OTPMaster::where("profile_id", $id->id)->where('mobile', "=", $request->profile["mobile"])->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))->where("expired_at", null)->orderBy("id", "desc")->first();
+
+        if ($check) {
+            $id = $verifyNumber->first();
+            $otpNo = mt_rand(100000, 999999);
+            $text =  "Use OTP " . $otpNo . " to login to your TagTaste account. DO NOT share OTP with anyone.";
+            if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
+                $service = "gupshup";
+                $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
+            } else {
+                $service = "twilio";
+                $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
+            }
+
+            $insert = OTPMaster::create(["profile_id" => $id->id, "otp" => $otpNo, "mobile" => $request->profile["mobile"], "service" => $service]);
+            if ($getResp && $insert) {
+                $this->model = true;
+                return $this->sendResponse();
+            }
+        } else {
+            return $this->sendError("OTP not generated");
+        }
+    }
+
+    public function verifyOTP(Request $request)
+    {
+        $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))->where("otp", $request->otp)->where("expired_at", null)->orderBy("id", "desc")->first();
+
+        if ($getOTP) {
+            $getProfileUser = Profile::where("profile_id", $getOTP->profile_id)->first();
+            $user = AppUser::find($getProfileUser->user_id);
+            $token = JWTAuth::fromUser($user);
+            if (!$token) {
+                return $this->sendError("Failed to login");
+            }
+            $this->model = ["token" => $token];
+            return $this->sendResponse();
+        }
+
+        return $this->sendError("Invalid OTP");
     }
 }

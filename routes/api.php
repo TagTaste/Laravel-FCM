@@ -51,6 +51,12 @@ Route::post('login',function(Request $request) {
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+
+/* Login Via OTP --BEGIN */
+Route::post('login/otp', 'Auth\LoginController@loginViaOTP');
+
+/* Login Via OTP ENDS */
+
 Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
@@ -147,7 +153,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/logout', 'UserController@logout');
         Route::post('/user/verify/phone', 'UserController@phoneVerify');
 
-        Route::post('/user/requestOtp', 'UserController@requestOtp');
+        Route::post('/user/ ', 'UserController@requestOtp');
 
         /**
          * Route to update user invite code, this roiute will be mostly used by the admin dashboard
