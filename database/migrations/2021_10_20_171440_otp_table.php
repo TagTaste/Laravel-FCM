@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class PaymentReport extends Migration
+class OtpTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +14,20 @@ class PaymentReport extends Migration
      */
     public function up()
     {
-        Schema::create('payment_report', function (Blueprint $table) {
-            $table->increments('id')->primary();
-            $table->string("transaction_id");
-            $table->unsignedInteger('profile_id');
+        Schema::create('otp_master', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string("otp");
+            $table->string("mobile");
+            $table->unsignedInteger("profile_id");
             $table->foreign("profile_id")->references("id")->on("profiles");
-            $table->string("title");
-            $table->text("description")->nullable();
-            $table->string("complaint_id");
+            $table->string("service")->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
-            $table->softDeletes();
+            $table->timestamp('expired_at')->nullable();
+            $table->index("created_at");
+            $table->index("otp");
+            $table->index("profile_id");
+            $table->index("mobile");
         });
     }
 
@@ -34,6 +38,6 @@ class PaymentReport extends Migration
      */
     public function down()
     {
-        Schema::drop('payment_report');
+        Schema::drop('otp_master');
     }
 }

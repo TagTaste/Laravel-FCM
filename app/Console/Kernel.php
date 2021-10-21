@@ -66,6 +66,7 @@ use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
 use App\Console\Commands\SurveyAnswerSync;
 use App\Console\Commands\InsertTTFBQuestion as TTFBQuestionaire;
+use App\Console\Commands\makePaidTasters;
 use App\Console\Commands\TTFBQuestionUpload;
 use App\Console\Commands\removeNotifications;
 
@@ -272,7 +273,9 @@ class Kernel extends ConsoleKernel
         //update social connection
         SocialConnectedAddFlag::class,
 
-        DispatchJob::class
+        DispatchJob::class,
+        makePaidTasters::class,
+        removeNotifications::class
 
     ];
 
@@ -298,7 +301,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:surveys')->dailyAt('12:00');
 
 
-        $schedule->command('command:remove-notification')->dailyAt('03:00');
+
+        $schedule->command('command:remove-notification')->dailyAt('01:00');
         // $schedule->command('profile_compiled_detail:update')->dailyAt('14:05');
 
         //$schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
