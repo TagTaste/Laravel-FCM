@@ -910,4 +910,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/expert/enroll", "PaymentController@enrollExpertProgram");        
     });
     Route::post('link/status/callback','\App\Http\Controllers\Api\Payment\PaymentController@paymentCallback');
+
+    Route::post('questionnaire/{type}','\App\Http\Controllers\Api\QuestionnaireController@index');
 });

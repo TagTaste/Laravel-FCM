@@ -48,7 +48,11 @@ return  [
     'MINIMUM_PAID_TASTER_TOTAL_REVIEWS' => 3,
 
     'OTP_LOGIN_TIMEOUT_MINUTES' => 15,
-];
 
+    "LINKEDIN_CLIENTID" => env("LINKEDIN_ID"),
+    "LINKEDIN_SECRET" => env("LINKEDIN_LOGIN_SECRET"),
+  
+    
+];
 
 ?>
