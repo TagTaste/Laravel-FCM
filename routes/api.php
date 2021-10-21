@@ -54,6 +54,8 @@ Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallba
 
 /* Login Via OTP --BEGIN */
 Route::post('login/otp', 'Auth\LoginController@loginViaOTP');
+Route::post('resend/otp', 'Auth\LoginController@resendOTP');
+Route::post('login/otp/verify', 'Auth\LoginController@verifyOTP');
 
 /* Login Via OTP ENDS */
 
