@@ -52,7 +52,7 @@ return  [
     "LINKEDIN_CLIENTID" => env("LINKEDIN_ID"),
     "LINKEDIN_SECRET" => env("LINKEDIN_LOGIN_SECRET"),
   
-    
+    'LOGIN_OTP_SOURCE' => "login_otp",
 ];
 
 ?>

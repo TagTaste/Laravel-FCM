@@ -17,12 +17,15 @@ class OtpTable extends Migration
         Schema::create('otp_master', function (Blueprint $table) {
             $table->increments('id');
             $table->string("otp");
+            $table->string("country_code");
             $table->string("mobile");
             $table->unsignedInteger("profile_id");
             $table->foreign("profile_id")->references("id")->on("profiles");
             $table->string("service")->nullable();
+            $table->string("source")->nullable();
+            $table->string("platform")->nullable();
             $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamp('expired_at')->nullable();
             $table->index("created_at");
             $table->index("otp");

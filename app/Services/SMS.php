@@ -16,8 +16,8 @@ class SMS
             $url = config("app.gupshup.URL") . config("app.gupshup.APP_ID");
 
             $client = curl_init($url);
-            $data = ["destination" => str_replace("+", "", $mobile), "message" => $message];
-            
+            $data = json_encode(["destination" => str_replace("+", "", $mobile), "message" => $message]);
+
             curl_setopt($client, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($client, CURLINFO_HEADER_OUT, true);
             curl_setopt($client, CURLOPT_POST, true);
@@ -36,13 +36,13 @@ class SMS
             // Submit the POST request
             $resp = curl_exec($client);
             curl_close($client);
-            
+
             if (!is_array($resp)) {
                 $resp = json_decode($resp, true);
             }
 
             // if (isset($resp["status"]) && $resp["status"] == "submitted") {
-                return true;
+            return true;
             // }
         } else if ($carrier == "twilio") {
             $accountSid = config('app.twilio.TWILIO_ACCOUNT_SID');
