@@ -241,7 +241,12 @@ class LoginController extends Controller
         }
         //verifyIfOtpAlreadySent 
 
-        $check = OTPMaster::where("profile_id", $id->id)->where('mobile', "=", $request->profile["mobile"])->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))->where("expired_at", '<', date("Y-m-d H:i:s"))->where("source", $source)->orderBy("id", "desc")->where("deleted_at",null)->first();
+        $check = OTPMaster::where("profile_id", $id->id)->where('mobile', "=", $request->profile["mobile"])
+        ->where("created_at",">",date("Y-m-d H:i:s",strtotime("-".config("constant.OTP_LOGIN_TIMEOUT_MINUTES") ." minutes")))
+        ->where("expired_at", '>', date("Y-m-d H:i:s"))
+        ->where("source", $source)->orderBy("id", "desc")
+        ->where("deleted_at",null)
+        ->first();
 
         if ($check == null) {
             //Send OTP     
@@ -307,6 +312,7 @@ class LoginController extends Controller
         //for testing
         $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])
         // ->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))
+        // ->where("otp", $request->otp)
         ->where("expired_at", '>', date("Y-m-d H:i:s"))
         ->where("source", $source)
         ->orderBy("id", "desc")
@@ -320,7 +326,7 @@ class LoginController extends Controller
             if (!$token) {
                 return $this->sendError("Failed to login");
             }
-            OTPMaster::where("profile_id", $getOTP->profile_id)->update(["expired_at" => date("Y-m-d H:i:s")]);
+            OTPMaster::where("profile_id", $getOTP->profile_id)->update(["deleted_at" => date("Y-m-d H:i:s")]);
             $this->model = ["token" => $token];
             return $this->sendResponse();
         }
