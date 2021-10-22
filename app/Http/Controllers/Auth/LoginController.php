@@ -303,9 +303,11 @@ class LoginController extends Controller
 
     public function verifyOTP(Request $request)
     {
-        $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))->where("otp", $request->otp)->where("expired_at", null)->orderBy("id", "desc")->first();
+        // $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))->where("otp", $request->otp)->where("expired_at", null)->orderBy("id", "desc")->first();
+        //for testing
+        $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))->where("expired_at", null)->orderBy("id", "desc")->first();
 
-        if ($getOTP) {
+        if ($getOTP && $request->otp=="123456") {
             $getProfileUser = Profile::where("id", $getOTP->profile_id)->first();
             $user = AppUser::find($getProfileUser->user_id);
             $token = JWTAuth::fromUser($user);
