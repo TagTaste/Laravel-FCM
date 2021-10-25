@@ -266,7 +266,7 @@ class LoginController extends Controller
                 return $this->sendResponse();
             }
         } else {
-            return $this->sendError("OTP already sent");
+            return $this->sendError("The Otp is already sent to this number, please wait a minute to resend it again");
         }
         return $this->sendError("Failed to send otp");
     }
