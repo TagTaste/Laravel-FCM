@@ -242,11 +242,11 @@ class LoginController extends Controller
         //verifyIfOtpAlreadySent 
 
         $check = OTPMaster::where("profile_id", $id->id)->where('mobile', "=", $request->profile["mobile"])
-        ->where("created_at",">",date("Y-m-d H:i:s",strtotime("-".config("constant.OTP_LOGIN_TIMEOUT_MINUTES") ." minutes")))
-        ->where("expired_at", '>', date("Y-m-d H:i:s"))
-        ->where("source", $source)->orderBy("id", "desc")
-        ->where("deleted_at",null)
-        ->first();
+            ->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
+            ->where("expired_at", '>', date("Y-m-d H:i:s"))
+            ->where("source", $source)->orderBy("id", "desc")
+            ->where("deleted_at", null)
+            ->first();
 
         if ($check == null) {
             //Send OTP     
@@ -308,17 +308,31 @@ class LoginController extends Controller
     public function verifyOTP(Request $request)
     {
         $source = config("constant.LOGIN_OTP_SOURCE");
-        // $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))->where("otp", $request->otp)->where("expired_at", '<', date("Y-m-d H:i:s"))->where("source", $source)->orderBy("id", "desc")->where("deleted_at",null)->first();
+
+        $otp = OTPMaster::where('mobile', "=", $request->profile["mobile"])
+
+            ->where("expired_at", '>', date("Y-m-d H:i:s"))
+            ->where("source", $source)
+            ->orderBy("id", "desc")
+            ->where("deleted_at", null)->first();
+        if ($otp) {
+            $otp->update(["attempts" => $otp->attempts + 1]);
+        }
+
         //for testing
         $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])
-        // ->where("created_at", ">", Carbon::now()->subMinutes(config("constant.OTP_LOGIN_TIMEOUT_MINUTES")))
-        // ->where("otp", $request->otp)
-        ->where("expired_at", '>', date("Y-m-d H:i:s"))
-        ->where("source", $source)
-        ->orderBy("id", "desc")
-        ->where("deleted_at",null)
-        ->first();
 
+            // ->where("otp", $request->otp)
+            ->where("expired_at", '>', date("Y-m-d H:i:s"))
+            ->where("source", $source)
+            ->orderBy("id", "desc")
+            ->where("deleted_at", null)
+            ->first();
+
+        if ($getOTP && $getOTP->attempts > config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
+            $getOTP->update(["deleted_at" => date("Y-m-d H:i:s")]);
+            return $this->sendError("Otp Verification Attempts Exceeded , Please regenerate again");
+        }
         if ($getOTP && $request->otp == "123456") {
             $getProfileUser = Profile::where("id", $getOTP->profile_id)->first();
             $user = AppUser::find($getProfileUser->user_id);
@@ -330,6 +344,7 @@ class LoginController extends Controller
             $this->model = ["token" => $token];
             return $this->sendResponse();
         }
+
 
         return $this->sendError("Invalid OTP");
     }
