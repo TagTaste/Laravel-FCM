@@ -228,7 +228,7 @@ class LoginController extends Controller
     public function loginViaOTP(Request $request)
     {
         $source = config("constant.LOGIN_OTP_SOURCE");
-        $verifyNumber = Profile::where("phone", $request->profile["mobile"])->where("country_code", trim(str_replace("+", "", $request->profile["country_code"])))->get();
+        $verifyNumber = Profile::where("phone", $request->profile["mobile"])->where("country_code", "LIKE",'%'.trim(str_replace("+", "", $request->profile["country_code"])))->get();
 
         if ($verifyNumber->count() == 0) {
             return $this->sendError('The number is not registered');
