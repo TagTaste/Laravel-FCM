@@ -27,6 +27,7 @@ class OtpTable extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('deleted_at')->nullable();
             $table->timestamp('expired_at')->nullable();
+            $table->integer('attempts')->default(0);
             $table->index("created_at");
             $table->index("otp");
             $table->index("profile_id");
