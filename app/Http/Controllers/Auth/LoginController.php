@@ -251,7 +251,7 @@ class LoginController extends Controller
         if ($check == null) {
             //Send OTP     
             $otpNo = mt_rand(100000, 999999);
-            $text =  "Use OTP " . $otpNo . " to login to your TagTaste account. DO NOT share OTP with anyone.";
+            $text =   $otpNo . " is your OTP to verify your number with TagTaste";
             if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
                 $service = "gupshup";
                 $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
