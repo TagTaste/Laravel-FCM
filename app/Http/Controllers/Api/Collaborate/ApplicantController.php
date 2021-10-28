@@ -81,6 +81,38 @@ class ApplicantController extends Controller
         if($request->sortBy != null) {
             $applicants = $this->sortApplicants($request->sortBy,$applicants,$collaborateId);
         }
+
+        //count of sensory trained
+        $countSensory = \DB::table('profiles')
+        ->select( \DB::raw('COUNT(collaborate_applicants.id) as Count'))
+        ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+        ->where('profiles.is_sensory_trained',1)
+        ->whereIn('profile_id', $profileIds, $boolean, $type)
+        ->whereNotNull('shortlisted_at')            
+        ->whereNull('rejected_at')
+        ->where('collaborate_applicants.collaborate_id',$collaborateId)
+        ->get();
+       //count of experts
+       $countExpert = \DB::table('profiles')
+       ->selectRaw('count(collaborate_applicants.id) as Count')
+       ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+       ->where('profiles.is_expert',1)
+       ->whereIn('profile_id', $profileIds, $boolean, $type)
+       ->whereNotNull('shortlisted_at')            
+       ->whereNull('rejected_at')
+       ->where('collaborate_applicants.collaborate_id',$collaborateId)
+       ->get();
+       //count of super tasters
+       $countSuperTaste = \DB::table('profiles')
+       ->selectRaw('count(collaborate_applicants.id) as Count')
+       ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+       ->where('profiles.is_tasting_expert',1)
+       ->whereIn('profile_id', $profileIds, $boolean, $type)
+       ->whereNotNull('shortlisted_at')            
+       ->whereNull('rejected_at')
+       ->where('collaborate_applicants.collaborate_id',$collaborateId)
+       ->get();
+
         $applicants = $applicants->whereIn('profile_id', $profileIds, $boolean, $type)
         ->whereNotNull('shortlisted_at')            
         ->whereNull('rejected_at')//->orderBy("created_at","desc")
@@ -113,7 +145,10 @@ class ApplicantController extends Controller
             ->whereNotNull('rejected_at')->count();
         $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
-
+        $this->model["overview"][] = ['title'=> "Sensory Trained","count"=>$countSensory->count()];
+        $this->model["overview"][] = ['title'=> "Experts","count"=>$countExpert->count()];
+        $this->model["overview"][] = ['title'=> "Super Taster","count"=>$countSuperTaste->count()];
+        
         return $this->sendResponse();
     }
 
