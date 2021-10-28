@@ -193,6 +193,41 @@ class BatchController extends Controller
             $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
+
+
+         //count of sensory trained
+         
+         $countSensory = \DB::table('profiles')
+         ->select('collaborate_applicants.id')
+         ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+         ->where('profiles.is_sensory_trained',1)
+         ->whereIn('profile_id', array_column($profiles,"profile_id"))
+         ->whereNotNull('shortlisted_at')            
+         ->whereNull('rejected_at')
+         ->where('collaborate_applicants.collaborate_id',$collaborateId)
+         ->get();
+         
+        //count of experts
+        $countExpert = \DB::table('profiles')
+        ->select('collaborate_applicants.id')
+        ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+        ->where('profiles.is_expert',1)
+        ->whereIn('profile_id', array_column($profiles,"profile_id"))
+        ->whereNotNull('shortlisted_at')            
+        ->whereNull('rejected_at')
+        ->where('collaborate_applicants.collaborate_id',$collaborateId)
+        ->get();
+        //count of super tasters
+        $countSuperTaste = \DB::table('profiles')
+        ->select('profiles.id')
+        ->where('profiles.is_tasting_expert',1)
+        ->whereIn('id', array_column($profiles,"profile_id"))
+        ->get();
+        // dd($countSuperTaste);
+
+        $this->model["overview"][] = ['title'=> "Sensory Trained","count"=>$countSensory->count()];
+        $this->model["overview"][] = ['title'=> "Experts","count"=>$countExpert->count()];
+        $this->model["overview"][] = ['title'=> "Super Taster","count"=>$countSuperTaste->count()];
         $this->model['applicants'] = $profiles;
         $this->model['batch'] = Collaborate\Batches::where('id',$id)->first();
         return $this->sendResponse();
@@ -959,11 +994,15 @@ class BatchController extends Controller
 
     public function filters(Request $request, $collaborateId)
     {
+        
         $filters = $request->input('filter');
 
         $gender = ['Male','Female','Other'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
         $currentStatus = [0,1,2,3];
+        $userType = ['Expert','Consumer'];
+        $sensoryTrained = ["Yes","No"];
+        $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->get();
         $city = [];
         foreach ($applicants as $applicant)
@@ -987,6 +1026,12 @@ class BatchController extends Controller
                     $data['city'] = $city;
                 if($filter == 'current_status')
                     $data['current_status'] = $currentStatus;
+                if($filter == 'super_taster')
+                    $data['super_taster'] = $superTaster;
+                if($filter == 'user_type')
+                    $data['user_type'] = $userType;
+                if($filter == 'sensory_trained')
+                    $data['sensory_trained'] = $sensoryTrained;
             }
         }
         else
@@ -1504,6 +1549,80 @@ class BatchController extends Controller
             $profileIds = $genderFilterIds;
         }
         //if no filter applied - include will work as include only
+
+        #######################################################NEW FILTERS
+
+        if (isset($filters['sensory_trained'])) {
+            $sensoryFilterIds = new Collection([]);
+            $isFilterAble = true;
+            foreach ($filters['sensory_trained'] as $sensory) {
+                if ($sensory == 'Yes')
+                    $sensory = 1;
+                else
+                    $sensory = 0;
+                if ($profileIds->count() > 0)
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
+                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
+                        ->where('profiles.is_sensory_trained', $sensory)
+                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
+                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
+                        ->where('profiles.is_sensory_trained', $sensory)->get()->pluck('profile_id');
+
+                $sensoryFilterIds = $sensoryFilterIds->merge($ids);
+            }
+            $profileIds = $profileIds->merge($sensoryFilterIds);
+        }
+
+        if (isset($filters['super_taster'])) {
+            $superTasterFilterIds = new Collection([]);
+            $isFilterAble = true;
+            foreach ($filters['super_taster'] as $superTaster) {
+                if ($superTaster == '           ')
+                    $superTaster = 1;
+                else
+                    $superTaster = 0;
+                if ($profileIds->count() > 0)
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
+                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
+                        ->where('profiles.is_tasting_expert', $superTaster)
+                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
+                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
+                        ->where('profiles.is_tasting_expert', $superTaster)
+                        ->get()->pluck('profile_id');
+                $superTasterFilterIds = $superTasterFilterIds->merge($ids);
+            }
+            $profileIds = $profileIds->merge($superTasterFilterIds);
+        }
+        if (isset($filters['user_type'])) {
+            $userTypeFilterIds = new Collection([]);
+            $isFilterAble = true;
+            foreach ($filters['user_type'] as $userType) {
+                if ($userType == 'Expert')
+                    $userType = 1;
+                else
+                    $userType = 0;
+                if ($profileIds->count() > 0)
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
+                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
+                        ->where('profiles.is_expert', $userType)
+                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
+                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
+                        ->where('profiles.is_expert', $userType)
+                        ->get()->pluck('profile_id');
+                $userTypeFilterIds = $userTypeFilterIds->merge($ids);
+            }
+            $profileIds = $profileIds->merge($userTypeFilterIds);
+        }
+
+
+        ###############################################
+
         //if filter applied - include will add profile to filtered profiles
 
         if(isset($filters['include_profile_id']))
@@ -1538,6 +1657,11 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->merge($filterNotProfileIds);
         }
+
+
+      
+
+
         
         if($isFilterAble)
             return ['profile_id'=>$profileIds,'type'=>false]; //data for these profile ids only 
