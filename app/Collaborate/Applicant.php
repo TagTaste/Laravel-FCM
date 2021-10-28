@@ -37,9 +37,9 @@ class Applicant extends Model {
 
     public function getApplierAddressAttribute($value)
     {
-        // if(count($value)==0 || $value == null || $value == '{}') {
+        if(count($value)==0 || $value == null || $value == '{}') {
             return (object)null;
-        // }
+        }
         return json_decode($value,true);
     }
     public function getDocumentMetaAttribute($value)
