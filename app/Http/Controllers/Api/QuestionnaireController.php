@@ -31,7 +31,7 @@ class QuestionnaireController extends Controller
 
             $data = [
                 'name' => $request->title, 'keywords' => $request->keyword, 'description' => $request->description ?? null,
-                'question_json' => json_encode($request->question_json,true), 'header_info' => json_encode($request->header_info, true), 'track_consistency' => $request->track_consistency
+                'question_json' => json_encode($request->question_json,JSON_NUMERIC_CHECK), 'header_info' => json_encode($request->header_info, JSON_NUMERIC_CHECK), 'track_consistency' => $request->track_consistency
             ];
             $this->model = \DB::table('global_questions')->insert($data);
             return $this->sendResponse();
