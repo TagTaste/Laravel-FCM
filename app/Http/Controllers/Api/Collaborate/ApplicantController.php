@@ -85,20 +85,20 @@ class ApplicantController extends Controller
         //count of sensory trained
         $countSensory = \DB::table('profiles')
         ->select('id')
-        ->where('profiles.is_sensory_trained',1)
-        ->whereIn('profile_id', $profileIds)
+        ->where('is_sensory_trained',1)
+        ->whereIn('id', $profileIds, $boolean, $type)
         ->get();
        //count of experts
        $countExpert = \DB::table('profiles')
        ->select('id')
-       ->where('profiles.is_expert',1)
-       ->whereIn('profile_id', $profileIds)
+       ->where('is_expert',1)
+       ->whereIn('id', $profileIds, $boolean, $type)
        ->get();
        //count of super tasters
        $countSuperTaste = \DB::table('profiles')
        ->select('id')
-       ->where('profiles.is_tasting_expert',1)
-       ->whereIn('profile_id', $profileIds)
+       ->where('is_tasting_expert',1)
+       ->whereIn('id', $profileIds, $boolean, $type)
        ->get();
 
         $applicants = $applicants->whereIn('profile_id', $profileIds, $boolean, $type)

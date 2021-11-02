@@ -198,24 +198,16 @@ class BatchController extends Controller
          //count of sensory trained
          
          $countSensory = \DB::table('profiles')
-         ->select('collaborate_applicants.id')
-         ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+         ->select('profiles.id')
          ->where('profiles.is_sensory_trained',1)
-         ->whereIn('profile_id', array_column($profiles,"profile_id"))
-         ->whereNotNull('shortlisted_at')            
-         ->whereNull('rejected_at')
-         ->where('collaborate_applicants.collaborate_id',$collaborateId)
+         ->whereIn('id', array_column($profiles,"profile_id"))
          ->get();
          
         //count of experts
         $countExpert = \DB::table('profiles')
-        ->select('collaborate_applicants.id')
-        ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+        ->select('profiles.id')
         ->where('profiles.is_expert',1)
-        ->whereIn('profile_id', array_column($profiles,"profile_id"))
-        ->whereNotNull('shortlisted_at')            
-        ->whereNull('rejected_at')
-        ->where('collaborate_applicants.collaborate_id',$collaborateId)
+        ->whereIn('id', array_column($profiles,"profile_id"))
         ->get();
         //count of super tasters
         $countSuperTaste = \DB::table('profiles')
