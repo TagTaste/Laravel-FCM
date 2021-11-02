@@ -820,6 +820,9 @@ class ApplicantController extends Controller
         $gender = ['Male','Female','Other'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
         $currentStatus = [0,1,2,3];
+        $userType = ['Expert','Consumer'];
+        $sensoryTrained = ["Yes","No"];
+        $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->get();
         $city = [];
         foreach ($applicants as $applicant)
@@ -843,11 +846,17 @@ class ApplicantController extends Controller
                     $data['city'] = $city;
                 if($filter == 'current_status')
                     $data['current_status'] = $currentStatus;
+                if($filter == 'super_taster')
+                    $data['super_taster'] = $superTaster;
+                if($filter == 'user_type')
+                    $data['user_type'] = $userType;
+                if($filter == 'sensory_trained')
+                    $data['sensory_trained'] = $sensoryTrained;
             }
         }
         else
         {
-            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city];
+            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,"user_type"=>$userType,"sensory_trained"=>$sensoryTrained,"super_taster"=>$superTaster];
         }
         $this->model = $data;
         return $this->sendResponse();

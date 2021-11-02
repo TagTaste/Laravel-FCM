@@ -1028,7 +1028,7 @@ class BatchController extends Controller
         }
         else
         {
-            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,'current_status'=>$currentStatus];
+            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,'current_status'=>$currentStatus,"user_type"=>$userType,"sensory_trained"=>$sensoryTrained,"super_taster"=>$superTaster];
         }
         $this->model = $data;
 
