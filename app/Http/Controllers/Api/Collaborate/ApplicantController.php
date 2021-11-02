@@ -84,33 +84,21 @@ class ApplicantController extends Controller
 
         //count of sensory trained
         $countSensory = \DB::table('profiles')
-        ->select( \DB::raw('COUNT(collaborate_applicants.id) as Count'))
-        ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+        ->select('id')
         ->where('profiles.is_sensory_trained',1)
-        ->whereIn('profile_id', $profileIds, $boolean, $type)
-        ->whereNotNull('shortlisted_at')            
-        ->whereNull('rejected_at')
-        ->where('collaborate_applicants.collaborate_id',$collaborateId)
+        ->whereIn('profile_id', $profileIds)
         ->get();
        //count of experts
        $countExpert = \DB::table('profiles')
-       ->selectRaw('count(collaborate_applicants.id) as Count')
-       ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+       ->select('id')
        ->where('profiles.is_expert',1)
-       ->whereIn('profile_id', $profileIds, $boolean, $type)
-       ->whereNotNull('shortlisted_at')            
-       ->whereNull('rejected_at')
-       ->where('collaborate_applicants.collaborate_id',$collaborateId)
+       ->whereIn('profile_id', $profileIds)
        ->get();
        //count of super tasters
        $countSuperTaste = \DB::table('profiles')
-       ->selectRaw('count(collaborate_applicants.id) as Count')
-       ->join('collaborate_applicants','profiles.id','collaborate_applicants.profile_id')
+       ->select('id')
        ->where('profiles.is_tasting_expert',1)
-       ->whereIn('profile_id', $profileIds, $boolean, $type)
-       ->whereNotNull('shortlisted_at')            
-       ->whereNull('rejected_at')
-       ->where('collaborate_applicants.collaborate_id',$collaborateId)
+       ->whereIn('profile_id', $profileIds)
        ->get();
 
         $applicants = $applicants->whereIn('profile_id', $profileIds, $boolean, $type)
