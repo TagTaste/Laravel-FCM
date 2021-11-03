@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Http\Controllers\Api\Controller;
+use App\Profile as AppProfile;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
@@ -41,6 +42,8 @@ class ApplicantController extends Controller
      */
     public function index(Request $request,$collaborateId)
     {
+        
+        
         $collaborate = Collaborate::where('id',$collaborateId)
                             //->where('state','!=',Collaborate::$state[1])
                             ->first();
@@ -69,6 +72,7 @@ class ApplicantController extends Controller
         $q = $request->input('q');
         $filters = $request->input('filters');
         $profileIds = $this->getFilteredProfile($filters,$collaborateId);
+        
         $type = true;
         $boolean = 'and' ;
         if(isset($filters))
@@ -82,32 +86,17 @@ class ApplicantController extends Controller
             $applicants = $this->sortApplicants($request->sortBy,$applicants,$collaborateId);
         }
 
-        //count of sensory trained
-        $countSensory = \DB::table('profiles')
-        ->select('id')
-        ->where('is_sensory_trained',1)
-        ->whereIn('id', $profileIds, $boolean, $type)
-        ->get();
-       //count of experts
-       $countExpert = \DB::table('profiles')
-       ->select('id')
-       ->where('is_expert',1)
-       ->whereIn('id', $profileIds, $boolean, $type)
-       ->get();
-       //count of super tasters
-       $countSuperTaste = \DB::table('profiles')
-       ->select('id')
-       ->where('is_tasting_expert',1)
-       ->whereIn('id', $profileIds, $boolean, $type)
-       ->get();
+     
 
         $applicants = $applicants->whereIn('profile_id', $profileIds, $boolean, $type)
         ->whereNotNull('shortlisted_at')            
         ->whereNull('rejected_at')//->orderBy("created_at","desc")
         ->skip($skip)->take($take)->get();
         $applicants = $applicants->toArray();
+        $pId = [];
         foreach ($applicants as &$applicant)
         {
+            
             $batchIds = Redis::sMembers("collaborate:".$applicant['collaborate_id'].":profile:".$applicant['profile_id'].":");
             $count = count($batchIds);
             if($count)
@@ -123,9 +112,32 @@ class ApplicantController extends Controller
                     $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile_id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
+                
             }
+            $pId[] = $applicant['profile_id'];
             $applicant['batches'] = $count > 0 ? $batchInfos : null;
         }
+        
+        
+           //count of sensory trained
+        $countSensory = AppProfile::where('is_sensory_trained',"=",1)
+           ->whereIn('profiles.id', $pId)
+           ->get();
+           
+           
+          //count of experts
+          $countExpert = \DB::table('profiles')
+          ->select('id')
+          ->where('is_expert',1)
+          ->whereIn('id', $pId)
+          ->get();
+
+          //count of super tasters
+          $countSuperTaste = \DB::table('profiles')
+          ->select('id')
+          ->where('is_tasting_expert',1)
+          ->whereIn('id', $pId)
+          ->get();
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')->count();
