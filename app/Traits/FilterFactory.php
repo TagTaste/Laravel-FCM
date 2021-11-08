@@ -72,19 +72,17 @@ trait FilterFactory
                     $data['sensory_trained'] = $sensoryTrained;
             }
         } else {
-            $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city,"sensory_trained"=>$sensoryTrained,"user_type"=>$userType,"super_taster"=>$superTaster];
+            $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
         }
         return $data;
     }
 
-    public function getFilteredProfile($filters, $collaborateId,$batchId = null)
+    public function getFilteredProfile($filters, $collaborateId, $batchId = null)
     {
         $profileIds = new Collection([]);
-        if($profileIds->count() == 0 && isset($filters['profile_id']))
-        {
+        if ($profileIds->count() == 0 && isset($filters['profile_id'])) {
             $filterProfile = [];
-            foreach ($filters['profile_id'] as $filter)
-            {
+            foreach ($filters['profile_id'] as $filter) {
                 $filterProfile[] = (int)$filter;
             }
             $profileIds = $profileIds->merge($filterProfile);
@@ -112,122 +110,103 @@ trait FilterFactory
             $profileIds = $profileIds->merge($currentStatusIds);
         }
 
-        $Ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId);
+        $Ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId);
 
-        if(isset($filters['city'])){
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach ($filters['city'] as $city){
+        if (isset($filters['city'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['city'] as $city) {
                     $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
                 }
             });
         }
 
-        if(isset($filters['age']))
-        {
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach ($filters['age'] as $age)
-                {                    
-                        $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);                    
+        if (isset($filters['age'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['age'] as $age) {
+                    $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);
                 }
             });
         }
 
-        if(isset($filters['gender']))
-        {
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach ($filters['gender'] as $gender)
-                {
+        if (isset($filters['gender'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['gender'] as $gender) {
                     $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
                 }
             });
         }
 
-        if(isset($filters['hometown']))
-        {
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach ($filters['hometown'] as $hometown)
-                {
+        if (isset($filters['hometown'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['hometown'] as $hometown) {
                     $query->orWhere('collaborate_applicants.hometown', 'LIKE', $hometown);
                 }
             });
         }
 
-        if(isset($filters['current_city']))
-        {
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach ($filters['current_city'] as $current_city)
-                {
+        if (isset($filters['current_city'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['current_city'] as $current_city) {
                     $query->orWhere('collaborate_applicants.current_city', 'LIKE', $current_city);
                 }
             });
         }
-        
-        if(isset($filters['profile'])) {
-            $Ids =   $Ids->leftJoin('profile_specializations','collaborate_applicants.profile_id','=','profile_specializations.profile_id')
-            ->leftJoin('specializations','profile_specializations.specialization_id','=','specializations.id');
-                        
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach($filters['profile'] as $profile) {
-                    $query->orWhere('name','LIKE',$profile);
+
+        if (isset($filters['profile'])) {
+            $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
+                ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
+
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['profile'] as $profile) {
+                    $query->orWhere('name', 'LIKE', $profile);
                 }
             });
         }
 
-        if(isset($filters['sensory_trained']))
-        {
-
-            $Ids =   $Ids->leftJoin('profiles','collaborate_applicants.profile_id','=','profiles.id');
-  
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach($filters['sensory_trained'] as $sensory) {
-                    if($sensory == 'Yes')
-                    $sensory = 1;
+        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
+            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
+        }
+        if (isset($filters['sensory_trained'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['sensory_trained'] as $sensory) {
+                    if ($sensory == 'Yes')
+                        $sensory = 1;
                     else
-                    $sensory = 0;
-                    $query->orWhere('profiles.is_sensory_trained',$sensory);
+                        $sensory = 0;
+                    $query->orWhere('profiles.is_sensory_trained', $sensory);
                 }
             });
-           
         }
 
-            if(isset($filters['super_taster']))
-            {
-                
-                $Ids =   $Ids->leftJoin('profiles','collaborate_applicants.profile_id','=','profiles.id');
-    
-                $Ids = $Ids->where(function($query) use($filters){
-                    foreach($filters['super_taster'] as $superTaster) {
-                        if($superTaster == 'SuperTaster')
+        if (isset($filters['super_taster'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['super_taster'] as $superTaster) {
+                    if ($superTaster == 'SuperTaster')
                         $superTaster = 1;
-                        else
-                        $superTaster = 0;
-                        $query->orWhere('profiles.is_tasting_expert',$superTaster);
-                    }
-                });
-            
-            }
-
-        if(isset($filters['user_type']))
-        {
-            $Ids =   $Ids->leftJoin('profiles','collaborate_applicants.profile_id','=','profiles.id');
-  
-            $Ids = $Ids->where(function($query) use($filters){
-                foreach($filters['user_type'] as $userType) {
-                    if($userType == 'Expert')
-                    $userType = 1;
                     else
-                    $userType = 0;
-                    $query->orWhere('profiles.is_expert',$userType);
+                        $superTaster = 0;
+                    $query->orWhere('profiles.is_tasting_expert', $superTaster);
                 }
             });
-          
         }
-        
-   
-        if($profileIds->count() > 0){
-            $Ids= $Ids->whereIn('collaborate_applicants.profile_id',$profileIds);
+
+        if (isset($filters['user_type'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['user_type'] as $userType) {
+                    if ($userType == 'Expert')
+                        $userType = 1;
+                    else
+                        $userType = 0;
+                    $query->orWhere('profiles.is_expert', $userType);
+                }
+            });
         }
-        
+
+
+        if ($profileIds->count() > 0) {
+            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
+        }
+
         $Ids = $Ids->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($Ids);
 
