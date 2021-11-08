@@ -1309,10 +1309,11 @@ class BatchController extends Controller
             });
         }
 
-        if (isset($filters['sensory_trained'])) {
-
+        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
             $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
+        }
 
+        if (isset($filters['sensory_trained'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['sensory_trained'] as $sensory) {
                     if ($sensory == 'Yes')
@@ -1326,8 +1327,6 @@ class BatchController extends Controller
 
         if (isset($filters['super_taster'])) {
 
-            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
-
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['super_taster'] as $superTaster) {
                     if ($superTaster == 'SuperTaster')
@@ -1340,7 +1339,6 @@ class BatchController extends Controller
         }
 
         if (isset($filters['user_type'])) {
-            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
 
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['user_type'] as $userType) {
