@@ -72,7 +72,7 @@ trait FilterFactory
                     $data['sensory_trained'] = $sensoryTrained;
             }
         } else {
-            $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city];
+            $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city,"sensory_trained"=>$sensoryTrained,"user_type"=>$userType,"super_taster"=>$superTaster];
         }
         return $data;
     }
@@ -233,7 +233,7 @@ trait FilterFactory
 
         return $profileIds;
     }
-    
+
     public function getSearchedProfile($q, $collaborateId)
     {
         $searchByProfile = \DB::table('collaborate_applicants')
