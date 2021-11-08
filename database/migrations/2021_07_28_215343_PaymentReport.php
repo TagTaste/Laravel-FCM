@@ -14,7 +14,7 @@ class PaymentReport extends Migration
     public function up()
     {
         Schema::create('payment_report', function (Blueprint $table) {
-            $table->increments('id');
+            $table->increments('id')->primary();
             $table->string("transaction_id");
             $table->unsignedInteger('profile_id');
             $table->foreign("profile_id")->references("id")->on("profiles");
