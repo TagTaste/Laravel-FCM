@@ -77,12 +77,14 @@ trait FilterFactory
         return $data;
     }
 
-    public function getFilteredProfile($filters, $collaborateId)
+    public function getFilteredProfile($filters, $collaborateId,$batchId = null)
     {
         $profileIds = new Collection([]);
-        if ($profileIds->count() == 0 && isset($filters['profile_id'])) {
+        if($profileIds->count() == 0 && isset($filters['profile_id']))
+        {
             $filterProfile = [];
-            foreach ($filters['profile_id'] as $filter) {
+            foreach ($filters['profile_id'] as $filter)
+            {
                 $filterProfile[] = (int)$filter;
             }
             $profileIds = $profileIds->merge($filterProfile);
@@ -109,163 +111,129 @@ trait FilterFactory
             }
             $profileIds = $profileIds->merge($currentStatusIds);
         }
-        if (isset($filters['city'])) {
-            $cityFilterIds = new Collection([]);
-            foreach ($filters['city'] as $city) {
-                if ($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('city', 'LIKE', $city)
-                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
-                $cityFilterIds = $cityFilterIds->merge($ids);
-            }
-            $profileIds = $profileIds->merge($cityFilterIds);
-        }
-        if (isset($filters['age'])) {
-            $ageFilterIds = new Collection([]);
-            foreach ($filters['age'] as $age) {
-                $age = htmlspecialchars_decode($age);
-                if ($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('age_group', 'LIKE', $age)
-                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('age_group', 'LIKE', $age)
-                        ->get()->pluck('profile_id');
-                $ageFilterIds = $ageFilterIds->merge($ids);
-            }
-            $profileIds = $profileIds->merge($ageFilterIds);
-        }
-        if (isset($filters['gender'])) {
-            $genderFilterIds = new Collection([]);
-            foreach ($filters['gender'] as $gender) {
-                if ($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('gender', 'LIKE', $gender)
-                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('gender', 'LIKE', $gender)
-                        ->get()->pluck('profile_id');
-                $genderFilterIds = $genderFilterIds->merge($ids);
-            }
-            $profileIds = $profileIds->merge($genderFilterIds);
-        }
-        if (isset($filters['profile'])) {
-            $profileFilterIds = new Collection([]);
-            foreach ($filters['profile'] as $profile) {
-                if ($profileIds->count() > 0) {
-                    $ids = \DB::table('collaborate_applicants')
-                        ->where('collaborate_id', $collaborateId)
-                        ->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
-                        ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id')
-                        ->where('name', 'LIKE', $profile)
-                        ->whereIn('collaborate_applicants.profile_id', $profileIds)
-                        ->get()->pluck('collaborate_applicants.profile_id');
-                } else {
-                    $ids = \DB::table('collaborate_applicants')
-                        ->where('collaborate_id', $collaborateId)
-                        ->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
-                        ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id')
-                        ->where('name', 'LIKE', $profile)
-                        ->pluck('collaborate_applicants.profile_id');
+
+        $Ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId);
+
+        if(isset($filters['city'])){
+            $Ids = $Ids->where(function($query) use($filters){
+                foreach ($filters['city'] as $city){
+                    $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
                 }
-                $profileFilterIds = $profileFilterIds->merge($ids);
-            }
-
-            $profileIds = $profileIds->merge($profileFilterIds);
-        }
-        if (isset($filters['hometown'])) {
-            $hometownFilterIds = new Collection([]);
-            foreach ($filters['hometown'] as $hometown) {
-                if ($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('hometown', 'LIKE', $hometown)
-                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('hometown', 'LIKE', $hometown)
-                        ->get()->pluck('profile_id');
-                $hometownFilterIds = $hometownFilterIds->merge($ids);
-            }
-            $profileIds = $profileIds->merge($hometownFilterIds);
-        }
-        if (isset($filters['current_city'])) {
-            $currentCityFilterIds = new Collection([]);
-            foreach ($filters['current_city'] as $current_city) {
-                if ($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('current_city', 'LIKE', $current_city)
-                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->where('current_city', 'LIKE', $current_city)
-                        ->get()->pluck('profile_id');
-                $currentCityFilterIds = $currentCityFilterIds->merge($ids);
-            }
-            $profileIds = $profileIds->merge($currentCityFilterIds);
+            });
         }
 
+        if(isset($filters['age']))
+        {
+            $Ids = $Ids->where(function($query) use($filters){
+                foreach ($filters['age'] as $age)
+                {                    
+                        $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);                    
+                }
+            });
+        }
 
-        if (isset($filters['sensory_trained'])) {
-            $sensoryFilterIds = new Collection([]);
-            foreach ($filters['sensory_trained'] as $sensory) {
-                if ($sensory == 'Yes')
+        if(isset($filters['gender']))
+        {
+            $Ids = $Ids->where(function($query) use($filters){
+                foreach ($filters['gender'] as $gender)
+                {
+                    $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
+                }
+            });
+        }
+
+        if(isset($filters['hometown']))
+        {
+            $Ids = $Ids->where(function($query) use($filters){
+                foreach ($filters['hometown'] as $hometown)
+                {
+                    $query->orWhere('collaborate_applicants.hometown', 'LIKE', $hometown);
+                }
+            });
+        }
+
+        if(isset($filters['current_city']))
+        {
+            $Ids = $Ids->where(function($query) use($filters){
+                foreach ($filters['current_city'] as $current_city)
+                {
+                    $query->orWhere('collaborate_applicants.current_city', 'LIKE', $current_city);
+                }
+            });
+        }
+        
+        if(isset($filters['profile'])) {
+            $Ids =   $Ids->leftJoin('profile_specializations','collaborate_applicants.profile_id','=','profile_specializations.profile_id')
+            ->leftJoin('specializations','profile_specializations.specialization_id','=','specializations.id');
+                        
+            $Ids = $Ids->where(function($query) use($filters){
+                foreach($filters['profile'] as $profile) {
+                    $query->orWhere('name','LIKE',$profile);
+                }
+            });
+        }
+
+        if(isset($filters['sensory_trained']))
+        {
+
+            $Ids =   $Ids->leftJoin('profiles','collaborate_applicants.profile_id','=','profiles.id');
+  
+            $Ids = $Ids->where(function($query) use($filters){
+                foreach($filters['sensory_trained'] as $sensory) {
+                    if($sensory == 'Yes')
                     $sensory = 1;
-                else
+                    else
                     $sensory = 0;
-                if ($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
-                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
-                        ->where('profiles.is_sensory_trained', $sensory)
-                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
-                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
-                        ->where('profiles.is_sensory_trained', $sensory)->get()->pluck('profile_id');
-
-                $sensoryFilterIds = $sensoryFilterIds->merge($ids);
-            }
-            $profileIds = $profileIds->merge($sensoryFilterIds);
+                    $query->orWhere('profiles.is_sensory_trained',$sensory);
+                }
+            });
+           
         }
 
-        if (isset($filters['super_taster'])) {
-            $superTasterFilterIds = new Collection([]);
-            foreach ($filters['super_taster'] as $superTaster) {
-                if ($superTaster == 'SuperTaster')
-                    $superTaster = 1;
-                else
-                    $superTaster = 0;
-                if ($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
-                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
-                        ->where('profiles.is_tasting_expert', $superTaster)
-                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
-                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
-                        ->where('profiles.is_tasting_expert', $superTaster)
-                        ->get()->pluck('profile_id');
-                $superTasterFilterIds = $superTasterFilterIds->merge($ids);
+            if(isset($filters['super_taster']))
+            {
+                
+                $Ids =   $Ids->leftJoin('profiles','collaborate_applicants.profile_id','=','profiles.id');
+    
+                $Ids = $Ids->where(function($query) use($filters){
+                    foreach($filters['super_taster'] as $superTaster) {
+                        if($superTaster == 'SuperTaster')
+                        $superTaster = 1;
+                        else
+                        $superTaster = 0;
+                        $query->orWhere('profiles.is_tasting_expert',$superTaster);
+                    }
+                });
+            
             }
-            $profileIds = $profileIds->merge($superTasterFilterIds);
-        }
-        if (isset($filters['user_type'])) {
-            $userTypeFilterIds = new Collection([]);
-            foreach ($filters['user_type'] as $userType) {
-                if ($userType == 'Expert')
+
+        if(isset($filters['user_type']))
+        {
+            $Ids =   $Ids->leftJoin('profiles','collaborate_applicants.profile_id','=','profiles.id');
+  
+            $Ids = $Ids->where(function($query) use($filters){
+                foreach($filters['user_type'] as $userType) {
+                    if($userType == 'Expert')
                     $userType = 1;
-                else
+                    else
                     $userType = 0;
-                if ($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
-                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
-                        ->where('profiles.is_expert', $userType)
-                        ->whereIn('profile_id', $profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)
-                        ->join('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id')
-                        ->where('profiles.is_expert', $userType)
-                        ->get()->pluck('profile_id');
-                $userTypeFilterIds = $userTypeFilterIds->merge($ids);
-            }
-            $profileIds = $profileIds->merge($userTypeFilterIds);
+                    $query->orWhere('profiles.is_expert',$userType);
+                }
+            });
+          
         }
+        
+   
+        if($profileIds->count() > 0){
+            $Ids= $Ids->whereIn('collaborate_applicants.profile_id',$profileIds);
+        }
+        
+        $Ids = $Ids->get()->pluck('profile_id');
+        $profileIds = $profileIds->merge($Ids);
+
         return $profileIds;
     }
+    
     public function getSearchedProfile($q, $collaborateId)
     {
         $searchByProfile = \DB::table('collaborate_applicants')
