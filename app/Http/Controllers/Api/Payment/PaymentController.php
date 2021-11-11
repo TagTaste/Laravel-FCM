@@ -472,4 +472,41 @@ class PaymentController extends Controller
     {
         return $this->callback($request);
     }
+
+    public function paymentReminder(Request $request)
+    {
+       //sending reminder mails for payment expiration
+
+        $payments = Db::table('profiles')
+        ->select('payment_links.status_json','users.email','users.name','payment_links.model_id')
+        ->join("payment_links",'payment_links.profile_id','profiles.id')
+        ->join("users",'users.id','profiles.user_id')
+        ->where('payment_links.status_id',2)
+        ->whereDate('payment_links.expired_at','>',date('Y-m-d'))
+        ->whereRaw('DATEDIFF(payment_links.expired_at,Now())=2')
+        ->get()->toArray();
+
+
+        $data = ["status" => true];
+        foreach($payments as $payment)
+        {
+            $link = json_decode($payment->status_json);
+            if(isset($link->result->payoutLink)){
+            $str = [
+            "Name" => $payment->name,
+            "Link" =>  $link->result->payoutLink,
+            "Model" => $payment->model_id,
+            "Order" => $link->result->orderId,
+            "Email" => $payment->email
+        ];
+        $d = ["subject" => "Please make your payment before the link expires!", "content" => $str];
+        Mail::send("emails.payment-reminder", ["data" => $d], function ($message) use ($str) {
+            $message->to($str['Email'], 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'Payment Link for order #'.$str['Order']);
+        });
+
+           }
+       
+       }
+        return $this->sendResponse($data);
+    }
 }
