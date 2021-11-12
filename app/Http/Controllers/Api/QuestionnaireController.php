@@ -19,10 +19,6 @@ class QuestionnaireController extends Controller
         if ($type == "public") {
 
             $validator = Validator::make($request->all(), [
-                'track_consistency' => 'required',
-                'title' => 'required',
-                'description' => 'nullable',
-                'keyword' => 'required',
                 'header_info' => 'required|array',
                 'question_json' => 'required|array'
             ]);
