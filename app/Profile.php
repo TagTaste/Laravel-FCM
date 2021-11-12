@@ -1333,7 +1333,7 @@ class Profile extends Model
 
     public function getSurveyCountAttribute()
     {
-        return \DB::table('poll_votes')->where('profile_id',$this->id)->whereNull('deleted_at')->get()->unique('poll_id')->count();
+        return \DB::table('survey_answers')->where('profile_id',$this->id)->where('current_status',2)->whereNull('deleted_at')->get()->unique('survey_id')->count();
     }
 
     public function getShippingaddressAttribute()
