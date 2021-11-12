@@ -51,6 +51,14 @@ Route::post('login',function(Request $request) {
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+
+/* Login Via OTP --BEGIN */
+Route::post('login/otp', 'Auth\LoginController@loginViaOTP');
+Route::post('resend/otp', 'Auth\LoginController@resendOTP');
+Route::post('login/otp/verify', 'Auth\LoginController@verifyOTP');
+
+/* Login Via OTP ENDS */
+
 Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
@@ -147,7 +155,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/logout', 'UserController@logout');
         Route::post('/user/verify/phone', 'UserController@phoneVerify');
 
-        Route::post('/user/requestOtp', 'UserController@requestOtp');
+        Route::post('/user/ ', 'UserController@requestOtp');
 
         /**
          * Route to update user invite code, this roiute will be mostly used by the admin dashboard
@@ -899,7 +907,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         
         Route::post("/issue/{txn_id}", "PaymentController@transactionComplain");
         Route::post("/sensory/enroll", "PaymentController@enrollSensoryProgram");        
-        Route::post("/expert/enroll", "PaymentController@enrollExpertProgram");        
+        Route::post("/expert/enroll", "PaymentController@enrollExpertProgram"); 
     });
     Route::post('link/status/callback','\App\Http\Controllers\Api\Payment\PaymentController@paymentCallback');
 
