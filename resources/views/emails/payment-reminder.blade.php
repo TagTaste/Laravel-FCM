@@ -114,7 +114,7 @@
                                                   color: #4990e2;
                                                   margin: 0px;
                                                   line-height: 1.5;
-                                                " href="#" target="_blank" rel="noreferrer">{{$data["content"]["Link"]}}</a>
+                                                " href="{{$data["content"]["Link"]}}" target="_blank" rel="noreferrer">{{$data["content"]["Link"]}}</a>
                                                                         </div>
                                                                         <div style="margin-top: 4px">
                                                                             <span style="
@@ -129,7 +129,7 @@
                                                   color: #dd2e1f;
                                                   margin: 0px;
                                                   line-height: 1.5;
-                                                ">{{date("d-M-Y",strtotime($data["content"]["expiry_time"]))}}</span>
+                                                ">{{date("jS F Y",strtotime($data["content"]["expiry_time"]))}}</span>
                                                                         </div>
                                                                         <div style="margin-top: 4px">
                                                                             <span style="

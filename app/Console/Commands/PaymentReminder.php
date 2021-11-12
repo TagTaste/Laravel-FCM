@@ -101,8 +101,8 @@ class PaymentReminder extends Command
                     "amount" => $payment->amount
                 ];
                 $d = ["subject" => "Reminder for Payment Redemption - Payment Link expires in " . config("constant.PAYMENT_REMINDER_BEFORE_DAYS") . " Days", "content" => $str];
-                Mail::send("emails.payment-reminder", ["data" => $d], function ($message) use ($str) {
-                    $message->to($str['Email'], 'TagTaste')->subject(((config("app.env") != "production") ? 'TEST - ' : '') . 'Payment Link for order #' . $str['Order']);
+                Mail::send("emails.payment-reminder", ["data" => $d], function ($message) use ($str,$d) {
+                    $message->to($str['Email'], 'TagTaste')->subject($d["subject"]);
                 });
             }
         }
