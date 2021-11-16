@@ -13,37 +13,53 @@ class SMS
         //IntegrationGupShup
         $message = substr($content, 0, 159);
         if ($carrier == "gupshup") {
-            $url = config("app.gupshup.URL") . config("app.gupshup.APP_ID");
+            $url = config("app.gupshup.URL");
 
-            $client = curl_init($url);
+
             $data = json_encode(["destination" => str_replace("+", "", $mobile), "message" => $message]);
 
-            curl_setopt($client, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($client, CURLINFO_HEADER_OUT, true);
-            curl_setopt($client, CURLOPT_POST, true);
-            curl_setopt($client, CURLOPT_POSTFIELDS, $data);
+            //////////////
 
-            // Set HTTP Header for POST request 
-            curl_setopt(
-                $client,
-                CURLOPT_HTTPHEADER,
-                array(
-                    'Content-Type: application/x-www-form-urlencoded',
-                    'Authorization: ' . config("app.gupshup.API_KEY"),
-                )
-            );
+            $curl = curl_init();
+            $post_fields = array();
+            $post_fields["method"] = "sendMessage";
+            $post_fields["send_to"] = trim(str_replace("+", "", $mobile));
+            $post_fields["msg"] = trim($message);
+            $post_fields["msg_type"] = "TEXT";
+            $post_fields["v"] = "1.1";
+            $post_fields["userid"] = config("app.gupshup.UID");
 
-            // Submit the POST request
-            $resp = curl_exec($client);
-            curl_close($client);
+            $post_fields["password"] = config("app.gupshup.PASSWORD");
+            // $post_fields["auth_scheme"] = "PLAIN";
+            $post_fields["format"] = "JSON";
+            // $post_fields["dltTemplateId "] = 1207163531146549448;
+            // print_r($post_fields);
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => $post_fields
+            ));
+            $resp = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            if ($err) {
+
+                throw new Exception("SMS Failed" . json_encode($post_fields));
+                return false;
+            }
 
             if (!is_array($resp)) {
                 $resp = json_decode($resp, true);
             }
 
-            // if (isset($resp["status"]) && $resp["status"] == "submitted") {
-            return true;
-            // }
+            if (isset($resp["response"]["status"]) && $resp["response"]["status"] == "success") {
+                return true;
+            }
         } else if ($carrier == "twilio") {
             $accountSid = config('app.twilio.TWILIO_ACCOUNT_SID');
             $authToken  = config('app.twilio.TWILIO_AUTH_TOKEN');
