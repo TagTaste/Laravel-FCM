@@ -275,8 +275,10 @@ return [
 
     'gupshup' => [
         "API_KEY" => env('GUPSHUP_API_KEY','aqn5f4n1m7gruuuz9hvwkjjgjswmkwko'),
-        "URL" => "http://api.gupshup.io/sms/v1/message/",
-        "APP_ID" => "d7233f89-bf13-27e4-70d1-a981b1427249"
+        "URL" => "https://enterprise.smsgupshup.com/GatewayAPI/rest",
+        "APP_ID" => "d7233f89-bf13-27e4-70d1-a981b1427249",
+        "UID"=>2000203063,
+        "PASSWORD" => "r9Z0jzJo4",
     ]
 
 ];

@@ -251,7 +251,7 @@ class LoginController extends Controller
         if ($check == null) {
             //Send OTP     
             $otpNo = mt_rand(100000, 999999);
-            $text =   $otpNo . " is your OTP to verify your number with TagTaste";
+            $text =   $otpNo . " is your OTP to verify your number with TagTaste.";
             if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
                 $service = "gupshup";
                 $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
@@ -333,7 +333,7 @@ class LoginController extends Controller
             $getOTP->update(["deleted_at" => date("Y-m-d H:i:s")]);
             return $this->sendError("Otp Verification Attempts Exceeded , Please regenerate again");
         }
-        if ($getOTP && $request->otp == "123456") {
+        if ($getOTP && $getOTP->otp==$request->otp) {
             $getProfileUser = Profile::where("id", $getOTP->profile_id)->first();
             $user = AppUser::find($getProfileUser->user_id);
             $token = JWTAuth::fromUser($user);
