@@ -163,6 +163,7 @@ class ReviewController extends Controller
                 $join->where('r1.product_Id', '=', $productId);
                 $join->where('r1.select_type', 5);
             })
+            ->join('profiles','profiles.id','r1.profile_id')
             ->where('public_product_user_review.select_type', 6)
             ->whereNotNull('public_product_user_review.meta')
             ->orderBy('public_product_user_review.updated_at', $sortBy)
@@ -174,12 +175,13 @@ class ReviewController extends Controller
         $this->model = [];
 
         if (count($food_shots)) {
-            $food_shots = $food_shots->toArray();
+            $food_shots = $food_shots;
             foreach ($food_shots as $key => $food_shot) {
                 $this->model[] = array(
                     'id' => $food_shot['id'],
                     'product_id' => $food_shot['product_id'],
                     'meta' => $food_shot['meta'],
+                    'is_tasting_expert' => ($food_shot['is_tasting_expert'])?true:false
                 );
             }
         }
