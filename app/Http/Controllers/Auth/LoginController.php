@@ -231,13 +231,13 @@ class LoginController extends Controller
         $verifyNumber = Profile::where("phone", $request->profile["mobile"])->where("country_code", "LIKE",'%'.trim(str_replace("+", "", $request->profile["country_code"])))->get();
 
         if ($verifyNumber->count() == 0) {
-            return $this->sendError('The number is not registered');
+            return $this->sendError('We could not find any account associated with this phone number. Try logging in with email or any social account.');
         }
 
         $id = $verifyNumber->first();
 
         if ($id->verified_phone != 1) {
-            return $this->sendError('The number is not verified');
+            return $this->sendError('We could not find any account associated with this phone number. Try other login methods.');
         }
         //verifyIfOtpAlreadySent 
 
@@ -268,9 +268,9 @@ class LoginController extends Controller
                 return $this->sendResponse();
             }
         } else {
-            return $this->sendError("The Otp is already sent to this number, please wait a minute to resend it again");
+            return $this->sendError("OTP sent already. Please try again in 1 minute.");
         }
-        return $this->sendError("Failed to send otp");
+        return $this->sendError("Something went wrong. Please try again.");
     }
 
     // public function resendOTP(Request $request)
@@ -333,7 +333,7 @@ class LoginController extends Controller
 
         if ($getOTP && $getOTP->attempts > config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
             $getOTP->update(["deleted_at" => date("Y-m-d H:i:s")]);
-            return $this->sendError("Otp Verification Attempts Exceeded , Please regenerate again");
+            return $this->sendError("OTP attempts exhausted. Please regenerate OTP or try other login methods.");
         }
         if ($getOTP && $getOTP->otp==$request->otp) {
             $getProfileUser = Profile::where("id", $getOTP->profile_id)->first();
@@ -348,6 +348,6 @@ class LoginController extends Controller
         }
 
 
-        return $this->sendError("Invalid OTP");
+        return $this->sendError("Incorrect OTP entered. Please try again.");
     }
 }
