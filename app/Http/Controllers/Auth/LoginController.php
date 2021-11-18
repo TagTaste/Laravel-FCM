@@ -231,7 +231,7 @@ class LoginController extends Controller
         $verifyNumber = Profile::where("phone", $request->profile["mobile"])->where("country_code", "LIKE",'%'.trim(str_replace("+", "", $request->profile["country_code"])))->get();
 
         if ($verifyNumber->count() == 0) {
-            return $this->sendError('We could not find any account associated with this phone number. Try logging in with email or any social account.');
+            return $this->sendError('We could not find any account associated with this phone number. Try other login methods.');
         }
 
         $id = $verifyNumber->first();
