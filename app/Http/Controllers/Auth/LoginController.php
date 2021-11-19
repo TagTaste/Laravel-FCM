@@ -228,7 +228,7 @@ class LoginController extends Controller
     public function loginViaOTP(Request $request)
     {
         $source = config("constant.LOGIN_OTP_SOURCE");
-        $verifyNumber = Profile::where("phone", $request->profile["mobile"])->where("country_code", "LIKE",'%'.trim(str_replace("+", "", $request->profile["country_code"])))->get();
+        $verifyNumber = Profile::where("phone", $request->profile["mobile"])->where("country_code", "LIKE",'%'.trim(str_replace("+", "", $request->profile["country_code"])))->where("verified_phone","=",1)->get();
 
         if ($verifyNumber->count() == 0) {
             return $this->sendError('We could not find any account associated with this phone number. Try other login methods.');
