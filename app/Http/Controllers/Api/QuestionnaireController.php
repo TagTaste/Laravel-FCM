@@ -19,6 +19,9 @@ class QuestionnaireController extends Controller
         if ($type == "public") {
 
             $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'keywords' => 'required',
+                'description' => 'nullable',
                 'header_info' => 'required|array',
                 'question_json' => 'required|array'
             ]);
@@ -29,7 +32,7 @@ class QuestionnaireController extends Controller
 
 
             $data = [
-                'name' => 'Taste_appreciation_pears', 'keywords' => "Taste_appreciation_pears", 'description' => null,
+                'name' => $request->name, 'keywords' => $request->keywords ?? null, 'description' => $request->description ?? null,
 
                 'question_json' => json_encode($request->question_json, JSON_NUMERIC_CHECK), 'header_info' => json_encode($request->header_info, JSON_NUMERIC_CHECK)
             ];
@@ -42,7 +45,7 @@ class QuestionnaireController extends Controller
             $headerData = [];
             // header_selection_type
             // for instruction = 0  , overall preferance = 2 others = 1
-            $header = json_decode($request->header_info, true);
+            $header = $request->header_info;
             foreach ($header as $item) {
                 $headerData[] = [
                     'header_type' => $item['header_name'], 'is_active' => 1, 'header_selection_type' => $item['header_selection_type'],
@@ -53,7 +56,7 @@ class QuestionnaireController extends Controller
             DB::table('public_review_question_headers')->insert($headerData);
 
             $questions = $request->question_json;
-            $questions = json_decode($questions, true);
+            $questions = $questions;
 
             foreach ($questions as $key => $question) {
                 $data = [];
@@ -149,7 +152,7 @@ class QuestionnaireController extends Controller
                         if ($nestedOption->is_nested_option) {
 
                             if (isset($nestedOption->nested_option_list)) {
-                                echo $nestedOption->nested_option_list;
+                                 $nestedOption->nested_option_list;
                                 $extra = DB::table('public_review_global_nested_option')->where('is_active', 1)->where('type', 'like', $nestedOption->nested_option_list)->get();
                                 foreach ($extra as $nested) {
                                     $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
@@ -301,6 +304,8 @@ class QuestionnaireController extends Controller
                     }
                 }
             }
+            $this->model = true;
+            return $this->sendResponse();
         } else if ($type == "private") {
             $validator = Validator::make($request->all(), [
                 'track_consistency' => 'required',
