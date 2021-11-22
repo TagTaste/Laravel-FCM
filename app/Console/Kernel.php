@@ -301,7 +301,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:surveys')->dailyAt('12:00');
 
 
-
         $schedule->command('command:remove-notification')->dailyAt('01:00');
         // $schedule->command('profile_compiled_detail:update')->dailyAt('14:05');
 

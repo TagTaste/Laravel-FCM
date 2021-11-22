@@ -1776,9 +1776,8 @@ class BatchController extends Controller
                                 $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
                                 $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
                                 $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
-                                $answer->intensity_type = $data->questions->intensity_type; 
-                              
-                              
+                                $answer->intensity_value = $data->questions->intensity_value;
+                                $answer->intensity_type = $data->questions->intensity_type;
                             }
                             else
                             {
