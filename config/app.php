@@ -273,10 +273,4 @@ return [
         'TWILIO_ACCOUNT_SID' => env('TWILIO_SID')
     ],
 
-    'gupshup' => [
-        "API_KEY" => env('GUPSHUP_API_KEY','aqn5f4n1m7gruuuz9hvwkjjgjswmkwko'),
-        "URL" => "http://api.gupshup.io/sms/v1/message/",
-        "APP_ID" => "d7233f89-bf13-27e4-70d1-a981b1427249"
-    ]
-
 ];

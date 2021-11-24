@@ -39,7 +39,6 @@ class removeNotifications extends Command
     public function handle()
     {
         $getDate = date("Y-m-d H:i:s",strtotime("-".config("constant.NOTIFICATION_DELETE_PERIOD")." days"));
-
         return  DB::table("notifications")->where("created_at","<",$getDate)->delete();
     }
 }

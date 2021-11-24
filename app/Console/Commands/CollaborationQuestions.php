@@ -114,7 +114,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 'id' => $i,
                                 'value' => $v['value'],
                                 'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
-                                'is_intensity'=>(int)isset($v['is_intensity']) ? $v['is_intensity'] : null,
+                                'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                 'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
                                 'intensity_color'=>isset($v['intensity_color'])?$v['intensity_color'] : null,
@@ -188,7 +188,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 else 
                                     $trackConsistency = 0;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
-                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>(int)$nestedOptionIntensity,'image_url'=>$imageUrl,'option_type'=>$optionType,'track_consistency'=>$trackConsistency];
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity,'image_url'=>$imageUrl,'option_type'=>$optionType,'track_consistency'=>$trackConsistency];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
@@ -200,7 +200,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $nestedOptionIntensity = isset($nested->is_intensity) ? $nested->is_intensity : $nestedOption->is_intensity;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
-                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>(int)$nestedOptionIntensity];
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity];
                             }
                         }
                         else
@@ -294,7 +294,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                     'id' => $i,
                                     'value' => $v['value'],
                                     'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
-                                    'is_intensity'=>(int)isset($v['is_intensity']) ? $v['is_intensity'] : null,
+                                    'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                     'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
                                     'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0,
