@@ -6,6 +6,7 @@ use App\Console\Commands\DispatchJob;
 use App\Console\Commands\AddHandle;
 use App\Console\Commands\AddSuggestionData;
 use App\Console\Commands\BackupDatabase;
+use App\Console\Commands\PaymentReminder;
 use App\Console\Commands\Build\Cache\Collaboration;
 use App\Console\Commands\Build\Cache\Companies;
 use App\Console\Commands\Build\Cache\Followers;
@@ -275,7 +276,10 @@ class Kernel extends ConsoleKernel
 
         DispatchJob::class,
         makePaidTasters::class,
-        removeNotifications::class
+        removeNotifications::class,
+
+        //paymentlink reminder
+        PaymentReminder::class
 
     ];
 
@@ -301,6 +305,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:surveys')->dailyAt('12:00');
 
 
+
         $schedule->command('command:remove-notification')->dailyAt('01:00');
         // $schedule->command('profile_compiled_detail:update')->dailyAt('14:05');
 
@@ -319,6 +324,10 @@ class Kernel extends ConsoleKernel
         // $schedule->command("build:suggestion:suggestiontodatabase:job")->dailyAt('02:01');
         // $schedule->command("build:suggestion:suggestiontodatabase:company")->dailyAt('03:01');
         // $schedule->command("build:suggestion:suggestiontodatabase:profile")->dailyAt('04:01');
+
+        //payment link reminder command
+
+        $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
 
     }
 
