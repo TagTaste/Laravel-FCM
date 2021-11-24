@@ -183,15 +183,15 @@ return [
         //Custom Service Providers
         App\Providers\ViewComponents::class,
         App\Providers\FeedableServiceProvider::class,
-        
-            //Meta Service Providers
-            \App\Providers\Meta\ModelCount::class,
-        
+
+        //Meta Service Providers
+        \App\Providers\Meta\ModelCount::class,
+
         //Package Service Providers
         Collective\Html\HtmlServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         Stevebauman\Purify\PurifyServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class ,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
         PulkitJalan\Google\GoogleServiceProvider::class,
         GoogleSheets\Providers\SheetsServiceProvider::class,
         LaravelFCM\FCMServiceProvider::class,
@@ -249,7 +249,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        
+
         'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'Form' => Collective\Html\FormFacade::class,
@@ -274,11 +274,11 @@ return [
     ],
 
     'gupshup' => [
-        "API_KEY" => env('GUPSHUP_API_KEY','aqn5f4n1m7gruuuz9hvwkjjgjswmkwko'),
-        "URL" => "https://enterprise.smsgupshup.com/GatewayAPI/rest",
-        "APP_ID" => "d7233f89-bf13-27e4-70d1-a981b1427249",
-        "UID"=>2000203063,
-        "PASSWORD" => "r9Z0jzJo4",
+        "API_KEY" => env('GUPSHUP_API_KEY', 'aqn5f4n1m7gruuuz9hvwkjjgjswmkwko'),
+        "URL" => env('GUPSHUP_URL', "https://enterprise.smsgupshup.com/GatewayAPI/rest"),
+        "APP_ID" => env("GUPSHUP_APP_ID", "d7233f89-bf13-27e4-70d1-a981b1427249"),
+        "UID" => env("GUPSHUP_UID", 2000203063),
+        "PASSWORD" => env("GUPSHUP_PASSWORD", "r9Z0jzJo4"),
     ]
 
 ];
