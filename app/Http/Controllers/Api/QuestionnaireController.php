@@ -40,7 +40,6 @@ class QuestionnaireController extends Controller
 
             $globalQuestion = DB::table('public_review_global_questions')->orderBy('id', 'desc')->first();
 
-            DB::table('public_review_global_questions')->insert($data);
 
             $headerData = [];
             // header_selection_type
