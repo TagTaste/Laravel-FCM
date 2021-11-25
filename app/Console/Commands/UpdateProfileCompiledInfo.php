@@ -57,7 +57,8 @@ class UpdateProfileCompiledInfo extends Command
                     'follower_count' => $model->followerProfiles['count'],
                     'total_post_count' => $model->totalPostCount,
                     'private_review_count' => $model->privateReviewCount,
-                    'public_review_count' => $model->reviewCount
+                    'public_review_count' => $model->reviewCount,
+                    'survey_count' => $model->surveyCount
                 );
 
                 $profile_compiled_info = ProfileCompiledInfo::where('profile_id', $model->id)->first();
