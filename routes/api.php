@@ -51,6 +51,14 @@ Route::post('login',function(Request $request) {
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+
+
+/* Login Via OTP --BEGIN */
+Route::post('login/otp', 'Auth\LoginController@loginViaOTP');
+Route::post('resend/otp', 'Auth\LoginController@resendOTP');
+Route::post('login/otp/verify', 'Auth\LoginController@verifyOTP');
+
+/* Login Via OTP ENDS */
 Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
