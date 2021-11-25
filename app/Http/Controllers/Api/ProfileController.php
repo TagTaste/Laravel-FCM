@@ -15,6 +15,7 @@ use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Jobs\PhoneVerify;
+use App\Services\SMS;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Twilio\Rest\Client as TwilioClient;
@@ -856,24 +857,13 @@ class ProfileController extends Controller
                 $otp = \DB::table('profiles')->where('id', $request->user()->profile->id)->first();
 
                 $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
-                $text = $otpNo . " is your One Time Password to verify your number with TagTaste. Valid for 5 min.";
-                $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
-                $authToken  = config('app.twilio')['TWILIO_AUTH_TOKEN'];
-                $client = new TwilioClient($accountSid, $authToken);
-                try {
-                    // Use the client to do fun stuff like send text messages!
-                    $client->messages->create(
-                        // the number you'd like to send the message to
-                        '+91' . $number,
-                        array(
-                            // A Twilio phone number you purchased at twilio.com/console
-                            'from' => env('TWILIO_PHONE'),
-                            // the body of the text message you'd like to send
-                            'body' => $text
-                        )
-                    );
-                } catch (Exception $e) {
-                    echo "Error: " . $e->getMessage();
+                $text = $otpNo . "is your OTP to verify your number with TagTaste.";
+                if ($profile->country_code == "+91" || $profile->country_code == "91") {
+                    $service = "gupshup";
+                    $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                } else {
+                    $service = "twilio";
+                    $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
                 }
                 $this->model = $profile->update(['otp' => $otpNo]);
                 $job = ((new PhoneVerify($number, $request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
