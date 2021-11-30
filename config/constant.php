@@ -50,10 +50,10 @@ return  [
 
     'OTP_LOGIN_TIMEOUT_MINUTES' => 1,
     'OTP_LOGIN_VERIFY_MAX_ATTEMPT' => 3,
+    'LOGIN_OTP_SOURCE' => "login_otp",
     "LINKEDIN_CLIENTID" => env("LINKEDIN_ID"),
     "LINKEDIN_SECRET" => env("LINKEDIN_LOGIN_SECRET"),
-  
-    'LOGIN_OTP_SOURCE' => "login_otp",
 ];
+
 
 ?>
