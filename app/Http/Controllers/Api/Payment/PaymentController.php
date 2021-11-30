@@ -42,7 +42,7 @@ class PaymentController extends Controller
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
 
-        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("deleted_at","=",null);
+        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("payment_links.deleted_at","=",null);
 
         if ($request->has("transaction_id") && !empty($request->transaction_id)) {
             $getData->where("transaction_id", $request->transaction_id);
