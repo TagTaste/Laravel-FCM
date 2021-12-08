@@ -775,10 +775,15 @@ class SurveyController extends Controller
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
             $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ?  json_decode($values["video_meta"], true) : $values["video_meta"]);
-           
+            if($values['question_type'] == 7)
+            {
+                $prepareNode["reports"][$counter]["max"] = $values["max"];
+            }
 
            
                 if($values['question_type'] == 6){
+                    $prepareNode["reports"][$counter]["min"] = $values["min"];
+                    $prepareNode["reports"][$counter]["max"] = $values["max"];
                      $count = 0;
                     for($min = $values["min"];$min <= $values['max']; $min++)
                     {
@@ -789,7 +794,8 @@ class SurveyController extends Controller
                         $count++;
 
                     }
-// dd($prepareNode);
+
+            
                 }
                 
                 elseif($values['question_type'] == 8){
@@ -800,7 +806,7 @@ class SurveyController extends Controller
                     $ans = $answers->pluck("answer_value")->toArray();
         
                     $ar = array_values(array_filter($ans));
-                    $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+                    $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["id"] = $row['id'];
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["value"] = $row["title"];
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["option_type"] = 0;
@@ -826,7 +832,7 @@ class SurveyController extends Controller
                     $ans = $answers->pluck("answer_value")->toArray();
         
                     $ar = array_values(array_filter($ans));
-                    $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+                    $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["id"] = $row['id'];
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["value"] = $row["title"];
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
@@ -845,7 +851,6 @@ class SurveyController extends Controller
                 }
             else{
             $optCounter = 0;
-            $total = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->count();
             
             foreach ($values["options"] as $optVal) {
                 $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
@@ -879,13 +884,13 @@ class SurveyController extends Controller
                       }
                         
                     }
-                      $sum += ($total-$countOfApplicants)*(count($values["options"])+1);
-                   
+                      $sum += (($getCount->count())-$countOfApplicants)*(count($values["options"]));
+                    
                 }
                 if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                     if($values["question_type"] == 7){
                     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = ($sum/count($values["options"]));
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = ($sum/$getCount->count());
                     $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
 
                     }
@@ -968,8 +973,6 @@ class SurveyController extends Controller
                 $optCounter++;
             }
         }
-
-
            uasort($prepareNode["reports"][$counter]["options"], function ($a, $b) {
                 if(isset($a['answer_percentage'])&& isset($b['answer_percentage'])){
                 if ($a['answer_percentage'] == $b['answer_percentage']) {
@@ -1058,7 +1061,12 @@ class SurveyController extends Controller
                                 $opt['id'] = (int)$maxOptionId;
                                 $maxOptionId++;
                             }
+                            if($values["question_type"] == 7){
+                            if(count($values["options"]) != $values["max"]){
+                                $this->errors["form_json"] = "Rank options count must be equal to no. of Ranks";
 
+                            }
+                          }
 
                             $diffOptions = array_diff($optionNodeChecker, array_keys($opt));
                             if (!empty($diffOptions)) {
@@ -1403,6 +1411,7 @@ class SurveyController extends Controller
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             // return $this->sendError("Only Survey Admin can view this report");
         }
+        $totalApplicants = surveyApplicants::where("survey_id", "=", $id)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null)->get()->count();
 
         $headers = [];
         $getJson = json_decode($checkIFExists["form_json"], true);
@@ -1411,6 +1420,7 @@ class SurveyController extends Controller
         $rankMapping = [];
         $rankOptionMapping = [];
         $multiChoice = [];
+        $rankWeightage = [];
         foreach ($getJson as $values) {
            
          $questionIdMapping[$values["id"]] = $values["title"];
@@ -1432,7 +1442,10 @@ class SurveyController extends Controller
                 foreach($values["options"] as $option)
                 {
                     $rankOptionMapping[$values["id"]][$option['id']] = $option['title'];
+                    $rankWeightage[$option['title']]['count'] = 0;
+                    $rankWeightage[$option['title']]["sum"] = 0;
                 }
+               
             }
             elseif($values["question_type"] == 8)
             {
@@ -1552,7 +1565,10 @@ class SurveyController extends Controller
 
                     }
                     $ans .= html_entity_decode($rankOptionMapping[$answers->question_id][$answers->option_id]);
-                }
+                    $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->option_id]]['sum']+=(int)$answers->answer_value;
+                    $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->option_id]]['count']++;
+
+                }  
                 elseif($answers->question_type == 8)
                 {
                 
@@ -1630,7 +1646,15 @@ class SurveyController extends Controller
         
         }
         $finalData = array_values($headers);
-        //dd($finalData);
+        $rows = count($finalData);
+        foreach($rankWeightage as $key => $value)
+        {
+            $finalData[$rows] = [];
+            $rankWeightage[$key]['weightage']= ($rankWeightage[$key]["sum"] + ($totalApplicants-$rankWeightage[$key]["count"])* (count($rankWeightage)))/$totalApplicants;
+            array_push($finalData[$rows],$key);
+            array_push($finalData[$rows],$rankWeightage[$key]['weightage']);
+            $rows++;
+        } 
         $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-" . $id . "-" . uniqid();
 
