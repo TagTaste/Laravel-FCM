@@ -250,14 +250,28 @@ class PaymentController extends Controller
 
     public function getTasterProgram(Request $request)
     {
+        $profileId = $request->user()->profile->id;
+        
+
+        $expertRequestCount = \DB::table("sensory_workshop_request")
+        ->where('profile_id', '=' , $profileId)->where('expert_request', '=' , true)
+        ->whereNull('deleted_at')->count();
+
+        $sensoryRequestCount = \DB::table("sensory_workshop_request")
+        ->where('profile_id', '=' , $profileId)->where('workshop_request', '=' , true)
+        ->whereNull('deleted_at')->count();
+
+        $expertRequest = $expertRequestCount > 0 ? true : false ;
+        $sensoryRequest = $sensoryRequestCount > 0 ? true : false ;
+
         $expertButton = [
             "title" => "Enrol as an expert", "color_code" => "#efb920", "text_color" => "#000000",
-            "url" => "payment/expert/enroll", "method" => "POST"
+            "url" => "payment/expert/enroll", "method" => "POST","status"=>$expertRequest
         ];
 
         $sensoryButton = [
             "title" => "Enrol for sensory workshop", "color_code" => "#4990e2", "text_color" => "#ffffff",
-            "url" => "payment/sensory/enroll", "method" => "POST"
+            "url" => "payment/sensory/enroll", "method" => "POST","status"=>$sensoryRequest
         ];
 
         $headers = [
@@ -432,6 +446,11 @@ class PaymentController extends Controller
             "Onboarding Date" => date("Y-m-d")
         ];
         $d = ["subject" => "You’ve received a new registration for Sensory Workshop", "content" => $str];
+
+        //insert into db
+        \DB::table('sensory_workshop_request')->insert(['profile_id'=>$request->user()->profile->id,'workshop_request'=>1]);
+        
+
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
             $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Sensory Workshop');
         });
@@ -458,6 +477,10 @@ class PaymentController extends Controller
             "Specialisations" => ($userData->specialization ?? "N.A")
         ];
         $d = ["subject" => "You’ve received a new registration for enrolment as an Expert", "content" => $str];
+
+        //insert into db
+        \DB::table('sensory_workshop_request')->insert(['profile_id'=>$request->user()->profile->id,'expert_request'=>1]);
+        
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
             $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
         });
