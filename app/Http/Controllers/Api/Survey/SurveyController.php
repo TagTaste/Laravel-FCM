@@ -801,7 +801,7 @@ class SurveyController extends Controller
                 }
                 
                 elseif($values['question_type'] == 8){
-                    foreach($values['multiOptions']['row'] as $row)
+                    foreach($values["multi_options"]['row'] as $row)
                     {
                         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id',$row['id'])->whereIn("profile_id", $pluck)->get();
                    
@@ -812,7 +812,7 @@ class SurveyController extends Controller
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["id"] = $row['id'];
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["value"] = $row["title"];
 
-                    foreach($values['multiOptions']['column'] as $column)
+                    foreach($values["multi_options"]['column'] as $column)
                     {
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["id"] = $column['id'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["value"] = $column['title'];
@@ -824,7 +824,7 @@ class SurveyController extends Controller
 
                 }
                 elseif($values['question_type'] == 9){
-                 foreach($values['multiOptions']['row'] as $row)
+                 foreach($values["multi_options"]['row'] as $row)
                  {
                         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id',$row['id'])->whereIn("profile_id", $pluck)->get();
                    
@@ -834,7 +834,7 @@ class SurveyController extends Controller
                     $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["id"] = $row['id'];
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["value"] = $row["title"];
-                    foreach($values['multiOptions']['column'] as $column)
+                    foreach($values["multi_options"]['column'] as $column)
                       {
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["id"] = $column['title'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["value"] = $column['title'];
@@ -1038,7 +1038,7 @@ class SurveyController extends Controller
                     }
 
 
-                    if (empty($diff) && isset($values["options"])||(($values["question_type"] == 8 || $values["question_type"] == 9) && isset($values["multiOptions"]))) {
+                    if (empty($diff) && isset($values["options"])||(($values["question_type"] == 8 || $values["question_type"] == 9) && isset($values["multi_options"]))) {
                         $maxOptionId = 1; 
                         if ($isUpdation) {
                             if (isset($oldJsonArray[$values["id"]]["options"])) {
@@ -1058,8 +1058,8 @@ class SurveyController extends Controller
                                 $maxOptionId++;
                             }
                             if($values["question_type"] == 7){
-                            if(count($values["options"]) != $values["max"]){
-                                $this->errors["form_json"] = "Rank options count must be equal to no. of Ranks";
+                            if(count($values["options"]) < $values["max"]){
+                                $this->errors["form_json"] = "Rank cannot be greater than count of options";
 
                             }
                           }
@@ -1445,11 +1445,11 @@ class SurveyController extends Controller
             }
             elseif($values["question_type"] == 8)
             {
-                foreach($values["multiOptions"]["row"] as $row)
+                foreach($values["multi_options"]["row"] as $row)
                 {
                   $multiChoiceRadioRow[$values["id"]][$row["id"]] = "[".$row["title"]."]";
                 }
-                foreach($values["multiOptions"]["column"] as $column)
+                foreach($values["multi_options"]["column"] as $column)
                 {
                     $multiChoiceRadioColumn[$values["id"]]["column"][$column["id"]] = $column['title'];
                 }
@@ -1457,11 +1457,11 @@ class SurveyController extends Controller
             }
             elseif($values["question_type"] == 9)
             {
-                foreach($values["multiOptions"]["row"] as $row)
+                foreach($values["multi_options"]["row"] as $row)
                 {
                   $multiChoiceCheckRow[$values["id"]][$row["id"]] = "[".$row["title"]."]";
                 }
-                foreach($values["multiOptions"]["column"] as $column)
+                foreach($values["multi_options"]["column"] as $column)
                 {
                     $multiChoiceCheckColumn[$values["id"]]["column"][$column["id"]] = $column['title'];
                 }
