@@ -1340,7 +1340,7 @@ class Profile extends Model
     {
         $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->whereNull('deleted_at')->where("status_id", '<>',config("constant.PAYMENT_CANCELLED_STATUS_ID"))->select("amount")->get()->pluck('amount');
         $sum = array_sum($getPaymentDetails->toArray());
-        return ["amount" => $sum];
+        return $sum;
     }
 
     public function getShippingaddressAttribute()
