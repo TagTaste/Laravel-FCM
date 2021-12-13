@@ -264,13 +264,24 @@ class PaymentController extends Controller
         $expertRequest = $expertRequestCount > 0 ? true : false ;
         $sensoryRequest = $sensoryRequestCount > 0 ? true : false ;
 
+        $expertBtnTitle = "Enrol as an expert";
+        $sensoryBtnTitle = "Enrol for sensory workshop";
+        
+        if($expertRequest){
+            $expertBtnTitle = "Your enrolment has been successful. Our team will reach out to you with further details.";
+        }
+
+        if($sensoryRequest){
+            $sensoryBtnTitle = "Your enrolment has been successful. Our team will reach out to you with further details.";
+        }
+        
         $expertButton = [
-            "title" => "Enrol as an expert", "color_code" => "#efb920", "text_color" => "#000000",
+            "title" => $expertBtnTitle, "color_code" => "#efb920", "text_color" => "#000000",
             "url" => "payment/expert/enroll", "method" => "POST","status"=>$expertRequest
         ];
 
         $sensoryButton = [
-            "title" => "Enrol for sensory workshop", "color_code" => "#4990e2", "text_color" => "#ffffff",
+            "title" => $sensoryBtnTitle, "color_code" => "#4990e2", "text_color" => "#ffffff",
             "url" => "payment/sensory/enroll", "method" => "POST","status"=>$sensoryRequest
         ];
 
