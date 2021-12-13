@@ -520,10 +520,9 @@ class SurveyController extends Controller
                 if (isset($values["options"]) && !empty($values["options"])) {
 
                     foreach ($values["options"] as $optVal) {
-                      // print_r($optVal);
                         $answerArray["answer_value"] = $optVal["value"];
                         if(is_array($answerArray["answer_value"]))
-                        { //dd($answerArray["answer_value"]);
+                        { 
                           foreach( $answerArray["answer_value"] as $value)
                           {
                             $answerArray["option_id"] = $optVal["id"];
@@ -784,6 +783,8 @@ class SurveyController extends Controller
                 if($values['question_type'] == 6){
                     $prepareNode["reports"][$counter]["min"] = $values["min"];
                     $prepareNode["reports"][$counter]["max"] = $values["max"];
+                    $prepareNode["reports"][$counter]["minLabel"] = $values["minLabel"];
+                    $prepareNode["reports"][$counter]["maxLabel"] = $values["maxLabel"];
                      $count = 0;
                     for($min = $values["min"];$min <= $values['max']; $min++)
                     {
@@ -791,6 +792,7 @@ class SurveyController extends Controller
                         $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$min]) ? $getAvg[$min]["count"] : 0);
                         $prepareNode["reports"][$counter]["options"][$count]["answer_percentage"] = (isset($getAvg[$min]) ? $getAvg[$min]["avg"] : 0);
                         $prepareNode["reports"][$counter]["options"][$count]["color_code"] = (isset($colorCodeList[$min]) ? $colorCodeList[$min] : "#fcda02");
+                        $prepareNode["reports"][$counter]["options"][$count]["option_type"] = 0;
                         $count++;
 
                     }
@@ -799,7 +801,7 @@ class SurveyController extends Controller
                 }
                 
                 elseif($values['question_type'] == 8){
-                    foreach($values['options']['row'] as $row)
+                    foreach($values["multiOptions"]['row'] as $row)
                     {
                         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id',$row['id'])->whereIn("profile_id", $pluck)->get();
                    
@@ -809,15 +811,12 @@ class SurveyController extends Controller
                     $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["id"] = $row['id'];
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["value"] = $row["title"];
-                    $prepareNode["reports"][$counter]["options"][$row['id']-1]["option_type"] = 0;
-                    $prepareNode["reports"][$counter]["options"][$row['id']-1]["image_meta"] =  (!is_array($row["image_meta"]) ? json_decode($row["image_meta"], true) : $row["image_meta"]);
-                    $prepareNode["reports"][$counter]["options"][$row['id']-1]["video_meta"] =  (!is_array($row["video_meta"]) ? json_decode($row["video_meta"], true) : $row["video_meta"]);
-                  
 
-                    foreach($values['options']['column'] as $column)
+                    foreach($values["multiOptions"]['column'] as $column)
                     {
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["id"] = $column['id'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["value"] = $column['title'];
+                        $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["option_type"] = 0;
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["answer_count"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["count"] : 0);
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["answer_percentage"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["avg"] : 0); 
                     }
@@ -825,7 +824,7 @@ class SurveyController extends Controller
 
                 }
                 elseif($values['question_type'] == 9){
-                 foreach($values['options']['row'] as $row)
+                 foreach($values["multiOptions"]['row'] as $row)
                  {
                         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id',$row['id'])->whereIn("profile_id", $pluck)->get();
                    
@@ -835,14 +834,11 @@ class SurveyController extends Controller
                     $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["id"] = $row['id'];
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["value"] = $row["title"];
-                    $prepareNode["reports"][$counter]["options"][$row['id']-1]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
-                    $prepareNode["reports"][$counter]["options"][$row['id']-1]["image_meta"] = (!is_array($row["image_meta"]) ? json_decode($row["image_meta"], true) : $row["image_meta"]);
-                    $prepareNode["reports"][$counter]["options"][$row['id']-1]["video_meta"] = (!is_array($row["video_meta"]) ? json_decode($row["video_meta"], true) : $row["video_meta"]);
-
-                    foreach($values['options']['column'] as $column)
+                    foreach($values["multiOptions"]['column'] as $column)
                       {
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["id"] = $column['title'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["value"] = $column['title'];
+                        $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["option_type"] = 0;
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["answer_count"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["count"] : 0);
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["answer_percentage"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["avg"] : 0); 
                       }
@@ -856,9 +852,7 @@ class SurveyController extends Controller
                 $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                 $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
                 $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
-
                 $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
-
                 $prepareNode["reports"][$counter]["options"][$optCounter]["video_meta"] = (!is_array($optVal["video_meta"]) ? json_decode($optVal["video_meta"], true) : $optVal["video_meta"]);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
                 $countOptions = 0;
@@ -891,7 +885,9 @@ class SurveyController extends Controller
                     if($values["question_type"] == 7){
                     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
                     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = ($sum/$getCount->count());
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = $optVal["color_code"];
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
+
 
                     }
                     else{
@@ -1042,8 +1038,8 @@ class SurveyController extends Controller
                     }
 
 
-                    if (empty($diff) && isset($values["options"])) {
-                        $maxOptionId = 1;
+                    if (empty($diff) && isset($values["options"])||(($values["question_type"] == 8 || $values["question_type"] == 9) && isset($values["multiOptions"]))) {
+                        $maxOptionId = 1; 
                         if ($isUpdation) {
                             if (isset($oldJsonArray[$values["id"]]["options"])) {
                                 $allOpts = array_column($oldJsonArray[$values["id"]]["options"], "id");
@@ -1062,8 +1058,8 @@ class SurveyController extends Controller
                                 $maxOptionId++;
                             }
                             if($values["question_type"] == 7){
-                            if(count($values["options"]) != $values["max"]){
-                                $this->errors["form_json"] = "Rank options count must be equal to no. of Ranks";
+                            if(count($values["options"]) >= $values["max"]){
+                                $this->errors["form_json"] = "Rank cannot be greater than count of options";
 
                             }
                           }
@@ -1449,11 +1445,11 @@ class SurveyController extends Controller
             }
             elseif($values["question_type"] == 8)
             {
-                foreach($values["options"]["row"] as $row)
+                foreach($values["multiOptions"]["row"] as $row)
                 {
                   $multiChoiceRadioRow[$values["id"]][$row["id"]] = "[".$row["title"]."]";
                 }
-                foreach($values["options"]["column"] as $column)
+                foreach($values["multiOptions"]["column"] as $column)
                 {
                     $multiChoiceRadioColumn[$values["id"]]["column"][$column["id"]] = $column['title'];
                 }
@@ -1461,11 +1457,11 @@ class SurveyController extends Controller
             }
             elseif($values["question_type"] == 9)
             {
-                foreach($values["options"]["row"] as $row)
+                foreach($values["multiOptions"]["row"] as $row)
                 {
                   $multiChoiceCheckRow[$values["id"]][$row["id"]] = "[".$row["title"]."]";
                 }
-                foreach($values["options"]["column"] as $column)
+                foreach($values["multiOptions"]["column"] as $column)
                 {
                     $multiChoiceCheckColumn[$values["id"]]["column"][$column["id"]] = $column['title'];
                 }
@@ -1646,14 +1642,14 @@ class SurveyController extends Controller
         
         }
         $finalData = array_values($headers);
-        $rows = count($finalData);
+        $rowsCount = count($finalData);
         foreach($rankWeightage as $key => $value)
         {
-            $finalData[$rows] = [];
+            $finalData[$rowsCount] = [];
             $rankWeightage[$key]['weightage']= ($rankWeightage[$key]["sum"] + ($totalApplicants-$rankWeightage[$key]["count"])* (count($rankWeightage)))/$totalApplicants;
-            array_push($finalData[$rows],$key);
-            array_push($finalData[$rows],$rankWeightage[$key]['weightage']);
-            $rows++;
+            array_push($finalData[$rowsCount],$key);
+            array_push($finalData[$rowsCount],$rankWeightage[$key]['weightage']);
+            $rowsCount++;
         } 
         $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-" . $id . "-" . uniqid();
