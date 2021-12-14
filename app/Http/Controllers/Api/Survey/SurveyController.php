@@ -1058,7 +1058,7 @@ class SurveyController extends Controller
                                 $maxOptionId++;
                             }
                             if($values["question_type"] == 7){
-                            if(count($values["options"]) >= $values["max"]){
+                            if(count($values["options"]) < $values["max"]){
                                 $this->errors["form_json"] = "Rank cannot be greater than count of options";
 
                             }
