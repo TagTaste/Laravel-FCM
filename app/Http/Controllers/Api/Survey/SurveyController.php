@@ -885,9 +885,7 @@ class SurveyController extends Controller
                     if($values["question_type"] == 7){
                     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
                     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = ($sum/$getCount->count());
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = $optVal["color_code"];
                     $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
-
 
                     }
                     else{
