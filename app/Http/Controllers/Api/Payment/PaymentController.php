@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Tagtaste\Api\SendsJsonResponse;
+use Carbon\Carbon;
 
 
 
@@ -445,9 +446,6 @@ class PaymentController extends Controller
 
     public function enrollSensoryProgram(Request $request)
     {
-        //Send email to payment@tagtaste.com
-        //Keep user email in copy 
-        //Take mail template from tanvi or arun sir
         $data = ["status" => true, "title" => "", "sub_title" => "Your enrolment has been successful. Our team will reach out to you with further details."];
 
         $str = [
@@ -458,8 +456,9 @@ class PaymentController extends Controller
         ];
         $d = ["subject" => "You’ve received a new registration for Sensory Workshop", "content" => $str];
 
+        $currentTime = Carbon::now()->toDateTimeString();
         //insert into db
-        \DB::table('sensory_workshop_request')->insert(['profile_id'=>$request->user()->profile->id,'workshop_request'=>1]);
+        \DB::table('sensory_workshop_request')->updateOrInsert(['profile_id'=>$request->user()->profile->id,'workshop_request'=>1],['updated_at'=>$currentTime]);
         
 
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
@@ -489,8 +488,9 @@ class PaymentController extends Controller
         ];
         $d = ["subject" => "You’ve received a new registration for enrolment as an Expert", "content" => $str];
 
+        $currentTime = Carbon::now()->toDateTimeString();        
         //insert into db
-        \DB::table('sensory_workshop_request')->insert(['profile_id'=>$request->user()->profile->id,'expert_request'=>1]);
+        \DB::table('sensory_workshop_request')->updateOrInsert(['profile_id'=>$request->user()->profile->id,'expert_request'=>1],['updated_at'=>$currentTime]);
         
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
             $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
