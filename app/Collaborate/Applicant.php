@@ -40,13 +40,9 @@ class Applicant extends Model {
         // if(count($value)==0 || $value == null || $value == '{}') {
         //     return (object)null;
         // }
-        // if(count($value)==0 || $value == null || $value == '{}') {
-        //     return (object)null;
-        // }
         if($value == null || $value == '{}') {
-            $value = '[]';
+            return [];
         }
-        $value = "[".$value."]";
         return json_decode($value,true);
     }
     public function getDocumentMetaAttribute($value)
