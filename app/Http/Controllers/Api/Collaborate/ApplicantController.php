@@ -1020,7 +1020,8 @@ class ApplicantController extends Controller
         if(isset($filters))
             $type = false;
         $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id', $profileIds, $boolean, $type)
+            // ->whereIn('profile_id', $profileIds, $boolean, $type)
+            ->whereIn('profile_id', $profileIds)
             ->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')
             ->orderBy("created_at","desc")
@@ -1028,6 +1029,9 @@ class ApplicantController extends Controller
             $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
             $batchIds = $batches->pluck("id")->toArray();
         $finalData = array();
+        
+        // return $this->sendResponse($applicants);
+        
         foreach ($applicants as $key => $applicant) {
             $job_profile = '';
             if (isset($applicant->profile->profile_occupations)) {
@@ -1055,7 +1059,7 @@ class ApplicantController extends Controller
                     }
                 } 
             }
-
+            
             $temp = array(
                 "S. No" => $key+1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
@@ -1069,7 +1073,7 @@ class ApplicantController extends Controller
                 "Hometown" => $applicant->hometown,
                 "Current City" => $applicant->current_city
             );
-
+            
             if ($collaborate->collaborate_type == 'collaborate') {
                 if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
                     $temp['Delivery Address'] = '';
@@ -1140,8 +1144,9 @@ class ApplicantController extends Controller
             } elseif ($collaborate->collaborate_type == 'product-review') {
                 if ($collaborate->is_taster_residence && !$collaborate->document_required) {
                     $temp['Delivery Address'] = '';
-                    if (isset($applicant->applier_address['label']))
+                    if (isset($applicant->applier_address['label'])){
                         $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
+                    }
                     if (isset($applicant->applier_address['house_no']))
                         $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
                     if (isset($applicant->applier_address['landmark']))

@@ -37,8 +37,11 @@ class Applicant extends Model {
 
     public function getApplierAddressAttribute($value)
     {
-        if(count($value)==0 || $value == null || $value == '{}') {
-            return (object)null;
+        // if(count($value)==0 || $value == null || $value == '{}') {
+        //     return (object)null;
+        // }
+        if($value == null || $value == '{}') {
+            return [];
         }
         return json_decode($value,true);
     }
