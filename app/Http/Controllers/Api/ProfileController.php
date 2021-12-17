@@ -1127,7 +1127,7 @@ class ProfileController extends Controller
     public function shortProfile(Request $request)
     {
 
-        $getData = DB::table("users")->join("profiles", "profiles.user_id", "users.id")->selectRaw("users.name,users.email, users.verified_at, profiles.*, users.id as user_id,  COUNT(DISTINCT('message_recepients.chat_id')) as message_count")->leftJoin("message_recepients", function ($q) {
+        $getData = DB::table("users")->join("profiles", "profiles.user_id", "users.id")->selectRaw("users.name,users.email, users.verified_at, profiles.*, users.id as user_id,  COUNT(DISTINCT message_recepients.chat_id) as message_count")->leftJoin("message_recepients", function ($q) {
             $q->on("message_recepients.recepient_id", "=", "profiles.id");
             $q->whereNull("message_recepients.last_seen");
             $q->whereNull("read_on");
