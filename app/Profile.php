@@ -55,7 +55,7 @@ class Profile extends Model
     protected $appends = ['imageUrl','shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount','privateReviewCount','surveyCount','totalPostCount', 'imagePostCount','document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount','payment'];
+        'cuisines','allergens','interested_collections','fb_info','reviewCount','privateReviewCount','surveyCount','totalPostCount','amount','imagePostCount','document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount','payment'];
 
     /**
         profile completion mandatory field
@@ -1336,6 +1336,13 @@ class Profile extends Model
         return \DB::table('survey_answers')->where('profile_id',$this->id)->where('current_status',2)->whereNull('deleted_at')->get()->unique('survey_id')->count();
     }
 
+    public function getAmountAttribute()
+    {
+        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->whereNull('deleted_at')->where("status_id", '<>',config("constant.PAYMENT_CANCELLED_STATUS_ID"))->select("amount")->get()->pluck('amount');
+        $sum = array_sum($getPaymentDetails->toArray());
+        return $sum;
+    }
+
     public function getShippingaddressAttribute()
     {        
         $request = request()->user();
@@ -1621,7 +1628,7 @@ class Profile extends Model
 
     public function getPaymentAttribute()
     {
-        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->where("status_id", '<>',config("constant.PAYMENT_CANCELLED_STATUS_ID"))->select("amount")->get()->pluck('amount');
+        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->whereNull('deleted_at')->where("status_id", '<>',config("constant.PAYMENT_CANCELLED_STATUS_ID"))->select("amount")->get()->pluck('amount');
         $sum = array_sum($getPaymentDetails->toArray());
         return ["earning" => $sum];
     }
