@@ -16,7 +16,7 @@ trait PaymentTransaction
 {
     public function createLink($data)
     {
-
+        
         $link = '/pls/api/v1/payout-link/create';
         if (isset($data["transaction_id"]) && isset($data["phone"]) && isset($data["email"]) && isset($data["amount"]) && isset($data["title"])) {
             $pay = [];
