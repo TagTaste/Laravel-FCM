@@ -9,15 +9,17 @@ use App\Events\Actions\PaymentTransactionStatus;
 use App\Payment\PaymentLinks;
 use App\PublicReviewProduct;
 use App\Surveys;
+use Exception;
 use Illuminate\Http\Request;
-use paytm\paytmchecksum\PaytmChecksum;
+
 
 trait PaymentTransaction
 {
     public function createLink($data)
     {
-        
-        $link = '/pls/api/v1/payout-link/create';
+
+        $paymentChannel = config("app.payment_channel");
+
         if (isset($data["transaction_id"]) && isset($data["phone"]) && isset($data["email"]) && isset($data["amount"]) && isset($data["title"])) {
             $pay = [];
             $pay["orderId"] = $data["transaction_id"];
@@ -51,25 +53,15 @@ trait PaymentTransaction
                 $pay["subwalletGuid"] = config("payment.PAYTM_GUID_TASTING");
                 $pay["comments"] = $data["comment"] ?? "Payment from Tagtaste.";
             }
-            $pay["callbackUrl"] = config("payment.PAYTM_CALLBACK_URL");
 
-            $post_data = json_encode($pay, JSON_UNESCAPED_SLASHES);
 
-            $checksum = PaytmChecksum::generateSignature($post_data, config("payment.PAYTM_MERCHANT_KEY"));
+            $channel = 'App//Services//' . $paymentChannel;
+            if (!method_exists($channel, 'createLink')) {
+                throw new Exception("Payment Channel Missing");
+                return false;
+            }
+            $response = $channel::createLink($pay);
 
-            $x_mid      = config("payment.PAYTM_MID");
-            $x_checksum = $checksum;
-
-            /* for Staging */
-            $url = config("payment.PAYTM_ENDPOINT") . $link;
-            print_r($post_data);
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($ch);
-            echo $response;
 
             if (!empty($response)) {
                 $resp = $response;
@@ -80,7 +72,7 @@ trait PaymentTransaction
                 if ($resp["status"] == "SUCCESS") {
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp), "status_id" => config("constant.PAYMENT_PENDING_STATUS_ID")];
 
-                    event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $pay["orderId"], "amount" => $pay["amount"], "pretext" => $hyperlink,"type"=>$type]));
+                    event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $pay["orderId"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type]));
                     return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($dataToUpdate);
                 } else {
                     PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]);
@@ -92,28 +84,19 @@ trait PaymentTransaction
 
     public function getStatus($transaction_id)
     {
-        $link = '/pls/api/v2/payout-link/fetch';
-        $paytmParams = [];
 
-        $paytmParams["orderId"]  = $transaction_id;
-
-        $post_data = json_encode($paytmParams, JSON_UNESCAPED_SLASHES);
-        $checksum = PaytmChecksum::generateSignature($post_data, config("payment.PAYTM_MERCHANT_KEY"));
-
-        $x_mid      = config("payment.PAYTM_MID");
-        $x_checksum = $checksum;
-
-
-        $url = config("payment.PAYTM_ENDPOINT") . $link;
-
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-
+        $getChannel = PaymentLinks::where("transaction_id", $transaction_id)->select("payment_channel")->first();
+        if (empty($getChannel)) {
+            throw new Exception("Transaction ID Doesnt Exists - getStatus");
+            return false;
+        }
+        $paymentChannel = $getChannel->payment_channel;
+        $channel = 'App//Services//' . $paymentChannel;
+        if (!method_exists($channel, 'createLink')) {
+            throw new Exception("Payment Channel Missing");
+            return false;
+        }
+        $response = $channel::getStatus($transaction_id);
 
         if (!empty($response)) {
             $resp = $response;
@@ -151,36 +134,36 @@ trait PaymentTransaction
             $content = [];
             $data = ["status_json" => json_encode($resp)];
             if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
-                $content = ["descp" => "We're writing to let you know that your payment has been successfully redeemed.", "status" => "SUCCESSFUL","subject"=>"Redemption Successful","view"=>"emails.payment-success"];
+                $content = ["descp" => "We're writing to let you know that your payment has been successfully redeemed.", "status" => "SUCCESSFUL", "subject" => "Redemption Successful", "view" => "emails.payment-success"];
                 $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
                 $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
-                $content = ["descp" => "We're writing to let you know that your attempt for payment redemption failed.", "status" => "FAILED","subject"=>"Redemption Failed","view"=>"emails.payment-failure"];
+                $content = ["descp" => "We're writing to let you know that your attempt for payment redemption failed.", "status" => "FAILED", "subject" => "Redemption Failed", "view" => "emails.payment-failure"];
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
                 $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
-                $content = ["descp" => "We're writing to let you know that payment for ".$resp["result"]["orderId"]." has been Canceled.", "status" => "CANCELED","subject"=>"Payment Cancelled","view"=>"emails.payment-cancelled"];
+                $content = ["descp" => "We're writing to let you know that payment for " . $resp["result"]["orderId"] . " has been Canceled.", "status" => "CANCELED", "subject" => "Payment Cancelled", "view" => "emails.payment-cancelled"];
             } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
                 $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
-                $content = ["descp" => "We're writing to let you know that your payment link has expired.", "status" => "LINK EXPIRED","subject"=>"Payment Link Expired","view"=>"emails.payment-expired"];
+                $content = ["descp" => "We're writing to let you know that your payment link has expired.", "status" => "LINK EXPIRED", "subject" => "Payment Link Expired", "view" => "emails.payment-expired"];
             }
             $content["amount"] = $get->amount;
             $links = "";
             if ($get->model_type == "Survey") {
-                
+
                 $getName = Surveys::where("id", $get->model_id)->first();
                 $name = $getName->title ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('surveys', $get->model_id) . "'>" . $name . "</a>";
                 $headline = "TagTaste Survey Payment";
                 $content["type"] = "Survey";
             } else if ($get->model_type == "Public Review") {
-                
+
                 $getName = PublicReviewProduct::where("id", $get->model_id)->first();
                 $name = $getName->name ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('product', $get->model_id) . "'>" . $name . "</a>";
                 $headline = "TagTaste Product Review Payment";
                 $content["type"] = "Product Review";
             } else if ($get->model_type == "Private Review") {
-                
+
                 $getName = Collaborate::where("id", $get->model_id)->first();
                 $name = $getName->title ?? "";
                 $links = "<a href='" . Deeplink::getShortLink('collaborate', $get->model_id) . "'>" . $name . "</a>";
