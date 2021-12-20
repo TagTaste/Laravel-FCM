@@ -1017,7 +1017,8 @@ class SurveyController extends Controller
             $requiredNode = ["question_type", "title", "image_meta", "video_meta", "description", "id", "is_mandatory", "options"];
             //required option nodes
             $optionNodeChecker = ["id", "option_type", "image_meta", "video_meta", "title"];
-            //getTypeOfQuestions
+            $questionWithoutOption=[6,8,9];
+            //getTypeOfQuestions  
             $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
             $maxQueId = 1;
             if ($isUpdation) {
@@ -1035,10 +1036,9 @@ class SurveyController extends Controller
                         $maxQueId++;
                     }
 
-
-                    if (empty($diff) && isset($values["options"])||(($values["question_type"] == 8 || $values["question_type"] == 9) && isset($values["multiOptions"]))) {
+                    if (empty($diff) && isset($values["options"])) {
                         $maxOptionId = 1; 
-                        if ($isUpdation) {
+                        if ($isUpdation ) {
                             if (isset($oldJsonArray[$values["id"]]["options"])) {
                                 $allOpts = array_column($oldJsonArray[$values["id"]]["options"], "id");
                                 $maxOptionId = (is_array($allOpts) && !empty($allOpts) ? max($allOpts) : max(array_column($values["options"], 'id')));
@@ -1047,9 +1047,7 @@ class SurveyController extends Controller
                             }
                             $maxOptionId++;
                         }
-                        if($values["question_type"]<=7&&$values["question_type"]!=6){
-
-
+                        
                         foreach ($values["options"] as &$opt) {
                             if (!$isUpdation || !isset($opt['id']) || empty($opt['id'])) {
                                 $opt['id'] = (int)$maxOptionId;
@@ -1067,10 +1065,10 @@ class SurveyController extends Controller
                                 $this->errors["form_json"] = "Option Nodes Missing " . implode(",", $diffOptions);
                             }
                         }
-                    }} else if($values["question_type"]!=6){
+                    } else if(!in_array($values["question_type"],$questionWithoutOption)){
                         $this->errors["form_json"] = "Question Nodes Missing " . implode(",", $diff);
                     }
-                } else if($values["question_type"]!=6) {
+                } else if(!in_array($values["question_type"],$questionWithoutOption)) {
                     $this->errors["form_json"] = "Invalid Question Type " . $values["question_type"];
                 }
             }
