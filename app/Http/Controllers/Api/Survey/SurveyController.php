@@ -1024,6 +1024,7 @@ class SurveyController extends Controller
                 $maxQueId = max($listOfQuestionIds);
                 $maxQueId++;
             }
+            $colorCodeList = $this->colorCodeList;
 
             foreach ($decodeJson as &$values) {
                 if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
@@ -1033,6 +1034,25 @@ class SurveyController extends Controller
                     if (!$isUpdation || !isset($values['id']) || empty($values['id'])) {
                         $values['id'] = (int) $maxQueId;
                         $maxQueId++;
+                    }
+
+                    if(isset($values["multiOptions"]))
+                    {
+                        $rowId = 1;
+                        $columnId = 1;
+                        foreach ($values["multiOptions"]["row"] as &$row) {
+                            if (!$isUpdation || !isset($row['id']) || empty($row['id'])) {
+                                $row['id'] = (int)$rowId;
+                                $rowId++;
+                            }
+                        }
+                        foreach ($values["multiOptions"]["column"] as &$column) {
+                            if (!$isUpdation || !isset($column['id']) || empty($column['id'])) {
+                                $column['id'] = (int)$columnId;
+                                $columnId++;
+                            }
+                        }
+
                     }
 
                     if (empty($diff) && isset($values["options"])) {
@@ -1050,6 +1070,9 @@ class SurveyController extends Controller
                         foreach ($values["options"] as &$opt) {
                             if (!$isUpdation || !isset($opt['id']) || empty($opt['id'])) {
                                 $opt['id'] = (int)$maxOptionId;
+                                if($values["question_type"] == 7){
+                                $opt['color_code']= (isset($colorCodeList[$maxOptionId]) ? $colorCodeList[$maxOptionId] : "#fcda02");
+                                }
                                 $maxOptionId++;
                             }
                             if($values["question_type"] == 7){
