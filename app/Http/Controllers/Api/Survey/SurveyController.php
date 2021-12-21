@@ -767,8 +767,7 @@ class SurveyController extends Controller
             elseif($values['question_type'] < 6)
             $ans = $answers->pluck("option_id")->toArray();
 
-            $ar = array_values(array_filter($ans));
-            $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+            
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
@@ -778,9 +777,9 @@ class SurveyController extends Controller
             {
                 $prepareNode["reports"][$counter]["max"] = $values["max"];
             }
-
-           
                 if($values['question_type'] == 6){
+                    $ar = array_values(array_filter($ans));
+                    $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
                     $prepareNode["reports"][$counter]["min"] = $values["min"];
                     $prepareNode["reports"][$counter]["max"] = $values["max"];
                     $prepareNode["reports"][$counter]["minLabel"] = $values["minLabel"];
