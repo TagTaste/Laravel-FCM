@@ -13,7 +13,11 @@ class AlterPaymentLinks extends Migration
      */
     public function up()
     {
-        \DB::statement('ALTER TABLE `payment_links` ADD `payment_channel` VARCHAR(50) NULL DEFAULT NULL AFTER `model_type`, ADD INDEX (`payment_channel`);');
+        Schema::table('payment_links', function (Blueprint $table) {
+            //
+            $table->string('payment_channel', 50)->default('Paytm')->after('model_type');
+            $table->index('payment_channel');
+        });
     }
 
     /**
@@ -23,8 +27,9 @@ class AlterPaymentLinks extends Migration
      */
     public function down()
     {
-        \DB::statement('ALTER TABLE `payment_links`
-        DROP `payment_channel`;');
-                //
+        Schema::table('payment_links', function (Blueprint $table) {
+            //
+            $table->dropColumn('payment_channel');
+        });
     }
 }
