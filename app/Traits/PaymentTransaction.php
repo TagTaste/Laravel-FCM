@@ -55,7 +55,7 @@ trait PaymentTransaction
             }
 
 
-            $channel = 'App//Services//' . $paymentChannel;
+            $channel = 'App\\Services\\' . $paymentChannel;
             if (!method_exists($channel, 'createLink')) {
                 throw new Exception("Payment Channel Missing");
                 return false;
@@ -91,8 +91,8 @@ trait PaymentTransaction
             return false;
         }
         $paymentChannel = (empty($getChannel->payment_channel) ? 'Paytm' : $getChannel->payment_channel);
-        $channel = 'App//Services//' . $paymentChannel;
-        if (!method_exists($channel, 'createLink')) {
+        $channel = 'App\\Services\\' . $paymentChannel;
+        if (!method_exists($channel, 'getStatus')) {
             throw new Exception("Payment Channel Missing");
             return false;
         }
