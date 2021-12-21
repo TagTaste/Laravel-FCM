@@ -90,7 +90,7 @@ trait PaymentTransaction
             throw new Exception("Transaction ID Doesnt Exists - getStatus");
             return false;
         }
-        $paymentChannel = $getChannel->payment_channel;
+        $paymentChannel = (empty($getChannel->payment_channel) ? 'Paytm' : $getChannel->payment_channel);
         $channel = 'App//Services//' . $paymentChannel;
         if (!method_exists($channel, 'createLink')) {
             throw new Exception("Payment Channel Missing");
