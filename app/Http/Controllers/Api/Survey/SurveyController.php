@@ -1262,6 +1262,58 @@ class SurveyController extends Controller
                 $optCounter = 0;
                 $answers = $answers->toArray();
 
+                if(isset($values["multiOptions"])){
+                foreach($values["multiOptions"]["row"] as $row)
+                {
+                    $columnCounter = 0;
+                  foreach($values["multiOptions"]["row"] as $column)
+                  {
+                    $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("option_id",$row["id"])->where("profile_id", "=", $profile_id)->get();
+                    $answerValues = $answerValue->pluck("answer_value")->toArray();
+
+                    if (in_array($row["id"], $pluckOpId) && in_array($column["id"], $answerValues)) {
+
+                        $flip = array_flip($answerValues);
+
+                        $pos = (isset($flip[$column["id"]]) ? $flip[$column["id"]] : false);
+
+                        if ($pos === false) {
+                            continue;
+                        }
+
+                        $prepareNode["reports"][$counter]["is_answered"] = (($answers[$pos]["answer_value"] == null) ? false : true);
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $row["id"];
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["value"][] = $column["title"];
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["column"][$columnCounter]["id"] = $column["id"];
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["column"][$columnCounter]["option_type"] = 0;
+                       
+
+                        if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["column"][$columnCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+                        } else {
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($column["allowed_media"]) ? $column["allowed_media"] : []);
+                            // $imageMeta = $answers->pluck("image_meta")->toArray();
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"] = (!is_array($answers[$pos]["image_meta"]) ? json_decode($answers[$pos]["image_meta"], true) : $answers[$pos]["image_meta"]);
+
+                            // $videoMeta = $answers->pluck("video_meta")->toArray();
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = (!is_array($answers[$pos]["video_meta"]) ? json_decode($answers[$pos]["video_meta"], true) : $answers[$pos]["video_meta"]);
+
+                            // $documentMeta = $answers->pluck("document_meta")->toArray();
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = (!is_array($answers[$pos]["document_meta"]) ? json_decode($answers[$pos]["document_meta"], true) : $answers[$pos]["document_meta"]);
+
+                            // $mediaUrl = $answers->pluck("media_url")->toArray();
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = (!is_array($answers[$pos]["media_url"]) ? json_decode($answers[$pos]["media_url"], true) : $answers[$pos]["media_url"]);
+                        }
+                        $columnCounter++;   
+                    } else {
+                        $prepareNode["reports"][$counter]["is_answered"] = (($answers[0]["answer_value"] == null) ? false : true);
+                    } 
+                  }
+                  $optCounter++;
+                }
+            }
+            elseif(isset($values["options"])){
+
                 foreach ($values["options"] as $optVal) {
                     if (in_array($optVal["id"], $pluckOpId)) {
 
@@ -1304,6 +1356,7 @@ class SurveyController extends Controller
                         $prepareNode["reports"][$counter]["is_answered"] = (($answers[0]["option_id"] == null) ? false : true);
                     }
                 }
+            }
             }
             $answers = [];
 
