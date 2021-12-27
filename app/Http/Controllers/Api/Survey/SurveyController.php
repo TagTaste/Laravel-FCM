@@ -816,6 +816,7 @@ class SurveyController extends Controller
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["id"] = $column['id'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["value"] = $column['title'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["option_type"] = 0;
+                        $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["color_code"] = (isset($colorCodeList[$row["id"]]) ? $colorCodeList[$row["id"]] : "#fcda02");;
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["answer_count"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["count"] : 0);
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["answer_percentage"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["avg"] : 0); 
                     }
@@ -838,6 +839,7 @@ class SurveyController extends Controller
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["id"] = $column['title'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["value"] = $column['title'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["option_type"] = 0;
+                        $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["color_code"] = (isset($colorCodeList[$row["id"]]) ? $colorCodeList[$row["id"]] : "#fcda02");;
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["answer_count"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["count"] : 0);
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["answer_percentage"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["avg"] : 0); 
                       }
