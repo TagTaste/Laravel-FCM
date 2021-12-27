@@ -911,30 +911,3 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     });
     Route::post('link/status/callback','\App\Http\Controllers\Api\Payment\PaymentController@paymentCallback');
 });
-Route::post('/token',function()
-{
-    $finalUrl = config("payment.CASHFREE_ENDPOINT")."/payout/v1/authorize";
-    $headers = [
-        'X-Client-Id: '.config("payment.CASHFREE_CLIENT_ID"),
-        'X-Client-Secret: '.config("payment.CASHFREE_SECRET_ID"), 
-        'Content-Type: application/json',
-    ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_URL, $finalUrl);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch,  CURLOPT_RETURNTRANSFER, true);
-        $r = curl_exec($ch);
-        
-        if(curl_errno($ch)){
-            print('error in posting');
-            print(curl_error($ch));
-            die();
-        }
-        curl_close($ch);
-        $rObj = json_decode($r, true);    
-        if($rObj['status'] != 'SUCCESS' || $rObj['subCode'] != '200') throw new Exception('incorrect response: '.$rObj['message']);
-        $response = $rObj;
-        return $response['data']['token'];
-});
-
