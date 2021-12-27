@@ -836,7 +836,7 @@ class SurveyController extends Controller
                     $prepareNode["reports"][$counter]["options"][$row['id']-1]["value"] = $row["title"];
                     foreach($values["multiOptions"]['column'] as $column)
                       {
-                        $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["id"] = $column['title'];
+                        $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["id"] = $column['id'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["value"] = $column['title'];
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["option_type"] = 0;
                         $prepareNode["reports"][$counter]["options"][$row['id']-1]["column"][$column['id']-1]["color_code"] = (isset($colorCodeList[$row["id"]]) ? $colorCodeList[$row["id"]] : "#fcda02");;
