@@ -74,9 +74,9 @@ trait PaymentTransaction
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp), "status_id" => config("constant.PAYMENT_PENDING_STATUS_ID")];
 
                     event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type]));
-                    return PaymentLinks::where("transaction_id", $data["transaction_id"])->update($dataToUpdate);//
+                    return PaymentLinks::where("transaction_id", $data["transaction_id"])->update($dataToUpdate); //
                 } else {
-                    PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]);//
+                    PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]); //
                     return false;
                 }
             }
@@ -97,7 +97,7 @@ trait PaymentTransaction
             throw new Exception("Payment Channel Missing");
             return false;
         }
-        
+
         $response = $channel::getStatus($transaction_id);
 
         if (!empty($response)) {
@@ -107,13 +107,13 @@ trait PaymentTransaction
             }
             if ($resp["status"] == "SUCCESS") {
                 $data = ["link" => $resp["result"]["payoutLink"], "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp)];
-                if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
+                if (isset($response["status"]) && $response["status"] == "SUCCESS") {
                     $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
-                } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
+                } else if (isset($response["status"]) && $response["status"] == "FAILURE") {
                     $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
-                } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
+                } else if (isset($response["status"]) && $response["status"] == "CANCELLED") {
                     $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
-                } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
+                } else if (isset($response["status"]) && $response["status"] == "EXPIRED") {
                     $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
                 }
                 return PaymentLinks::where("transaction_id", $transaction_id)->update($data);
@@ -126,28 +126,49 @@ trait PaymentTransaction
     public function callback(Request $request)
     {
         $inputs = $request->all();
-        $dataStr = json_encode($inputs);
+
+        if ($request->has("status") && $request->has("result") && !empty($request->result["orderId"])) {
+            $txn_id = $request->result["orderId"];
+        } else if ($request->has('cashgramid')) {
+            $txn_id = $request->cashgramid;
+        }
+
+        $getChannel = PaymentLinks::where("transaction_id", $txn_id)->first();
+        if (empty($getChannel)) {
+            throw new Exception("Transaction ID Doesnt Exists - Callback");
+            return false;
+        }
+        $paymentChannel = (empty($getChannel->payment_channel) ? 'Paytm' : $getChannel->payment_channel);
+        $channel = 'App\\Services\\' . $paymentChannel;
+        if (!method_exists($channel, 'getStatus')) {
+            throw new Exception("Payment Channel Missing");
+            return false;
+        }
+
+        $response = $channel::processCallback($request);
+        // $dataStr = json_encode($inputs);
         // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", $dataStr, FILE_APPEND);
         // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
 
-        if ($request->has("status") && $request->has("result") && !empty($request->result["orderId"])) {
+        if (!empty($getChannel) && isset($response["orderId"]) && isset($response["status"])) {
             $resp = $request->all();
-            $get = PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->first();
+            $get = $getChannel;
             $content = [];
             $data = ["status_json" => json_encode($resp)];
-            if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "SUCCESS") {
+            if ($response["status"] == "SUCCESS") {
                 $content = ["descp" => "We're writing to let you know that your payment has been successfully redeemed.", "status" => "SUCCESSFUL", "subject" => "Redemption Successful", "view" => "emails.payment-success"];
                 $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
-            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "FAILURE") {
+            } else if ($response["status"] == "FAILURE") {
                 $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
                 $content = ["descp" => "We're writing to let you know that your attempt for payment redemption failed.", "status" => "FAILED", "subject" => "Redemption Failed", "view" => "emails.payment-failure"];
-            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "CANCELLED") {
+            } else if ($response["status"] == "CANCELLED") {
                 $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
-                $content = ["descp" => "We're writing to let you know that payment for " . $resp["result"]["orderId"] . " has been Canceled.", "status" => "CANCELED", "subject" => "Payment Cancelled", "view" => "emails.payment-cancelled"];
-            } else if (isset($resp["result"]["payoutLinkStatus"]) && $resp["result"]["payoutLinkStatus"] == "EXPIRED") {
+                $content = ["descp" => "We're writing to let you know that payment for " . $response["orderId"] . " has been Canceled.", "status" => "CANCELED", "subject" => "Payment Cancelled", "view" => "emails.payment-cancelled"];
+            } else if ($response["status"] == "EXPIRED") {
                 $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
                 $content = ["descp" => "We're writing to let you know that your payment link has expired.", "status" => "LINK EXPIRED", "subject" => "Payment Link Expired", "view" => "emails.payment-expired"];
             }
+
             $content["amount"] = $get->amount;
             $links = "";
             if ($get->model_type == "Survey") {
@@ -172,12 +193,12 @@ trait PaymentTransaction
                 $headline = "TagTaste Private Review Payment";
                 $content["type"] = "Collaboration";
             }
-            $content["order_id"] = $resp["result"]["orderId"];
+            $content["order_id"] = $response["orderId"];
             $content["pretext"] = $links;
             $content["headline"] = $headline;
             event(new PaymentTransactionStatus($get, null, $content));
             // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
-            return ["status" => PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($data)];
+            return ["status" => PaymentLinks::where("transaction_id", $response["orderId"])->update($data)];
         }
         return ["status" => false];
     }

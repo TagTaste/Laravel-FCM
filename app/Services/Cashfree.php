@@ -116,4 +116,17 @@ class Cashfree
 
         return $r;
     }
+
+    public function processCallback($request)
+    {
+        
+        if($request->has('event') && $request->event=="CASHGRAM_REDEEMED"){
+            $status = "SUCCESS";
+        }else if($request->has('event') && $request->event=="CASHGRAM_TRANSFER_REVERSAL"){
+            $status = "FAILURE";
+        }else if($request->has('event') && $request->event=="CASHGRAM_EXPIRED"){
+            $status = "EXPIRED";
+        }
+        return ["orderId" => $request->cashgramid, "status" => $status];
+    }
 }
