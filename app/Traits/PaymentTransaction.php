@@ -26,6 +26,7 @@ trait PaymentTransaction
             $pay["amount"] = $data["amount"];
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
+            $pay["name"] = $data["name"];
             $pay["notifyMode"] = ["SMS", "EMAIL"];
             if ($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review") {
                 if ($data["model_type"] == "Private Review") {
@@ -72,10 +73,10 @@ trait PaymentTransaction
                 if ($resp["status"] == "SUCCESS") {
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp), "status_id" => config("constant.PAYMENT_PENDING_STATUS_ID")];
 
-                    event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $pay["orderId"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type]));
-                    return PaymentLinks::where("transaction_id", $resp["result"]["orderId"])->update($dataToUpdate);
+                    event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type]));
+                    return PaymentLinks::where("transaction_id", $data["transaction_id"])->update($dataToUpdate);//
                 } else {
-                    PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]);
+                    PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]);//
                     return false;
                 }
             }
@@ -96,6 +97,7 @@ trait PaymentTransaction
             throw new Exception("Payment Channel Missing");
             return false;
         }
+        
         $response = $channel::getStatus($transaction_id);
 
         if (!empty($response)) {
