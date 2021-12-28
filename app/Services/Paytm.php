@@ -59,4 +59,9 @@ class Paytm
         curl_close($ch);
         return $response;
     }
+
+    public function processCallback($request)
+    {
+        return ["orderId" => $request->result["orderId"], "status" => $request->result["payoutLinkStatus"]];
+    }
 }
