@@ -885,7 +885,7 @@ class SurveyController extends Controller
                 if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                     if($values["question_type"] == 7){
                     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = ($sum/$getCount->count());
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = $getCount->count()?($sum/$getCount->count()):0;
                     $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
 
                     }
@@ -1291,7 +1291,7 @@ class SurveyController extends Controller
                     $answerValues = $answerValue->pluck("answer_value")->toArray();
                     $flip = array_flip($answerValues);
                       
-                  foreach($values["multiOptions"]["row"] as $column)
+                  foreach($values["multiOptions"]["column"] as $column)
                   {
                         $pos = (isset($flip[$column["id"]]) ? true : false);
 
