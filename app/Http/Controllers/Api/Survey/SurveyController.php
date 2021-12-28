@@ -968,7 +968,7 @@ class SurveyController extends Controller
                 $optCounter++;
             }
         }
-        if($prepareNode["reports"][$counter]["question_type"] != 6){
+        if($prepareNode["reports"][$counter]["question_type"] <=5){
            uasort($prepareNode["reports"][$counter]["options"], function ($a, $b) {
                 if(isset($a['answer_percentage'])&& isset($b['answer_percentage']) ){
                 if ($a['answer_percentage'] == $b['answer_percentage']) {
