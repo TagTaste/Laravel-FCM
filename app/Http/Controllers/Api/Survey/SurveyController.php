@@ -1501,6 +1501,7 @@ class SurveyController extends Controller
         $rankOptionMapping = [];
         $multiChoice = [];
         $rankWeightage = [];
+        $rankExists = 0;
         foreach ($getJson as $values) {
            
          $questionIdMapping[$values["id"]] = $values["title"];
@@ -1639,7 +1640,7 @@ class SurveyController extends Controller
  
                 if($answers->question_type==7)
                 {
-                  
+                  $rankExists++;
                     if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id].$rankMapping[$answers->question_id][$answers->answer_value]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id].$rankMapping[$answers->question_id][$answers->answer_value]]) && !empty($answers->answer_value)) {
                     $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id].$rankMapping[$answers->question_id][$answers->answer_value]] . ";";   
 
@@ -1727,6 +1728,7 @@ class SurveyController extends Controller
         }
         $finalData = array_values($headers);
         $rowsCount = count($finalData);
+        if($rankExists){
         foreach($rankWeightage as $key => $value)
         {
             $finalData[$rowsCount] = [];
@@ -1735,6 +1737,7 @@ class SurveyController extends Controller
             array_push($finalData[$rowsCount],$rankWeightage[$key]['weightage']);
             $rowsCount++;
         } 
+    }
         $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-" . $id . "-" . uniqid();
 
