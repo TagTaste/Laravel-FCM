@@ -43,6 +43,19 @@ return  [
         'expired' => 6
     ],
 
+    'SURVEY_QUESTION_TYPES' => [
+        'LONG_ANSWER' => 1,
+        'SHORT_ANSWER' => 2,
+        'MULTIPLE_CHOICE' => 3,
+        'SINGLE_CHOICE' => 4,
+        'UPLOAD_FILE' => 5,
+        'RANGE' => 6,
+        'RANK' => 7,
+        'MULTI_SELECT_RADIO' => 8,
+        'MULTI_SELECT_CHECK' => 9
+
+    ],
+
     'NOTIFICATION_DELETE_PERIOD' => 60,
     'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2,
     'MINIMUM_PAID_TASTER_TOTAL_REVIEWS' => 3,
