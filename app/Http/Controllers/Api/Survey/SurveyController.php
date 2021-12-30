@@ -1313,11 +1313,12 @@ class SurveyController extends Controller
                             }
 
                             $prepareNode["reports"][$counter]["is_answered"] = (($answers[$pos]["option_id"] == null) ? false : true);
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
                             if (isset($values["max"])) {
+                                $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $answers[$pos]["answer_value"];
                                 $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
                             } else {
+                                $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                                 $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $answers[$pos]["answer_value"];
                             }
 
