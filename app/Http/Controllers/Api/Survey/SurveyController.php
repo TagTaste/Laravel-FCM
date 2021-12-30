@@ -1203,8 +1203,10 @@ class SurveyController extends Controller
 
         $getJson = json_decode($checkIFExists["form_json"], true);
         $counter = 0;
+        $rankMapping = [];
+        $optionValues = [];
 
-        foreach ($getJson as $values) {print_r($values["id"]);
+        foreach ($getJson as $values) {
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->get();
 
@@ -1248,7 +1250,7 @@ class SurveyController extends Controller
             }
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 $optionValues = $answers->pluck("answer_value")->toArray();
-                $rankMapping = [];
+
                 foreach ($values["options"] as $option) {
                     $rankMapping[$option["id"]] = $option["title"];
                 }
@@ -1360,7 +1362,6 @@ class SurveyController extends Controller
                     });
                     $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
                 }
-                
             }
             $answers = [];
             $counter++;
