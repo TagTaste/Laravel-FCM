@@ -1315,8 +1315,11 @@ class SurveyController extends Controller
                             $prepareNode["reports"][$counter]["is_answered"] = (($answers[$pos]["option_id"] == null) ? false : true);
                             $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
-
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $answers[$pos]["answer_value"];
+                            if (isset($values["max"])) {
+                                $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
+                            } else {
+                                $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $answers[$pos]["answer_value"];
+                            }
 
                             $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
 
