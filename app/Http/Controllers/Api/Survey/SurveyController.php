@@ -1204,7 +1204,7 @@ class SurveyController extends Controller
         $getJson = json_decode($checkIFExists["form_json"], true);
         $counter = 0;
 
-        foreach ($getJson as $values) {
+        foreach ($getJson as $values) {print_r($values["id"]);
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->get();
 
@@ -1360,9 +1360,10 @@ class SurveyController extends Controller
                     });
                     $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
                 }
-                $answers = [];
-                $counter++;
+                
             }
+            $answers = [];
+            $counter++;
         }
 
         $this->messages = "Report Successful";
