@@ -1203,6 +1203,8 @@ class SurveyController extends Controller
 
         $getJson = json_decode($checkIFExists["form_json"], true);
         $counter = 0;
+        $rankMapping = [];
+        $optionValues = [];
 
         foreach ($getJson as $values) {
             shuffle($colorCodeList);
@@ -1248,7 +1250,7 @@ class SurveyController extends Controller
             }
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 $optionValues = $answers->pluck("answer_value")->toArray();
-                $rankMapping = [];
+
                 foreach ($values["options"] as $option) {
                     $rankMapping[$option["id"]] = $option["title"];
                 }
@@ -1360,9 +1362,9 @@ class SurveyController extends Controller
                     });
                     $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
                 }
-                $answers = [];
-                $counter++;
             }
+            $answers = [];
+            $counter++;
         }
 
         $this->messages = "Report Successful";
