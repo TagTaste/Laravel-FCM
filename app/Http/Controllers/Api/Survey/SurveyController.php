@@ -937,6 +937,15 @@ class SurveyController extends Controller
                     }
                 });
             }
+            if ($prepareNode["reports"][$counter]["question_type"] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
+                uasort($prepareNode["reports"][$counter]["options"], function ($a, $b) {
+                    if ($a['answer_percentage'] == $b['answer_percentage']) {
+                        return 0;
+                    }
+                    return ($a['answer_percentage'] < $b['answer_percentage']) ? -1 : 1;
+                });
+            }
+
 
             $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
             $answers = [];
