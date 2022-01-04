@@ -562,25 +562,7 @@ class SurveyController extends Controller
                 //         $commit = false;
                 //     }
                 // }
-                else {
 
-                    $answerArray["answer_value"] = $optVal["value"];
-                    $answerArray["is_active"] = 1;
-                    $answerArray["image_meta"] = ((isset($optVal["image_meta"])  && is_array($optVal["image_meta"])) ? json_encode($optVal["image_meta"]) : json_encode([]));
-
-                    $answerArray["video_meta"] = ((isset($optVal["video_meta"])  && is_array($optVal["video_meta"])) ? json_encode($optVal["video_meta"]) : json_encode([]));
-
-                    $answerArray["document_meta"] = ((isset($optVal["document_meta"])  && is_array($optVal["document_meta"])) ? json_encode($optVal["document_meta"]) : json_encode([]));
-
-                    $answerArray["media_url"] = ((isset($optVal["media_url"])  && is_array($optVal["media_url"])) ? json_encode($optVal["media_url"]) : json_encode([]));
-
-
-                    $surveyAnswer = SurveyAnswers::create($answerArray);
-
-                    if (!$surveyAnswer) {
-                        $commit = false;
-                    }
-                }
             }
             $user = $request->user()->profile;
             $responseData = [];
@@ -988,9 +970,11 @@ class SurveyController extends Controller
             $requiredNode = ["question_type", "title", "image_meta", "video_meta", "description", "id", "is_mandatory", "options"];
             //required option nodes
             $optionNodeChecker = ["id", "option_type", "image_meta", "video_meta", "title"];
-            $questionWithoutOption = [config("constant.SURVEY_QUESTION_TYPES.RANGE"),
-             config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO"),
-              config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")];
+            $questionWithoutOption = [
+                config("constant.SURVEY_QUESTION_TYPES.RANGE"),
+                config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO"),
+                config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")
+            ];
             //getTypeOfQuestions  
             $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
             $maxQueId = 1;
@@ -1047,7 +1031,7 @@ class SurveyController extends Controller
                                 }
                                 $maxOptionId++;
                             }
-                            if ($values["question_type"] ==config("constant.SURVEY_QUESTION_TYPES.RANK")) {
+                            if ($values["question_type"] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                                 if (count($values["options"]) < $values["max"]) {
                                     $this->errors["form_json"] = "Rank cannot be greater than count of options";
                                 }
@@ -1506,11 +1490,11 @@ class SurveyController extends Controller
         $rankExists = 0;
         foreach ($getJson as $values) {
 
-            $questionIdMapping[$values["id"]] = $values["title"];
+            $questionIdMapping[$values["id"]] = html_entity_decode($values["title"]);
             if ($values["question_type"] <= 5) {
                 if (isset($values['options'])) {
                     foreach ($values['options'] as $option) {
-                        $optionIdMapping[$values["id"]][$option['id']] = $option['title'];
+                        $optionIdMapping[$values["id"]][$option['id']] = html_entity_decode($option['title']);
                     }
                 }
             }
@@ -1519,23 +1503,24 @@ class SurveyController extends Controller
                     $rankMapping[$values["id"]][$i] = "[Rank$i]";
                 }
                 foreach ($values["options"] as $option) {
-                    $rankOptionMapping[$values["id"]][$option['id']] = $option['title'];
-                    $rankWeightage[$option['title']]['count'] = 0;
-                    $rankWeightage[$option['title']]["sum"] = 0;
+                    $optionTitle = html_entity_decode($option['title']);
+                    $rankOptionMapping[$values["id"]][$option['id']] = $optionTitle;
+                    $rankWeightage[$optionTitle]['count'] = 0;
+                    $rankWeightage[$optionTitle]["sum"] = 0;
                 }
             } elseif ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
                 foreach ($values["multiOptions"]["row"] as $row) {
-                    $multiChoiceRadioRow[$values["id"]][$row["id"]] = "[" . $row["title"] . "]";
+                    $multiChoiceRadioRow[$values["id"]][$row["id"]] = "[" . html_entity_decode($row["title"]) . "]";
                 }
                 foreach ($values["multiOptions"]["column"] as $column) {
-                    $multiChoiceRadioColumn[$values["id"]]["column"][$column["id"]] = $column['title'];
+                    $multiChoiceRadioColumn[$values["id"]]["column"][$column["id"]] = html_entity_decode($column['title']);
                 }
             } elseif ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")) {
                 foreach ($values["multiOptions"]["row"] as $row) {
-                    $multiChoiceCheckRow[$values["id"]][$row["id"]] = "[" . $row["title"] . "]";
+                    $multiChoiceCheckRow[$values["id"]][$row["id"]] = "[" . html_entity_decode($row["title"]) . "]";
                 }
                 foreach ($values["multiOptions"]["column"] as $column) {
-                    $multiChoiceCheckColumn[$values["id"]]["column"][$column["id"]] = $column['title'];
+                    $multiChoiceCheckColumn[$values["id"]]["column"][$column["id"]] = html_entity_decode($column['title']);
                 }
             }
         }
@@ -1689,9 +1674,8 @@ class SurveyController extends Controller
                 $finalData[$rowsCount] = [];
                 $rankWeightage[$key]['weightage'] = ($rankWeightage[$key]["sum"] + ($totalApplicants - $rankWeightage[$key]["count"]) * (count($rankWeightage))) / $totalApplicants;
                 array_push($finalData[$rowsCount], html_entity_decode($key));
-                array_push($finalData[$rowsCount], html_entity_decode($rankWeightage[$key]['weightage']));
+                array_push($finalData[$rowsCount], $rankWeightage[$key]['weightage']);
                 $rowsCount++;
-               
             }
         }
         $relativePath = "reports/surveysAnsweredExcel";
