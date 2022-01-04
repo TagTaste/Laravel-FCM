@@ -988,7 +988,9 @@ class SurveyController extends Controller
             $requiredNode = ["question_type", "title", "image_meta", "video_meta", "description", "id", "is_mandatory", "options"];
             //required option nodes
             $optionNodeChecker = ["id", "option_type", "image_meta", "video_meta", "title"];
-            $questionWithoutOption = [6, 8, 9];
+            $questionWithoutOption = [config("constant.SURVEY_QUESTION_TYPES.RANGE"),
+             config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO"),
+              config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")];
             //getTypeOfQuestions  
             $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
             $maxQueId = 1;
@@ -1040,12 +1042,12 @@ class SurveyController extends Controller
                         foreach ($values["options"] as &$opt) {
                             if (!$isUpdation || !isset($opt['id']) || empty($opt['id'])) {
                                 $opt['id'] = (int)$maxOptionId;
-                                if ($values["question_type"] == 7) {
+                                if ($values["question_type"] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                                     $opt['color_code'] = (isset($colorCodeList[$maxOptionId]) ? $colorCodeList[$maxOptionId] : "#fcda02");
                                 }
                                 $maxOptionId++;
                             }
-                            if ($values["question_type"] == 7) {
+                            if ($values["question_type"] ==config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                                 if (count($values["options"]) < $values["max"]) {
                                     $this->errors["form_json"] = "Rank cannot be greater than count of options";
                                 }
@@ -1599,12 +1601,12 @@ class SurveyController extends Controller
                 // }
                 // $headers[$answers->profile_id]["Sr no"] = $counter;
                 $headers[$answers->profile_id]["Name"] = html_entity_decode($answers->profile->name);
-                $headers[$answers->profile_id]["Email"] = $answers->profile->email;
+                $headers[$answers->profile_id]["Email"] = html_entity_decode($answers->profile->email);
                 $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
                 $headers[$answers->profile_id]["Phone"] = \DB::Table("profiles")->where("id", "=", $answers->profile->id)->first()->phone;
-                $headers[$answers->profile_id]["City"] = $answers->profile->city;
-                $headers[$answers->profile_id]["Hometown"] = $answers->profile->hometown;
-                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . $answers->profile->handle;
+                $headers[$answers->profile_id]["City"] = html_entity_decode($answers->profile->city);
+                $headers[$answers->profile_id]["Hometown"] = html_entity_decode($answers->profile->hometown);
+                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($answers->profile->handle);
                 $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
 
                 $ans = "";
@@ -1686,9 +1688,10 @@ class SurveyController extends Controller
             foreach ($rankWeightage as $key => $value) {
                 $finalData[$rowsCount] = [];
                 $rankWeightage[$key]['weightage'] = ($rankWeightage[$key]["sum"] + ($totalApplicants - $rankWeightage[$key]["count"]) * (count($rankWeightage))) / $totalApplicants;
-                array_push($finalData[$rowsCount], $key);
-                array_push($finalData[$rowsCount], $rankWeightage[$key]['weightage']);
+                array_push($finalData[$rowsCount], html_entity_decode($key));
+                array_push($finalData[$rowsCount], html_entity_decode($rankWeightage[$key]['weightage']));
                 $rowsCount++;
+               
             }
         }
         $relativePath = "reports/surveysAnsweredExcel";
