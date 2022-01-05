@@ -811,7 +811,7 @@ class SurveyController extends Controller
                         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereIn("profile_id", $pluck)->get();
 
                         $ans = $answers->pluck("option_id")->toArray();
-                        // print_r($ans);
+
                         $ar = array_values(array_filter($ans));
                         $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
                         $countOptions = count($ar);
@@ -828,7 +828,7 @@ class SurveyController extends Controller
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = $getCount->count() ? ($sum / $getCount->count()) : 0;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = count($ar) ? ($sum / $getCount->count()) : 0;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
                         } else {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
