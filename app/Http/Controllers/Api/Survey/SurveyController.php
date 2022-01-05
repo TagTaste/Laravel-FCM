@@ -1493,13 +1493,7 @@ class SurveyController extends Controller
         foreach ($getJson as $values) {
 
             $questionIdMapping[$values["id"]] = html_entity_decode($values["title"]);
-            if ($values["question_type"] <= 5) {
-                if (isset($values['options'])) {
-                    foreach ($values['options'] as $option) {
-                        $optionIdMapping[$values["id"]][$option['id']] = html_entity_decode($option['title']);
-                    }
-                }
-            }
+
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 for ($i = 1; $i <= $values["max"]; $i++) {
                     $rankMapping[$values["id"]][$i] = "[Rank$i]";
@@ -1556,11 +1550,7 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
                 foreach ($questionIdMapping as $key => $value) {
 
-                    if (isset($optionIdMapping[$key])) {
-                        foreach ($optionIdMapping[$key] as $option) {
-                            $headers[$answers->profile_id][$value . $option] = null;
-                        }
-                    } else if (isset($rankMapping[$key])) {
+                    if (isset($rankMapping[$key])) {
                         foreach ($rankMapping[$key] as  $v) {
                             $headers[$answers->profile_id][$value . $v] = null;
                         }
@@ -1669,6 +1659,7 @@ class SurveyController extends Controller
                 }
             }
         }
+       
         $finalData = array_values($headers);
         $rowsCount = count($finalData);
         if ($rankExists) {
