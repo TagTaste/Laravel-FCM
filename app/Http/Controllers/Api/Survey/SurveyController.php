@@ -741,6 +741,8 @@ class SurveyController extends Controller
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->get();
 
             $ans = $answers->pluck("option_id")->toArray();
+            $ar = array_values(array_filter($ans));
+            $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
