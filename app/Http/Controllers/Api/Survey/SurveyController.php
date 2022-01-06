@@ -999,6 +999,20 @@ class SurveyController extends Controller
                     if (isset($values["multiOptions"])) {
                         $rowId = 1;
                         $columnId = 1;
+                        if ($isUpdation) {
+                            if (isset($oldJsonArray[$values["id"]]["multiOptions"])) {
+                                $allOptsRows = array_column($oldJsonArray[$values["id"]]["multiOptions"]["row"], "id");
+                                $allOptsColumns = array_column($oldJsonArray[$values["id"]]["multiOptions"]["column"], "id");
+                                $rowId = (is_array($allOptsRows) && !empty($allOptsRows) ? max($allOptsRows) : max(array_column($values["multiOptions"]["row"], 'id')));
+                                $columnId = (is_array($allOptsColumns) && !empty($allOptsColumns) ? max($allOptsColumns) : max(array_column($values["multiOptions"]["column"], 'id')));
+                            } else {
+                                $rowId = max(array_column($values["multiOptions"]["row"], 'id'));
+                                $columnId = max(array_column($values["multiOptions"]["column"], 'id'));
+                            }
+                            $rowId++;
+                            $columnId++;
+                        }
+
                         foreach ($values["multiOptions"]["row"] as &$row) {
                             if (!$isUpdation || !isset($row['id']) || empty($row['id'])) {
                                 $row['id'] = (int)$rowId;
@@ -1659,15 +1673,17 @@ class SurveyController extends Controller
                 }
             }
         }
-       
+
         $finalData = array_values($headers);
         $rowsCount = count($finalData);
         if ($rankExists) {
             foreach ($rankWeightage as $key => $value) {
                 $finalData[$rowsCount] = [];
-                $rankWeightage[$key]['weightage'] = ($rankWeightage[$key]["sum"] + ($totalApplicants - $rankWeightage[$key]["count"]) * (count($rankWeightage))) / $totalApplicants;
+                $sum = $rankWeightage[$key]["sum"] + ($totalApplicants - $rankWeightage[$key]["count"]) * (count($rankWeightage));
+                $rankWeightage[$key]['weightage'] = ($sum) / $totalApplicants;
                 array_push($finalData[$rowsCount], html_entity_decode($key));
-                array_push($finalData[$rowsCount], $rankWeightage[$key]['weightage']);
+                array_push($finalData[$rowsCount], $sum);
+                array_push($finalData[$rowsCount], bcdiv($rankWeightage[$key]['weightage'], 1, 2));
                 $rowsCount++;
             }
         }
