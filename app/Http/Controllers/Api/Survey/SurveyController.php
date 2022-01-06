@@ -1621,7 +1621,7 @@ class SurveyController extends Controller
                         $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]] . ";";
                     }
                     $ans .= html_entity_decode($multiChoiceCheckColumn[$answers->question_id]["column"][$answers->answer_value]);
-                } else {
+                } elseif ($answers->question_type <= config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
 
                     if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";";
@@ -1722,7 +1722,7 @@ class SurveyController extends Controller
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
         $this->model = \Storage::url($resp);
-        //unlink($excel_save_path);
+        unlink($excel_save_path);
 
         return $this->sendResponse();
     }
