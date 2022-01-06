@@ -1015,13 +1015,13 @@ class SurveyController extends Controller
 
                         foreach ($values["multiOptions"]["row"] as &$row) {
                             if (!$isUpdation || !isset($row['id']) || empty($row['id'])) {
-                                $row['id'] = (int)$rowId;
+                                $row['id'] = (string)$rowId;
                                 $rowId++;
                             }
                         }
                         foreach ($values["multiOptions"]["column"] as &$column) {
                             if (!$isUpdation || !isset($column['id']) || empty($column['id'])) {
-                                $column['id'] = (int)$columnId;
+                                $column['id'] = (string)$columnId;
                                 $columnId++;
                             }
                         }
@@ -1041,7 +1041,7 @@ class SurveyController extends Controller
 
                         foreach ($values["options"] as &$opt) {
                             if (!$isUpdation || !isset($opt['id']) || empty($opt['id'])) {
-                                $opt['id'] = (int)$maxOptionId;
+                                $opt['id'] = (string)$maxOptionId;
                                 if ($values["question_type"] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                                     $opt['color_code'] = (isset($colorCodeList[$maxOptionId]) ? $colorCodeList[$maxOptionId] : "#fcda02");
                                 }
@@ -1602,7 +1602,7 @@ class SurveyController extends Controller
 
                 $ans = "";
 
-                if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
+                if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK") && isset($rankMapping[$answers->question_id][$answers->option_id])) {
                     $rankExists++;
                     if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id]]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id]] . ";";
@@ -1610,14 +1610,13 @@ class SurveyController extends Controller
                     $ans .= html_entity_decode($rankOptionMapping[$answers->question_id][$answers->answer_value]);
                     $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->answer_value]]['sum'] += (int)$answers->option_id;
                     $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->answer_value]]['count']++;
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
+                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") && isset($multiChoiceRadioRow[$answers->question_id][$answers->option_id])) {
 
                     if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->option_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->option_id]]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->option_id]] . ";";
                     }
                     $ans .= html_entity_decode($multiChoiceRadioColumn[$answers->question_id]["column"][$answers->answer_value]);
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")) {
-
+                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
                     if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]] . ";";
                     }
@@ -1626,7 +1625,7 @@ class SurveyController extends Controller
 
                     if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";";
-                    }
+                    }print_r($ans);
                     $ans .= html_entity_decode($answers->answer_value);
                 }
 
@@ -1662,11 +1661,11 @@ class SurveyController extends Controller
                     }
                     $ans .=   implode(";", array_column($url, "url"));
                 }
-                if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
+                if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK") && isset($rankMapping[$answers->question_id][$answers->option_id])) {
                     $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id]] = $ans;
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
+                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") && isset($multiChoiceRadioRow[$answers->question_id][$answers->option_id])) {
                     $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->option_id]] = $ans;
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")) {
+                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
                     $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]] = $ans;
                 } else {
                     $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $ans;
