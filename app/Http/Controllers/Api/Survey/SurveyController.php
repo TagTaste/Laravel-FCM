@@ -1625,7 +1625,7 @@ class SurveyController extends Controller
 
                     if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";";
-                    }print_r($ans);
+                    }
                     $ans .= html_entity_decode($answers->answer_value);
                 }
 
@@ -1722,7 +1722,7 @@ class SurveyController extends Controller
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
         $this->model = \Storage::url($resp);
-        unlink($excel_save_path);
+        //unlink($excel_save_path);
 
         return $this->sendResponse();
     }
