@@ -1927,4 +1927,35 @@ class BatchController extends Controller
         $this->model = $foodBill->update(['bill_verified' => $status]);
         return $this->sendResponse();
     }
+
+    public function rollbackTaster(Request $request, $collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $batchId = $request->input('batch_id');
+        $profileIds = $request->input('profile_id');
+        $err = false;
+        foreach ($profileIds as $profileId){
+            $currentStatus = Redis::get("current_status:batch:$batchId:profile:$profileId");
+            if($currentStatus ==1 || $currentStatus ==0)
+            {
+                //perform operation
+                Redis::set("current_status:batch:$batchId:profile:$profileId" ,0); //update taster rollback redis
+                $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$profileId)->update(['begin_tasting'=>0]);
+
+                // event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company,$batchId));
+            }else{
+                $err = true;
+                
+            }        
+        }
+        if($err){
+            return $this->sendError('Some profiles are In-Progress or Completed state');
+        }
+        return $this->sendResponse();
+
+    }
 }
