@@ -1944,7 +1944,10 @@ class BatchController extends Controller
             {
                 //perform operation
                 Redis::set("current_status:batch:$batchId:profile:$profileId" ,0); //update taster rollback redis
-                $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$profileId)->update(['begin_tasting'=>0]);
+                $t = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$profileId)->update(['begin_tasting'=>0]);
+                if($t){
+                    $this->model = true;
+                }
 
                 // event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company,$batchId));
             }else{
@@ -1953,6 +1956,7 @@ class BatchController extends Controller
             }        
         }
         if($err){
+            $this->model = false;
             return $this->sendError('Some profiles are In-Progress or Completed state');
         }
         return $this->sendResponse();
