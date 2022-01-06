@@ -1550,6 +1550,7 @@ class SurveyController extends Controller
 
         if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
             $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids);
+            $totalApplicants = 1;
         } else if ($request->has('filters') && !empty($request->filters)) {
             $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $pluck);
         }
