@@ -765,7 +765,9 @@ class SurveyController extends Controller
 
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
                 $ans = $answers->pluck("answer_value")->toArray();
-                $ar = array_values(array_filter($ans));
+                $ar = array_values(array_filter($ans, function ($value) {
+                    return ($value !== null && $value !== false && $value !== '');
+                }));
                 $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
                 $count = 0;
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
@@ -783,7 +785,7 @@ class SurveyController extends Controller
                     $ans = $answers->pluck("answer_value")->toArray();
 
                     $ar = array_values(array_filter($ans));
-                    $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
+                    $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
                     $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["id"] = $row['id'];
                     $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["value"] = $row["title"];
                     foreach ($values["multiOptions"]['column'] as $column) {
