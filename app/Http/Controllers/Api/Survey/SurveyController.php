@@ -928,6 +928,10 @@ class SurveyController extends Controller
                     }
                     return ($a['answer_percentage'] < $b['answer_percentage']) ? -1 : 1;
                 });
+                foreach ($prepareNode["reports"][$counter]["options"] as $key => $option) {
+                    if ($option["answer_percentage"] == 0)
+                        unset($prepareNode["reports"][$counter]["options"][$key]);
+                }
             }
 
 
@@ -1675,18 +1679,7 @@ class SurveyController extends Controller
         }
 
         $finalData = array_values($headers);
-        $rowsCount = count($finalData);
-        if ($rankExists) {
-            foreach ($rankWeightage as $key => $value) {
-                $finalData[$rowsCount] = [];
-                $sum = $rankWeightage[$key]["sum"] + ($totalApplicants - $rankWeightage[$key]["count"]) * (count($rankWeightage));
-                $rankWeightage[$key]['weightage'] = ($sum) / $totalApplicants;
-                array_push($finalData[$rowsCount], html_entity_decode($key));
-                array_push($finalData[$rowsCount], $sum);
-                array_push($finalData[$rowsCount], bcdiv($rankWeightage[$key]['weightage'], 1, 2));
-                $rowsCount++;
-            }
-        }
+
         $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-" . $id . "-" . uniqid();
 
