@@ -87,9 +87,8 @@ class Cashfree
 
     public static function getStatus($cashgramId)
     {
-
         $token = self::getToken();
-        $query_string = "?cashgramId=" . $cashgramId;
+        $query_string = "?cashgramId=" . $cashgramId->transaction_id;
         $finalUrl = config("payment.CASHFREE_ENDPOINT") . "/payout/v1/getCashgramStatus" . $query_string;
         $headers = self::create_header($token);
         $ch = curl_init();
