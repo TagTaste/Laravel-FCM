@@ -76,7 +76,9 @@ trait PaymentTransaction
 
                 if ($resp["status"] == "SUCCESS") {
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp), "status_id" => config("constant.PAYMENT_PENDING_STATUS_ID")];
-
+                    if (isset($resp["result"]["payoutLink"])) {
+                        $dataToUpdate["link"] = $resp["result"]["payoutLink"];
+                    }
                     event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type]));
                     return PaymentLinks::where("transaction_id", $data["transaction_id"])->update($dataToUpdate); //
                 } else {
@@ -133,12 +135,15 @@ trait PaymentTransaction
     public function callback(Request $request)
     {
         $inputs = $request->all();
-
+ 
+        $dataStr = json_encode($inputs);
+        file_put_contents(storage_path("logs/") . "callback_logs.txt", $dataStr, FILE_APPEND);
+        file_put_contents(storage_path("logs/") . "callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
         if ($request->has("status") && $request->has("result") && !empty($request->result["orderId"])) {
             $txn_id = $request->result["orderId"];
-        } else if ($request->has('cashgramid')) {
+        } else if (isset($request->cashgramid)) {
             $txn_id = $request->cashgramid;
-        }else if ($request->has('event')) {
+        } else if (isset($request->event)) {
             $txn_id = $request->payload->payout_link->entity->receipt;
         }
 
