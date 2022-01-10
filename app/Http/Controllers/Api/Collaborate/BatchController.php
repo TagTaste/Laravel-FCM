@@ -1949,7 +1949,7 @@ class BatchController extends Controller
                     $this->model = true;
                 }
 
-                // event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company,$batchId));
+                event(new \App\Events\Actions\RollbackTaster($collaborate,null,null,null,null,$company ?? null,$batchId));
             }else{
                 $err = true;
                 
