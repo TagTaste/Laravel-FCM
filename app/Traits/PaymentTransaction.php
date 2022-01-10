@@ -76,6 +76,9 @@ trait PaymentTransaction
 
                 if ($resp["status"] == "SUCCESS") {
                     $dataToUpdate = ["expired_at" => date("Y-m-d H:i:s", strtotime($resp["result"]["expiryDate"])), "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp), "status_id" => config("constant.PAYMENT_PENDING_STATUS_ID")];
+                    if (isset($resp["result"]["comments"])) {
+                        $dataToUpdate["comments"] = $resp["result"]["comments"];
+                    }
                     if (isset($resp["result"]["payoutLink"])) {
                         $dataToUpdate["link"] = $resp["result"]["payoutLink"];
                     }
@@ -116,6 +119,9 @@ trait PaymentTransaction
             }
             if (isset($resp["status"])) {
                 $data = ["link" => $resp["result"]["payoutLink"], "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp)];
+                if(isset($resp["result"]["expiryDate"])){
+                    $data["expired_at"] = $resp["result"]["expiryDate"];
+                }
                 if (isset($resp["status"]) && $resp["status"] == "SUCCESS") {
                     $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
                 } else if (isset($resp["status"]) && $resp["status"] == "FAILURE") {

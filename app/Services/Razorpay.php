@@ -55,6 +55,7 @@ class Razorpay
             $returnResp["result"]["expiryDate"] = gmdate("Y-m-d", strtotime($re["expire_by"]));
             $returnResp["result"]["payoutLinkId"] = $re["id"];
             $returnResp["result"]["payoutLink"] = $re["short_url"];
+            $returnResp["result"]["comments"] = $re["description"];
         } else {
             $returnResp["status"] = "FAILURE";
             $returnResp['statusMessage'] = (isset($re["error"]["description"]) ?  $re["error"]["description"] : "Transaction Failure");
@@ -65,23 +66,16 @@ class Razorpay
 
     public static function getStatus($Txn_Id)
     {
-        $link = '/v1/payout-links';
-
-        $params = ["orderId" => $Txn_Id->payout_link_id];
-        $post_data = json_encode($params, JSON_UNESCAPED_SLASHES);
-
-        $checksum = PaytmChecksum::generateSignature($post_data, config("payment.PAYTM_MERCHANT_KEY"));
-
-        $x_mid      = config("payment.PAYTM_MID");
-        $x_checksum = $checksum;
 
 
-        $url = config("payment.PAYTM_ENDPOINT") . $link;
+
+        $link = '/v1/payout-links/' . $Txn_Id->payout_link_id;
+
+
+        $url = config("payment.RAZORPAY_ENDPOINT") . $link;
 
 
         $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Basic " . base64_encode(config("payment.RAZORPAY_KEY_ID") . ":" . config("payment.RAZORPAY_KEY_SECRET"))));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
@@ -89,41 +83,46 @@ class Razorpay
         curl_close($ch);
         $returnResp = [];
         $returnResp["statusCode"] = $http_status;
-        if (is_string($response)) {
-            $re = json_decode($response, true);
-        } else if (is_array($response)) {
-            $re  = $response;
+
+        if (!is_array($response)) {
+            $re  = json_decode($response, true);
         }
+
         $returnResp["result"] = $re;
 
         if ($http_status == 200) {
-            if ($returnResp["status"] == "processed") {
+            if ($re["status"] == "processed") {
 
                 $returnResp["status"] = "SUCCESS";
-            } else if ($returnResp["status"] == "issued") {
+            } else if ($re["status"] == "issued") {
 
                 $returnResp["status"] = "PENDING";
-            } else if ($returnResp["status"] == "processing") {
+            } else if ($re["status"] == "processing") {
 
                 $returnResp["status"] = "PENDING";
-            } else if ($returnResp["status"] == "attempted") {
+            } else if ($re["status"] == "attempted") {
 
                 $returnResp["status"] = "PENDING";
-            } else if ($returnResp["status"] == "cancelled") {
+            } else if ($re["status"] == "cancelled") {
 
                 $returnResp["status"] = "CANCELLED";
-            } else if ($returnResp["status"] == "expired") {
+            } else if ($re["status"] == "expired") {
 
                 $returnResp["status"] = "EXPIRED";
             }
 
             $returnResp['statusMessage'] = "Transaction Successfull";
-            $returnResp["result"]["expiryDate"] = gmdate("Y-m-d", strtotime($returnResp["expire_by"]));
-            $returnResp["result"]["payoutLinkId"] = $returnResp["id"];              
+            // echo $re["expire_by"];
+            $returnResp["result"]["expiryDate"] = gmdate("Y-m-d H:i:s", $re["expire_by"]);
+            $returnResp["result"]["payoutLink"] = $re["short_url"];
+            $returnResp["result"]["payoutLinkId"] = $re["id"];
+            $returnResp["result"]["comments"] = $re["description"];
         } else {
             // $returnResp["status"] = "FAILURE";
             $returnResp['statusMessage'] = (isset($re["description"]) ?  $re["description"] : "Transaction Failure");
         }
+
+        return $returnResp;
     }
 
     public function processCallback($request)
