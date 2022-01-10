@@ -33,7 +33,7 @@ class RollbackTaster extends Action
 
     public function via($notifiable)
     {
-        $via = ['database',FCMPush::class];
+        $via = ['database',FCMPush::class,'broadcast'];
 
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
