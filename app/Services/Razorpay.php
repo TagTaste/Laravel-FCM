@@ -150,6 +150,6 @@ class Razorpay
                 $returnResp["status"] = "EXPIRED";
             }
         }
-        return ["orderId" => $request->result["orderId"], "status" => $request->result["payoutLinkStatus"]];
+        return ["orderId" => $request->payload->payout_link->entity->receipt, "status" => $returnResp["status"]];
     }
 }

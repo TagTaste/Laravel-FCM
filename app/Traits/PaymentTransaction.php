@@ -26,7 +26,7 @@ trait PaymentTransaction
             $pay["amount"] = $data["amount"];
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
-            
+
             $pay["name"] = $data["name"];
             $pay["notifyMode"] = ["SMS", "EMAIL"];
             if ($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review") {
@@ -64,6 +64,9 @@ trait PaymentTransaction
             }
             $response = $channel::createLink($pay);
 
+            file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", "\n-----------------CREATE LINK-------------------\n\n\n", FILE_APPEND);
+            file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", json_encode($response), FILE_APPEND);
+            file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
 
             if (!empty($response)) {
                 $resp = $response;
@@ -101,6 +104,9 @@ trait PaymentTransaction
 
         $response = $channel::getStatus($getChannel);
 
+        file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", "\n-----------------GET STATUSK-------------------\n\n\n", FILE_APPEND);
+        file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", json_encode($response), FILE_APPEND);
+        file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
         if (!empty($response)) {
             $resp = $response;
             if (!is_array($response)) {
