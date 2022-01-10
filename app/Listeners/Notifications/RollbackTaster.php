@@ -3,7 +3,7 @@
 namespace App\Listeners\Notifications;
 
 use App\CompanyUser;
-use App\Events\Actions\BeginTasting as BeginTastingEvent;
+use App\Events\Actions\RollbackTaster;
 use App\Notify\Profile;
 use Illuminate\Support\Facades\Notification;
 
@@ -25,11 +25,11 @@ class RollbackTaster
      * @param  Share  $event
      * @return void
      */
-    public function handle(BeginTastingEvent $event)
+    public function handle(RollbackTaster $event)
     {
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
         if(isset($profile))
-        Notification::send($profile, new \App\Notifications\Actions\BeginTasting($event));
+        Notification::send($profile, new \App\Notifications\Actions\RollbackTaster($event));
     }
 }
