@@ -1572,9 +1572,7 @@ class SurveyController extends Controller
 
         $getSurveyAnswers = $getSurveyAnswers->get();
         $counter = 0;
-        // dd($getSurveyAnswers);
         foreach ($getSurveyAnswers as $answers) {
-            //print_r($answers->question_id);
             if (!isset($headers[$answers->profile_id])) {
                 $counter++;
                 $headers[$answers->profile_id] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
@@ -1582,19 +1580,19 @@ class SurveyController extends Controller
 
                     if (isset($rankMapping[$key])) {
                         foreach ($rankMapping[$key] as  $v) {
-                            $headers[$answers->profile_id][$value . $v] = null;
+                            $headers[$answers->profile_id][$value . $v . "_(" . $key . ")_"] = null;
                         }
                     } elseif (isset($multiChoiceRadioRow[$key])) {
                         foreach ($multiChoiceRadioRow[$key] as $v) {
-                            $headers[$answers->profile_id][$value . $v] = null;
+                            $headers[$answers->profile_id][$value . $v . "_(" . $key . ")_"] = null;
                         }
                     } elseif (isset($multiChoiceCheckRow[$key])) {
                         foreach ($multiChoiceCheckRow[$key] as $v) {
-                            $headers[$answers->profile_id][$value . $v] = null;
+                            $headers[$answers->profile_id][$value . $v . "_(" . $key . ")_"] = null;
                         }
                     } else {
 
-                        $headers[$answers->profile_id][$value] = null;
+                        $headers[$answers->profile_id][$value . "_(" . $key . ")_"] = null;
                     }
                 }
             }
@@ -1620,27 +1618,27 @@ class SurveyController extends Controller
 
                 if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK") && isset($rankMapping[$answers->question_id][$answers->option_id])) {
                     $rankExists++;
-                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id]]) && !empty($answers->answer_value)) {
-                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id]] . ";";
+                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
+                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] . ";";
                     }
                     $ans .= html_entity_decode($rankOptionMapping[$answers->question_id][$answers->answer_value]);
                     $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->answer_value]]['sum'] += (int)$answers->option_id;
                     $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->answer_value]]['count']++;
                 } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") && isset($multiChoiceRadioRow[$answers->question_id][$answers->answer_value])) {
 
-                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value]]) && !empty($answers->option_id)) {
-                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value]] . ";";
+                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"]) && !empty($answers->option_id)) {
+                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] . ";";
                     }
                     $ans .= html_entity_decode($multiChoiceRadioColumn[$answers->question_id]["column"][$answers->option_id]);
                 } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
-                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]]) && !empty($answers->answer_value)) {
-                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]] . ";";
+                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
+                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] . ";";
                     }
                     $ans .= html_entity_decode($multiChoiceCheckColumn[$answers->question_id]["column"][$answers->answer_value]);
                 } elseif ($answers->question_type <= config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
 
-                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id]]) && !empty($answers->answer_value)) {
-                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] . ";";
+                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
+                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
                     }
                     $ans .= html_entity_decode($answers->answer_value);
                 }
@@ -1678,13 +1676,13 @@ class SurveyController extends Controller
                     $ans .=   implode(";", array_column($url, "url"));
                 }
                 if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK") && isset($rankMapping[$answers->question_id][$answers->option_id])) {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id]] = $ans;
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
                 } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") && isset($multiChoiceRadioRow[$answers->question_id][$answers->answer_value])) {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value]] = $ans;
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] = $ans;
                 } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id]] = $ans;
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
                 } else {
-                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id]] = $ans;
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $key . ")_"] = $ans;
                 }
             }
         }
@@ -1708,8 +1706,9 @@ class SurveyController extends Controller
             $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
                 $sheet->fromArray($finalData, null, 'A1', true, true);
                 // ->getFont()->setBold(true);
-                foreach ($sheet->getColumnIterator() as $row) {
 
+                foreach ($sheet->getColumnIterator() as $row) {
+                    $cellcount = 0;
                     foreach ($row->getCellIterator() as $cell) {
 
                         if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
@@ -1718,6 +1717,8 @@ class SurveyController extends Controller
                                 ->setUrl($cell_link)
                                 ->setTooltip('Click here to access profile');
                         }
+                        if ($cellcount == 0 && str_contains($cell->getValue(), '_(')) $cell->setValueExplicit(substr($cell->getValue(), 0, strpos($cell->getValue(), "_(")));
+                        $cellcount++;
                     }
                 }
             })->store('xlsx', false, true);
