@@ -22,7 +22,7 @@ class RollbackTaster extends Action
         $this->batchInfo = $event->batchInfo;
         // $this->view = 'emails.begintasting';
 
-        $this->sub = htmlspecialchars_decode($this->data->who['name']) ." has rollbacked the product (".$event->batchInfo->name.") for now";
+        $this->sub = htmlspecialchars_decode($this->data->who['name']) ." assigned product (".$event->batchInfo->name.") by mistake and it has been reversed.";
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
 

@@ -1969,7 +1969,7 @@ class BatchController extends Controller
         }
         if($err){
             $this->model = false;
-            return $this->sendError('Some profiles are In-Progress or Completed state');
+            return $this->sendError('Sorry, you cannot undo begin tasting as the tasting is in progress');
         }
         return $this->sendResponse();
 
