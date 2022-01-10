@@ -38,7 +38,7 @@ class Paytm
     {
         $link = '/pls/api/v2/payout-link/fetch';
 
-        $params = ["orderId" => $Txn_Id];
+        $params = ["orderId" => $Txn_Id->transaction_id];
         $post_data = json_encode($params, JSON_UNESCAPED_SLASHES);
 
         $checksum = PaytmChecksum::generateSignature($post_data, config("payment.PAYTM_MERCHANT_KEY"));

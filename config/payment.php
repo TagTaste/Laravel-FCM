@@ -15,4 +15,9 @@ return  [
     "CASHFREE_ENDPOINT" => env("CASHFREE_ENDPOINT","https://payout-gamma.cashfree.com"),
     "CASHFREE_CALLBACK_URL"=>env("CASHFREE_CALLBACK_URL","https://apidev.tagtaste.com/api/link/status/callback"),
 
+    "RAZORPAY_ENDPOINT" => env("RAZORPAY_ENDPOINT","https://api.razorpay.com"),
+    "RAZORPAY_KEY_ID" => env("RAZORPAY_KEY_ID","rzp_live_ecEbypkQ0ccKEW"),
+    "RAZORPAY_KEY_SECRET" => env("RAZORPAY_KEY_SECRET","iBUIJSIManSTQc3TT7VexyYO"),
+    "RAZORPAY_ACC_NO" => env("RAZORPAY_ACC_NO","4564567629785781")
+
 ];

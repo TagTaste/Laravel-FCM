@@ -26,6 +26,7 @@ trait PaymentTransaction
             $pay["amount"] = $data["amount"];
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
+
             $pay["name"] = $data["name"];
             $pay["notifyMode"] = ["SMS", "EMAIL"];
             if ($data["model_type"] == "Private Review" || $data["model_type"] == "Public Review") {
@@ -63,6 +64,9 @@ trait PaymentTransaction
             }
             $response = $channel::createLink($pay);
 
+            file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", "\n-----------------CREATE LINK-------------------\n\n\n", FILE_APPEND);
+            file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", json_encode($response), FILE_APPEND);
+            file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
 
             if (!empty($response)) {
                 $resp = $response;
@@ -86,7 +90,7 @@ trait PaymentTransaction
     public function getStatus($transaction_id)
     {
 
-        $getChannel = PaymentLinks::where("transaction_id", $transaction_id)->select("payment_channel")->first();
+        $getChannel = PaymentLinks::where("transaction_id", $transaction_id)->first();
         if (empty($getChannel)) {
             throw new Exception("Transaction ID Doesnt Exists - getStatus");
             return false;
@@ -98,22 +102,25 @@ trait PaymentTransaction
             return false;
         }
 
-        $response = $channel::getStatus($transaction_id);
+        $response = $channel::getStatus($getChannel);
 
+        file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", "\n-----------------GET STATUSK-------------------\n\n\n", FILE_APPEND);
+        file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", json_encode($response), FILE_APPEND);
+        file_put_contents(storage_path("logs/") . $paymentChannel . "_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
         if (!empty($response)) {
             $resp = $response;
             if (!is_array($response)) {
                 $resp = json_decode($response, true);
             }
-            if ($resp["status"] == "SUCCESS") {
+            if (isset($resp["status"])) {
                 $data = ["link" => $resp["result"]["payoutLink"], "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp)];
-                if (isset($response["status"]) && $response["status"] == "SUCCESS") {
+                if (isset($resp["status"]) && $resp["status"] == "SUCCESS") {
                     $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
-                } else if (isset($response["status"]) && $response["status"] == "FAILURE") {
+                } else if (isset($resp["status"]) && $resp["status"] == "FAILURE") {
                     $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
-                } else if (isset($response["status"]) && $response["status"] == "CANCELLED") {
+                } else if (isset($resp["status"]) && $resp["status"] == "CANCELLED") {
                     $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
-                } else if (isset($response["status"]) && $response["status"] == "EXPIRED") {
+                } else if (isset($resp["status"]) && $resp["status"] == "EXPIRED") {
                     $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
                 }
                 return PaymentLinks::where("transaction_id", $transaction_id)->update($data);
