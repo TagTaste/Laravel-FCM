@@ -26,14 +26,14 @@ class Razorpay
         $parameters["expire_by"] = strtotime(date("Y-m-d", strtotime("+10 days")));
         $parameters["receipt"] = $paramArray["orderId"];
 
-        $post_data = json_encode($paramArray, JSON_UNESCAPED_SLASHES);
+        $post_data = json_encode($parameters, JSON_UNESCAPED_SLASHES);
 
         $url = config("payment.RAZORPAY_ENDPOINT") . $link;
         print_r($post_data);
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Basic" . base64_encode(config("payment.RAZORPAY_KEY_ID") . ":" . config("payment.RAZORPAY_KEY_SECRET"))));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Basic " . base64_encode(config("payment.RAZORPAY_KEY_ID") . ":" . config("payment.RAZORPAY_KEY_SECRET"))));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         echo $response =   curl_exec($ch);
         echo "<br/>";
@@ -52,7 +52,7 @@ class Razorpay
             $returnResp["result"] = $re;
             $returnResp["status"] = "SUCCESS";
             $returnResp['statusMessage'] = "Transaction Successfull";
-            $returnResp["result"]["expiryDate"] = date("Y-m-d", strtotime($re["expire_by"]));
+            $returnResp["result"]["expiryDate"] = gmdate("Y-m-d", strtotime($re["expire_by"]));
             $returnResp["result"]["payoutLinkId"] = $re["id"];
             $returnResp["result"]["payoutLink"] = $re["short_url"];
         } else {
@@ -118,7 +118,7 @@ class Razorpay
             }
 
             $returnResp['statusMessage'] = "Transaction Successfull";
-            $returnResp["result"]["expiryDate"] = date("Y-m-d", strtotime($returnResp["expire_by"]));
+            $returnResp["result"]["expiryDate"] = gmdate("Y-m-d", strtotime($returnResp["expire_by"]));
             $returnResp["result"]["payoutLinkId"] = $returnResp["id"];
         } else {
             // $returnResp["status"] = "FAILURE";

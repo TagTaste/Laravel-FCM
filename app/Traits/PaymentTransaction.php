@@ -138,6 +138,8 @@ trait PaymentTransaction
             $txn_id = $request->result["orderId"];
         } else if ($request->has('cashgramid')) {
             $txn_id = $request->cashgramid;
+        }else if ($request->has('event')) {
+            $txn_id = $request->payload->payout_link->entity->receipt;
         }
 
         $getChannel = PaymentLinks::where("transaction_id", $txn_id)->first();
