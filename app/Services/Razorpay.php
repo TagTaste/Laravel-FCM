@@ -82,7 +82,7 @@ class Razorpay
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Basic " . base64_encode(config("payment.RAZORPAY_KEY_ID") . ":" . config("payment.RAZORPAY_KEY_SECRET"))));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -119,7 +119,7 @@ class Razorpay
 
             $returnResp['statusMessage'] = "Transaction Successfull";
             $returnResp["result"]["expiryDate"] = gmdate("Y-m-d", strtotime($returnResp["expire_by"]));
-            $returnResp["result"]["payoutLinkId"] = $returnResp["id"];
+            $returnResp["result"]["payoutLinkId"] = $returnResp["id"];              
         } else {
             // $returnResp["status"] = "FAILURE";
             $returnResp['statusMessage'] = (isset($re["description"]) ?  $re["description"] : "Transaction Failure");
@@ -129,7 +129,7 @@ class Razorpay
     public function processCallback($request)
     {
 
-        if ($request->has('event')) {
+        if (isset($request->event)) {
             if ($request->event == "payout_link.processed") {
 
                 $returnResp["status"] = "SUCCESS";
