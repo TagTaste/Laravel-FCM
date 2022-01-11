@@ -116,7 +116,7 @@ class Cashfree
         return $r;
     }
 
-    public function processCallback($request)
+    public static function processCallback($request)
     {
         
         if($request->has('event') && $request->event=="CASHGRAM_REDEEMED"){
