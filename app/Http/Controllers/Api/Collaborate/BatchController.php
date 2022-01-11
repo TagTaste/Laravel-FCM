@@ -357,7 +357,7 @@ class BatchController extends Controller
                     Redis::set("current_status:batch:$batchId:profile:$profileId", 1);
                 }
                 $collaborate->profile_id = $profileId;
-                User
+                
                 event(new \App\Events\Actions\BeginTasting($collaborate, null, null, null, null, $company, $batchId));
             }
         }
