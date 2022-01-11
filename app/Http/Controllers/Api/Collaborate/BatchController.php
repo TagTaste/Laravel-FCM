@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use App\Profile\User;
 use Illuminate\Support\Collection;
 use Excel;
 use Illuminate\Support\Facades\Storage;
@@ -356,6 +357,7 @@ class BatchController extends Controller
                     Redis::set("current_status:batch:$batchId:profile:$profileId", 1);
                 }
                 $collaborate->profile_id = $profileId;
+                User
                 event(new \App\Events\Actions\BeginTasting($collaborate, null, null, null, null, $company, $batchId));
             }
         }
@@ -1955,6 +1957,11 @@ class BatchController extends Controller
                 } else {
                     $err = true;
                 }
+                $who = [];
+                if(empty($company)){
+                    $who = Profile::where("id","=",$collaborate->profile_id)->first();
+                }
+
                 $company = Company::where('id', $collaborate->company_id)->first();
                 $collaborate->profile_id = $profileId;
                 event(new \App\Events\Actions\RollbackTaster($collaborate, null, null, null, null, $company, $batchId));
