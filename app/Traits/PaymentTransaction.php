@@ -141,7 +141,8 @@ trait PaymentTransaction
     public function callback(Request $request)
     {
         $inputs = $request->all();
-
+        $responseJson = [];
+        $responseJson["result"] = $inputs;
         $dataStr = json_encode($inputs);
         file_put_contents(storage_path("logs/") . "callback_logs.txt", $dataStr, FILE_APPEND);
         file_put_contents(storage_path("logs/") . "callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
@@ -152,6 +153,7 @@ trait PaymentTransaction
         } else if (isset($request->event)) {
             // print_r($request->all());
             $txn_id = $request->payload["payout_link"]["entity"]["receipt"];
+            $responseJson["result"] = $request->payload["payout_link"]["entity"];
         }
 
         $getChannel = PaymentLinks::where("transaction_id", $txn_id)->first();
@@ -172,21 +174,25 @@ trait PaymentTransaction
         // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
 
         if (!empty($getChannel) && isset($response["orderId"]) && isset($response["status"])) {
-            $resp = $request->all();
+            $responseJson["statusCode"] = 200;
             $get = $getChannel;
             $content = [];
-            $data = ["status_json" => json_encode($resp)];
+            $data = [];
             
             if ($response["status"] == "SUCCESS") {
                 $content = ["descp" => "We're writing to let you know that your payment has been successfully redeemed.", "status" => "SUCCESSFUL", "subject" => "Redemption Successful", "view" => "emails.payment-success"];
+                $responseJson["status"] = "SUCCESS";
                 $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
             } else if ($response["status"] == "FAILURE") {
+                $responseJson["status"] = "FAILURE";
                 $data["status_id"] = config("constant.PAYMENT_FAILURE_STATUS_ID");
                 $content = ["descp" => "We're writing to let you know that your attempt for payment redemption failed.", "status" => "FAILED", "subject" => "Redemption Failed", "view" => "emails.payment-failure"];
             } else if ($response["status"] == "CANCELLED") {
+                $responseJson["status"] = "CANCELLED";
                 $data["status_id"] = config("constant.PAYMENT_CANCELLED_STATUS_ID");
                 $content = ["descp" => "We're writing to let you know that payment for " . $response["orderId"] . " has been Canceled.", "status" => "CANCELED", "subject" => "Payment Cancelled", "view" => "emails.payment-cancelled"];
             } else if ($response["status"] == "EXPIRED") {
+                $responseJson["status"] = "EXPIRED";
                 $data["status_id"] = config("constant.PAYMENT_EXPIRED_STATUS_ID");
                 $content = ["descp" => "We're writing to let you know that your payment link has expired.", "status" => "LINK EXPIRED", "subject" => "Payment Link Expired", "view" => "emails.payment-expired"];
             }
@@ -218,6 +224,7 @@ trait PaymentTransaction
             $content["order_id"] = $response["orderId"];
             $content["pretext"] = $links;
             $content["headline"] = $headline;
+            $data["status_json"] = json_encode($responseJson);
             if (isset($content["subject"])) {
                 event(new PaymentTransactionStatus($get, null, $content));
             }
