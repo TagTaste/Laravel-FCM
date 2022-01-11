@@ -1964,7 +1964,7 @@ class BatchController extends Controller
 
                 $company = Company::where('id', $collaborate->company_id)->first();
                 $collaborate->profile_id = $profileId;
-                event(new \App\Events\Actions\RollbackTaster($collaborate, null, null, null, null, $company, $batchId));
+                event(new \App\Events\Actions\RollbackTaster($collaborate, $who, null, null, null, $company, $batchId));
             } else {
                 $err = true;
             }
