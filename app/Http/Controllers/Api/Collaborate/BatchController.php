@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use App\Profile\User;
 use Illuminate\Support\Collection;
 use Excel;
 use Illuminate\Support\Facades\Storage;
@@ -352,8 +353,13 @@ class BatchController extends Controller
                 if ($currentStatus == 0) {
                     Redis::set("current_status:batch:$batchId:profile:$profileId", 1);
                 }
+                $who = [];
+                if(empty($company)){
+                    $who = Profile::where("id","=",$collaborate->profile_id)->first();
+                }
                 $collaborate->profile_id = $profileId;
-                event(new \App\Events\Actions\BeginTasting($collaborate, null, null, null, null, $company, $batchId));
+                
+                event(new \App\Events\Actions\BeginTasting($collaborate, $who, null, null, null, $company, $batchId));
             }
         }
         return $this->sendResponse();
@@ -483,7 +489,7 @@ class BatchController extends Controller
                     $item->questions->header_type_id = $item->header_type_id;
                     $item->questions->collaborate_id = $item->collaborate_id;
                     $data->questions->questions{
-                    $i} = $item->questions;
+                        $i} = $item->questions;
                     $i++;
                 }
             }
@@ -1456,7 +1462,7 @@ class BatchController extends Controller
                         $item->questions->header_type_id = $item->header_type_id;
                         $item->questions->collaborate_id = $item->collaborate_id;
                         $data->questions->questions{
-                        $i} = $item->questions;
+                            $i} = $item->questions;
                         $i++;
                     }
                 }
@@ -1593,18 +1599,11 @@ class BatchController extends Controller
                                 $answer->initial_intensity = isset($data->questions->initial_intensity) ? $data->questions->initial_intensity : null;
                                 $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
                                 $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
-                                $answer->intensity_type = $data->questions->intensity_type; 
-                              
-                              
-                            }
-                            else
-                            {
-                                foreach ($options as $option)
-                                {
-                                    if($option->id == $answer->leaf_id)
-                                    {
-                                        if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 2)
-                                        {
+                                $answer->intensity_type = $data->questions->intensity_type;
+                            } else {
+                                foreach ($options as $option) {
+                                    if ($option->id == $answer->leaf_id) {
+                                        if ($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 2) {
 
                                             $answerIntensity = $answer->intensity;
                                             $answerIntensity = explode(",", $answerIntensity);
@@ -1939,36 +1938,44 @@ class BatchController extends Controller
 
     public function rollbackTaster(Request $request, $collaborateId)
     {
-        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+        $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
 
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
         $batchId = $request->input('batch_id');
         $profileIds = $request->input('profile_id');
-        $err = false;
-        foreach ($profileIds as $profileId){
+        $err = true;
+        foreach ($profileIds as $profileId) {
             $currentStatus = Redis::get("current_status:batch:$batchId:profile:$profileId");
-            if($currentStatus ==1 || $currentStatus ==0)
-            {
+            if ($currentStatus == 1 || $currentStatus == 0) {
                 //perform operation
-                Redis::set("current_status:batch:$batchId:profile:$profileId" ,0); //update taster rollback redis
-                $t = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$profileId)->update(['begin_tasting'=>0]);
-                if($t){
+                Redis::set("current_status:batch:$batchId:profile:$profileId", 0); //update taster rollback redis
+                $t = \DB::table('collaborate_batches_assign')->where('batch_id', $batchId)->where('profile_id', $profileId)->update(['begin_tasting' => 0]);
+                $err = false;
+                if ($t) {
                     $this->model = true;
+                } else {
+                    $err = true;
+                }
+                $who = [];
+                if(empty($company)){
+                    $who = Profile::where("id","=",$collaborate->profile_id)->first();
                 }
 
-                event(new \App\Events\Actions\RollbackTaster($collaborate,null,null,null,null,$company ?? null,$batchId));
-            }else{
+                $company = Company::where('id', $collaborate->company_id)->first();
+                $collaborate->profile_id = $profileId;
+                event(new \App\Events\Actions\RollbackTaster($collaborate, $who, null, null, null, $company, $batchId));
+            } else {
                 $err = true;
-                
-            }        
+            }
         }
-        if($err){
+
+
+        if ($err) {
             $this->model = false;
             return $this->sendError('Sorry, you cannot undo begin tasting as the tasting is in progress');
         }
         return $this->sendResponse();
-
     }
 }
