@@ -1285,6 +1285,7 @@ class SurveyController extends Controller
                     $headers[$answers->profile_id][$v] = null;
                 }
             }
+            
             $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
             $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
             $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
