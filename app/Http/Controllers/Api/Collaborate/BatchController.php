@@ -356,9 +356,12 @@ class BatchController extends Controller
                 if ($currentStatus == 0) {
                     Redis::set("current_status:batch:$batchId:profile:$profileId", 1);
                 }
+                if(empty($company)){
+                    $who = Profile::where("id","=",$collaborate->profile_id)->first();
+                }
                 $collaborate->profile_id = $profileId;
                 
-                event(new \App\Events\Actions\BeginTasting($collaborate, null, null, null, null, $company, $batchId));
+                event(new \App\Events\Actions\BeginTasting($collaborate, $who, null, null, null, $company, $batchId));
             }
         }
         return $this->sendResponse();
