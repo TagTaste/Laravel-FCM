@@ -153,7 +153,9 @@ trait PaymentTransaction
         } else if (isset($request->event)) {
             // print_r($request->all());
             $txn_id = $request->payload["payout_link"]["entity"]["receipt"];
+            $responseJson = $request->except('payload');
             $responseJson["result"] = $request->payload["payout_link"]["entity"];
+             
         }
 
         $getChannel = PaymentLinks::where("transaction_id", $txn_id)->first();
