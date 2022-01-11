@@ -356,7 +356,7 @@ class BatchController extends Controller
                 if ($currentStatus == 0) {
                     Redis::set("current_status:batch:$batchId:profile:$profileId", 1);
                 }
-                $who = [];
+                $who = null;
                 if(empty($company)){
                     $who = Profile::where("id","=",$collaborate->profile_id)->first();
                 }
@@ -1961,7 +1961,7 @@ class BatchController extends Controller
                 } else {
                     $err = true;
                 }
-                $who = [];
+                $who = null;
                 if(empty($company)){
                     $who = Profile::where("id","=",$collaborate->profile_id)->first();
                 }
