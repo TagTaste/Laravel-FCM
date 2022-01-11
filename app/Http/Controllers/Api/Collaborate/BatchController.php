@@ -50,21 +50,25 @@ class BatchController extends Controller
 
         foreach ($batches as &$batch) {
             //$batch['beginTastingCount'] = \DB::table('collaborate_batches_assign')->where('begin_tasting',1)->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
-            $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
+            // $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
+
+            // $batch['beginTastingCount'] = $batch['assignedCount'] - $batch['reviewedCount'];
+            //below changes done by nikhil
+            $batch['beginTastingCount'] = \DB::table('collaborate_tasting_user_review')->where('current_status', 2)->where('collaborate_id', $batch['collaborate_id'])
+                ->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
+
             $batch['reviewedCount'] = \DB::table('collaborate_tasting_user_review')->where('current_status', 3)->where('collaborate_id', $batch['collaborate_id'])
                 ->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
 
-            $batch['beginTastingCount'] = $batch['assignedCount'] - $batch['reviewedCount'];
-            
-            //below changes done by nikhil
-            $batch['inProgressUserCount'] = \DB::table('collaborate_tasting_user_review')->where('current_status', 2)->where('collaborate_id', $batch['collaborate_id'])
-                ->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
-
             $userCountWithbegintasting = \DB::table('collaborate_batches_assign')->where('begin_tasting', 1)->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
-            $batch['notifiedUserCount'] = $userCountWithbegintasting - ($batch['reviewedCount'] + $batch['inProgressUserCount']);
-            
+            $batch['assignedCount'] = $userCountWithbegintasting - ($batch['reviewedCount'] + $batch['beginTastingCount']);
         }
-        
+
+        //Bcoz of already live app we are using keys as follow.
+        //assignedCount is notified count
+        //begintastingcount is inprogress count
+        //reviewedCount is completed count
+
         $this->model = $batches;
         return $this->sendResponse();
     }
