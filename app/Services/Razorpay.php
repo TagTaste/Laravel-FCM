@@ -40,7 +40,7 @@ class Razorpay
         echo $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $returnResp = [];
-        $returnResp["statusCode"] = $http_status;
+        $returnurlResp["statusCode"] = $http_status;
         if (is_string($response)) {
             $re = json_decode($response, true);
         } else if (is_array($response)) {
@@ -52,7 +52,7 @@ class Razorpay
             $returnResp["result"] = $re;
             $returnResp["status"] = "SUCCESS";
             $returnResp['statusMessage'] = "Transaction Successfull";
-            $returnResp["result"]["expiryDate"] = gmdate("Y-m-d", strtotime($re["expire_by"]));
+            $returnResp["result"]["expiryDate"] = gmdate("Y-m-d", $re["expire_by"]);
             $returnResp["result"]["payoutLinkId"] = $re["id"];
             $returnResp["result"]["payoutLink"] = $re["short_url"];
             $returnResp["result"]["comments"] = $re["description"];
