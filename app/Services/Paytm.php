@@ -60,7 +60,7 @@ class Paytm
         return $response;
     }
 
-    public function processCallback($request)
+    public static function processCallback($request)
     {
         return ["orderId" => $request->result["orderId"], "status" => $request->result["payoutLinkStatus"]];
     }
