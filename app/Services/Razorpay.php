@@ -125,7 +125,7 @@ class Razorpay
         return $returnResp;
     }
 
-    public function processCallback($request)
+    public static function processCallback($request)
     {
 
         if (isset($request->event)) {
@@ -149,6 +149,6 @@ class Razorpay
                 $returnResp["status"] = "EXPIRED";
             }
         }
-        return ["orderId" => $request->payload->payout_link->entity->receipt, "status" => $returnResp["status"]];
+        return ["orderId" => $request->payload["payout_link"]["entity"]["receipt"], "status" => $returnResp["status"]];
     }
 }

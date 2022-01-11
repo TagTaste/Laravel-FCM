@@ -119,7 +119,7 @@ trait PaymentTransaction
             }
             if (isset($resp["status"])) {
                 $data = ["link" => $resp["result"]["payoutLink"], "payout_link_id" => $resp["result"]["payoutLinkId"], "status_json" => json_encode($resp)];
-                if(isset($resp["result"]["expiryDate"])){
+                if (isset($resp["result"]["expiryDate"])) {
                     $data["expired_at"] = $resp["result"]["expiryDate"];
                 }
                 if (isset($resp["status"]) && $resp["status"] == "SUCCESS") {
@@ -141,7 +141,7 @@ trait PaymentTransaction
     public function callback(Request $request)
     {
         $inputs = $request->all();
- 
+
         $dataStr = json_encode($inputs);
         file_put_contents(storage_path("logs/") . "callback_logs.txt", $dataStr, FILE_APPEND);
         file_put_contents(storage_path("logs/") . "callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
@@ -150,7 +150,8 @@ trait PaymentTransaction
         } else if (isset($request->cashgramid)) {
             $txn_id = $request->cashgramid;
         } else if (isset($request->event)) {
-            $txn_id = $request->payload->payout_link->entity->receipt;
+            // print_r($request->all());
+            $txn_id = $request->payload["payout_link"]["entity"]["receipt"];
         }
 
         $getChannel = PaymentLinks::where("transaction_id", $txn_id)->first();
@@ -175,6 +176,7 @@ trait PaymentTransaction
             $get = $getChannel;
             $content = [];
             $data = ["status_json" => json_encode($resp)];
+            
             if ($response["status"] == "SUCCESS") {
                 $content = ["descp" => "We're writing to let you know that your payment has been successfully redeemed.", "status" => "SUCCESSFUL", "subject" => "Redemption Successful", "view" => "emails.payment-success"];
                 $data["status_id"] = config("constant.PAYMENT_SUCCESS_STATUS_ID");
@@ -216,7 +218,9 @@ trait PaymentTransaction
             $content["order_id"] = $response["orderId"];
             $content["pretext"] = $links;
             $content["headline"] = $headline;
-            event(new PaymentTransactionStatus($get, null, $content));
+            if (isset($content["subject"])) {
+                event(new PaymentTransactionStatus($get, null, $content));
+            }
             // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
             return ["status" => PaymentLinks::where("transaction_id", $response["orderId"])->update($data)];
         }
