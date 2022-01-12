@@ -1,1 +1,10 @@
 [2021-12-22 16:16:21] test.INFO:   
+[2022-01-12 18:39:04] test.ERROR: Symfony\Component\Debug\Exception\FatalErrorException: Uncaught Error: Call to undefined method Illuminate\Auth\Access\Gate::policies() in /var/www/html/webapp/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:221
+Stack trace:
+#0 Command line code(1): Illuminate\Support\Facades\Facade::__callStatic()
+#1 {main}
+  thrown in /var/www/html/webapp/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:221
+Stack trace:
+#0 {main}  
+[2022-01-12 18:39:04] test.INFO:   
+[2022-01-12 18:39:04] test.WARNING: No hook provided for slack.  
