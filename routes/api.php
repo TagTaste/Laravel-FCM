@@ -457,6 +457,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("userBatches", 'BatchController@userBatches');
             Route::put("batches/{batchId}/foodBillStatus", 'BatchController@foodBillStatus');
             Route::post("beginTasting", 'BatchController@beginTasting'); //required
+            Route::post("rollbackTaster", 'BatchController@rollbackTaster'); //required
             Route::get("batches/{id}/currentStatus", 'BatchController@getCurrentStatus');
             Route::post('removeFromBatch', 'BatchController@removeFromBatch'); //required
             Route::post('assignBatch', 'BatchController@assignBatch'); //required 
