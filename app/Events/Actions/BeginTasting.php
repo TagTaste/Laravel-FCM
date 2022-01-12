@@ -35,7 +35,7 @@ class BeginTasting extends Action
      */
     public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null,$batchId = null)
     {
-        parent::__construct($model,$who = null);
+        parent::__construct($model,$who);
         $this->model = $model;
         if(isset($company))
         {
