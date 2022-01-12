@@ -57,7 +57,15 @@ class Paytm
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         curl_close($ch);
-        return $response;
+        if(!is_array($response)){
+            $re = json_decode($response,true);
+        }
+
+        if(isset($re["result"]["payoutLinkStatus"])){
+            $re["status"] = "ACTIVE";
+        }
+
+        return $re;
     }
 
     public static function processCallback($request)

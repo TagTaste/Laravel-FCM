@@ -142,12 +142,14 @@ trait PaymentTransaction
     {
         $inputs = $request->all();
         $responseJson = [];
+        
         $responseJson["result"] = $inputs;
         $dataStr = json_encode($inputs);
         file_put_contents(storage_path("logs/") . "callback_logs.txt", $dataStr, FILE_APPEND);
         file_put_contents(storage_path("logs/") . "callback_logs.txt", "\n++++++++++++++++++++++\n", FILE_APPEND);
         if ($request->has("status") && $request->has("result") && !empty($request->result["orderId"])) {
             $txn_id = $request->result["orderId"];
+            $responseJson["result"] = $inputs["result"];
         } else if (isset($request->cashgramid)) {
             $txn_id = $request->cashgramid;
         } else if (isset($request->event)) {
@@ -231,7 +233,8 @@ trait PaymentTransaction
                 event(new PaymentTransactionStatus($get, null, $content));
             }
             // file_put_contents(storage_path("logs/") . "paytm_callback_logs.txt", "\n-----------------SAVING DATA -------------------\n\n\n", FILE_APPEND);
-            return ["status" => PaymentLinks::where("transaction_id", $response["orderId"])->update($data)];
+            PaymentLinks::where("transaction_id", $response["orderId"])->update($data);
+            return "i have received callback";
         }
         return ["status" => false];
     }
