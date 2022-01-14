@@ -24,17 +24,18 @@ class Surveys extends Model implements Feedable
 
     public $incrementing = false;
 
-    protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at"];
+    protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","is_private"];
     
     protected $with = ['profile','company'];
     
     protected $appends = ['owner','meta',"closing_reason",'mandatory_fields'];
 
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at"];
+    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private"];
 
     protected $cast = [
-        "form_json" => 'array'
+        "form_json" => 'array',
+        "is_private" => 'integer'
     ];
     
     
@@ -54,6 +55,7 @@ class Surveys extends Model implements Feedable
             'published_at'=>$this->published_at,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
+            'is_private' => $this->is_private,
         ];
         
         Redis::set("surveys:" . $this->id,json_encode($data));
@@ -92,12 +94,13 @@ class Surveys extends Model implements Feedable
 
         $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
         $meta['isReported'] =  $this->isSurveyReported();
-        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
+        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->select('application_status')->first();
         // $meta['review_dump'] = $reviewed;
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
         $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->id)->where("is_active",1)->first();
         $meta['isPaid'] = (!empty($payment) ? true : false);
-        $meta['isReviewed'] = (!empty($reviewed) ? true : false);
+        $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status==2) ? true : false);
+        $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
 
         return $meta;
     }
@@ -115,8 +118,9 @@ class Surveys extends Model implements Feedable
         $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
         $meta['isReported'] =  $this->isSurveyReported();
         
-        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->where('application_status',2)->first();
-        $meta['isReviewed'] = (!empty($reviewed) ? true : false);
+        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->select('application_status')->first();
+        $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status==2) ? true : false);
+        $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
         $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->id)->where("is_active",1)->first();
         $meta['isPaid'] = (!empty($payment) ? true : false);
         return $meta;

@@ -12,6 +12,8 @@ class surveyApplicants extends Model
 
     const UPDATED_AT = 'updated_at';
 
+    protected $guarded = ["id"];
+
 
 
     public function profile()
