@@ -16,7 +16,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class BeginTasting extends Action
+class RollbackTaster extends Action
 {
 
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -41,6 +41,7 @@ class BeginTasting extends Action
         {
             $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline, 'verified'=>$company->verified];
         }
+        
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;

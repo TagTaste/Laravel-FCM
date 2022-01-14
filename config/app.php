@@ -279,6 +279,8 @@ return [
         "APP_ID" => env("GUPSHUP_APP_ID", "d7233f89-bf13-27e4-70d1-a981b1427249"),
         "UID" => env("GUPSHUP_UID", 2000203063),
         "PASSWORD" => env("GUPSHUP_PASSWORD", "r9Z0jzJo4"),
-    ]
+    ],
+
+    'payment_channel' => env('PAYMENT_CHANNEL','Paytm') //firstword Capital Paytm,Cashfree
 
 ];
