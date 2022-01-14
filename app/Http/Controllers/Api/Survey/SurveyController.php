@@ -150,7 +150,8 @@ class SurveyController extends Controller
             'invited_profile_ids' => 'nullable|array',
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
-            'mandatory_field_ids' => 'array'
+            'mandatory_field_ids' => 'array',
+            'is_private' => 'required|boolean'
         ]);
 
 
@@ -193,6 +194,7 @@ class SurveyController extends Controller
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
         $prepData["privacy_id"] = 1;
+        $prepData["is_private"] = (int)$request->is_private;
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
@@ -305,7 +307,8 @@ class SurveyController extends Controller
             'invited_profile_ids' => 'nullable',
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
-            'mandatory_field_ids' => 'array'
+            'mandatory_field_ids' => 'array',
+            'is_private' => 'boolean'
         ]);
 
         if ($validator->fails()) {
@@ -340,7 +343,7 @@ class SurveyController extends Controller
         $prepData->state = $request->state;
         $prepData->title = $request->title;
         $prepData->description = $request->description;
-
+        
         if ($request->has("image_meta")) {
             $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
         }
@@ -363,6 +366,10 @@ class SurveyController extends Controller
 
         if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData->expired_at = date("Y-m-d", strtotime($request->expired_at));
+        }
+
+        if ($request->has("is_private") && !empty($request->is_private)) {
+            $prepData->is_private = (int)$request->is_private;
         }
 
 
