@@ -151,7 +151,7 @@ class SurveyController extends Controller
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
             'mandatory_field_ids' => 'array',
-            'is_private' => 'required|boolean'
+            'is_private' => 'boolean'
         ]);
 
 
@@ -194,7 +194,7 @@ class SurveyController extends Controller
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
         $prepData["privacy_id"] = 1;
-        $prepData["is_private"] = (int)$request->is_private;
+        $prepData["is_private"] = (int)($request->is_private ?? 0);
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
