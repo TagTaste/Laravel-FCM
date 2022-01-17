@@ -194,7 +194,7 @@ class SurveyController extends Controller
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
         $prepData["privacy_id"] = 1;
-        $prepData["is_private"] = (int)($request->is_private ?? 0);
+        $prepData["is_private"] = (isset($request->is_private) ? (int)$request->is_private :  null);
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
@@ -317,6 +317,11 @@ class SurveyController extends Controller
         }
 
 
+            
+        if($getSurvey->is_private!==null && ((int)$request->is_private !== (int)$getSurvey->is_private)){
+            return $this->sendError("Survey status cannot be changed");
+        }
+        
         if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+1 month"))) {
             return $this->sendError("Expiry time exceeds a month");
         }

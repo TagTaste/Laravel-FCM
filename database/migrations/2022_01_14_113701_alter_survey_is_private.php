@@ -15,7 +15,7 @@ class AlterSurveyIsPrivate extends Migration
     {
         Schema::table('surveys', function (Blueprint $table) {
             //
-            $table->boolean("is_private")->default(0);
+            $table->boolean("is_private")->nullable();
             
         });
     }
