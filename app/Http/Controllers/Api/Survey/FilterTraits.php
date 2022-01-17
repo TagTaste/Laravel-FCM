@@ -110,7 +110,10 @@ trait FilterTraits
         $gender = [['key' => 'Male', 'value' => 'Male'], ['key' => 'Female', 'value' => 'Female'], ['key' => 'Others', 'value' => 'Others']];
         $age = [['key' => 'gen-z', 'value' => 'Gen-Z'], ['key' => 'gen-x', 'value' => 'Gen-X'], ['key' => 'millenials', 'value' => 'Millenials'], ['key' => 'yold', 'value' => 'YOld']];
 
-        $currentStatus = [["key" => 1, "value" => 'incomplete'], ['key' => 2, 'value' => "completed"]];
+        $application_status = [["key" => 0, "value" => 'invited'], ["key" => 1, "value" => 'incomplete'], ['key' => 2, 'value' => "completed"]];
+        $userType = ['Expert', 'Consumer'];
+        $sensoryTrained = ["Yes", "No"];
+        $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('survey_applicants')->where('survey_id', $survey_id)->get();
         $city = [];
         $i = 0;
@@ -132,6 +135,12 @@ trait FilterTraits
                     $data['age'] = $age;
                 if ($filter == 'city')
                     $data['city'] = $city;
+                if ($filter == 'super_taster')
+                    $data['super_taster'] = $superTaster;
+                if ($filter == 'user_type')
+                    $data['user_type'] = $userType;
+                if ($filter == 'sensory_trained')
+                    $data['sensory_trained'] = $sensoryTrained;
                 // if($filter == 'application_status')
                 // $data['application_status'] = $currentStatus;
             }

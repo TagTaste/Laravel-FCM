@@ -893,6 +893,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/{id}/showInterest", "SurveyApplicantController@showInterest");
         Route::post("/{id}/beginSurvey", "SurveyApplicantController@beginSurvey");
         Route::get('/{id}/applicants', 'SurveyApplicantController@index');
+        Route::get('/{id}/invite/profiles', 'SurveyApplicantController@userList');
+        Route::post('/{id}/inviteForReview', 'SurveyApplicantController@inviteForReview'); //not need
+        Route::get('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters'); //not need
         
     });
 
