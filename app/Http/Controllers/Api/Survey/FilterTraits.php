@@ -102,52 +102,87 @@ trait FilterTraits
             return ['profile_id' => $profileIds, 'type' => true];
     }
 
-    public function getFilterParameters($survey_id,Request $request){
-        
+    public function getFilterParameters($survey_id, Request $request)
+    {
+
         $filters = $request->input('filter');
 
-        $gender = [['key'=>'Male', 'value' => 'Male'],['key' => 'Female', 'value' =>'Female'],['key'=>'Others', 'value' =>'Others']];
-        $age = [['key'=>'gen-z', 'value' => 'Gen-Z'],['key'=> 'gen-x', 'value' => 'Gen-X'],['key'=>'millenials', 'value' => 'Millenials'],['key'=>'yold', 'value' =>'YOld']];
+        $gender = [['key' => 'Male', 'value' => 'Male'], ['key' => 'Female', 'value' => 'Female'], ['key' => 'Others', 'value' => 'Others']];
+        $age = [['key' => 'gen-z', 'value' => 'Gen-Z'], ['key' => 'gen-x', 'value' => 'Gen-X'], ['key' => 'millenials', 'value' => 'Millenials'], ['key' => 'yold', 'value' => 'YOld']];
 
-        $currentStatus = [["key" => 1, "value" => 'incomplete'],['key'=>2 , 'value' => "completed"]];
-        $applicants = \DB::table('survey_applicants')->where('survey_id',$survey_id)->get();
+        $currentStatus = [["key" => 1, "value" => 'incomplete'], ['key' => 2, 'value' => "completed"]];
+        $applicants = \DB::table('survey_applicants')->where('survey_id', $survey_id)->get();
         $city = [];
         $i = 0;
-        foreach ($applicants as $applicant)
-        {
-            if(isset($applicant->city))
-            {
-                if(!in_array($applicant->city,$city))
+        foreach ($applicants as $applicant) {
+            if (isset($applicant->city)) {
+                if (!in_array($applicant->city, $city))
                     $city[$i]['key'] = $applicant->city;
-                    $city[$i]['value'] = $applicant->city;
-                    $i++;
+                $city[$i]['value'] = $applicant->city;
+                $i++;
             }
         }
         $data = [];
 
-        if(!empty($filters) && is_array($filters))
-        {
-            foreach ($filters as $filter)
-            {
-                if($filter == 'gender')
+        if (!empty($filters) && is_array($filters)) {
+            foreach ($filters as $filter) {
+                if ($filter == 'gender')
                     $data['gender'] = $gender;
-                if($filter == 'age')
+                if ($filter == 'age')
                     $data['age'] = $age;
-                if($filter == 'city')
+                if ($filter == 'city')
                     $data['city'] = $city;
                 // if($filter == 'application_status')
-                    // $data['application_status'] = $currentStatus;
+                // $data['application_status'] = $currentStatus;
             }
-        }
-        else
-        {
-            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city
-            // ,'application_status'=>$currentStatus
-        ];
+        } else {
+            $data = [
+                'gender' => $gender, 'age' => $age, 'city' => $city
+                // ,'application_status'=>$currentStatus
+            ];
         }
         $this->model = $data;
 
         return $this->sendResponse();
+    }
 
+    public function sortApplicants($sortBy, $applications, $surveyId)
+    {
+        $key = array_keys($sortBy)[0];
+        $value = $sortBy[$key];
+        if ($key == 'name') {
+            $userNames = $this->getUserNames($surveyId);
+            $companyNames = $this->getCompanyNames($surveyId);
+            $users = $userNames->merge($companyNames);
+            if ($value == 'asc')
+                $order = array_column($users->sortBy('name')->values()->all(), 'id');
+            else
+                $order = array_column($users->sortByDesc('name')->values()->all(), 'id');
+            $placeholders = implode(',', array_fill(0, count($order), '?'));
+            return $applications->orderByRaw("field(survey_applicants.id,{$placeholders})", $order)
+                ->select('survey_applicants.*');
+        }
+        return $applications->orderBy('survey_applicants.created_at', $value)->select('survey_applicants.*');
+    }
+
+    private function getCompanyNames($id)
+    {
+        return surveyApplicants::where('survey_id', $id)
+            ->leftJoin('companies', function ($q) {
+                $q->on('survey_applicants.company_id', '=', 'companies.id');
+            })->where('survey_applicants.company_id', '!=', null)
+            ->select('companies.name AS name', 'survey_applicants.id')
+            ->get();
+    }
+
+    private function getUserNames($id)
+    {
+        return surveyApplicants::where('survey_id', $id)
+            ->leftJoin('profiles AS p', function ($q) {
+                $q->on('survey_applicants.profile_id', '=', 'p.id')
+                    ->where('survey_applicants.company_id', '=', null);
+            })->leftJoin('users', 'p.user_id', '=', 'users.id')->where('users.name', '!=', null)
+            ->select('users.name as name', 'survey_applicants.id')
+            ->get();
     }
 }

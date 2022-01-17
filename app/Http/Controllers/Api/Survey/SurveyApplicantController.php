@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Recipe\Profile;
 use App\surveyApplicants;
 use App\Surveys;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
 use SurveyApplicants as GlobalSurveyApplicants;
 use Tagtaste\Api\SendsJsonResponse;
@@ -15,10 +16,92 @@ use Tagtaste\Api\SendsJsonResponse;
 class SurveyApplicantController extends Controller
 {
 
-    use SendsJsonResponse;
+    use SendsJsonResponse, FilterTraits;
     public function __construct(Surveys $model)
     {
         $this->model = $model;
+    }
+
+    public function index($id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            return $this->sendError("Invalid Survey");
+        }
+
+        //paginate
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
+        //filters data
+        $q = $request->input('q');
+        $profileIds = [];
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+        }
+
+
+        $applicants = surveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at");
+        if ($q != null) {
+            $searchByProfile = surveyApplicants::where('survey_id', $id)
+                ->whereNUll('company_id')
+                ->join('profiles', 'survey_applicants.profile_id', '=', 'profiles.id')
+                ->join('users', 'profiles.user_id', '=', 'users.id')
+                ->where('users.name', 'LIKE', '%' . $q . '%')
+                ->pluck('survey_applicants.id');
+
+            $searchByCompany = surveyApplicants::where('survey_id', $id)
+                ->leftJoin('companies', 'survey_applicants.company_id', '=', 'companies.id')
+                ->where('companies.name', 'LIKE', $q . '%')
+                ->pluck('survey_applicants.id');
+
+            $searchByProfile->merge($searchByCompany);
+            $applicants = $applicants->whereIn('id', $searchByProfile);
+        }
+
+        if ($request->sortBy != null) {
+            $applicants = $this->sortApplicants($request->sortBy, $applicants, $id);
+        }
+
+        if(!empty($profileIds)){
+        $applicants = $applicants
+            ->whereIn('profile_id', $profileIds);
+        }
+
+        $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
+
+
+        $profileIdsForCounts = array_column($applicants,'profile_id');
+        //count of sensory trained
+        $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
+            ->whereIn('profiles.id', $profileIdsForCounts)
+            ->get();
+
+
+        //count of experts
+        $countExpert = \DB::table('profiles')
+            ->select('id')
+            ->where('is_expert', 1)
+            ->whereIn('id', $profileIdsForCounts)
+            ->get();
+
+        //count of super tasters
+        $countSuperTaste = \DB::table('profiles')
+            ->select('id')
+            ->where('is_tasting_expert', 1)
+            ->whereIn('id', $profileIdsForCounts)
+            ->get();
+        $this->model['applicants'] = $applicants;
+        $this->model['totalApplicants'] = surveyApplicants::where('survey_id', $id)
+            ->whereNull('deleted_at')->count();
+
+        $this->model['invitedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
+        $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
+        $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
+
+        return $this->sendResponse();
     }
 
     public function showInterest($id, Request $request)
