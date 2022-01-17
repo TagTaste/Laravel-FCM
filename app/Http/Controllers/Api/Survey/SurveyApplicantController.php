@@ -10,8 +10,11 @@ use App\surveyApplicants;
 use App\Surveys;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
+use Maatwebsite\Excel\Facades\Excel;
 use SurveyApplicants as GlobalSurveyApplicants;
 use Tagtaste\Api\SendsJsonResponse;
+use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
 
 class SurveyApplicantController extends Controller
 {
@@ -147,7 +150,7 @@ class SurveyApplicantController extends Controller
 
     public function beginSurvey($id, Request $request)
     {
-        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->first();
         if (empty($checkIFExists)) {
             return $this->sendError("Invalid Survey");
         }
@@ -236,6 +239,110 @@ class SurveyApplicantController extends Controller
 
     public function applicantFilters($id, Request $request)
     {
-        return $this->getFilterParameters($id,$request);
+        return $this->getFilterParameters($id, $request);
+    }
+
+
+    public function export($id, Request $request)
+    {
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->first();
+
+        if ($survey === null) {
+            return $this->sendError("Invalid Survey");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if (!$request->user()->profile->is_premium) {
+            return $this->sendError("You dont have access to this premium feature.");
+        }
+
+
+        //filters data
+        $profileIds = [];
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+        }
+
+        $applicants = surveyApplicants::where('survey_id', $id)
+            // ->whereIn('profile_id', $profileIds, $boolean, $type)
+            ->whereIn('profile_id', $profileIds)
+            ->whereNull('deleted_at')
+            ->orderBy("created_at", "desc")
+            ->get();
+
+        $finalData = array();
+
+        // return $this->sendResponse($applicants);
+
+        foreach ($applicants as $key => $applicant) {
+            $job_profile = '';
+            if (isset($applicant->profile->profile_occupations)) {
+                if (isset($applicant->profile->profile_occupations->toArray()['0'])) {
+                    $job_profile = $applicant->profile->profile_occupations->toArray()['0']['name'];
+                }
+            }
+            $specialization = '';
+            foreach ($applicant->profile->profile_specializations as $profile_specialization_key => $profile_specialization) {
+                if (isset($profile_specialization->toArray()['name'])) {
+                    if ($profile_specialization_key == 0) {
+                        $specialization .= $profile_specialization->toArray()['name'];
+                    } else {
+                        $specialization .= ", " . $profile_specialization->toArray()['name'];
+                    }
+                }
+            }
+            
+            $temp = array(
+                "S. No" => $key + 1,
+                "Name" => htmlspecialchars_decode($applicant->profile->name),
+                "Gender" => $applicant->profile->gender,
+                "Profile link" => env('APP_URL') . "/@" . $applicant->profile->handle,
+                "Email" => $applicant->profile->email,
+                "Phone Number" => $applicant->profile->getContactDetail(),
+                "Occupation" => $job_profile,
+                "Specialization" => $specialization,
+                "Hometown" => $applicant->hometown,
+                "Current City" => $applicant->current_city
+            );
+            array_push($finalData, $temp);
+        }
+
+
+        $relativePath = "reports/surveysAnsweredExcel/$id";
+        $name = "survey-" . $id . "-" . uniqid();
+
+        $excel = Excel::create($name, function ($excel) use ($name, $finalData) {
+            // Set the title
+            $excel->setTitle($name);
+
+            // Chain the setters
+            $excel->setCreator('Tagtaste')
+                ->setCompany('Tagtaste');
+
+            // Call them separately
+            $excel->setDescription('A Surveys Applicants list');
+
+            $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
+                $sheet->fromArray($finalData);
+                foreach ($sheet->getColumnIterator() as $row) {
+                    foreach ($row->getCellIterator() as $cell) {
+                        if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
+                            $cell_link = $cell->getValue();
+                            $cell->getHyperlink()
+                                ->setUrl($cell_link)
+                                ->setTooltip('Click here to access profile');
+                        }
+                    }
+                }
+            })->store('xlsx', false, true);
+        });
+        $excel_save_path = storage_path("exports/" . $excel->filename . ".xlsx");
+        $s3 = Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
+        $this->model = Storage::url($resp);
+        unlink($excel_save_path);
+
+        return $this->sendResponse();
     }
 }

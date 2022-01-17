@@ -38,7 +38,7 @@ trait FilterTraits
         }
 
 
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])) {
+        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender']) || isset($filters['profile_id'])) {
             $Ids = surveyApplicants::where('survey_id', $surveyDetails->id);
         }
 
@@ -57,6 +57,10 @@ trait FilterTraits
                     $query->orWhere('age_group', 'LIKE', $age);
                 }
             });
+        }
+
+        if (isset($filters['profile_id'])) {
+            $Ids = $Ids->whereIn("profile_id",$filters['profile_id']);
         }
 
         if (isset($filters['gender'])) {
@@ -96,7 +100,7 @@ trait FilterTraits
             }
             $profileIds = $profileIds->merge($filterNotProfileIds);
         }
-        if ($isFilterAble)
+        if (isset($isFilterAble) && $isFilterAble)
             return ['profile_id' => $profileIds, 'type' => false];
         else
             return ['profile_id' => $profileIds, 'type' => true];
