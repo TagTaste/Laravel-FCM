@@ -891,6 +891,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::delete('/{id}', 'SurveyController@destroy');
         Route::post('/', 'SurveyController@store');
         Route::post("/{id}/showInterest", "SurveyApplicantController@showInterest");
+        Route::post("/{id}/beginSurvey", "SurveyApplicantController@beginSurvey");
     });
 
     Route::get('/uploadQuestion/{id}/{question_id}', function ($id, $question_id) {
