@@ -32,6 +32,19 @@ class SurveyApplicantController extends Controller
             return $this->sendError("Invalid Survey");
         }
 
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Admin can view applicant list");
+        }
         //paginate
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
@@ -115,6 +128,10 @@ class SurveyApplicantController extends Controller
             return $this->sendError("Invalid Survey");
         }
 
+        if ($checkIFExists->is_private != config("constant.SURVEY_PRIVATE")) {
+            return $this->sendError("Cannot show interest on public surveys");
+        }
+
         $checkIfAlreadyInterested = surveyApplicants::where("profile_id", $request->user()->profile->id)->where("survey_id", $id)->whereNull('deleted_at')->first();
 
         if (!empty($checkIfAlreadyInterested)) {
@@ -139,7 +156,7 @@ class SurveyApplicantController extends Controller
         if (isset($create->id)) {
             $profile = $request->user()->profile->id;
             // Redis::sAdd("surveys:$id:profile:$request->user()->profile_id:", $batch->id);
-            Redis::set("application_status:$id:profile:$profile", 0);
+            Redis::set("surveys:application_status:$id:profile:$profile", 0);
             $this->model = true;
         } else {
             $this->model = false;
@@ -153,6 +170,10 @@ class SurveyApplicantController extends Controller
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->first();
         if (empty($checkIFExists)) {
             return $this->sendError("Invalid Survey");
+        }
+
+        if ($checkIFExists->is_private != config("constant.SURVEY_PRIVATE")) {
+            return $this->sendError("Cannot begin for public surveys");
         }
 
         $bgnAll = false;
@@ -171,13 +192,13 @@ class SurveyApplicantController extends Controller
 
                 if (empty($checkIFInvited)) {
                     $this->model = false;
-                    return $this->sendError("User has already began/completed survey");
+                    return $this->sendError("Cannot begin survey for specified user");
                 }
             }
 
-            $currentStatus = Redis::get("application_status:$id:profile:$profileId");
+            $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
             if ($currentStatus == 0) {
-                Redis::set("application_status:$id:profile:$profileId", 1);
+                Redis::set("surveys:application_status:$id:profile:$profileId", 1);
                 $b = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', 0)->update(["application_status" => 1]);
                 if ($b == false) {
                     $this->model = false;
@@ -217,10 +238,29 @@ class SurveyApplicantController extends Controller
             return $this->sendError("Invalid Survey");
         }
 
+        
+        if ($survey->is_private != config("constant.SURVEY_PRIVATE")) {
+            return $this->sendError("Cannot invite for public surveys");
+        }
+
+
+        if (isset($survey->company_id) && !empty($survey->company_id)) {
+            $companyId = $survey->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+
+        } else if (isset($survey->profile_id) &&  $survey->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Admin can invite in this survey");
+        }
+
         $profileId = $request->user()->profile->id;
 
         $profileIds = $request->input('profile_id');
-        $inputs = [];
+        
         $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->exists();
         if ($checkExist) {
             return $this->sendError("Already Invited");
@@ -230,9 +270,13 @@ class SurveyApplicantController extends Controller
         foreach ($profileIds as $profileId) {
             $survey->profile_id = $profileId;
             // event(new \App\Events\Actions\InviteForReview($survey, null, null, null, null, $company));
-            $inputs[] = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INVITED")];
+            $inputs = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")];
+            $c = surveyApplicants::create($inputs);
+            if(isset($c->id)){
+                Redis::set("surveys:application_status:$id:profile:$profileId", 1);
+            }
         }
-        $this->model = surveyApplicants::insert($inputs);
+        
         $this->model = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->get();
         return $this->sendResponse();
     }
@@ -256,6 +300,17 @@ class SurveyApplicantController extends Controller
             return $this->sendError("You dont have access to this premium feature.");
         }
 
+        if (isset($survey->company_id) && !empty($survey->company_id)) {
+            $companyId = $survey->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($survey->profile_id) &&  $survey->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Admin can close the survey");
+        }
 
         //filters data
         $profileIds = [];
@@ -292,7 +347,7 @@ class SurveyApplicantController extends Controller
                     }
                 }
             }
-            
+
             $temp = array(
                 "S. No" => $key + 1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),

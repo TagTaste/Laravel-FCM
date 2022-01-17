@@ -35,7 +35,6 @@ class Surveys extends Model implements Feedable
 
     protected $cast = [
         "form_json" => 'array',
-        "is_private" => 'integer'
     ];
     
     
@@ -101,6 +100,8 @@ class Surveys extends Model implements Feedable
         $meta['isPaid'] = (!empty($payment) ? true : false);
         $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status==2) ? true : false);
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+        $meta['applicationStatus'] = Redis::get
+        ("surveys:application_status:$this->id:profile:$profileId");
 
         return $meta;
     }
@@ -123,6 +124,8 @@ class Surveys extends Model implements Feedable
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
         $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->id)->where("is_active",1)->first();
         $meta['isPaid'] = (!empty($payment) ? true : false);
+        $meta['applicationStatus'] = Redis::get("surveys:application_status:$this->id:profile:$profileId");
+
         return $meta;
     }
 
