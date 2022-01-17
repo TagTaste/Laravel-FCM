@@ -64,15 +64,15 @@ class SurveyApplicantController extends Controller
             $applicants = $this->sortApplicants($request->sortBy, $applicants, $id);
         }
 
-        if(!empty($profileIds)){
-        $applicants = $applicants
-            ->whereIn('profile_id', $profileIds);
+        if (!empty($profileIds)) {
+            $applicants = $applicants
+                ->whereIn('profile_id', $profileIds);
         }
 
         $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
 
 
-        $profileIdsForCounts = array_column($applicants,'profile_id');
+        $profileIdsForCounts = array_column($applicants, 'profile_id');
         //count of sensory trained
         $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
             ->whereIn('profiles.id', $profileIdsForCounts)
@@ -189,9 +189,53 @@ class SurveyApplicantController extends Controller
                 }
             }
             $checkIFExists->profile_id = $profileId;
-            // event(new \App\Events\Actions\BeginTasting($collaborate, $who, null, null, null, $company, $batchId));
+            // event(new \App\Events\Actions\BeginTasting($survey, $who, null, null, null, $company, $batchId));
         }
 
         return $this->sendResponse();
+    }
+
+    public function userList($id, Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $query = $request->input('q');
+
+        $this->model = \App\Recipe\Profile::select('profiles.*')->join('users', 'profiles.user_id', '=', 'users.id')
+            ->where('profiles.id', '!=', $loggedInProfileId)->where('users.name', 'like', "%$query%")->take(15)->get();
+
+        return $this->sendResponse();
+    }
+
+    public function inviteForReview($id, Request $request)
+    {
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->first();
+
+        if ($survey === null) {
+            return $this->sendError("Invalid Survey");
+        }
+
+        $profileId = $request->user()->profile->id;
+
+        $profileIds = $request->input('profile_id');
+        $inputs = [];
+        $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->exists();
+        if ($checkExist) {
+            return $this->sendError("Already Invited");
+        }
+        // $company = Company::where('id', $survey->company_id)->first();
+        $now = date("Y-m-d H:i:s");
+        foreach ($profileIds as $profileId) {
+            $survey->profile_id = $profileId;
+            // event(new \App\Events\Actions\InviteForReview($survey, null, null, null, null, $company));
+            $inputs[] = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INVITED")];
+        }
+        $this->model = surveyApplicants::insert($inputs);
+        $this->model = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->get();
+        return $this->sendResponse();
+    }
+
+    public function applicantFilters($id, Request $request)
+    {
+        return $this->getFilterParameters($id,$request);
     }
 }
