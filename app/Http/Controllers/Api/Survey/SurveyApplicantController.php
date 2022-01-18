@@ -41,7 +41,6 @@ class SurveyApplicantController extends Controller
             if (!$userBelongsToCompany) {
                 return $this->sendError("User does not belong to this company");
             }
-
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             return $this->sendError("Only Admin can view applicant list");
         }
@@ -238,7 +237,7 @@ class SurveyApplicantController extends Controller
             return $this->sendError("Invalid Survey");
         }
 
-        
+
         if ($survey->is_private != config("constant.SURVEY_PRIVATE")) {
             return $this->sendError("Cannot invite for public surveys");
         }
@@ -252,7 +251,6 @@ class SurveyApplicantController extends Controller
             if (!$userBelongsToCompany) {
                 return $this->sendError("User does not belong to this company");
             }
-
         } else if (isset($survey->profile_id) &&  $survey->profile_id != $request->user()->profile->id) {
             return $this->sendError("Only Admin can invite in this survey");
         }
@@ -260,7 +258,7 @@ class SurveyApplicantController extends Controller
         $profileId = $request->user()->profile->id;
 
         $profileIds = $request->input('profile_id');
-        
+
         $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->exists();
         if ($checkExist) {
             return $this->sendError("Already Invited");
@@ -272,18 +270,69 @@ class SurveyApplicantController extends Controller
             // event(new \App\Events\Actions\InviteForReview($survey, null, null, null, null, $company));
             $inputs = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")];
             $c = surveyApplicants::create($inputs);
-            if(isset($c->id)){
+            if (isset($c->id)) {
                 Redis::set("surveys:application_status:$id:profile:$profileId", 1);
             }
         }
-        
+
         $this->model = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->get();
         return $this->sendResponse();
     }
 
     public function applicantFilters($id, Request $request)
     {
-        return $this->getFilterParameters($id, $request);
+        $gender = ['Male', 'Female', 'Other'];
+        $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+
+        $userType = ['Expert', 'Consumer'];
+        $sensoryTrained = ["Yes", "No"];
+        $superTaster = ["SuperTaster", "Normal"];
+        $applicants = \DB::table('survey_applicants')->where('survey_id', $id)->get();
+        $city = [];
+        $profile = [];
+        $hometown = [];
+        $current_city = [];
+        foreach ($applicants as $applicant) {
+            if (isset($applicant->city)) {
+                if (!in_array($applicant->city, $city))
+                    $city[] = $applicant->city;
+            }
+
+            $specializations = \DB::table('profiles')
+                ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
+                ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')
+                ->where('profiles.id', $applicant->profile_id)
+                ->pluck('name');
+            foreach ($specializations as $specialization) {
+                if (!in_array($specialization, $profile) && $specialization != null)
+                    $profile[] = $specialization;
+            }
+        }
+        //$profile = array_filter($profile);
+        $data = [];
+        $filters = $request->input('filter');
+        if (count($filters)) {
+            foreach ($filters as $filter) {
+                if ($filter == 'gender')
+                    $data['gender'] = $gender;
+                if ($filter == 'age')
+                    $data['age'] = $age;
+                if ($filter == 'city')
+                    $data['city'] = $city;
+
+                if ($filter == 'profile')
+                    $data['profile'] = $profile;
+                if ($filter == 'super_taster')
+                    $data['super_taster'] = $superTaster;
+                if ($filter == 'user_type')
+                    $data['user_type'] = $userType;
+                if ($filter == 'sensory_trained')
+                    $data['sensory_trained'] = $sensoryTrained;
+            }
+        } else {
+            $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
+        }
+        return $data;
     }
 
 
