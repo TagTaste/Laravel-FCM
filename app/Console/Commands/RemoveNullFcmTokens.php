@@ -39,7 +39,7 @@ class RemoveNullFcmTokens extends Command
     public function handle()
     {
         DB::table('app_info')->whereNull('fcm_token')->delete();
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "Deleting null fcm tokens", FILE_APPEND);
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "Command : Deleting null fcm tokens", FILE_APPEND);
         file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);
         $this->info('Done...');
 

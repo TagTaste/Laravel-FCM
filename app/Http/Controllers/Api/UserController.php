@@ -130,14 +130,14 @@ class UserController extends Controller
             \DB::table("app_info")->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)
                 ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info]);
             $this->model = 1;
-            file_put_contents(storage_path("logs") . "/notification_test.txt", "Updating token for profile id : ".$request->user()->profile->id, FILE_APPEND);
+            file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Updating token for profile id : ".$request->user()->profile->id, FILE_APPEND);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);    
             return $this->sendResponse();
         }
         if($user)
         {
             $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info]);
-            file_put_contents(storage_path("logs") . "/notification_test.txt", "insert token for profile id : ".$request->user()->profile->id, FILE_APPEND);
+            file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : insert token for profile id : ".$request->user()->profile->id, FILE_APPEND);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);    
             return $this->sendResponse();
         }
@@ -172,7 +172,7 @@ class UserController extends Controller
         // $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
         //     ->where('profile_id',$request->user()->profile->id)->delete();
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->delete();
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "Deleting fcm token for profile id : ".$request->user()->profile->id." and token : ".$request->input('fcm_token'), FILE_APPEND);
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Deleting fcm token for profile id : ".$request->user()->profile->id." and token : ".$request->input('fcm_token'), FILE_APPEND);
         file_put_contents(storage_path("logs") . "/notification_test.txt", "+++++++++++++++++++++\n\n", FILE_APPEND);       
 
         return $this->sendResponse();
@@ -232,7 +232,7 @@ class UserController extends Controller
         $this->model = \DB::table("app_info")->where("profile_id",$request->user()->profile->id)
                             ->where('fcm_token',$request->input('fcm_token'))->update(['is_active'=>0]);
                             
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "Inactive app_info tuple of profile id : ".$request->user()->profile->id, FILE_APPEND);
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Inactive app_info tuple of profile id : ".$request->user()->profile->id, FILE_APPEND);
         file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);
                     
         return $this->sendResponse();
@@ -242,7 +242,7 @@ class UserController extends Controller
     {
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$device_info]);
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "updating device info and apk version of profile id : ".$request->user()->profile->id." and fcm token : ".$request->input('fcm_token'), FILE_APPEND);
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : updating device info and apk version of profile id : ".$request->user()->profile->id." and fcm token : ".$request->input('fcm_token'), FILE_APPEND);
         file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);
           
         return $this->sendResponse();
