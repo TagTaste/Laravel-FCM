@@ -39,8 +39,12 @@ class SetPlatformAndroid extends Command
     {
         \DB::table('app_info')->whereNull('platform')->orderBy('id')->chunk(100, function ($models) {
            foreach ($models as $model) {
-               \DB::table('app_info')->where('id', $model->id)->update(['platform'=> 'android']);
-           }
+               \DB::table('app_info')->where('id', $model->id)->update(['platform'=> 'android']);    
+               file_put_contents(storage_path("logs") . "/notification_test.txt", "setting platform android in app info for profile id : ".$model->profile_id, FILE_APPEND);
+               file_put_contents(storage_path("logs") . "/notification_test.txt", "------------------------\n", FILE_APPEND);       
+            }
+            file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++++++++++\n\n", FILE_APPEND);       
+
         });
         echo "\nDone...\n";
     }
