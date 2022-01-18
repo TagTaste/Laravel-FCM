@@ -332,7 +332,8 @@ class SurveyApplicantController extends Controller
         } else {
             $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
         }
-        return $data;
+        $this->model = $data;
+        return $this->sendResponse();
     }
 
 
