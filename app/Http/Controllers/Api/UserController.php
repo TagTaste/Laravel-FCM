@@ -137,8 +137,7 @@ class UserController extends Controller
             file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Updating token for profile id : ".$request->user()->profile->id, FILE_APPEND);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);    
             return $this->sendResponse();
-        }
-        if($user)
+        }else if($user)
         {
             $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info]);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : insert token for profile id : ".$request->user()->profile->id, FILE_APPEND);
