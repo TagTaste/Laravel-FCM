@@ -132,14 +132,14 @@ class UserController extends Controller
             // \DB::table("app_info")->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)
                 // ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info]);
             \DB::table("app_info")->where('profile_id',$request->user()->profile->id)->where('platform',$platform)
-                ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info]);
+                ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info, 'updated_at'=>date("Y-m-d H:i:s")]);
             $this->model = 1;
             file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Updating token for profile id : ".$request->user()->profile->id, FILE_APPEND);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);    
             return $this->sendResponse();
         }else if($user)
         {
-            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info]);
+            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info, 'created_at'=>date("Y-m-d H:i:s"), 'updated_at'=>date("Y-m-d H:i:s")]);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : insert token for profile id : ".$request->user()->profile->id, FILE_APPEND);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);    
             return $this->sendResponse();
