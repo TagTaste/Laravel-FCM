@@ -30,7 +30,7 @@ class Surveys extends Share
         return $this->isReported(request()->user()->profile->id, "surveys", $this->survey_id, true, $this->id);
     }
     
-    public function getMetaFor($profileId){
+    public function getMetaFor($profileId){ 
         $meta = [];
         $key = "meta:surveysShare:likes:" . $this->id;
 
@@ -50,6 +50,11 @@ class Surveys extends Share
         $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->surveys_id)->where("is_active",1)->first();
         $meta['isPaid'] = (!empty($payment) ? true : false);
         $meta['isReported'] =  $this->isSurveyReported();
+        $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status==2) ? true : false);
+        $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+        $k = Redis::get
+        ("surveys:application_status:$this->id:profile:$profileId");
+        $meta['applicationStatus'] = $k!==null ? (int)$k : null;
         return $meta;
     }
 
@@ -68,6 +73,11 @@ class Surveys extends Share
         $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->surveys_id)->where("is_active",1)->first();
         $meta['isPaid'] = (!empty($payment) ? true : false);
         $meta['isReported'] =  $this->isSurveyReported();
+        $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status==2) ? true : false);
+        $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+        $k = Redis::get
+        ("surveys:application_status:$this->id:profile:$profileId");
+        $meta['applicationStatus'] = $k!==null ? (int)$k : null;
         return $meta;
     }
 
