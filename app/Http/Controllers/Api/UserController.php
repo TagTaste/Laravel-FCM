@@ -123,18 +123,21 @@ class UserController extends Controller
             return $this->sendError("Simulator/emulator detected.");
         }
         
-        $deviceTokenExist = \DB::table('app_info')->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)->exists();
+        // $deviceTokenExist = \DB::table('app_info')->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)->exists();
         // $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
-        if($deviceTokenExist)
+        $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('platform',$platform)->exists();
+
+        if($tokenExists)
         {
-            \DB::table("app_info")->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)
+            // \DB::table("app_info")->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)
+                // ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info]);
+            \DB::table("app_info")->where('profile_id',$request->user()->profile->id)->where('platform',$platform)
                 ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info]);
             $this->model = 1;
             file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Updating token for profile id : ".$request->user()->profile->id, FILE_APPEND);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);    
             return $this->sendResponse();
-        }
-        if($user)
+        }else if($user)
         {
             $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info]);
             file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : insert token for profile id : ".$request->user()->profile->id, FILE_APPEND);
