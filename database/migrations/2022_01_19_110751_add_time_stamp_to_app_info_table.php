@@ -16,8 +16,8 @@ class AddTimeStampToAppInfoTable extends Migration
         //
         Schema::table('app_info', function (Blueprint $table) {
             //
-            $table->timestamp('created_at')->default(null);
-            $table->timestamp('updated_at')->default(null);    
+            $table->timestamp('created_at')->nullable();
+            $table->timestamp('updated_at')->nullable();    
         });
     }
 
