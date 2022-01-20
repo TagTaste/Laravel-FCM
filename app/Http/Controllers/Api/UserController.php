@@ -134,14 +134,10 @@ class UserController extends Controller
             \DB::table("app_info")->where('profile_id',$request->user()->profile->id)->where('platform',$platform)
                 ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info, 'updated_at'=>date("Y-m-d H:i:s")]);
             $this->model = 1;
-            file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Updating token for profile id : ".$request->user()->profile->id, FILE_APPEND);
-            file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);    
             return $this->sendResponse();
         }else if($user)
         {
             $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info, 'created_at'=>date("Y-m-d H:i:s"), 'updated_at'=>date("Y-m-d H:i:s")]);
-            file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : insert token for profile id : ".$request->user()->profile->id, FILE_APPEND);
-            file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);    
             return $this->sendResponse();
         }
         return $this->sendError("User not found.");
@@ -175,9 +171,6 @@ class UserController extends Controller
         // $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
         //     ->where('profile_id',$request->user()->profile->id)->delete();
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->delete();
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Deleting fcm token for profile id : ".$request->user()->profile->id." and token : ".$request->input('fcm_token'), FILE_APPEND);
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "+++++++++++++++++++++\n\n", FILE_APPEND);       
-
         return $this->sendResponse();
     }
     
