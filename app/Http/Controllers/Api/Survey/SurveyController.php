@@ -75,11 +75,13 @@ class SurveyController extends Controller
         $getData = $getSurvey->toArray();
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
+        $count = \DB::table('survey_applicants')->where('survey_id',$id)->get()->count();  
         $this->messages = "Request successfull";
         $this->model = [
             "surveys" => $getData,
             "meta" => $getSurvey->getMetaFor($request->user()->profile->id),
             "seoTags" => $getSurvey->getSeoTags(),
+            "totalApplicants" => $count
 
         ];
         return $this->sendResponse();
