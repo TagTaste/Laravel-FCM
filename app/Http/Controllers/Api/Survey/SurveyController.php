@@ -84,6 +84,7 @@ class SurveyController extends Controller
             "totalApplicants" => $count
 
         ];
+        if($getSurvey->privacy_id == 0 ) unset($this->model["totalApplicants"]);
         return $this->sendResponse();
     }
 
