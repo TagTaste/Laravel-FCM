@@ -124,7 +124,7 @@ class Surveys extends Model implements Feedable
 
             if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
                 $getAmount = json_decode($payment->amount_json, true);
-                if (($getCount[$key] + 1) > $getAmount["current"][$key][0]["user_count"]) {
+                if (($getCount[$k] + 1) > $getAmount["current"][$k][0]["user_count"]) {
                     $ispaid = false;
                 }
             } else {
@@ -187,7 +187,7 @@ class Surveys extends Model implements Feedable
 
             if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
                 $getAmount = json_decode($payment->amount_json, true);
-                if (($getCount[$key] + 1) > $getAmount["current"][$key][0]["user_count"]) {
+                if (($getCount[$k] + 1) > $getAmount["current"][$k][0]["user_count"]) {
                     $ispaid = false;
                 }
             } else {
