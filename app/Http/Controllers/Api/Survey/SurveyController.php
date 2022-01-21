@@ -75,7 +75,7 @@ class SurveyController extends Controller
         $getData = $getSurvey->toArray();
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
-        $count = \DB::table('survey_applicants')->where('survey_id',$id)->get()->count();  
+        $count = \DB::table('survey_applicants')->where('survey_id', $id)->get()->count();
         $this->messages = "Request successfull";
         $this->model = [
             "surveys" => $getData,
@@ -84,7 +84,7 @@ class SurveyController extends Controller
             "totalApplicants" => $count
 
         ];
-        if($getSurvey->privacy_id == 0 ) unset($this->model["totalApplicants"]);
+        if ($getSurvey->privacy_id == 0) unset($this->model["totalApplicants"]);
         return $this->sendResponse();
     }
 
@@ -123,13 +123,18 @@ class SurveyController extends Controller
 
         $surveys = $surveys->skip($skip)->take($take)
             ->get();
+        $surveyCount = 0;
         foreach ($surveys as $survey) {
+            $count = \DB::table('survey_applicants')->where('survey_id', $survey->id)->get()->count();
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
             $data[] = [
                 'survey' => $survey,
-                'meta' => $survey->getMetaFor($profileId)
+                'meta' => $survey->getMetaFor($profileId),
+                'totalApplicants' =>  $count
             ];
+            if ($survey->privacy_id == 0) unset($data[$surveyCount]["totalApplicants"]);
+            $surveyCount++;
         }
         $this->model['surveys'] = $data;
         return $this->sendResponse();
@@ -320,11 +325,11 @@ class SurveyController extends Controller
         }
 
 
-            
-        if($getSurvey->is_private!==null && ((int)$request->is_private !== (int)$getSurvey->is_private)){
+
+        if ($getSurvey->is_private !== null && ((int)$request->is_private !== (int)$getSurvey->is_private)) {
             return $this->sendError("Survey status cannot be changed");
         }
-        
+
         if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+1 month"))) {
             return $this->sendError("Expiry time exceeds a month");
         }
@@ -351,7 +356,7 @@ class SurveyController extends Controller
         $prepData->state = $request->state;
         $prepData->title = $request->title;
         $prepData->description = $request->description;
-        
+
         if ($request->has("image_meta")) {
             $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
         }
@@ -1615,7 +1620,7 @@ class SurveyController extends Controller
                     }
                 }
             }
-            
+
             $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
             $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
             $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
