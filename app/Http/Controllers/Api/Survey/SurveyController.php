@@ -317,11 +317,11 @@ class SurveyController extends Controller
         }
 
 
-            
-        if($getSurvey->is_private!==null && ((int)$request->is_private !== (int)$getSurvey->is_private)){
+
+        if ($getSurvey->is_private !== null && ((int)$request->is_private !== (int)$getSurvey->is_private)) {
             return $this->sendError("Survey status cannot be changed");
         }
-        
+
         if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+1 month"))) {
             return $this->sendError("Expiry time exceeds a month");
         }
@@ -348,7 +348,7 @@ class SurveyController extends Controller
         $prepData->state = $request->state;
         $prepData->title = $request->title;
         $prepData->description = $request->description;
-        
+
         if ($request->has("image_meta")) {
             $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
         }
@@ -679,23 +679,12 @@ class SurveyController extends Controller
 
     function getDispatchedPaymentUserTypes($paymentDetails)
     {
-        $getUsers = PaymentLinks::where("model_id", $paymentDetails->model_id)->whereNull("deleted_at")->whereNotIn("status_id", [config("constant.PAYMENT_STATUS.failure"), config("constant.PAYMENT_STATUS.cancelled"), config("constant.PAYMENT_STATUS.expired")]);
+        $getUsersExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->whereNotIn("status_id", [config("constant.PAYMENT_STATUS.failure"), config("constant.PAYMENT_STATUS.cancelled"), config("constant.PAYMENT_STATUS.expired")])->where("is_expert", 1)->get();
 
-        if (isset($paymentDetails->sub_model_id) && !empty($paymentDetails->sub_model_id)) {
-            $getUsers->where('sub_model_id', $paymentDetails->sub_model_id);
-        }
+        $getUsersNonExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->whereNotIn("status_id", [config("constant.PAYMENT_STATUS.failure"), config("constant.PAYMENT_STATUS.cancelled"), config("constant.PAYMENT_STATUS.expired")])->where("is_expert", "<>", 1)->get();
 
-        $profiles = $getUsers->get();
-        $profileIds = ["expert" => 0, "consumer" => 0];
-        if (!empty($profiles)) {
-            foreach ($profiles as $user) {
-                if ($user->profile->is_expert == 0) {
-                    $profileIds["is_expert"]++;
-                } else {
-                    $profileIds["consumer"]++;
-                }
-            }
-        }
+        $profileIds = ["expert" => (int)$getUsersExpert->count(), "consumer" => (int)$getUsersNonExpert->count()];
+
         return $profileIds;
     }
     public function verifyPayment($paymentDetails, Request $request)
