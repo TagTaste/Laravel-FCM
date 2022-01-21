@@ -18,6 +18,11 @@ return  [
     "RAZORPAY_ENDPOINT" => env("RAZORPAY_ENDPOINT","https://api.razorpay.com"),
     "RAZORPAY_KEY_ID" => env("RAZORPAY_KEY_ID","rzp_live_ecEbypkQ0ccKEW"),
     "RAZORPAY_KEY_SECRET" => env("RAZORPAY_KEY_SECRET","iBUIJSIManSTQc3TT7VexyYO"),
-    "RAZORPAY_ACC_NO" => env("RAZORPAY_ACC_NO","4564567629785781")
+    "RAZORPAY_ACC_NO" => env("RAZORPAY_ACC_NO","4564567629785781"),
+
+    "PAYMENT_REVIEW_TYPE" => [
+        "REVIEW_COUNT" => 2,
+        "USER_TYPE" => 1
+    ]
 
 ];

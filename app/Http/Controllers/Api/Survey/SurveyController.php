@@ -618,6 +618,7 @@ class SurveyController extends Controller
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
 
+
             $responseData["is_paid"] = true;
 
             if ($requestPaid) {
@@ -625,6 +626,16 @@ class SurveyController extends Controller
             }
 
             if ($paymnetExist != null) {
+                //check for excluded flag
+                $exp = (!empty($paymnetExist->excluded_profiles) ? $paymnetExist->excluded_profiles : null);
+                if ($exp != null) {
+                    $separate = explode(",", $exp);
+                    if (in_array($request->user()->profile->id, $separate)) {
+                        //excluded profile error to be updated
+                        $flag = ["status" => false, "reason" => "paid"];
+                    }
+                }
+
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }
 
@@ -666,18 +677,57 @@ class SurveyController extends Controller
         return $responseData;
     }
 
+    function getDispatchedPaymentUserTypes($paymentDetails)
+    {
+        $getUsers = PaymentLinks::where("model_id", $paymentDetails->model_id)->whereNull("deleted_at")->whereNotIn("status_id", [config("constant.PAYMENT_STATUS.failure"), config("constant.PAYMENT_STATUS.cancelled"), config("constant.PAYMENT_STATUS.expired")]);
 
+        if (isset($paymentDetails->sub_model_id) && !empty($paymentDetails->sub_model_id)) {
+            $getUsers->where('sub_model_id', $paymentDetails->sub_model_id);
+        }
+
+        $profiles = $getUsers->get();
+        $profileIds = ["expert" => 0, "consumer" => 0];
+        if (!empty($profiles)) {
+            foreach ($profiles as $user) {
+                if ($user->profile->is_expert == 0) {
+                    $profileIds["is_expert"]++;
+                } else {
+                    $profileIds["consumer"]++;
+                }
+            }
+        }
+        return $profileIds;
+    }
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
-            if ($request->user()->profile->is_expert) {
-                $key = "expert";
-            } else {
-                $key = "consumer";
+
+            $amount = 0;
+            if ($paymentDetails->review_type == config("payment.PAYMENT_REVIEW_TYPE.REVIEW_COUNT")) {
+
+
+                $amount = ((isset($getAmount["current"]['taster'][0]["amount"])) ? $getAmount["current"]['taster'][0]["amount"] : 0);
+            } else if ($paymentDetails->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
+
+                $getCount = $this->getDispatchedPaymentUserTypes($paymentDetails);
+
+                if ($request->user()->profile->is_expert) {
+                    $key = "expert";
+                } else {
+                    $key = "consumer";
+                }
+
+                if (($getCount[$key] + 1) < $getAmount["current"][$key][0]["user_count"]) {
+                    //error message for different user type counts exceeded
+                    return ["status" => false];
+                }
+
+                $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
-            $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
+
+
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
@@ -1612,7 +1662,7 @@ class SurveyController extends Controller
                     }
                 }
             }
-            
+
             $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
             $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
             $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
