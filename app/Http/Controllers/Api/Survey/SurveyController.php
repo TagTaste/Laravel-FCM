@@ -150,7 +150,8 @@ class SurveyController extends Controller
             'invited_profile_ids' => 'nullable|array',
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
-            'mandatory_field_ids' => 'array'
+            'mandatory_field_ids' => 'array',
+            'is_private' => 'boolean'
         ]);
 
 
@@ -193,6 +194,7 @@ class SurveyController extends Controller
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
         $prepData["privacy_id"] = 1;
+        $prepData["is_private"] = (isset($request->is_private) ? (int)$request->is_private :  null);
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
@@ -305,7 +307,8 @@ class SurveyController extends Controller
             'invited_profile_ids' => 'nullable',
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
-            'mandatory_field_ids' => 'array'
+            'mandatory_field_ids' => 'array',
+            'is_private' => 'boolean'
         ]);
 
         if ($validator->fails()) {
@@ -314,6 +317,11 @@ class SurveyController extends Controller
         }
 
 
+            
+        if($getSurvey->is_private!==null && ((int)$request->is_private !== (int)$getSurvey->is_private)){
+            return $this->sendError("Survey status cannot be changed");
+        }
+        
         if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+1 month"))) {
             return $this->sendError("Expiry time exceeds a month");
         }
@@ -340,7 +348,7 @@ class SurveyController extends Controller
         $prepData->state = $request->state;
         $prepData->title = $request->title;
         $prepData->description = $request->description;
-
+        
         if ($request->has("image_meta")) {
             $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
         }
@@ -363,6 +371,10 @@ class SurveyController extends Controller
 
         if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData->expired_at = date("Y-m-d", strtotime($request->expired_at));
+        }
+
+        if ($request->has("is_private") && !empty($request->is_private)) {
+            $prepData->is_private = (int)$request->is_private;
         }
 
 
@@ -579,6 +591,8 @@ class SurveyController extends Controller
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
+                $user = $request->user()->profile->id;
+                Redis::set("surveys:application_status:$request->survey_id:profile:$user", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"));
             } else {
                 $responseData = ["status" => false];
             }

@@ -890,6 +890,14 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/{id}', 'SurveyController@update');
         Route::delete('/{id}', 'SurveyController@destroy');
         Route::post('/', 'SurveyController@store');
+        Route::post("/{id}/showInterest", "SurveyApplicantController@showInterest");
+        Route::post("/{id}/beginSurvey", "SurveyApplicantController@beginSurvey");
+        Route::get('/{id}/applicants', 'SurveyApplicantController@index');
+        Route::get('/{id}/invite/profiles', 'SurveyApplicantController@userList');
+        Route::post('/{id}/inviteForReview', 'SurveyApplicantController@inviteForReview'); 
+        Route::get('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters'); 
+        Route::get('/{id}/applicants/export', 'SurveyApplicantController@export'); 
+        
     });
 
     Route::get('/uploadQuestion/{id}/{question_id}', function ($id, $question_id) {
