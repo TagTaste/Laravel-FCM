@@ -355,4 +355,13 @@ class Surveys extends Model implements Feedable
             ->where('surveys_mandatory_fields_mapping.survey_id', $this->id)
             ->get()->toArray();
     }
+  
+    public function getTotalApplicants()
+    {
+        if($this->is_private == 1){
+            return \DB::table('survey_applicants')->where('survey_id', $this->id)->get()->count();
+        }
+        
+        return 0;
+    }
 }

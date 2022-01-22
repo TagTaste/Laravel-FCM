@@ -75,16 +75,18 @@ class SurveyController extends Controller
         $getData = $getSurvey->toArray();
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
-        $count = \DB::table('survey_applicants')->where('survey_id',$id)->get()->count();  
+        $getData["totalApplicants"] = $getSurvey->getTotalApplicants();
+
+        // $count = \DB::table('survey_applicants')->where('survey_id', $id)->get()->count();
         $this->messages = "Request successfull";
         $this->model = [
             "surveys" => $getData,
             "meta" => $getSurvey->getMetaFor($request->user()->profile->id),
-            "seoTags" => $getSurvey->getSeoTags(),
-            "totalApplicants" => $count
+            "seoTags" => $getSurvey->getSeoTags()
+            // "totalApplicants" => $count
 
         ];
-        if($getSurvey->privacy_id == 0 ) unset($this->model["totalApplicants"]);
+        // if ($getSurvey->privacy_id == 0) unset($this->model["totalApplicants"]);
         return $this->sendResponse();
     }
 
@@ -123,13 +125,18 @@ class SurveyController extends Controller
 
         $surveys = $surveys->skip($skip)->take($take)
             ->get();
+        $surveyCount = 0;
         foreach ($surveys as $survey) {
+            $count = \DB::table('survey_applicants')->where('survey_id', $survey->id)->get()->count();
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
             $data[] = [
                 'survey' => $survey,
-                'meta' => $survey->getMetaFor($profileId)
+                'meta' => $survey->getMetaFor($profileId),
+                'totalApplicants' =>  $count
             ];
+            if ($survey->privacy_id == 0) unset($data[$surveyCount]["totalApplicants"]);
+            $surveyCount++;
         }
         $this->model['surveys'] = $data;
         return $this->sendResponse();
