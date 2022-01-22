@@ -276,4 +276,11 @@ class Surveys extends Model implements Feedable
                 ->get()->toArray();
     }
 
+    public function getSurveyApplicants()
+    {
+        return \DB::table('survey_applicants')->where('survey_id', $this->id)->get()->count();
+
+    }
+
+
 }
