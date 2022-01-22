@@ -75,8 +75,11 @@ class SurveyController extends Controller
         $getData = $getSurvey->toArray();
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
-        $getData["totalApplicants"] = $getSurvey->getTotalApplicants();
-
+        
+        if ($getSurvey->is_private == 0) {
+            $getData["totalApplicants"] = $getSurvey->getTotalApplicants();
+        }
+        
         // $count = \DB::table('survey_applicants')->where('survey_id', $id)->get()->count();
         $this->messages = "Request successfull";
         $this->model = [
@@ -86,7 +89,7 @@ class SurveyController extends Controller
             // "totalApplicants" => $count
 
         ];
-        // if ($getSurvey->privacy_id == 0) unset($this->model["totalApplicants"]);
+        
         return $this->sendResponse();
     }
 
@@ -130,10 +133,13 @@ class SurveyController extends Controller
             $count = \DB::table('survey_applicants')->where('survey_id', $survey->id)->get()->count();
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
+                if ($survey->is_private == 0) {
+                    $survey->totalApplicants = $survey->getTotalApplicants();
+                }
             $data[] = [
                 'survey' => $survey,
                 'meta' => $survey->getMetaFor($profileId),
-                'totalApplicants' =>  $count
+                // 'totalApplicants' =>  $count
             ];
             if ($survey->privacy_id == 0) unset($data[$surveyCount]["totalApplicants"]);
             $surveyCount++;
@@ -281,6 +287,9 @@ class SurveyController extends Controller
             $meta = $survey->getMetaFor($profileId);
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
+            if ($survey->is_private == 0) {
+                $survey->totalApplicants = $survey->getTotalApplicants();
+            }
             $this->model[] = ['surveys' => $survey, 'meta' => $meta];
         }
         return $this->sendResponse();
