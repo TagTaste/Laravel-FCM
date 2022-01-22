@@ -69,9 +69,7 @@ class SurveyController extends Controller
             $this->errors = ["Survey Doesn't Exists"];
             return $this->sendResponse();
         }
-        if ($getSurvey->is_private == 1) {
-            $getSurvey->totalApplicants = $getSurvey->getTotalApplicants();
-        }
+        
         $getSurvey["form_json"] = json_decode($getSurvey["form_json"], true);
         $getSurvey["video_meta"] = json_decode($getSurvey["video_meta"], true);
         $getSurvey["image_meta"] = json_decode($getSurvey["image_meta"], true);
@@ -79,6 +77,9 @@ class SurveyController extends Controller
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
         
+        
+        
+        // $count = \DB::table('survey_applicants')->where('survey_id', $id)->get()->count();
         $this->messages = "Request successfull";
         $this->model = [
             "surveys" => $getData,
@@ -125,16 +126,15 @@ class SurveyController extends Controller
             ->get();
         $surveyCount = 0;
         foreach ($surveys as $survey) {
-            if ($survey->is_private == 1) {
-                $survey->totalApplicants = $survey->getTotalApplicants();
-            }
+            
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
+                
             $data[] = [
                 'survey' => $survey,
                 'meta' => $survey->getMetaFor($profileId)
             ];
-            if ($survey->privacy_id == 0) unset($data[$surveyCount]["totalApplicants"]);
+            // if ($survey->privacy_id == 0) unset($data[$surveyCount]["totalApplicants"]);
             $surveyCount++;
         }
         $this->model['surveys'] = $data;
@@ -280,6 +280,7 @@ class SurveyController extends Controller
             $meta = $survey->getMetaFor($profileId);
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
+            
             $this->model[] = ['surveys' => $survey, 'meta' => $meta];
         }
         return $this->sendResponse();

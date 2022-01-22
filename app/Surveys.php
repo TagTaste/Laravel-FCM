@@ -28,10 +28,10 @@ class Surveys extends Model implements Feedable
     
     protected $with = ['profile','company'];
     
-    protected $appends = ['owner','meta',"closing_reason",'mandatory_fields'];
+    protected $appends = ['owner','meta',"closing_reason",'mandatory_fields','totalApplicants'];
 
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private"];
+    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants"];
 
     protected $cast = [
         "form_json" => 'array',
@@ -275,12 +275,15 @@ class Surveys extends Model implements Feedable
                 ->where('surveys_mandatory_fields_mapping.survey_id',$this->id)
                 ->get()->toArray();
     }
-
-    public function getTotalApplicants()
+  
+    public function getTotalApplicantsAttribute()
     {
-        return \DB::table('survey_applicants')->where('survey_id', $this->id)->get()->count();
-
+        if($this->is_private == 1){
+            return \DB::table('survey_applicants')->where('survey_id', $this->id)->whereNull('deleted_at')->get()->count();
+        }
+        
+        return 0;
     }
 
-
+    
 }
