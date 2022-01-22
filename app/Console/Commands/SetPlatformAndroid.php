@@ -39,8 +39,8 @@ class SetPlatformAndroid extends Command
     {
         \DB::table('app_info')->whereNull('platform')->orderBy('id')->chunk(100, function ($models) {
            foreach ($models as $model) {
-               \DB::table('app_info')->where('id', $model->id)->update(['platform'=> 'android']);
-           }
+               \DB::table('app_info')->where('id', $model->id)->update(['platform'=> 'android']);    
+            }
         });
         echo "\nDone...\n";
     }

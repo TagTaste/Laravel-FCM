@@ -48,9 +48,11 @@ class RemoveDuplicateFromAppInfo implements ShouldQueue
         $idToStoreArr = explode(',',$idToStore);
         // delete all the token except these supplied ids.
         DB::table('app_info')->whereNotIn('id', $idToStoreArr)->delete();
-        
+
+
         //delete all the tokens for simulator or emultor
         DB::table('app_info')->where('device_info->deviceType','like','%Simulator%')->orWhere('device_info->SERIAL','like','%EMULATOR%')->delete();
+
       }
     
     function getIdForIos(){
