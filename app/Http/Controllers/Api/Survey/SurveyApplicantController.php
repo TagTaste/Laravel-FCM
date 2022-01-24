@@ -151,7 +151,7 @@ class SurveyApplicantController extends Controller
         ];
 
         $create = surveyApplicants::create($data);
-        
+
         if (isset($create->id)) {
             $profile = $request->user()->profile->id;
             // Redis::sAdd("surveys:$id:profile:$request->user()->profile_id:", $batch->id);
@@ -340,7 +340,7 @@ class SurveyApplicantController extends Controller
 
     public function export($id, Request $request)
     {
-        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->first();
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
 
         if ($survey === null) {
             return $this->sendError("Invalid Survey");
