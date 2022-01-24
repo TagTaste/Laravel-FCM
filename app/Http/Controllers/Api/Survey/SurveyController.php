@@ -632,7 +632,9 @@ class SurveyController extends Controller
                     $separate = explode(",", $exp);
                     if (in_array($request->user()->profile->id, $separate)) {
                         //excluded profile error to be updated
-                        $flag = ["status" => false, "reason" => "paid"];
+                        $responseData["is_paid"] = false;
+                        return $responseData;
+                       // $flag = ["status" => false, "reason" => "paid"];
                     }
                 }
 
@@ -708,7 +710,7 @@ class SurveyController extends Controller
                     $key = "consumer";
                 }
 
-                if (($getCount[$key] + 1) < $getAmount["current"][$key][0]["user_count"]) {
+                if (($getCount[$key] + 1) > $getAmount["current"][$key][0]["user_count"]) {
                     //error message for different user type counts exceeded
                     return ["status" => false];
                 }
