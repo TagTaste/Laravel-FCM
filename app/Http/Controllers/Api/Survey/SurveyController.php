@@ -626,13 +626,14 @@ class SurveyController extends Controller
             }
 
             if ($paymnetExist != null) {
-                //check for excluded flag
+                //check for excluded flag for profiles 
                 $exp = (!empty($paymnetExist->excluded_profiles) ? $paymnetExist->excluded_profiles : null);
                 if ($exp != null) {
                     $separate = explode(",", $exp);
                     if (in_array($request->user()->profile->id, $separate)) {
                         //excluded profile error to be updated
-                        $flag = ["status" => false, "reason" => "paid"];
+                        $responseData["is_paid"] = false;
+                        return $responseData;
                     }
                 }
 
@@ -679,9 +680,9 @@ class SurveyController extends Controller
 
     function getDispatchedPaymentUserTypes($paymentDetails)
     {
-        $getUsersExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->whereNotIn("status_id", [config("constant.PAYMENT_STATUS.failure"), config("constant.PAYMENT_STATUS.cancelled"), config("constant.PAYMENT_STATUS.expired")])->where("is_expert", 1)->get();
+        $getUsersExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->where("status_id","<>", config("constant.PAYMENT_STATUS.cancelled"))->where("is_expert", 1)->get();
 
-        $getUsersNonExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->whereNotIn("status_id", [config("constant.PAYMENT_STATUS.failure"), config("constant.PAYMENT_STATUS.cancelled"), config("constant.PAYMENT_STATUS.expired")])->where("is_expert", "<>", 1)->get();
+        $getUsersNonExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->where("status_id","<>", config("constant.PAYMENT_STATUS.cancelled"))->where("is_expert", "=", 0)->get();
 
         $profileIds = ["expert" => (int)$getUsersExpert->count(), "consumer" => (int)$getUsersNonExpert->count()];
 
