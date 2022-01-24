@@ -151,12 +151,13 @@ class SurveyApplicantController extends Controller
         ];
 
         $create = surveyApplicants::create($data);
-
+        
         if (isset($create->id)) {
             $profile = $request->user()->profile->id;
             // Redis::sAdd("surveys:$id:profile:$request->user()->profile_id:", $batch->id);
             Redis::set("surveys:application_status:$id:profile:$profile", 0);
             $this->model = true;
+            $this->messages = "Thanks for showing interest. We will notify you when admin accept your request for survey.";
         } else {
             $this->model = false;
             $this->errors[] = "Failed to show interest in survey";
@@ -204,7 +205,7 @@ class SurveyApplicantController extends Controller
                     Redis::set("surveys:application_status:$id:profile:$profileId", 1);
                 }
             }
-
+            
             $who = null;
             if ($checkIFExists->company_id) {
                 $company = Company::where('id', $checkIFExists->company_id)->first();
@@ -214,9 +215,6 @@ class SurveyApplicantController extends Controller
             }
             $checkIFExists->profile_id = $profileId;
             // event(new \App\Events\Actions\BeginTasting($survey, $who, null, null, null, $company, $batchId));
-        }
-        if($this->model){
-            $this->messages = "Thanks for showing interest. We will notify you when admin accept your request for survey.";
         }
         return $this->sendResponse();
     }
