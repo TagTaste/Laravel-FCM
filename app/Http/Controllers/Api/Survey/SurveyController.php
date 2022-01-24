@@ -615,6 +615,7 @@ class SurveyController extends Controller
         $responseData = $flag = [];
         $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
+        $excluded = 0;
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
 
@@ -632,12 +633,11 @@ class SurveyController extends Controller
                     $separate = explode(",", $exp);
                     if (in_array($request->user()->profile->id, $separate)) {
                         //excluded profile error to be updated
-                        $responseData["is_paid"] = false;
-                        return $responseData;
-                       // $flag = ["status" => false, "reason" => "paid"];
+                       $flag = ["status" => false, "reason" => "paid"];
+                       $excluded++;
                     }
                 }
-
+                if($excluded == 0)
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }
 
