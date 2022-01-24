@@ -203,7 +203,7 @@ class SurveyApplicantController extends Controller
                     $this->model = false;
                 }
             }
-
+            
             $who = null;
             if ($checkIFExists->company_id) {
                 $company = Company::where('id', $checkIFExists->company_id)->first();
@@ -214,7 +214,9 @@ class SurveyApplicantController extends Controller
             $checkIFExists->profile_id = $profileId;
             // event(new \App\Events\Actions\BeginTasting($survey, $who, null, null, null, $company, $batchId));
         }
-
+        if($this->model){
+            $this->messages = "Thanks for showing interest. We will notify you when admin accept your request for survey.";
+        }
         return $this->sendResponse();
     }
 
