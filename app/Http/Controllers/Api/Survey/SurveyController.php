@@ -615,6 +615,7 @@ class SurveyController extends Controller
         $responseData = $flag = [];
         $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
+        
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
 
@@ -636,7 +637,6 @@ class SurveyController extends Controller
                         return $responseData;
                     }
                 }
-
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }
 
@@ -664,6 +664,8 @@ class SurveyController extends Controller
                 $responseData["subTitle"] = "You have successfully completed the survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort but unfortunately you missed the reward. Please contact us at payment@tagtaste.com for any further help.";
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "not_paid") {
+                $responseData["is_paid"] = false;
             } else {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
@@ -709,9 +711,9 @@ class SurveyController extends Controller
                     $key = "consumer";
                 }
 
-                if (($getCount[$key] + 1) < $getAmount["current"][$key][0]["user_count"]) {
+                if (($getCount[$key] + 1) >= $getAmount["current"][$key][0]["user_count"]) {
                     //error message for different user type counts exceeded
-                    return ["status" => false];
+                    return ["status" => false , "reason"=>"not_paid"];
                 }
 
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
