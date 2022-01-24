@@ -67,7 +67,7 @@ trait FilterTraits
             
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['gender'] as $gender) {
-                    $query->orWhere('gender', 'LIKE', $gender);
+                    $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
                 }
             });
         }
