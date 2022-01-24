@@ -624,7 +624,7 @@ class SurveyController extends Controller
         $responseData = $flag = [];
         $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
-        $excluded = 0;
+        
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
 
@@ -636,17 +636,16 @@ class SurveyController extends Controller
             }
 
             if ($paymnetExist != null) {
-                //check for excluded flag
+                //check for excluded flag for profiles 
                 $exp = (!empty($paymnetExist->excluded_profiles) ? $paymnetExist->excluded_profiles : null);
                 if ($exp != null) {
                     $separate = explode(",", $exp);
                     if (in_array($request->user()->profile->id, $separate)) {
                         //excluded profile error to be updated
-                       $flag = ["status" => false, "reason" => "paid"];
-                       $excluded++;
+                        $responseData["is_paid"] = false;
+                        return $responseData;
                     }
                 }
-                if($excluded == 0)
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }
 
@@ -674,6 +673,8 @@ class SurveyController extends Controller
                 $responseData["subTitle"] = "You have successfully completed the survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort but unfortunately you missed the reward. Please contact us at payment@tagtaste.com for any further help.";
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "not_paid") {
+                $responseData["is_paid"] = false;
             } else {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
@@ -690,9 +691,9 @@ class SurveyController extends Controller
 
     function getDispatchedPaymentUserTypes($paymentDetails)
     {
-        $getUsersExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->whereNotIn("status_id", [config("constant.PAYMENT_STATUS.failure"), config("constant.PAYMENT_STATUS.cancelled"), config("constant.PAYMENT_STATUS.expired")])->where("is_expert", 1)->get();
+        $getUsersExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->where("status_id","<>", config("constant.PAYMENT_STATUS.cancelled"))->where("is_expert", 1)->get();
 
-        $getUsersNonExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->whereNotIn("status_id", [config("constant.PAYMENT_STATUS.failure"), config("constant.PAYMENT_STATUS.cancelled"), config("constant.PAYMENT_STATUS.expired")])->where("is_expert", "<>", 1)->get();
+        $getUsersNonExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->where("status_id","<>", config("constant.PAYMENT_STATUS.cancelled"))->where("is_expert", "=", 0)->get();
 
         $profileIds = ["expert" => (int)$getUsersExpert->count(), "consumer" => (int)$getUsersNonExpert->count()];
 
@@ -719,9 +720,9 @@ class SurveyController extends Controller
                     $key = "consumer";
                 }
 
-                if (($getCount[$key] + 1) > $getAmount["current"][$key][0]["user_count"]) {
+                if (($getCount[$key] + 1) >= $getAmount["current"][$key][0]["user_count"]) {
                     //error message for different user type counts exceeded
-                    return ["status" => false];
+                    return ["status" => false , "reason"=>"not_paid"];
                 }
 
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
