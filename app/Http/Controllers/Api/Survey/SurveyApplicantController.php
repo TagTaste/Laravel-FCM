@@ -194,16 +194,17 @@ class SurveyApplicantController extends Controller
                     return $this->sendError("Cannot begin survey for specified user");
                 }
             }
-
+            
             $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
             if ($currentStatus == 0) {
-                Redis::set("surveys:application_status:$id:profile:$profileId", 1);
                 $b = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', 0)->update(["application_status" => 1]);
                 if ($b == false) {
                     $this->model = false;
+                }else{
+                    Redis::set("surveys:application_status:$id:profile:$profileId", 1);
                 }
             }
-            
+
             $who = null;
             if ($checkIFExists->company_id) {
                 $company = Company::where('id', $checkIFExists->company_id)->first();
