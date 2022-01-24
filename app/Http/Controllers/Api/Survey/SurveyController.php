@@ -402,7 +402,7 @@ class SurveyController extends Controller
             //create new cache
             $getSurvey = $create->first();
             if ($request->has('company_id')) {
-                event(new NewFeedable($getSurvey, $request->company_id));
+                event(new NewFeedable($getSurvey, Company::find($request->company_id)));
             } else {
                 event(new NewFeedable($getSurvey, $request->user()->profile));
             }
