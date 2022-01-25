@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\Api\VersionCheck;
+use App\Http\Middleware\manageApplicantsPermission;
 use App\Http\Middleware\SmallImage;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -71,5 +72,6 @@ class Kernel extends HttpKernel
         'optimizeImages'=> \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
         'permissionCollaborate'=> \App\Http\Middleware\collaborateRoles::class,
         'iosCollaborate'=>\App\Http\Middleware\Api\IosCollaborate::class,
+        "manage.permission"=> manageApplicantsPermission::class,
     ];
 }
