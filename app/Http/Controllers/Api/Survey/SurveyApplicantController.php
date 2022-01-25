@@ -127,12 +127,12 @@ class SurveyApplicantController extends Controller
             return $this->sendError("Invalid Survey");
         }
 
-        if($checkIFExists->state==config("constant.SURVEY_STATES.CLOSED")){
+        if ($checkIFExists->state == config("constant.SURVEY_STATES.CLOSED")) {
             $this->model = ["status" => false];
             return $this->sendError("Survey is closed. Cannot show interest");
         }
 
-        if($checkIFExists->state==config("constant.SURVEY_STATES.EXPIRED")){
+        if ($checkIFExists->state == config("constant.SURVEY_STATES.EXPIRED")) {
             $this->model = ["status" => false];
             return $this->sendError("Survey is expired. Cannot show interest");
         }
@@ -177,12 +177,12 @@ class SurveyApplicantController extends Controller
 
     public function beginSurvey($id, Request $request)
     {
-        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->orWhere("state","!=",config("constant.SURVEY_STATES.EXPIRED"))->first();
-        
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"))->first();
+
         if (empty($checkIFExists)) {
             return $this->sendError("You cannot perform this action on this survey anymore.");
         }
-        
+
 
         if ($checkIFExists->is_private != config("constant.SURVEY_PRIVATE")) {
             return $this->sendError("Cannot begin for public surveys");
@@ -207,17 +207,17 @@ class SurveyApplicantController extends Controller
                     return $this->sendError("Cannot begin survey for specified user");
                 }
             }
-            
+
             $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
             if ($currentStatus == 0) {
                 $b = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', 0)->update(["application_status" => 1]);
                 if ($b == false) {
                     $this->model = false;
-                }else{
+                } else {
                     Redis::set("surveys:application_status:$id:profile:$profileId", 1);
                 }
             }
-            
+
             $who = null;
             if ($checkIFExists->company_id) {
                 $company = Company::where('id', $checkIFExists->company_id)->first();
@@ -244,8 +244,8 @@ class SurveyApplicantController extends Controller
 
     public function inviteForReview($id, Request $request)
     {
-        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->orWhere("state","!=",config("constant.SURVEY_STATES.EXPIRED"))->first();
-        
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"))->first();
+
         if (empty($survey)) {
             return $this->sendError("You cannot perform this action on this survey anymore.");
         }
@@ -280,9 +280,9 @@ class SurveyApplicantController extends Controller
         $now = date("Y-m-d H:i:s");
         foreach ($profileIds as $profileId) {
             $survey->profile_id = $profileId;
-            $profile = Profile::where("id",$profileId)->first();
+            $profile = Profile::where("id", $profileId)->first();
             // event(new \App\Events\Actions\InviteForReview($survey, null, null, null, null, $company));
-            $inputs = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE"),'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null];
+            $inputs = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE"), 'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null];
             $c = surveyApplicants::create($inputs);
             if (isset($c->id)) {
                 Redis::set("surveys:application_status:$id:profile:$profileId", 1);
@@ -377,18 +377,21 @@ class SurveyApplicantController extends Controller
         }
 
         //filters data
-        $profileIds = [];
+        $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
-        $applicants = surveyApplicants::where('survey_id', $id)
-            // ->whereIn('profile_id', $profileIds, $boolean, $type)
-            ->whereIn('profile_id', $profileIds)
-            ->whereNull('deleted_at')
+        $applicants = surveyApplicants::where('survey_id', $id);
+        // ->whereIn('profile_id', $profileIds, $boolean, $type)
+        if ($profileIds !== null) {
+            $applicants  = $applicants->whereIn('profile_id', $profileIds);
+        }
+        $applicants = $applicants->whereNull('deleted_at')
             ->orderBy("created_at", "desc")
             ->get();
+
 
         $finalData = array();
 
