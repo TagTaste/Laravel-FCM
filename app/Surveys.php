@@ -28,14 +28,16 @@ class Surveys extends Model implements Feedable
     public $incrementing = false;
 
 
-    protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","is_private"];
-    
-    protected $with = ['profile','company'];
-    
-    protected $appends = ['owner','meta',"closing_reason",'mandatory_fields'];
+    protected $fillable = ["id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "video_meta", "form_json", "profile_updated_by", "invited_profile_ids", "expired_at", "is_active", "state", "deleted_at", "published_at", "is_private"];
 
-    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private"];
+    protected $with = ['profile', 'company'];
+
+    protected $appends = ['owner', 'meta', "closing_reason", 'mandatory_fields'];
+
+    protected $visible = [
+        "id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "form_json",
+        "video_meta", "state", "expired_at", "published_at", "profile", "company", "created_at", "updated_at", "is_private"
+    ];
 
     protected $cast = [
         "form_json" => 'array',
@@ -101,21 +103,22 @@ class Surveys extends Model implements Feedable
         $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
         // $meta['review_dump'] = $reviewed;
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
-            $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
-            if (!empty($payment)) {
+        $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
+        if (!empty($payment)) {
 
 
-                $ispaid = true;
-                $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
-                if ($exp != null) {
-                    $separate = explode(",", $exp);
-                    if (in_array(request()->user()->profile->id, $separate)) {
-                        //excluded profile error to be updated
-                        $ispaid = false;
-                    }
+            $ispaid = true;
+            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
+            if ($exp != null) {
+                $separate = explode(",", $exp);
+                if (in_array(request()->user()->profile->id, $separate)) {
+                    //excluded profile error to be updated
+                    $ispaid = false;
                 }
-                $new  = new SurveyController($this);
-                $getCount = $new->getDispatchedPaymentUserTypes($payment);
+            }
+            if ($ispaid == true) {
+                
+                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
                 if (request()->user()->profile->is_expert) {
                     $ukey = "expert";
                 } else {
@@ -133,16 +136,16 @@ class Surveys extends Model implements Feedable
                         $ispaid = false;
                     }
                 }
-            } else {
-                $ispaid = false;
             }
-            $meta['isPaid'] = $ispaid;
+        } else {
+            $ispaid = false;
+        }
+        $meta['isPaid'] = $ispaid;
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
-        $k = Redis::get
-        ("surveys:application_status:$this->id:profile:$profileId");
-        $meta['applicationStatus'] = $k!==null ? (int)$k : null;
+        $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
+        $meta['applicationStatus'] = $k !== null ? (int)$k : null;
 
 
         return $meta;
@@ -177,8 +180,8 @@ class Surveys extends Model implements Feedable
                     $ispaid = false;
                 }
             }
-            $new  = new SurveyController($this);
-            $getCount = $new->getDispatchedPaymentUserTypes($payment);
+            
+            $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
             if (request()->user()->profile->is_expert) {
                 $ukey = "expert";
             } else {
@@ -202,11 +205,10 @@ class Surveys extends Model implements Feedable
         $meta['isPaid'] = $ispaid;
 
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
-        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->id)->where("is_active",1)->first();
-        
-        $k = Redis::get
-        ("surveys:application_status:$this->id:profile:$profileId");
-        $meta['applicationStatus'] = $k!==null ? (int)$k : null;
+        $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
+
+        $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
+        $meta['applicationStatus'] = $k !== null ? (int)$k : null;
 
 
         return $meta;
