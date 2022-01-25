@@ -177,7 +177,10 @@ class SurveyApplicantController extends Controller
 
     public function beginSurvey($id, Request $request)
     {
-        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"))->first();
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function($q){
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
 
         if (empty($checkIFExists)) {
             return $this->sendError("You cannot perform this action on this survey anymore.");
@@ -190,7 +193,7 @@ class SurveyApplicantController extends Controller
 
         $bgnAll = false;
         $profileIds = $request->input('profile_id');
-        if ($request->has("begin_all")) {
+        if ($request->has("begin_all")) {   
             if ($request->input("begin_all") == 1) {
                 $profileIds = surveyApplicants::where('survey_id', $id)->get()->pluck('profile_id');
                 $bgnAll = true;
@@ -244,7 +247,10 @@ class SurveyApplicantController extends Controller
 
     public function inviteForReview($id, Request $request)
     {
-        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"))->first();
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where(function($q){
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
 
         if (empty($survey)) {
             return $this->sendError("You cannot perform this action on this survey anymore.");
