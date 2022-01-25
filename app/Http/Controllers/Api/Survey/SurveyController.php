@@ -69,16 +69,16 @@ class SurveyController extends Controller
             $this->errors = ["Survey Doesn't Exists"];
             return $this->sendResponse();
         }
-        
+
         $getSurvey["form_json"] = json_decode($getSurvey["form_json"], true);
         $getSurvey["video_meta"] = json_decode($getSurvey["video_meta"], true);
         $getSurvey["image_meta"] = json_decode($getSurvey["image_meta"], true);
         $getData = $getSurvey->toArray();
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
-        
-        
-        
+
+
+
         // $count = \DB::table('survey_applicants')->where('survey_id', $id)->get()->count();
         $this->messages = "Request successfull";
         $this->model = [
@@ -126,10 +126,10 @@ class SurveyController extends Controller
             ->get();
         $surveyCount = 0;
         foreach ($surveys as $survey) {
-            
+
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
-                
+
             $data[] = [
                 'survey' => $survey,
                 'meta' => $survey->getMetaFor($profileId)
@@ -194,8 +194,16 @@ class SurveyController extends Controller
             if (!$userBelongsToCompany) {
                 return $this->sendError("User does not belong to this company");
             }
+            if (isset($request->is_private) && $request->is_private == 1 && $request->$company->is_premium != 1) {
+                return $this->sendError("Only premium companies can create private surveys");
+                // return $next($request);
+            }
         }
 
+        if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
+            return $this->sendError("Only premium users can create private surveys");
+        }
+        
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
         $prepData["profile_id"] = $request->user()->profile->id;
@@ -280,12 +288,35 @@ class SurveyController extends Controller
             $meta = $survey->getMetaFor($profileId);
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
-            
+
             $this->model[] = ['surveys' => $survey, 'meta' => $meta];
         }
         return $this->sendResponse();
     }
 
+
+    public function statePermissionHandler($surveyDetails, $request)
+    {
+        if (!empty($surveyDetails)) {
+            $profileId = $request->user()->profile->id;
+            $getCompanyId = (!empty($surveyDetails->company_id) ? $surveyDetails->company_id : null);
+
+            if (!empty($getCompanyId)) {
+                $company = Company::find($getCompanyId);
+                $userBelongsToCompany = $company->checkCompanyUser($profileId);
+                if ($userBelongsToCompany && $request->$company->is_premium == 1) {
+                    return true;
+                    // return $next($request);
+                }
+            } else {
+                if ($profileId == $surveyDetails->profile_id && $request->user()->profile->is_premium == 1) {
+                    return true;
+                    // return $next($request);
+                }
+            }
+        }
+        return false;
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -326,7 +357,16 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-
+        if (
+            $getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")
+            &&
+            ($getSurvey->is_private == null && ((int)$request->is_private == 1))
+        ) {
+            $verifyPermission = $this->statePermissionHandler($getSurvey, $request);
+            if ($verifyPermission == false) {
+                return $this->sendError("Permission Denied");
+            }
+        }
 
         if ($getSurvey->is_private !== null && ((int)$request->is_private !== (int)$getSurvey->is_private)) {
             return $this->sendError("Survey status cannot be changed");
@@ -349,6 +389,7 @@ class SurveyController extends Controller
         $prepData = (object)[];
 
         if ($getSurvey->state != config("constant.SURVEY_STATES.PUBLISHED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
+
             $prepData->published_at = date("Y-m-d H:i:s");
         }
         //  else if ($getSurvey->i != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
@@ -496,6 +537,15 @@ class SurveyController extends Controller
             if (empty($id)) {
                 $this->model = ["status" => false];
                 return $this->sendError("Invalid Survey");
+            }
+            if ($id->state == config("constant.SURVEY_STATES.CLOSED")) {
+                $this->model = ["status" => false];
+                return $this->sendError("Survey is closed. Cannot submit answers");
+            }
+
+            if ($id->state == config("constant.SURVEY_STATES.EXPIRED")) {
+                $this->model = ["status" => false];
+                return $this->sendError("Survey is expired. Cannot submit answers");
             }
 
             if (isset($id->profile_id) && $id->profile_id == $request->profile_id) {
