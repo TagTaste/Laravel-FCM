@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
-
+use App\PaymentHelper;
 class SurveyController extends Controller
 {
 
@@ -689,16 +689,7 @@ class SurveyController extends Controller
         return $responseData;
     }
 
-    function getDispatchedPaymentUserTypes($paymentDetails)
-    {
-        $getUsersExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->where("status_id","<>", config("constant.PAYMENT_STATUS.cancelled"))->where("is_expert", 1)->get();
-
-        $getUsersNonExpert = PaymentLinks::where("payment_id", $paymentDetails->id)->whereNull("deleted_at")->where("status_id","<>", config("constant.PAYMENT_STATUS.cancelled"))->where("is_expert", "=", 0)->get();
-
-        $profileIds = ["expert" => (int)$getUsersExpert->count(), "consumer" => (int)$getUsersNonExpert->count()];
-
-        return $profileIds;
-    }
+    
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
@@ -712,7 +703,7 @@ class SurveyController extends Controller
                 $amount = ((isset($getAmount["current"]['taster'][0]["amount"])) ? $getAmount["current"]['taster'][0]["amount"] : 0);
             } else if ($paymentDetails->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
 
-                $getCount = $this->getDispatchedPaymentUserTypes($paymentDetails);
+                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($paymentDetails);
 
                 if ($request->user()->profile->is_expert) {
                     $key = "expert";

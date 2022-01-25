@@ -5,6 +5,7 @@ namespace App\Shareable;
 use App\Http\Controllers\Api\Survey\SurveyController;
 use App\Payment\PaymentDetails;
 use App\Payment\PaymentLinks;
+use App\PaymentHelper;
 use App\PeopleLike;
 use App\Surveys as AppSurveys;
 use Illuminate\Support\Facades\Redis;
@@ -64,8 +65,8 @@ class Surveys extends Share
                     $ispaid = false;
                 }
             }
-            $new  = new SurveyController(new AppSurveys);
-            $getCount = $new->getDispatchedPaymentUserTypes($payment);
+            
+            $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
             if (request()->user()->profile->is_expert) {
                 $ukey = "expert";
             } else {
@@ -121,8 +122,8 @@ class Surveys extends Share
                     $ispaid = false;
                 }
             }
-            $new  = new SurveyController(new AppSurveys);
-            $getCount = $new->getDispatchedPaymentUserTypes($payment);
+            
+            $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
             if (request()->user()->profile->is_expert) {
                 $ukey = "expert";
             } else {
