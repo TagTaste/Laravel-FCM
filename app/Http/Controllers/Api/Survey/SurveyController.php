@@ -203,7 +203,7 @@ class SurveyController extends Controller
         if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
             return $this->sendError("Only premium users can create private surveys");
         }
-        
+
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
         $prepData["profile_id"] = $request->user()->profile->id;
@@ -303,7 +303,7 @@ class SurveyController extends Controller
 
             if (!empty($getCompanyId)) {
                 $company = Company::find($getCompanyId);
-                $userBelongsToCompany = $company->checkCompanyUser($profileId);
+                $userBelongsToCompany = $company->checkCompanyUser($request->user()->id);
                 if ($userBelongsToCompany && $request->$company->is_premium == 1) {
                     return true;
                     // return $next($request);
