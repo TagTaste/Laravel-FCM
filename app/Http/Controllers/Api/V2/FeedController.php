@@ -137,7 +137,7 @@ class FeedController extends Controller
 
         $company = Company::find($modelData->company_id);
 
-        $userBelongsToCompany = ($company!=null) ? $company->checkCompanyUser(request()->user()->profile->id) : null;
+        $userBelongsToCompany = ($company!=null) ? $company->checkCompanyUser(request()->user()->id) : null;
         if($modelData->is_private== 1 && ($userBelongsToCompany || request()->user()->profile->id==$modelData->profile_id)){
             return $modelData->totalApplicants;
         }

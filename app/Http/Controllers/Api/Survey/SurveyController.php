@@ -194,13 +194,11 @@ class SurveyController extends Controller
             if (!$userBelongsToCompany) {
                 return $this->sendError("User does not belong to this company");
             }
-            if (isset($request->is_private) && $request->is_private == 1 && $request->$company->is_premium != 1) {
+            if (isset($request->is_private) && $request->is_private == 1 && $company->is_premium != 1) {
                 return $this->sendError("Only premium companies can create private surveys");
                 // return $next($request);
             }
-        }
-
-        if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
+        }else if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
             return $this->sendError("Only premium users can create private surveys");
         }
 
