@@ -302,7 +302,7 @@ class SurveyController extends Controller
             if (!empty($getCompanyId)) {
                 $company = Company::find($getCompanyId);
                 $userBelongsToCompany = $company->checkCompanyUser($request->user()->id);
-                if ($userBelongsToCompany && $request->$company->is_premium == 1) {
+                if ($userBelongsToCompany && $company->is_premium == 1) {
                     return true;
                     // return $next($request);
                 }
