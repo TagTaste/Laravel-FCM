@@ -87,7 +87,7 @@ class SurveyApplicantController extends Controller
         $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
 
 
-        $profileIdsForCounts = array_column($applicants, 'profile_id');
+        $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
         //count of sensory trained
         $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
             ->whereIn('profiles.id', $profileIdsForCounts)

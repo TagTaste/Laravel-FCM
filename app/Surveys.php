@@ -278,7 +278,7 @@ class Surveys extends Model implements Feedable
   
     public function getTotalApplicantsAttribute()
     {
-        if($this->is_private == 1){
+        if($this->is_private == 1 && request()->user()->profile->id==$this->profile_id){
             return \DB::table('survey_applicants')->where('survey_id', $this->id)->whereNull('deleted_at')->get()->count();
         }
         

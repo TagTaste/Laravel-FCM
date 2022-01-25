@@ -16,6 +16,7 @@ use App\FeedTracker;
 use App\FeedCard;
 use App\CategorySelectorCollection;
 use Carbon\Carbon;
+use App\Company;
 
 class FeedController extends Controller
 {
@@ -132,6 +133,18 @@ class FeedController extends Controller
         return $this->sendResponse();
     }
     
+    public function getSurveyApplicantCount($modelData){
+
+        $company = Company::find($modelData->company_id);
+
+        $userBelongsToCompany = ($company!=null) ? $company->checkCompanyUser(request()->user()->profile->id) : null;
+        if($modelData->is_private== 1 && ($userBelongsToCompany || request()->user()->profile->id==$modelData->profile_id)){
+            return $modelData->totalApplicants;
+        }
+        return 0;
+    }
+
+
     //things that is displayed on my public feed
     public function public(Request $request, $profileId)
     {
@@ -342,6 +355,8 @@ class FeedController extends Controller
                 $type = $this->getType($payload->model);
                 if($model=="App\Surveys"){
                     $model = $model::find($data["surveys"]["id"]);
+                        
+
                 }else{
                     $model = $model::find($payload->model_id);
                 }
@@ -349,6 +364,10 @@ class FeedController extends Controller
                     $data['meta'] = $model->getMetaForV2($profileId);
                 }
             }
+            if($model!=null && $type=="surveys"){
+                $data["surveys"]["totalApplicants"] = $this->getSurveyApplicantCount($model);
+            }
+
             $data['type'] = $type;
             $this->model[$feed_position[$index++]] = $data;
         }
