@@ -223,13 +223,10 @@ class SurveyApplicantController extends Controller
                 } else {
                     Redis::set("surveys:application_status:$id:profile:$profileId", 1);
                     $who = Profile::where("id", $profileId)->first();
-                    $comp = null;
-                    if (!empty($checkIFExists->company_id)) {
 
-                        $comp  = Company::find($checkIFExists->company_id);
-                    }
+                    $applicantData = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->first();
                     event(new \App\Events\Actions\surveyApplicantEvents(
-                        $checkIFExists,
+                        $applicantData,
                         $who,
                         [
                             "survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id),
@@ -238,19 +235,10 @@ class SurveyApplicantController extends Controller
                         ],
                         null,
                         null,
-                        $comp
+                        null
                     ));
                 }
             }
-
-            $who = null;
-            if ($checkIFExists->company_id) {
-                $company = Company::where('id', $checkIFExists->company_id)->first();
-                if (empty($company)) {
-                    $who = Profile::where("id", "=", $checkIFExists->profile_id)->first();
-                }
-            }
-            $checkIFExists->profile_id = $profileId;
         }
         return $this->sendResponse();
     }
@@ -282,7 +270,6 @@ class SurveyApplicantController extends Controller
             return $this->sendError("Cannot invite for public surveys");
         }
 
-
         if (isset($survey->company_id) && !empty($survey->company_id)) {
             $companyId = $survey->company_id;
             $userId = $request->user()->id;
@@ -313,14 +300,15 @@ class SurveyApplicantController extends Controller
             $c = surveyApplicants::create($inputs);
             if (isset($c->id)) {
                 Redis::set("surveys:application_status:$id:profile:$profileId", 1);
-                $who = Profile::where("id", $profileId)->first();
-                $comp = null;
+                 $who = Profile::where("id", $profileId)->first();
+                 $comp = $survey->profile;
+                
                 if (!empty($survey->company_id)) {
 
                     $comp =  Company::find($survey->company_id);
                 }
-
-                event(new \App\Events\Actions\surveyApplicantEvents($survey, $who, ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "profile" => $survey->profile, "type" => "inviteForReview"], null, null, $comp));
+                
+                event(new \App\Events\Actions\surveyApplicantEvents($c, $who, ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "profile" => $comp, "type" => "inviteForReview"], null, null, null));
             }
         }
 
