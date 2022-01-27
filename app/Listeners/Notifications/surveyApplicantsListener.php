@@ -30,7 +30,7 @@ class surveyApplicantsListener
         
         $profileId = $event->who["id"];
         $profile = Profile::find($profileId);
-        
+        dd($event->who);
         if(isset($profile))
         Notification::send($profile, new \App\Notifications\Actions\surveyApplicantsNotifications($event));
     }
