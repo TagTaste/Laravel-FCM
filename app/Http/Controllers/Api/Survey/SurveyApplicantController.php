@@ -395,10 +395,6 @@ class SurveyApplicantController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if (!$request->user()->profile->is_premium) {
-            return $this->sendError("You dont have access to this premium feature.");
-        }
-
         if (isset($survey->company_id) && !empty($survey->company_id)) {
             $companyId = $survey->company_id;
             $userId = $request->user()->id;
