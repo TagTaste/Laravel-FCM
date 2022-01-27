@@ -146,7 +146,7 @@ class SurveyApplicantController extends Controller
         $checkIfAlreadyInterested = surveyApplicants::where("profile_id", $request->user()->profile->id)->where("survey_id", $id)->whereNull('deleted_at')->first();
 
         if (!empty($checkIfAlreadyInterested)) {
-            return $this->sendError("Already Shown Interest");
+            // return $this->sendError("Already Shown Interest");
         }
 
         if ($checkIFExists->profile_id == $request->user()->profile->id) {
@@ -226,7 +226,7 @@ class SurveyApplicantController extends Controller
                     $comp = null;
                     if (!empty($checkIFExists->company_id)) {
 
-                        $comp = $who = Company::find($checkIFExists->company_id);
+                        $comp  = Company::find($checkIFExists->company_id);
                     }
                     event(new \App\Events\Actions\surveyApplicantEvents(
                         $checkIFExists,
@@ -317,7 +317,7 @@ class SurveyApplicantController extends Controller
                 $comp = null;
                 if (!empty($survey->company_id)) {
 
-                    $comp = $who = Company::find($survey->company_id);
+                    $comp =  Company::find($survey->company_id);
                 }
 
                 event(new \App\Events\Actions\surveyApplicantEvents($survey, $who, ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "profile" => $survey->profile, "type" => "inviteForReview"], null, null, $comp));
