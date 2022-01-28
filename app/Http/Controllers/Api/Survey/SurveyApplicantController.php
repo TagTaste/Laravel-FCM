@@ -171,7 +171,7 @@ class SurveyApplicantController extends Controller
             $this->model = true;
             $this->messages = "Thanks for showing interest. We will notify you when admin accept your request for survey.";
 
-            event(new \App\Events\Actions\surveyApplicantEvents($checkIFExists, $checkIFExists->profile, ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id), "survey_name" => $checkIFExists->title, "profile" => $request->user()->profile, "type" => "showInterest", "comment" => ($request->message ?? null)], null, null, null));
+            event(new \App\Events\Actions\surveyApplicantEvents($checkIFExists, $checkIFExists->profile, ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id), "survey_name" => $checkIFExists->title, "profile" => $request->user()->profile, "type" => "showInterest", "comment" => ($request->message ?? null)], null, 'survey_manage', null));
         } else {
             $this->model = false;
             $this->errors[] = "Failed to show interest in survey";
@@ -234,7 +234,7 @@ class SurveyApplicantController extends Controller
                             "profile" => $checkIFExists->profile, "type" => "beginSurvey"
                         ],
                         null,
-                        null,
+                        'fill_survey',
                         null
                     ));
                 }
@@ -308,7 +308,7 @@ class SurveyApplicantController extends Controller
                     $comp =  Company::find($survey->company_id);
                 }
                 
-                event(new \App\Events\Actions\surveyApplicantEvents($c, $who, ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "profile" => $comp, "type" => "inviteForReview"], null, null, null));
+                event(new \App\Events\Actions\surveyApplicantEvents($c, $who, ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "profile" => $comp, "type" => "inviteForReview"], null, 'fill_survey', null));
             }
         }
 
