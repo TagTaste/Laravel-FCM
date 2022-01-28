@@ -97,7 +97,7 @@
                                               font-size: 14px;
                                               font-weight: bold;
                                               cursor: pointer;
-                                            ">
+                                            " href="{{$data->content["survey_url"]}}">
                                                                                 Reply
                                                                             </a>
                                                                             <br />
@@ -116,7 +116,7 @@
                                             color: #4990e2;
                                             margin: 0px;
                                             line-height: 1.25;
-                                          " href="#" target="_blank" rel="noreferrer">See All Applicants</a>
+                                          " href="{{$data->content["survey_url"]}}" target="_blank" rel="noreferrer">See All Applicants</a>
                                                                     </div>
                                                                     <hr style="
                                           margin-top: 24px;
