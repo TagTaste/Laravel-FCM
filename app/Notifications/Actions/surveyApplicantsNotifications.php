@@ -14,22 +14,22 @@ class surveyApplicantsNotifications extends Action
     public $view;
     public $sub;
     public $notification;
-
+    public $surveyInfo;
 
     public function __construct($event)
     {
         parent::__construct($event);
         
-        
-        if ($event->content["type"] == "showInterest") {
+        $this->surveyInfo = $event->surveyInfo;
+        if ($event->surveyInfo["type"] == "showInterest") {
             $this->view = 'emails.survey-show-interest';
-            $this->sub = htmlspecialchars_decode($event->content["profile"]->name) . " has shown interest in your survey ".$event->content["survey_name"];
-        }else if($event->content["type"] == "inviteForReview"){
+            $this->sub = htmlspecialchars_decode($event->surveyInfo["profile"]->name) . " has shown interest in your survey ".$event->surveyInfo["survey_name"];
+        }else if($event->surveyInfo["type"] == "inviteForReview"){
             $this->view = 'emails.survey-review-invite';
-            $this->sub = htmlspecialchars_decode($event->content["profile"]->name). " has invited you to take part in the survey ".$event->content["survey_name"];
-        }else if($event->content["type"] == "beginSurvey"){
+            $this->sub = htmlspecialchars_decode($event->surveyInfo["profile"]->name). " has invited you to take part in the survey ".$event->surveyInfo["survey_name"];
+        }else if($event->surveyInfo["type"] == "beginSurvey"){
             $this->view = 'emails.survey-invite-accept';
-            $this->sub = "You can take part in the survey ".$event->content["survey_name"];
+            $this->sub = "You can take part in the survey ".$event->surveyInfo["survey_name"];
         }
         // $this->sub = htmlspecialchars_decode($this->data->who['name']) ." has assigned a new product (".$event->batchInfo->name.") for you to taste";
         if (!is_null($this->data->content)) {
@@ -57,6 +57,7 @@ class surveyApplicantsNotifications extends Action
                 [
                     'data' => $this->data, 'model' => $this->allData, 'notifiable' => $notifiable,
                     'content' => $this->getContent($this->allData['content']),
+                    'info'=>$this->surveyInfo
                 ]
             );
         }
@@ -67,7 +68,8 @@ class surveyApplicantsNotifications extends Action
         $data = [
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
-            'notification' => $this->notification
+            'notification' => $this->notification,
+            "surveyInfo" => $this->surveyInfo
         ];
 
         if (method_exists($this->model, 'getNotificationContent')) {

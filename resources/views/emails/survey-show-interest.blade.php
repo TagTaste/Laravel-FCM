@@ -27,7 +27,7 @@
 
                                         
 ?>
-                                                {{$data->content["profile"]->name}} has expressed interest in your survey
+                                                {{$info["profile"]->name}} has expressed interest in your survey
                                             </div>
                                         </td>
                                     </tr>
@@ -52,7 +52,7 @@
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF" align="left">
                                                                     <div>
-                                                                        <img src="{{$data->content["profile"]->image}}"
+                                                                        <img src="{{$info["profile"]->image}}"
                                                                             style="
                                             width: 50px;
                                             border-radius: 30px;
@@ -67,7 +67,7 @@
                                               line-height: 1.5;
                                               font-weight: bold;
                                             ">
-                                                                            {{$data->content["profile"]->name}}
+                                                                            {{$info["profile"]->name}}
                                                                             </p>
                                                                             <p style="
                                               font-size: 14px;
@@ -77,7 +77,7 @@
                                               font-weight: normal;
                                               width: 260px;
                                             ">
-                                                                                {{$data->content["comment"] ?? ""}}
+                                                                                {{$info["comment"] ?? ""}}
                                                                             </p>
                                                                         </div>
                                                                         <div style="
@@ -97,7 +97,7 @@
                                               font-size: 14px;
                                               font-weight: bold;
                                               cursor: pointer;
-                                            " href="{{$data->content["survey_url"]}}">
+                                            " href="{{$info["survey_url"]}}">
                                                                                 Reply
                                                                             </a>
                                                                             <br />
@@ -116,7 +116,7 @@
                                             color: #4990e2;
                                             margin: 0px;
                                             line-height: 1.25;
-                                          " href="{{$data->content["survey_url"]}}" target="_blank" rel="noreferrer">See All Applicants</a>
+                                          " href="{{$info["survey_url"]}}" target="_blank" rel="noreferrer">See All Applicants</a>
                                                                     </div>
                                                                     <hr style="
                                           margin-top: 24px;
@@ -139,7 +139,7 @@
                                               color: #4990e2;
                                               margin: 0px;
                                               line-height: 1.5;
-                                            " href="{{$data->content["survey_url"]}}" target="_blank" rel="noreferrer">{{$data->content["survey_name"]}}</a>
+                                            " href="{{$info["survey_url"]}}" target="_blank" rel="noreferrer">{{$info["survey_name"]}}</a>
                                                                         </div>
                                                                     </div>
 

@@ -79,8 +79,8 @@
                                                 color: #171717;
                                                 margin: 0px;
                                                 line-height: 1.67;
-                                              " href="{{$data->content["survey_url"]}}" target="_blank" rel="noreferrer">
-                                                                            &ldquo;{{$data->content["survey_name"]}}&rdquo;</a>.
+                                              " href="{{$info["survey_url"]}}" target="_blank" rel="noreferrer">
+                                                                            &ldquo;{{$info["survey_name"]}}&rdquo;</a>.
                                                                     </p>
                                                                 </td>
                                                             </tr>
@@ -100,7 +100,7 @@
                                                 font-size: 16px;
                                                 font-weight: bold;
                                                 cursor: pointer;
-                                              " href="{{$data->content["survey_url"]}}">
+                                              " href="{{$info["survey_url"]}}">
                                                                             Fill Survey
                                                                         </a>
                                                                     </div>
@@ -125,7 +125,7 @@
                                                   color: #4990e2;
                                                   margin: 0px;
                                                   line-height: 1.5;
-                                                " href="{{$data->content["survey_url"]}}" target="_blank" rel="noreferrer">{{$data->content["survey_name"]}}</a>
+                                                " href="{{$info["survey_url"]}}" target="_blank" rel="noreferrer">{{$info["survey_name"]}}</a>
                                                                         </div>
                                                                     </div>
 
