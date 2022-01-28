@@ -392,7 +392,7 @@ class SurveyApplicantController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } else if (isset($survey->profile_id) &&  $survey->profile_id != $request->user()->profile->id) {
-            return $this->sendError("Only Admin can close the survey");
+            // return $this->sendError("Only Admin can download report of this survey");
         }
 
         //filters data

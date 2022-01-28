@@ -874,7 +874,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("/mandatory-fields/{id}", "SurveyController@surveyMandatoryFields");
         Route::post("/survey-applicant/{id}", "SurveyController@saveApplicants");
         Route::get('/close-reasons', 'SurveyController@surveyCloseReason');
-        Route::post('/download-reports/{id}', 'SurveyController@excelReport')->middleware("");
+        Route::post('/download-reports/{id}', 'SurveyController@excelReport');
         Route::get('/reports/{id}', 'SurveyController@reports')->name("reports");
         Route::get('/respondents/{id}', 'SurveyController@surveyRespondents');
         Route::get('/text-answers/{id}/{question_id}/{option_id}', 'SurveyController@inputAnswers');
@@ -891,7 +891,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::delete('/{id}', 'SurveyController@destroy');
         Route::post('/', 'SurveyController@store');
         Route::post("/{id}/showInterest", "SurveyApplicantController@showInterest");
-        
+
         Route::post("/{id}/beginSurvey", "SurveyApplicantController@beginSurvey")->middleware('manage.permission');
         Route::get('/{id}/applicants', 'SurveyApplicantController@index')->middleware('manage.permission');
         Route::get('/{id}/invite/profiles', 'SurveyApplicantController@userList')->middleware('manage.permission');
