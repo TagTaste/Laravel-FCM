@@ -146,7 +146,7 @@ class SurveyApplicantController extends Controller
         $checkIfAlreadyInterested = surveyApplicants::where("profile_id", $request->user()->profile->id)->where("survey_id", $id)->whereNull('deleted_at')->first();
 
         if (!empty($checkIfAlreadyInterested)) {
-            // return $this->sendError("Already Shown Interest");
+            return $this->sendError("Already Shown Interest");
         }
 
         if ($checkIFExists->profile_id == $request->user()->profile->id) {
@@ -171,7 +171,21 @@ class SurveyApplicantController extends Controller
             $this->model = true;
             $this->messages = "Thanks for showing interest. We will notify you when admin accept your request for survey.";
 
-            event(new \App\Events\Actions\surveyApplicantEvents($checkIFExists, $checkIFExists->profile, ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id), "survey_name" => $checkIFExists->title, "profile" => $request->user()->profile, "type" => "showInterest", "comment" => ($request->message ?? null)], null, 'survey_manage', null));
+            event(new \App\Events\Actions\surveyApplicantEvents(
+                $checkIFExists,
+                $checkIFExists->profile,
+                null,
+                null,
+                'survey_manage',
+                null,
+                ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id),
+                 "survey_name" => $checkIFExists->title, 
+                 "survey_id" => $checkIFExists->id, 
+                 "profile" => (object)["id" => $request->user()->profile->id, 
+                 "name" => $request->user()->profile->name,
+                  "image" => $request->user()->profile->image],
+                   "is_private" => $checkIFExists->is_private, "type" => "showInterest"]
+            ));
         } else {
             $this->model = false;
             $this->errors[] = "Failed to show interest in survey";
@@ -228,14 +242,11 @@ class SurveyApplicantController extends Controller
                     event(new \App\Events\Actions\surveyApplicantEvents(
                         $applicantData,
                         $who,
-                        [
-                            "survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id),
-                            "survey_name" => $checkIFExists->title,
-                            "profile" => $checkIFExists->profile, "type" => "beginSurvey"
-                        ],
+                        null,
                         null,
                         'fill_survey',
-                        null
+                        null,
+                        ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id), "survey_name" => $checkIFExists->title, "survey_id" => $checkIFExists->id, "profile" => (object)["id" => $who->id, "name" => $who->name, "image" => $who->image], "is_private" => $checkIFExists->is_private, "type" => "beginSurvey"]
                     ));
                 }
             }
@@ -300,15 +311,23 @@ class SurveyApplicantController extends Controller
             $c = surveyApplicants::create($inputs);
             if (isset($c->id)) {
                 Redis::set("surveys:application_status:$id:profile:$profileId", 1);
-                 $who = Profile::where("id", $profileId)->first();
-                 $comp = $survey->profile;
-                
+                $who = Profile::where("id", $profileId)->first();
+                $comp = $survey->profile;
+
                 if (!empty($survey->company_id)) {
 
                     $comp =  Company::find($survey->company_id);
                 }
-                
-                event(new \App\Events\Actions\surveyApplicantEvents($c, $who, ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "profile" => $comp, "type" => "inviteForReview"], null, 'fill_survey', null));
+
+                event(new \App\Events\Actions\surveyApplicantEvents(
+                    $c,
+                    $who,
+                    null,
+                    null,
+                    'fill_survey',
+                    null,
+                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => $comp->image], "is_private" => $survey->is_private, "type" => "inviteForReview"]
+                ));
             }
         }
 

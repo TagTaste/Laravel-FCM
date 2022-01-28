@@ -66,15 +66,15 @@
                                         letter-spacing: normal;
                                         color: #171717;
                                       ">
-                                                            {{$data->content["profile"]->name}} has invited you to take part in the survey
+                                                            {{$info["profile"]->name}} has invited you to take part in the survey
                                                             <a style="
                                           font-size: 18px;
                                           font-weight: normal;
                                           color: #171717;
                                           margin: 0px;
                                           line-height: 1.67;
-                                        " href="{{$data->content["survey_url"]}}" target="_blank" rel="noreferrer">
-                                                                &ldquo;{{$data->content["survey_name"]}}&ldquo;</a>.
+                                        " href="{{$info["survey_url"]}}" target="_blank" rel="noreferrer">
+                                                                &ldquo;{{$info["survey_name"]}}&ldquo;</a>.
                                                         </p>
                                                     </td>
                                                 </tr>
@@ -93,7 +93,7 @@
                                           font-size: 16px;
                                           font-weight: bold;
                                           cursor: pointer;
-                                        " href="{{$data->content["survey_url"]}}">
+                                        " href="{{$info["survey_url"]}}">
                                                                 Fill Survey
                                                             </a>
                                                         </div>
@@ -118,7 +118,7 @@
                                             color: #4990e2;
                                             margin: 0px;
                                             line-height: 1.5;
-                                          " href="{{$data->content["survey_url"]}}" target="_blank" rel="noreferrer">{{$data->content["survey_name"]}}</a>
+                                          " href="{{$info["survey_url"]}}" target="_blank" rel="noreferrer">{{$info["survey_name"]}}</a>
                                                             </div>
                                                         </div>
 

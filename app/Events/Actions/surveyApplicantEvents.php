@@ -27,13 +27,13 @@ class surveyApplicantEvents extends Action
     public $content;
     public $image;
     public $actionModel;
-    public $batchInfo;
+    public $surveyInfo;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null)
+    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null,$surveyInfo = null)
     {
         parent::__construct($model,$who);
         $this->model = $model;
@@ -45,7 +45,8 @@ class surveyApplicantEvents extends Action
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
-        $this->actionModel = null;     
+        $this->actionModel = null;
+        $this->surveyInfo = $surveyInfo;     
     }
 
 }
