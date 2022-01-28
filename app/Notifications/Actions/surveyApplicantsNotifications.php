@@ -23,14 +23,13 @@ class surveyApplicantsNotifications extends Action
         
         if ($event->content["type"] == "showInterest") {
             $this->view = 'emails.survey-show-interest';
-            $this->sub = htmlspecialchars_decode($event->content["profile"]->name) . " has expressed interest in your survey";
+            $this->sub = htmlspecialchars_decode($event->content["profile"]->name) . " has shown interest in your survey ".$event->content["survey_name"];
         }else if($event->content["type"] == "inviteForReview"){
             $this->view = 'emails.survey-review-invite';
-            $this->sub = "You've been invited to fill survey";
+            $this->sub = htmlspecialchars_decode($event->content["profile"]->name). " has invited you to take part in the survey ".$event->content["survey_name"];
         }else if($event->content["type"] == "beginSurvey"){
             $this->view = 'emails.survey-invite-accept';
-            $this->sub = "Interest Accepted";
-            
+            $this->sub = "You can take part in the survey ".$event->content["survey_name"];
         }
         // $this->sub = htmlspecialchars_decode($this->data->who['name']) ." has assigned a new product (".$event->batchInfo->name.") for you to taste";
         if (!is_null($this->data->content)) {
