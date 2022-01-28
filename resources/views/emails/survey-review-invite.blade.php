@@ -1,9 +1,9 @@
-@include("emails.header.definition")
+@include("emails.header.v1.definition")
 
 <body style="margin: 0; padding: 0;">
     <center>
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family:Arial" bgcolor="#F8F6F9">
-            @include("emails.header.header")
+            @include("emails.header.v1.header")
             <tr>
                 <td align="center" width="100%" bgcolor="#F8F6F9">
                     <table width="550" align="center" border="0" cellspacing="0" cellpadding="0"
@@ -141,8 +141,7 @@
                                 </table>
                             </td>
                         </tr>
-                        @include("emails.footer.download")
-                        @include("emails.footer.footer")
+                        @include("emails.footer.v1.footer")
                     </table>
                 </td>
             </tr>

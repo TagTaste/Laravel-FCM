@@ -10,8 +10,8 @@ use App\Traits\HashtagFactory;
 class Surveys extends Share
 {
     use HashtagFactory;
-    protected $fillable = ['profile_id','surveys_id','payload_id','privacy_id','content'];
-    protected $visible = ['id','profile_id','created_at','content'];
+    protected $fillable = ['profile_id','surveys_id','payload_id','privacy_id','content','company_id'];
+    protected $visible = ['id','profile_id','created_at','content','company_id'];
 
     protected $with = ['surveys'];
 
