@@ -27,8 +27,10 @@ class surveyApplicantsListener
      */
     public function handle(surveyApplicantEvents $event)
     {
-        $id = (isset($event->model->company_id) && !empty($event->model->company_id) ?  $event->model->profile_id : null);
-        $profileId = ($id==null) ? $event->who["id"] : $id;
+        // $id = (isset($event->model->company_id) && !empty($event->model->company_id) ?  $event->model->profile_id : null);
+        // $profileId = ($id==null) ? $event->who["id"] : $id;
+        // $profile = Profile::find($profileId);
+        $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
         if(isset($profile))
         Notification::send($profile, new \App\Notifications\Actions\surveyApplicantsNotifications($event));

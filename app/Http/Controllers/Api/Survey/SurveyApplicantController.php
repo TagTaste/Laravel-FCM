@@ -173,7 +173,7 @@ class SurveyApplicantController extends Controller
 
             event(new \App\Events\Actions\surveyApplicantEvents(
                 $checkIFExists,
-                $checkIFExists->profile,
+                $request->user()->profile,
                 null,
                 null,
                 'survey_manage',
@@ -237,10 +237,9 @@ class SurveyApplicantController extends Controller
                 } else {
                     Redis::set("surveys:application_status:$id:profile:$profileId", 1);
                     $who = Profile::where("id", $profileId)->first();
-
-                    $applicantData = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->first();
+                    $checkIFExists->profile_id = $profileId;
                     event(new \App\Events\Actions\surveyApplicantEvents(
-                        $applicantData,
+                        $checkIFExists,
                         $who,
                         null,
                         null,
@@ -318,10 +317,10 @@ class SurveyApplicantController extends Controller
 
                     $comp =  Company::find($survey->company_id);
                 }
-
+                $survey->profile_id = $profileId;
                 event(new \App\Events\Actions\surveyApplicantEvents(
-                    $c,
-                    $who,
+                    $survey,
+                    null,
                     null,
                     null,
                     'fill_survey',
