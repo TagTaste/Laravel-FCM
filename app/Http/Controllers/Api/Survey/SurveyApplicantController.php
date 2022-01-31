@@ -159,7 +159,7 @@ class SurveyApplicantController extends Controller
         $data = [
             'profile_id' => $request->user()->profile->id, 'survey_id' => $id,
             'message' => ($request->message ?? null),
-            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INVITED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s")
+            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INVITED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"),
         ];
 
         $create = surveyApplicants::create($data);
@@ -184,7 +184,7 @@ class SurveyApplicantController extends Controller
                  "profile" => (object)["id" => $request->user()->profile->id, 
                  "name" => $request->user()->profile->name,
                   "image" => $request->user()->profile->image],
-                   "is_private" => $checkIFExists->is_private, "type" => "showInterest"]
+                   "is_private" => $checkIFExists->is_private, "type" => "showInterest","comment" => $request->message ?? null]
             ));
         } else {
             $this->model = false;

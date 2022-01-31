@@ -52,7 +52,7 @@
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF" align="left">
                                                                     <div>
-                                                                        <img src="{{$info["profile"]->image}}"
+                                                                        <img src="<?php echo ((isset($info["profile"]->image) && !empty($info["profile"]->image)) ? $info["profile"]->image : env('APP_URL').'/images/emails/profile-circle.png' ); ?> "
                                                                             style="
                                             width: 50px;
                                             border-radius: 30px;
