@@ -58,7 +58,7 @@
                                               letter-spacing: normal;
                                               color: #171717;
                                             ">
-                                                                        Hi {{$info["profile"]->name["name"]}},
+                                                                        Hi {{$info["profile"]->name}},
                                                                     </p>
                                                                     <p style="
                                               margin: 16px 0 0 0;
