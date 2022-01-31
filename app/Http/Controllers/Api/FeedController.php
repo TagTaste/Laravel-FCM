@@ -143,6 +143,11 @@ class FeedController extends Controller
                 }else{
                     $model = $model::with([])->where('id',$payload->model_id)->first();
                 }
+
+                if ($model != null && $type == "surveys") {
+                    $data["surveys"]["totalApplicants"] = $this->getSurveyApplicantCount($model);
+                }
+                
                 if($model !== null && method_exists($model, 'getMetaFor') && $profileId != null){
                     $data['meta'] = $model->getMetaFor($profileId);;
                 }
@@ -150,6 +155,12 @@ class FeedController extends Controller
             $data['type'] = $type;  
             $this->model[] = $data;
         }
+    }
+
+    public function getSurveyApplicantCount($modelData)
+    {
+
+        return $modelData->totalApplicants;
     }
 
     private function getType($modelName)
