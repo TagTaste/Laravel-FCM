@@ -21,6 +21,7 @@ return  [
         "yold"
     ],
     "SURVEY_APPLICANT_ANSWER_STATUS"=>[
+        "INVITED" => 0,
         "INCOMPLETE" => 1,
         "COMPLETED" => 2
     ],
@@ -66,6 +67,9 @@ return  [
     'LOGIN_OTP_SOURCE' => "login_otp",
     "LINKEDIN_CLIENTID" => env("LINKEDIN_ID"),
     "LINKEDIN_SECRET" => env("LINKEDIN_LOGIN_SECRET"),
+
+    "SURVEY_PRIVATE" => 1,
+    "SURVEY_PUBLIC" => 0,
 ];
 
 

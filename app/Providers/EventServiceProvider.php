@@ -101,6 +101,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\SurveyAnswered' => ['App\Listeners\Notifications\SurveyAnswered'],
         'App\Events\TransactionInit' => ['App\Listeners\TransactionInitListener'],
         'App\Events\Actions\RollbackTaster' => ['App\Listeners\Notifications\RollbackTaster'],
+        'App\Events\Actions\surveyApplicantEvents' => ['App\Listeners\Notifications\surveyApplicantsListener'],
     ];
 
     protected $subscribe = ['App\Subscribers\Actions'];
