@@ -5,7 +5,7 @@ namespace App\Console\Commands\Build;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
 
-class BuildSurveyApplicantStatus extends Command
+class SurveyApplicantStatus extends Command
 {
     /**
      * The name and signature of the console command.
