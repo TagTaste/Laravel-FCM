@@ -30,6 +30,7 @@ class SurveyApplicantController extends Controller
     {
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
         if (empty($checkIFExists)) {
+            $this->model = false;
             return $this->sendError("Invalid Survey");
         }
 
@@ -125,6 +126,7 @@ class SurveyApplicantController extends Controller
 
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
         if (empty($checkIFExists)) {
+            $this->model = false;
             return $this->sendError("Invalid Survey");
         }
 
@@ -397,6 +399,7 @@ class SurveyApplicantController extends Controller
         $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
 
         if ($survey === null) {
+            $this->model = false;
             return $this->sendError("Invalid Survey");
         }
         $profileId = $request->user()->profile->id;
