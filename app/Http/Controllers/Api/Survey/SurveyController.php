@@ -702,7 +702,7 @@ class SurveyController extends Controller
                     $key = "consumer";
                 }
 
-                if (($getCount[$key] + 1) >= $getAmount["current"][$key][0]["user_count"]) {
+                if ($getCount[$key] >= $getAmount["current"][$key][0]["user_count"]) {
                     //error message for different user type counts exceeded
                     return ["status" => false , "reason"=>"not_paid"];
                 }
