@@ -126,7 +126,9 @@ class MessageController extends Controller
                 'file_meta'=>$inputs['file_meta']]);
             $messageId = $this->model->id;
             $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
+            file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\nMessage stored in db : ".$this->model->message."with message id : ".$messageId."\n", FILE_APPEND); 
             if ($this->model->type == 0 ) {
+                file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\nEvent initiated for notification with message id : ".$messageId."\n", FILE_APPEND); 
                 event(new \App\Events\Chat\V1\Message($this->model,$request->user()->profile));
             }
             return $this->sendResponse();
