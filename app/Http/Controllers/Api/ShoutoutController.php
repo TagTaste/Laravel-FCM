@@ -90,7 +90,7 @@ class ShoutoutController extends Controller
         {
             $inputs['preview'] = json_encode($inputs['preview']);
         }
-
+        
         if($request->has('media_file'))
         {
             $path = Shoutout::getProfileMediaPath($profile->id);
