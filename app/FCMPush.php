@@ -39,18 +39,20 @@ class FCMPush extends Model
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
-            if(isset($iosData['action']) && ($iosData['action'] == 'chat' || $iosData['action'] == 'message'))
-            {
-                $extraData = $iosData;
-                $message = Message::where('chat_id',$iosData['model']['id'])->whereNull('read_on')->orderBy('created_at','desc')->take(5)->get();
-                $extraData['model']['latestMessages'] = $message;
-                // For Android
-                $dataBuilder = new PayloadDataBuilder();
-                $dataBuilder->addData(['data' => $extraData]);
+            //Done by nikhil - No need of latest messages now. It was creating problem with android notifications.
 
-                $option = $optionBuilder->build();
-                $data = $dataBuilder->build();
-            }
+            // if(isset($iosData['action']) && ($iosData['action'] == 'chat' || $iosData['action'] == 'message'))
+            // {
+            //     $extraData = $iosData;
+            //     $message = Message::where('chat_id',$iosData['model']['id'])->whereNull('read_on')->orderBy('created_at','desc')->take(5)->get();
+            //     $extraData['model']['latestMessages'] = $message;
+            //     // For Android
+            //     $dataBuilder = new PayloadDataBuilder();
+            //     $dataBuilder->addData(['data' => $extraData]);
+
+            //     $option = $optionBuilder->build();
+            //     $data = $dataBuilder->build();
+            // }
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
