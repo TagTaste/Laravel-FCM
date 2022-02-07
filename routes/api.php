@@ -51,6 +51,14 @@ Route::post('login',function(Request $request) {
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+
+
+/* Login Via OTP --BEGIN */
+Route::post('login/otp', 'Auth\LoginController@loginViaOTP');
+Route::post('resend/otp', 'Auth\LoginController@resendOTP');
+Route::post('login/otp/verify', 'Auth\LoginController@verifyOTP');
+
+/* Login Via OTP ENDS */
 Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
@@ -449,6 +457,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("userBatches", 'BatchController@userBatches');
             Route::put("batches/{batchId}/foodBillStatus", 'BatchController@foodBillStatus');
             Route::post("beginTasting", 'BatchController@beginTasting'); //required
+            Route::post("rollbackTaster", 'BatchController@rollbackTaster'); //required
             Route::get("batches/{id}/currentStatus", 'BatchController@getCurrentStatus');
             Route::post('removeFromBatch', 'BatchController@removeFromBatch'); //required
             Route::post('assignBatch', 'BatchController@assignBatch'); //required 
@@ -881,6 +890,15 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/{id}', 'SurveyController@update');
         Route::delete('/{id}', 'SurveyController@destroy');
         Route::post('/', 'SurveyController@store');
+        Route::post("/{id}/showInterest", "SurveyApplicantController@showInterest");
+
+        Route::post("/{id}/beginSurvey", "SurveyApplicantController@beginSurvey")->middleware('manage.permission');
+        Route::get('/{id}/applicants', 'SurveyApplicantController@index')->middleware('manage.permission');
+        Route::get('/{id}/invite/profiles', 'SurveyApplicantController@userList')->middleware('manage.permission');
+        Route::post('/{id}/inviteForReview', 'SurveyApplicantController@inviteForReview')->middleware('manage.permission'); 
+        Route::get('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission'); 
+        Route::get('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission'); 
+        
     });
 
     Route::get('/uploadQuestion/{id}/{question_id}', function ($id, $question_id) {

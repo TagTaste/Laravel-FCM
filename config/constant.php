@@ -21,6 +21,7 @@ return  [
         "yold"
     ],
     "SURVEY_APPLICANT_ANSWER_STATUS"=>[
+        "INVITED" => 0,
         "INCOMPLETE" => 1,
         "COMPLETED" => 2
     ],
@@ -43,10 +44,32 @@ return  [
         'expired' => 6
     ],
 
+    'SURVEY_QUESTION_TYPES' => [
+        'LONG_ANSWER' => 1,
+        'SHORT_ANSWER' => 2,
+        'MULTIPLE_CHOICE' => 3,
+        'SINGLE_CHOICE' => 4,
+        'UPLOAD_FILE' => 5,
+        'RANGE' => 6,
+        'RANK' => 7,
+        'MULTI_SELECT_RADIO' => 8,
+        'MULTI_SELECT_CHECK' => 9
+
+    ],
+
     'NOTIFICATION_DELETE_PERIOD' => 60,
     'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2,
     'MINIMUM_PAID_TASTER_TOTAL_REVIEWS' => 3,
     'PAYMENT_REMINDER_BEFORE_DAYS' => 2,
+
+    'OTP_LOGIN_TIMEOUT_MINUTES' => 1,
+    'OTP_LOGIN_VERIFY_MAX_ATTEMPT' => 3,
+    'LOGIN_OTP_SOURCE' => "login_otp",
+    "LINKEDIN_CLIENTID" => env("LINKEDIN_ID"),
+    "LINKEDIN_SECRET" => env("LINKEDIN_LOGIN_SECRET"),
+
+    "SURVEY_PRIVATE" => 1,
+    "SURVEY_PUBLIC" => 0,
 ];
 
 

@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Http\Controllers\Api\Controller;
+use App\Profile as AppProfile;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
@@ -41,6 +42,8 @@ class ApplicantController extends Controller
      */
     public function index(Request $request,$collaborateId)
     {
+        
+        
         $collaborate = Collaborate::where('id',$collaborateId)
                             //->where('state','!=',Collaborate::$state[1])
                             ->first();
@@ -69,6 +72,7 @@ class ApplicantController extends Controller
         $q = $request->input('q');
         $filters = $request->input('filters');
         $profileIds = $this->getFilteredProfile($filters,$collaborateId);
+        
         $type = true;
         $boolean = 'and' ;
         if(isset($filters))
@@ -81,13 +85,21 @@ class ApplicantController extends Controller
         if($request->sortBy != null) {
             $applicants = $this->sortApplicants($request->sortBy,$applicants,$collaborateId);
         }
-        $applicants = $applicants->whereIn('profile_id', $profileIds, $boolean, $type)
+
+     
+
+        $applicants = $applicants
+        ->whereIn('profile_id', $profileIds)
         ->whereNotNull('shortlisted_at')            
         ->whereNull('rejected_at')//->orderBy("created_at","desc")
         ->skip($skip)->take($take)->get();
+        
         $applicants = $applicants->toArray();
+        
+        $pId = [];
         foreach ($applicants as &$applicant)
         {
+            
             $batchIds = Redis::sMembers("collaborate:".$applicant['collaborate_id'].":profile:".$applicant['profile_id'].":");
             $count = count($batchIds);
             if($count)
@@ -103,9 +115,32 @@ class ApplicantController extends Controller
                     $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile_id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
+                
             }
+            $pId[] = $applicant['profile_id'];
             $applicant['batches'] = $count > 0 ? $batchInfos : null;
         }
+        
+        
+           //count of sensory trained
+        $countSensory = AppProfile::where('is_sensory_trained',"=",1)
+           ->whereIn('profiles.id', $pId)
+           ->get();
+           
+           
+          //count of experts
+          $countExpert = \DB::table('profiles')
+          ->select('id')
+          ->where('is_expert',1)
+          ->whereIn('id', $pId)
+          ->get();
+
+          //count of super tasters
+          $countSuperTaste = \DB::table('profiles')
+          ->select('id')
+          ->where('is_tasting_expert',1)
+          ->whereIn('id', $pId)
+          ->get();
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')->count();
@@ -113,7 +148,10 @@ class ApplicantController extends Controller
             ->whereNotNull('rejected_at')->count();
         $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
-
+        $this->model["overview"][] = ['title'=> "Sensory Trained","count"=>$countSensory->count()];
+        $this->model["overview"][] = ['title'=> "Experts","count"=>$countExpert->count()];
+        $this->model["overview"][] = ['title'=> "Super Taster","count"=>$countSuperTaste->count()];
+        
         return $this->sendResponse();
     }
 
@@ -797,6 +835,9 @@ class ApplicantController extends Controller
         $gender = ['Male','Female','Other'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
         $currentStatus = [0,1,2,3];
+        $userType = ['Expert','Consumer'];
+        $sensoryTrained = ["Yes","No"];
+        $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->get();
         $city = [];
         foreach ($applicants as $applicant)
@@ -820,11 +861,17 @@ class ApplicantController extends Controller
                     $data['city'] = $city;
                 if($filter == 'current_status')
                     $data['current_status'] = $currentStatus;
+                if($filter == 'super_taster')
+                    $data['super_taster'] = $superTaster;
+                if($filter == 'user_type')
+                    $data['user_type'] = $userType;
+                if($filter == 'sensory_trained')
+                    $data['sensory_trained'] = $sensoryTrained;
             }
         }
         else
         {
-            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city];
+            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city,"user_type"=>$userType,"sensory_trained"=>$sensoryTrained,"super_taster"=>$superTaster];
         }
         $this->model = $data;
         return $this->sendResponse();
@@ -973,7 +1020,8 @@ class ApplicantController extends Controller
         if(isset($filters))
             $type = false;
         $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id', $profileIds, $boolean, $type)
+            // ->whereIn('profile_id', $profileIds, $boolean, $type)
+            ->whereIn('profile_id', $profileIds)
             ->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')
             ->orderBy("created_at","desc")
@@ -981,6 +1029,9 @@ class ApplicantController extends Controller
             $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
             $batchIds = $batches->pluck("id")->toArray();
         $finalData = array();
+        
+        // return $this->sendResponse($applicants);
+        
         foreach ($applicants as $key => $applicant) {
             $job_profile = '';
             if (isset($applicant->profile->profile_occupations)) {
@@ -1008,7 +1059,7 @@ class ApplicantController extends Controller
                     }
                 } 
             }
-
+            
             $temp = array(
                 "S. No" => $key+1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
@@ -1022,27 +1073,28 @@ class ApplicantController extends Controller
                 "Hometown" => $applicant->hometown,
                 "Current City" => $applicant->current_city
             );
-
+            
             if ($collaborate->collaborate_type == 'collaborate') {
                 if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
                     $temp['Delivery Address'] = '';
-                    if (isset($applicant->applier_address['label']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
-                    if (isset($applicant->applier_address['house_no']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
-                    if (isset($applicant->applier_address['landmark']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
-                    if (isset($applicant->applier_address['locality']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
-                    if (isset($applicant->applier_address['city']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
-                    if (isset($applicant->applier_address['state']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
-                    if (isset($applicant->applier_address['country']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
-                    if (isset($applicant->applier_address['pincode']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
-
+                    if($applicant->applier_address != (object)null){
+                        if (isset($applicant->applier_address['label']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
+                        if (isset($applicant->applier_address['house_no']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
+                        if (isset($applicant->applier_address['landmark']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
+                        if (isset($applicant->applier_address['locality']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
+                        if (isset($applicant->applier_address['city']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
+                        if (isset($applicant->applier_address['state']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
+                        if (isset($applicant->applier_address['country']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
+                        if (isset($applicant->applier_address['pincode']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
+                    }
                 } else if (!$collaborate->is_taster_residence && $collaborate->is_contest) {
                     $submissions = $applicant->getSubmissions($applicant->id, $collaborate->id);
                     $temp['Submitted files links'] = '';
@@ -1059,23 +1111,24 @@ class ApplicantController extends Controller
                     }
                 } else if ($collaborate->is_taster_residence && $collaborate->is_contest) {
                     $temp['Delivery Address'] = '';
-                    if (isset($applicant->applier_address['label']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
-                    if (isset($applicant->applier_address['house_no']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
-                    if (isset($applicant->applier_address['landmark']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
-                    if (isset($applicant->applier_address['locality']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
-                    if (isset($applicant->applier_address['city']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
-                    if (isset($applicant->applier_address['state']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
-                    if (isset($applicant->applier_address['country']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
-                    if (isset($applicant->applier_address['pincode']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
-
+                    if($applicant->applier_address != (object)null){
+                        if (isset($applicant->applier_address['label']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
+                        if (isset($applicant->applier_address['house_no']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
+                        if (isset($applicant->applier_address['landmark']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
+                        if (isset($applicant->applier_address['locality']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
+                        if (isset($applicant->applier_address['city']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
+                        if (isset($applicant->applier_address['state']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
+                        if (isset($applicant->applier_address['country']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
+                        if (isset($applicant->applier_address['pincode']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
+                    }
                     $submissions = $applicant->getSubmissions($applicant->id, $collaborate->id);
                     $temp['Submitted files links'] = '';
                     if (count($submissions)) {
@@ -1093,22 +1146,25 @@ class ApplicantController extends Controller
             } elseif ($collaborate->collaborate_type == 'product-review') {
                 if ($collaborate->is_taster_residence && !$collaborate->document_required) {
                     $temp['Delivery Address'] = '';
-                    if (isset($applicant->applier_address['label']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
-                    if (isset($applicant->applier_address['house_no']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
-                    if (isset($applicant->applier_address['landmark']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
-                    if (isset($applicant->applier_address['locality']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
-                    if (isset($applicant->applier_address['city']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
-                    if (isset($applicant->applier_address['state']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
-                    if (isset($applicant->applier_address['country']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
-                    if (isset($applicant->applier_address['pincode']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
+                    if($applicant->applier_address != (object)null){
+                        if (isset($applicant->applier_address['label'])){
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
+                        }
+                        if (isset($applicant->applier_address['house_no']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
+                        if (isset($applicant->applier_address['landmark']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
+                        if (isset($applicant->applier_address['locality']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
+                        if (isset($applicant->applier_address['city']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
+                        if (isset($applicant->applier_address['state']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
+                        if (isset($applicant->applier_address['country']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
+                        if (isset($applicant->applier_address['pincode']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
+                    }
                 } else if (!$collaborate->is_taster_residence && $collaborate->document_required) {
                     $temp['Document Verified'] = $applicant->documents_verified;
                     $temp['Date of Birth'] = $applicant->profile->dob;
@@ -1127,23 +1183,24 @@ class ApplicantController extends Controller
                     }
                 } else if ($collaborate->is_taster_residence && $collaborate->document_required) {
                     $temp['Delivery Address'] = '';
-                    if (isset($applicant->applier_address['label']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
-                    if (isset($applicant->applier_address['house_no']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
-                    if (isset($applicant->applier_address['landmark']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
-                    if (isset($applicant->applier_address['locality']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
-                    if (isset($applicant->applier_address['city']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
-                    if (isset($applicant->applier_address['state']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
-                    if (isset($applicant->applier_address['country']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
-                    if (isset($applicant->applier_address['pincode']))
-                        $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
-
+                    if($applicant->applier_address != (object)null){
+                        if (isset($applicant->applier_address['label']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
+                        if (isset($applicant->applier_address['house_no']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
+                        if (isset($applicant->applier_address['landmark']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
+                        if (isset($applicant->applier_address['locality']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
+                        if (isset($applicant->applier_address['city']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
+                        if (isset($applicant->applier_address['state']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
+                        if (isset($applicant->applier_address['country']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
+                        if (isset($applicant->applier_address['pincode']))
+                            $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
+                    }
                     $temp['Document Verified'] = $applicant->documents_verified;
                     $temp['Date of Birth'] = $applicant->profile->dob;
                     $temp['Age Proof Document Links'] = '';
@@ -1167,22 +1224,25 @@ class ApplicantController extends Controller
                     foreach ($collaborate->mandatory_fields as $key => $mandatory_field) {
                         if ($mandatory_field->field == "address" && $mandatory_field->name  == "Delivery address") {
                             $temp['Delivery Address'] = '';
-                            if (isset($applicant->applier_address['label']))
-                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
-                            if (isset($applicant->applier_address['house_no']))
-                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
-                            if (isset($applicant->applier_address['landmark']))
-                                $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
-                            if (isset($applicant->applier_address['locality']))
-                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
-                            if (isset($applicant->applier_address['city']))
-                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
-                            if (isset($applicant->applier_address['state']))
-                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
-                            if (isset($applicant->applier_address['country']))
-                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
-                            if (isset($applicant->applier_address['pincode']))
-                                $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
+                            if($applicant->applier_address != (object)null){
+                                if (isset($applicant->applier_address['label']))
+                                    $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['label']).", ";
+                                if (isset($applicant->applier_address['house_no']))
+                                    $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['house_no']).", ";
+                                if (isset($applicant->applier_address['landmark']))
+                                    $temp['Delivery Address'] .= htmlspecialchars_decode("Landmark ".$applicant->applier_address['landmark']).", ";
+                                if (isset($applicant->applier_address['locality']))
+                                    $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['locality']).", ";
+                                if (isset($applicant->applier_address['city']))
+                                    $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['city']).", ";
+                                if (isset($applicant->applier_address['state']))
+                                    $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['state']).", ";
+                                if (isset($applicant->applier_address['country']))
+                                    $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['country']).", ";
+                                if (isset($applicant->applier_address['pincode']))
+                                    $temp['Delivery Address'] .= htmlspecialchars_decode($applicant->applier_address['pincode']);
+                       
+                            }
                         }
                     }
                 }

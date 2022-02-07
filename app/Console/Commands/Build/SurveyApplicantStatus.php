@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Build;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
-class SetPlatformAndroid extends Command
+class SurveyApplicantStatus extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'SetPlatformAndroid';
+    protected $signature = 'survey:build:applicants';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sets platform as "android" in app_info table';
+    protected $description = 'Command description';
 
     /**
      * Create a new command instance.
@@ -37,11 +38,9 @@ class SetPlatformAndroid extends Command
      */
     public function handle()
     {
-        \DB::table('app_info')->whereNull('platform')->orderBy('id')->chunk(100, function ($models) {
-           foreach ($models as $model) {
-               \DB::table('app_info')->where('id', $model->id)->update(['platform'=> 'android']);    
-            }
-        });
-        echo "\nDone...\n";
+        $models = \DB::table('survey_applicants')->whereNull("deleted_at")->get();
+        foreach ($models as $model) {
+            Redis::set("surveys:application_status:$model->survey_id:profile:$model->profile_id", $model->application_status);
+        }
     }
 }

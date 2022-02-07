@@ -123,18 +123,21 @@ class UserController extends Controller
             return $this->sendError("Simulator/emulator detected.");
         }
         
-        $deviceTokenExist = \DB::table('app_info')->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)->exists();
+        // $deviceTokenExist = \DB::table('app_info')->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)->exists();
         // $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
-        if($deviceTokenExist)
+        $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('platform',$platform)->exists();
+
+        if($tokenExists)
         {
-            \DB::table("app_info")->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)
-                ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info]);
+            // \DB::table("app_info")->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)
+                // ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info]);
+            \DB::table("app_info")->where('profile_id',$request->user()->profile->id)->where('platform',$platform)
+                ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info, 'updated_at'=>date("Y-m-d H:i:s")]);
             $this->model = 1;
             return $this->sendResponse();
-        }
-        if($user)
+        }else if($user)
         {
-            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info]);
+            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info, 'created_at'=>date("Y-m-d H:i:s"), 'updated_at'=>date("Y-m-d H:i:s")]);
             return $this->sendResponse();
         }
         return $this->sendError("User not found.");
@@ -224,13 +227,14 @@ class UserController extends Controller
     {
         $this->model = \DB::table("app_info")->where("profile_id",$request->user()->profile->id)
                             ->where('fcm_token',$request->input('fcm_token'))->update(['is_active'=>0]);
+                 
         return $this->sendResponse();
     }
 
     public function getApkDeviceInfo(Request $request)
     {
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
-        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$device_info]);
+        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$device_info]);          
         return $this->sendResponse();
 
     }

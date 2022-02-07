@@ -15,7 +15,7 @@ class Surveys extends BaseSurveys
     protected $with = ['profile','company'];
 
     protected $appends = ['owner'];
-    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","owner","profile","company"];
+    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","owner","profile","company","is_private"];
 
     // protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
         // 'deleted_at','updated_at','is_expired','expired_time','options','owner','image_meta','type','preview'];
