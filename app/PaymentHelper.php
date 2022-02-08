@@ -21,7 +21,7 @@ class PaymentHelper
     {
         if (!empty($paymentDetails)) {
             $isPaid = true;
-            $exp = ((!empty($paymentDetails) && !empty($paymentDetails->excluded_profiles)) ? $payment->excluded_profiles : null);
+            $exp = ((!empty($paymentDetails) && !empty($paymentDetails->excluded_profiles)) ? $paymentDetails->excluded_profiles : null);
             if ($exp != null) {
                 $separate = explode(",", $exp);
                 if (in_array(request()->user()->profile->id, $separate)) {
