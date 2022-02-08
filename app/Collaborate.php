@@ -344,44 +344,7 @@ class Collaborate extends Model implements Feedable
         $meta = [];
 
         $payment = PaymentDetails::where("model_type", "Private Review")->where("model_id", $this->id)->where("is_active", 1)->first();
-        if (!empty($payment)) {
-
-
-            $ispaid = true;
-            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
-            if ($exp != null) {
-                $separate = explode(",", $exp);
-                if (in_array(request()->user()->profile->id, $separate)) {
-                    //excluded profile error to be updated
-                    $ispaid = false;
-                }
-            }
-            if ($ispaid == true) {
-                
-                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
-                if (request()->user()->profile->is_expert) {
-                    $ukey = "expert";
-                } else {
-                    $ukey = "consumer";
-                }
-
-                if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
-                    $getAmount = json_decode($payment->amount_json, true);
-                    if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {
-                        $ispaid = false;
-                    }
-                } else {
-                    $links = PaymentLinks::where("payment_id", $payment->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
-                    if ((int)$links->count() >=  (int)$payment->user_count) {
-                        $ispaid = false;
-                    }
-                }
-            }
-        } else {
-            $ispaid = false;
-        }
-
-        $meta['isPaid'] = $ispaid;
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         if ($this->collaborate_type == 'product-review') {
             $key = "meta:collaborate:likes:" . $this->id;
             $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
@@ -437,44 +400,7 @@ class Collaborate extends Model implements Feedable
     {
         $meta = [];
         $payment = PaymentDetails::where("model_type", "Private Review")->where("model_id", $this->id)->where("is_active", 1)->first();
-        if (!empty($payment)) {
-
-
-            $ispaid = true;
-            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
-            if ($exp != null) {
-                $separate = explode(",", $exp);
-                if (in_array(request()->user()->profile->id, $separate)) {
-                    //excluded profile error to be updated
-                    $ispaid = false;
-                }
-            }
-            if ($ispaid == true) {
-                
-                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
-                if (request()->user()->profile->is_expert) {
-                    $ukey = "expert";
-                } else {
-                    $ukey = "consumer";
-                }
-
-                if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
-                    $getAmount = json_decode($payment->amount_json, true);
-                    if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {
-                        $ispaid = false;
-                    }
-                } else {
-                    $links = PaymentLinks::where("payment_id", $payment->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
-                    if ((int)$links->count() >=  (int)$payment->user_count) {
-                        $ispaid = false;
-                    }
-                }
-            }
-        } else {
-            $ispaid = false;
-        }
-
-        $meta['isPaid'] = $ispaid;
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         if ($this->collaborate_type == 'product-review') {
             $key = "meta:collaborate:likes:" . $this->id;
             $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
@@ -692,7 +618,7 @@ class Collaborate extends Model implements Feedable
         $images = $this->getImagesAttribute($this->images);
         $data['cardType'] = isset($images[0]) ? 'summary_large_image' : 'summary';
         $data['ogImage'] = isset($images[0]) ? $images[0] : (isset($profile->logo) ? $profile->logo : (isset($profile->image) ? $profile->image :
-                    'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png'));
+            'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png'));
         $data['ogUrl'] = env('APP_URL') . '/preview/collaborate/' . $this->id;
         $data['redirectUrl'] = env('APP_URL') . '/collaborate/' . $this->id;
         $data['collaborate_type'] = $this->collaborate_type;

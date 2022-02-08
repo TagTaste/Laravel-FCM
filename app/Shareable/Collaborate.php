@@ -69,44 +69,7 @@ class Collaborate extends Share
         $meta['original_post_meta'] = $collaborate->getMetaFor($profileId);
         $meta['isReported'] =  $this->isCollaborateReported();
         $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->collaborate_id)->where("is_active",1)->first();
-        if (!empty($payment)) {
-
-
-            $ispaid = true;
-            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
-            if ($exp != null) {
-                $separate = explode(",", $exp);
-                if (in_array(request()->user()->profile->id, $separate)) {
-                    //excluded profile error to be updated
-                    $ispaid = false;
-                }
-            }
-            if ($ispaid == true) {
-                
-                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
-                if (request()->user()->profile->is_expert) {
-                    $ukey = "expert";
-                } else {
-                    $ukey = "consumer";
-                }
-
-                if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
-                    $getAmount = json_decode($payment->amount_json, true);
-                    if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {
-                        $ispaid = false;
-                    }
-                } else {
-                    $links = PaymentLinks::where("payment_id", $payment->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
-                    if ((int)$links->count() >=  (int)$payment->user_count) {
-                        $ispaid = false;
-                    }
-                }
-            }
-        } else {
-            $ispaid = false;
-        }
-
-        $meta['isPaid'] = $ispaid;
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
 
         return $meta;
     }
@@ -120,44 +83,7 @@ class Collaborate extends Share
         $meta['commentCount'] = $this->comments()->count();
         $meta['isReported'] =  $this->isCollaborateReported();
         $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->collaborate_id)->where("is_active",1)->first();
-        if (!empty($payment)) {
-
-
-            $ispaid = true;
-            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
-            if ($exp != null) {
-                $separate = explode(",", $exp);
-                if (in_array(request()->user()->profile->id, $separate)) {
-                    //excluded profile error to be updated
-                    $ispaid = false;
-                }
-            }
-            if ($ispaid == true) {
-                
-                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
-                if (request()->user()->profile->is_expert) {
-                    $ukey = "expert";
-                } else {
-                    $ukey = "consumer";
-                }
-
-                if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
-                    $getAmount = json_decode($payment->amount_json, true);
-                    if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {
-                        $ispaid = false;
-                    }
-                } else {
-                    $links = PaymentLinks::where("payment_id", $payment->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
-                    if ((int)$links->count() >=  (int)$payment->user_count) {
-                        $ispaid = false;
-                    }
-                }
-            }
-        } else {
-            $ispaid = false;
-        }
-
-        $meta['isPaid'] = $ispaid;
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         return $meta;
     }
 
@@ -172,44 +98,7 @@ class Collaborate extends Share
         $meta['originalPostMeta'] = $collaborate->getMetaForV2($profileId);
         $meta['isReported'] =  $this->isCollaborateReported();
         $payment = PaymentDetails::where("model_type","Private Review")->where("model_id",$this->collaborate_id)->where("is_active",1)->first();
-        if (!empty($payment)) {
-
-
-            $ispaid = true;
-            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
-            if ($exp != null) {
-                $separate = explode(",", $exp);
-                if (in_array(request()->user()->profile->id, $separate)) {
-                    //excluded profile error to be updated
-                    $ispaid = false;
-                }
-            }
-            if ($ispaid == true) {
-                
-                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
-                if (request()->user()->profile->is_expert) {
-                    $ukey = "expert";
-                } else {
-                    $ukey = "consumer";
-                }
-
-                if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
-                    $getAmount = json_decode($payment->amount_json, true);
-                    if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {
-                        $ispaid = false;
-                    }
-                } else {
-                    $links = PaymentLinks::where("payment_id", $payment->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
-                    if ((int)$links->count() >=  (int)$payment->user_count) {
-                        $ispaid = false;
-                    }
-                }
-            }
-        } else {
-            $ispaid = false;
-        }
-
-        $meta['isPaid'] = $ispaid;
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         return $meta;
     }
 

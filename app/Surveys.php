@@ -104,43 +104,8 @@ class Surveys extends Model implements Feedable
         // $meta['review_dump'] = $reviewed;
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
-        if (!empty($payment)) {
 
-
-            $ispaid = true;
-            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
-            if ($exp != null) {
-                $separate = explode(",", $exp);
-                if (in_array(request()->user()->profile->id, $separate)) {
-                    //excluded profile error to be updated
-                    $ispaid = false;
-                }
-            }
-            if ($ispaid == true) {
-                
-                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
-                if (request()->user()->profile->is_expert) {
-                    $ukey = "expert";
-                } else {
-                    $ukey = "consumer";
-                }
-
-                if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
-                    $getAmount = json_decode($payment->amount_json, true);
-                    if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {
-                        $ispaid = false;
-                    }
-                } else {
-                    $links = PaymentLinks::where("payment_id", $payment->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
-                    if ((int)$links->count() >=  (int)$payment->user_count) {
-                        $ispaid = false;
-                    }
-                }
-            }
-        } else {
-            $ispaid = false;
-        }
-        $meta['isPaid'] = $ispaid;
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
@@ -168,41 +133,8 @@ class Surveys extends Model implements Feedable
         $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
-        if (!empty($payment)) {
 
-
-            $ispaid = true;
-            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
-            if ($exp != null) {
-                $separate = explode(",", $exp);
-                if (in_array(request()->user()->profile->id, $separate)) {
-                    //excluded profile error to be updated
-                    $ispaid = false;
-                }
-            }
-            
-            $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
-            if (request()->user()->profile->is_expert) {
-                $ukey = "expert";
-            } else {
-                $ukey = "consumer";
-            }
-
-            if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
-                $getAmount = json_decode($payment->amount_json, true);
-                if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {
-                    $ispaid = false;
-                }
-            } else {
-                $links = PaymentLinks::where("payment_id", $payment->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
-                if ((int)$links->count() >=  (int)$payment->user_count) {
-                    $ispaid = false;
-                }
-            }
-        } else {
-            $ispaid = false;
-        }
-        $meta['isPaid'] = $ispaid;
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
 
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
@@ -284,7 +216,7 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('application_status', 2)->get()->count();
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
-        $meta['isPaid'] = (!empty($payment) ? true : false);
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
