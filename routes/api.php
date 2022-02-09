@@ -518,7 +518,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("graph/headers", "GraphController@graphHeaders"); 
             Route::get("graphfilters", "GraphController@graphFilters"); 
             Route::get("skynet/reports", "GraphController@graphReports"); 
-            Route::get("header/{id}/graph", "GraphController@graph");
+            Route::get("header/{id}/graph", "GraphController@createGraphs");
             Route::post("graph/combination", "GraphController@graphCombination");
              //collaborate comments
             Route::resource('comments', 'CommentController');

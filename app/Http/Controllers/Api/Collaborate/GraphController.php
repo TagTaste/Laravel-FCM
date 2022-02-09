@@ -6,231 +6,62 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use App\Collaborate\ReviewHeader;
+use App\Traits\FilterFactory;
 use Illuminate\Support\Collection;
-
+use Illuminate\Support\Facades\DB;
 
 class GraphController extends Controller
 {
-    public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
-    {
-        $profileIds = new Collection([]);
-        $isFilterAble = false;
-        if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
-            $filterProfile = [];
-            foreach ($filters['include_profile_id'] as $filter) {
-                //$isFilterAble = true;
-                $filterProfile[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterProfile);
-        }
-
-
-        if (isset($filters['current_status']) && !is_null($batchId)) {
-            $currentStatusIds = new Collection([]);
-            foreach ($filters['current_status'] as $currentStatus) {
-                if ($currentStatus == 0 || $currentStatus == 1) {
-                    if ($isFilterAble) {
-                        $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->whereIn('profile_id', $profileIds)->where('begin_tasting', $currentStatus)->get()->pluck('profile_id');
-                        $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->get()->pluck('profile_id');
-                    } else {
-                        $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->where('begin_tasting', $currentStatus)->get()->pluck('profile_id');
-                        $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->get()->pluck('profile_id');
-                    }
-                    $ids = $ids->diff($ids2);
-                } else {
-                    if ($isFilterAble)
-                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->whereIn('profile_id', $profileIds)->where('current_status', $currentStatus)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->where('current_status', $currentStatus)->get()->pluck('profile_id');
-                }
-                $currentStatusIds = $currentStatusIds->merge($ids);
-            }
-            $isFilterAble = true;
-            $profileIds = $profileIds->merge($currentStatusIds);
-        }
-
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['profile'])) {
-            $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
-        }
-        if (isset($filters['profile'])) {
-            $Ids = $Ids->join('collaborate_specializations', 'collaborate_specializations.collaborate_id', 'collaborate_applicants.collaborate_id')
-                ->join('specializations', 'specializations.id', 'collaborate_specializations.specialization_id');
-        }
-
-        if (isset($filters['profile'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['profile'] as $profile) {
-                    $query->orWhere('specializations.name', $profile);
-                }
-            });
-        }
-
-        if (isset($filters['city'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['city'] as $city) {
-                    $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
-                }
-            });
-        }
-
-        if (isset($filters['age'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['age'] as $age) {
-                    $age = htmlspecialchars_decode($age);
-                    $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);
-                }
-            });
-        }
-
-        if (isset($filters['gender'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['gender'] as $gender) {
-                    $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
-                }
-            });
-        }
-
-        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
-            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
-        }
-
-        if (isset($filters['sensory_trained'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['sensory_trained'] as $sensory) {
-                    if ($sensory == 'Yes')
-                        $sensory = 1;
-                    else
-                        $sensory = 0;
-                    $query->orWhere('profiles.is_sensory_trained', $sensory);
-                }
-            });
-        }
-
-        if (isset($filters['super_taster'])) {
-
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['super_taster'] as $superTaster) {
-                    if ($superTaster == 'SuperTaster')
-                        $superTaster = 1;
-                    else
-                        $superTaster = 0;
-                    $query->orWhere('profiles.is_tasting_expert', $superTaster);
-                }
-            });
-        }
-
-        if (isset($filters['user_type'])) {
-
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['user_type'] as $userType) {
-                    if ($userType == 'Expert')
-                        $userType = 1;
-                    else
-                        $userType = 0;
-                    $query->orWhere('profiles.is_expert', $userType);
-                }
-            });
-        }
-
-
-        if ($profileIds->count() > 0 && isset($Ids)) {
-            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
-        }
-
-        if (isset($Ids)) {
-            $isFilterAble = true;
-            $Ids = $Ids->get()->pluck('profile_id');
-            $profileIds = $profileIds->merge($Ids);
-        }
-
-        if ($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
-            $filterNotProfileIds = [];
-            foreach ($filters['exclude_profile_id'] as $filter) {
-                $isFilterAble = true;
-                $filterNotProfileIds[] = (int)$filter;
-            }
-            $profileIds = $profileIds->diff($filterNotProfileIds);
-        } else if (isset($filters['exclude_profile_id'])) {
-            $isFilterAble = false;
-            $excludeAble = false;
-            $filterNotProfileIds = [];
-            foreach ($filters['exclude_profile_id'] as $filter) {
-                $isFilterAble = false;
-                $excludeAble = true;
-                $filterNotProfileIds[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterNotProfileIds);
-        }
-
-        if ($isFilterAble)
-            return ['profile_id' => $profileIds, 'type' => false]; //data for these profile ids only 
-        else
-            return ['profile_id' => $profileIds, 'type' => true]; //these profile ids will be excluded from total completed reviews
-
-    }
+    use FilterFactory;
 
     public function graphHeaders(Request $request, $id)
     {
+
+        $headerList = DB::Table("collaborate_tasting_header")->where("collaborate_id", $id)->where('is_active', 1)->whereIn("header_selection_type", [config("constant.COLLABORATE_HEADER_SELECTION_TYPE.NORMAL"), config("constant.COLLABORATE_HEADER_SELECTION_TYPE.PRODUCT_EXPERIENCE")])->get();
+
+
+        $headerResponse = [];
         $comb = [];
-        $questionMapping = [];
-        $questions = \DB::table('collaborates')
-            ->select('global_questions.question_json')
-            ->join('global_questions', 'global_questions.id', 'collaborates.global_question_id')
-            ->where('collaborates.id', $id)->first();
+        foreach ($headerList as $headerValue) {
+            $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerValue->id)->where("collaborate_id", $id)->where('is_active', 1)->get();
+            $graphActive = false;
+            foreach ($getQuestions as $questionList) {
+                $decodeJsonOfQuestions = json_decode($questionList->questions, true);
 
-        $data = \DB::table('collaborate_tasting_questions')
-            ->select('collaborate_tasting_questions.id', 'collaborate_tasting_questions.title', 'collaborate_tasting_header.header_type', 'collaborate_tasting_header.id as headId')
-            ->join('collaborate_tasting_header', 'collaborate_tasting_header.id', 'collaborate_tasting_questions.header_type_id')
-            ->where('collaborate_tasting_questions.collaborate_id', $id)->get()->toArray();
-        $questionHeader = [];
-        foreach ($data as $value) {
+                if (json_last_error() == JSON_ERROR_NONE) {
+                    if (
+                        isset($decodeJsonOfQuestions["is_nested_option"]) && $decodeJsonOfQuestions["is_nested_option"] != 0
+                        && isset($decodeJsonOfQuestions["create_graph"]) && $decodeJsonOfQuestions["create_graph"] == true
+                    ) {
 
-            $questionMapping[$value->header_type][$value->title] = $value->id;
-            $questionHeader[$value->header_type] = $value->headId;
-        }
-        $questions = json_decode($questions->question_json);
-        $graphExists =  false;
-        $headerList = [];
-        foreach ($questions as $key => $value) {          //individual combinations
+                        $comb[$decodeJsonOfQuestions["nested_option_list"]][] = ["id" => $headerValue->id, "que_id" => $questionList->id, "header_name" => $headerValue->header_type];
+                    }
+                    if (isset($decodeJsonOfQuestions["create_graph"]) && $decodeJsonOfQuestions["create_graph"] == true) {
 
-            $graphExists = false;
-            foreach ($value as $v) {
-                if (isset($v->is_nested_option) && $v->is_nested_option != 0 && isset($v->create_graph) && $v->create_graph) {
-                    $comb[$v->nested_option_list][] = [$key => $questionMapping[$key][$v->title]];
+                        $graphActive = true;
+                    }
+
+                    //nested option
                 }
-                if (isset($v->create_graph) && $v->create_graph ==  true) $graphExists = true;
             }
-            if ($graphExists == true) {
-                $Headers = ReviewHeader::select('id')->where('is_active', 1)->where('collaborate_id', $id)->where('header_type', $key)->orderBy('id')->first();
-
-                $headerList[] = ['id' => $Headers->id, 'header_name' => $key, 'is_combination' => false];
+            if ($graphActive) {
+                $headerResponse[] = [
+                    // "que_id" => $questionList->id,
+                    "id" => $headerValue->id, "header_name" => $headerValue->header_type, "is_combination" => false
+                ];
             }
         }
 
         $i = 1;
-        $combList = [];    //loop for common aroma list ,making combinations
-        foreach ($comb as $key => $value) {
-            if (count($value) > 1) {
-
-                foreach ($value as $v) {
-                    $combList[] = ['id' => $questionHeader[key($v)], "ques_id" => end($v), "header_name" => key($v)];
-                }
-
-                $headerList[] = ['header_name' => 'combination - ' . $i, "aroma_list" => $key, "combination_header_list" => $combList, "is_combination" => true];
-                $i++;
-            }
+        foreach ($comb as $aromaList => $headerDetails) {
+            $headerResponse[] = [
+                "aroma_list" => $aromaList, "header_name" => "Combination -" . $i, "is_combination" => true, "combination_header_list" => $headerDetails
+            ];
+            $i++;
         }
 
-        $this->model = $headerList;
-
+        $this->model = $headerResponse;
         return $this->sendResponse();
-       
     }
 
     public function graphFilters(Request $request, $collaborateId)
@@ -297,6 +128,74 @@ class GraphController extends Controller
         return $this->sendResponse();
     }
 
+
+    public function createGraphs(Request $request, $collaborateId, $headerId)
+    {
+        $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerId)->where("collaborate_id", $collaborateId)->where('is_active', 1)->get();
+
+        $batches = DB::table('collaborate_batches')->select('id', 'name')->where('collaborate_id', $collaborateId)->get();
+
+        $questionSet = [];
+
+        $filters = $request->input('filters');
+
+        $resp = $this->getFilteredProfile($filters, $collaborateId);
+
+
+        foreach ($getQuestions as $questionList) {
+            $decodeJsonOfQuestions = json_decode($questionList->questions, true);
+
+            if (json_last_error() == JSON_ERROR_NONE && isset($decodeJsonOfQuestions["create_graph"]) && $decodeJsonOfQuestions["create_graph"]) {
+                if (isset($decodeJsonOfQuestions["merge_graph"]) && $decodeJsonOfQuestions["merge_graph"] == true) {
+                    $questionSet["merged"][] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"]];
+                } else {
+                    $questionSet[] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"]];
+                }
+            }
+        }
+
+        $optionList = $this->getOptions($questionSet, $collaborateId, $headerId);
+        dd($optionList);
+    }
+
+    public function getOptions($questionArray = [], $collaborateId, $headerId)
+    {
+        $optionList = [];
+
+        foreach ($questionArray as $key => $value) {
+            if ($key === "merged" && is_array($value)) {
+                $questionArray[$key]["options"] = [];
+                foreach ($value as $mergedKey => $mergedValue) {
+
+                    $getOptions = DB::table('collaborate_tasting_user_review')->where("question_id", $mergedValue["id"])->where("tasting_header_id", $headerId)->where("collaborate_id", $collaborateId)->where("current_status", 3)->select(["id", "key", "value", "value_id", "leaf_id", "intensity", "batch_id", "profile_id"])->get();
+                    $opt = [];
+                    foreach ($getOptions as $optionDetails) {
+                        $opt[$optionDetails->value]["id"] = $optionDetails->leaf_id;
+                        $opt[$optionDetails->value]["value"] = $optionDetails->value;
+                        $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["id"] = $optionDetails->batch_id;
+                        $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["response"][] = $optionDetails->profile_id;
+                    }
+                }
+                $questionArray[$key]["options"][] = $opt;
+                if (!empty($questionArray[$key]["options"])) {
+                    $questionArray[$key]["options"] = array_merge(...$questionArray[$key]["options"]);
+                }
+            } else {
+                $getOptions = DB::table('collaborate_tasting_user_review')->where("question_id", $value["id"])->where("tasting_header_id", $headerId)->where("collaborate_id", $collaborateId)->where("current_status", 3)->select(["id", "key", "value", "value_id", "leaf_id", "intensity", "batch_id", "profile_id"])->groupBy("value")->get()->toArray();
+
+                $opt = [];
+                foreach ($getOptions as $optionDetails) {
+                    
+                    $opt[$optionDetails->value]["id"] = $optionDetails->leaf_id;
+                    $opt[$optionDetails->value]["value"] = $optionDetails->value;
+                    $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["id"] = $optionDetails->batch_id;
+                    $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["response"][] = $optionDetails->profile_id;
+                }
+                $questionArray[$key]["options"] = $opt;
+            }
+        }
+        return $questionArray;
+    }
     public function graph(Request $request, $collaborateId, $headerId)
     {
         $data = \DB::table("collaborate_tasting_questions")->select('collaborate_tasting_questions.id', 'questions', 'collaborate_tasting_header.header_type', 'collaborate_tasting_questions.header_type_id as headId', 'collaborate_tasting_questions.title')
@@ -304,22 +203,24 @@ class GraphController extends Controller
             ->where('collaborate_tasting_questions.collaborate_id', $collaborateId)
             ->where('collaborate_tasting_questions.header_type_id', $headerId)
             ->get();
-
         $batches = \DB::table('collaborate_batches')->select('id', 'name')->where('collaborate_id', $collaborateId)->get();
         $filters = $request->input('filters');
-        $resp = $this->getFilterProfileIds($filters, $collaborateId);
-        $profileIds = $resp['profile_id']; //dd($profileIds);
-        $type = $resp['type'];
-        $boolean = 'and';
+        $resp = $this->getFilteredProfile($filters, $collaborateId);
+        $profileIds = $resp; //dd($profileIds);
 
+        $totalApplicants = [];
         foreach ($batches as $batch) {
-            $totalApplicants[$batch->id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)
-                ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id', $batch->id)->distinct()->get(['profile_id'])->count();
+            $totalApplicants[$batch->id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId);
+            if (!empty($profileIds)) {
+                $totalApplicants[$batch->id] = $totalApplicants[$batch->id]->whereIn('profile_id', $profileIds);
+            }
+            $totalApplicants[$batch->id] = $totalApplicants[$batch->id]->where('batch_id', $batch->id)->distinct()->get(['profile_id'])->count();
         }
 
         $merged['options'] = [];
         $aromaList = [];
         $dataset = [];
+        // dd($data);
         foreach ($data as $value) {
             $single = [];
             $question = json_decode($value->questions);
@@ -327,18 +228,23 @@ class GraphController extends Controller
                 $ques = [];
                 $ques['id'] = $value->id;
                 $ques['title'] = $value->title;
-                if (isset($question->merge_graph) && !$question->merge_graph) {  //not merged questions
-                    $single['header_name'] = $value->header_type;
-                    $single['header_id'] = $value->headId;
-                    $single['ques_list'] = $ques;
-                    if ($question->is_intensity) {
-                        $single['is_intensity'] = true;
-                    } else {
-                        $single['is_intensity'] = false;
-                    }
+                //not merged questions
+                $single['header_name'] = $value->header_type;
+                $single['header_id'] = $value->headId;
+                $single['ques_list'] = $ques;
+
+
+
+                if ($question->is_intensity) {
+                    $single['is_intensity'] = true;
+                } else {
+                    $single['is_intensity'] = false;
                 }
+
                 $optionArray = [];
                 $options = [];
+                //get it from review only 
+
 
                 if (isset($question->option) && $question->option) {    //normal options 
                     $options = $question->option;
@@ -347,6 +253,7 @@ class GraphController extends Controller
                     $intensityValue = explode(",", $question->intensity_value);
                     $intensityCount = count($intensityValue);
                 }
+
                 $single['options'] = [];
                 $i =  1;
                 foreach ($options as $option) {
@@ -368,8 +275,11 @@ class GraphController extends Controller
                             $batchArray['id'] = $v->id;
                             $batchArray['batch_name'] = $v->name;
                             $count = \DB::table('collaborate_tasting_user_review')->where('leaf_id', $i)->where('collaborate_id', $collaborateId)
-                                ->where('batch_id', $v->id)->where('question_id', $value->id)
-                                ->whereIn('profile_id', $profileIds, $boolean, $type)->get()->pluck('intensity')->toArray();
+                                ->where('batch_id', $v->id)->where('question_id', $value->id);
+                            if (!empty($profileIds)) {
+                                $count =  $count->whereIn('profile_id', $profileIds);
+                            }
+                            $count = $count->get()->pluck('intensity')->toArray();
                             if ($totalApplicants[$v->id] != 0 && count($count)) {  //if there are any responses
                                 $batchArray['percentage'] = (count($count) / $totalApplicants[$v->id]) * 100;
                                 $batchArray['responses'] = count($count);
@@ -411,7 +321,8 @@ class GraphController extends Controller
                     if (count($single['options']) && $aroma == 0) {  //for questions having normal options ,adding options to merged array
                         array_push($merged['options'], $single['options']);
                     }
-                } else if (isset($question->merge_graph) && !$question->merge_graph) { //for non merged questions,simply add individual node  to dataset
+                } else { //for non merged questions,simply add individual node  to dataset
+
                     if (count($single) > 0)  array_push($dataset, $single);
                 }
             }
@@ -514,7 +425,7 @@ class GraphController extends Controller
         //dd($combinationHeadList);
         $batches = \DB::table('collaborate_batches')->select('id', 'name')->where('collaborate_id', $collaborateId)->get();
         $filters = $request->input('filters');
-        $resp = $this->getFilterProfileIds($filters, $collaborateId);
+        $resp = $this->getFilteredProfile($filters, $collaborateId);
         $profileIds = $resp['profile_id']; //dd($profileIds);
         $type = $resp['type'];
         $boolean = 'and';
@@ -609,6 +520,5 @@ class GraphController extends Controller
         $this->model = $dataset1;
 
         return $this->sendResponse();
-        
     }
 }
