@@ -21,6 +21,9 @@ class CreateCollaborateReportsTable extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('link')->nullable();
+            $table->boolean('mail_sent')->default(0);
+            $table->boolean('notification_sent')->default(0); 
+            $table->integer('uploaded_by')->nullable();            
             $table->timestamps();
             $table->softDeletes();
         });
