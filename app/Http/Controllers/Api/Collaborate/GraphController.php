@@ -139,293 +139,196 @@ class GraphController extends Controller
 
         $filters = $request->input('filters');
 
-        $resp = $this->getFilteredProfile($filters, $collaborateId);
+        $profileIds = $this->getFilteredProfile($filters, $collaborateId);
 
-
+        $intensity_value = [];
         foreach ($getQuestions as $questionList) {
             $decodeJsonOfQuestions = json_decode($questionList->questions, true);
 
+            if (isset($decodeJsonOfQuestions["intensity_value"]) && !empty($decodeJsonOfQuestions["intensity_value"])) {
+                $intensity_value = explode(",", $decodeJsonOfQuestions["intensity_value"]);
+            }
             if (json_last_error() == JSON_ERROR_NONE && isset($decodeJsonOfQuestions["create_graph"]) && $decodeJsonOfQuestions["create_graph"]) {
                 $option = [];
-                if (isset($decodeJsonOfQuestions["is_nested_option"]) && $decodeJsonOfQuestions["is_nested_option"] != 1 && isset($decodeJsonOfQuestions["option"]) && !empty($decodeJsonOfQuestions["option"])) {
+
+                if (isset($decodeJsonOfQuestions["option"]) && !empty($decodeJsonOfQuestions["option"])) {
                     $option = $decodeJsonOfQuestions["option"];
                 }
+
                 if (isset($decodeJsonOfQuestions["merge_graph"]) && $decodeJsonOfQuestions["merge_graph"] == true) {
-                    $questionSet["merged"][] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"]];
+                    $questionSet["merged"][] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option, "intensity_value"];
                 } else {
                     $questionSet[] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option];
                 }
             }
         }
-        $optionList = $this->getOptions($questionSet, $collaborateId, $headerId);
+        $i = 0;
 
-        dd($optionList);
-    }
-
-    public function getOptions($questionArray = [], $collaborateId, $headerId)
-    {
-        $optionList = [];
-
-        foreach ($questionArray as $key => $value) {
-            if ($key === "merged" && is_array($value)) {
-                $questionArray[$key]["options"] = [];
-                foreach ($value as $mergedKey => $mergedValue) {
-                    if (isset($mergedValue["options"]) && !empty($mergedValue["options"])) {
-                    } else {
-                        // if($mergedValue)
-                        $getOptions = DB::table('collaborate_tasting_user_review')->where("question_id", $mergedValue["id"])->where("tasting_header_id", $headerId)->where("collaborate_id", $collaborateId)->where("current_status", 3)->select(["id", "key", "value", "value_id", "leaf_id", "intensity", "batch_id", "profile_id"])->get();
-                    }
-                    $opt = [];
-                    foreach ($getOptions as $optionDetails) {
-                        $opt[$optionDetails->value]["id"] = $optionDetails->leaf_id;
-                        $opt[$optionDetails->value]["value"] = $optionDetails->value;
-                        $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["id"] = $optionDetails->batch_id;
-                        $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["response"][] = $optionDetails->profile_id;
-                    }
-                }
-                $questionArray[$key]["options"][] = $opt;
-                if (!empty($questionArray[$key]["options"])) {
-                    $questionArray[$key]["options"] = array_merge(...$questionArray[$key]["options"]);
-                }
-            } else {
-                $getOptions = DB::table('collaborate_tasting_user_review')->where("question_id", $value["id"])->where("tasting_header_id", $headerId)->where("collaborate_id", $collaborateId)->where("current_status", 3)->select(["id", "key", "value", "value_id", "leaf_id", "intensity", "batch_id", "profile_id"])->groupBy("value")->get()->toArray();
-
-                $opt = [];
-                foreach ($getOptions as $optionDetails) {
-
-                    $opt[$optionDetails->value]["id"] = $optionDetails->leaf_id;
-                    $opt[$optionDetails->value]["value"] = $optionDetails->value;
-                    $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["id"] = $optionDetails->batch_id;
-                    $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["response"][] = $optionDetails->profile_id;
-                }
-                $questionArray[$key]["options"] = $opt;
+        $questionResponse = [];
+        foreach ($questionSet as $key => $value) {
+            if ($key !== "merged") {
+                $value = [$value];
             }
-        }
-        return $questionArray;
-    }
-    public function graph(Request $request, $collaborateId, $headerId)
-    {
-        $data = \DB::table("collaborate_tasting_questions")->select('collaborate_tasting_questions.id', 'questions', 'collaborate_tasting_header.header_type', 'collaborate_tasting_questions.header_type_id as headId', 'collaborate_tasting_questions.title')
-            ->join('collaborate_tasting_header', 'collaborate_tasting_header.id', 'collaborate_tasting_questions.header_type_id')
-            ->where('collaborate_tasting_questions.collaborate_id', $collaborateId)
-            ->where('collaborate_tasting_questions.header_type_id', $headerId)
-            ->get();
-        $batches = \DB::table('collaborate_batches')->select('id', 'name')->where('collaborate_id', $collaborateId)->get();
-        $filters = $request->input('filters');
-        $resp = $this->getFilteredProfile($filters, $collaborateId);
-        $profileIds = $resp; //dd($profileIds);
-
-        $totalApplicants = [];
-        foreach ($batches as $batch) {
-            $totalApplicants[$batch->id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId);
-            if (!empty($profileIds)) {
-                $totalApplicants[$batch->id] = $totalApplicants[$batch->id]->whereIn('profile_id', $profileIds);
-            }
-            $totalApplicants[$batch->id] = $totalApplicants[$batch->id]->where('batch_id', $batch->id)->distinct()->get(['profile_id'])->count();
+            $questionResponse[$i] = $this->getOptions($value, $collaborateId, $headerId, $profileIds, $intensity_value);
+            // dd($question Set[$i]);
+            $i++;
         }
 
-        $merged['options'] = [];
-        $aromaList = [];
-        $dataset = [];
-        // dd($data);
-        foreach ($data as $value) {
-            $single = [];
-            $question = json_decode($value->questions);
-            if (isset($question->create_graph) && $question->create_graph) {  //create_graph=1
-                $ques = [];
-                $ques['id'] = $value->id;
-                $ques['title'] = $value->title;
-                //not merged questions
-                $single['header_name'] = $value->header_type;
-                $single['header_id'] = $value->headId;
-                $single['ques_list'] = $ques;
-
-
-
-                if ($question->is_intensity) {
-                    $single['is_intensity'] = true;
-                } else {
-                    $single['is_intensity'] = false;
-                }
-
-                $optionArray = [];
-                $options = [];
-                //get it from review only 
-
-
-                if (isset($question->option) && $question->option) {    //normal options 
-                    $options = $question->option;
-                } else if (isset($question->is_nested_option) && $question->is_nested_option == 1) {   //nested options
-                    $options =  \DB::table('collaborate_tasting_nested_options')->where('collaborate_id', $collaborateId)->where('header_type_id', $headerId)->where('question_id', $value->id)->get();
-                    $intensityValue = explode(",", $question->intensity_value);
-                    $intensityCount = count($intensityValue);
-                }
-
-                $single['options'] = [];
-                $i =  1;
-                foreach ($options as $option) {
-                    if (isset($question->is_nested_option) && $question->is_nested_option == 1) {
-                        $i = $option->id;
-                    }
-                    $optionArray['id'] = $i;
-                    $optionArray['value'] = $option->value;
-                    if (isset($question->option)) {     //for normal options ,calculate intensity values
-                        if ($option->is_intensity) {
-                            $intensityValue = explode(",", $option->intensity_value);
-                            $intensityCount = count($intensityValue);
-                        }
-                    }
-                    if (count($batches) > 0) {
-                        $optionArray['product'] = [];
-                        $batchArray = [];
-                        foreach ($batches as $v) {
-                            $batchArray['id'] = $v->id;
-                            $batchArray['batch_name'] = $v->name;
-                            $count = \DB::table('collaborate_tasting_user_review')->where('leaf_id', $i)->where('collaborate_id', $collaborateId)
-                                ->where('batch_id', $v->id)->where('question_id', $value->id);
-                            if (!empty($profileIds)) {
-                                $count =  $count->whereIn('profile_id', $profileIds);
-                            }
-                            $count = $count->get()->pluck('intensity')->toArray();
-                            if ($totalApplicants[$v->id] != 0 && count($count)) {  //if there are any responses
-                                $batchArray['percentage'] = (count($count) / $totalApplicants[$v->id]) * 100;
-                                $batchArray['responses'] = count($count);
-                                if ($option->is_intensity) {
-                                    $answer = array_count_values(array_filter($count));
-                                    $intensities = array_flip($intensityValue);
-                                    $sum = 0;
-                                    foreach ($answer as $k => $vv) {
-                                        $sum += $vv * $intensities[$k];
-                                    }
-                                    $sum += $intensityCount;
-                                    $batchArray['intensity'] = $sum / $intensityCount;
-                                }
-                            } else {
-                                $batchArray['percentage'] = 0;
-                                $batchArray['responses'] = 0;
-                                $batchArray['intensity'] = 0;
-                            }
-                            if (count($batchArray) > 0)  array_push($optionArray['product'], $batchArray);
-                        }
-                    }
-                    if (count($optionArray) > 0) array_push($single['options'], $optionArray);
-                    $i++;
-                }
-                if (isset($question->merge_graph) &&  $question->merge_graph) {   //for merged questions
-                    $aroma = 0;
-                    if (isset($question->is_nested_option) && $question->is_nested_option == 1) {
-                        $aroma++;
-                        $aromaList[$question->nested_option_list][] = $value->id;
-                    }
-                    $merged['header_name'] = $value->header_type;
-                    $merged['header_id'] = $value->headId;
-                    $merged['question_list'][] = $ques;
-                    if ($question->is_intensity) {
-                        $merged['is_intensity'] = true;
-                    } else {
-                        $merged['is_intensity'] = false;
-                    }
-                    if (count($single['options']) && $aroma == 0) {  //for questions having normal options ,adding options to merged array
-                        array_push($merged['options'], $single['options']);
-                    }
-                } else { //for non merged questions,simply add individual node  to dataset
-
-                    if (count($single) > 0)  array_push($dataset, $single);
-                }
-            }
-        }
-        if (count($aromaList) > 0) {   //if there are any questions having common aroma list
-            $data['collaborate_id'] = $collaborateId;
-            $data['header_id'] = $headerId;
-            $data['profile'] = $resp;
-            $data['batches'] = $batches;
-            $merged2 = $this->graphAromaList($aromaList, $merged, $totalApplicants, $data);
-            // dd($merged2);
-        }
-
-        if (count($aromaList)) {
-            if (count($merged['options'])) { //if common aroma list and also merged questions with normal options
-                $merged2['options'] = array_merge($merged2['options'], $merged['options'][0]);
-            }
-            array_push($dataset, $merged2);
-        } else if (isset($merged['header_id'])) {  //no questions having common aroma list,simply add meged array to dataset
-            array_push($dataset, $merged);
-        }
-        $this->model = $dataset;
-
+        $this->model = $this->sortFinalGraphPayload($headerId, $questionResponse, $intensity_value);
         return $this->sendResponse();
     }
 
-    public function graphAromaList($aromaList, $merged, $totalApplicants, $data)
+    public function sortFinalGraphPayload($headerId, &$questionResponse)
     {
-        $co = 0;
-        foreach ($aromaList as $key => $value) {
-            if ($co == 0) {
-                $merged2['header_name'] = $merged['header_name'];
-                $merged2['header_id'] = $merged["header_id"];
-                $merged2['question_list'] = $merged["question_list"];
-                if ($merged['is_intensity']) {
-                    $merged2['is_intensity'] = true;
-                } else {
-                    $merged2['is_intensity'] = false;
-                }
-                $merged2['options'] = [];
-                $co++;
-            }
-            $questions =  \DB::table('collaborate_tasting_questions')->select('questions')->where('collaborate_id', $data['collaborate_id'])->where('header_type_id', $data['header_id'])->where('id', $value[0])->first();
-            //dd($questions);
-            $question = json_decode($questions->questions);
-            $options =  \DB::table('collaborate_tasting_nested_options')->where('collaborate_id', $data['collaborate_id'])->where('header_type_id',  $data['header_id'])->where('question_id', $value[0])->get();
-            $intensityValue = explode(",", $question->intensity_value);
-            $intensityCount = count($intensityValue);
-            $optionArray = [];
-            if (count($options) && $co > 0) {
-                $merged2['options'] = [];
-            }
-            foreach ($options as $option) {
-                $optionArray['id'] = $option->id;
-                $optionArray['value'] = $option->value;
-
-                if (!empty($data['batches'])) {
-                    $optionArray['product'] = [];
-                    $batchArray = [];
-                    foreach ($data['batches'] as $v) {
-                        $batchArray['id'] = $v->id;
-                        $batchArray['batch_name'] = $v->name;
-                        $count = \DB::table('collaborate_tasting_user_review')->where('leaf_id', $option->id)->where('collaborate_id', $data['collaborate_id'])
-                            ->where('tasting_header_id', $data['header_id'])
-                            ->where('batch_id', $v->id)->whereIn('question_id', $value)
-                            ->whereIn('profile_id', $data['profile']['profile_id'], 'and', $data['profile']['type'])->get()->pluck('intensity')->toArray();
-
-                        if ($totalApplicants[$v->id] != 0 && count($count)) {
-                            $batchArray['percentage'] = (count($count) / $totalApplicants[$v->id]) * 100;
-                            $batchArray['responses'] = count($count);
-                            if ($option->is_intensity) {
-                                $answer = array_count_values(array_filter($count));
-                                $intensities = array_flip($intensityValue);
-                                $sum = 0;
-                                foreach ($answer as $k => $vv) {
-                                    $sum += $vv * $intensities[$k];
-                                }
-                                $sum += $intensityCount;
-                                $batchArray['intensity'] = $sum / $intensityCount;
-                            }
-                        } else {
-                            $batchArray['percentage'] = 0;
-                            $batchArray['responses'] = 0;
-                            $batchArray['intensity'] = 0;
-                        }
-
-
-                        if (count($batchArray) > 0)  array_push($optionArray['product'], $batchArray);
+        $headerDetails = DB::table("collaborate_tasting_header")->where("id", $headerId)->first();
+        foreach ($questionResponse as $payloadKey => $payloadValue) {
+            $questionResponse[$payloadKey]["header_id"] = $headerDetails->id;
+            $questionResponse[$payloadKey]["header_name"] = $headerDetails->header_type;
+            foreach ($questionResponse[$payloadKey]["options"] as $optionKey => $optionValue) {
+                foreach ($questionResponse[$payloadKey]["options"][$optionKey]["batch"] as $batchKey => $batchValue) {
+                    $percentage = 0;
+                    if ($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] != 0) {
+                        $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / count($questionResponse[$payloadKey]["options"])) * 100);
                     }
+                    $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["percentage"] = (string)round($percentage, 2);
+
+                    $intensity = 0;
+                    if ($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] != 0 && !empty($intensity_value)) {
+                        $countTotalIntensity = count($intensity_value);
+                        $intensity = (array_sum($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"]) / $countTotalIntensity);
+                    }
+                    $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] = round($intensity, 2);
                 }
-                if (count($optionArray) > 0) array_push($merged2['options'], $optionArray);
             }
         }
-        return $merged2;
+        return $questionResponse;
     }
 
+    public function getBatches($collaborateId)
+    {
+        return DB::table("collaborate_batches")->join("collaborate_batches_color", "collaborate_batches_color.id", "=", "collaborate_batches.color_id")->where("collaborate_id", $collaborateId)->select(["collaborate_batches_color.name as color_code", "collaborate_batches.id", "collaborate_batches.name as batch_name"])->get();
+    }
+
+    public function getIfDefaultOptionsExists($question, $batchDetails, &$optionCounter, $intensity_scale, &$intensityFlag, &$optValue, $getdbOptions)
+    {
+
+
+        foreach ($question["option"] as $optionValue) {
+
+            $optValue[$optionCounter]["id"] = $optionValue["id"];
+            $optValue[$optionCounter]["name"] = $optionValue["value"];
+            $optValue[$optionCounter]["batch"] = [];
+            $j = 0;
+            foreach ($batchDetails as $batch) {
+                $optValue[$optionCounter]["batch"][$j] = (array)$batch;
+                if (!empty($getdbOptions)) {
+
+                    foreach ($getdbOptions as $responseOption) {
+
+                        if (isset($responseOption->leaf_id) && $responseOption->leaf_id == $optionValue["id"] && $responseOption->batch_id == $batch->id) {
+                            if (isset($optValue[$optionCounter]["batch"][$j]["response"])) {
+                                $optValue[$optionCounter]["batch"][$j]["response"]++;
+                            } else {
+                                $optValue[$optionCounter]["batch"][$j]["response"] = 1;
+                            }
+
+                            if (isset($question["is_intensity"]) && $question["is_intensity"] == 1 && !empty($responseOption->intensity) ** !empty($intensity_scale)) {
+
+                                $intensityFlag = true;
+                                $optValue[$optionCounter]["batch"][$j]["intensity"][] = $intensity_scale[$responseOption->intensity] + 1;
+                            }
+                        }
+                    }
+                }
+                if (!isset($optValue[$optionCounter]["batch"][$j]["response"])) {
+                    $optValue[$optionCounter]["batch"][$j]["response"] = 0;
+                }
+                if (!isset($optValue[$optionCounter]["batch"][$j]["intensity"])) {
+                    $optValue[$optionCounter]["batch"][$j]["intensity"] = 0;
+                }
+                $j++;
+            }
+            $optionCounter++;
+        }
+    }
+
+    public function getIfDefaultOptionsDoesntExists($question, $batchDetails, &$optionCounter, $intensity_scale, &$intensityFlag, &$optValue, $getdbOptions)
+    {
+        $prepArray = [];
+        if ($getdbOptions) {
+
+            foreach ($getdbOptions as $responseOption) {
+                $prepArray[$responseOption->leaf_id]["id"] = $responseOption->leaf_id;
+                $prepArray[$responseOption->leaf_id]["name"] = $responseOption->value;
+                $prepArray[$responseOption->leaf_id]["batch"] = [];
+                $j = 0;
+                foreach ($batchDetails as $batch) {
+                    $prepArray[$responseOption->leaf_id]["batch"][$j] =  (array)$batch;
+                    if (isset($prepArray[$responseOption->leaf_id]["batch"][$j]["response"])) {
+                        $prepArray[$responseOption->leaf_id]["batch"][$j]["response"]++;
+                    } else {
+                        $prepArray[$responseOption->leaf_id]["batch"][$j]["response"] = 1;
+                    }
+
+                    if (isset($question["is_intensity"]) && $question["is_intensity"] == 1 && !empty($responseOption->intensity) ** !empty($intensity_scale)) {
+
+                        $intensityFlag = true;
+                        $prepArray[$responseOption->leaf_id]["batch"][$j]["intensity"][] = $intensity_scale[$responseOption->intensity] + 1;
+                    }
+
+                    if (!isset($prepArray[$responseOption->leaf_id]["batch"][$j]["response"])) {
+                        $prepArray[$responseOption->leaf_id]["batch"][$j]["response"] = 0;
+                    }
+                    if (!isset($prepArray[$responseOption->leaf_id]["batch"][$j]["intensity"])) {
+                        $prepArray[$responseOption->leaf_id]["batch"][$j]["intensity"] = 0;
+                    }
+                    $j++;
+                }
+                $optValue[$optionCounter] = $prepArray[$responseOption->leaf_id];
+
+                $optionCounter++;
+            }
+        }
+    }
+    public function getOptions($questionArray = [], $collaborateId, $headerId, $profileIds = [], $intensity_value)
+    {
+        $intensity_scale = [];
+        if (!empty($intensity_value)) {
+            $intensity_scale = array_flip($intensity_value);
+        }
+        $batchDetails = $this->getBatches($collaborateId);
+        $questionResponse = [];
+        $questionList = [];
+        $ques = 0;
+        // $batches ;
+        $intensityFlag = false;
+        $i = 0;
+        $optValue = [];
+        foreach ($questionArray as $question) {
+
+            $questionList[$ques]["id"] = $question["id"];
+            $questionList[$ques]["title"] = $question["title"];
+            $ques++;
+
+            $getOptions = DB::table('collaborate_tasting_user_review')->where("question_id", $question["id"])->where("tasting_header_id", $headerId)->where("collaborate_id", $collaborateId)->where("current_status", 3)->select(["id", "key", "value", "value_id", "leaf_id", "intensity", "batch_id", "profile_id", "option_type"]);
+            if (!empty($profileIds)) {
+                $getOptions = $getOptions->whereIn("profile_id", $profileIds);
+            }
+            $getOptions = $getOptions->get();
+            $questionResponse["question_list"] =  $questionList;
+            if (isset($question["option"]) && !empty($question["option"])) {
+                $this->getIfDefaultOptionsExists($question, $batchDetails, $i, $intensity_scale, $intensityFlag, $optValue, $getOptions);
+                $questionResponse["is_intensity"] =  $intensityFlag;
+                $questionResponse["options"] =  $optValue;
+            } else {
+                $this->getIfDefaultOptionsDoesntExists($question, $batchDetails, $i, $intensity_scale, $intensityFlag, $optValue, $getOptions);
+                $questionResponse["is_intensity"] =  $intensityFlag;
+                $questionResponse["options"] =  $optValue;
+            }
+        }
+        return $questionResponse;
+    }
+    
     public function graphCombination(Request $request, $collaborateId)
     {
         $combinationHeadList = $request["combination_header_list"];
