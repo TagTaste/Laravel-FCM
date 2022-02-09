@@ -33,6 +33,7 @@ class FCMPush extends Model
         file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here in fcmNotification fucntion.\n", FILE_APPEND); 
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
+        $data = $this->minimizePushData($data);
         $iosData = $data;
         // For Android
         $dataBuilder = new PayloadDataBuilder();
@@ -121,5 +122,27 @@ class FCMPush extends Model
         }
     }
 
+    protected function minimizePushData($data){
+        $minData = null;
+        if(isset($data['profile'])){
+            $profile = $data['profile'];
+            $tempProfile = ['id' => $profile['id'], 'name' => $profile['name'], 'type' => $profile['type']];
+            $data['profile'] = $tempProfile;
+        }
+
+        if(isset($data['actionModel'])){
+            $data['actionModel'] = null;
+        }
+
+        if(isset($data['model'])){
+            $model = $data['model'];
+            $tempModel = ['id'=>$model['id'], 'name'=>$model['model']];
+            if(isset($model['collaborate_type'])){
+                $tempModel['collaborate_type'] = $model['collaborate_type'];
+            }     
+            $data['model'] = $tempModel;
+        }
+        return $data;
+    }
 
 }
