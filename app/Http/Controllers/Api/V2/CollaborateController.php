@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\Api\CollaborateController as BaseController;
+use Illuminate\Support\Facades\DB;
 
 class CollaborateController extends BaseController
 {
@@ -39,6 +40,7 @@ class CollaborateController extends BaseController
      */
     public function show(Request $request, $id)
     {
+        
         $collaboration = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
@@ -48,6 +50,8 @@ class CollaborateController extends BaseController
         if ($collaboration->state == 'Active' || $collaboration->state == 'Close' || $collaboration->state == 'Expired') {
             $meta = $collaboration->getMetaForV2($profileId);
             $collaboration_detail = $collaboration->toArray();
+            $collaboration_detail["view_graph"] = $this->getViewGraph($id);
+            $collaboration_detail["download_report"] = $this->getDownloadReport($id);
             $seoTags = $collaboration->getSeoTags($profileId);
             $this->model = ['collaboration'=>$collaboration_detail,'meta'=>$meta,'seoTags'=>$seoTags];
             return $this->sendResponse();
@@ -72,5 +76,36 @@ class CollaborateController extends BaseController
         ];
         return $this->sendResponse();
         
+    }
+
+    public function getDownloadReport($id)
+    {
+        $downloadReport = DB::table('collaborate_reports')->where("collaborate_id", $id)->whereNull("deleted_at")->first();
+        
+        if (!empty($downloadReport)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getViewGraph($id)
+    {
+        $headerList = DB::Table("collaborate_tasting_header")->where("collaborate_id", $id)->where('is_active', 1)->whereIn("header_selection_type", [config("constant.COLLABORATE_HEADER_SELECTION_TYPE.NORMAL"), config("constant.COLLABORATE_HEADER_SELECTION_TYPE.PRODUCT_EXPERIENCE")])->get();
+        foreach ($headerList as $headerValue) {
+            $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerValue->id)->where("collaborate_id", $id)->where('is_active', 1)->get();
+            $graphActive = false;
+            foreach ($getQuestions as $questionList) {
+                $decodeJsonOfQuestions = json_decode($questionList->questions, true);
+
+                if (json_last_error() == JSON_ERROR_NONE && isset($decodeJsonOfQuestions["create_graph"]) && $decodeJsonOfQuestions["create_graph"] == true) {
+                    $graphActive = true;
+                    break;
+                }
+                if ($graphActive) {
+                    break;
+                }
+            }
+        }
+        return $graphActive;
     }
 }
