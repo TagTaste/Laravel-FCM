@@ -146,15 +146,19 @@ class GraphController extends Controller
             $decodeJsonOfQuestions = json_decode($questionList->questions, true);
 
             if (json_last_error() == JSON_ERROR_NONE && isset($decodeJsonOfQuestions["create_graph"]) && $decodeJsonOfQuestions["create_graph"]) {
+                $option = [];
+                if (isset($decodeJsonOfQuestions["is_nested_option"]) && $decodeJsonOfQuestions["is_nested_option"] != 1 && isset($decodeJsonOfQuestions["option"]) && !empty($decodeJsonOfQuestions["option"])) {
+                    $option = $decodeJsonOfQuestions["option"];
+                }
                 if (isset($decodeJsonOfQuestions["merge_graph"]) && $decodeJsonOfQuestions["merge_graph"] == true) {
                     $questionSet["merged"][] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"]];
                 } else {
-                    $questionSet[] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"]];
+                    $questionSet[] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option];
                 }
             }
         }
-
         $optionList = $this->getOptions($questionSet, $collaborateId, $headerId);
+
         dd($optionList);
     }
 
@@ -166,8 +170,11 @@ class GraphController extends Controller
             if ($key === "merged" && is_array($value)) {
                 $questionArray[$key]["options"] = [];
                 foreach ($value as $mergedKey => $mergedValue) {
-
-                    $getOptions = DB::table('collaborate_tasting_user_review')->where("question_id", $mergedValue["id"])->where("tasting_header_id", $headerId)->where("collaborate_id", $collaborateId)->where("current_status", 3)->select(["id", "key", "value", "value_id", "leaf_id", "intensity", "batch_id", "profile_id"])->get();
+                    if (isset($mergedValue["options"]) && !empty($mergedValue["options"])) {
+                    } else {
+                        // if($mergedValue)
+                        $getOptions = DB::table('collaborate_tasting_user_review')->where("question_id", $mergedValue["id"])->where("tasting_header_id", $headerId)->where("collaborate_id", $collaborateId)->where("current_status", 3)->select(["id", "key", "value", "value_id", "leaf_id", "intensity", "batch_id", "profile_id"])->get();
+                    }
                     $opt = [];
                     foreach ($getOptions as $optionDetails) {
                         $opt[$optionDetails->value]["id"] = $optionDetails->leaf_id;
@@ -185,7 +192,7 @@ class GraphController extends Controller
 
                 $opt = [];
                 foreach ($getOptions as $optionDetails) {
-                    
+
                     $opt[$optionDetails->value]["id"] = $optionDetails->leaf_id;
                     $opt[$optionDetails->value]["value"] = $optionDetails->value;
                     $opt[$optionDetails->value]["batch"][$optionDetails->batch_id]["id"] = $optionDetails->batch_id;
