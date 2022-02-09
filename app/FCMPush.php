@@ -41,18 +41,20 @@ class FCMPush extends Model
         // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nTrying to push for android for profile_id : ".$profileId."and token count:".count($token), FILE_APPEND);
         if(count($token))
         {
-            if(isset($iosData['action']) && ($iosData['action'] == 'chat' || $iosData['action'] == 'message'))
-            {
-                $extraData = $iosData;
-                $message = Message::where('chat_id',$iosData['model']['id'])->whereNull('read_on')->orderBy('created_at','desc')->take(5)->get();
-                $extraData['model']['latestMessages'] = $message;
-                // For Android
-                $dataBuilder = new PayloadDataBuilder();
-                $dataBuilder->addData(['data' => $extraData]);
+            //No need to send latest messages
 
-                $option = $optionBuilder->build();
-                $data = $dataBuilder->build();
-            }
+            // if(isset($iosData['action']) && ($iosData['action'] == 'chat' || $iosData['action'] == 'message'))
+            // {
+            //     $extraData = $iosData;
+            //     $message = Message::where('chat_id',$iosData['model']['id'])->whereNull('read_on')->orderBy('created_at','desc')->take(5)->get();
+            //     $extraData['model']['latestMessages'] = $message;
+            //     // For Android
+            //     $dataBuilder = new PayloadDataBuilder();
+            //     $dataBuilder->addData(['data' => $extraData]);
+
+            //     $option = $optionBuilder->build();
+            //     $data = $dataBuilder->build();
+            // }
             // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nSending push android for profile_id : ".$profileId, FILE_APPEND);
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
