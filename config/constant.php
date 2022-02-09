@@ -70,6 +70,13 @@ return  [
 
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
+
+    "COLLABORATE_HEADER_SELECTION_TYPE" =>[
+        "instruction"=>0,
+        "NORMAL" =>1,
+        "PRODUCT_EXPERIENCE" =>2,
+        "bill_shot" =>3
+    ]
 ];
 
 
