@@ -129,7 +129,7 @@ class FCMPush extends Model
 
         if(isset($data['model'])){
             $model = $data['model'];
-            $tempModel = ['id'=>$model['id'], 'name'=>$model['model']];
+            $tempModel = ['id'=>$model['id'], 'name'=>$model['name']];
             if(isset($model['collaborate_type'])){
                 $tempModel['collaborate_type'] = $model['collaborate_type'];
             }     
