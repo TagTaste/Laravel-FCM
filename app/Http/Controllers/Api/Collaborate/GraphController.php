@@ -215,7 +215,7 @@ class GraphController extends Controller
 
         $i = 1;
         $combList = [];    //loop for common aroma list ,making combinations
-        foreach ($comb as $value) {
+        foreach ($comb as $key => $value) {
             if (count($value) > 1) {
 
                 foreach ($value as $v) {
@@ -226,7 +226,11 @@ class GraphController extends Controller
                 $i++;
             }
         }
-        return $headerList;
+
+        $this->model = $headerList;
+
+        return $this->sendResponse();
+       
     }
 
     public function graphFilters(Request $request, $collaborateId)
@@ -602,6 +606,9 @@ class GraphController extends Controller
 
         $dataset1['batch'] = $dataset['batch'];
 
-        return $dataset1;
+        $this->model = $dataset1;
+
+        return $this->sendResponse();
+        
     }
 }
