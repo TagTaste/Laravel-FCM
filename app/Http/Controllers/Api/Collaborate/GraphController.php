@@ -27,7 +27,12 @@ class GraphController extends Controller
             $graphActive = false;
             foreach ($getQuestions as $questionList) {
                 $decodeJsonOfQuestions = json_decode($questionList->questions, true);
-
+                    //FOR TESTING ONLY - Remove before live
+                    $decodeJsonOfQuestions["create_graph"] = true;
+                    if ($questionList->id % 2 != 0) {
+                        $decodeJsonOfQuestions["merge_graph"] = true;
+                    }
+                    ////////////////////////////
                 if (json_last_error() == JSON_ERROR_NONE) {
                     if (
                         isset($decodeJsonOfQuestions["is_nested_option"]) && $decodeJsonOfQuestions["is_nested_option"] != 0
