@@ -33,7 +33,13 @@ class FCMPush extends Model
         file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here in fcmNotification fucntion.\n", FILE_APPEND); 
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
+        
+        $jsonData = json_decode(json_encode(($data), true));
+        file_put_contents(storage_path("logs") . "/data_notification_test.txt", print_r($jsonData, true)."\n++++++++++++++++++++++++++++++++++++++\n", FILE_APPEND);
         $data = $this->minimizePushData($data);
+        $jsonData = json_decode(json_encode(($data), true));
+        file_put_contents(storage_path("logs") . "/data_notification_test.txt", print_r($jsonData, true)."\n++++++++++++++++++++++++++++++++++++++\n", FILE_APPEND);
+        
         $iosData = $data;
         // For Android
         $dataBuilder = new PayloadDataBuilder();
@@ -41,9 +47,10 @@ class FCMPush extends Model
         $option = $optionBuilder->build();
         $data = $dataBuilder->build();
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get()->pluck('fcm_token')->toArray();
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "\nTrying to push for android for profile_id : ".$profileId."and token count:".count($token), FILE_APPEND);
         if(count($token))
         {
-            //Done by nikhil - No need of latest messages now. It was creating problem with android notifications.
+            //No need to send latest messages
 
             // if(isset($iosData['action']) && ($iosData['action'] == 'chat' || $iosData['action'] == 'message'))
             // {
@@ -57,6 +64,7 @@ class FCMPush extends Model
             //     $option = $optionBuilder->build();
             //     $data = $dataBuilder->build();
             // }
+            // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nSending push android for profile_id : ".$profileId, FILE_APPEND);
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
@@ -78,7 +86,7 @@ class FCMPush extends Model
         $notification = $notificationBuilder->build();
 
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','ios')->get()->pluck('fcm_token')->toArray();
-        // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nTrying to push for ios for profile_id : ".$profileId."and token count:".count($token), FILE_APPEND);
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "\nTrying to push for ios for profile_id : ".$profileId."and token count:".count($token), FILE_APPEND);
 
         if(count($token)){
             file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here we have some tokens now - IOS.\n", FILE_APPEND); 
@@ -86,14 +94,14 @@ class FCMPush extends Model
 
         if(count($token) && !Redis::sIsMember("online:profile:",$profileId))
         {   
-            file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Sending push to selected tokesn  - IOS.\n", FILE_APPEND); 
+            file_put_contents(storage_path("logs") . "/notification_test.txt", "\nSending push ios for profile_id : ".$profileId, FILE_APPEND);
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
         }else{
             file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n User is online in redis\n", FILE_APPEND); 
         }
-        file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n+++++++++++++++++++++++++++++++++++++++++++\n", FILE_APPEND); 
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "\n\n++++++++++++++++++++++++++\n\n ", FILE_APPEND);
     }
 
     protected function message($type,$notifications = null)
@@ -136,11 +144,11 @@ class FCMPush extends Model
 
         if(isset($data['model'])){
             $model = $data['model'];
-            $tempModel = ['id'=>$model['id'], 'name'=>$model['model']];
+            $tempModel = ['id'=>$model['id'], 'name'=>$model['name']];
             if(isset($model['collaborate_type'])){
                 $tempModel['collaborate_type'] = $model['collaborate_type'];
             }     
-            $data['model'] = $tempModel;
+            // $data['model'] = $tempModel;
         }
         return $data;
     }
