@@ -30,7 +30,13 @@ class FCMPush extends Model
     {
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
+        
+        $jsonData = json_decode(json_encode(($data), true));
+        file_put_contents(storage_path("logs") . "/data_notification_test.txt", print_r($jsonData, true)."\n++++++++++++++++++++++++++++++++++++++\n", FILE_APPEND);
         $data = $this->minimizePushData($data);
+        $jsonData = json_decode(json_encode(($data), true));
+        file_put_contents(storage_path("logs") . "/data_notification_test.txt", print_r($jsonData, true)."\n++++++++++++++++++++++++++++++++++++++\n", FILE_APPEND);
+        
         $iosData = $data;
         // For Android
         $dataBuilder = new PayloadDataBuilder();
@@ -38,7 +44,7 @@ class FCMPush extends Model
         $option = $optionBuilder->build();
         $data = $dataBuilder->build();
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get()->pluck('fcm_token')->toArray();
-        // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nTrying to push for android for profile_id : ".$profileId."and token count:".count($token), FILE_APPEND);
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "\nTrying to push for android for profile_id : ".$profileId."and token count:".count($token), FILE_APPEND);
         if(count($token))
         {
             //No need to send latest messages
@@ -75,16 +81,16 @@ class FCMPush extends Model
         $notification = $notificationBuilder->build();
 
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','ios')->get()->pluck('fcm_token')->toArray();
-        // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nTrying to push for ios for profile_id : ".$profileId."and token count:".count($token), FILE_APPEND);
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "\nTrying to push for ios for profile_id : ".$profileId."and token count:".count($token), FILE_APPEND);
 
         if(count($token) && !Redis::sIsMember("online:profile:",$profileId))
         {   
-            // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nSending push ios for profile_id : ".$profileId, FILE_APPEND);
+            file_put_contents(storage_path("logs") . "/notification_test.txt", "\nSending push ios for profile_id : ".$profileId, FILE_APPEND);
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
         }
-        // file_put_contents(storage_path("logs") . "/notification_test.txt", "\n\n++++++++++++++++++++++++++\n\n ", FILE_APPEND);
+        file_put_contents(storage_path("logs") . "/notification_test.txt", "\n\n++++++++++++++++++++++++++\n\n ", FILE_APPEND);
 
 
     }
@@ -133,7 +139,7 @@ class FCMPush extends Model
             if(isset($model['collaborate_type'])){
                 $tempModel['collaborate_type'] = $model['collaborate_type'];
             }     
-            $data['model'] = $tempModel;
+            // $data['model'] = $tempModel;
         }
         return $data;
     }
