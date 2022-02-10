@@ -287,7 +287,7 @@ class GraphController extends Controller
                         $prepArray[$responseOption->leaf_id]["batch"][$j]["response"] = 1;
                     }
 
-                    if (isset($question["is_intensity"]) && $question["is_intensity"] == 1 && !empty($responseOption->intensity) ** !empty($intensity_scale)) {
+                    if (isset($question["is_intensity"]) && $question["is_intensity"] == 1 && !empty($responseOption->intensity) && !empty($intensity_scale)) {
 
                         $intensityFlag = true;
                         $prepArray[$responseOption->leaf_id]["batch"][$j]["intensity"][] = $intensity_scale[$responseOption->intensity] + 1;
