@@ -145,6 +145,13 @@ class GraphController extends Controller
         foreach ($getQuestions as $questionList) {
             $decodeJsonOfQuestions = json_decode($questionList->questions, true);
 
+            //FOR TESTING ONLY - Remove before live
+            $decodeJsonOfQuestions["create_graph"] = true;
+            if($questionList->id%2!=0){
+                $decodeJsonOfQuestions["merge_graph"] = true;
+            }
+            ////////////////////////////
+            
             if (isset($decodeJsonOfQuestions["intensity_value"]) && !empty($decodeJsonOfQuestions["intensity_value"])) {
                 $intensity_value = explode(",", $decodeJsonOfQuestions["intensity_value"]);
             }
@@ -186,19 +193,21 @@ class GraphController extends Controller
             $questionResponse[$payloadKey]["header_name"] = $headerDetails->header_type;
             foreach ($questionResponse[$payloadKey]["options"] as $optionKey => $optionValue) {
                 foreach ($questionResponse[$payloadKey]["options"][$optionKey]["batch"] as $batchKey => $batchValue) {
+                    
                     $percentage = 0;
                     if ($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] != 0) {
-                        $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / count($questionResponse[$payloadKey]["options"])) * 100);
+                        $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / $questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"][$batchValue["id"]]) * 100);
                     }
                     $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["percentage"] = (string)round($percentage, 2);
 
                     $intensity = 0;
                     if ($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] != 0 && !empty($intensity_value)) {
-                        $countTotalIntensity = count($intensity_value);
-                        $intensity = (array_sum($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"]) / $countTotalIntensity);
+                        
+                        $intensity = (array_sum($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"]) / $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]);
                     }
                     $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] = round($intensity, 2);
                 }
+                unset($questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"]);
             }
         }
         return $questionResponse;
@@ -218,24 +227,32 @@ class GraphController extends Controller
             $optValue[$optionCounter]["id"] = $optionValue["id"];
             $optValue[$optionCounter]["name"] = $optionValue["value"];
             $optValue[$optionCounter]["batch"] = [];
+            if(isset($optionValue["intensity_value"]) && !empty($optionValue["intensity_value"])){
+                $intensity_scale = explode(",",$optionValue["intensity_value"]);
+            }
+            $initialIntensity = ((isset($optionValue["initial_intensity"]) && !empty($optionValue["initial_intensity"])) ? $optionValue["initial_intensity"] : 1);
             $j = 0;
             foreach ($batchDetails as $batch) {
                 $optValue[$optionCounter]["batch"][$j] = (array)$batch;
                 if (!empty($getdbOptions)) {
 
                     foreach ($getdbOptions as $responseOption) {
-
-                        if (isset($responseOption->leaf_id) && $responseOption->leaf_id == $optionValue["id"] && $responseOption->batch_id == $batch->id) {
+                        if(!isset($optValue[$optionCounter]["totalResponse"][$responseOption->batch_id])){
+                            $optValue[$optionCounter]["totalResponse"][$responseOption->batch_id] = 1;
+                        }else{
+                            $optValue[$optionCounter]["totalResponse"][$responseOption->batch_id]++;
+                        }
+                        if (isset($responseOption->leaf_id) && $responseOption->leaf_id == $optionValue["id"] && $responseOption->batch_id == $batch->id) { 
                             if (isset($optValue[$optionCounter]["batch"][$j]["response"])) {
                                 $optValue[$optionCounter]["batch"][$j]["response"]++;
                             } else {
                                 $optValue[$optionCounter]["batch"][$j]["response"] = 1;
                             }
 
-                            if (isset($question["is_intensity"]) && $question["is_intensity"] == 1 && !empty($responseOption->intensity) ** !empty($intensity_scale)) {
+                            if (isset($question["is_intensity"]) && $question["is_intensity"] == 1 && !empty($responseOption->intensity) && !empty($intensity_scale)) {
 
                                 $intensityFlag = true;
-                                $optValue[$optionCounter]["batch"][$j]["intensity"][] = $intensity_scale[$responseOption->intensity] + 1;
+                                $optValue[$optionCounter]["batch"][$j]["intensity"][] = $intensity_scale[$responseOption->intensity] + $initialIntensity;
                             }
                         }
                     }
