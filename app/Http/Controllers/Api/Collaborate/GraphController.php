@@ -192,7 +192,7 @@ class GraphController extends Controller
             $i++;
         }
 
-        $this->model = $this->sortFinalGraphPayload($headerId, $questionResponse, $intensity_value);
+        $this->model = $this->sortFinalGraphPayload($headerId, $questionResponse);
         return $this->sendResponse();
     }
 
@@ -211,14 +211,14 @@ class GraphController extends Controller
                     if($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] != 0) {
                         $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / count($questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"][$batchValue["id"]])) * 100);
                     }
-                    $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["percentage"] = (string)round($percentage, 2);
+                    $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["percentage"] = (string)number_format(round($percentage, 2), 2, '.', '');
 
                     $intensity = 0;
-                    if ($questionResponse[$payloadKey]["is_intensity"] && $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] != 0 && !empty($intensity_value)) {
+                    if ($questionResponse[$payloadKey]["is_intensity"] && $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] != 0) {
 
                         $intensity = (array_sum($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"]) / $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]);
                     }
-                    $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] = round($intensity, 2);
+                    $questionResp1onse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] = (string)number_format(round($intensity, 2), 2, '.', '');
                 }
                 unset($questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"]);
             }
