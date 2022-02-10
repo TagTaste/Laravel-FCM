@@ -91,9 +91,10 @@ class CollaborateController extends BaseController
     public function getViewGraph($id)
     {
         $headerList = DB::Table("collaborate_tasting_header")->where("collaborate_id", $id)->where('is_active', 1)->whereIn("header_selection_type", [config("constant.COLLABORATE_HEADER_SELECTION_TYPE.NORMAL"), config("constant.COLLABORATE_HEADER_SELECTION_TYPE.PRODUCT_EXPERIENCE")])->get();
+        $graphActive = false;
         foreach ($headerList as $headerValue) {
             $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerValue->id)->where("collaborate_id", $id)->where('is_active', 1)->get();
-            $graphActive = false;
+            
             foreach ($getQuestions as $questionList) {
                 $decodeJsonOfQuestions = json_decode($questionList->questions, true);
 
