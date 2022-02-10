@@ -368,17 +368,19 @@ class GraphController extends Controller
         $dataset1['question_list'] = $dataset['question_list'];
         $intensityValue = explode(",", $question->intensity_value);
         $intensityCount = count($intensityValue);
+        $dataset['batch'] = [];
         if (!empty($batches)) {
-            $dataset['batch'] = [];
+            
             $batch = [];
             foreach ($batches as $v) {
                 $batch['id'] = $v->id;
                 $batch['batch_name'] = $v->name;
                 $batch['is_intensity'] = $question->is_intensity;
                 $options =  \DB::table('collaborate_tasting_nested_options')->where('collaborate_id', $collaborateId)->where('header_type_id', $value['id'])->where('question_id', $item->id)->get();
+                $optionArray = [];
+                $batch['options'] = [];
                 if (!empty($options)) {
-                    $optionArray = [];
-                    $batch['options'] = [];
+                   
                     foreach ($options as $option) {
                         $optionArray["id"] = $option->id;
                         $optionArray["value"] = $option->value;
