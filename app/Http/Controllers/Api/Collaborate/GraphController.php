@@ -27,12 +27,12 @@ class GraphController extends Controller
             $graphActive = false;
             foreach ($getQuestions as $questionList) {
                 $decodeJsonOfQuestions = json_decode($questionList->questions, true);
-                    //FOR TESTING ONLY - Remove before live
-                    $decodeJsonOfQuestions["create_graph"] = true;
-                    if ($questionList->id % 2 != 0) {
-                        $decodeJsonOfQuestions["merge_graph"] = true;
-                    }
-                    ////////////////////////////
+                //FOR TESTING ONLY - Remove before live
+                $decodeJsonOfQuestions["create_graph"] = true;
+                if ($questionList->id % 2 != 0) {
+                    $decodeJsonOfQuestions["merge_graph"] = true;
+                }
+                ////////////////////////////
                 if (json_last_error() == JSON_ERROR_NONE) {
                     if (
                         isset($decodeJsonOfQuestions["is_nested_option"]) && $decodeJsonOfQuestions["is_nested_option"] != 0
@@ -59,6 +59,9 @@ class GraphController extends Controller
 
         $i = 1;
         foreach ($comb as $aromaList => $headerDetails) {
+            if(count($headerDetails) < 2){
+                continue;
+            }
             $headerResponse[] = [
                 "aroma_list" => $aromaList, "header_name" => "Combination -" . $i, "is_combination" => true, "combination_header_list" => $headerDetails
             ];
@@ -149,7 +152,7 @@ class GraphController extends Controller
         $intensity_value = [];
         foreach ($getQuestions as $questionList) {
             $decodeJsonOfQuestions = json_decode($questionList->questions, true);
-            if(in_array($decodeJsonOfQuestions["select_type"],[3,4,6])){
+            if (in_array($decodeJsonOfQuestions["select_type"], [3, 4, 6])) {
                 continue;
             }
             //FOR TESTING ONLY - Remove before live
@@ -170,13 +173,13 @@ class GraphController extends Controller
                 }
 
                 $initialIntensity = 1;
-                if(isset($decodeJsonOfQuestions["is_intensity"])){
+                if (isset($decodeJsonOfQuestions["is_intensity"])) {
                     $initialIntensity = (empty($decodeJsonOfQuestions["is_intensity"]) ? 1 : $decodeJsonOfQuestions["is_intensity"]);
-                } 
+                }
                 if (isset($decodeJsonOfQuestions["merge_graph"]) && $decodeJsonOfQuestions["merge_graph"] == true) {
-                    $questionSet["merged"][] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option,"initial_intensity"=>$initialIntensity];
+                    $questionSet["merged"][] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option, "initial_intensity" => $initialIntensity];
                 } else {
-                    $questionSet[] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option,"initial_intensity"=>$initialIntensity];
+                    $questionSet[] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option, "initial_intensity" => $initialIntensity];
                 }
             }
         }
@@ -198,7 +201,7 @@ class GraphController extends Controller
 
     public function sortFinalGraphPayload($headerId, &$questionResponse)
     {
-        // return($questionResponse);
+        // return ($questionResponse);
         $headerDetails = DB::table("collaborate_tasting_header")->where("id", $headerId)->first();
         foreach ($questionResponse as $payloadKey => $payloadValue) {
             $questionResponse[$payloadKey]["header_id"] = $headerDetails->id;
@@ -208,17 +211,18 @@ class GraphController extends Controller
 
                     $percentage = 0;
                     $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] = (!empty($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]) ? count($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]) : 0);
-                    if($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] != 0) {
+                    if ($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] != 0) {
                         $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / count($questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"][$batchValue["id"]])) * 100);
                     }
                     $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["percentage"] = (string)number_format(round($percentage, 2), 2, '.', '');
 
                     $intensity = 0;
-                    if ($questionResponse[$payloadKey]["is_intensity"] && $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] != 0) {
+
+                    if (isset($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"]) && !empty($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"])) {
 
                         $intensity = (array_sum($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"]) / $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]);
                     }
-                    $questionResp1onse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] = (string)number_format(round($intensity, 2), 2, '.', '');
+                    $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["intensity"] = (string)number_format(round($intensity, 2), 2, '.', '');
                 }
                 unset($questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"]);
             }
@@ -242,6 +246,7 @@ class GraphController extends Controller
             $optValue[$optionCounter]["batch"] = [];
             if (isset($optionValue["intensity_value"]) && !empty($optionValue["intensity_value"])) {
                 $intensity_scale = explode(",", $optionValue["intensity_value"]);
+                $intensity_scale = array_flip($intensity_scale);
             }
             $initialIntensity = ((isset($optionValue["initial_intensity"]) && !empty($optionValue["initial_intensity"])) ? $optionValue["initial_intensity"] : 1);
             $j = 0;
@@ -250,44 +255,45 @@ class GraphController extends Controller
                 if (!empty($getdbOptions)) {
 
                     foreach ($getdbOptions as $responseOption) {
-                        
+
                         if (!isset($optValue[$optionCounter]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id])) {
                             $optValue[$optionCounter]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id] = 1;
                         }
-                        
+
                         if (isset($responseOption->leaf_id) && $responseOption->leaf_id == $optionValue["id"] && $responseOption->batch_id == $batch->id) {
                             if (!isset($optValue[$optionCounter]["batch"][$j]["response"][$responseOption->profile_id])) {
                                 $optValue[$optionCounter]["batch"][$j]["response"][$responseOption->profile_id] = 1;
                             }
 
-                            if (!isset($question["is_intensity"]) && $question["is_intensity"] == 1 && !empty($responseOption->intensity) && !empty($intensity_scale)) {
-
+                            if (isset($optionValue["is_intensity"]) && $optionValue["is_intensity"] == 1 && !empty($responseOption->intensity) && !empty($intensity_scale)) {
+                                
                                 $intensityFlag = true;
                                 $optValue[$optionCounter]["batch"][$j]["intensity"][] = $intensity_scale[$responseOption->intensity] + $initialIntensity;
                             }
                         }
                     }
                 }
-                
+
                 $j++;
             }
-            
+
             $optionCounter++;
         }
     }
 
     public function getIfDefaultOptionsDoesntExists($question, $batchDetails, &$optionCounter, $intensity_scale, &$intensityFlag, &$optValue, $getdbOptions)
     {
-        
+
         $prepArray = [];
         $arr = [];
         if ($getdbOptions) {
-            
+
             $ifExists = [];
             // dd($getdbOptions);
+            $previousOpt = "";
             foreach ($getdbOptions as $responseOption) {
-                $ifExists[] = $responseOption->leaf_id;
                 
+
                 $prepArray[$responseOption->leaf_id]["id"] = $responseOption->leaf_id;
                 $prepArray[$responseOption->leaf_id]["name"] = $responseOption->value;
                 $prepArray[$responseOption->leaf_id]["batch"] = [];
@@ -316,14 +322,16 @@ class GraphController extends Controller
                     }
                     $j++;
                 }
-                
-                if(!in_array($responseOption->leaf_id,$ifExists)){
-                    $optValue[$optionCounter] = $prepArray[$responseOption->leaf_id];   
+
+                if (!in_array($responseOption->leaf_id, $ifExists)) {
+                    $ifExists[] = $responseOption->leaf_id;
+                    $optValue[$optionCounter] = $prepArray[$responseOption->leaf_id];
                     $optionCounter++;
-                }else{
+                } else {
                     $optValue[$optionCounter] = $prepArray[$responseOption->leaf_id];
                 }
             }
+            // dd($optValue);
         }
     }
     public function getOptions($questionArray = [], $collaborateId, $headerId, $profileIds = [], $intensity_value)
@@ -361,7 +369,11 @@ class GraphController extends Controller
                 $questionResponse["is_intensity"] =  $intensityFlag;
                 $questionResponse["options"] =  $optValue;
             }
+            // if($question["id"]==57667){
+            //     dd($optValue);
+            // }
         }
+        
         return $questionResponse;
     }
 
