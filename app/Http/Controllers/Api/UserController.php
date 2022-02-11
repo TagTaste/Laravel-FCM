@@ -227,20 +227,15 @@ class UserController extends Controller
     {
         $this->model = \DB::table("app_info")->where("profile_id",$request->user()->profile->id)
                             ->where('fcm_token',$request->input('fcm_token'))->update(['is_active'=>0]);
-                            
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : Inactive app_info tuple of profile id : ".$request->user()->profile->id, FILE_APPEND);
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);
-                    
         return $this->sendResponse();
     }
 
     public function getApkDeviceInfo(Request $request)
     {
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
-        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$device_info]);
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "Controller : updating device info and apk version of profile id : ".$request->user()->profile->id." and fcm token : ".$request->input('fcm_token'), FILE_APPEND);
-        file_put_contents(storage_path("logs") . "/notification_test.txt", "++++++++++++++++++++++++\n\n", FILE_APPEND);
-          
+
+        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$device_info]);          
+
         return $this->sendResponse();
 
     }

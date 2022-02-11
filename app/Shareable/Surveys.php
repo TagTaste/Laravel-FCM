@@ -10,6 +10,7 @@ use App\PeopleLike;
 use App\Surveys as AppSurveys;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\HashtagFactory;
+use App\Company;
 
 class Surveys extends Share
 {
@@ -18,6 +19,8 @@ class Surveys extends Share
     protected $visible = ['id', 'profile_id', 'created_at', 'content'];
 
     protected $with = ['surveys'];
+
+    protected $appends = ["totalApplicants"];
 
     public function surveys()
     {
@@ -53,8 +56,8 @@ class Surveys extends Share
             //from original_post_meta to originalPostMeta 
         }
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->surveys_id)->where("is_active", 1)->first();
-
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
+
         $meta['isReported'] =  $this->isSurveyReported();
         $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status == 2) ? true : false);
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
@@ -76,8 +79,8 @@ class Surveys extends Share
             //from original_post_meta to originalPostMeta 
         }
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->surveys_id)->where("is_active", 1)->first();
-
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
+
         $meta['isReported'] =  $this->isSurveyReported();
         $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status == 2) ? true : false);
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
@@ -168,4 +171,28 @@ class Surveys extends Share
         ];
         return $seo_tags;
     }
+
+    public function getTotalApplicantsAttribute()
+    {
+        $sur = \DB::table("surveys")->where("id", $this->surveys_id)->first();
+        if (!empty($sur)) {
+            $c = false;
+            if (isset($sur->company_id) && !empty($sur->company_id)) {
+                $userId = request()->user()->id;
+                $company = Company::find($sur->company_id);
+                $userBelongsToCompany = $company->checkCompanyUser($userId);
+                if ($userBelongsToCompany) {
+                    $c = true;
+                }
+            }
+
+
+            if ($c || (request()->user()->profile->id == $sur->profile_id)) {
+                return \DB::table('survey_applicants')->where('survey_id', $this->surveys_id)->whereNull('deleted_at')->get()->count();
+            }
+        }
+
+        return 0;
+    }
+
 }

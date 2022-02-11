@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Survey;
 
 use App\Company;
+use App\Deeplink;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Recipe\Profile;
@@ -29,6 +30,7 @@ class SurveyApplicantController extends Controller
     {
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
         if (empty($checkIFExists)) {
+            $this->model = false;
             return $this->sendError("Invalid Survey");
         }
 
@@ -87,7 +89,7 @@ class SurveyApplicantController extends Controller
         $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
 
 
-        $profileIdsForCounts = array_column($applicants, 'profile_id');
+        $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
         //count of sensory trained
         $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
             ->whereIn('profiles.id', $profileIdsForCounts)
@@ -124,7 +126,19 @@ class SurveyApplicantController extends Controller
 
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
         if (empty($checkIFExists)) {
+            $this->model = false;
             return $this->sendError("Invalid Survey");
+        }
+
+
+        if ($checkIFExists->state == config("constant.SURVEY_STATES.CLOSED")) {
+            $this->model = ["status" => false];
+            return $this->sendError("Survey is closed. Cannot show interest");
+        }
+
+        if ($checkIFExists->state == config("constant.SURVEY_STATES.EXPIRED")) {
+            $this->model = ["status" => false];
+            return $this->sendError("Survey is expired. Cannot show interest");
         }
 
         if ($checkIFExists->is_private != config("constant.SURVEY_PRIVATE")) {
@@ -147,7 +161,7 @@ class SurveyApplicantController extends Controller
         $data = [
             'profile_id' => $request->user()->profile->id, 'survey_id' => $id,
             'message' => ($request->message ?? null),
-            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INVITED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s")
+            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INVITED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"),
         ];
 
         $create = surveyApplicants::create($data);
@@ -157,6 +171,23 @@ class SurveyApplicantController extends Controller
             // Redis::sAdd("surveys:$id:profile:$request->user()->profile_id:", $batch->id);
             Redis::set("surveys:application_status:$id:profile:$profile", 0);
             $this->model = true;
+            $this->messages = "Thanks for showing interest. We will notify you when admin accept your request for survey.";
+
+            event(new \App\Events\Actions\surveyApplicantEvents(
+                $checkIFExists,
+                $request->user()->profile,
+                null,
+                null,
+                'survey_manage',
+                null,
+                ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id),
+                 "survey_name" => $checkIFExists->title, 
+                 "survey_id" => $checkIFExists->id, 
+                 "profile" => (object)["id" => $request->user()->profile->id, 
+                 "name" => $request->user()->profile->name,
+                  "image" => $request->user()->profile->image],
+                   "is_private" => $checkIFExists->is_private, "type" => "showInterest","comment" => $request->message ?? null]
+            ));
         } else {
             $this->model = false;
             $this->errors[] = "Failed to show interest in survey";
@@ -166,10 +197,15 @@ class SurveyApplicantController extends Controller
 
     public function beginSurvey($id, Request $request)
     {
-        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->first();
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
+
         if (empty($checkIFExists)) {
-            return $this->sendError("Invalid Survey");
+            return $this->sendError("You cannot perform this action on this survey anymore.");
         }
+
 
         if ($checkIFExists->is_private != config("constant.SURVEY_PRIVATE")) {
             return $this->sendError("Cannot begin for public surveys");
@@ -197,24 +233,25 @@ class SurveyApplicantController extends Controller
 
             $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
             if ($currentStatus == 0) {
-                Redis::set("surveys:application_status:$id:profile:$profileId", 1);
                 $b = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', 0)->update(["application_status" => 1]);
                 if ($b == false) {
                     $this->model = false;
+                } else {
+                    Redis::set("surveys:application_status:$id:profile:$profileId", 1);
+                    $who = Profile::where("id", $profileId)->first();
+                    $checkIFExists->profile_id = $profileId;
+                    event(new \App\Events\Actions\surveyApplicantEvents(
+                        $checkIFExists,
+                        $who,
+                        null,
+                        null,
+                        'fill_survey',
+                        null,
+                        ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id), "survey_name" => $checkIFExists->title, "survey_id" => $checkIFExists->id, "profile" => (object)["id" => $who->id, "name" => $who->name, "image" => $who->image], "is_private" => $checkIFExists->is_private, "type" => "beginSurvey"]
+                    ));
                 }
             }
-
-            $who = null;
-            if ($checkIFExists->company_id) {
-                $company = Company::where('id', $checkIFExists->company_id)->first();
-                if (empty($company)) {
-                    $who = Profile::where("id", "=", $checkIFExists->profile_id)->first();
-                }
-            }
-            $checkIFExists->profile_id = $profileId;
-            // event(new \App\Events\Actions\BeginTasting($survey, $who, null, null, null, $company, $batchId));
         }
-
         return $this->sendResponse();
     }
 
@@ -231,17 +268,19 @@ class SurveyApplicantController extends Controller
 
     public function inviteForReview($id, Request $request)
     {
-        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->first();
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where(function ($q) {
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
 
-        if ($survey === null) {
-            return $this->sendError("Invalid Survey");
+        if (empty($survey)) {
+            return $this->sendError("You cannot perform this action on this survey anymore.");
         }
 
 
         if ($survey->is_private != config("constant.SURVEY_PRIVATE")) {
             return $this->sendError("Cannot invite for public surveys");
         }
-
 
         if (isset($survey->company_id) && !empty($survey->company_id)) {
             $companyId = $survey->company_id;
@@ -267,11 +306,29 @@ class SurveyApplicantController extends Controller
         $now = date("Y-m-d H:i:s");
         foreach ($profileIds as $profileId) {
             $survey->profile_id = $profileId;
-            // event(new \App\Events\Actions\InviteForReview($survey, null, null, null, null, $company));
-            $inputs = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")];
+            $profile = Profile::where("id", $profileId)->first();
+
+            $inputs = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE"), 'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null];
             $c = surveyApplicants::create($inputs);
             if (isset($c->id)) {
                 Redis::set("surveys:application_status:$id:profile:$profileId", 1);
+                $who = Profile::where("id", $profileId)->first();
+                $comp = $survey->profile;
+
+                if (!empty($survey->company_id)) {
+
+                    $comp =  Company::find($survey->company_id);
+                }
+                $survey->profile_id = $profileId;
+                event(new \App\Events\Actions\surveyApplicantEvents(
+                    $survey,
+                    null,
+                    null,
+                    null,
+                    'fill_survey',
+                    null,
+                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => $comp->image], "is_private" => $survey->is_private, "type" => "inviteForReview"]
+                ));
             }
         }
 
@@ -339,16 +396,13 @@ class SurveyApplicantController extends Controller
 
     public function export($id, Request $request)
     {
-        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->where('state', "!=", config("constant.SURVEY_STATES.CLOSED"))->first();
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
 
         if ($survey === null) {
+            $this->model = false;
             return $this->sendError("Invalid Survey");
         }
         $profileId = $request->user()->profile->id;
-
-        if (!$request->user()->profile->is_premium) {
-            return $this->sendError("You dont have access to this premium feature.");
-        }
 
         if (isset($survey->company_id) && !empty($survey->company_id)) {
             $companyId = $survey->company_id;
@@ -359,22 +413,25 @@ class SurveyApplicantController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } else if (isset($survey->profile_id) &&  $survey->profile_id != $request->user()->profile->id) {
-            return $this->sendError("Only Admin can close the survey");
+            // return $this->sendError("Only Admin can download report of this survey");
         }
 
         //filters data
-        $profileIds = [];
+        $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
-        $applicants = surveyApplicants::where('survey_id', $id)
-            // ->whereIn('profile_id', $profileIds, $boolean, $type)
-            ->whereIn('profile_id', $profileIds)
-            ->whereNull('deleted_at')
+        $applicants = surveyApplicants::where('survey_id', $id);
+        // ->whereIn('profile_id', $profileIds, $boolean, $type)
+        if ($profileIds !== null) {
+            $applicants  = $applicants->whereIn('profile_id', $profileIds);
+        }
+        $applicants = $applicants->whereNull('deleted_at')
             ->orderBy("created_at", "desc")
             ->get();
+
 
         $finalData = array();
 

@@ -28,16 +28,15 @@ class Surveys extends Model implements Feedable
     public $incrementing = false;
 
 
-    protected $fillable = ["id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "video_meta", "form_json", "profile_updated_by", "invited_profile_ids", "expired_at", "is_active", "state", "deleted_at", "published_at", "is_private"];
+    protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","is_private"];
+    
+    protected $with = ['profile','company'];
+    
+    protected $appends = ['owner','meta',"closing_reason",'mandatory_fields','totalApplicants'];
 
-    protected $with = ['profile', 'company'];
+    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
+    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants"];
 
-    protected $appends = ['owner', 'meta', "closing_reason", 'mandatory_fields'];
-
-    protected $visible = [
-        "id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "form_json",
-        "video_meta", "state", "expired_at", "published_at", "profile", "company", "created_at", "updated_at", "is_private"
-    ];
 
     protected $cast = [
         "form_json" => 'array',
@@ -289,4 +288,24 @@ class Surveys extends Model implements Feedable
             ->where('surveys_mandatory_fields_mapping.survey_id', $this->id)
             ->get()->toArray();
     }
+
+    public function getTotalApplicantsAttribute()
+    {
+        $c = false;
+        if (isset($this->company_id) && !empty($this->company_id)) {
+            $companyId = $this->company_id;
+            $userId = request()->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if ($userBelongsToCompany) {
+                $c = true;
+            }
+        }
+        if($this->is_private == 1 && ($c || request()->user()->profile->id==$this->profile_id)){
+            return \DB::table('survey_applicants')->where('survey_id', $this->id)->whereNull('deleted_at')->get()->count();
+        }
+        
+        return 0;
+    }
+
 }

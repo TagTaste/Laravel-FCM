@@ -14,7 +14,7 @@ trait FilterTraits
 
         $filters = $request->filters;
         $profileIds = collect([]);
-
+        
         if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
             $filterProfile = [];
             foreach ($filters['include_profile_id'] as $filter) {
@@ -38,7 +38,7 @@ trait FilterTraits
         }
 
 
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender']) || isset($filters['profile_id'])) {
+        if (!empty($filters)) {
             $Ids = surveyApplicants::where('survey_id', $surveyDetails->id);
         }
 
@@ -64,12 +64,53 @@ trait FilterTraits
         }
 
         if (isset($filters['gender'])) {
+            
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['gender'] as $gender) {
-                    $query->orWhere('gender', 'LIKE', $gender);
+                    $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
                 }
             });
         }
+
+        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
+            $Ids =   $Ids->leftJoin('profiles', 'survey_applicants.profile_id', '=', 'profiles.id');
+        }
+        if (isset($filters['sensory_trained'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['sensory_trained'] as $sensory) {
+                    if ($sensory == 'Yes')
+                        $sensory = 1;
+                    else
+                        $sensory = 0;
+                    $query->orWhere('profiles.is_sensory_trained', $sensory);
+                }
+            });
+        }
+
+        if (isset($filters['super_taster'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['super_taster'] as $superTaster) {
+                    if ($superTaster == 'SuperTaster')
+                        $superTaster = 1;
+                    else
+                        $superTaster = 0;
+                    $query->orWhere('profiles.is_tasting_expert', $superTaster);
+                }
+            });
+        }
+
+        if (isset($filters['user_type'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['user_type'] as $userType) {
+                    if ($userType == 'Expert')
+                        $userType = 1;
+                    else
+                        $userType = 0;
+                    $query->orWhere('profiles.is_expert', $userType);
+                }
+            });
+        }
+
 
         if ($profileIds->count() > 0 && isset($Ids)) {
             $Ids = $Ids->whereIn('profile_id', $profileIds);

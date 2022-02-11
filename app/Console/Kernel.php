@@ -65,6 +65,7 @@ use App\Console\Commands\Build\Graph\Build\UserFoodieType as GraphUserFoodieType
 use App\Console\Commands\Build\Graph\Build\UserSpecialization as GraphUserSpecialization;
 use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
+use App\Console\Commands\Build\SurveyApplicantStatus;
 use App\Console\Commands\SurveyAnswerSync;
 use App\Console\Commands\InsertTTFBQuestion as TTFBQuestionaire;
 use App\Console\Commands\makePaidTasters;
@@ -279,7 +280,9 @@ class Kernel extends ConsoleKernel
         removeNotifications::class,
 
         //paymentlink reminder
-        PaymentReminder::class
+        PaymentReminder::class,
+
+        SurveyApplicantStatus::class
 
     ];
 
