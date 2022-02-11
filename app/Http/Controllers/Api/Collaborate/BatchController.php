@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use App\PaymentHelper;
 use App\Profile\User;
 use Illuminate\Support\Collection;
 use Excel;
@@ -427,7 +428,7 @@ class BatchController extends Controller
                     ->where('sub_model_id', $batchInfo->id)
                     ->where('is_active', 1)
                     ->first();
-                $batchInfo->isPaid = isset($paymentOnBacth) ? true : false;
+                $batchInfo->isPaid = PaymentHelper::getisPaidMetaFlag($paymentOnBacth);
                 if ($batchInfo->current_status != 0) {
                     $batches[] = $batchInfo;
                 }

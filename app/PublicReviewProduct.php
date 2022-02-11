@@ -2,7 +2,9 @@
 
 namespace App;
 
+use App\Http\Controllers\Api\PublicReviewProduct\ReviewController;
 use App\Payment\PaymentDetails;
+use App\Payment\PaymentLinks;
 use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Database\Eloquent\Model;
@@ -287,7 +289,45 @@ class PublicReviewProduct extends Model
         $meta['is_sample_available'] = false;
         $meta['is_sample_requested'] = false;
         $payment = PaymentDetails::where("model_type","Public Review")->where("model_id",$this->id)->where("is_active",1)->first();
-        $meta['isPaid'] = (!empty($payment) ? true : false);
+        if (!empty($payment)) {
+
+
+            $ispaid = true;
+            $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
+            if ($exp != null) {
+                $separate = explode(",", $exp);
+                if (in_array(request()->user()->profile->id, $separate)) {
+                    //excluded profile error to be updated
+                    $ispaid = false;
+                }
+            }
+            if ($ispaid == true) {
+                
+                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
+                if (request()->user()->profile->is_expert) {
+                    $ukey = "expert";
+                } else {
+                    $ukey = "consumer";
+                }
+
+                if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
+                    $getAmount = json_decode($payment->amount_json, true);
+                    if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {
+                        $ispaid = false;
+                    }
+                } else {
+                    $links = PaymentLinks::where("payment_id", $payment->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
+                    if ((int)$links->count() >=  (int)$payment->user_count) {
+                        $ispaid = false;
+                    }
+                }
+            }
+        } else {
+            $ispaid = false;
+        }
+
+        $meta['isPaid'] = $ispaid;
+
         if ($this->is_newly_launched) {
             $meta['is_sample_available'] = true;
             $loggedInProfileId = request()->user()->profile->id;

@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
+
 use App\Channel\Payload;
+use App\Http\Controllers\Api\Survey\SurveyController;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
@@ -11,11 +13,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 use App\Payment\PaymentDetails;
+use App\Payment\PaymentLinks;
 
 class Surveys extends Model implements Feedable
 {
 
-    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported,HashtagFactory;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported, HashtagFactory;
 
     protected $table = "surveys";
     const CREATED_AT = 'created_at';
@@ -23,6 +26,7 @@ class Surveys extends Model implements Feedable
     const UPDATED_AT = 'updated_at';
 
     public $incrementing = false;
+
 
     protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","is_private"];
     
@@ -33,31 +37,32 @@ class Surveys extends Model implements Feedable
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
     "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants"];
 
+
     protected $cast = [
         "form_json" => 'array',
     ];
-    
-    
+
+
     public function addToCache()
     {
         $data = [
             'id' => $this->id,
-            'profile_id'=>$this->profile_id,
-            'company_id'=>$this->company_id,
-            'privacy_id'=>$this->privacy_id,
+            'profile_id' => $this->profile_id,
+            'company_id' => $this->company_id,
+            'privacy_id' => $this->privacy_id,
             'title' => $this->title,
-            'description'=>$this->description,
-            'image_meta'=>json_decode($this->image_meta),
-            'video_meta'=>json_decode($this->video_meta),
-            'state'=>$this->state,
-            'expired_at'=>$this->expired_at,
-            'published_at'=>$this->published_at,
+            'description' => $this->description,
+            'image_meta' => json_decode($this->image_meta),
+            'video_meta' => json_decode($this->video_meta),
+            'state' => $this->state,
+            'expired_at' => $this->expired_at,
+            'published_at' => $this->published_at,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'is_private' => $this->is_private,
         ];
-        
-        Redis::set("surveys:" . $this->id,json_encode($data));
+
+        Redis::set("surveys:" . $this->id, json_encode($data));
     }
 
     public function removeFromCache()
@@ -80,54 +85,62 @@ class Surveys extends Model implements Feedable
         return $this->isReported(request()->user()->profile->id, "surveys", (string)$this->id);
     }
 
-    public function getMetaFor(int $profileId) : array
+    public function getMetaFor(int $profileId): array
     {
         $meta = [];
         $meta['expired_at'] = $this->expired_at;
         $key = "meta:surveys:likes:" . $this->id;
-        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+            ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
 
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('application_status', 2)->get()->count();
         $meta['isReported'] =  $this->isSurveyReported();
-        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->select('application_status')->first();
+
+        $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
         // $meta['review_dump'] = $reviewed;
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
-        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->id)->where("is_active",1)->first();
-        $meta['isPaid'] = (!empty($payment) ? true : false);
-        $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status==2) ? true : false);
+        $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
+
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
+        $meta['isReviewed'] = (!empty($reviewed) ? true : false);
+
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
-        $k = Redis::get
-        ("surveys:application_status:$this->id:profile:$profileId");
-        $meta['applicationStatus'] = $k!==null ? (int)$k : null;
+        $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
+        $meta['applicationStatus'] = $k !== null ? (int)$k : null;
+
 
         return $meta;
     }
-    
-    public function getMetaForV2(int $profileId) : array
+
+    public function getMetaForV2(int $profileId): array
     {
         $meta = [];
         $meta['expired_at'] = $this->expired_at;
         $key = "meta:surveys:likes:" . $this->id;
-        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();  
+            ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('application_status', 2)->get()->count();
         $meta['isReported'] =  $this->isSurveyReported();
-        
-        $reviewed = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('profile_id',$profileId)->select('application_status')->first();
-        $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status==2) ? true : false);
+
+
+        $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
+        $meta['isReviewed'] = (!empty($reviewed) ? true : false);
+        $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
+
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
+
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
-        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->id)->where("is_active",1)->first();
-        $meta['isPaid'] = (!empty($payment) ? true : false);
-        $k = Redis::get
-        ("surveys:application_status:$this->id:profile:$profileId");
-        $meta['applicationStatus'] = $k!==null ? (int)$k : null;
+        $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
+
+        $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
+        $meta['applicationStatus'] = $k !== null ? (int)$k : null;
+
 
         return $meta;
     }
@@ -139,17 +152,17 @@ class Surveys extends Model implements Feedable
 
     public function payload()
     {
-        return $this->belongsTo(Payload::class,'payload_id');
+        return $this->belongsTo(Payload::class, 'payload_id');
     }
-    
-    public function getCommentNotificationMessage() : string
+
+    public function getCommentNotificationMessage(): string
     {
         return "New comment on " . $this->title . ".";
     }
-    
+
     public function getNotificationContent()
     {
-        return [    
+        return [
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->title,
@@ -157,33 +170,33 @@ class Surveys extends Model implements Feedable
         ];
     }
 
-    public function getRelatedKey() : array
+    public function getRelatedKey(): array
     {
-        if(empty($this->relatedKey) && $this->company_id === null){
-            return ['profile'=>'profile:small:' . $this->profile_id];
+        if (empty($this->relatedKey) && $this->company_id === null) {
+            return ['profile' => 'profile:small:' . $this->profile_id];
         }
-        return ['company'=>'company:small:' . $this->company_id];
+        return ['company' => 'company:small:' . $this->company_id];
     }
-    
+
     public function comments()
     {
-        return $this->belongsToMany('App\Comment','comment_surveys','surveys_id','comment_id');
+        return $this->belongsToMany('App\Comment', 'comment_surveys', 'surveys_id', 'comment_id');
     }
-    
+
     public function getPreviewContent()
     {
         $data = [];
         $data['modelId'] = $this->id;
-        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
-        $data['title'] = substr($this->title,0,65);
-        $data['description'] = "by ".$this->owner->name;
-        $data['ogTitle'] = "Survey: ".substr($this->title,0,65);
-        $data['ogDescription'] = "by ".$this->owner->name;
+        $data['deeplinkCanonicalId'] = 'share_feed/' . $this->id;
+        $data['title'] = substr($this->title, 0, 65);
+        $data['description'] = "by " . $this->owner->name;
+        $data['ogTitle'] = "Survey: " . substr($this->title, 0, 65);
+        $data['ogDescription'] = "by " . $this->owner->name;
         $images = $this->image_meta != null ? $this->image_meta : null;
-        $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
+        $data['cardType'] = isset($images) ? 'summary_large_image' : 'summary';
         $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/icon_survey.png';
-        $data['ogUrl'] = env('APP_URL').'/surveys/'.$this->id;
-        $data['redirectUrl'] = env('APP_URL').'/surveys/'.$this->id;
+        $data['ogUrl'] = env('APP_URL') . '/surveys/' . $this->id;
+        $data['redirectUrl'] = env('APP_URL') . '/surveys/' . $this->id;
 
         return $data;
     }
@@ -200,20 +213,20 @@ class Surveys extends Model implements Feedable
         $key = "meta:surveys:likes:" . $this->id;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id',$this->id)->where('application_status',2)->get()->count();        
-        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->id)->where("is_active",1)->first();
-        $meta['isPaid'] = (!empty($payment) ? true : false);
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('application_status', 2)->get()->count();
+        $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
     }
 
-    public function getSeoTags() : array
+    public function getSeoTags(): array
     {
-        $title = "TagTaste | ".$this->title." | Survey";
+        $title = "TagTaste | " . $this->title . " | Survey";
         $description = "";
         if (!is_null($this->description)) {
-            $description = substr(htmlspecialchars_decode($this->description),0,160)."...";
+            $description = substr(htmlspecialchars_decode($this->description), 0, 160) . "...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
@@ -255,14 +268,14 @@ class Surveys extends Model implements Feedable
             'other_reason' => null
         ];
         $reason_value = \DB::table('surveys_close_reasons')
-            ->where('survey_id',(int)$this->id)
+            ->where('survey_id', (int)$this->id)
             ->orderBy('id', 'desc')
             ->first();
-            
+
         if (!empty($reason_value)) {
             $reason['reason'] = $reason_value->reason;
             $reason['other_reason'] = $reason_value->other_reason;
-        }else{
+        } else {
             return null;
         }
         return $reason;
@@ -271,11 +284,11 @@ class Surveys extends Model implements Feedable
     public function getMandatoryFields()
     {
         return \DB::table('surveys_mandatory_fields')
-                ->join('surveys_mandatory_fields_mapping','surveys_mandatory_fields.id','=','surveys_mandatory_fields_mapping.mandatory_field_id')
-                ->where('surveys_mandatory_fields_mapping.survey_id',$this->id)
-                ->get()->toArray();
+            ->join('surveys_mandatory_fields_mapping', 'surveys_mandatory_fields.id', '=', 'surveys_mandatory_fields_mapping.mandatory_field_id')
+            ->where('surveys_mandatory_fields_mapping.survey_id', $this->id)
+            ->get()->toArray();
     }
-  
+
     public function getTotalApplicantsAttribute()
     {
         $c = false;
@@ -295,5 +308,4 @@ class Surveys extends Model implements Feedable
         return 0;
     }
 
-    
 }

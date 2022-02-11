@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
-
+use App\PaymentHelper;
 class SurveyController extends Controller
 {
 
@@ -367,6 +367,7 @@ class SurveyController extends Controller
             }
         }
 
+
         if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))){
             return $this->sendError("Survey status cannot be changed");
         }
@@ -674,8 +675,10 @@ class SurveyController extends Controller
         $responseData = $flag = [];
         $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
+        
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
+
 
             $responseData["is_paid"] = true;
 
@@ -684,6 +687,16 @@ class SurveyController extends Controller
             }
 
             if ($paymnetExist != null) {
+                //check for excluded flag for profiles 
+                $exp = (!empty($paymnetExist->excluded_profiles) ? $paymnetExist->excluded_profiles : null);
+                if ($exp != null) {
+                    $separate = explode(",", $exp);
+                    if (in_array($request->user()->profile->id, $separate)) {
+                        //excluded profile error to be updated
+                        $responseData["is_paid"] = false;
+                        return $responseData;
+                    }
+                }
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }
 
@@ -711,6 +724,8 @@ class SurveyController extends Controller
                 $responseData["subTitle"] = "You have successfully completed the survey.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort but unfortunately you missed the reward. Please contact us at payment@tagtaste.com for any further help.";
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "not_paid") {
+                $responseData["is_paid"] = false;
             } else {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
@@ -725,18 +740,37 @@ class SurveyController extends Controller
         return $responseData;
     }
 
-
+    
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
-            if ($request->user()->profile->is_expert) {
-                $key = "expert";
-            } else {
-                $key = "consumer";
+
+            $amount = 0;
+            if ($paymentDetails->review_type == config("payment.PAYMENT_REVIEW_TYPE.REVIEW_COUNT")) {
+
+
+                $amount = ((isset($getAmount["current"]['taster'][0]["amount"])) ? $getAmount["current"]['taster'][0]["amount"] : 0);
+            } else if ($paymentDetails->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
+
+                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($paymentDetails);
+
+                if ($request->user()->profile->is_expert) {
+                    $key = "expert";
+                } else {
+                    $key = "consumer";
+                }
+
+                if ($getCount[$key] >= $getAmount["current"][$key][0]["user_count"]) {
+                    //error message for different user type counts exceeded
+                    return ["status" => false , "reason"=>"not_paid"];
+                }
+
+                $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
-            $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
+
+
             $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {

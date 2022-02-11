@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use App\Payment\PaymentDetails;
 use App\Payment\PaymentLinks;
+use App\PaymentHelper;
 use App\Profile;
 use Illuminate\Support\Facades\Redis;
 use App\PublicReviewProduct\Review as PublicReviewProductReview;
@@ -195,6 +196,17 @@ class ReviewController extends Controller
             //     $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static4.tagtaste.com/test/modela_image.png";
             //     $responseData["helper"] = "Phone number not updated";
             // } else
+            $exp = (($paymnetExist != null && !empty($paymnetExist->excluded_profiles)) ? $paymnetExist->excluded_profiles : null);
+            
+            if ($exp != null) {
+                    $separate = explode(",", $exp);
+                    if (in_array($request->user()->profile->id, $separate)) {
+                        //excluded profile error to be updated
+                        $responseData["is_paid"] = false;
+                        return $responseData;
+                    }
+            }
+
             if ($request->user()->profile->is_paid_taster) {
                 //check for count and amount (payment details)
                 $profile = true;
@@ -215,6 +227,7 @@ class ReviewController extends Controller
             }
             $request->merge(["collaborate_id" => $collaborateId, "batch_id" => $batchId]);
             if ($profile && $paymnetExist != null) {
+
                 $flag = $this->verifyPayment($paymnetExist, $request);
             }
 
@@ -243,6 +256,9 @@ class ReviewController extends Controller
                 $responseData["subTitle"] = "You have successfully completed the review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We appreciate your effort but unfortunately you missed the reward. Please contact us at payment@tagtaste.com for any further help.";
+            } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "not_paid") {
+                $responseData["status"] = true;
+                $responseData["is_paid"] = false;
             } else {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
@@ -262,12 +278,30 @@ class ReviewController extends Controller
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
         if ($count->count() < (int)$paymentDetails->user_count) {
             $getAmount = json_decode($paymentDetails->amount_json, true);
-            if ($request->user()->profile->is_expert) {
-                $key = "expert";
-            } else {
-                $key = "consumer";
+
+            $amount = 0;
+            if ($paymentDetails->review_type == config("payment.PAYMENT_REVIEW_TYPE.REVIEW_COUNT")) {
+
+
+                $amount = ((isset($getAmount["current"]['taster'][0]["amount"])) ? $getAmount["current"]['taster'][0]["amount"] : 0);
+            } else if ($paymentDetails->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
+
+                $getCount = PaymentHelper::getDispatchedPaymentUserTypes($paymentDetails);
+
+                if ($request->user()->profile->is_expert) {
+                    $key = "expert";
+                } else {
+                    $key = "consumer";
+                }
+
+                if ($getCount[$key] >= $getAmount["current"][$key][0]["user_count"]) {
+                    //error message for different user type counts exceeded
+                    return ["status" => false , "reason"=>"not_paid"];
+                }
+
+                $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
-            $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
+            
             $data = ["amount" => $amount, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id, "payment_id" => $paymentDetails->id];
 
             if(isset($paymentDetails->comment) && !empty($paymentDetails->comment)){
@@ -293,4 +327,5 @@ class ReviewController extends Controller
 
         return ["status" => false];
     }
+
 }
