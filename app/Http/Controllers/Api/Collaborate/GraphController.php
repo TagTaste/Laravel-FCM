@@ -428,7 +428,7 @@ class GraphController extends Controller
                     if (!empty($profileIds)) {
                         $options = $options->whereIn('profile_id', $profileIds);
                     }
-                    $options = $options->get();
+                    $options = $options->distinct()->get(['leaf_id','value']);
                     $optionArray = [];
                     $batch['options'] = [];
                     if (!empty($options)) {
