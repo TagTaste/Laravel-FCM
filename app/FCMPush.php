@@ -71,7 +71,7 @@ class FCMPush extends Model
         }else{
             file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here don't have any token. - ANDROID\n", FILE_APPEND); 
         }
-        // file_put_contents(storage_path("logs") . "/notification_test.txt", "\n\n-----------------\n\n ", FILE_APPEND);
+
 
         // For iOS
         unset($iosData['model']['content']);        // due to 4kb limit of notification payload in iOS

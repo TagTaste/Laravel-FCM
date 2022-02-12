@@ -363,7 +363,7 @@ class SurveyController extends Controller
                 return $this->sendError("Permission Denied");
             }
         }
-
+        
         if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))){
             return $this->sendError("Survey status cannot be changed");
         }

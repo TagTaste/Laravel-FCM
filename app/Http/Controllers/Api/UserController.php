@@ -227,14 +227,15 @@ class UserController extends Controller
     {
         $this->model = \DB::table("app_info")->where("profile_id",$request->user()->profile->id)
                             ->where('fcm_token',$request->input('fcm_token'))->update(['is_active'=>0]);
-                 
         return $this->sendResponse();
     }
 
     public function getApkDeviceInfo(Request $request)
     {
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
+
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$device_info]);          
+
         return $this->sendResponse();
 
     }

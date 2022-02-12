@@ -87,6 +87,7 @@ class CommentController extends Controller {
 	 */
 	public function store(Request $request, $model, $modelId)
 	{
+        $models = $model;
         $model = $this->getModel($model,$modelId);
         
         $this->checkRelationship($model);
@@ -104,11 +105,13 @@ class CommentController extends Controller {
         $comment->save();
         
         $model->comments()->attach($comment->id);
-        
+        //known issue for surveys (notification model_id datatype is wrong in modoel subscriber so need to fix it )
+        if($models!="surveys"){ //stopped for surveys fir now
         event(new \App\Events\Actions\Comment($model,$request->user()->profile, $comment->content, null, null, null, $comment));
         
-        if ($comment->has_tags) {
-            event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
+            if ($comment->has_tags) {
+                event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
+            }
         }
         $meta = $comment->getMetaFor($model);
         $this->model = ["comment"=>$comment,"meta"=>$meta];
