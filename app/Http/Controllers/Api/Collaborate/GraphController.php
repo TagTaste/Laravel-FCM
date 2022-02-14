@@ -139,9 +139,13 @@ class GraphController extends Controller
 
     public function createGraphs(Request $request, $collaborateId, $headerId)
     {
-        $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerId)->where("collaborate_id", $collaborateId)->where('is_active', 1)->get();
+        $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerId)->where("collaborate_id", $collaborateId)->where('is_active', 1);
 
-        $batches = DB::table('collaborate_batches')->select('id', 'name')->where('collaborate_id', $collaborateId)->get();
+        if($request->has('question_id') && !empty($request->question_id) && is_array($request->question_id)){
+            $getQuestions = $getQuestions->whereIn('id',$request->question_id);
+        }
+
+        $getQuestions = $getQuestions->get();
 
         $questionSet = [];
 
