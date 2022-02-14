@@ -445,7 +445,7 @@ class GraphController extends Controller
                             $headerArray = [];
                             foreach ($combinationHeadList as $header) {
 
-                                $headerArray['id'] = $header['id'];
+                                $headerArray['id'] = (int)$header['id'];
                                 $headerArray['header'] = $header['header_name'];
 
                                 $response = \DB::table('collaborate_tasting_user_review')->where('value', $option->value)->where('collaborate_id', $collaborateId)
