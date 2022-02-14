@@ -384,7 +384,7 @@ class GraphController extends Controller
     public function graphCombination(Request $request, $collaborateId)
     {
         $combinationHeadList = $request["combination_header_list"];
-        $batches = \DB::table('collaborate_batches')->select('id', 'name')->where('collaborate_id', $collaborateId)->get();
+        $batches = $this->getBatches($collaborateId);
         $filters = $request->input('filters');
         $profileIds = $this->getFilteredProfile($filters, $collaborateId)->toArray();
 
@@ -409,6 +409,7 @@ class GraphController extends Controller
                 ->where('collaborate_tasting_questions.id', $value['que_id'])
                 ->where('collaborate_tasting_questions.header_type_id', $value['id'])->first();
             if (!empty($item)) {
+                $item->header_name  =  $value['header_name'];
                 $ques[] = $item->id;
                 $question = json_decode($item->questions);
                 unset($item->questions);
@@ -426,8 +427,8 @@ class GraphController extends Controller
                 $batch = [];
                 foreach ($batches as $singlebatch) {
                     $batch['id'] = $singlebatch->id;
-                    $batch['batch_name'] = $singlebatch->name;
-                    $batch['is_intensity'] = $question->is_intensity;
+                    $batch['batch_name'] = $singlebatch->batch_name;
+                    $batch['is_intensity'] = isset($question->is_intensity)?true:false;
                     $options =  \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('tasting_header_id', $value['id'])->whereIn('question_id', $ques);
                     if (!empty($profileIds)) {
                         $options = $options->whereIn('profile_id', $profileIds);
@@ -440,11 +441,11 @@ class GraphController extends Controller
                         foreach ($options as $option) {
                             $optionArray["id"] = $option->leaf_id;
                             $optionArray["value"] = $option->value;
-                            $optionArray["header"] = [];
+                            $optionArray["headers"] = [];
                             $headerArray = [];
                             foreach ($combinationHeadList as $header) {
 
-                                $headerArray['id'] = $header['id'];
+                                $headerArray['id'] = (int)$header['id'];
                                 $headerArray['header'] = $header['header_name'];
 
                                 $response = \DB::table('collaborate_tasting_user_review')->where('value', $option->value)->where('collaborate_id', $collaborateId)
@@ -457,7 +458,7 @@ class GraphController extends Controller
                                 $intensityArrray = $response->pluck('intensity')->toArray();
 
                                 if ($totalApplicants[$singlebatch->id] != 0 && $responseCount) {     //if response exists ,and total applicants for batch is not 0
-                                    $headerArray['percentage'] = ($responseCount / $totalApplicants[$singlebatch->id]) * 100;
+                                    $headerArray['percentage'] = (string)number_format(round((($responseCount / $totalApplicants[$singlebatch->id]) * 100), 2), 2, '.', '');
                                     $headerArray['responses'] = $responseCount;
                                     if ($question->is_intensity) {
                                         $answer = array_count_values(array_filter($intensityArrray));
@@ -466,15 +467,16 @@ class GraphController extends Controller
                                         foreach ($answer as $intensityName => $counOfIntensity) {
                                             $sum += $counOfIntensity * ($intensities[$intensityName]) + ($counOfIntensity * (isset($question->initial_intensity) ? $question->initial_intensity : 1));
                                         }
-
-                                        $headerArray['intensity'] = $sum / $totalApplicants[$singlebatch->id];
+                                        
+                                        $headerArray['intensity'] = (string)number_format(round(($sum / $totalApplicants[$singlebatch->id]), 2), 2, '.', '');
                                     }
                                 } else {
-                                    $headerArray['percentage'] = 0;
+                                    $headerArray['percentage'] = "0.00";
                                     $headerArray['responses'] = 0;
-                                    $headerArray['intensity'] = 0;
+                                    $headerArray['intensity'] = "0.00";
                                 }
-                                array_push($optionArray['header'], $headerArray);
+                                $headerArray['color_code'] = $singlebatch->color_code;
+                                array_push($optionArray['headers'], $headerArray);
                             }
 
                             array_push($batch['options'], $optionArray);
