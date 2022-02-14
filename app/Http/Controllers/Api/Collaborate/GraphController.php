@@ -139,9 +139,13 @@ class GraphController extends Controller
 
     public function createGraphs(Request $request, $collaborateId, $headerId)
     {
-        $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerId)->where("collaborate_id", $collaborateId)->where('is_active', 1)->get();
+        $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerId)->where("collaborate_id", $collaborateId)->where('is_active', 1);
 
-        $batches = DB::table('collaborate_batches')->select('id', 'name')->where('collaborate_id', $collaborateId)->get();
+        if($request->has('question_id') && !empty($request->question_id) && is_array($request->question_id)){
+            $getQuestions = $getQuestions->whereIn('id',$request->question_id);
+        }
+
+        $getQuestions = $getQuestions->get();
 
         $questionSet = [];
 
@@ -380,100 +384,109 @@ class GraphController extends Controller
     public function graphCombination(Request $request, $collaborateId)
     {
         $combinationHeadList = $request["combination_header_list"];
-        //dd($combinationHeadList);
         $batches = \DB::table('collaborate_batches')->select('id', 'name')->where('collaborate_id', $collaborateId)->get();
         $filters = $request->input('filters');
-        $resp = $this->getFilteredProfile($filters, $collaborateId);
-        $profileIds = $resp['profile_id']; //dd($profileIds);
-        $type = $resp['type'];
-        $boolean = 'and';
+        $profileIds = $this->getFilteredProfile($filters, $collaborateId)->toArray();
+
         foreach ($batches as $batch) {
-            $totalApplicants[$batch->id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)
-                ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id', $batch->id)->distinct()->get(['profile_id'])->count();
+            $totalApplicants[$batch->id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)->where('batch_id', $batch->id);
+            if (!empty($profileIds)) {
+                $totalApplicants[$batch->id] = $totalApplicants[$batch->id]->whereIn("profile_id", $profileIds);
+            }
+            $totalApplicants[$batch->id] = $totalApplicants[$batch->id]->distinct()->get(['profile_id'])->count();
         }
         $dataset = [];
+        $dataset1 = [];
         $ques = [];
         foreach ($combinationHeadList as $value) {
             $item =  \DB::table('collaborate_tasting_questions')
                 ->select(
                     'collaborate_tasting_questions.id',
                     'collaborate_tasting_questions.title',
-                    'collaborate_tasting_header.header_type',
                     'collaborate_tasting_questions.questions'
                 )
-                ->join('collaborate_tasting_header', 'collaborate_tasting_header.id', 'collaborate_tasting_questions.header_type_id')
                 ->where('collaborate_tasting_questions.collaborate_id', $collaborateId)
                 ->where('collaborate_tasting_questions.id', $value['que_id'])
                 ->where('collaborate_tasting_questions.header_type_id', $value['id'])->first();
-            //dd($item);
-
-            $ques[] = $item->id;
-            $question = json_decode($item->questions);
-            unset($item->questions);
-            $dataset["question_list"][] = $item;
-        }
-        $dataset1['aroma_list'] = $question->nested_option_list;
-        $dataset1['question_list'] = $dataset['question_list'];
-        $intensityValue = explode(",", $question->intensity_value);
-        $intensityCount = count($intensityValue);
-        if (!empty($batches)) {
-            $dataset['batch'] = [];
-            $batch = [];
-            foreach ($batches as $v) {
-                $batch['id'] = $v->id;
-                $batch['batch_name'] = $v->name;
-                $batch['is_intensity'] = $question->is_intensity;
-                $options =  \DB::table('collaborate_tasting_nested_options')->where('collaborate_id', $collaborateId)->where('header_type_id', $value['id'])->where('question_id', $item->id)->get();
-                if (!empty($options)) {
-                    $optionArray = [];
-                    $batch['options'] = [];
-                    foreach ($options as $option) {
-                        $optionArray["id"] = $option->id;
-                        $optionArray["value"] = $option->value;
-                        $optionArray["header"] = [];
-                        $headerArray = [];
-                        foreach ($combinationHeadList as $header) {
-
-                            $headerArray['id'] = $header['id'];
-                            $headerArray['header'] = $header['header_name'];
-
-                            $intensityArray = \DB::table('collaborate_tasting_user_review')->where('value', $option->value)->where('collaborate_id', $collaborateId)
-                                ->where('tasting_header_id', $header['id'])
-                                ->where('batch_id', $v->id)->whereIn('question_id', $ques)
-                                ->whereIn('profile_id', $profileIds, 'and', $type)->get()->pluck('intensity')->toArray();
-
-                            if ($totalApplicants[$v->id] != 0 && count($intensityArray)) {
-                                $headerArray['percentage'] = (count($intensityArray) / $totalApplicants[$v->id]) * 100;
-                                $headerArray['responses'] = count($intensityArray);
-                                if ($option->is_intensity) {
-                                    $answer = array_count_values(array_filter($intensityArray));
-                                    $intensities = array_flip($intensityValue);
-                                    $sum = 0;
-                                    foreach ($answer as $k => $vv) {
-                                        $sum += $vv * $intensities[$k];
-                                    }
-                                    $sum += $intensityCount;
-                                    $headerArray['intensity'] = $sum / $intensityCount;
-                                }
-                            } else {
-                                $headerArray['percentage'] = 0;
-                                $headerArray['responses'] = 0;
-                                $headerArray['intensity'] = 0;
-                            }
-                            array_push($optionArray['header'], $headerArray);
-                        }
-
-
-                        array_push($batch['options'], $optionArray);
-                    }
-                }
-
-
-                array_push($dataset['batch'], $batch);
+            if (!empty($item)) {
+                $ques[] = $item->id;
+                $question = json_decode($item->questions);
+                unset($item->questions);
+                $dataset["question_list"][] = $item;
             }
         }
+        if (!empty($ques)) {
+            $dataset1['aroma_list'] = $question->nested_option_list;
+            $dataset1['question_list'] = $dataset['question_list'];
+            if (isset($question->intensity_value)) {
+                $intensityValue = explode(",", $question->intensity_value);
+            }
+            $dataset['batch'] = [];
+            if (!empty($batches)) {
+                $batch = [];
+                foreach ($batches as $singlebatch) {
+                    $batch['id'] = $singlebatch->id;
+                    $batch['batch_name'] = $singlebatch->name;
+                    $batch['is_intensity'] = $question->is_intensity;
+                    $options =  \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('tasting_header_id', $value['id'])->whereIn('question_id', $ques);
+                    if (!empty($profileIds)) {
+                        $options = $options->whereIn('profile_id', $profileIds);
+                    }
+                    $options = $options->distinct()->get(['leaf_id','value']);
+                    $optionArray = [];
+                    $batch['options'] = [];
+                    if (!empty($options)) {
 
-        $dataset1['batch'] = $dataset['batch'];
+                        foreach ($options as $option) {
+                            $optionArray["id"] = $option->leaf_id;
+                            $optionArray["value"] = $option->value;
+                            $optionArray["header"] = [];
+                            $headerArray = [];
+                            foreach ($combinationHeadList as $header) {
+
+                                $headerArray['id'] = $header['id'];
+                                $headerArray['header'] = $header['header_name'];
+
+                                $response = \DB::table('collaborate_tasting_user_review')->where('value', $option->value)->where('collaborate_id', $collaborateId)
+                                    ->where('tasting_header_id', $header['id'])
+                                    ->where('batch_id', $singlebatch->id)->whereIn('question_id', $ques);
+                                if (!empty($profileIds)) {
+                                    $response = $response->whereIn('profile_id', $profileIds);
+                                }
+                                $responseCount = $response->pluck('value')->count();
+                                $intensityArrray = $response->pluck('intensity')->toArray();
+
+                                if ($totalApplicants[$singlebatch->id] != 0 && $responseCount) {     //if response exists ,and total applicants for batch is not 0
+                                    $headerArray['percentage'] = ($responseCount / $totalApplicants[$singlebatch->id]) * 100;
+                                    $headerArray['responses'] = $responseCount;
+                                    if ($question->is_intensity) {
+                                        $answer = array_count_values(array_filter($intensityArrray));
+                                        $intensities = array_flip($intensityValue);
+                                        $sum = 0;
+                                        foreach ($answer as $intensityName => $counOfIntensity) {
+                                            $sum += $counOfIntensity * ($intensities[$intensityName]) + ($counOfIntensity * (isset($question->initial_intensity) ? $question->initial_intensity : 1));
+                                        }
+
+                                        $headerArray['intensity'] = $sum / $totalApplicants[$singlebatch->id];
+                                    }
+                                } else {
+                                    $headerArray['percentage'] = 0;
+                                    $headerArray['responses'] = 0;
+                                    $headerArray['intensity'] = 0;
+                                }
+                                array_push($optionArray['header'], $headerArray);
+                            }
+
+                            array_push($batch['options'], $optionArray);
+                        }
+                    }
+                    array_push($dataset['batch'], $batch);
+                }
+            }
+            $dataset1['batch'] = $dataset['batch'];
+        }
+
+
 
         $this->model = $dataset1;
 
