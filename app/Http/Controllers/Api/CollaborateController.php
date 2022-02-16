@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\SearchClient;
 use App\Collaborate\Applicant;
+use App\PaymentHelper;
 use App\Traits\FilterFactory;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
@@ -573,7 +574,7 @@ class CollaborateController extends Controller
         $collaborateIds = [];
         $data = [];
         foreach ($collaborates as $key=> &$collaborate)
-        {
+    {
             if(in_array($collaborate['id'],$collaborateIds))
             {
                 continue;
@@ -604,7 +605,7 @@ class CollaborateController extends Controller
                                             ->where('sub_model_id',$batchInfo->id)
                                             ->where('is_active',1)
                                             ->first();
-                    $batchInfo->isPaid = isset($paymentOnBacth) ? true : false;
+                    $batchInfo->isPaid =  PaymentHelper::getisPaidMetaFlag($paymentOnBacth);
                     if($currentStatus != 0)
                     {
                         $batches[] = $batchInfo;

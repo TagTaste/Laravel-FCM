@@ -841,14 +841,14 @@ class ProfileController extends Controller
         ]);
         if (isset($data['profile']['phone']) && !empty($data['profile']['phone'])) {
             $profile = Profile::with([])->where('id', $request->user()->profile->id)->first();
-            
-            $existForOther = Profile::where('phone',$data['profile']['phone'])
-                                    ->where('verified_phone',1)
-                                    ->where('id','<>',$request->user()->profile->id)
-                                    ->first();
-            if(isset($existForOther)){
+
+            $existForOther = Profile::where('phone', $data['profile']['phone'])
+                ->where('verified_phone', 1)
+                ->where('id', '<>', $request->user()->profile->id)
+                ->first();
+            if (isset($existForOther)) {
                 return $this->sendError(["This number is already verified. Please try with another number or contact tagtaste for any query."]);
-            }else if (($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0) {
+            } else if (($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0) {
                 $profile->update(['verified_phone' => 0]);
                 $number = $data['profile']['phone'];
                 if (strlen($number) == 13) {
@@ -857,8 +857,9 @@ class ProfileController extends Controller
                 $otp = \DB::table('profiles')->where('id', $request->user()->profile->id)->first();
 
                 $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
-                $text = $otpNo . "is your OTP to verify your number with TagTaste.";
-                if ($profile->country_code == "+91" || $profile->country_code == "91") {
+                $text = $otpNo . " is your OTP to verify your number with TagTaste.";
+
+                if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
                     $service = "gupshup";
                     $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
                 } else {
@@ -881,11 +882,11 @@ class ProfileController extends Controller
                 //update filters
                 \App\Filter\Profile::addModel($this->model);
             } catch (\Exception $e) {
-                \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
+                \Log::error($e->getMessage());
                 return $this->sendError("Could not update.");
             }
         }
-        
+
         \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
 
         return $this->sendResponse();
@@ -1195,10 +1196,10 @@ class ProfileController extends Controller
             //     "mandatory_field_for_campus_connect": [],
             //     "mandatory_field_for_get_product_sample": []
             // }', true);
-            $proCompletion = Profile::where("id",$request->user()->profile->id)->get()->map->append("profileCompletion");
+            $proCompletion = Profile::where("id", $request->user()->profile->id)->get()->map->append("profileCompletion");
             // //ProfileCompletion
-            foreach($proCompletion as $v){
-            $prf["profileCompletion"] = $v->profileCompletion;
+            foreach ($proCompletion as $v) {
+                $prf["profileCompletion"] = $v->profileCompletion;
             }
             $data["profile"] = $prf;
         }

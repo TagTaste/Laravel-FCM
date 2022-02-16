@@ -2,54 +2,67 @@
 
 namespace App\Shareable;
 
+use App\Http\Controllers\Api\Survey\SurveyController;
 use App\Payment\PaymentDetails;
+use App\Payment\PaymentLinks;
+use App\PaymentHelper;
 use App\PeopleLike;
+use App\Surveys as AppSurveys;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\HashtagFactory;
+use App\Company;
 
 class Surveys extends Share
 {
     use HashtagFactory;
-    protected $fillable = ['profile_id','surveys_id','payload_id','privacy_id','content'];
-    protected $visible = ['id','profile_id','created_at','content'];
+    protected $fillable = ['profile_id', 'surveys_id', 'payload_id', 'privacy_id', 'content'];
+    protected $visible = ['id', 'profile_id', 'created_at', 'content'];
 
     protected $with = ['surveys'];
 
+    protected $appends = ["totalApplicants"];
+
     public function surveys()
     {
-        return $this->belongsTo(\App\Surveys::class,'survey_id');
+        return $this->belongsTo(\App\Surveys::class, 'survey_id');
     }
 
     // public function like()
     // {
     //     return $this->hasMany(\App\Shareable\Sharelikable\surveys::class,'poll_share_id');
     // }
-        
+
     public function isSurveyReported()
     {
         return $this->isReported(request()->user()->profile->id, "surveys", $this->survey_id, true, $this->id);
     }
-    
-    public function getMetaFor($profileId){
+
+    public function getMetaFor($profileId)
+    {
         $meta = [];
         $key = "meta:surveysShare:likes:" . $this->id;
 
-        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'surveysShare' ,request()->user()->profile->id);
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'surveysShare', request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
 
-        $survey = \App\Surveys::where('id',$this->surveys_id)->whereNull('deleted_at')->first();
+        $survey = \App\Surveys::where('id', $this->surveys_id)->whereNull('deleted_at')->first();
         if ($survey) {
-            $meta['originalPostMeta'] = $survey->getMetaFor($profileId);//Because off android this response is changes 
-                                                                      //from original_post_meta to originalPostMeta 
+            $meta['originalPostMeta'] = $survey->getMetaFor($profileId); //Because off android this response is changes 
+            //from original_post_meta to originalPostMeta 
         }
-        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->surveys_id)->where("is_active",1)->first();
-        $meta['isPaid'] = (!empty($payment) ? true : false);
+        $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->surveys_id)->where("is_active", 1)->first();
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
+
         $meta['isReported'] =  $this->isSurveyReported();
+        $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status == 2) ? true : false);
+        $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+        $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
+        $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         return $meta;
     }
 
@@ -57,40 +70,46 @@ class Surveys extends Share
     {
         $meta = [];
         $key = "meta:surveysShare:likes:" . $this->id;
-        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
-        $survey = \App\Surveys::where('id',$this->surveys_id)->whereNull('deleted_at')->first();
+        $survey = \App\Surveys::where('id', $this->surveys_id)->whereNull('deleted_at')->first();
         if ($survey) {
-            $meta['originalPostMeta'] = $survey->getMetaFor($profileId);//Because off android this response is changes 
-                                                                      //from original_post_meta to originalPostMeta 
+            $meta['originalPostMeta'] = $survey->getMetaFor($profileId); //Because off android this response is changes 
+            //from original_post_meta to originalPostMeta 
         }
-        $payment = PaymentDetails::where("model_type","Survey")->where("model_id",$this->surveys_id)->where("is_active",1)->first();
-        $meta['isPaid'] = (!empty($payment) ? true : false);
+        $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->surveys_id)->where("is_active", 1)->first();
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
+
         $meta['isReported'] =  $this->isSurveyReported();
+        $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status == 2) ? true : false);
+        $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+        $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
+        $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         return $meta;
     }
 
     public function getMetaForV2Shared($profileId)
-    {   
+    {
         return $this->getMetaForV2($profileId);
     }
-    
-    public function getMetaForPublic(){
+
+    public function getMetaForPublic()
+    {
         $meta = [];
         $key = "meta:surveysShare:likes:" . $this->id;
 
         $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
-        
+
         return $meta;
     }
 
     public function getNotificationContent()
     {
         return [
-            'name' => strtolower(class_basename(self::class)),            
+            'name' => strtolower(class_basename(self::class)),
             'id' => $this->surveys_id,
             // 'id' => 1,
             'share_id' => $this->id,
@@ -104,7 +123,7 @@ class Surveys extends Share
      * @param int $profileId
      * @return array
      */
-    public function getSeoTags() : array
+    public function getSeoTags(): array
     {
         $title = "TagTaste | Share Survey";
 
@@ -118,7 +137,7 @@ class Surveys extends Share
         }
 
         if (!is_null($description) && strlen($description)) {
-            $description = substr($this->getContent($description),0,160)."...";
+            $description = substr($this->getContent($description), 0, 160) . "...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
@@ -151,6 +170,29 @@ class Surveys extends Share
             ),
         ];
         return $seo_tags;
+    }
+
+    public function getTotalApplicantsAttribute()
+    {
+        $sur = \DB::table("surveys")->where("id", $this->surveys_id)->first();
+        if (!empty($sur)) {
+            $c = false;
+            if (isset($sur->company_id) && !empty($sur->company_id)) {
+                $userId = request()->user()->id;
+                $company = Company::find($sur->company_id);
+                $userBelongsToCompany = $company->checkCompanyUser($userId);
+                if ($userBelongsToCompany) {
+                    $c = true;
+                }
+            }
+
+
+            if ($c || (request()->user()->profile->id == $sur->profile_id)) {
+                return \DB::table('survey_applicants')->where('survey_id', $this->surveys_id)->whereNull('deleted_at')->get()->count();
+            }
+        }
+
+        return 0;
     }
 
 }
