@@ -112,7 +112,7 @@ class ReviewController extends Controller
                         'question_id' => $questionId, 'tasting_header_id' => $headerId,
                         'profile_id' => $loggedInProfileId, 'batch_id' => $batchId,
                         'collaborate_id' => $collaborateId, 'intensity' => $intensity, 'current_status' => $currentStatus, 'value_id' => $valueId,
-                        'created_at' => $this->now, 'updated_at' => $this->now, 'option_type' => $optionType, 'address_map_id' => $address_id
+                        'created_at' => $this->now, 'updated_at' => $this->now, 'option_type' => $optionType, 'meta' => null, 'address_map_id' => $address_id
                     ];
                 }
                 if (isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta'])) {
@@ -136,7 +136,7 @@ class ReviewController extends Controller
                         'question_id' => $questionId, 'tasting_header_id' => $headerId,
                         'profile_id' => $loggedInProfileId, 'batch_id' => $batchId,
                         'collaborate_id' => $collaborateId, 'intensity' => null, 'current_status' => $currentStatus, 'value_id' => null,
-                        'created_at' => $this->now, 'updated_at' => $this->now, 'option_type' => 0, 'address_map_id' => $address_id
+                        'created_at' => $this->now, 'updated_at' => $this->now, 'option_type' => 0, 'meta' => null, 'address_map_id' => $address_id
                     ];
                 }
             }
@@ -186,8 +186,8 @@ class ReviewController extends Controller
         if (!empty($paymnetExist) || $requestPaid) {
             $responseData["status"] = true;
             $responseData["is_paid"] = true;
-            if($requestPaid){
-                $flag = ["status"=>false,"reason"=>"paid"];
+            if ($requestPaid) {
+                $flag = ["status" => false, "reason" => "paid"];
             }
             //check for paid user
             // if (empty($request->user()->profile->phone)) {
@@ -197,14 +197,14 @@ class ReviewController extends Controller
             //     $responseData["helper"] = "Phone number not updated";
             // } else
             $exp = (($paymnetExist != null && !empty($paymnetExist->excluded_profiles)) ? $paymnetExist->excluded_profiles : null);
-            
+
             if ($exp != null) {
-                    $separate = explode(",", $exp);
-                    if (in_array($request->user()->profile->id, $separate)) {
-                        //excluded profile error to be updated
-                        $responseData["is_paid"] = false;
-                        return $responseData;
-                    }
+                $separate = explode(",", $exp);
+                if (in_array($request->user()->profile->id, $separate)) {
+                    //excluded profile error to be updated
+                    $responseData["is_paid"] = false;
+                    return $responseData;
+                }
             }
 
             if ($request->user()->profile->is_paid_taster) {
@@ -219,7 +219,7 @@ class ReviewController extends Controller
                 $getPublicCount = PublicReviewProductReview::where("profile_id", $request->user()->profile->id)->groupBy("product_id")->where("current_status", 2)->get();
 
                 $profile = false;
-                
+
                 if ($request->user()->profile->is_sensory_trained && (($getPublicCount->count() + $getPrivateReview->count()) >= config("constant.MINIMUM_PAID_TASTER_REVIEWS"))) {
                     Profile::where("id", $request->user()->profile->id)->update(["is_paid_taster" => 1]);
                     $profile = true;
@@ -296,15 +296,15 @@ class ReviewController extends Controller
 
                 if ($getCount[$key] >= $getAmount["current"][$key][0]["user_count"]) {
                     //error message for different user type counts exceeded
-                    return ["status" => false , "reason"=>"not_paid"];
+                    return ["status" => false, "reason" => "not_paid"];
                 }
 
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
-            
+
             $data = ["amount" => $amount, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id, "payment_id" => $paymentDetails->id];
 
-            if(isset($paymentDetails->comment) && !empty($paymentDetails->comment)){
+            if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;
             }
 
@@ -327,5 +327,4 @@ class ReviewController extends Controller
 
         return ["status" => false];
     }
-
 }
