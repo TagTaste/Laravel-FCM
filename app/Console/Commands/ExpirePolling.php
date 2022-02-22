@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Events\ExpirePoll;
+use App\Recipe\Profile;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -36,16 +37,29 @@ class ExpirePolling extends Command
      */
     public function handle()
     {
-        \App\Polling::with([])->where('created_at', '<=', Carbon::now()->subDay(7)->toDateTimeString())
+
+        \App\Polling::where('created_at', '<=', Carbon::now()->subDay(7)->toDateTimeString())
             ->where('is_expired', 0)->whereNull('deleted_at')
             ->orderBy('id')->chunk(100, function ($models) {
+
                 foreach ($models as $model) {
                     echo $model->id . "\n";
-                    $model->update(['expired_time' => Carbon::now()->toDateTimeString(), 'is_expired' => 1]);
-                    //                    $model->removeFromCache();
-                    //                    $model->options()->delete();
-                    //                    $model->delete();
-                    event(new ExpirePoll($model));
+                    // var_dump($model->update(['expired_time' => Carbon::now()->toDateTimeString(), 'is_expired' => 1]));
+                    $profiles =  Profile::select('profiles.*')->join('poll_votes', 'poll_votes.profile_id', '=', 'profiles.id')
+                        ->where('poll_votes.poll_id', $model->id)->get();
+                    $admin = Profile::where('id', $model->profile_id)->first();
+                    $profiles->push($admin);
+                    
+                    foreach ($profiles as $profile) {
+                        $event = $model;
+                        if($admin->id==$profile->id){
+                            
+                            $event->isAdmin = true;
+                        }
+                        $event->profile = $profile;
+
+                        event(new ExpirePoll($event,$admin));
+                    }
                 }
             });
     }
