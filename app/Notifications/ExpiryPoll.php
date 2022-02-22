@@ -1,62 +1,87 @@
 <?php
 
+
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Notifications\Action;
+
+use App\FCMPush;
+use Carbon\Carbon;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class ExpiryPoll extends Notification
+class ExpiryPoll extends Action
 {
-    use Queueable;
+    public $view;
+    public $sub;
+    public $notification;
+    public $surveyInfo;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @return void
-     */
     public function __construct($event)
     {
-        //
-        $this->model = $event->model;
+        parent::__construct($event);
+        
+        if (isset($event->model->isAdmin)) {
+            
+            $this->sub = "Your poll has expired " . (strlen($event->model->title) > 80 ? substr($event->model->title, 0, 80) . "..." : $event->model->title);
+        } else {
+            
+            $this->sub = htmlspecialchars_decode($event->who["name"]) . " poll has expired " . (strlen($event->model->title) > 80 ? substr($event->model->title, 0, 80) . "..." : $event->model->title);
+        }
+
+        echo $this->sub;
+        
+        
+        // $this->sub = htmlspecialchars_decode($this->data->who['name']) ." has assigned a new product (".$event->batchInfo->name.") for you to taste";
+        
+        $this->notification = $this->sub;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
     public function via($notifiable)
     {
-        return ['mail'];
+        $via = ['database', FCMPush::class, 'broadcast'];
+        if ($this->view && view()->exists($this->view)) {
+
+            $via[] = 'mail';
+        }
+        return $via;
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->subject("Poll Expired")
-            ->line("The Poll " . $this->model->title . "  has been expired now.")
-            ->line("Thanks for the contributuion.");
+        if (view()->exists($this->view)) {
+
+            return (new MailMessage())->subject($this->sub)->view(
+                $this->view,
+                [
+                    'data' => $this->data, 'model' => $this->allData, 'notifiable' => $notifiable,
+                    'content' => $this->getContent($this->allData['content']),
+                    'info' => $this->surveyInfo
+                ]
+            );
+        }
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
     public function toArray($notifiable)
     {
-        return [
-            //
+        $data = [
+            'action' => $this->data->action,
+            'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
+            'notification' => $this->notification,
         ];
+
+        if (method_exists($this->model, 'getNotificationContent')) {
+            $data['model'] = $this->allData;
+        } else {
+            \Log::warning(class_basename($this->modelName) . " doesn't specify notification content.");
+            $data['model'] = [
+                'name' => $this->modelName,
+                'id' => $this->data->model->id,
+                'content' => $this->data->content,
+                'image' => $this->data->image
+            ];
+        }
+        $data['created_at'] = Carbon::now()->toDateTimeString();
+
+        return $data;
     }
 }
