@@ -34,12 +34,10 @@ class CollaborationReportUpload
      */
     public function handle(CollaborationReportUploadEvent $event)
     {
-        file_put_contents(storage_path("logs") . "/skynet_test.txt", "\nListener called : CollaborationReportUpload", FILE_APPEND);
         $profileId = $event->collaborate->profile_id;
         $profile = Profile::find($profileId);
-        file_put_contents(storage_path("logs") . "/skynet_test.txt", "\nListener called again: CollaborationReportUpload", FILE_APPEND);
+        $event->profile = $profile;
         if(isset($profile))
-        Notification::send($profile, new CollaborateReportNotification($event));
-        // $profile = Profile::where('id',$event->profileId)->get();
+            Notification::send($profile, new CollaborateReportNotification($event));
     }
 }
