@@ -34,7 +34,6 @@ class CollaborationReportUpload
         $this->collaborate = $model;
         $this->content = $content;
         $this->notificationMode = $notificationMode;
-        $this->action = 'collaborate_report_upload';
-        file_put_contents(storage_path("logs") . "/skynet_test.txt", "\nEvent called : CollaborationReportUpload", FILE_APPEND);
+        $this->action = 'report_upload';
     }
 }

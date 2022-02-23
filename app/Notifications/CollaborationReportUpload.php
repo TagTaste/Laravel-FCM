@@ -29,12 +29,14 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
     public $allData;
     public $action;
     public $notificationMode;
+    public $profile;
 
     public function __construct($event)
     {
         $this->view = 'emails.document-reject';
-        $this->sub = "Re-submit Documents";
+        $this->sub = "New Report Uploaded";
         $this->model = $event->collaborate;
+        $this->profile = $event->profile;
         $name = $this->model['title'];
         $this->notification = $event->content;
         $this->notificationMode = $event->notificationMode;
@@ -61,13 +63,13 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
         $modes = explode(',',$this->notificationMode);
         $via = [];
         if(in_array('bell', $modes)){
-            $via[] = ['database',FCMPush::class];
+            $via[] = 'database';
+            $via[] = FCMPush::class;
         }
 
         if(in_array('mail', $modes) && $this->view && view()->exists($this->view)){
-            // $via[] = 'mail';
+            $via[] = 'mail';
         }
-        $via = ['database'];
         return $via;
     }
 
@@ -79,17 +81,13 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        // return (new MailMessage)
-        //             ->line($this->message)
-        //             ->line('Thank you.');
-        
-        // if (view()->exists($this->view)) {
-        //     // return (new MailMessage())->subject($this->sub)->view(
-        //     //     $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable, 'companyName'=>$this->companyName]
-        //     // );
-        // }
+        if (view()->exists($this->view)) {
+            return (new MailMessage())->subject($this->sub)->view(
+                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable, 'companyName'=>'hello']
+            );
+        }
     }
-
+    
     /**
      * Get the array representation of the notification.
      *
@@ -100,10 +98,10 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
     {
         $data = [
             'action' => $this->action,
-            'profile' => null,
+            'profile' => $this->profile,
             'notification' => $this->notification,
         ];
-
+        
         if(method_exists($this->model,'getNotificationContent')){
             $data['model'] = $this->allData;
         } else {
