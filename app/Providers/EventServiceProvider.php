@@ -34,6 +34,8 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\CampusConnectRequestEvent' => ['App\Listeners\CampusConnectRequest'],
         'App\Events\ReportContentUserEvent' => ['App\Listeners\ReportContentUser'],
         'App\Events\PublicReviewProductGetSampleEvent' => ['App\Listeners\PublicReviewProductGetSample'],
+        'App\Events\CollaborationReportUpload' => ['App\Listeners\CollaborationReportUpload'],
+
         'App\Events\Actions\Like' => [],
         'App\Events\Actions\Comment' => [],
         'App\Events\Actions\Tag' => ['App\Listeners\Notifications\Tag'],
@@ -76,6 +78,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\DeleteModel' => ['App\Listeners\Notifications\DeleteModel'],
 
         'App\Events\Actions\ExpireModel' => ['App\Listeners\Notifications\ExpireModel'],
+
         'App\Events\DeleteFilters' => ['App\Listeners\DeleteFilters'],
 
 
