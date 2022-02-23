@@ -71,8 +71,6 @@ return  [
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
 
-    "DEFAULT_SIZE" => 8,
-
     "COLLABORATE_HEADER_SELECTION_TYPE" =>[
         "instruction"=>0,
         "NORMAL" =>1,
@@ -82,7 +80,8 @@ return  [
     ,
     'SELECT_TYPES' => [
         'SELFIE_TYPE' => 6
-    ]
+    ],
+    "DEFAULT_SIZE" => 8
 ];
 
 
