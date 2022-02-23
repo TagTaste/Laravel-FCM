@@ -82,6 +82,7 @@ return  [
         'SELFIE_TYPE' => 6
     ],
     "DEFAULT_SIZE" => 8
+    
 ];
 
 
