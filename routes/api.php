@@ -927,4 +927,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/expert/enroll", "PaymentController@enrollExpertProgram");        
     });
     Route::post('link/status/callback','\App\Http\Controllers\Api\Payment\PaymentController@paymentCallback');
+
+    //route to send notification from skynet
+    Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
 });
