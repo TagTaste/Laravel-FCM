@@ -429,11 +429,11 @@ class GraphController extends Controller
                     $batch['id'] = $singlebatch->id;
                     $batch['batch_name'] = $singlebatch->batch_name;
                     $batch['is_intensity'] = isset($question->is_intensity)?true:false;
-                    $options =  \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('tasting_header_id', $value['id'])->whereIn('question_id', $ques);
+                    $options =  \DB::table('collaborate_tasting_user_review')->select('leaf_id','value')->where('batch_id',$singlebatch->id)->where('collaborate_id', $collaborateId)->whereIn('question_id', $ques);
                     if (!empty($profileIds)) {
                         $options = $options->whereIn('profile_id', $profileIds);
                     }
-                    $options = $options->distinct()->get(['leaf_id','value']);
+                    $options = $options->groupBy('value')->get();
                     $optionArray = [];
                     $batch['options'] = [];
                     if (!empty($options)) {
