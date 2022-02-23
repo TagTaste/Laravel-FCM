@@ -482,7 +482,9 @@ class GraphController extends Controller
                             array_push($batch['options'], $optionArray);
                         }
                     }
+                    if(count($batch['options'])){
                     array_push($dataset['batch'], $batch);
+                    }
                 }
             }
             $dataset1['batch'] = $dataset['batch'];
