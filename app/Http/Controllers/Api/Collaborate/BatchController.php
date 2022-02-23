@@ -624,9 +624,30 @@ class BatchController extends Controller
                     $reports['answer'] = Collaborate\Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status', 3)->where('tasting_header_id', $headerId)->skip(0)->take(3)->get();
                 } else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.SELFIE_TYPE")) {
-                    $reports['answer'] =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'collaborate_tasting_user_review.meta','collaborate_tasting_user_review.option_type')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
+                    $values =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'profiles.id', 'collaborate_tasting_user_review.meta', 'collaborate_tasting_user_review.updated_at', 'collaborate_tasting_user_review.intensity', 'collaborate_tasting_user_review.leaf_id', 'profiles.verified as is_verified', 'profiles.image_meta', 'collaborate_tasting_user_review.option_type')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
                         ->join('users', 'users.id', 'profiles.user_id')->where('collaborate_tasting_user_review.collaborate_id', $collaborateId)->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.question_id', $data->id)
                         ->whereIn('collaborate_tasting_user_review.profile_id', $profileIds, $boolean, $type)->where('collaborate_tasting_user_review.current_status', 3)->where('collaborate_tasting_user_review.tasting_header_id', $headerId)->skip(0)->take(config("constant.DEFAULT_SIZE"))->get();
+                    $reports['answer'] = [];
+                    $dataset = [];
+                    $profile = [];
+                    foreach ($values as $value) {
+                        $dataset['leaf_id'] = $value->leaf_id;
+                        $dataset['option_type'] = $value->option_type;
+                        $profile['id'] = $value->id;
+                        $profile['name'] = $value->name;
+                        $profile['is_verified'] = $value->is_verified;
+                        $profile['image_meta'] = json_decode($value->image_meta);
+                        $dataset['profile'] = $profile;
+                        $dataset['meta'] = json_decode($value->meta);
+                        $dataset['intensity'] = [];
+                        $dataset['is_intensity'] = 0;
+                        $dataset['intensity_value'] = null;
+                        $dataset['intensity_type'] = null;
+                        $dataset['updated_at'] =  $value->updated_at;
+
+                        $reports['answer'][] = $dataset;
+                    }
+                    //  dd($reports['answer']);
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
                         ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
@@ -839,13 +860,13 @@ class BatchController extends Controller
         $boolean = 'and';
         $profileIds = $resp['profile_id'];
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $images =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'collaborate_tasting_user_review.meta')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
+        $images =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'profiles.id', 'profiles.verified', 'profiles.image_meta', 'collaborate_tasting_user_review.updated_at', 'collaborate_tasting_user_review.meta')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
             ->join('users', 'users.id', 'profiles.user_id')->where('collaborate_tasting_user_review.collaborate_id', $collaborateId)->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.question_id', $questionId)
             ->whereIn('collaborate_tasting_user_review.profile_id', $profileIds, $boolean, $type)->where('collaborate_tasting_user_review.current_status', 3)->where('collaborate_tasting_user_review.tasting_header_id', $headerId);
 
         $this->model = [];
         $data = [];
-        $data['total_respondants'] = \DB::table('collaborate_tasting_user_review')->where('current_status', 3)->where('collaborate_id', $collaborateId)
+        $data['total_respondants'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id', $collaborateId)
             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id', $batchId)->where('question_id', $questionId)->distinct()->get(['profile_id'])->count();
         $title = \DB::table('collaborate_tasting_questions')->select('title')->where('collaborate_id', $collaborateId)
             ->where('id', $questionId)->where('header_type_id', $headerId)->first();
@@ -853,11 +874,18 @@ class BatchController extends Controller
         $images = $images->skip($skip)->take($take)
             ->get();
         $data['images'] = [];
+        $imageItem = [];
+        $profile = [];
         foreach ($images as $image) {
+            $profile['id'] = $image->id;
+            $profile['name'] = $image->name;
+            $profile['is_verified'] = $image->verified;
+            $profile['image_meta'] = json_decode($image->image_meta);
+            $imageItem['profile'] = $profile;
+            $imageItem['meta'] = json_decode($image->meta);
+            $imageItem['updated_at'] = $image->updated_at;
 
-            $image->meta = json_decode($image->meta);
-
-            $data['images'][] =  $image;
+            $data['images'][] =  $imageItem;
         }
         $this->model = $data;
         return $this->sendResponse();
