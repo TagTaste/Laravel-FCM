@@ -9,11 +9,12 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Carbon\Carbon;
+// use App\Notifications\Action;
 
 class CollaborationReportUpload extends Notification implements ShouldQueue
 {
     use Queueable;
-
+    
     /**
      * Create a new notification instance.
      *
@@ -37,7 +38,7 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
         $name = $this->model['title'];
         $this->notification = $event->content;
         $this->notificationMode = $event->notificationMode;
-         
+
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
         $this->action = $event->action;
@@ -45,6 +46,8 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
         if (method_exists($this->model,'getNotificationContent')) {
             $this->allData = $this->model->getNotificationContent();
         }
+        
+
     }
     
     /**
@@ -62,8 +65,9 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
         }
 
         if(in_array('mail', $modes) && $this->view && view()->exists($this->view)){
-            $via[] = 'mail';
+            // $via[] = 'mail';
         }
+        $via = ['database'];
         return $via;
     }
 
@@ -75,9 +79,9 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-                    ->line($this->message)
-                    ->line('Thank you.');
+        // return (new MailMessage)
+        //             ->line($this->message)
+        //             ->line('Thank you.');
         
         // if (view()->exists($this->view)) {
         //     // return (new MailMessage())->subject($this->sub)->view(
