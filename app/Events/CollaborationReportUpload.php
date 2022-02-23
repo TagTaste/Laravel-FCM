@@ -6,9 +6,11 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use App\Events\Action;
 
 class CollaborationReportUpload
 {
@@ -20,13 +22,16 @@ class CollaborationReportUpload
      *
      * @return void
      */
+    public $model;
     public $collaborate;
     public $action;
     public $content;
     public $notificationMode;
-    public function __construct($collaborate = null, $content = null, $notificationMode)
+
+    public function __construct(Model &$model, $content = null, $notificationMode)
     {
-        $this->collaborate = $collaborate;
+        $this->model = $model;
+        $this->collaborate = $model;
         $this->content = $content;
         $this->notificationMode = $notificationMode;
         $this->action = 'collaborate_report_upload';

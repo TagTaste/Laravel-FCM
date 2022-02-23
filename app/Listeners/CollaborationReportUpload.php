@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Notify\Profile;
 
 
-class CollaborationReportUpload implements ShouldQueue
+class CollaborationReportUpload 
 {
     /**
      * Create the event listener.
