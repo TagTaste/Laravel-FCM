@@ -43,8 +43,8 @@ class ExpirePolling extends Command
             ->orderBy('id')->chunk(100, function ($models) {
 
                 foreach ($models as $model) {
-                    echo $model->id . "\n";
-                    // var_dump($model->update(['expired_time' => Carbon::now()->toDateTimeString(), 'is_expired' => 1]));
+                    
+                    $model->update(['expired_time' => Carbon::now()->toDateTimeString(), 'is_expired' => 1]);
                     $profiles =  Profile::select('profiles.*')->join('poll_votes', 'poll_votes.profile_id', '=', 'profiles.id')
                         ->where('poll_votes.poll_id', $model->id)->get();
                     $admin = Profile::where('id', $model->profile_id)->first();
