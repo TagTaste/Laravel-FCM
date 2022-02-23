@@ -73,8 +73,6 @@ return  [
 
     "DEFAULT_SIZE" => 8,
 
-    "DEFAULT_SIZE" => 8,
-
     "COLLABORATE_HEADER_SELECTION_TYPE" =>[
         "instruction"=>0,
         "NORMAL" =>1,
