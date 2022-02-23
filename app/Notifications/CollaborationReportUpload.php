@@ -37,17 +37,7 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
         $name = $this->model['title'];
         $this->notification = $event->content;
         $this->notificationMode = $event->notificationMode;
-        // if($this->isContest) {
-        //     $this->view = 'emails.contest-document-reject';
-        //     $this->notification = "Admin has requested you to reupload the document for collaboration $name ";
-        // } else {
-        //     $this->notification = "Documents you submitted, do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";
-        //     if (isset($event->company['name'])) {
-        //         $this->companyName = $event->company['name']; 
-        //         $this->notification = "Documents you submitted to ".$event->company['name'] ." do not match our criteria. This could either be due to a blurry upload or absence of required information to validate your age. Tap here to submit again.";
-        //     }
-        // }
-        
+         
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
         $this->action = $event->action;
