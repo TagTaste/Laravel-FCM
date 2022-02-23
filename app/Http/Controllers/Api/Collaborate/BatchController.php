@@ -24,6 +24,7 @@ class BatchController extends Controller
 
     protected $model;
 
+
     /**
      * Create instance of controller with Model
      *
@@ -622,10 +623,10 @@ class BatchController extends Controller
                 if (isset($data->questions->select_type) && $data->questions->select_type == 3) {
                     $reports['answer'] = Collaborate\Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status', 3)->where('tasting_header_id', $headerId)->skip(0)->take(3)->get();
-                } else  if (isset($data->questions->select_type) && $data->questions->select_type == 6) {
-                    $reports['answer'] =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'collaborate_tasting_user_review.meta')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
+                } else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.SELFIE_TYPE")) {
+                    $reports['answer'] =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'collaborate_tasting_user_review.meta','collaborate_tasting_user_review.option_type')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
                         ->join('users', 'users.id', 'profiles.user_id')->where('collaborate_tasting_user_review.collaborate_id', $collaborateId)->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.question_id', $data->id)
-                        ->whereIn('collaborate_tasting_user_review.profile_id', $profileIds, $boolean, $type)->where('collaborate_tasting_user_review.current_status', 3)->where('collaborate_tasting_user_review.tasting_header_id', $headerId)->skip(0)->take(1)->get();
+                        ->whereIn('collaborate_tasting_user_review.profile_id', $profileIds, $boolean, $type)->where('collaborate_tasting_user_review.current_status', 3)->where('collaborate_tasting_user_review.tasting_header_id', $headerId)->skip(0)->take(config("constant.DEFAULT_SIZE"))->get();
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
                         ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
