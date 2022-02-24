@@ -32,23 +32,22 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
     public $notificationMode;
     public $profile;
     public $content;
-
+    public $reportUrl;
     public function __construct($event)
     {
         $this->view = 'emails.collaboration-report-upload';
         $this->sub = "New Report Uploaded";
         $this->model = $event->collaborate;
         $this->profile = $event->profile;
-        $name = $this->model['title'];
+        $this->reportUrl = $this->model->report_link;
         $this->content = $event->content;
         $this->notification = $this->content.$this->model->title;
         $this->notificationMode = $event->notificationMode;
 
         $this->data = $event->collaborate;
-        $this->model = $event->collaborate;
         $this->action = $event->action;
         $this->modelName = 'collaborate';
-
+        
         if (method_exists($this->model,'getNotificationContent')) {
             $this->allData = $this->model->getNotificationContent();
         }
@@ -87,8 +86,8 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
             $emailData = [
                 "userName" => $this->profile->name,
                 "title" => $this->model->title,
+                "report_link" => $this->reportUrl ?? '',
                 "hyperlink" => Deeplink::getShortLink('collaborate', $this->model->id),
-                "report_link" => $this->model->report_link ?? '',
                 "content" => $this->content
             ];
             return (new MailMessage())->subject($this->sub)->view(
