@@ -331,7 +331,7 @@ class Kernel extends ConsoleKernel
         //payment link reminder command
 
         $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
-        $schedule->command('review:calculation')->dailyAt('01:00');
+        // $schedule->command('review:calculation')->dailyAt('01:00');
 
 
     }

@@ -86,18 +86,19 @@ class CollaborateReviewCalculation extends Command
         $excel_save_path = storage_path("exports/" . $excel->filename . ".xlsx");
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
-        $this->model = \Storage::url($resp);
+        
+        $url = \Storage::url($resp);
         unlink($excel_save_path);
-
-        \Mail::raw("In attachment excelfile of participants ",function($message) use ($excel_save_path) {
-
-            $message->to('v-hussein@tagtaste.com')
-       
-           ->subject('collaborate review time calculation');
-           
-          // $message->attach(\Storage::disk('s3')->get($this->model));
-            $message->attach($excel_save_path);
-
+        $linkMessage = 'Excel Report Review '.$url;
+        \Mail::raw($linkMessage, function ($message) {
+            
+            $message->to('v-hussein@tagtaste.com', 'Hussein Shaikh');
+            // $message->cc('john@johndoe.com', 'John Doe');
+            // $message->bcc('john@johndoe.com', 'John Doe');
+            
+            $message->subject('Review Excel');
+        
         });
+        
     }
 }
