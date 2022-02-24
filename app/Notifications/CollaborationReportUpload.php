@@ -3,6 +3,7 @@
 
 namespace App\Notifications;
 
+use App\Deeplink;
 use App\FCMPush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -34,7 +35,7 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
 
     public function __construct($event)
     {
-        // $this->view = 'emails.document-reject';
+        $this->view = 'emails.collaboration-report-upload';
         $this->sub = "New Report Uploaded";
         $this->model = $event->collaborate;
         $this->profile = $event->profile;
@@ -47,7 +48,7 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
         $this->model = $event->collaborate;
         $this->action = $event->action;
         $this->modelName = 'collaborate';
-        
+
         if (method_exists($this->model,'getNotificationContent')) {
             $this->allData = $this->model->getNotificationContent();
         }
@@ -67,13 +68,13 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
             $via[] = 'database';
             $via[] = FCMPush::class;
         }
-
+        
         if(in_array('mail', $modes) && $this->view && view()->exists($this->view)){
             $via[] = 'mail';
         }
         return $via;
     }
-
+    
     /**
      * Get the mail representation of the notification.
      *
@@ -83,8 +84,18 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         if (view()->exists($this->view)) {
+            $emailData = [
+                "userName" => $this->profile->name,
+                "title" => $this->model->title,
+                "hyperlink" => Deeplink::getShortLink('collaborate', $this->model->id),
+                "report_link" => $this->model->report_link ?? '',
+                "content" => $this->content
+            ];
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable, 'companyName'=>'hello']
+                $this->view,
+                [
+                    'data' => $emailData
+                ]
             );
         }
     }
@@ -117,5 +128,6 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
         $data['created_at'] = Carbon::now()->toDateTimeString();
         return $data;
     }
+    
 
 }
