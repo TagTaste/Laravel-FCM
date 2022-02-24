@@ -282,7 +282,8 @@ class Kernel extends ConsoleKernel
         //paymentlink reminder
         PaymentReminder::class,
 
-        SurveyApplicantStatus::class
+        SurveyApplicantStatus::class,
+        \App\Console\Commands\CollaborateReviewCalculation::class,
 
     ];
 
@@ -330,6 +331,8 @@ class Kernel extends ConsoleKernel
         //payment link reminder command
 
         $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
+        $schedule->command('review:calculation')->dailyAt('12:00');
+
 
     }
 
