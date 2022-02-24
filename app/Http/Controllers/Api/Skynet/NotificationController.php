@@ -30,7 +30,7 @@ class NotificationController extends Controller
                 return $this->sendResponse(false);
             }
             $collaborate->report_link = $data["report_link"] ?? "";
-            
+
             if($data["type"] == "report_upload")
                 $data["notification"] = "TagTaste has added a report to your collaboration ";
             else if($data["type"] == "report_removed")
