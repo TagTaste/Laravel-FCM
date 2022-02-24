@@ -30,28 +30,29 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
     public $action;
     public $notificationMode;
     public $profile;
+    public $content;
 
     public function __construct($event)
     {
-        $this->view = 'emails.document-reject';
+        // $this->view = 'emails.document-reject';
         $this->sub = "New Report Uploaded";
         $this->model = $event->collaborate;
         $this->profile = $event->profile;
         $name = $this->model['title'];
-        $this->notification = $event->content;
+        $this->content = $event->content;
+        $this->notification = $this->content.$this->model->title;
         $this->notificationMode = $event->notificationMode;
 
         $this->data = $event->collaborate;
         $this->model = $event->collaborate;
         $this->action = $event->action;
         $this->modelName = 'collaborate';
+        
         if (method_exists($this->model,'getNotificationContent')) {
             $this->allData = $this->model->getNotificationContent();
         }
-        
-
     }
-    
+
     /**
      * Get the notification's delivery channels.
      *
@@ -87,7 +88,7 @@ class CollaborationReportUpload extends Notification implements ShouldQueue
             );
         }
     }
-    
+
     /**
      * Get the array representation of the notification.
      *
