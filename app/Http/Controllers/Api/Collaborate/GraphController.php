@@ -387,13 +387,8 @@ class GraphController extends Controller
         $batches = $this->getBatches($collaborateId);
         $filters = $request->input('filters');
         $profileIds = $this->getFilteredProfile($filters, $collaborateId)->toArray();
-
         foreach ($batches as $batch) {
-            $totalApplicants[$batch->id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)->where('batch_id', $batch->id);
-            if (!empty($profileIds)) {
-                $totalApplicants[$batch->id] = $totalApplicants[$batch->id]->whereIn("profile_id", $profileIds);
-            }
-            $totalApplicants[$batch->id] = $totalApplicants[$batch->id]->distinct()->get(['profile_id'])->count();
+            $totalApplicants[$batch->id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)->where('batch_id', $batch->id)->distinct()->get(['profile_id'])->count();
         }
         $dataset = [];
         $dataset1 = [];
@@ -430,7 +425,7 @@ class GraphController extends Controller
                     $batch['batch_name'] = $singlebatch->batch_name;
                     $batch['is_intensity'] = isset($question->is_intensity)?true:false;
                     $options =  \DB::table('collaborate_tasting_user_review')->select('leaf_id','value')->where('batch_id',$singlebatch->id)->where('collaborate_id', $collaborateId)->whereIn('question_id', $ques);
-                    if (!empty($profileIds)) {
+                    if (!empty($profileIds) || (empty($profileIds) && !empty($filters))) {
                         $options = $options->whereIn('profile_id', $profileIds);
                     }
                     $options = $options->groupBy('value')->get();
@@ -451,7 +446,7 @@ class GraphController extends Controller
                                 $response = \DB::table('collaborate_tasting_user_review')->where('value', $option->value)->where('collaborate_id', $collaborateId)
                                     ->where('tasting_header_id', $header['id'])
                                     ->where('batch_id', $singlebatch->id)->where('question_id', $header['que_id']);
-                                if (!empty($profileIds)) {
+                                if (!empty($profileIds)  || (empty($profileIds) && !empty($filters))) {
                                     $response = $response->whereIn('profile_id', $profileIds);
                                 }
                                 $responseCount = $response->pluck('value')->count();
