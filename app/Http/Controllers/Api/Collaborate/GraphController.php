@@ -450,7 +450,7 @@ class GraphController extends Controller
 
                                 $response = \DB::table('collaborate_tasting_user_review')->where('value', $option->value)->where('collaborate_id', $collaborateId)
                                     ->where('tasting_header_id', $header['id'])
-                                    ->where('batch_id', $singlebatch->id)->whereIn('question_id', $ques);
+                                    ->where('batch_id', $singlebatch->id)->where('question_id', $header['que_id']);
                                 if (!empty($profileIds)) {
                                     $response = $response->whereIn('profile_id', $profileIds);
                                 }
