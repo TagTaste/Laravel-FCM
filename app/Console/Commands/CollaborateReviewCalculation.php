@@ -21,7 +21,7 @@ class CollaborateReviewCalculation extends Command
      *
      * @var string
      */
-    protected $description = 'set deleted_at in when poll is expired';
+    protected $description = 'collaborate review time calculation';
     /**
      * Create a new command instance.
      *
