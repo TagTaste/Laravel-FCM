@@ -23,14 +23,13 @@ class NotificationController extends Controller
 
     public function notifyUsers(Request $request)
     {
-        $data = $request->input();
+        $data = $request->all();
         if($data["type"] == "report_upload" || $data["type"] == "report_removed"){
             $collaborate = Collaborate::where('id',$data["collaborate_id"])->first();
             if ($collaborate === null) {
                 return $this->sendResponse(false);
             }
-            $collaborate->report_link = $data["report_link"] ?? "";
-
+            $collaborate->report_link = $data["report_link"] ?? '';
             if($data["type"] == "report_upload")
                 $data["notification"] = "TagTaste has added a report to your collaboration ";
             else if($data["type"] == "report_removed")
