@@ -93,7 +93,7 @@ class CollaborateReviewCalculation extends Command
         $linkMessage = 'Excel Report Review '.$url;
         \Mail::raw($linkMessage, function ($message) {
             
-            $message->to('v-hussein@tagtaste.com', 'Hussein Shaikh');
+            $message->to('nikhil@tagtaste.com', 'Nikhil Bharti');
             // $message->cc('john@johndoe.com', 'John Doe');
             // $message->bcc('john@johndoe.com', 'John Doe');
             
