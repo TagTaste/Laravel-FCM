@@ -39,15 +39,16 @@ class CollaborateReviewCalculation extends Command
     public function handle()
     {
         
-        $finalData = \DB::select("SELECT c.title as collaborate_name, cr.collaborate_id,cr.profile_id,p.handle as profile_name,MIN(cr.created_at) as start_time,
-        MAX(cr.updated_at) as Updated_at, TIMEDIFF(MAX(cr.updated_at),MIN(cr.created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
+        $finalData = \DB::select("SELECT c.title as collaborate_name, cr.collaborate_id,cr.batch_id,cr.profile_id,p.handle as profile_name,MIN(cr.created_at) as start_time,
+        MAX(cr.updated_at) as completion_time, TIMEDIFF(MAX(cr.updated_at),MIN(cr.created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
         as cr join collaborates as c  on (c.id=cr.collaborate_id) join profiles as p on p.id = cr.profile_id where cr.current_status=3 
         group by cr.profile_id,cr.batch_id,cr.collaborate_id");
         foreach($finalData as $value){
+            $seconds= strtotime($value->review_time_taken) - strtotime('00:00:00');
+            $value->review_time_seconds = $seconds;
             $value->collabore_link = "https://dev.tagtaste.com/collaborations/".$value->collaborate_id."/product-review";
             $value->profile_link = "https://dev.tagtaste.com/@".$value->profile_name;
             $finalData1[] = (Array)$value;
-
 
         }
         $relativePath = "reports/surveysAnsweredExcel";
