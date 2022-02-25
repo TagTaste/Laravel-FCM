@@ -129,7 +129,7 @@ class GraphController extends Controller
                 'collaborate_reports.created_at',
                 'collaborate_reports.updated_at'
             )
-            ->where('collaborate_id', $collaborateId)->get();
+            ->where('collaborate_id', $collaborateId)->whereNull("deleted_at")->get();
 
         $this->model = $reports;
 
