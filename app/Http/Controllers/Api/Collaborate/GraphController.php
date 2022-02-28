@@ -59,7 +59,7 @@ class GraphController extends Controller
 
         $i = 1;
         foreach ($comb as $aromaList => $headerDetails) {
-            if(count($headerDetails) < 2){
+            if (count($headerDetails) < 2) {
                 continue;
             }
             $headerResponse[] = [
@@ -119,7 +119,8 @@ class GraphController extends Controller
 
     public function graphReports(Request $request, $collaborateId)
     {
-
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $reports = \DB::table('collaborate_reports')
             ->select(
                 'collaborate_reports.id',
@@ -129,10 +130,9 @@ class GraphController extends Controller
                 'collaborate_reports.created_at',
                 'collaborate_reports.updated_at'
             )
-            ->where('collaborate_id', $collaborateId)->whereNull("deleted_at")->get();
+            ->where('collaborate_id', $collaborateId)->whereNull("deleted_at")->skip($skip)->take($take)->get();
 
         $this->model = $reports;
-
         return $this->sendResponse();
     }
 
@@ -141,8 +141,8 @@ class GraphController extends Controller
     {
         $getQuestions = DB::table("collaborate_tasting_questions")->where('header_type_id', $headerId)->where("collaborate_id", $collaborateId)->where('is_active', 1);
 
-        if($request->has('question_id') && !empty($request->question_id) && is_array($request->question_id)){
-            $getQuestions = $getQuestions->whereIn('id',$request->question_id);
+        if ($request->has('question_id') && !empty($request->question_id) && is_array($request->question_id)) {
+            $getQuestions = $getQuestions->whereIn('id', $request->question_id);
         }
 
         $getQuestions = $getQuestions->get();
@@ -270,7 +270,7 @@ class GraphController extends Controller
                             }
 
                             if (isset($optionValue["is_intensity"]) && $optionValue["is_intensity"] == 1 && !empty($responseOption->intensity) && !empty($intensity_scale)) {
-                                
+
                                 $intensityFlag = true;
                                 $optValue[$optionCounter]["batch"][$j]["intensity"][] = $intensity_scale[$responseOption->intensity] + $initialIntensity;
                             }
@@ -296,7 +296,7 @@ class GraphController extends Controller
             // dd($getdbOptions);
             $previousOpt = "";
             foreach ($getdbOptions as $responseOption) {
-                
+
 
                 $prepArray[$responseOption->leaf_id]["id"] = $responseOption->leaf_id;
                 $prepArray[$responseOption->leaf_id]["name"] = $responseOption->value;
@@ -377,7 +377,7 @@ class GraphController extends Controller
             //     dd($optValue);
             // }
         }
-        
+
         return $questionResponse;
     }
 
@@ -423,8 +423,8 @@ class GraphController extends Controller
                 foreach ($batches as $singlebatch) {
                     $batch['id'] = $singlebatch->id;
                     $batch['batch_name'] = $singlebatch->batch_name;
-                    $batch['is_intensity'] = isset($question->is_intensity)?true:false;
-                    $options =  \DB::table('collaborate_tasting_user_review')->select('leaf_id','value')->where('batch_id',$singlebatch->id)->where('collaborate_id', $collaborateId)->whereIn('question_id', $ques);
+                    $batch['is_intensity'] = isset($question->is_intensity) ? true : false;
+                    $options =  \DB::table('collaborate_tasting_user_review')->select('leaf_id', 'value')->where('batch_id', $singlebatch->id)->where('collaborate_id', $collaborateId)->whereIn('question_id', $ques);
                     if (!empty($profileIds) || (empty($profileIds) && !empty($filters))) {
                         $options = $options->whereIn('profile_id', $profileIds);
                     }
@@ -462,7 +462,7 @@ class GraphController extends Controller
                                         foreach ($answer as $intensityName => $counOfIntensity) {
                                             $sum += $counOfIntensity * ($intensities[$intensityName]) + ($counOfIntensity * (isset($question->initial_intensity) ? $question->initial_intensity : 1));
                                         }
-                                        
+
                                         $headerArray['intensity'] = (string)number_format(round(($sum / $totalApplicants[$singlebatch->id]), 2), 2, '.', '');
                                     }
                                 } else {
@@ -477,8 +477,8 @@ class GraphController extends Controller
                             array_push($batch['options'], $optionArray);
                         }
                     }
-                    if(count($batch['options'])){
-                    array_push($dataset['batch'], $batch);
+                    if (count($batch['options'])) {
+                        array_push($dataset['batch'], $batch);
                     }
                 }
             }
