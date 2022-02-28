@@ -130,8 +130,8 @@ class GraphController extends Controller
                 'collaborate_reports.created_at',
                 'collaborate_reports.updated_at'
             )
-            ->where('collaborate_id', $collaborateId)->skip($skip)->take($take)->get();
-       
+            ->where('collaborate_id', $collaborateId)->whereNull("deleted_at")->skip($skip)->take($take)->get();
+
         $this->model = $reports;
         return $this->sendResponse();
     }
