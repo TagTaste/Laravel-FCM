@@ -28,10 +28,10 @@ class GraphController extends Controller
             foreach ($getQuestions as $questionList) {
                 $decodeJsonOfQuestions = json_decode($questionList->questions, true);
                 //FOR TESTING ONLY - Remove before live
-                $decodeJsonOfQuestions["create_graph"] = true;
-                if ($questionList->id % 2 != 0) {
-                    $decodeJsonOfQuestions["merge_graph"] = true;
-                }
+                // $decodeJsonOfQuestions["create_graph"] = true;
+                // if ($questionList->id % 2 != 0) {
+                //     $decodeJsonOfQuestions["merge_graph"] = true;
+                // }
                 ////////////////////////////
                 if (json_last_error() == JSON_ERROR_NONE) {
                     if (
@@ -160,10 +160,10 @@ class GraphController extends Controller
                 continue;
             }
             //FOR TESTING ONLY - Remove before live
-            $decodeJsonOfQuestions["create_graph"] = true;
-            if ($questionList->id % 2 != 0) {
-                $decodeJsonOfQuestions["merge_graph"] = true;
-            }
+            // $decodeJsonOfQuestions["create_graph"] = true;
+            // if ($questionList->id % 2 != 0) {
+            //     $decodeJsonOfQuestions["merge_graph"] = true;
+            // }
             ////////////////////////////
 
             if (isset($decodeJsonOfQuestions["intensity_value"]) && !empty($decodeJsonOfQuestions["intensity_value"])) {
