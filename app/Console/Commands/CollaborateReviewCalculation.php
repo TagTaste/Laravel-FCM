@@ -21,7 +21,7 @@ class CollaborateReviewCalculation extends Command
      *
      * @var string
      */
-    protected $description = 'set deleted_at in when poll is expired';
+    protected $description = 'collaborate review time calculation';
     /**
      * Create a new command instance.
      *
@@ -39,15 +39,16 @@ class CollaborateReviewCalculation extends Command
     public function handle()
     {
         
-        $finalData = \DB::select("SELECT c.title as collaborate_name, cr.collaborate_id,cr.profile_id,p.handle as profile_name,MIN(cr.created_at) as start_time,
-        MAX(cr.updated_at) as Updated_at, TIMEDIFF(MAX(cr.updated_at),MIN(cr.created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
+        $finalData = \DB::select("SELECT c.title as collaborate_name, cr.collaborate_id,cr.batch_id,cr.profile_id,p.handle as profile_name,MIN(cr.created_at) as start_time,
+        MAX(cr.updated_at) as completion_time, TIMEDIFF(MAX(cr.updated_at),MIN(cr.created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
         as cr join collaborates as c  on (c.id=cr.collaborate_id) join profiles as p on p.id = cr.profile_id where cr.current_status=3 
         group by cr.profile_id,cr.batch_id,cr.collaborate_id");
         foreach($finalData as $value){
+            $seconds= strtotime($value->review_time_taken) - strtotime('00:00:00');
+            $value->review_time_seconds = $seconds;
             $value->collabore_link = "https://dev.tagtaste.com/collaborations/".$value->collaborate_id."/product-review";
             $value->profile_link = "https://dev.tagtaste.com/@".$value->profile_name;
             $finalData1[] = (Array)$value;
-
 
         }
         $relativePath = "reports/surveysAnsweredExcel";
@@ -86,18 +87,19 @@ class CollaborateReviewCalculation extends Command
         $excel_save_path = storage_path("exports/" . $excel->filename . ".xlsx");
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
-        $this->model = \Storage::url($resp);
+        
+        $url = \Storage::url($resp);
         unlink($excel_save_path);
-
-        \Mail::raw("In attachment excelfile of participants ",function($message) use ($excel_save_path) {
-
-            $message->to('v-hussein@tagtaste.com')
-       
-           ->subject('collaborate review time calculation');
-           
-          // $message->attach(\Storage::disk('s3')->get($this->model));
-            $message->attach($excel_save_path);
-
+        $linkMessage = 'Excel Report Review '.$url;
+        \Mail::raw($linkMessage, function ($message) {
+            
+            $message->to('nikhil@tagtaste.com', 'Nikhil Bharti');
+            // $message->cc('john@johndoe.com', 'John Doe');
+            // $message->bcc('john@johndoe.com', 'John Doe');
+            
+            $message->subject('Review Excel');
+        
         });
+        
     }
 }
