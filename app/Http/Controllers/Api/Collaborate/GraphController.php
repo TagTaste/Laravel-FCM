@@ -39,7 +39,11 @@ class GraphController extends Controller
                         && isset($decodeJsonOfQuestions["create_graph"]) && $decodeJsonOfQuestions["create_graph"] == true
                     ) {
 
-                        $comb[$decodeJsonOfQuestions["nested_option_list"]][] = ["id" => $headerValue->id, "que_id" => $questionList->id, "header_name" => $headerValue->header_type];
+                        if ((isset($comb[$decodeJsonOfQuestions["nested_option_list"]]) && !in_array($headerValue->id, array_column($comb[$decodeJsonOfQuestions["nested_option_list"]], "id")))
+                            || !isset($comb[$decodeJsonOfQuestions["nested_option_list"]])
+                        ) {
+                            $comb[$decodeJsonOfQuestions["nested_option_list"]][] = ["id" => $headerValue->id, "que_id" => $questionList->id, "header_name" => $headerValue->header_type];
+                        }
                     }
                     if (isset($decodeJsonOfQuestions["create_graph"]) && $decodeJsonOfQuestions["create_graph"] == true) {
 
