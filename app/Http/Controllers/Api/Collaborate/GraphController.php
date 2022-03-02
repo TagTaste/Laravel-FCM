@@ -475,7 +475,7 @@ class GraphController extends Controller
                                     }
                                 } else {
                                     $headerArray['percentage'] = "0.00";
-                                    $headerArray['responses'] = 0;
+                                    $headerArray['response'] = 0;
                                     $headerArray['intensity'] = "0.00";
                                 }
                                 $headerArray['color_code'] = $singlebatch->color_code;
