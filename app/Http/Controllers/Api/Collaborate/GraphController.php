@@ -462,7 +462,7 @@ class GraphController extends Controller
 
                                 if ($totalApplicants[$singlebatch->id] != 0 && $responseCount) {     //if response exists ,and total applicants for batch is not 0
                                     $headerArray['percentage'] = (string)number_format(round((($responseCount / $totalApplicants[$singlebatch->id]) * 100), 2), 2, '.', '');
-                                    $headerArray['responses'] = $responseCount;
+                                    $headerArray['response'] = $responseCount;
                                     if ($question->is_intensity) {
                                         $answer = array_count_values(array_filter($intensityArrray));
                                         $intensities = array_flip($intensityValue);
@@ -475,7 +475,7 @@ class GraphController extends Controller
                                     }
                                 } else {
                                     $headerArray['percentage'] = "0.00";
-                                    $headerArray['responses'] = 0;
+                                    $headerArray['response'] = 0;
                                     $headerArray['intensity'] = "0.00";
                                 }
                                 $headerArray['color_code'] = $singlebatch->color_code;
