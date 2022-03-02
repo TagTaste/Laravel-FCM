@@ -220,7 +220,7 @@ class GraphController extends Controller
                     $percentage = 0;
                     $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] = (!empty($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]) ? count($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]) : 0);
                     if ($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] != 0) {
-                        $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / count($questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"][$batchValue["id"]])) * 100);
+                        $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / $questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"][$batchValue["id"]]) * 100);
                     }
                     $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["percentage"] = (string)number_format(round($percentage, 2), 2, '.', '');
 
@@ -264,8 +264,10 @@ class GraphController extends Controller
 
                     foreach ($getdbOptions as $responseOption) {
 
-                        if (!isset($optValue[$optionCounter]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id])) {
-                            $optValue[$optionCounter]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id] = 1;
+                        if (!isset($optValue[$optionCounter]["totalResponse"][$responseOption->batch_id])) {
+                            $optValue[$optionCounter]["totalResponse"][$responseOption->batch_id] = 1;
+                        }else{
+                            $optValue[$optionCounter]["totalResponse"][$responseOption->batch_id]++;
                         }
 
                         if (isset($responseOption->leaf_id) && $responseOption->leaf_id == $optionValue["id"] && $responseOption->batch_id == $batch->id) {
@@ -307,8 +309,10 @@ class GraphController extends Controller
                 $prepArray[$responseOption->leaf_id]["batch"] = [];
                 $j = 0;
                 foreach ($batchDetails as $batch) {
-                    if (!isset($prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id[$responseOption->profile_id]])) {
-                        $prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id] = 1;
+                    if (!isset($prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id])) {
+                        $prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id] = 1;
+                    }else{
+                        $prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id]++;
                     }
                     $prepArray[$responseOption->leaf_id]["batch"][$j] =  (array)$batch;
                     if ($responseOption->batch_id == $batch->id) {
