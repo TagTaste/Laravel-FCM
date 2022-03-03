@@ -41,7 +41,7 @@ class ExpirePolling extends Command
     public function handle()
     {
 
-        \App\Polling::where('created_at', '<=', Carbon::now()->subMinutes(5)->toDateTimeString())
+        \App\Polling::where('created_at', '<=', Carbon::now()->subDays(7)->toDateTimeString())
             ->where('is_expired', 0)->whereNull('deleted_at')
             ->orderBy('id')->chunk(100, function ($models) {
 
