@@ -214,13 +214,27 @@ class GraphController extends Controller
         foreach ($questionResponse as $payloadKey => $payloadValue) {
             $questionResponse[$payloadKey]["header_id"] = $headerDetails->id;
             $questionResponse[$payloadKey]["header_name"] = $headerDetails->header_type;
+            $totalResponse = [];
+            foreach ($questionResponse[$payloadKey]["options"] as $optK => $optV) {
+                if(isset($optV["totalResponse"])){
+                    foreach($optV["totalResponse"] as $k=>$v){
+                        foreach($v as $k1=>$v1){
+                            $totalResponse[$k][$k1] = $v1;
+                        }
+                    }
+                    unset($questionResponse[$payloadKey]["options"][$optK]["totalResponse"]);
+                }
+                
+            }
+            
             foreach ($questionResponse[$payloadKey]["options"] as $optionKey => $optionValue) {
-                foreach ($questionResponse[$payloadKey]["options"][$optionKey]["batch"] as $batchKey => $batchValue) {
 
+                foreach ($questionResponse[$payloadKey]["options"][$optionKey]["batch"] as $batchKey => $batchValue) {
+                    // print_r(array_merge($questionResponse[$payloadKey]["options"]));
                     $percentage = 0;
                     $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] = (!empty($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]) ? count($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"]) : 0);
-                    if ($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] != 0) {
-                        $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / count($questionResponse[$payloadKey]["options"][$optionKey]["totalResponse"][$batchValue["id"]])) * 100);
+                    if ($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] != 0 && isset($totalResponse[$batchValue["id"]])) {
+                        $percentage = (($questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["response"] / count($totalResponse[$batchValue["id"]])) * 100);
                     }
                     $questionResponse[$payloadKey]["options"][$optionKey]["batch"][$batchKey]["percentage"] = (string)number_format(round($percentage, 2), 2, '.', '');
 
@@ -263,7 +277,7 @@ class GraphController extends Controller
                 if (!empty($getdbOptions)) {
 
                     foreach ($getdbOptions as $responseOption) {
-                        
+
                         if (!isset($optValue[$optionCounter]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id])) {
                             $optValue[$optionCounter]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id] = 1;
                         }
@@ -300,7 +314,7 @@ class GraphController extends Controller
             // dd($getdbOptions);
             $previousOpt = "";
             foreach ($getdbOptions as $responseOption) {
-// dd($responseOption);
+
 
                 $prepArray[$responseOption->leaf_id]["id"] = $responseOption->leaf_id;
                 $prepArray[$responseOption->leaf_id]["name"] = $responseOption->value;
@@ -310,7 +324,6 @@ class GraphController extends Controller
                     if (!isset($prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id])) {
                         $prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id] = 1;
                     }
-                    
                     $prepArray[$responseOption->leaf_id]["batch"][$j] =  (array)$batch;
                     if ($responseOption->batch_id == $batch->id) {
                         if (!isset($prepArray[$responseOption->leaf_id]["batch"][$j]["response"][$responseOption->profile_id])) {
