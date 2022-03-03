@@ -1,8 +1,15 @@
 <?php
+
 namespace App\Console\Commands;
-use App\Events\DeleteFeedable;
+
+use App\Company;
+use App\Events\ExpirePoll;
+use App\Notify\Profile;
+use App\Recipe\Company as RecipeCompany;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+
 class ExpirePolling extends Command
 {
     /**
@@ -33,17 +40,55 @@ class ExpirePolling extends Command
      */
     public function handle()
     {
-        \App\Polling::with([])->where('created_at','<=',Carbon::now()->subDay(7)->toDateTimeString())
-            ->where('is_expired',0)->whereNull('deleted_at')
-            ->orderBy('id')->chunk(100,function($models) {
-                foreach($models as $model){
-                    echo $model->id . "\n";
-                    $model->update(['expired_time'=>Carbon::now()->toDateTimeString(),'is_expired'=>1]);
-//                    $model->removeFromCache();
-//                    $model->options()->delete();
-//                    $model->delete();
+
+        \App\Polling::where('created_at', '<=', Carbon::now()->subDay(7)->toDateTimeString())
+            ->where('is_expired', 0)->whereNull('deleted_at')
+            ->orderBy('id')->chunk(100, function ($models) {
+
+                foreach ($models as $model) {
+
+                    $mData = $model;
+                    $profiles =  Profile::select('profiles.*')->join('poll_votes', 'poll_votes.profile_id', '=', 'profiles.id')->where("poll_votes.created_at", ">", $mData->updated_at)
+                        ->where('poll_votes.poll_id', $mData->id)->get();
+
+
+                    if (isset($mData->company_id) && !empty($mData->company_id)) {
+                        $admin = Profile::join("company_users", "profiles.id", "company_users.profile_id")->where("company_users.company_id", $mData->company_id)->select(["profiles.*", "company_users.company_id as company_id"])->get();
+                        $count = 1;
+                    } else {
+                        $count = 0;
+                        $admin = Profile::where('id', $mData->profile_id)->first();
+                        $profiles->push($admin);
+                    }
+                    if ($count) {
+                        foreach ($admin as $k) {
+                            $profiles->push($k);
+                        }
+                    }
+                    $model->update(['expired_time' => Carbon::now()->toDateTimeString(), 'is_expired' => 1]);
+
+                    foreach ($profiles as $profile) {
+                        $event = $mData;
+
+                        if (isset($profile->company_id) || ($count == 0 && $admin->id == $profile->id)) {
+                            $event->isAdmin = true;
+                        }
+
+                        $event->profile = $profile;
+
+                        $company = null;
+                        if (isset($mData->company_id) && !empty($mData->company_id)) {
+                            $company = DB::table("companies")->where("id", $mData->company_id)->first();
+                        }
+                        $adminProf = null;
+                        if ($count == 0) {
+                            $adminProf = $admin;
+                        }
+                        event(new ExpirePoll($event, $adminProf, null, null, 'expirepoll', $company));
+                    }
+                    
+
                 }
             });
-
     }
 }
