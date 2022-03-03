@@ -300,7 +300,7 @@ class GraphController extends Controller
             // dd($getdbOptions);
             $previousOpt = "";
             foreach ($getdbOptions as $responseOption) {
-dd($responseOption);
+// dd($responseOption);
 
                 $prepArray[$responseOption->leaf_id]["id"] = $responseOption->leaf_id;
                 $prepArray[$responseOption->leaf_id]["name"] = $responseOption->value;
