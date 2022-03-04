@@ -216,17 +216,16 @@ class GraphController extends Controller
             $questionResponse[$payloadKey]["header_name"] = $headerDetails->header_type;
             $totalResponse = [];
             foreach ($questionResponse[$payloadKey]["options"] as $optK => $optV) {
-                if(isset($optV["totalResponse"])){
-                    foreach($optV["totalResponse"] as $k=>$v){
-                        foreach($v as $k1=>$v1){
+                if (isset($optV["totalResponse"])) {
+                    foreach ($optV["totalResponse"] as $k => $v) {
+                        foreach ($v as $k1 => $v1) {
                             $totalResponse[$k][$k1] = $v1;
                         }
                     }
                     unset($questionResponse[$payloadKey]["options"][$optK]["totalResponse"]);
                 }
-                
             }
-            
+
             foreach ($questionResponse[$payloadKey]["options"] as $optionKey => $optionValue) {
 
                 foreach ($questionResponse[$payloadKey]["options"][$optionKey]["batch"] as $batchKey => $batchValue) {
@@ -263,6 +262,7 @@ class GraphController extends Controller
 
         foreach ($question["option"] as $optionValue) {
 
+            $optionCounter++;
             $optValue[$optionCounter]["id"] = $optionValue["id"];
             $optValue[$optionCounter]["name"] = $optionValue["value"];
             $optValue[$optionCounter]["batch"] = [];
@@ -299,7 +299,6 @@ class GraphController extends Controller
                 $j++;
             }
 
-            $optionCounter++;
         }
     }
 
@@ -313,18 +312,25 @@ class GraphController extends Controller
             $ifExists = [];
             // dd($getdbOptions);
             $previousOpt = "";
+            $mapping = [];
             foreach ($getdbOptions as $responseOption) {
 
 
                 $prepArray[$responseOption->leaf_id]["id"] = $responseOption->leaf_id;
                 $prepArray[$responseOption->leaf_id]["name"] = $responseOption->value;
-                $prepArray[$responseOption->leaf_id]["batch"] = [];
+                if (!isset($prepArray[$responseOption->leaf_id]["batch"])) {
+                    $prepArray[$responseOption->leaf_id]["batch"] = [];
+                }
                 $j = 0;
                 foreach ($batchDetails as $batch) {
                     if (!isset($prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id])) {
                         $prepArray[$responseOption->leaf_id]["totalResponse"][$responseOption->batch_id][$responseOption->profile_id] = 1;
                     }
-                    $prepArray[$responseOption->leaf_id]["batch"][$j] =  (array)$batch;
+                    if (!isset($prepArray[$responseOption->leaf_id]["batch"][$j])) {
+                        $prepArray[$responseOption->leaf_id]["batch"][$j] =  (array)$batch;
+                        $prepArray[$responseOption->leaf_id]["batch"][$j]["response"] = [];
+                        $prepArray[$responseOption->leaf_id]["batch"][$j]["intensity"] = [];
+                    }
                     if ($responseOption->batch_id == $batch->id) {
                         if (!isset($prepArray[$responseOption->leaf_id]["batch"][$j]["response"][$responseOption->profile_id])) {
                             $prepArray[$responseOption->leaf_id]["batch"][$j]["response"][$responseOption->profile_id] = 1;
@@ -346,14 +352,15 @@ class GraphController extends Controller
                 }
 
                 if (!in_array($responseOption->leaf_id, $ifExists)) {
+                    $optionCounter++;
+                    $mapping[$responseOption->leaf_id] = $optionCounter;
                     $ifExists[] = $responseOption->leaf_id;
                     $optValue[$optionCounter] = $prepArray[$responseOption->leaf_id];
-                    $optionCounter++;
                 } else {
-                    $optValue[$optionCounter] = $prepArray[$responseOption->leaf_id];
+                    $optValue[$mapping[$responseOption->leaf_id]] = $prepArray[$responseOption->leaf_id];
                 }
             }
-            // dd($optValue);
+            //dd($getdbOptions);
         }
     }
     public function getOptions($questionArray = [], $collaborateId, $headerId, $profileIds = [], $intensity_value)
@@ -368,7 +375,7 @@ class GraphController extends Controller
         $ques = 0;
         // $batches ;
         $intensityFlag = false;
-        $i = 0;
+        $i = -1;
         $optValue = [];
         foreach ($questionArray as $question) {
 
