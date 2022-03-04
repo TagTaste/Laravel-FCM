@@ -837,15 +837,19 @@ class BatchController extends Controller
         }
         $userCount = 0;
         $headerRatingSum = 0;
+        $meta = [];
         $question = Collaborate\Questions::where('header_type_id', $headerId)->whereRaw("JSON_CONTAINS(questions, '5', '$.select_type')")->first();
-        $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->where('question_id', $question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
-        foreach ($overallPreferances as $overallPreferance) {
-            if ($overallPreferance->tasting_header_id == $headerId) {
-                $headerRatingSum += $overallPreferance->leaf_id;
-                $userCount++;
+        if (!empty($question)) {
+            $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->where('question_id', $question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
+            foreach ($overallPreferances as $overallPreferance) {
+                if ($overallPreferance->tasting_header_id == $headerId) {
+                    $headerRatingSum += $overallPreferance->leaf_id;
+                    $userCount++;
+                }
             }
+            $meta = $this->getRatingMeta($userCount, $headerRatingSum, $question);
         }
-        $meta = $this->getRatingMeta($userCount, $headerRatingSum, $question);
+
         $this->model = ['report' => $model, 'meta' => $meta];
 
         return $this->sendResponse();
@@ -866,7 +870,7 @@ class BatchController extends Controller
 
         $this->model = [];
         $data = [];
-        $data['total_respondants'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id', $collaborateId)
+        $data['total_respondants'] = \DB::table('collaborate_tasting_user_review')->where('current_status', 3)->where('collaborate_id', $collaborateId)
             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id', $batchId)->where('question_id', $questionId)->distinct()->get(['profile_id'])->count();
         $title = \DB::table('collaborate_tasting_questions')->select('title')->where('collaborate_id', $collaborateId)
             ->where('id', $questionId)->where('header_type_id', $headerId)->first();
