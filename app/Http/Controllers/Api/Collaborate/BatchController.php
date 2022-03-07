@@ -635,7 +635,7 @@ class BatchController extends Controller
                         $dataset['option_type'] = $value->option_type;
                         $profile['id'] = $value->id;
                         $profile['name'] = $value->name;
-                        $profile['is_verified'] = $value->is_verified;
+                        $profile['verified'] = $value->is_verified;
                         $profile['image_meta'] = json_decode($value->image_meta);
                         $dataset['profile'] = $profile;
                         $dataset['meta'] = json_decode($value->meta);
@@ -837,7 +837,9 @@ class BatchController extends Controller
         }
         $userCount = 0;
         $headerRatingSum = 0;
-        $meta = null;
+        $meta = [];
+        $meta['color_code'] = '#7E9B42'; //Default colour for background
+        
         $question = Collaborate\Questions::where('header_type_id', $headerId)->whereRaw("JSON_CONTAINS(questions, '5', '$.select_type')")->first();
         if (!empty($question)) {
             $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->where('question_id', $question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
@@ -883,7 +885,7 @@ class BatchController extends Controller
         foreach ($images as $image) {
             $profile['id'] = $image->id;
             $profile['name'] = $image->name;
-            $profile['is_verified'] = $image->verified;
+            $profile['verified'] = $image->verified;
             $profile['image_meta'] = json_decode($image->image_meta);
             $imageItem['profile'] = $profile;
             $imageItem['meta'] = json_decode($image->meta);
