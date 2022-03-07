@@ -837,7 +837,7 @@ class BatchController extends Controller
         }
         $userCount = 0;
         $headerRatingSum = 0;
-        $meta = [];
+        $meta = null;
         $question = Collaborate\Questions::where('header_type_id', $headerId)->whereRaw("JSON_CONTAINS(questions, '5', '$.select_type')")->first();
         if (!empty($question)) {
             $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->where('question_id', $question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
