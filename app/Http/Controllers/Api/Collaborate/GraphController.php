@@ -432,7 +432,7 @@ class GraphController extends Controller
                 $item->header_name  =  $value['header_name'];
                 $ques[] = $item->id;
                 $question = json_decode($item->questions);
-                $item->title = $question["title"];
+                $item->title = $question->title;
                 unset($item->questions);
                 $dataset["question_list"][] = $item;
             }
