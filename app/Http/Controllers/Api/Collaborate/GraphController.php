@@ -185,9 +185,9 @@ class GraphController extends Controller
                     $initialIntensity = (empty($decodeJsonOfQuestions["is_intensity"]) ? 1 : $decodeJsonOfQuestions["is_intensity"]);
                 }
                 if (isset($decodeJsonOfQuestions["merge_graph"]) && $decodeJsonOfQuestions["merge_graph"] == true) {
-                    $questionSet["merged"][] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option, "initial_intensity" => $initialIntensity];
+                    $questionSet["merged"][] = ["id" => $questionList->id, "title" => $decodeJsonOfQuestions["title"], "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option, "initial_intensity" => $initialIntensity];
                 } else {
-                    $questionSet[] = ["id" => $questionList->id, "title" => $questionList->title, "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option, "initial_intensity" => $initialIntensity];
+                    $questionSet[] = ["id" => $questionList->id, "title" => $decodeJsonOfQuestions["title"], "is_intensity" => $decodeJsonOfQuestions["is_intensity"], "option" => $option, "initial_intensity" => $initialIntensity];
                 }
             }
         }
@@ -432,6 +432,7 @@ class GraphController extends Controller
                 $item->header_name  =  $value['header_name'];
                 $ques[] = $item->id;
                 $question = json_decode($item->questions);
+                $item->title = $question["title"];
                 unset($item->questions);
                 $dataset["question_list"][] = $item;
             }
