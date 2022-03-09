@@ -211,9 +211,9 @@ class BatchController extends Controller
                 $profile["review_completion"] = null;
                 if(count($reviewCompletionData) > 0){
                     $data = [];
-                    
+
                     $timestamp = strtotime($reviewCompletionData[0]->completion_timestamp);
-                    $date = date('d-m-Y', $timestamp);
+                    $date = date('d M Y', $timestamp);
                     $time = date('h:i:s A', $timestamp);
                     $durationInSec= strtotime($reviewCompletionData[0]->review_time_taken) - strtotime('00:00:00');
                     $duration = $this->secondsToTime($durationInSec);
