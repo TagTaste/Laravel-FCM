@@ -67,8 +67,8 @@ class GraphController extends Controller
                 continue;
             }
             $headerResponse[] = [
-                "aroma_list" => $aromaList, "header_name" => "Combination -" . $i, "is_combination" => true, "combination_header_list" => $headerDetails
-            ];
+                "aroma_list" => $aromaList, "header_name" => "Combination " . $i, "is_combination" => true, "combination_header_list" => $headerDetails
+            ]; 
             $i++;
         }
 
