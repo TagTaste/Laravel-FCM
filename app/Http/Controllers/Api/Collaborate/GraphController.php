@@ -418,6 +418,9 @@ class GraphController extends Controller
         $dataset = [];
         $dataset1 = [];
         $ques = [];
+        $colors = \DB::table('collaborate_batches_color')->get()->toArray();
+        $colorCodesForHeaders = [];
+        $i=0;
         foreach ($combinationHeadList as $value) {
             $item =  \DB::table('collaborate_tasting_questions')
                 ->select(
@@ -430,12 +433,14 @@ class GraphController extends Controller
                 ->where('collaborate_tasting_questions.header_type_id', $value['id'])->first();
             if (!empty($item)) {
                 $item->header_name  =  $value['header_name'];
+                $colorCodesForHeaders[$value['header_name']] = (isset($colors[$i]->name) ? $colors[$i]->name : $colors[0]->name);
                 $ques[] = $item->id;
                 $question = json_decode($item->questions);
                 $item->title = $question->title;
                 unset($item->questions);
                 $dataset["question_list"][] = $item;
             }
+            $i++;
         }
         if (!empty($ques)) {
             $dataset1['aroma_list'] = $question->nested_option_list;
@@ -443,6 +448,9 @@ class GraphController extends Controller
             if (isset($question->intensity_value)) {
                 $intensityValue = explode(",", $question->intensity_value);
             }
+
+            
+
             $dataset['batch'] = [];
             if (!empty($batches)) {
                 $batch = [];
@@ -498,7 +506,7 @@ class GraphController extends Controller
                                     $headerArray['response'] = 0;
                                     $headerArray['intensity'] = "0.00";
                                 }
-                                $headerArray['color_code'] = $singlebatch->color_code;
+                                $headerArray['color_code'] = $colorCodesForHeaders[$header['header_name']];
                                 array_push($optionArray['headers'], $headerArray);
                             }
 
