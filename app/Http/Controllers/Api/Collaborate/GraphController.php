@@ -411,7 +411,7 @@ class GraphController extends Controller
         $combinationHeadList = $request["combination_header_list"];
         $batches = $this->getBatches($collaborateId);
         $filters = $request->input('filters');
-        $profileIds = $this->getFilteredProfile($filters, $collaborateId)->toArray();
+        $profileIds = $this->getFilteredProfile($filters, $collaborateId);
         foreach ($batches as $batch) {
             $Applicants[$batch->id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)->where('batch_id', $batch->id)->distinct()->get(['profile_id'])->count();
         }

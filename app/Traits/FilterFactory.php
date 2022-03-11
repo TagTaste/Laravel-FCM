@@ -213,7 +213,7 @@ trait FilterFactory
         $Ids = $Ids->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($Ids);
 
-        return $profileIds;
+        return $profileIds->toArray();
     }
 
     public function getSearchedProfile($q, $collaborateId)
