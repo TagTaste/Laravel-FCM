@@ -419,6 +419,7 @@ class GraphController extends Controller
         $dataset1 = [];
         $ques = [];
         $colors = \DB::table('collaborate_batches_color')->get()->toArray();
+        shuffle($colors);
         $colorCodesForHeaders = [];
         $i = 0;
         foreach ($combinationHeadList as $value) {
