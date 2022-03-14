@@ -162,16 +162,26 @@ class Filter extends Model
         }
         
         if ("\App\Filter\PublicReviewProduct" === $filterClass) {
+            // $allFilters = $filterClass::where('key','!=','is_newly_launched')
+            //     ->select('key','value',\DB::raw('count(`key`) as count'))
+            //     ->groupBy('key','value')
+            //     ->orderBy('count','desc')
+            //     ->get()
+            //     ->groupBy('key');
+
             $allFilters = $filterClass::where('key','!=','is_newly_launched')
-                ->select('key','value',\DB::raw('count(`key`) as count'))
+                ->select('key','value')
                 ->groupBy('key','value')
-                ->orderBy('count','desc')
                 ->get()
                 ->groupBy('key');
         } else {
-            $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'))
+            // $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'))
+            //     ->groupBy('key','value')
+            //     ->orderBy('count','desc')
+            //     ->get()
+            //     ->groupBy('key');
+            $allFilters = $filterClass::select('key','value')
                 ->groupBy('key','value')
-                ->orderBy('count','desc')
                 ->get()
                 ->groupBy('key');
         }
@@ -198,8 +208,9 @@ class Filter extends Model
                     if(!array_key_exists($key,$filters)){
                         $filters[$key] = [];
                     }
-
-                    $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
+                    
+                    // $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
+                    $filters[$key][] = ['value' => $filter->value];
                     $count++;
                     if($count >= static::$maxFilters){
                         break;
@@ -213,7 +224,8 @@ class Filter extends Model
             foreach($allFilters as $key=>&$sub){
                 $count = 0;
                 foreach($sub as &$filter){
-                    $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
+                    // $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
+                    $filters[$key][] = ['value' => $filter->value];
                     $count++;
                     if($count >= static::$maxFilters){
                         break;
