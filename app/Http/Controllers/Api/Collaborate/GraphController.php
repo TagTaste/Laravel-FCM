@@ -68,7 +68,7 @@ class GraphController extends Controller
             }
             $headerResponse[] = [
                 "aroma_list" => $aromaList, "header_name" => "Combination " . $i, "is_combination" => true, "combination_header_list" => $headerDetails
-            ]; 
+            ];
             $i++;
         }
 
@@ -298,7 +298,6 @@ class GraphController extends Controller
 
                 $j++;
             }
-
         }
     }
 
@@ -383,8 +382,9 @@ class GraphController extends Controller
             $questionList[$ques]["title"] = $question["title"];
             $ques++;
 
+            $filters = request()->input('filters');
             $getOptions = DB::table('collaborate_tasting_user_review')->where("question_id", $question["id"])->where("tasting_header_id", $headerId)->where("collaborate_id", $collaborateId)->where("current_status", 3)->select(["id", "key", "value", "value_id", "leaf_id", "intensity", "batch_id", "profile_id", "option_type"]);
-            if (!empty($profileIds)) {
+            if (!empty($profileIds) || (empty($profileIds) && !empty($filters))) {
                 $getOptions = $getOptions->whereIn("profile_id", $profileIds);
             }
             $getOptions = $getOptions->get();
@@ -420,7 +420,7 @@ class GraphController extends Controller
         $ques = [];
         $colors = \DB::table('collaborate_batches_color')->get()->toArray();
         $colorCodesForHeaders = [];
-        $i=0;
+        $i = 0;
         foreach ($combinationHeadList as $value) {
             $item =  \DB::table('collaborate_tasting_questions')
                 ->select(
@@ -449,7 +449,7 @@ class GraphController extends Controller
                 $intensityValue = explode(",", $question->intensity_value);
             }
 
-            
+
 
             $dataset['batch'] = [];
             if (!empty($batches)) {
@@ -471,7 +471,7 @@ class GraphController extends Controller
                             $optionArray["id"] = $option->leaf_id;
                             $optionArray["value"] = $option->value;
                             $optionArray["headers"] = [];
-                            $totalApplicants[$singlebatch->id][$option->leaf_id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)->where('batch_id', $singlebatch->id)->where('leaf_id',$option->leaf_id)->distinct()->get(['profile_id'])->count();
+                            $totalApplicants[$singlebatch->id][$option->leaf_id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)->where('batch_id', $singlebatch->id)->where('leaf_id', $option->leaf_id)->distinct()->get(['profile_id'])->count();
 
                             $headerArray = [];
                             foreach ($combinationHeadList as $header) {
