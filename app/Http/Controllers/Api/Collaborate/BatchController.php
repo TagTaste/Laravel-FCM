@@ -17,6 +17,7 @@ use Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
+use App\Collaborate\Review;
 
 
 class BatchController extends Controller
@@ -201,6 +202,30 @@ class BatchController extends Controller
                 $profile['address_id'] = $batch->address_id;
             }
             $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
+            if($currentStatus == 3){
+                $profileId = $profile['profile']['id'];
+                $reviewCompletionData = \DB::select("SELECT MIN(created_at) as start_time,
+                            MAX(updated_at) as completion_timestamp, TIMEDIFF(MAX(updated_at),MIN(created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
+                            where current_status=3 AND profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$id");
+                
+                $profile["review_completion"] = null;
+                if(count($reviewCompletionData) > 0){
+                    $data = [];
+
+                    $timestamp = strtotime($reviewCompletionData[0]->completion_timestamp);
+                    $date = date('d M Y', $timestamp);
+                    $time = date('h:i:s A', $timestamp);
+                    $durationInSec= strtotime($reviewCompletionData[0]->review_time_taken) - strtotime('00:00:00');
+                    $duration = $this->secondsToTime($durationInSec);
+
+                    $data[] = ["title"=>"Date", "value"=>$date];
+                    $data[] = ["title"=>"Time", "value"=>$time];
+                    $data[] = ["title"=>"Duration", "value"=>$duration];
+                        
+                    $profile["review_completion"] = $data;
+                }
+            }
+
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
 
@@ -233,6 +258,37 @@ class BatchController extends Controller
         $this->model['applicants'] = $profiles;
         $this->model['batch'] = Collaborate\Batches::where('id', $id)->first();
         return $this->sendResponse();
+    }
+
+
+    function secondsToTime($seconds) {
+        $s = $seconds%60;
+        $m = floor(($seconds%3600)/60);
+        $h = floor(($seconds%86400)/3600);
+        $d = floor(($seconds%2592000)/86400);
+        $M = floor($seconds/2592000);
+        $durationStr = "";
+        if($M > 0){
+            $durationStr .= "$M month ";
+        }
+        
+        if($d > 0){
+            $durationStr .= "$d day ";
+        }
+
+        if($h > 0){
+            $durationStr .= "$h hr ";
+        }
+
+        if($m > 0){
+            $durationStr .= "$m min ";
+        }
+        
+        if($s > 0){
+            $durationStr .= "$s sec";
+        }
+        
+        return $durationStr;
     }
 
     /**
@@ -637,7 +693,7 @@ class BatchController extends Controller
                         $profile['name'] = $value->name;
                         $profile['handle'] = $value->handle;
                         $profile['superTaster'] = $value->is_tasting_expert;
-                        $profile['is_verified'] = $value->is_verified;
+                        $profile['verified'] = $value->is_verified;
                         $profile['image_meta'] = json_decode($value->image_meta);
                         $dataset['profile'] = $profile;
                         $dataset['meta'] = json_decode($value->meta);
@@ -840,6 +896,8 @@ class BatchController extends Controller
         $userCount = 0;
         $headerRatingSum = 0;
         $meta = [];
+        $meta['color_code'] = '#7E9B42'; //Default colour for background
+        
         $question = Collaborate\Questions::where('header_type_id', $headerId)->whereRaw("JSON_CONTAINS(questions, '5', '$.select_type')")->first();
         if (!empty($question)) {
             $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->where('question_id', $question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
@@ -887,7 +945,7 @@ class BatchController extends Controller
             $profile['name'] = $image->name;
             $profile['handle'] = $image->handle;
             $profile['superTaster'] = $image->is_tasting_expert;
-            $profile['is_verified'] = $image->verified;
+            $profile['verified'] = $image->verified;
             $profile['image_meta'] = json_decode($image->image_meta);
             $imageItem['profile'] = $profile;
             $imageItem['meta'] = json_decode($image->meta);
@@ -1796,7 +1854,7 @@ class BatchController extends Controller
             ->orderBy('tasting_header_id', 'ASC')->orderBy('batch_id', 'ASC')->orderBy('leaf_id', 'ASC')->groupBy('tasting_header_id', 'question_id', 'leaf_id', 'value', 'batch_id')->get();
 
         $batches = Collaborate\Batches::where('collaborate_id', $collaborateId)->orderBy('id')->get();
-
+        
         $model = [];
         $headers = Collaborate\ReviewHeader::where('collaborate_id', $collaborateId)->whereNotIn('header_selection_type', [0, 3])->get();
         foreach ($headers as $header) {
@@ -1821,7 +1879,7 @@ class BatchController extends Controller
                     $item['overAllPreference'] = number_format((float)($totalValue / $totalReview), 2, '.', '');
                 else
                     $item['overAllPreference'] = "0.00";
-
+                $item['reviewedCount'] = $totalReview;
                 $data['batches'][] = $item;
             }
             $model[] = $data;
