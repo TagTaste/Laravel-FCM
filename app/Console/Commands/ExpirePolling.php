@@ -48,9 +48,6 @@ class ExpirePolling extends Command
                 foreach ($models as $model) {
 
                     $mData = $model;
-                    $profiles =  Profile::select('profiles.*')->join('poll_votes', 'poll_votes.profile_id', '=', 'profiles.id')->where("poll_votes.created_at", ">", $mData->updated_at)
-                        ->where('poll_votes.poll_id', $mData->id)->get();
-
 
                     if (isset($mData->company_id) && !empty($mData->company_id)) {
                         $admin = Profile::join("company_users", "profiles.id", "company_users.profile_id")->where("company_users.company_id", $mData->company_id)->select(["profiles.*", "company_users.company_id as company_id"])->get();
@@ -58,8 +55,12 @@ class ExpirePolling extends Command
                     } else {
                         $count = 0;
                         $admin = Profile::where('id', $mData->profile_id)->first();
-                        $profiles->push($admin);
                     }
+                    $profiles =  Profile::select('profiles.*')->join('poll_votes', 'poll_votes.profile_id', '=', 'profiles.id')->where("poll_votes.created_at", ">", $mData->updated_at)
+                        ->where('poll_votes.poll_id', $mData->id)->whereNotIn('profiles.id', array_column($admin, 'id'))->get();
+
+                    $profiles->push($admin);
+
                     if ($count) {
                         foreach ($admin as $k) {
                             $profiles->push($k);
@@ -73,7 +74,6 @@ class ExpirePolling extends Command
                         if (isset($profile->company_id) || ($count == 0 && $admin->id == $profile->id)) {
                             $event->isAdmin = true;
                         }
-
                         $event->profile = $profile;
 
                         $company = null;
