@@ -624,7 +624,7 @@ class BatchController extends Controller
                     $reports['answer'] = Collaborate\Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status', 3)->where('tasting_header_id', $headerId)->skip(0)->take(3)->get();
                 } else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.SELFIE_TYPE")) {
-                    $values =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'profiles.id', 'collaborate_tasting_user_review.meta', 'collaborate_tasting_user_review.updated_at', 'collaborate_tasting_user_review.intensity', 'collaborate_tasting_user_review.leaf_id', 'profiles.verified as is_verified', 'profiles.image_meta', 'collaborate_tasting_user_review.option_type')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
+                    $values =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'profiles.id', 'profiles.handle', 'profiles.is_tasting_expert',  'collaborate_tasting_user_review.meta', 'collaborate_tasting_user_review.updated_at', 'collaborate_tasting_user_review.intensity', 'collaborate_tasting_user_review.leaf_id', 'profiles.verified as is_verified', 'profiles.image_meta', 'collaborate_tasting_user_review.option_type')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
                         ->join('users', 'users.id', 'profiles.user_id')->where('collaborate_tasting_user_review.collaborate_id', $collaborateId)->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.question_id', $data->id)
                         ->whereIn('collaborate_tasting_user_review.profile_id', $profileIds, $boolean, $type)->where('collaborate_tasting_user_review.current_status', 3)->where('collaborate_tasting_user_review.tasting_header_id', $headerId)->skip(0)->take(config("constant.DEFAULT_SIZE"))->get();
                     $reports['answer'] = [];
@@ -635,6 +635,8 @@ class BatchController extends Controller
                         $dataset['option_type'] = $value->option_type;
                         $profile['id'] = $value->id;
                         $profile['name'] = $value->name;
+                        $profile['handle'] = $value->handle;
+                        $profile['superTaster'] = $value->is_tasting_expert;
                         $profile['is_verified'] = $value->is_verified;
                         $profile['image_meta'] = json_decode($value->image_meta);
                         $dataset['profile'] = $profile;
@@ -864,7 +866,7 @@ class BatchController extends Controller
         $boolean = 'and';
         $profileIds = $resp['profile_id'];
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $images =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'profiles.id', 'profiles.verified', 'profiles.image_meta', 'collaborate_tasting_user_review.updated_at', 'collaborate_tasting_user_review.meta')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
+        $images =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'profiles.id', 'profiles.verified', 'profiles.handle', 'profiles.is_tasting_expert', 'profiles.image_meta', 'collaborate_tasting_user_review.updated_at', 'collaborate_tasting_user_review.meta')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
             ->join('users', 'users.id', 'profiles.user_id')->where('collaborate_tasting_user_review.collaborate_id', $collaborateId)->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.question_id', $questionId)
             ->whereIn('collaborate_tasting_user_review.profile_id', $profileIds, $boolean, $type)->where('collaborate_tasting_user_review.current_status', 3)->where('collaborate_tasting_user_review.tasting_header_id', $headerId);
 
@@ -883,12 +885,13 @@ class BatchController extends Controller
         foreach ($images as $image) {
             $profile['id'] = $image->id;
             $profile['name'] = $image->name;
+            $profile['handle'] = $image->handle;
+            $profile['superTaster'] = $image->is_tasting_expert;
             $profile['is_verified'] = $image->verified;
             $profile['image_meta'] = json_decode($image->image_meta);
             $imageItem['profile'] = $profile;
             $imageItem['meta'] = json_decode($image->meta);
             $imageItem['updated_at'] = $image->updated_at;
-
             $data['images'][] =  $imageItem;
         }
         $this->model = $data;
