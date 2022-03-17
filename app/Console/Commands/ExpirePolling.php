@@ -56,22 +56,23 @@ class ExpirePolling extends Command
                         $count = 0;
                         $admin = Profile::where('id', $mData->profile_id)->first();
                     }
-                    $profiles =  Profile::select('profiles.*')->join('poll_votes', 'poll_votes.profile_id', '=', 'profiles.id')->where("poll_votes.created_at", ">", $mData->updated_at)
+                    $profiles =  Profile::select('profiles.*')->join('poll_votes', 'poll_votes.profile_id', '=', 'profiles.id')
                         ->where('poll_votes.poll_id', $mData->id)->whereNotIn('profiles.id', array_column($admin->toArray(), 'id'))->get();
-
-                    $profiles->push($admin);
 
                     if ($count) {
                         foreach ($admin as $k) {
                             $profiles->push($k);
                         }
+                    } else {
+                        $profiles->push($admin);
                     }
-                    $model->update(['expired_time' => Carbon::now()->toDateTimeString(), 'is_expired' => 1]);
+                    DB::table('poll_questions')->where('id', $mData->id)->update(['expired_time' => Carbon::now()->toDateTimeString(), 'is_expired' => 1]);
 
                     foreach ($profiles as $profile) {
                         $event = $mData;
 
                         if (isset($profile->company_id) || ($count == 0 && $admin->id == $profile->id)) {
+
                             $event->isAdmin = true;
                         }
                         $event->profile = $profile;
@@ -86,8 +87,6 @@ class ExpirePolling extends Command
                         }
                         event(new ExpirePoll($event, $adminProf, null, null, 'expirepoll', $company));
                     }
-                    
-
                 }
             });
     }
