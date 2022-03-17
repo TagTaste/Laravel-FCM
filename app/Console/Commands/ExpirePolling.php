@@ -57,7 +57,7 @@ class ExpirePolling extends Command
                         $admin = Profile::where('id', $mData->profile_id)->first();
                     }
                     $profiles =  Profile::select('profiles.*')->join('poll_votes', 'poll_votes.profile_id', '=', 'profiles.id')->where("poll_votes.created_at", ">", $mData->updated_at)
-                        ->where('poll_votes.poll_id', $mData->id)->whereNotIn('profiles.id', array_column($admin, 'id'))->get();
+                        ->where('poll_votes.poll_id', $mData->id)->whereNotIn('profiles.id', array_column($admin->toArray(), 'id'))->get();
 
                     $profiles->push($admin);
 
