@@ -694,7 +694,7 @@ class BatchController extends Controller
                         $profile['handle'] = $value->handle;
                         $profile['superTaster'] = $value->is_tasting_expert;
                         $profile['verified'] = $value->is_verified;
-                        $profile['image_meta'] = json_decode($value->image_meta);
+                        $profile['image_meta'] = $value->image_meta;
                         $dataset['profile'] = $profile;
                         $dataset['meta'] = json_decode($value->meta);
                         $dataset['intensity'] = [];
@@ -946,7 +946,7 @@ class BatchController extends Controller
             $profile['handle'] = $image->handle;
             $profile['superTaster'] = $image->is_tasting_expert;
             $profile['verified'] = $image->verified;
-            $profile['image_meta'] = json_decode($image->image_meta);
+            $profile['image_meta'] = $image->image_meta;
             $imageItem['profile'] = $profile;
             $imageItem['meta'] = json_decode($image->meta);
             $imageItem['updated_at'] = $image->updated_at;
