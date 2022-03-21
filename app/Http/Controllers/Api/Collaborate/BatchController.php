@@ -1390,7 +1390,7 @@ class BatchController extends Controller
         if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
             $filterProfile = [];
             foreach ($filters['include_profile_id'] as $filter) {
-                //$isFilterAble = true;
+                $isFilterAble = true;
                 $filterProfile[] = (int)$filter;
             }
             $profileIds = $profileIds->merge($filterProfile);
