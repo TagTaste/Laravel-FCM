@@ -564,7 +564,7 @@ class BatchController extends Controller
         $model = [];
         foreach ($withoutNest as $data) {
             $reports = [];
-            if (isset($data->questions) && !is_null($data->questions)) {
+            if (isset($data->questions) && !is_null($data->questions) && $data->questions->select_type != 6) {
                 $reports['question_id'] = $data->id;
                 $reports['title'] = $data->title;
                 $reports['subtitle'] = $data->subtitle;
@@ -1605,7 +1605,7 @@ class BatchController extends Controller
             $model = [];
             foreach ($withoutNest as $data) {
                 $reports = [];
-                if (isset($data->questions) && !is_null($data->questions)) {
+                if (isset($data->questions) && !is_null($data->questions) && $data->questions->select_type != 6) {
                     $reports['question_id'] = $data->id;
                     $reports['title'] = $data->title;
                     $reports['subtitle'] = $data->subtitle;
