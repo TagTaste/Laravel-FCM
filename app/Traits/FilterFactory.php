@@ -112,6 +112,22 @@ trait FilterFactory
 
         $Ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId);
 
+
+        if (isset($filters['profiles'])) {
+            $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
+                ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
+
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['profiles'] as $profile) {
+                    $query->orWhere('name', 'LIKE', $profile);
+                }
+            });
+        }
+
+        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
+            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
+        }
+
         if (isset($filters['city'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['city'] as $city) {
@@ -152,20 +168,7 @@ trait FilterFactory
             });
         }
 
-        if (isset($filters['profile'])) {
-            $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
-                ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
 
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['profile'] as $profile) {
-                    $query->orWhere('name', 'LIKE', $profile);
-                }
-            });
-        }
-
-        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
-            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
-        }
         if (isset($filters['sensory_trained'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['sensory_trained'] as $sensory) {
@@ -210,7 +213,7 @@ trait FilterFactory
         $Ids = $Ids->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($Ids);
 
-        return $profileIds;
+        return $profileIds->toArray();
     }
 
     public function getSearchedProfile($q, $collaborateId)

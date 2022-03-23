@@ -513,8 +513,15 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post("insertHeaders", "QuestionController@insertHeaders");
             Route::post("insertHeaders/{id}/insertQuestions", "QuestionController@insertQuestions");
             Route::post("headers/{headerId}/insertQuestion/{id}/aroma", "QuestionController@aromQuestions");
+               
+            //collaborate graph
 
-            //collaborate comments
+            Route::get("graph/headers", "GraphController@graphHeaders"); 
+            Route::get("graphfilters", "GraphController@graphFilters"); 
+            Route::get("skynet/reports", "GraphController@graphReports"); 
+            Route::get("header/{id}/graph", "GraphController@createGraphs");
+            Route::post("graph/combination", "GraphController@graphCombination");
+             //collaborate comments
             Route::resource('comments', 'CommentController');
         });
 
@@ -921,4 +928,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/expert/enroll", "PaymentController@enrollExpertProgram");        
     });
     Route::post('link/status/callback','\App\Http\Controllers\Api\Payment\PaymentController@paymentCallback');
+
+    //route to send notification from skynet
+    Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
 });
