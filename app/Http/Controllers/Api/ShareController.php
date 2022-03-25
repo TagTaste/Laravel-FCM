@@ -312,12 +312,12 @@ class ShareController extends Controller
         if (!$this->model) {
             return $this->sendError("Model not found.");
         }
-        $deleteModel = $this->model->delete() ? true : false;
+        $this->model = $this->model->delete() ? true : false;
         $matches = $this->hasHashtags($this->model);
             if(count($matches)) {
                 $this->deleteExistingHashtag('App\Shareable\Product',$this->model->id);
             }
-        if($deleteModel)
+        if($this->model)
             Payload::where("payload->product","public-review/product:".$id)->where("payload->sharedBy","profile:small:".$loggedInId)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
         return $this->sendResponse();
 
@@ -353,7 +353,6 @@ class ShareController extends Controller
 
     public function hasHashtags($data) 
     {
-        
         $totalMatches = [];
         if(gettype($data->content) == 'array') {
             $content = $data->content['text'];
