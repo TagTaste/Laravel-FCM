@@ -17,12 +17,14 @@ use Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
+use App\Collaborate\Review;
 
 
 class BatchController extends Controller
 {
 
     protected $model;
+
 
     /**
      * Create instance of controller with Model
@@ -65,7 +67,7 @@ class BatchController extends Controller
             $batch['notifiedUserCount'] = $userCountWithbegintasting - ($batch['reviewedCount'] + $batch['inProgressUserCount']);
         }
 
-       
+
 
         $this->model = $batches;
         return $this->sendResponse();
@@ -200,6 +202,30 @@ class BatchController extends Controller
                 $profile['address_id'] = $batch->address_id;
             }
             $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
+            if($currentStatus == 3){
+                $profileId = $profile['profile']['id'];
+                $reviewCompletionData = \DB::select("SELECT MIN(created_at) as start_time,
+                            MAX(updated_at) as completion_timestamp, TIMEDIFF(MAX(updated_at),MIN(created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
+                            where current_status=3 AND profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$id");
+                
+                $profile["review_completion"] = null;
+                if(count($reviewCompletionData) > 0){
+                    $data = [];
+
+                    $timestamp = strtotime($reviewCompletionData[0]->completion_timestamp);
+                    $date = date('d M Y', $timestamp);
+                    $time = date('h:i:s A', $timestamp);
+                    $durationInSec= strtotime($reviewCompletionData[0]->review_time_taken) - strtotime('00:00:00');
+                    $duration = $this->secondsToTime($durationInSec);
+
+                    $data[] = ["title"=>"Date", "value"=>$date];
+                    $data[] = ["title"=>"Time", "value"=>$time];
+                    $data[] = ["title"=>"Duration", "value"=>$duration];
+                        
+                    $profile["review_completion"] = $data;
+                }
+            }
+
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
 
@@ -232,6 +258,37 @@ class BatchController extends Controller
         $this->model['applicants'] = $profiles;
         $this->model['batch'] = Collaborate\Batches::where('id', $id)->first();
         return $this->sendResponse();
+    }
+
+
+    function secondsToTime($seconds) {
+        $s = $seconds%60;
+        $m = floor(($seconds%3600)/60);
+        $h = floor(($seconds%86400)/3600);
+        $d = floor(($seconds%2592000)/86400);
+        $M = floor($seconds/2592000);
+        $durationStr = "";
+        if($M > 0){
+            $durationStr .= "$M month ";
+        }
+        
+        if($d > 0){
+            $durationStr .= "$d day ";
+        }
+
+        if($h > 0){
+            $durationStr .= "$h hr ";
+        }
+
+        if($m > 0){
+            $durationStr .= "$m min ";
+        }
+        
+        if($s > 0){
+            $durationStr .= "$s sec";
+        }
+        
+        return $durationStr;
     }
 
     /**
@@ -355,11 +412,11 @@ class BatchController extends Controller
                     Redis::set("current_status:batch:$batchId:profile:$profileId", 1);
                 }
                 $who = null;
-                if(empty($company)){
-                    $who = Profile::where("id","=",$collaborate->profile_id)->first();
+                if (empty($company)) {
+                    $who = Profile::where("id", "=", $collaborate->profile_id)->first();
                 }
                 $collaborate->profile_id = $profileId;
-                
+
                 event(new \App\Events\Actions\BeginTasting($collaborate, $who, null, null, null, $company, $batchId));
             }
         }
@@ -540,7 +597,7 @@ class BatchController extends Controller
                         }
                     }
                 }
-                if ($data->questions->is_nested_question == 1) {
+                if (isset($data->questions->is_nested_question) && $data->questions->is_nested_question == 1) {
                     $subAnswers = [];
                     foreach ($data->questions->questions as $item) {
                         $subReports = [];
@@ -622,6 +679,33 @@ class BatchController extends Controller
                 if (isset($data->questions->select_type) && $data->questions->select_type == 3) {
                     $reports['answer'] = Collaborate\Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status', 3)->where('tasting_header_id', $headerId)->skip(0)->take(3)->get();
+                } else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.SELFIE_TYPE")) {
+                    $values =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'profiles.id', 'profiles.handle', 'profiles.is_tasting_expert',  'collaborate_tasting_user_review.meta', 'collaborate_tasting_user_review.updated_at', 'collaborate_tasting_user_review.intensity', 'collaborate_tasting_user_review.leaf_id', 'profiles.verified as is_verified', 'profiles.image_meta', 'collaborate_tasting_user_review.option_type')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
+                        ->join('users', 'users.id', 'profiles.user_id')->where('collaborate_tasting_user_review.collaborate_id', $collaborateId)->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.question_id', $data->id)
+                        ->whereIn('collaborate_tasting_user_review.profile_id', $profileIds, $boolean, $type)->where('collaborate_tasting_user_review.current_status', 3)->where('collaborate_tasting_user_review.tasting_header_id', $headerId)->skip(0)->take(config("constant.DEFAULT_SIZE"))->get();
+                    $reports['answer'] = [];
+                    $dataset = [];
+                    $profile = [];
+                    foreach ($values as $value) {
+                        $dataset['leaf_id'] = $value->leaf_id;
+                        $dataset['option_type'] = $value->option_type;
+                        $profile['id'] = $value->id;
+                        $profile['name'] = $value->name;
+                        $profile['handle'] = $value->handle;
+                        $profile['superTaster'] = $value->is_tasting_expert;
+                        $profile['verified'] = $value->is_verified;
+                        $profile['image_meta'] = $value->image_meta;
+                        $dataset['profile'] = $profile;
+                        $dataset['meta'] = json_decode($value->meta);
+                        $dataset['intensity'] = [];
+                        $dataset['is_intensity'] = 0;
+                        $dataset['intensity_value'] = null;
+                        $dataset['intensity_type'] = null;
+                        $dataset['updated_at'] =  $value->updated_at;
+
+                        $reports['answer'][] = $dataset;
+                    }
+                    //  dd($reports['answer']);
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
                         ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
@@ -811,17 +895,64 @@ class BatchController extends Controller
         }
         $userCount = 0;
         $headerRatingSum = 0;
-        $question = Collaborate\Questions::where('header_type_id', $headerId)->where('questions->select_type', 5)->first();
-        $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->where('question_id', $question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
-        foreach ($overallPreferances as $overallPreferance) {
-            if ($overallPreferance->tasting_header_id == $headerId) {
-                $headerRatingSum += $overallPreferance->leaf_id;
-                $userCount++;
+        $meta = [];
+        $meta['color_code'] = '#7E9B42'; //Default colour for background
+        
+        $question = Collaborate\Questions::where('header_type_id', $headerId)->whereRaw("JSON_CONTAINS(questions, '5', '$.select_type')")->first();
+        if (!empty($question)) {
+            $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->where('question_id', $question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
+            foreach ($overallPreferances as $overallPreferance) {
+                if ($overallPreferance->tasting_header_id == $headerId) {
+                    $headerRatingSum += $overallPreferance->leaf_id;
+                    $userCount++;
+                }
             }
+            $meta = $this->getRatingMeta($userCount, $headerRatingSum, $question);
         }
-        $meta = $this->getRatingMeta($userCount, $headerRatingSum, $question);
+
         $this->model = ['report' => $model, 'meta' => $meta];
 
+        return $this->sendResponse();
+    }
+
+    public function getList(Request $request, $collaborateId, $batchId, $headerId, $questionId)
+    {
+        $page = $request->input('page');
+        $filters = $request->input('filters');
+        $resp = $this->getFilterProfileIds($filters, $collaborateId);
+        $type = $resp['type'];
+        $boolean = 'and';
+        $profileIds = $resp['profile_id'];
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $images =  \DB::table('collaborate_tasting_user_review')->select('users.name', 'profiles.id', 'profiles.verified', 'profiles.handle', 'profiles.is_tasting_expert', 'profiles.image_meta', 'collaborate_tasting_user_review.updated_at', 'collaborate_tasting_user_review.meta')->join('profiles', 'profiles.id', 'collaborate_tasting_user_review.profile_id')
+            ->join('users', 'users.id', 'profiles.user_id')->where('collaborate_tasting_user_review.collaborate_id', $collaborateId)->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.question_id', $questionId)
+            ->whereIn('collaborate_tasting_user_review.profile_id', $profileIds, $boolean, $type)->where('collaborate_tasting_user_review.current_status', 3)->where('collaborate_tasting_user_review.tasting_header_id', $headerId);
+
+        $this->model = [];
+        $data = [];
+        $data['total_respondants'] = \DB::table('collaborate_tasting_user_review')->where('current_status', 3)->where('collaborate_id', $collaborateId)
+            ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id', $batchId)->where('question_id', $questionId)->distinct()->get(['profile_id'])->count();
+        $title = \DB::table('collaborate_tasting_questions')->select('title')->where('collaborate_id', $collaborateId)
+            ->where('id', $questionId)->where('header_type_id', $headerId)->first();
+        $data['title'] = $title->title;
+        $images = $images->skip($skip)->take($take)
+            ->get();
+        $data['images'] = [];
+        $imageItem = [];
+        $profile = [];
+        foreach ($images as $image) {
+            $profile['id'] = $image->id;
+            $profile['name'] = $image->name;
+            $profile['handle'] = $image->handle;
+            $profile['superTaster'] = $image->is_tasting_expert;
+            $profile['verified'] = $image->verified;
+            $profile['image_meta'] = $image->image_meta;
+            $imageItem['profile'] = $profile;
+            $imageItem['meta'] = json_decode($image->meta);
+            $imageItem['updated_at'] = $image->updated_at;
+            $data['images'][] =  $imageItem;
+        }
+        $this->model = $data;
         return $this->sendResponse();
     }
     protected function addConsistencyAnswers($trackOptions, $answers, $isNested)
@@ -1259,7 +1390,7 @@ class BatchController extends Controller
         if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
             $filterProfile = [];
             foreach ($filters['include_profile_id'] as $filter) {
-                //$isFilterAble = true;
+                $isFilterAble = true;
                 $filterProfile[] = (int)$filter;
             }
             $profileIds = $profileIds->merge($filterProfile);
@@ -1474,7 +1605,7 @@ class BatchController extends Controller
             $model = [];
             foreach ($withoutNest as $data) {
                 $reports = [];
-                if (isset($data->questions) && !is_null($data->questions)) {
+                if (isset($data->questions) && !is_null($data->questions) && $data->questions->select_type != 6) {
                     $reports['question_id'] = $data->id;
                     $reports['title'] = $data->title;
                     $reports['subtitle'] = $data->subtitle;
@@ -1723,7 +1854,7 @@ class BatchController extends Controller
             ->orderBy('tasting_header_id', 'ASC')->orderBy('batch_id', 'ASC')->orderBy('leaf_id', 'ASC')->groupBy('tasting_header_id', 'question_id', 'leaf_id', 'value', 'batch_id')->get();
 
         $batches = Collaborate\Batches::where('collaborate_id', $collaborateId)->orderBy('id')->get();
-
+        
         $model = [];
         $headers = Collaborate\ReviewHeader::where('collaborate_id', $collaborateId)->whereNotIn('header_selection_type', [0, 3])->get();
         foreach ($headers as $header) {
@@ -1748,7 +1879,7 @@ class BatchController extends Controller
                     $item['overAllPreference'] = number_format((float)($totalValue / $totalReview), 2, '.', '');
                 else
                     $item['overAllPreference'] = "0.00";
-
+                $item['reviewedCount'] = $totalReview;
                 $data['batches'][] = $item;
             }
             $model[] = $data;
@@ -1960,11 +2091,11 @@ class BatchController extends Controller
                     $err = true;
                 }
                 $who = null;
-                
+
 
                 $company = Company::where('id', $collaborate->company_id)->first();
-                if(empty($company)){
-                    $who = Profile::where("id","=",$collaborate->profile_id)->first();
+                if (empty($company)) {
+                    $who = Profile::where("id", "=", $collaborate->profile_id)->first();
                 }
                 $collaborate->profile_id = $profileId;
                 event(new \App\Events\Actions\RollbackTaster($collaborate, $who, null, null, null, $company, $batchId));
