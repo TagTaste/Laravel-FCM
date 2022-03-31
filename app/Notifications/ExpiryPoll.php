@@ -22,10 +22,10 @@ class ExpiryPoll extends Action
         
         if (isset($event->model->isAdmin)) {
             
-            $this->sub = "Your poll has expired: " . (strlen($event->model->title) > 80 ? substr($event->model->title, 0, 80) . "..." : $event->model->title);
+            $this->sub = "Your poll has closed: " . (strlen($event->model->title) > 80 ? substr($event->model->title, 0, 80) . "..." : $event->model->title);
         } else {
             
-            $this->sub = htmlspecialchars_decode($event->who["name"]) . " poll has expired: " . (strlen($event->model->title) > 80 ? substr($event->model->title, 0, 80) . "..." : $event->model->title);
+            $this->sub = htmlspecialchars_decode($event->who["name"]) . " poll has closed: " . (strlen($event->model->title) > 80 ? substr($event->model->title, 0, 80) . "..." : $event->model->title);
         }
 
         echo $this->sub;
