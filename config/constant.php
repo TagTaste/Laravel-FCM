@@ -77,6 +77,12 @@ return  [
         "PRODUCT_EXPERIENCE" =>2,
         "bill_shot" =>3
     ]
+    ,
+    'SELECT_TYPES' => [
+        'SELFIE_TYPE' => 6
+    ],
+    "DEFAULT_SIZE" => 8
+    
 ];
 
 
