@@ -1636,7 +1636,6 @@ class SearchController extends Controller
                     $model = $model->where("poll_votes.profile_id", "<>", request()->user()->profile->id);
                 }
             }
-            $model = $model->whereNull('expired_time');
         }
         if ($type == 'private-review') {
             $model = $model->whereIn('collaborate_type', 'product-review');
