@@ -71,6 +71,7 @@ use App\Console\Commands\InsertTTFBQuestion as TTFBQuestionaire;
 use App\Console\Commands\makePaidTasters;
 use App\Console\Commands\TTFBQuestionUpload;
 use App\Console\Commands\removeNotifications;
+use App\Console\Commands\syncPollElasticSearch;
 
 class Kernel extends ConsoleKernel
 {
@@ -283,7 +284,9 @@ class Kernel extends ConsoleKernel
         PaymentReminder::class,
 
         SurveyApplicantStatus::class,
-        \App\Console\Commands\CollaborateReviewCalculation::class
+        \App\Console\Commands\CollaborateReviewCalculation::class,
+
+        syncPollElasticSearch::class
 
     ];
 
