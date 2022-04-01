@@ -12,7 +12,7 @@ class syncPollElasticSearch extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'command:build-es-poll';
 
     /**
      * The console command description.
@@ -42,7 +42,7 @@ class syncPollElasticSearch extends Command
 
         foreach($getData as $v){
             echo "syncing ".$v->id." ".substr($v->title,0,20)."<br/>";
-            \App\Documents\Poll::create($v);
+            \App\Documents\Polling::create($v);
         }
 
         return "sync completed";

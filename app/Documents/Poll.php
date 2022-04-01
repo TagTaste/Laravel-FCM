@@ -1,6 +1,6 @@
 <?php namespace App\Documents;
 
-class Poll extends Document
+class Polling extends Document
 {
     public $type = 'poll';
     
