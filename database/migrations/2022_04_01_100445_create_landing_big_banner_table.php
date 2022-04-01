@@ -25,12 +25,13 @@ class CreateLandingBigBannerTable extends Migration
             $table->string('banner_type',20)->nullable(false);
             $table->boolean('is_active')->default(0);
             $table->integer('updated_by')->unsigned();
+            $table->timestamp("expires_on")->nullable();
             $table->timestamps();
             $table->softDeletes();
             
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
