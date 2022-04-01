@@ -41,7 +41,7 @@ class syncPollElasticSearch extends Command
         $getData = Polling::whereNull("deleted_at")->get();
 
         foreach($getData as $v){
-            echo "syncing ".$v->id." ".substr($v->title,0,20)."<br/>";
+            echo "syncing ".$v->id." ".substr($v->title,0,20).PHP_EOL;
             \App\Documents\Polling::create($v);
         }
 

@@ -1594,7 +1594,7 @@ class SearchController extends Controller
 
     private function getModelsForSeeAll($type, $ids = [], $filters = [], $skip, $take)
     {
-        
+
         if (empty($ids) && $this->isSearched) {
             return false;
         }
@@ -1626,7 +1626,6 @@ class SearchController extends Controller
             }
         } else if ($type == 'collaborate' || $type == 'private-review') {
             $model = $model::where('step', 3)->whereNull('deleted_at');
-            
         } else {
             $deleted_at = 'deleted_at';
             if ($type == 'polls') {
@@ -1648,6 +1647,7 @@ class SearchController extends Controller
                 }
             }
         }
+  
         if ($type == 'private-review') {
             $model = $model->where('collaborate_type', 'product-review');
         }
@@ -1658,7 +1658,7 @@ class SearchController extends Controller
         }
 
 
-        // dd($model->toSql());
+
         return $model->get();
     }
 
@@ -1688,7 +1688,7 @@ class SearchController extends Controller
             foreach ($hits as $name => $hit) {
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
-                $searched = $this->getModelsForSeeAll($name, $ids, $request->input('filters'), $skip, $take);
+                $searched = $this->getModelsForSeeAll($type, $ids, $request->input('filters'), $skip, $take);
 
                 if (!$searched) {
                     $this->model = (object)[];
@@ -1698,21 +1698,7 @@ class SearchController extends Controller
                 $this->model[$name] = $searched;
             }
 
-            if (isset($this->model['collaborate'])) {
-                $collaborates = $this->model['collaborate'];
-                $this->model['collaborate'] = [];
-                foreach ($collaborates as $collaborate) {
-                    $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
-                }
-            }
-            // if (isset($this->model['product'])) {
-            //     $products = $this->model['product'];
-            //     $this->model['product'] = [];
-            //     foreach ($products as &$product) {
-            //         $meta = $product->getMetaFor($profileId);
-            //         $this->model['product'][] = ['product' => $product, 'meta' => $meta];
-            //     }
-            // }
+            $this->model = $this->commonResponseHandler($profileId);
 
             return $this->sendResponse();
         }
@@ -1725,9 +1711,7 @@ class SearchController extends Controller
         }
 
         if ($suggestions && $suggestions->count()) {
-            //            if(!array_key_exists($type,$this->model)){
-            //                $this->model[$type] = [];
-            //            }
+            
             if ($type == 'collaborate' || $type == 'private-review' || $type == 'surveys' || $type == 'polls') {
                 $this->model[$type] = $suggestions;
             } else {
@@ -1737,50 +1721,8 @@ class SearchController extends Controller
 
         if (!empty($this->model)) {
 
-            if (isset($this->model['collaborate'])) {
-                $collaborates = $this->model['collaborate'];
-                $this->model = [];
-                foreach ($collaborates as $collaborate) {
-                    $this->model[] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
-                }
-            }
-            if (isset($this->model['surveys'])) {
-                $surveys = $this->model['surveys']->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"));
-                $this->model = [];
-                foreach ($surveys as $survey) {
-                    $survey->image_meta = json_decode($survey->image_meta);
-                    $survey->video_meta = json_decode($survey->video_meta);
-                    $this->model['surveys'][] = ['survey' => $survey, 'meta' => $survey->getMetaFor($profileId)];
-                }
-            }
-
-            if (isset($this->model['polls'])) {
-                $polls = $this->model['polls'];
-                $this->model = [];
-                foreach ($polls as $poll) {
-                    $this->model[] = ['polling' => $poll, 'meta' => $poll->getMetaFor($profileId)];
-                }
-            }
-
-            if (isset($this->model['private-review'])) {
-                $prs = $this->model['private-review'];
-                $this->model = [];
-
-                foreach ($prs as $pr) {
-                    if (is_array($profileId)) {
-                        dd($profileId);
-                    }
-                    $this->model[] = ['collaboration' => $pr, 'meta' => $pr->getMetaFor($profileId)];
-                }
-            }
-            // if (isset($this->model['product'])) {
-            //     $products = $this->model['product'];
-            //     $this->model['product'] = [];
-            //     foreach ($products as &$product) {
-            //         $meta = $product->getMetaFor($profileId);
-            //         $this->model['product'][] = ['product' => $product, 'meta' => $meta];
-            //     }
-            // }
+            $this->model = $this->commonResponseHandler($profileId);
+            
 
             return $this->sendResponse();
         }
@@ -1789,23 +1731,63 @@ class SearchController extends Controller
         return $this->sendResponse();
     }
 
-    public function v1ElasticSuggestion($response,$type) {
+
+    public function commonResponseHandler($profileId)
+    {
+        if (isset($this->model['collaborate'])) {
+            $collaborates = $this->model['collaborate'];
+            $this->model = [];
+            foreach ($collaborates as $collaborate) {
+                $this->model[] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+            }
+        }
+        if (isset($this->model['surveys'])) {
+            $surveys = $this->model['surveys']->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"));
+            $this->model = [];
+            foreach ($surveys as $survey) {
+                $survey->image_meta = json_decode($survey->image_meta);
+                $survey->video_meta = json_decode($survey->video_meta);
+                $this->model['surveys'][] = ['survey' => $survey, 'meta' => $survey->getMetaFor($profileId)];
+            }
+        }
+
+        if (isset($this->model['polls'])) {
+            $polls = $this->model['polls'];
+            $this->model = [];
+            foreach ($polls as $poll) {
+                $this->model[] = ['polling' => $poll, 'meta' => $poll->getMetaFor($profileId)];
+            }
+        }
+
+        if (isset($this->model['private-review'])) {
+            $prs = $this->model['private-review'];
+            $this->model = [];
+
+            foreach ($prs as $pr) {
+                $this->model[] = ['collaboration' => $pr, 'meta' => $pr->getMetaFor($profileId)];
+            }
+        }
+
+        return $this->model;
+    }
+    public function v1ElasticSuggestion($response, $type)
+    {
         $query = "";
-            $elasticSuggestions = $response['suggest'];
-            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
-                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
-                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
-                    
-                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
-                    }
-                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
-                    
-                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
-                }
-                if($query != "") {
-                    return ElasticHelper::suggestedSearch($query,$type,0,0);    
-                } else {
-                    return null;
-                }
+        $elasticSuggestions = $response['suggest'];
+        if (isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
+            $query = $query . ($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) . " ";
+            if (isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+
+                $query = $query . "OR " . $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+            }
+        } else if (isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+
+            $query = $query . $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+        }
+        if ($query != "") {
+            return ElasticHelper::suggestedSearch($query, $type, 0, 0);
+        } else {
+            return null;
+        }
     }
 }
