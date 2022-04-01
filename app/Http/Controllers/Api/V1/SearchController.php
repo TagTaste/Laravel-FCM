@@ -1592,8 +1592,9 @@ class SearchController extends Controller
     }
 
 
-    private function getModelsForSeeAll($type, $ids = [], $filters = [], $skip = null, $take = null)
+    private function getModelsForSeeAll($type, $ids = [], $filters = [], $skip, $take)
     {
+        
         if (empty($ids) && $this->isSearched) {
             return false;
         }
@@ -1604,6 +1605,7 @@ class SearchController extends Controller
         }
 
         if (!empty($filters) && isset($this->filters[$type])) {
+
             $modelIds = $this->filters[$type]::getModelIds($filters);
             if ($modelIds->count()) {
                 $ids = count($ids) ? array_intersect($ids, $modelIds->toArray()) : $modelIds->toArray();
@@ -1615,16 +1617,21 @@ class SearchController extends Controller
                 }
             }
         }
+
         if (count($ids)) {
             if ($type == 'collaborate' || $type == 'private-review') {
-                $model = $model::whereIn('id', $ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3);
+                $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3);
             } else {
-                $model = $model::whereIn('id', $ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
+                $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
             }
         } else if ($type == 'collaborate' || $type == 'private-review') {
-            $model = $model::whereIn('id', $ids)->where('step', 3)->whereNull('deleted_at');
+            $model = $model::where('step', 3)->whereNull('deleted_at');
+            
         } else {
-            $model = $model::whereIn('id', $ids)->whereNull('deleted_at');
+            $model = $model::whereNull('deleted_at');
+        }
+        if (!empty($ids)) {
+            $model = $model->whereIn('id', $ids);
         }
 
         if ($type == 'polls') {
@@ -1638,22 +1645,16 @@ class SearchController extends Controller
             }
         }
         if ($type == 'private-review') {
-            $model = $model->whereIn('collaborate_type', 'product-review');
+            $model = $model->where('collaborate_type', 'product-review');
         }
+
 
         if (null !== $skip && null !== $take) {
             $model = $model->skip($skip)->take($take);
         }
 
-        if (!$this->isSearched && $type == 'product') {
-            $model = $model->get();
-            $model = $model->sortByDesc(function ($model) {
-                return $model->review_count;
-            });
-            return $model;
-        } else {
-            return $model->get();
-        }
+
+        // dd($model->toSql());
         return $model->get();
     }
 
@@ -1675,7 +1676,7 @@ class SearchController extends Controller
         $this->model = [];
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-
+        // dd($skip);
         if ($response['hits']['total'] > 0) {
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
@@ -1700,14 +1701,14 @@ class SearchController extends Controller
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
             }
-            if (isset($this->model['product'])) {
-                $products = $this->model['product'];
-                $this->model['product'] = [];
-                foreach ($products as &$product) {
-                    $meta = $product->getMetaFor($profileId);
-                    $this->model['product'][] = ['product' => $product, 'meta' => $meta];
-                }
-            }
+            // if (isset($this->model['product'])) {
+            //     $products = $this->model['product'];
+            //     $this->model['product'] = [];
+            //     foreach ($products as &$product) {
+            //         $meta = $product->getMetaFor($profileId);
+            //         $this->model['product'][] = ['product' => $product, 'meta' => $meta];
+            //     }
+            // }
 
             return $this->sendResponse();
         }
@@ -1716,65 +1717,66 @@ class SearchController extends Controller
             $suggestions = $this->getModelsForSeeAll($type, [], $request->input('filters'), $skip, $take);
         } else {
             $suggestions = $this->filterSuggestions($query, $type, $skip, $take);
-            $suggestions = $this->getModelsForSeeAll($type, array_pluck($suggestions, 'id'));
+            $suggestions = $this->getModelsForSeeAll($type, array_pluck($suggestions, 'id'), $request->input('filters'), $skip, $take);
         }
 
         if ($suggestions && $suggestions->count()) {
             //            if(!array_key_exists($type,$this->model)){
             //                $this->model[$type] = [];
             //            }
-            if ($type == 'collaborate' || $type == 'product' || $type == 'surveys')
+            if ($type == 'collaborate' || $type == 'private-review' || $type == 'surveys' || $type == 'polls') {
                 $this->model[$type] = $suggestions;
-            else
+            } else {
                 $this->model[$type] = $suggestions->toArray();
+            }
         }
 
         if (!empty($this->model)) {
-            if (isset($this->model['profile'])) {
-                //                $this->model['profile'] = $this->model['profile']->toArray();
-                $following = Redis::sMembers("following:profile:" . $profileId);
-                $profiles = $this->model['profile'];
-                $this->model['profile'] = [];
-                foreach ($profiles as $profile) {
-                    if ($profile && isset($profile['id'])) {
-                        $profile['isFollowing'] = in_array($profile['id'], $following);
-                    }
-                    $this->model['profile'][] = $profile;
-                }
-            }
-            if (isset($this->model['company'])) {
-                //                $this->model['company'] = $this->model['company']->toArray();
-                $companies = $this->model['company'];
-                $this->model['company'] = [];
-                foreach ($companies as $company) {
-                    $company['isFollowing'] = Company::checkFollowing($profileId, $company['id']);
-                    $this->model['company'][] = $company;
-                }
-            }
+
             if (isset($this->model['collaborate'])) {
                 $collaborates = $this->model['collaborate'];
-                $this->model['collaborate'] = [];
+                $this->model = [];
                 foreach ($collaborates as $collaborate) {
-                    $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                    $this->model[] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
             }
             if (isset($this->model['surveys'])) {
                 $surveys = $this->model['surveys']->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"));
-                $this->model['surveys'] = [];
+                $this->model = [];
                 foreach ($surveys as $survey) {
                     $survey->image_meta = json_decode($survey->image_meta);
                     $survey->video_meta = json_decode($survey->video_meta);
                     $this->model['surveys'][] = ['survey' => $survey, 'meta' => $survey->getMetaFor($profileId)];
                 }
             }
-            if (isset($this->model['product'])) {
-                $products = $this->model['product'];
-                $this->model['product'] = [];
-                foreach ($products as &$product) {
-                    $meta = $product->getMetaFor($profileId);
-                    $this->model['product'][] = ['product' => $product, 'meta' => $meta];
+
+            if (isset($this->model['polls'])) {
+                $polls = $this->model['polls'];
+                $this->model = [];
+                foreach ($polls as $poll) {
+                    $this->model[] = ['polling' => $poll, 'meta' => $poll->getMetaFor($profileId)];
                 }
             }
+
+            if (isset($this->model['private-review'])) {
+                $prs = $this->model['private-review'];
+                $this->model = [];
+
+                foreach ($prs as $pr) {
+                    if (is_array($profileId)) {
+                        dd($profileId);
+                    }
+                    $this->model[] = ['collaboration' => $pr, 'meta' => $pr->getMetaFor($profileId)];
+                }
+            }
+            // if (isset($this->model['product'])) {
+            //     $products = $this->model['product'];
+            //     $this->model['product'] = [];
+            //     foreach ($products as &$product) {
+            //         $meta = $product->getMetaFor($profileId);
+            //         $this->model['product'][] = ['product' => $product, 'meta' => $meta];
+            //     }
+            // }
 
             return $this->sendResponse();
         }
