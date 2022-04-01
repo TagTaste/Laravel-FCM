@@ -1617,20 +1617,20 @@ class SearchController extends Controller
                 }
             }
         }
-
+        $deleted_at = 'deleted_at';
+        if ($type == 'polls') {
+            $deleted_at = "poll_questions.deleted_at";
+        }
         if (count($ids)) {
             if ($type == 'collaborate' || $type == 'private-review') {
                 $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3);
             } else {
-                $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
+                $model = $model::whereNull($deleted_at)->orderByRaw("field(id,{$placeholders})", $ids);
             }
         } else if ($type == 'collaborate' || $type == 'private-review') {
             $model = $model::where('step', 3)->whereNull('deleted_at');
         } else {
-            $deleted_at = 'deleted_at';
-            if ($type == 'polls') {
-                $deleted_at = "poll_questions.deleted_at";
-            }
+            
             $model = $model::whereNull($deleted_at);
         }
         if (!empty($ids)) {
