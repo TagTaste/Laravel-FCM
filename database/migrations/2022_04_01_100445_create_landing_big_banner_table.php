@@ -14,7 +14,7 @@ class CreateLandingBigBannerTable extends Migration
     public function up()
     {
         //
-        Schema::create('landing_big_banner', function (Blueprint $table) {
+        Schema::create('landing_banner', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('model_id')->unsigned();
             $table->string('model_name', 50);	
@@ -22,10 +22,12 @@ class CreateLandingBigBannerTable extends Migration
             $table->json('filter_meta')->nullable();            
             $table->json('images_meta')->nullable();            
             $table->string('value',50)->nullable();
+            $table->string('banner_type',20)->nullable(false);
             $table->boolean('is_active')->default(0);
             $table->integer('updated_by')->unsigned();
             $table->timestamps();
-            $table->softDeletes();            
+            $table->softDeletes();
+            
         });
     }
 
@@ -37,6 +39,6 @@ class CreateLandingBigBannerTable extends Migration
     public function down()
     {
         //
-        Schema::drop('landing_big_banner');
+        Schema::drop('landing_banner');
     }
 }
