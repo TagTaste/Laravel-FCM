@@ -1625,7 +1625,11 @@ class SearchController extends Controller
             if ($type == 'collaborate' || $type == 'private-review') {
                 $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3);
             } else {
-                $model = $model::whereNull($deleted_at)->orderByRaw("field(id,{$placeholders})", $ids);
+                $idCol= 'id';
+                if($type=="polls"){
+                    $idCol = 'poll_questions.id';
+                }
+                $model = $model::whereNull($deleted_at)->orderByRaw("field(".$idCol.",{$placeholders})", $ids);
             }
         } else if ($type == 'collaborate' || $type == 'private-review') {
             $model = $model::where('step', 3)->whereNull('deleted_at');
