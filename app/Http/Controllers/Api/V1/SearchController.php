@@ -1675,7 +1675,7 @@ class SearchController extends Controller
             $this->isSearched = 1;
         }
         if ($response['hits']['total'] == 0 && isset($response["suggest"])) {
-            $response = $this->elasticSuggestion($response, $type) == null ? $response : $this->elasticSuggestion($response, $type);
+            $response = $this->v1ElasticSuggestion($response, $type) == null ? $response : $this->v1ElasticSuggestion($response, $type);
         }
         $this->model = [];
         $page = $request->input('page');
@@ -1787,5 +1787,25 @@ class SearchController extends Controller
         $this->model = (object)[];
         $this->messages = ['Nothing found.'];
         return $this->sendResponse();
+    }
+
+    public function v1ElasticSuggestion($response,$type) {
+        $query = "";
+            $elasticSuggestions = $response['suggest'];
+            if(isset($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"] != "") {
+                    $query = $query.($elasticSuggestions["my-suggestion-1"][0]["options"][0]["text"])." ";
+                    if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) &&  $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                        $query= $query."OR ".$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                    }
+                } else if(isset($elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"]) && $elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"] != "") {
+                    
+                    $query = $query.$elasticSuggestions["my-suggestion-2"][0]["options"][0]["text"];
+                }
+                if($query != "") {
+                    return ElasticHelper::suggestedSearch($query,$type,0,0);    
+                } else {
+                    return null;
+                }
     }
 }

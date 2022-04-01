@@ -79,7 +79,13 @@ class ElasticHelper
         }
         if($type){
             $params['type'] = $type;
+            if($type=="private-review"){
+                $params['type'] = "collaborate";
+            }else if($type=="polls"){
+                $params['type'] = "polling";
+            }
         }
+        // dd($params);
         $client = SearchClient::get();
         $response = $client->search($params);
 
