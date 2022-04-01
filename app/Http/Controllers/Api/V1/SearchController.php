@@ -1628,7 +1628,11 @@ class SearchController extends Controller
             $model = $model::where('step', 3)->whereNull('deleted_at');
             
         } else {
-            $model = $model::whereNull('deleted_at');
+            $deleted_at = 'deleted_at';
+            if ($type == 'polls') {
+                $deleted_at = "poll_questions.deleted_at";
+            }
+            $model = $model::whereNull($deleted_at);
         }
         if (!empty($ids)) {
             $model = $model->whereIn('id', $ids);
