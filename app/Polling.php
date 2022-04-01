@@ -33,6 +33,7 @@ class Polling extends Model implements Feedable
             if(count($matches)) {
                 $model->createHashtag($matches,'App\Polling',$model->id);
             }
+            \App\Documents\Poll::create($model);
         });
 
         self::updated(function($model){
@@ -42,6 +43,7 @@ class Polling extends Model implements Feedable
                 $model->createHashtag($matches,'App\Polling',$model->id);
             }
             $model->addToCache();
+            \App\Documents\Poll::create($model);
             //update the search
         });
         self::deleted(function($model){

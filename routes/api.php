@@ -275,6 +275,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                     Route::get('collaborate/{collaborateId}/getRole', 'CollaborateController@getProfileRole');
                 });
             });
+
+            Route::get("filterSearch/{type?}", 'SearchController@filterSearch');
         });
 
         /**
