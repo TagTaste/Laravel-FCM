@@ -1651,7 +1651,7 @@ class SearchController extends Controller
             }
         }
   
-        if ($type == '') {
+        if ($type == 'private-review') {
             $model = $model->where('collaborate_type', 'product-review');
         }else if ($type == 'collaborate') {
             $model = $model->where('collaborate_type', "<>",'product-review');
