@@ -200,7 +200,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             Route::get("search/explore", "ExplorePageController@explore");
             Route::get("search_test/explore_test", "ExplorePageController@exploreTest");
+            
         });
+
         //Routes to get personalised meta
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
         Route::get("/meta/{modelName}/{id}/{modelId}", "MetaController@getSharedMeta");
@@ -933,4 +935,16 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
     //route to send notification from skynet
     Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
+
+         //landing page
+    Route::get("landing/quick_links", "LandingPageController@quickLinks");
+    Route::get("landing/side_data", "LandingPageController@sideData");
+
+
 });
+
+
+        
+
+
+
