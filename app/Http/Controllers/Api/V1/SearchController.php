@@ -1644,11 +1644,9 @@ class SearchController extends Controller
 
         if ($type == 'polls') {
             if (request()->has('participated')) {
-                $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id');
-                if (request()->participated) {
+                if (request()->participated=="true") {                    
+                    $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id');
                     $model = $model->where("poll_votes.profile_id", request()->user()->profile->id);
-                } else {
-                    $model = $model->where("poll_votes.profile_id", "<>", request()->user()->profile->id);
                 }
             }
         }
