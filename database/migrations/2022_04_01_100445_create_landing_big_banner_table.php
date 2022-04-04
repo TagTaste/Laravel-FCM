@@ -16,6 +16,7 @@ class CreateLandingBigBannerTable extends Migration
         //
         Schema::create('landing_banner', function (Blueprint $table) {
             $table->increments('id');
+            $table->text('title');
             $table->integer('model_id')->unsigned()->nullable();
             $table->string('model_name', 50);	
             $table->string('link')->nullable();
