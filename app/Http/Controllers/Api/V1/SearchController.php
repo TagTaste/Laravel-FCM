@@ -1698,10 +1698,10 @@ class SearchController extends Controller
                     $this->messages = ['Nothing found.'];
                     return $this->sendResponse();
                 }
-                $this->model[$name] = $searched;
+                $this->model[$type] = $searched;
             }
 
-            $this->model = $this->commonResponseHandler($profileId);
+            $this->commonResponseHandler($profileId);
 
             return $this->sendResponse();
         }
