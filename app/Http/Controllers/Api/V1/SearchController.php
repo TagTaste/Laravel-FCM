@@ -1621,14 +1621,15 @@ class SearchController extends Controller
         if ($type == 'polls') {
             $deleted_at = "poll_questions.deleted_at";
         }
+        $idCol= 'id';
+        if($type=="polls"){
+            $idCol = 'poll_questions.id';
+        }
         if (count($ids)) {
             if ($type == 'collaborate' || $type == 'private-review') {
                 $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3);
             } else {
-                $idCol= 'id';
-                if($type=="polls"){
-                    $idCol = 'poll_questions.id';
-                }
+                
                 $model = $model::whereNull($deleted_at)->orderByRaw("field(".$idCol.",{$placeholders})", $ids);
             }
         } else if ($type == 'collaborate' || $type == 'private-review') {
@@ -1638,7 +1639,7 @@ class SearchController extends Controller
             $model = $model::whereNull($deleted_at);
         }
         if (!empty($ids)) {
-            $model = $model->whereIn('id', $ids);
+            $model = $model->whereIn($idCol, $ids);
         }
 
         if ($type == 'polls') {
