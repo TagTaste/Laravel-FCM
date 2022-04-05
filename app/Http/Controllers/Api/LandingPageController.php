@@ -10,6 +10,7 @@ use App\Channel\Payload;
 use Illuminate\Support\Facades\Redis;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
+use App\FeedCard;
 
 
 
@@ -117,7 +118,30 @@ class LandingPageController extends Controller
             ->pluck('channel_payloads.id')->toArray();
         $this->modelNotIncluded = array_merge($this->modelNotIncluded, $reported_payload);
     }
-    
+
+    public function feed_card_computation($profileId)
+    {
+        $profile_feed_card = FeedCard::where('data_type', 'profile')->where('is_active', 1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
+        if (!is_null($profile_feed_card)) {
+            $this->feed_card['profile_card']['feedCard'] = $profile_feed_card;
+            $meta = $profile_feed_card->getMetaFor();
+            $meta["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$profile_feed_card["data_id"]);
+            $this->feed_card['profile_card']['meta'] = $meta;
+            $this->feed_card['profile_card']['type'] = "feedCard";
+            $this->feed_card_count = $this->feed_card_count + 1;
+        }
+
+        $company_feed_card = FeedCard::where('data_type', 'company')->where('is_active', 1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
+        if (!is_null($company_feed_card)) {
+            $this->feed_card['company_card']['feedCard'] = $company_feed_card;
+            $meta = $company_feed_card->getMetaFor();
+            $meta["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$company_feed_card["data_id"]);
+            $this->feed_card['company_card']['meta'] = $meta;
+            $this->feed_card['company_card']['type'] = "feedCard";
+            $this->feed_card_count = $this->feed_card_count + 1;
+        }
+    }
+
     public function feed(Request $request)
     {
         $this->errors['status'] = 0;
@@ -127,6 +151,8 @@ class LandingPageController extends Controller
             $limit = 20;
         }
         $profileId = $request->user()->profile->id;
+        $this->feed_card_computation($profileId);
+
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $payloads =  Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
@@ -162,40 +188,64 @@ class LandingPageController extends Controller
     }
     private function getMeta(&$payloads, &$profileId)
     {
+        $this->model = array_fill(0, 20, null);
 
+
+
+        $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
+        $index = 0;
+        //dd($payloads);
         foreach ($payloads as $payload) {
             $type = null;
             $data = [];
-
             $cached = json_decode($payload->payload, true);
-
             foreach ($cached as $name => $key) {
-                $cachedData = Redis::get($key);
+                $cachedData = null;
+                if (in_array($name, $indexTypeV2)) {
+                    $key = $key . ":V2";
+                    $cachedData = Redis::connection('V2')->get($key);
+                } else {
+
+                    $cachedData = Redis::get($key);
+                }
                 if (!$cachedData) {
                     \Log::warning("could not get from $key");
                 }
                 $data[$name] = json_decode($cachedData, true);
             }
 
+
             if ($payload->model !== null) {
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
-                if ($model == 'App\Surveys') {
-                    $model = $model::with([])->where('payload_id', $payload->id)->where('state', '=', config("constant.SURVEY_STATES.PUBLISHED"))->first();
+                if ($model == "App\Surveys") {
+                    $model = $model::find($data["surveys"]["id"]);
                 } else {
-                    $model = $model::with([])->where('id', $payload->model_id)->first();
+                    $model = $model::find($payload->model_id);
                 }
-
-                if ($model != null && $type == "surveys") {
-                    $data["surveys"]["totalApplicants"] = $this->getSurveyApplicantCount($model);
-                }
-
-                if ($model !== null && method_exists($model, 'getMetaFor') && $profileId != null) {
-                    $data['meta'] = $model->getMetaFor($profileId);;
+                if ($model !== null && method_exists($model, 'getMetaForV2')) {
+                    $data['meta'] = $model->getMetaForV2($profileId);
                 }
             }
+            if ($model != null && $type == "surveys") {
+                $data["surveys"]["totalApplicants"] = $this->getSurveyApplicantCount($model);
+            }
+
             $data['type'] = $type;
-            $this->model[] = $data;
+            $this->model[$index++] = $data;
         }
+
+
+        if ($this->feed_card_count) {
+            if (isset($this->feed_card['profile_card'])) {
+                $this->model[$index++] = $this->feed_card['profile_card'];
+            }
+
+            if (isset($this->feed_card['company_card'])) {
+                $this->model[$index++] = $this->feed_card['company_card'];
+            }
+        }
+
+        $this->model = array_values(array_filter($this->model));
     }
 }
