@@ -2,20 +2,33 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
+
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Traits\HashtagFactory;
 use Illuminate\Support\Collection;
+use App\Channel\Payload;
+use Illuminate\Support\Facades\Redis;
+use App\Strategies\Paginator;
+use Illuminate\Http\Request;
+
+
 
 class LandingPageController extends Controller
 {
     use HashtagFactory;
+
+    protected $model = [];
+    protected $feed_card = [];
+    protected $feed_card_count = 0;
+    protected $modelNotIncluded = [];
+
     /**
      * Display a listing of the quick links.
      *
      * @return Response
      */
+    
     public function quickLinks(Request $request)
     {
 
@@ -72,5 +85,83 @@ class LandingPageController extends Controller
         $this->model[] = $hashtags;
 
         return $this->sendResponse();
+    }
+
+    public function feed(Request $request)
+    {
+        $limit = 0;
+        $limit = $request->input('limit');
+        if(!$limit)
+        {
+            $limit =20;
+        }
+        dd($request->user());
+        $profileId = $request->user()->profile->id;
+        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
+            ->where('subscribers.profile_id',$profileId)
+            //Query Builder's where clause doesn't work here for some reason.
+            //Don't remove this where query.
+            //Ofcourse, unless you know what you are doing.
+//            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
+            ->orderBy('channel_payloads.created_at','desc')
+            ->skip(0)
+            ->take($limit)
+            ->get();
+        if($payloads->count() === 0){
+            $this->errors[] = 'No more feed';
+            return $this->sendResponse();
+        }
+        $this->getMeta($payloads,$profileId);
+        return $this->sendResponse();
+    }
+
+    public function getSurveyApplicantCount($modelData)
+    {
+
+        return $modelData->totalApplicants;
+    }
+
+    private function getType($modelName)
+    {
+        $exploded = explode('\\',$modelName);
+        return strtolower(end($exploded));
+    }
+    private function getMeta(&$payloads, &$profileId)
+    {
+
+        foreach($payloads as $payload){
+            $type = null;
+            $data = [];
+
+            $cached = json_decode($payload->payload, true);
+
+            foreach($cached as $name => $key){
+                $cachedData = Redis::get($key);
+                if(!$cachedData){
+                    \Log::warning("could not get from $key");
+                }
+                $data[$name] = json_decode($cachedData,true);
+            }
+            
+            if($payload->model !== null){
+                $model = $payload->model;
+                $type = $this->getType($payload->model);
+                if($model=='App\Surveys'){
+                    $model = $model::with([])->where('payload_id',$payload->id)->where('state','=',config("constant.SURVEY_STATES.PUBLISHED"))->first();
+                }else{
+                    $model = $model::with([])->where('id',$payload->model_id)->first();
+                }
+
+                if ($model != null && $type == "surveys") {
+                    $data["surveys"]["totalApplicants"] = $this->getSurveyApplicantCount($model);
+                }
+                
+                if($model !== null && method_exists($model, 'getMetaFor') && $profileId != null){
+                    $data['meta'] = $model->getMetaFor($profileId);;
+                }
+            }
+            $data['type'] = $type;  
+            $this->model[] = $data;
+        }
     }
 }

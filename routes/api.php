@@ -939,6 +939,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
          //landing page
     Route::get("landing/quick_links", "LandingPageController@quickLinks");
     Route::get("landing/side_data", "LandingPageController@sideData");
+    Route::get("landing/feed", "LandingPageController@feed");
+
 
 
 });
