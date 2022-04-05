@@ -1653,6 +1653,8 @@ class SearchController extends Controller
   
         if ($type == 'private-review') {
             $model = $model->where('collaborate_type', 'product-review');
+        }else if ($type == 'collaborate') {
+            $model = $model->where('collaborate_type', "<>",'product-review');
         }
 
 
@@ -1698,10 +1700,10 @@ class SearchController extends Controller
                     $this->messages = ['Nothing found.'];
                     return $this->sendResponse();
                 }
-                $this->model[$name] = $searched;
+                $this->model[$type] = $searched;
             }
 
-            $this->model = $this->commonResponseHandler($profileId);
+            $this->commonResponseHandler($profileId);
 
             return $this->sendResponse();
         }
