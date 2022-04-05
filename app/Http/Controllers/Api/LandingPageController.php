@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 
-use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Traits\HashtagFactory;
 use Illuminate\Support\Collection;
@@ -29,7 +28,7 @@ class LandingPageController extends Controller
      * @return Response
      */
     
-    public function quickLinks(Request $request)
+    public function quickLinks()
     {
 
         $this->errors['status'] = 0;
@@ -46,7 +45,7 @@ class LandingPageController extends Controller
      *
      * @return Response
      */
-    public function sideData(Request $request)
+    public function sideData()
     {
 
         $this->errors['status'] = 0;
@@ -95,7 +94,6 @@ class LandingPageController extends Controller
         {
             $limit =20;
         }
-       
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
