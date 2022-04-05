@@ -95,7 +95,7 @@ class LandingPageController extends Controller
         {
             $limit =20;
         }
-        dd($request->user());
+       
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
