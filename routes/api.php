@@ -832,6 +832,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("ios_module_version/{id}", "VersionController@postIosModuleVersion");
         Route::post("android_module_version/{id}", "VersionController@postAndroidModuleVersion");
         Route::resource("advertisements", "AdvertisementController");
+
+              //landing page
+    Route::get("landing/quick_links", "LandingPageController@quickLinks");
+    Route::get("landing/side_data", "LandingPageController@sideData");
+    Route::get("landing/feed", "LandingPageController@feed");
     }); // end of authenticated routes. Add routes before this line to be able to
     // get current logged in user.
 
@@ -936,9 +941,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     //route to send notification from skynet
     Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
 
-         //landing page
-    Route::get("landing/quick_links", "LandingPageController@quickLinks");
-    Route::get("landing/side_data", "LandingPageController@sideData");
+   
+
 
 
 });

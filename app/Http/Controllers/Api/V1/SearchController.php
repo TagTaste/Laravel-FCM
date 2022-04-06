@@ -1604,38 +1604,48 @@ class SearchController extends Controller
             return $model;
         }
 
-        if (!empty($filters) && isset($this->filters[$type])) {
+        if (isset($this->filters) && !empty($filters)) {
 
             $modelIds = $this->filters[$type]::getModelIds($filters);
             if ($modelIds->count()) {
                 $ids = count($ids) ? array_intersect($ids, $modelIds->toArray()) : $modelIds->toArray();
                 if (count($ids)) {
                     $placeholders = implode(',', array_fill(0, count($ids), '?'));
-                    return $model::whereIn('id', $ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
+                    $model = $model::whereIn('id', $ids);
+
+                    if ($type == 'private-review') {
+                        $model = $model->where('collaborate_type', 'product-review');
+                    } else if ($type == 'collaborate') {
+                        $model = $model->where('collaborate_type', "<>", 'product-review');
+                    }
+                    return $model->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
                 } else {
                     return false;
                 }
+            } else {
+                return false;
             }
         }
+
         $deleted_at = 'deleted_at';
         if ($type == 'polls') {
             $deleted_at = "poll_questions.deleted_at";
         }
-        $idCol= 'id';
-        if($type=="polls"){
+        $idCol = 'id';
+        if ($type == "polls") {
             $idCol = 'poll_questions.id';
         }
         if (count($ids)) {
             if ($type == 'collaborate' || $type == 'private-review') {
                 $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3);
             } else {
-                
-                $model = $model::whereNull($deleted_at)->orderByRaw("field(".$idCol.",{$placeholders})", $ids);
+
+                $model = $model::whereNull($deleted_at)->orderByRaw("field(" . $idCol . ",{$placeholders})", $ids);
             }
         } else if ($type == 'collaborate' || $type == 'private-review') {
             $model = $model::where('step', 3)->whereNull('deleted_at');
         } else {
-            
+
             $model = $model::whereNull($deleted_at);
         }
         if (!empty($ids)) {
@@ -1644,20 +1654,22 @@ class SearchController extends Controller
 
         if ($type == 'polls') {
             if (request()->has('participated')) {
-                if (request()->participated=="true") {                    
+                if (request()->participated == "true") {
                     $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id');
                     $model = $model->where("poll_votes.profile_id", request()->user()->profile->id);
                 }
             }
         }
-  
+
         if ($type == 'private-review') {
             $model = $model->where('collaborate_type', 'product-review');
+        } else if ($type == 'collaborate') {
+            $model = $model->where('collaborate_type', "<>", 'product-review');
         }
 
 
         if (null !== $skip && null !== $take) {
-            $model = $model->skip($skip)->take($take);
+            $model = $model->orderBy($idCol, "desc")->skip($skip)->take($take);
         }
 
 
@@ -1667,7 +1679,7 @@ class SearchController extends Controller
 
     public function filterSearch(Request $request, $type = null)
     {
-
+        $this->errors['status'] = 0;
         $query = $request->input('q');
         $profileId = $request->user()->profile->id;
         if ($query == null || !$request->has("q")) {
@@ -1691,17 +1703,18 @@ class SearchController extends Controller
             foreach ($hits as $name => $hit) {
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
+
                 $searched = $this->getModelsForSeeAll($type, $ids, $request->input('filters'), $skip, $take);
 
                 if (!$searched) {
-                    $this->model = (object)[];
+                    $this->model = [];
                     $this->messages = ['Nothing found.'];
                     return $this->sendResponse();
                 }
-                $this->model[$name] = $searched;
+                $this->model[$type] = $searched;
             }
 
-            $this->model = $this->commonResponseHandler($profileId);
+            $this->commonResponseHandler($profileId);
 
             return $this->sendResponse();
         }
@@ -1714,7 +1727,7 @@ class SearchController extends Controller
         }
 
         if ($suggestions && $suggestions->count()) {
-            
+
             if ($type == 'collaborate' || $type == 'private-review' || $type == 'surveys' || $type == 'polls') {
                 $this->model[$type] = $suggestions;
             } else {
@@ -1725,11 +1738,12 @@ class SearchController extends Controller
         if (!empty($this->model)) {
 
             $this->model = $this->commonResponseHandler($profileId);
-            
+
 
             return $this->sendResponse();
         }
-        $this->model = (object)[];
+
+        $this->model = [];
         $this->messages = ['Nothing found.'];
         return $this->sendResponse();
     }
