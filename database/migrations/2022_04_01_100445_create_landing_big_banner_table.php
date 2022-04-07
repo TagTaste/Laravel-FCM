@@ -17,7 +17,7 @@ class CreateLandingBigBannerTable extends Migration
         Schema::create('landing_banner', function (Blueprint $table) {
             $table->increments('id');
             $table->text('title');
-            $table->integer('model_id')->unsigned()->nullable();
+            $table->string('model_id', 30)->nullable();
             $table->string('model_name', 50);	
             $table->string('link')->nullable();
             $table->json('filter_meta')->nullable();            
@@ -29,7 +29,6 @@ class CreateLandingBigBannerTable extends Migration
             $table->timestamp("expires_on")->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
         });
     }
     
