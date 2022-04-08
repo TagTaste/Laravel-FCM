@@ -302,7 +302,7 @@ class LandingPageController extends Controller
         $modelData = [];
         foreach ($carouseldata as $key => $value) {
             $data['seen_count'] = 0;
-            $data['placeholder_images_meta'] =  isset($this->placeholderimage[$model]) ?$this->placeholderimage[$model] : [];
+            $data['placeholder_images_meta'] =  isset($this->placeholderimage[$model]) ? $this->placeholderimage[$model] : [];
             if ($model != 'public review') {
                 $profile['id'] = $value->id;
                 $profile['tagline'] = $value->tagline;
@@ -355,7 +355,7 @@ class LandingPageController extends Controller
             $carouseldata = $carouseldata->where('companies.id', config("constant.COMPANY_ID"))
                 ->orderBy('poll_questions.created_at', 'desc');
         } elseif ($type == 'NoTagTaste') {
-            $carouseldata = $carouseldata->where('companies.id', '<>',config("constant.COMPANY_ID"))
+            $carouseldata = $carouseldata->where('companies.id', '<>', config("constant.COMPANY_ID"))
                 ->orderBy('poll_questions.created_at', 'desc');
         }
         $carouseldata = $carouseldata->take(5)->get();
@@ -363,7 +363,7 @@ class LandingPageController extends Controller
         foreach ($carouseldata as $key => $value) {
 
             $data['seen_count'] = 0;
-            $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ?$this->placeholderimage['poll'] : [];
+            $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : [];
 
             $profile['id'] = $value->profile_id;
             $profile['tagline'] = $value->tagline;
@@ -422,7 +422,7 @@ class LandingPageController extends Controller
 
         foreach ($carouseldata as $key => $value) {
             $data['seen_count'] = 0;
-            $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ?$this->placeholderimage['poll'] : [];
+            $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : [];
             $profile['id'] = $value->profile_id;
             $profile['tagline'] = $value->tagline;
             $profile['user_id'] = $value->user_id;
@@ -551,7 +551,9 @@ class LandingPageController extends Controller
         $platform = $request->input('platform');
 
         if ($platform == 'mobile') {
-          
+            $links["ui_type"] = "quick_links";
+            $links["elements"] =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
+            $this->model[] = $links;
 
             $passbook["ui_type"] = "passbook";
 
@@ -579,15 +581,13 @@ class LandingPageController extends Controller
             $this->model[] = $hashtags;
 
             $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
-            $banner->ui_type = "banner";
-
-            $this->model[] = $banner;
+            if ($banner) {
+                $banner->ui_type = "banner";
+                $this->model[] = $banner;
+            }
         }
 
-        $links["ui_type"] = "quick_links";
-        $links["elements"] =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
 
-        $this->model[] = $links;
 
         $big_banner["ui_type"] = "big_banner";
         $big_banner["autoplay_duration"] = 3000;
@@ -601,22 +601,28 @@ class LandingPageController extends Controller
 
 
         $carouselCollab = $this->carousel($profileId, 'collaborate');
-        $this->model[] = $carouselCollab;
+        if (count($carouselCollab["elements"]) != 0)
+            $this->model[] = $carouselCollab;
 
         $carouselSurvey = $this->carousel($profileId, 'survey');
-        $this->model[] = $carouselSurvey;
+        if (count($carouselSurvey["elements"]) != 0)
+            $this->model[] = $carouselSurvey;
 
         $carouselProduct = $this->carousel($profileId, 'product-review');
-        $this->model[] = $carouselProduct;
+        if (count($carouselProduct["elements"]) != 0)
+            $this->model[] = $carouselProduct;
 
         $carouselPublicReview = $this->carousel($profileId, 'public review');
-        $this->model[] = $carouselPublicReview;
+        if (count($carouselPublicReview["elements"]) != 0)
+            $this->model[] = $carouselPublicReview;
 
         $poll = $this->poll($profileId, 'TagTaste');
-        $this->model[] = $poll;
+        if (count($poll["elements"]) != 0)
+            $this->model[] = $poll;
 
         $pollNotTagtaste = $this->poll($profileId, 'NoTagTaste');
-        $this->model[] = $pollNotTagtaste;
+        if (count($pollNotTagtaste["elements"]) != 0)
+            $this->model[] = $pollNotTagtaste;
 
         $expiredPoll = $this->expiredpoll($profileId);
         // dd($expiredPoll['count']);
@@ -626,7 +632,8 @@ class LandingPageController extends Controller
         }
 
         $imageCarousel = $this->imageCarousel($profileId);
-        $this->model[] = $imageCarousel;
+        if (count($imageCarousel["elements"]) != 0)
+            $this->model[] = $imageCarousel;
 
         $suggestion = $this->suggestion($profileId);
         $this->model[] = $suggestion;
