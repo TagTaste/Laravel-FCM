@@ -81,7 +81,9 @@ return  [
     'SELECT_TYPES' => [
         'SELFIE_TYPE' => 6
     ],
-    "DEFAULT_SIZE" => 8
+    "DEFAULT_SIZE" => 8,
+
+    "COMPANY_ID" => 9
     
 ];
 
