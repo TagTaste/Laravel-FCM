@@ -560,7 +560,7 @@ class LandingPageController extends Controller
         $big_banner["autoplay_duration"] = 3000;
         $big_banner["loop"] = true;
         $big_banner["autoplay"] = true;
-        $big_banner["elements"] =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->get();
+        $big_banner["elements"] =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->orderby('updated_at',"desc")->limit(15);
         
         foreach ($big_banner["elements"] as &$value) {
             $value->images_meta = json_decode($value->images_meta ?? []);
