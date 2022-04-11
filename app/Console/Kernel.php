@@ -57,6 +57,7 @@ use App\Console\Commands\Build\Graph\Education as GraphEducation;
 use App\Console\Commands\Build\Graph\Experiance as GraphExperiance;
 use App\Console\Commands\Build\Graph\Profiles as GraphProfiles;
 use App\Console\Commands\Build\Graph\Companies as GraphCompanies;
+use App\Console\Commands\Build\Graph\PublicReviewProduct as GraphPublicReviewProducts;
 
 use App\Console\Commands\Build\Graph\Build\Following as GraphFollowing;
 use App\Console\Commands\Build\Graph\Build\UserDoB as GraphUserDoB;
@@ -65,6 +66,8 @@ use App\Console\Commands\Build\Graph\Build\UserFoodieType as GraphUserFoodieType
 use App\Console\Commands\Build\Graph\Build\UserSpecialization as GraphUserSpecialization;
 use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
+use App\Console\Commands\Build\Graph\Build\UserPublicReview as GraphUserPublicReview;
+
 use App\Console\Commands\Build\SurveyApplicantStatus;
 use App\Console\Commands\SurveyAnswerSync;
 use App\Console\Commands\InsertTTFBQuestion as TTFBQuestionaire;
@@ -101,6 +104,7 @@ class Kernel extends ConsoleKernel
 
         
         // Rebuild Graph
+        GraphPublicReviewProducts::class,
         GraphProfiles::class,
         GraphCompanies::class,
         GraphFollowing::class,
@@ -117,6 +121,7 @@ class Kernel extends ConsoleKernel
         GraphExperiance::class,
         GraphUserExperiance::class,
         removeNotifications::class,
+        GraphUserPublicReview::class,
 
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
