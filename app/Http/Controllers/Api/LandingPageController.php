@@ -257,7 +257,7 @@ class LandingPageController extends Controller
         $carousel["title"] = $model;
         $carousel["see_more"] = true;
         $carousel["elements"] = [];
-        if($model == 'private_review') $model == 'product-review';
+        if ($model == 'private_review') $model == 'product-review';
         if ($model == 'collaborate' || $model == 'private_review') {
             $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
             $carouseldata = DB::table('collaborates')
@@ -462,7 +462,7 @@ class LandingPageController extends Controller
         $carousel["see_more"] = true;
 
         $carousel["elements"] = [];
-        $photos = Photo::forCompany(9)->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(5)->get();
+        $photos = Photo::forCompany(config("constant.COMPANY_ID"))->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(5)->get();
         $carouseldata = [];
 
         foreach ($photos as $photo) {
@@ -485,7 +485,7 @@ class LandingPageController extends Controller
     {
         $carousel["ui_type"] = "suggestion";
         $carousel["title"] = "suggested for you";
-        $carousel["subtitle"] = "others completed review";
+        $carousel["sub_title"] = "others completed review";
         $carousel["profile"] = json_decode('[
             {
               "id": 2,
@@ -626,8 +626,9 @@ class LandingPageController extends Controller
             $tags = [];
             $tags = $this->trendingHashtags();
             foreach ($tags as &$tag) {
-
+                $tag["total_count"] = $tag["count"];
                 unset($tag["updated_at"]);
+                unset($tag["count"]);
             }
 
             $hashtags["ui_type"] = "hashtags";
@@ -638,7 +639,7 @@ class LandingPageController extends Controller
         }
 
         $feed["ui_type"] = "feed";
-        $feed["count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
+        $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
             ->whereNull('subscribers.deleted_at')
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
