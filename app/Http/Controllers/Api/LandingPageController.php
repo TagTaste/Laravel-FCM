@@ -506,7 +506,8 @@ class LandingPageController extends Controller
             {
                 $product = [
                     'product'=>$product,
-                    'meta'=>$product->getMetaFor($profileId)
+                    'meta'=>$product->getMetaFor($profileId),
+                    'type'=>'product'
                 ];
 
                 $query = "MATCH (users:User) -[:REVIEWED]-> (product:Product{product_id:'$productId'})
@@ -514,18 +515,26 @@ class LandingPageController extends Controller
                 ORDER BY number   
                 RETURN users;";
                 $result = $client->run($query);
+                $totalProfileCount = count($result->records());
+                $showProfileCount = 3;
+
                 $showProfiles = [];
-                $slicedProfileList = array_slice($result->records(), 0, 3, true); 
+                $slicedProfileList = array_slice($result->records(), 0, $showProfileCount, true); 
                 
                 foreach ($slicedProfileList as $profileData) {
                     array_push($showProfiles, $profileData->get('users')->values());
                 }
-
+                $subTitle = 'others completed review';
+                if($totalProfileCount <= $showProfileCount){
+                    $subTitle = 'completed review';
+                }else if($totalProfileCount <= ($showProfileCount+1)){
+                    $subTitle = 'other completed review';
+                }
                 $suggestionObj = ["ui_type"=>"suggestion",
                     "title"=>"Suggested for you",
                     "total_count"=>count($result->records()),
                     "profiles"=> $showProfiles,
-                    "sub_title"=>"others completed review",
+                    "sub_title"=>$subTitle,
                     "suggestion"=>$product
                     ];
                 array_push($data, $suggestionObj);
@@ -632,7 +641,7 @@ class LandingPageController extends Controller
             $hashtags["elements"] = $tags;
             $this->model[] = $hashtags;
         }
-
+        
         $feed["ui_type"] = "feed";
         $feed["total_count"] = 5;
         // $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
