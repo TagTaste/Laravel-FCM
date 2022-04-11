@@ -7,10 +7,16 @@ use Illuminate\Support\Facades\DB;
 use App\Traits\HashtagFactory;
 use Illuminate\Support\Collection;
 use App\Channel\Payload;
+use App\Collaborate;
 use Illuminate\Support\Facades\Redis;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 use App\FeedCard;
+use App\Polling;
+use App\Product;
+use App\PublicReviewProduct;
+use App\PublicReviewProduct\Review;
+use App\Surveys;
 use Carbon\Carbon;
 use App\V2\Photo;
 
@@ -224,11 +230,10 @@ class LandingPageController extends Controller
 
         if ($model == 'collaborate' || $model == 'product_review') {
             $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
-            $carouseldata = DB::table('collaborates')
-                ->select('profiles.*', 'experiences.designation', 'users.name', 'collaborates.id as model_id', 'collaborates.title', 'collaborates.profile_id', 'collaborates.description')
+            $carouseldata = Collaborate::select('profiles.*', 'experiences.designation', 'users.name', 'collaborates.id as model_id', 'collaborates.title', 'collaborates.profile_id', 'collaborates.description')
                 ->join('profiles', 'collaborates.profile_id', 'profiles.id')
                 ->join('users', 'users.id', 'profiles.id')
-                ->join('experiences', 'experiences.profile_id', 'profiles.id')
+                ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
                 ->where('profiles.id', '<>', $profileId)
                 ->where('collaborate_type', $model)
                 ->whereNull('collaborates.deleted_at')
@@ -242,8 +247,7 @@ class LandingPageController extends Controller
             $carouseldata = $carouseldata->take(5)->get();
         } elseif ($model == 'surveys') {
             $ids = DB::table("survey_applicants")->where("profile_id", $profileId)->pluck("survey_id")->toArray();
-            $carouseldata = DB::table('surveys')
-                ->select('profiles.*', 'experiences.designation', 'users.name', 'surveys.id as model_id', 'surveys.title', 'surveys.profile_id', 'surveys.description', 'surveys.image_meta as post_meta')
+            $carouseldata = Surveys::select('profiles.*', 'experiences.designation', 'users.name', 'surveys.id as model_id', 'surveys.title', 'surveys.profile_id', 'surveys.description', 'surveys.image_meta as post_meta')
                 ->join('profiles', 'surveys.profile_id', 'profiles.id')
                 ->join('users', 'users.id', 'profiles.id')
                 ->join('experiences', 'experiences.profile_id', 'profiles.id')
@@ -255,8 +259,7 @@ class LandingPageController extends Controller
                 ->take(5)->get();
         } elseif ($model == 'product') {
             $ids =  DB::table("public_product_user_review")->where('profile_id')->pluck('product_id')->toArray();
-            $carouseldata =  DB::table("public_review_products")
-                ->select('public_review_products.id as model_id', 'public_review_products.company_name', 'public_review_products.name as title', 'public_review_products.description', 'public_review_products.images_meta as post_meta')
+            $carouseldata =  PublicReviewProduct::select('public_review_products.id as model_id', 'public_review_products.company_name', 'public_review_products.name as title', 'public_review_products.description', 'public_review_products.images_meta as post_meta')
                 ->join("payment_details", "payment_details.model_id", "public_review_products.id")
                 ->whereNull('public_review_products.deleted_at')
                 ->where('public_review_products.is_active', 1)
@@ -271,6 +274,7 @@ class LandingPageController extends Controller
         $modelData = [];
         foreach ($carouseldata as $key => $value) {
             $data['seen_count'] = 0;
+            $data['meta'] = $value->getMetaFor($profileId); 
             $data['placeholder_images_meta'] =  isset($this->placeholderimage[$model]) ? $this->placeholderimage[$model] : json_decode('{
                         "meta": {
                             "width": 343,
@@ -299,6 +303,7 @@ class LandingPageController extends Controller
             $modelData['description'] = $value->description;
             $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
             $modelData['seen_count'] = 0;
+            
 
 
             $data[$model] = $modelData;
@@ -316,8 +321,7 @@ class LandingPageController extends Controller
         $carousel["elements"] = [];
 
 
-        $carouseldata = DB::table('poll_questions')
-            ->select('profiles.*', 'experiences.designation', 'companies.id', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.*')
+        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'companies.id', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.*')
             ->leftJoin('profiles', 'profiles.id', 'poll_questions.profile_id')
             ->leftJoin('users', 'users.id', 'profiles.user_id')
             ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
@@ -340,6 +344,7 @@ class LandingPageController extends Controller
         foreach ($carouseldata as $key => $value) {
 
             $data['seen_count'] = 0;
+            $data["meta"] = $value->getMetaFor($profileId);
             $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
                 "meta": {
                     "width": 343,
@@ -385,8 +390,7 @@ class LandingPageController extends Controller
         $carousel["value"] = "result_value";
         $carousel["elements"] = [];
 
-        $carouseldata = DB::table('poll_questions')
-            ->select('profiles.*', 'experiences.designation', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.name', 'poll_options.text as result')
+        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.name', 'poll_options.text as result')
             ->join('profiles', 'profiles.id', 'poll_questions.profile_id')
             ->join('users', 'users.id', 'profiles.user_id')
             ->join('experiences', 'experiences.profile_id', 'profiles.id')
@@ -407,6 +411,7 @@ class LandingPageController extends Controller
 
         foreach ($carouseldata as $key => $value) {
             $data['seen_count'] = 0;
+            $data["meta"] = $value->getMetaFor($profileId);
             $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
                 "meta": {
                     "width": 343,
