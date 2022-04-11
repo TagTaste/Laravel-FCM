@@ -1780,6 +1780,8 @@ class SearchController extends Controller
             $this->model = [];
 
             foreach ($prs as $pr) {
+                $pr->image_meta = json_decode($pr->image_meta);
+                $pr->video_meta = json_decode($pr->video_meta);
                 $this->model[] = ['collaboration' => $pr, 'meta' => $pr->getMetaFor($profileId)];
             }
         }
