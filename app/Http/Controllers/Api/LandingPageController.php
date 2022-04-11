@@ -79,6 +79,8 @@ class LandingPageController extends Controller
         $tags = $this->trendingHashtags();
         foreach ($tags as &$tag) {
 
+            $tag['total_count'] = $tag['count'];
+            unset($tag["count"]);
             unset($tag["updated_at"]);
         }
 
@@ -257,7 +259,7 @@ class LandingPageController extends Controller
         $carousel["title"] = $model;
         $carousel["see_more"] = true;
         $carousel["elements"] = [];
-        if($model == 'private_review') $model == 'product-review';
+        if ($model == 'private_review') $model == 'product-review';
         if ($model == 'collaborate' || $model == 'private_review') {
             $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
             $carouseldata = DB::table('collaborates')
@@ -348,6 +350,7 @@ class LandingPageController extends Controller
             ->join('experiences', 'experiences.profile_id', 'profiles.id')
             ->join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->join('companies', 'companies.id', 'poll_questions.company_id')
+            ->whereNull('poll_questions.deleted_at')
             ->where('poll_questions.profile_id', '<>', $profileId)
             ->where('poll_votes.profile_id', '<>', $profileId)
             ->where('poll_questions.is_expired', 0);
@@ -409,6 +412,7 @@ class LandingPageController extends Controller
             ->join('experiences', 'experiences.profile_id', 'profiles.id')
             ->join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->join('poll_options', 'poll_options.poll_id', 'poll_questions.id')
+            ->whereNull('poll_questions.deleted_at')
             ->where('poll_questions.profile_id', '<>', $profileId)
             ->where('poll_votes.profile_id', '<>', $profileId)
             ->where('poll_questions.is_expired', 1)
@@ -460,8 +464,7 @@ class LandingPageController extends Controller
         $carousel["see_more"] = true;
 
         $carousel["elements"] = [];
-        $id =  DB::table('companies')->where('id', config("constant.COMPANY_ID"))->pluck('id');
-        $photos = Photo::forProfile($profileId)->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(5)->get();
+        $photos = Photo::forCompany(config("constant.COMPANY_ID"))->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(5)->get();
         $carouseldata = [];
 
         foreach ($photos as $photo) {
@@ -473,7 +476,7 @@ class LandingPageController extends Controller
             unset($photoArray["profile_id"]);
             unset($photoArray["company_id"]);
 
-            $carouseldata[] = ['photo' => $photoArray, 'profile' => $item, 'meta' => $photo->getMetaFor($profileId), 'type' => 'photo', 'seen_count' => 0,];
+            $carouseldata[] = ['photo' => $photoArray, 'company' => $item, 'meta' => $photo->getMetaFor($profileId), 'type' => 'photo', 'seen_count' => 0,];
         }
         $carousel["elements"] = $carouseldata;
 
@@ -484,7 +487,7 @@ class LandingPageController extends Controller
     {
         $carousel["ui_type"] = "suggestion";
         $carousel["title"] = "suggested for you";
-        $carousel["subtitle"] = "others completed review";
+        $carousel["sub_title"] = "others completed review";
         $carousel["profile"] = json_decode('[
             {
               "id": 2,
@@ -561,7 +564,9 @@ class LandingPageController extends Controller
         $big_banner["loop"] = true;
         $big_banner["autoplay"] = true;
         $big_banner["elements"] =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->get();
+
         foreach ($big_banner["elements"] as &$value) {
+            $value->images_meta = json_decode($value->images_meta ?? []);
             $value->model_id = (string)$value->model_id;
         }
         $this->model[] = $big_banner;
@@ -576,9 +581,10 @@ class LandingPageController extends Controller
             $products["image"] = "";
             $this->model[] = $products;
 
-            $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
+            $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->orderBy("updated_at","desc")->first();
             if ($banner) {
                 $banner->ui_type = "banner";
+                $banner->images_meta = json_decode($banner->images_meta ?? []);
                 $this->model[] = $banner;
             }
         }
@@ -625,8 +631,9 @@ class LandingPageController extends Controller
             $tags = [];
             $tags = $this->trendingHashtags();
             foreach ($tags as &$tag) {
-
+                $tag["total_count"] = $tag["count"];
                 unset($tag["updated_at"]);
+                unset($tag["count"]);
             }
 
             $hashtags["ui_type"] = "hashtags";
@@ -637,7 +644,7 @@ class LandingPageController extends Controller
         }
 
         $feed["ui_type"] = "feed";
-        $feed["count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
+        $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
             ->whereNull('subscribers.deleted_at')
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
