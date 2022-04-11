@@ -127,28 +127,7 @@ class LandingPageController extends Controller
         $this->modelNotIncluded = array_merge($this->modelNotIncluded, $reported_payload);
     }
 
-    public function feed_card_computation($profileId)
-    {
-        $profile_feed_card = FeedCard::where('data_type', 'profile')->where('is_active', 1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
-        if (!is_null($profile_feed_card)) {
-            $this->feed_card['profile_card']['feedCard'] = $profile_feed_card;
-            $meta = $profile_feed_card->getMetaFor();
-            $meta["isFollowing"] = \App\Profile::isFollowing((int)$profileId, (int)$profile_feed_card["data_id"]);
-            $this->feed_card['profile_card']['meta'] = $meta;
-            $this->feed_card['profile_card']['type'] = "feedCard";
-            $this->feed_card_count = $this->feed_card_count + 1;
-        }
-
-        $company_feed_card = FeedCard::where('data_type', 'company')->where('is_active', 1)->whereNull('deleted_at')->orderBy('created_at', 'DESC')->first();
-        if (!is_null($company_feed_card)) {
-            $this->feed_card['company_card']['feedCard'] = $company_feed_card;
-            $meta = $company_feed_card->getMetaFor();
-            $meta["isFollowing"] = \App\Company::checkFollowing((int)$profileId, (int)$company_feed_card["data_id"]);
-            $this->feed_card['company_card']['meta'] = $meta;
-            $this->feed_card['company_card']['type'] = "feedCard";
-            $this->feed_card_count = $this->feed_card_count + 1;
-        }
-    }
+   
 
     public function feed(Request $request)
     {
@@ -159,7 +138,6 @@ class LandingPageController extends Controller
             $limit = 20;
         }
         $profileId = $request->user()->profile->id;
-        $this->feed_card_computation($profileId);
 
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
@@ -239,16 +217,6 @@ class LandingPageController extends Controller
             $this->model[$index++] = $data;
         }
 
-
-        if ($this->feed_card_count) {
-            if (isset($this->feed_card['profile_card'])) {
-                $this->model[$index++] = $this->feed_card['profile_card'];
-            }
-
-            if (isset($this->feed_card['company_card'])) {
-                $this->model[$index++] = $this->feed_card['company_card'];
-            }
-        }
 
         $this->model = array_values(array_filter($this->model));
     }
