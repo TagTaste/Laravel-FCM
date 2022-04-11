@@ -562,7 +562,9 @@ class LandingPageController extends Controller
         $big_banner["loop"] = true;
         $big_banner["autoplay"] = true;
         $big_banner["elements"] =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->get();
+        
         foreach ($big_banner["elements"] as &$value) {
+            $value->images_meta = json_decode($value->images_meta ?? []);
             $value->model_id = (string)$value->model_id;
         }
         $this->model[] = $big_banner;

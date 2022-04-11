@@ -1655,8 +1655,7 @@ class SearchController extends Controller
         if ($type == 'polls') {
             if (request()->has('participated')) {
                 if (request()->participated == "true") {
-                    $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id');
-                    $model = $model->where("poll_votes.profile_id", request()->user()->profile->id);
+                    $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id')->where("poll_votes.profile_id", request()->user()->profile->id)->select("poll_questions.*");    
                 }
             }
         }
@@ -1781,6 +1780,8 @@ class SearchController extends Controller
             $this->model = [];
 
             foreach ($prs as $pr) {
+                $pr->image_meta = json_decode($pr->image_meta);
+                $pr->video_meta = json_decode($pr->video_meta);
                 $this->model[] = ['collaboration' => $pr, 'meta' => $pr->getMetaFor($profileId)];
             }
         }
