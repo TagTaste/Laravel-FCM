@@ -623,20 +623,20 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
 
-        // if ($platform == 'mobile') {
-        //     $tags = [];
-        //     $tags = $this->trendingHashtags();
-        //     foreach ($tags as &$tag) {
+        if ($platform == 'mobile') {
+            $tags = [];
+            $tags = $this->trendingHashtags();
+            foreach ($tags as &$tag) {
 
-        //         unset($tag["updated_at"]);
-        //     }
+                unset($tag["updated_at"]);
+            }
 
-        //     $hashtags["ui_type"] = "hashtags";
-        //     $hashtags["title"] = "Trending #tags";
-        //     $hashtags["see_more"] = true;
-        //     $hashtags["elements"] = $tags;
-        //     $this->model[] = $hashtags;
-        // }
+            $hashtags["ui_type"] = "hashtags";
+            $hashtags["title"] = "Trending #tags";
+            $hashtags["see_more"] = true;
+            $hashtags["elements"] = $tags;
+            $this->model[] = $hashtags;
+        }
 
         $feed["ui_type"] = "feed";
         $feed["count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
