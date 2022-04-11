@@ -83,7 +83,7 @@ return  [
     ],
     "DEFAULT_SIZE" => 8,
 
-    "COMPANY_ID" => 9
+    "POLL_COMPANY_ID" => 9
     
 ];
 
