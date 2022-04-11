@@ -410,4 +410,21 @@ class PublicReviewProduct extends Model
         return $meta;
     }
 
+    public function addToGraph(){
+        $data = \App\PublicReviewProduct::find($this->id)->toArray();
+        
+        $data = ['id'=>$this->id, 
+        'product_id'=>$this->id,
+        'name'=>$this->name, 
+        'is_active'=>$this->is_active,
+        'created_at'=>$this->created_at];
+        
+        $product = \App\Neo4j\PublicReviewProduct::where('product_id', $data['id'])->first();
+        if (!$product) {
+            \App\Neo4j\PublicReviewProduct::create($data);
+        } else {
+            unset($data['id']);
+            \App\Neo4j\PublicReviewProduct::where('product_id', $data['product_id'])->update($data);
+        }
+    }
 }
