@@ -15,9 +15,6 @@ use Carbon\Carbon;
 use App\V2\Photo;
 
 
-
-
-
 class LandingPageController extends Controller
 {
     use HashtagFactory;
@@ -127,8 +124,6 @@ class LandingPageController extends Controller
         $this->modelNotIncluded = array_merge($this->modelNotIncluded, $reported_payload);
     }
 
-   
-
     public function feed(Request $request)
     {
         $this->errors['status'] = 0;
@@ -171,8 +166,6 @@ class LandingPageController extends Controller
     private function getMeta(&$payloads, &$profileId)
     {
         $this->model = array_fill(0, 20, null);
-
-
 
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $index = 0;
@@ -477,67 +470,69 @@ class LandingPageController extends Controller
         return $carousel;
     }
 
-    public function suggestion($profileId)
+    public function getSuggestion($profileId)
     {
-        $carousel["ui_type"] = "suggestion";
-        $carousel["title"] = "suggested for you";
-        $carousel["sub_title"] = "others completed review";
-        $carousel["profile"] = json_decode('[
-            {
-              "id": 2,
-              "name": "Arun tangri",
-              "handle": "arun"
-            },
-            {
-              "id": 3,
-              "name": "varun tangri",
-              "handle": "varun"
-            },
-            {
-              "id": 4,
-              "name": "Harsh Arora",
-              "handle": "harsh"
-            }
-          ]');
-        $carousel["total_count"] = 8;
-
-        $carousel['suggestion'] = json_decode('{
-            "profile": {
-              "id": 49,
-              "tagline": "The advent of text messaging made possible new forms of interaction that were not possible before.",
-              "user_id": 50,
-              "verified": 1,
-              "handle": "akt0161",
-              "image_meta": "{\"meta\": {\"mime\": \"image/jpeg\", \"size\": null, \"width\": 748, \"height\": 748, \"tiny_photo\": \"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/p/49/tiny/xmVpf1OhbrXCWCgWYthM.jpg\"}, \"tiny_photo\": \"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/p/49/tiny/xmVpf1OhbrXCWCgWYthM.jpg\", \"original_photo\": \"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/p/49/original/HQgJi7lwxxXPo7EjSC0R7hYig8m71I4g.jpg\"}",
-              "is_tasting_expert": 1,
-              "tasting_instructions": 1,
-              "is_premium": 1,
-              "name": "😎Ankit😎",
-              "designation": null
-            },
-            "shoutout": {
-              "id": 2524,
-              "content": "I’m not going anywhere ",
-              "profile_id": 49,
-              "created_at": "2022-03-28 16:11:50",
-              "updated_at": "2022-03-28 16:11:50"
-            },
-            "meta": {
-              "hasLiked": false,
-              "likeCount": 0,
-              "commentCount": 0,
-              "shareCount": 0,
-              "sharedAt": null,
-              "isAdmin": false,
-              "isReported": false
-            },
-            "type": "shoutout"
-          }');
-
-        return $carousel;
+        $client = config('database.neo4j_uri_client');
+        //models - collaborate, product-review, product, surveys, polling, 
+        $productSuggestionIds = $this->getModelSuggestionIds($client, $profileId, 'product');
+        $productSuggestion = $this->getModelSuggestion($client, $profileId, $productSuggestionIds,'product');
+        return $productSuggestion;
     }
 
+    protected function getModelSuggestionIds($client, $profileId, $modelName){
+        $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS]-> (users:User), (product:Product)
+        WHERE NOT ((user) -[:REVIEWED]->(product)) AND ((users) -[:REVIEWED]->(product)) 
+        WITH product, rand() AS number
+        ORDER BY number
+        return product.product_id LIMIT 3;";
 
+        $result = $client->run($query);
+        $data = [];
+        foreach ($result->records() as $record) {
+            array_push($data, $record->get('product.product_id'));            
+        }
+        return $data;
+
+    }
+    
+    protected function getModelSuggestion($client, $profileId, $suggestionList, $modelName){
+        $data = [];
+        foreach($suggestionList as $productId){
+            $product = \App\PublicReviewProduct::where('is_active',1)
+            ->whereNull('deleted_at')
+            ->where('id',$productId)->first();
+            
+            if($product != null)
+            {
+                $product = [
+                    'product'=>$product,
+                    'meta'=>$product->getMetaFor($profileId)
+                ];
+
+                $query = "MATCH (users:User) -[:REVIEWED]-> (product:Product{product_id:'$productId'})
+                WITH users, rand() as number
+                ORDER BY number   
+                RETURN users;";
+                $result = $client->run($query);
+                $showProfiles = [];
+                $slicedProfileList = array_slice($result->records(), 0, 3, true); 
+                
+                foreach ($slicedProfileList as $profileData) {
+                    array_push($showProfiles, $profileData->get('users')->values());
+                }
+
+                $suggestionObj = ["ui_type"=>"suggestion",
+                    "title"=>"Suggested for you",
+                    "total_count"=>count($result->records()),
+                    "profiles"=> $showProfiles,
+                    "sub_title"=>"others completed review",
+                    "suggestion"=>$product
+                    ];
+                array_push($data, $suggestionObj);
+            }            
+        }
+        return $data;
+    }
 
     public function landingPage(Request $request)
     {
@@ -546,10 +541,10 @@ class LandingPageController extends Controller
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $platform = $request->input('platform');
-
+        
         if ($platform == 'mobile') {
             $links["ui_type"] = "quick_links";
-            $links["elements"] =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
+            $links["elements"] = DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
             $this->model[] = $links;
         }
 
@@ -564,7 +559,7 @@ class LandingPageController extends Controller
             $value->model_id = (string)$value->model_id;
         }
         $this->model[] = $big_banner;
-
+        
         if ($platform == 'mobile') {
             $passbook["ui_type"] = "passbook";
             $this->model[] = $passbook;
@@ -582,9 +577,10 @@ class LandingPageController extends Controller
                 $this->model[] = $banner;
             }
         }
-
-        $suggestion = $this->suggestion($profileId);
-        $this->model[] = $suggestion;
+        $suggestion = $this->getSuggestion($profileId);
+        if(count($suggestion) > 0){
+            array_push($this->model, ...$suggestion);
+        }
 
         $carouselCollab = $this->carousel($profileId, 'collaborate');
         if (count($carouselCollab["elements"]) != 0)
@@ -638,12 +634,13 @@ class LandingPageController extends Controller
         }
 
         $feed["ui_type"] = "feed";
-        $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
-            ->where('subscribers.profile_id', $profileId)
-            ->whereNull('subscribers.deleted_at')
-            ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
-            ->orderBy('channel_payloads.created_at', 'desc')
-            ->count();
+        $feed["total_count"] = 5;
+        // $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
+        //     ->where('subscribers.profile_id', $profileId)
+        //     ->whereNull('subscribers.deleted_at')
+        //     ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
+        //     ->orderBy('channel_payloads.created_at', 'desc')
+        //     ->count();
         $this->model[] = $feed;
         return $this->sendResponse();
     }
