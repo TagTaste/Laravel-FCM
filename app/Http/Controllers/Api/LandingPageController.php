@@ -623,11 +623,11 @@ class LandingPageController extends Controller
 
         if ($platform == 'mobile') {
             $tags = [];
-            // $tags = $this->trendingHashtags();
-            // foreach ($tags as &$tag) {
+            $tags = $this->trendingHashtags();
+            foreach ($tags as &$tag) {
 
-            //     unset($tag["updated_at"]);
-            // }
+                unset($tag["updated_at"]);
+            }
 
             $hashtags["ui_type"] = "hashtags";
             $hashtags["title"] = "Trending #tags";
