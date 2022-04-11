@@ -578,7 +578,7 @@ class LandingPageController extends Controller
             $products["image"] = "";
             $this->model[] = $products;
 
-            $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
+            $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->orderBy("updated_at","desc")->first();
             if ($banner) {
                 $banner->ui_type = "banner";
                 $this->model[] = $banner;
