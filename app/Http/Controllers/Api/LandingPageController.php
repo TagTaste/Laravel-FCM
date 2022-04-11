@@ -72,6 +72,7 @@ class LandingPageController extends Controller
         $banner =   DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
         if ($banner) {
             $banner->ui_type = "banner";
+            $banner->images_meta = json_decode($banner->images_meta ?? []);
             $this->model[] = $banner;
         }
 
