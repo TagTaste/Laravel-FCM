@@ -79,6 +79,8 @@ class LandingPageController extends Controller
         $tags = $this->trendingHashtags();
         foreach ($tags as &$tag) {
 
+            $tag['total_count'] = $tag['count'];
+            unset($tag["count"]);
             unset($tag["updated_at"]);
         }
 
@@ -562,7 +564,7 @@ class LandingPageController extends Controller
         $big_banner["loop"] = true;
         $big_banner["autoplay"] = true;
         $big_banner["elements"] =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->get();
-        
+
         foreach ($big_banner["elements"] as &$value) {
             $value->images_meta = json_decode($value->images_meta ?? []);
             $value->model_id = (string)$value->model_id;
@@ -582,6 +584,7 @@ class LandingPageController extends Controller
             $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
             if ($banner) {
                 $banner->ui_type = "banner";
+                $banner->images_meta = json_decode($banner->images_meta ?? []);
                 $this->model[] = $banner;
             }
         }
