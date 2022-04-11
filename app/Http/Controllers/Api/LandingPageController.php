@@ -348,6 +348,7 @@ class LandingPageController extends Controller
             ->join('experiences', 'experiences.profile_id', 'profiles.id')
             ->join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->join('companies', 'companies.id', 'poll_questions.company_id')
+            ->whereNull('poll_questions.deleted_at')
             ->where('poll_questions.profile_id', '<>', $profileId)
             ->where('poll_votes.profile_id', '<>', $profileId)
             ->where('poll_questions.is_expired', 0);
@@ -409,6 +410,7 @@ class LandingPageController extends Controller
             ->join('experiences', 'experiences.profile_id', 'profiles.id')
             ->join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->join('poll_options', 'poll_options.poll_id', 'poll_questions.id')
+            ->whereNull('poll_questions.deleted_at')
             ->where('poll_questions.profile_id', '<>', $profileId)
             ->where('poll_votes.profile_id', '<>', $profileId)
             ->where('poll_questions.is_expired', 1)
@@ -460,8 +462,7 @@ class LandingPageController extends Controller
         $carousel["see_more"] = true;
 
         $carousel["elements"] = [];
-        $id =  DB::table('companies')->where('id', config("constant.COMPANY_ID"))->pluck('id');
-        $photos = Photo::forProfile($profileId)->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(5)->get();
+        $photos = Photo::forCompany(9)->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(5)->get();
         $carouseldata = [];
 
         foreach ($photos as $photo) {
@@ -473,7 +474,7 @@ class LandingPageController extends Controller
             unset($photoArray["profile_id"]);
             unset($photoArray["company_id"]);
 
-            $carouseldata[] = ['photo' => $photoArray, 'profile' => $item, 'meta' => $photo->getMetaFor($profileId), 'type' => 'photo', 'seen_count' => 0,];
+            $carouseldata[] = ['photo' => $photoArray, 'company' => $item, 'meta' => $photo->getMetaFor($profileId), 'type' => 'photo', 'seen_count' => 0,];
         }
         $carousel["elements"] = $carouseldata;
 
