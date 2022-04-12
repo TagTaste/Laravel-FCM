@@ -342,7 +342,7 @@ class Collaborate extends Model implements Feedable
     public function getMetaFor(int $profileId): array
     {
         $meta = [];
-
+        $meta['seen_count'] = "1.2k";
         $payment = PaymentDetails::where("model_type", "Private Review")->where("model_id", $this->id)->where("is_active", 1)->first();
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         if ($this->collaborate_type == 'product-review') {

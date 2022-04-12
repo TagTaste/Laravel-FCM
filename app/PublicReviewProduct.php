@@ -284,6 +284,7 @@ class PublicReviewProduct extends Model
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
+        $meta['seen_count'] = "1.2k";
         $meta['overall_rating'] = $this->getOverallRatingAttribute();
         $meta['current_status'] = $this->getCurrentStatusAttribute();
         $meta['is_sample_available'] = false;
