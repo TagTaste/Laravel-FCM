@@ -383,7 +383,7 @@ class LandingPageController extends Controller
         $carousel["model_name"] = "polling";
         $carousel["title"] = "poll in which you have participated";
         $carousel["see_more"] = true;
-        $carousel["value"] = "result_value";
+        $carousel["value"] = "poll_result";
         $carousel["elements"] = [];
 
         $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.name', 'poll_options.text as result')
