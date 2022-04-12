@@ -67,6 +67,11 @@ use App\Console\Commands\Build\Graph\Build\UserSpecialization as GraphUserSpecia
 use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
 use App\Console\Commands\Build\Graph\Build\UserPublicReview as GraphUserPublicReview;
+use App\Console\Commands\Build\Graph\Build\UserPolling as GraphUserPolling;
+use App\Console\Commands\Build\Graph\Build\UserSurveys as GraphUserSurveys;
+use App\Console\Commands\Build\Graph\Build\UserInterestCollaborate as GraphUserInterestCollaborate;
+
+
 
 use App\Console\Commands\Build\SurveyApplicantStatus;
 use App\Console\Commands\SurveyAnswerSync;
@@ -101,7 +106,6 @@ class Kernel extends ConsoleKernel
         SettingChanges::class,
         PublicReviewProduct::class,
         Polling::class,
-
         
         // Rebuild Graph
         GraphPublicReviewProducts::class,
@@ -122,6 +126,9 @@ class Kernel extends ConsoleKernel
         GraphUserExperiance::class,
         removeNotifications::class,
         GraphUserPublicReview::class,
+        GraphUserPolling::class,
+        GraphUserSurveys::class,
+        GraphUserInterestCollaborate::class,
 
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,

@@ -20,7 +20,7 @@ class PublicReviewProduct extends Command
      * @var string
      */
     protected $description = 'Rebuilds public products cache';
-
+    
     /**
      * Create a new command instance.
      *
@@ -30,7 +30,7 @@ class PublicReviewProduct extends Command
     {
         parent::__construct();
     }
-        
+
     /**
      * Execute the console command.
      *

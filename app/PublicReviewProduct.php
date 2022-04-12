@@ -284,6 +284,7 @@ class PublicReviewProduct extends Model
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
+        $meta['seen_count'] = "1.2k";
         $meta['overall_rating'] = $this->getOverallRatingAttribute();
         $meta['current_status'] = $this->getCurrentStatusAttribute();
         $meta['is_sample_available'] = false;
@@ -409,7 +410,7 @@ class PublicReviewProduct extends Model
         $meta['overall_rating'] = $this->getOverallRatingAttribute();
         return $meta;
     }
-
+    
     public function addToGraph(){
         $data = \App\PublicReviewProduct::find($this->id)->toArray();
         
@@ -425,6 +426,31 @@ class PublicReviewProduct extends Model
         } else {
             unset($data['id']);
             \App\Neo4j\PublicReviewProduct::where('product_id', $data['product_id'])->update($data);
+        }
+    }
+    
+    public function addReviewEdge($profileId){
+        $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
+        $product = \App\Neo4j\PublicReviewProduct::where('product_id', $this->id)->first();
+        if ($userProfile && $product) {
+            $isUserReviewed = $userProfile->reviewed->where('product_id',$this->id)->first();
+            if (!$isUserReviewed) {
+                $relation = $userProfile->reviewed()->attach($product);
+                $relation->save();
+            } else {
+                $relation = $userProfile->reviewed()->edge($product);
+                $relation->save();
+            }
+        }
+    }
+
+    public function removeFromGraph(){        
+        $productCount = \App\Neo4j\PublicReviewProduct::where('product_id', $this->id)->count();
+        if ($productCount > 0) {
+            $client = config('database.neo4j_uri_client');
+             $query = "MATCH (p:Product{product_id:'$this->id'})
+                        DETACH DELETE p;";
+            $result = $client->run($query);
         }
     }
 }

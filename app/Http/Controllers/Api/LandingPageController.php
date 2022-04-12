@@ -241,7 +241,7 @@ class LandingPageController extends Controller
                 ->orderBy('collaborates.created_at')
                 ->where('expires_on', '>=', Carbon::now()->toDateTimeString());
             if ($model == 'product_review') {
-                $carouseldata = $carouseldata->where("collaborates.collaborate_type",'product-review');
+                $carouseldata = $carouseldata->where("collaborates.collaborate_type", 'product-review');
             }
 
             $carouseldata = $carouseldata->take(5)->get();
@@ -258,7 +258,7 @@ class LandingPageController extends Controller
                 ->orderBy('surveys.created_at', 'desc')
                 ->take(5)->get();
         } elseif ($model == 'product') {
-            $ids =  DB::table("public_product_user_review")->where('profile_id')->pluck('product_id')->toArray();
+            $ids =  DB::table("public_product_user_review")->where('profile_id', $profileId)->pluck('product_id')->toArray();
             $carouseldata =  PublicReviewProduct::select('public_review_products.id as model_id', 'public_review_products.company_name', 'public_review_products.name as title', 'public_review_products.description', 'public_review_products.images_meta as post_meta')
                 ->join("payment_details", "payment_details.model_id", "public_review_products.id")
                 ->whereNull('public_review_products.deleted_at')
@@ -273,8 +273,7 @@ class LandingPageController extends Controller
         $profile = [];
         $modelData = [];
         foreach ($carouseldata as $key => $value) {
-            $data['seen_count'] = 0;
-            $data['meta'] = $value->getMetaFor($profileId); 
+            $data['meta'] = $value->getMetaFor($profileId);
             $data['placeholder_images_meta'] =  isset($this->placeholderimage[$model]) ? $this->placeholderimage[$model] : json_decode('{
                         "meta": {
                             "width": 343,
@@ -302,8 +301,7 @@ class LandingPageController extends Controller
             $modelData['title'] = $value->title;
             $modelData['description'] = $value->description;
             $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-            $modelData['seen_count'] = 0;
-            
+
 
 
             $data[$model] = $modelData;
@@ -343,7 +341,6 @@ class LandingPageController extends Controller
 
         foreach ($carouseldata as $key => $value) {
 
-            $data['seen_count'] = 0;
             $data["meta"] = $value->getMetaFor($profileId);
             $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
                 "meta": {
@@ -369,7 +366,6 @@ class LandingPageController extends Controller
             $modelData['id'] = $value->poll_id;
             $modelData['title'] = $value->title;
             $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-            $modelData['seen_count'] = 0;
 
 
 
@@ -410,7 +406,6 @@ class LandingPageController extends Controller
         $carouseldata = $carouseldata->take(5)->get();
 
         foreach ($carouseldata as $key => $value) {
-            $data['seen_count'] = 0;
             $data["meta"] = $value->getMetaFor($profileId);
             $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
                 "meta": {
@@ -435,7 +430,6 @@ class LandingPageController extends Controller
             $modelData['id'] = $value->poll_id;
             $modelData['title'] = $value->title;
             $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-            $modelData['seen_count'] = 0;
             // $modelData['value'] = $result[0];
 
             $data['profile'] = $profile;
@@ -468,7 +462,7 @@ class LandingPageController extends Controller
             unset($photoArray["profile_id"]);
             unset($photoArray["company_id"]);
 
-            $carouseldata[] = ['photo' => $photoArray, 'company' => $item, 'meta' => $photo->getMetaFor($profileId), 'type' => 'photo', 'seen_count' => 0,];
+            $carouseldata[] = ['photo' => $photoArray, 'company' => $item, 'meta' => $photo->getMetaFor($profileId), 'type' => 'photo'];
         }
         $carousel["elements"] = $carouseldata;
 
@@ -480,11 +474,12 @@ class LandingPageController extends Controller
         $client = config('database.neo4j_uri_client');
         //models - collaborate, product-review, product, surveys, polling, 
         $productSuggestionIds = $this->getModelSuggestionIds($client, $profileId, 'product');
-        $productSuggestion = $this->getModelSuggestion($client, $profileId, $productSuggestionIds,'product');
+        $productSuggestion = $this->getModelSuggestion($client, $profileId, $productSuggestionIds, 'product');
         return $productSuggestion;
     }
 
-    protected function getModelSuggestionIds($client, $profileId, $modelName){
+    protected function getModelSuggestionIds($client, $profileId, $modelName)
+    {
         $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS]-> (users:User), (product:Product)
         WHERE NOT ((user) -[:REVIEWED]->(product)) AND ((users) -[:REVIEWED]->(product)) 
         WITH product, rand() AS number
@@ -494,25 +489,24 @@ class LandingPageController extends Controller
         $result = $client->run($query);
         $data = [];
         foreach ($result->records() as $record) {
-            array_push($data, $record->get('product.product_id'));            
+            array_push($data, $record->get('product.product_id'));
         }
         return $data;
-
     }
-    
-    protected function getModelSuggestion($client, $profileId, $suggestionList, $modelName){
+
+    protected function getModelSuggestion($client, $profileId, $suggestionList, $modelName)
+    {
         $data = [];
-        foreach($suggestionList as $productId){
-            $product = \App\PublicReviewProduct::where('is_active',1)
-            ->whereNull('deleted_at')
-            ->where('id',$productId)->first();
-            
-            if($product != null)
-            {
+        foreach ($suggestionList as $productId) {
+            $product = \App\PublicReviewProduct::where('is_active', 1)
+                ->whereNull('deleted_at')
+                ->where('id', $productId)->first();
+
+            if ($product != null) {
                 $product = [
-                    'product'=>$product,
-                    'meta'=>$product->getMetaFor($profileId),
-                    'type'=>'product'
+                    'product' => $product,
+                    'meta' => $product->getMetaFor($profileId),
+                    'type' => 'product'
                 ];
 
                 $query = "MATCH (users:User) -[:REVIEWED]-> (product:Product{product_id:'$productId'})
@@ -524,26 +518,27 @@ class LandingPageController extends Controller
                 $showProfileCount = 3;
 
                 $showProfiles = [];
-                $slicedProfileList = array_slice($result->records(), 0, $showProfileCount, true); 
-                
+                $slicedProfileList = array_slice($result->records(), 0, $showProfileCount, true);
+
                 foreach ($slicedProfileList as $profileData) {
                     array_push($showProfiles, $profileData->get('users')->values());
                 }
                 $subTitle = 'others completed review';
-                if($totalProfileCount <= $showProfileCount){
+                if ($totalProfileCount <= $showProfileCount) {
                     $subTitle = 'completed review';
-                }else if($totalProfileCount <= ($showProfileCount+1)){
+                } else if ($totalProfileCount <= ($showProfileCount + 1)) {
                     $subTitle = 'other completed review';
                 }
-                $suggestionObj = ["ui_type"=>"suggestion",
-                    "title"=>"Suggested for you",
-                    "total_count"=>count($result->records()),
-                    "profiles"=> $showProfiles,
-                    "sub_title"=>$subTitle,
-                    "suggestion"=>$product
-                    ];
+                $suggestionObj = [
+                    "ui_type" => "suggestion",
+                    "title" => "Suggested for you",
+                    "total_count" => count($result->records()),
+                    "profiles" => $showProfiles,
+                    "sub_title" => $subTitle,
+                    "suggestion" => $product
+                ];
                 array_push($data, $suggestionObj);
-            }            
+            }
         }
         return $data;
     }
@@ -555,25 +550,35 @@ class LandingPageController extends Controller
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $platform = $request->input('platform');
-        
+
         if ($platform == 'mobile') {
             $links["ui_type"] = "quick_links";
             $links["elements"] = DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
             $this->model[] = $links;
         }
-
+        $elements = [];
+        $past_elements = [];
         $big_banner["ui_type"] = "big_banner";
         $big_banner["autoplay_duration"] = 3000;
         $big_banner["loop"] = true;
         $big_banner["autoplay"] = true;
-        $big_banner["elements"] =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->orderby('updated_at', "desc")->limit(15)->get();
+        $current_post_count =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->count();
+        $elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->limit(15)->get();
 
-        foreach ($big_banner["elements"] as &$value) {
+        if ( $current_post_count< 15) {
+            $past_posts_count = 15 - $current_post_count;
+            $past_elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '<', date('Y-m-d 00:00:00'))->orderBy("updated_at")->take($past_posts_count)->get();
+            if(count($past_elements) != 0) $elements =$elements->merge($past_elements);
+        }
+        foreach ($elements as &$value) {
             $value->images_meta = json_decode($value->images_meta ?? "{}");
             $value->model_id = (string)$value->model_id;
         }
-        $this->model[] = $big_banner;
+        $big_banner["elements"] = $elements;
+
         
+        $this->model[] = $big_banner;
+
         if ($platform == 'mobile') {
             $passbook["ui_type"] = "passbook";
             $this->model[] = $passbook;
@@ -646,7 +651,7 @@ class LandingPageController extends Controller
             $hashtags["elements"] = $tags;
             $this->model[] = $hashtags;
         }
-        
+
         $feed["ui_type"] = "feed";
         $feed["total_count"] = 5;
         // $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
