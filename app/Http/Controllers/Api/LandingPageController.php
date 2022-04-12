@@ -258,7 +258,7 @@ class LandingPageController extends Controller
                 ->orderBy('surveys.created_at', 'desc')
                 ->take(5)->get();
         } elseif ($model == 'product') {
-            $ids =  DB::table("public_product_user_review")->where('profile_id')->pluck('product_id')->toArray();
+            $ids =  DB::table("public_product_user_review")->where('profile_id',$profileId)->pluck('product_id')->toArray();
             $carouseldata =  PublicReviewProduct::select('public_review_products.id as model_id', 'public_review_products.company_name', 'public_review_products.name as title', 'public_review_products.description', 'public_review_products.images_meta as post_meta')
                 ->join("payment_details", "payment_details.model_id", "public_review_products.id")
                 ->whereNull('public_review_products.deleted_at')
