@@ -70,4 +70,9 @@ class User extends NeoEloquent
         return $this->hasMany('\App\Neo4j\PublicReviewProduct', 'REVIEWED');
     }
 
+    public function participated()
+    {
+        return $this->hasMany('\App\Neo4j\Polling', 'POLL_PARTICIPATION');
+    }
+
 }
