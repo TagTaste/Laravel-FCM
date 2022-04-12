@@ -772,4 +772,49 @@ class Collaborate extends Model implements Feedable
         else
             return null;
     }
+
+    public function addToGraph(){        
+        $data = ['id'=>$this->id, 
+        'collaborate_id'=>$this->id,
+        'title'=>substr($this->title, 0, 150), 
+        'state'=>$this->state,
+        'collaborate_type'=>$this->collaborate_type,
+        'profile_id'=>$this->profile_id,
+        'company_id'=>$this->company_id,
+        'payload_id'=>$this->payload_id,
+        'created_at'=>$this->created_at];
+        
+        $collab = \App\Neo4j\Collaborate::where('collaborate_id', $data['id'])->first();
+        if (!$collab) {
+            \App\Neo4j\Collaborate::create($data);
+        } else {
+            unset($data['id']);
+            \App\Neo4j\Collaborate::where('collaborate_id', $data['collaborate_id'])->update($data);
+        }
+    }
+
+    public function addParticipationEdge($profileId){
+        $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
+        $collab = \App\Neo4j\Collaborate::where('collaborate_id', $this->id)->first();
+        if ($userProfile && $collab) {
+            $isUserParticipated = $userProfile->participated->where('collaborate_id',$this->id)->first();
+            if (!$isUserParticipated) {
+                $relation = $userProfile->shown_interest()->attach($collab);
+                $relation->save();
+            } else {
+                $relation = $userProfile->shown_interest()->edge($collab);
+                $relation->save();
+            }
+        }
+    }
+
+    public function removeFromGraph(){        
+        $collabCount = \App\Neo4j\Collaborate::where('collaborate_id', $this->id)->count();
+        if ($collabCount > 0) {
+            $client = config('database.neo4j_uri_client');
+             $query = "MATCH (p:Collaborate{collaborate_id:'$this->id'})
+                        DETACH DELETE p;";
+            $result = $client->run($query);
+        }
+    }
 }
