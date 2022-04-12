@@ -46,28 +46,12 @@ class UserPublicReview extends Command
                 ->where('current_status',2)
                 ->distinct('profile_id')
                 ->pluck('profile_id')->toArray();
-                
+                            
                 foreach($profileIds as $pId){
-                    $this->addReviewEdge($model['id'], $pId);
+                    $model->addReviewEdge($pId);
                 }
                 $counter = $counter + 1;
             }
         });
-    }
-
-    protected function addReviewEdge($productId, $profileId){
-        $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
-        $product = \App\Neo4j\PublicReviewProduct::where('product_id', $productId)->first();
-
-        if ($userProfile && $product) {
-            $isUserReviewed = $userProfile->reviewed->where('product_id',$productId)->first();
-            if (!$isUserReviewed) {
-                $relation = $userProfile->reviewed()->attach($product);
-                $relation->save();
-            } else {
-                $relation = $userProfile->reviewed()->edge($product);
-                $relation->save();
-            }
-        }
     }
 }
