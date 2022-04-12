@@ -39,9 +39,17 @@ class UserPolling extends Command
     public function handle()
     {   
         $counter = 1;
-        \App\Polling::where('is_expired',0)->whereNull('deleted_at')->chunk(200, function($polls) use($counter) {
+        \App\Polling::select('poll_questions.*')
+        ->join('poll_votes', 'poll_votes.poll_id', '=', 'poll_questions.id')
+        ->where('poll_questions.is_expired',0)
+        ->distinct('poll_questions')
+        ->whereNull('poll_questions.deleted_at')
+        ->whereNull('poll_votes.deleted_at')
+        ->chunk(200, function($polls) use($counter) {
             foreach($polls as $model) {
                 echo $counter." | poll id: ".$model['id']."\n";
+                $model->addToGraph();
+                
                 $profileIds = \App\PollingVote::where('poll_id',$model['id'])
                 ->whereNull('deleted_at')
                 ->distinct('profile_id')
