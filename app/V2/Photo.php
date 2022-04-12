@@ -270,6 +270,7 @@ class Photo extends Model implements Feedable
     public function getMetaForV2($profileId)
     {
         $meta = [];
+        $meta['seen_count'] = "1.2k";
         $key = "meta:photo:likes:" . $this->id;
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
