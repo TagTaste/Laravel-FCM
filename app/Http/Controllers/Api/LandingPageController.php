@@ -563,7 +563,7 @@ class LandingPageController extends Controller
         $big_banner["loop"] = true;
         $big_banner["autoplay"] = true;
         $current_post_count =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->count();
-        $elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->take($current_post_count)->limit(15)->get();
+        $elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->limit(15)->get();
 
         if ( $current_post_count< 15) {
             $past_posts_count = 15 - $current_post_count;
