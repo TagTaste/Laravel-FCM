@@ -852,10 +852,10 @@ class LandingPageController extends Controller
                 $this->model[] = $banner;
             }
         }
-        // $suggestion = $this->getSuggestion($profileId);
-        // if(count($suggestion) > 0){
-        //     array_push($this->model, ...$suggestion);
-        // }
+        $suggestion = $this->getSuggestion($profileId);
+        if(count($suggestion) > 0){
+            array_push($this->model, ...$suggestion);
+        }
         // $this->model = [];
         // $this->model[] = $suggestion;
         // return $this->sendResponse();
@@ -898,12 +898,12 @@ class LandingPageController extends Controller
 
         if ($platform == 'mobile') {
             $tags = [];
-            // $tags = $this->trendingHashtags();
-            // foreach ($tags as &$tag) {
-            //     $tag["total_count"] = $tag["count"];
-            //     unset($tag["updated_at"]);
-            //     unset($tag["count"]);
-            // }
+            $tags = $this->trendingHashtags();
+            foreach ($tags as &$tag) {
+                $tag["total_count"] = $tag["count"];
+                unset($tag["updated_at"]);
+                unset($tag["count"]);
+            }
 
             $hashtags["ui_type"] = "hashtag";
             $hashtags["title"] = "Trending #tags";
