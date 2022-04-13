@@ -195,7 +195,7 @@ class LandingPageController extends Controller
                 }
                 $data[$name] = json_decode($cachedData, true);
             }
-            
+
 
             if ($payload->model !== null) {
                 $model = $payload->model;
@@ -232,7 +232,7 @@ class LandingPageController extends Controller
 
         if ($model == 'collaborate' || $model == 'product_review') {
             $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
-            $carouseldata = Collaborate::select('profiles.*', 'experiences.designation', 'users.name', 'collaborates.id as model_id', 'collaborates.title', 'collaborates.profile_id', 'collaborates.description')
+            $carouseldata = Collaborate::select('profiles.*', 'experiences.designation', 'users.name', 'collaborates.id as model_id', 'collaborates.title', 'collaborates.profile_id', 'collaborates.description', 'collaborates.company_id')
                 ->join('profiles', 'collaborates.profile_id', 'profiles.id')
                 ->join('users', 'users.id', 'profiles.id')
                 ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
@@ -240,7 +240,7 @@ class LandingPageController extends Controller
                 ->where('collaborate_type', $model)
                 ->whereNull('collaborates.deleted_at')
                 ->whereNotIn('collaborates.id', $ids)
-                ->orderBy('collaborates.created_at')
+                ->orderBy('collaborates.created_at', 'desc')
                 ->where('expires_on', '>=', Carbon::now()->toDateTimeString());
             if ($model == 'product_review') {
                 $carouseldata = $carouseldata->where("collaborates.collaborate_type", 'product-review');
@@ -249,7 +249,7 @@ class LandingPageController extends Controller
             $carouseldata = $carouseldata->take(5)->get();
         } elseif ($model == 'surveys') {
             $ids = DB::table("survey_applicants")->where("profile_id", $profileId)->pluck("survey_id")->toArray();
-            $carouseldata = Surveys::select('profiles.*', 'experiences.designation', 'users.name', 'surveys.id as model_id', 'surveys.title', 'surveys.profile_id', 'surveys.description', 'surveys.image_meta as post_meta')
+            $carouseldata = Surveys::select('profiles.*', 'experiences.designation', 'users.name', 'surveys.id as model_id', 'surveys.title', 'surveys.company_id', 'surveys.profile_id', 'surveys.description', 'surveys.image_meta as post_meta')
                 ->join('profiles', 'surveys.profile_id', 'profiles.id')
                 ->join('users', 'users.id', 'profiles.id')
                 ->join('experiences', 'experiences.profile_id', 'profiles.id')
@@ -261,7 +261,7 @@ class LandingPageController extends Controller
                 ->take(5)->get();
         } elseif ($model == 'product') {
             $ids =  DB::table("public_product_user_review")->where('profile_id', $profileId)->pluck('product_id')->toArray();
-            $carouseldata =  PublicReviewProduct::select('public_review_products.id as model_id', 'public_review_products.company_name', 'public_review_products.name as title', 'public_review_products.description', 'public_review_products.images_meta as post_meta')
+            $carouseldata =  PublicReviewProduct::select('public_review_products.*')
                 ->join("payment_details", "payment_details.model_id", "public_review_products.id")
                 ->whereNull('public_review_products.deleted_at')
                 ->where('public_review_products.is_active', 1)
@@ -274,9 +274,14 @@ class LandingPageController extends Controller
         $data = [];
         $profile = [];
         $modelData = [];
+        $admins = [];
         foreach ($carouseldata as $key => $value) {
-            $data['meta'] = $value->getMetaFor($profileId);
-            $data['placeholder_images_meta'] =  isset($this->placeholderimage[$model]) ? $this->placeholderimage[$model] : json_decode('{
+            if (!empty($value->company_id)) {
+                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
+            }
+            if (!in_array($profileId, $admins)) {
+                $data['meta'] = $value->getMetaFor($profileId);
+                $data['placeholder_images_meta'] =  isset($this->placeholderimage[$model]) ? $this->placeholderimage[$model] : json_decode('{
                         "meta": {
                             "width": 343,
                             "height": 190,
@@ -284,30 +289,31 @@ class LandingPageController extends Controller
                         },
                         "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
                     }');
-            if ($model != 'product') {
-                $profile['id'] = $value->id;
-                $profile['tagline'] = $value->tagline;
-                $profile['user_id'] = $value->user_id;
-                $profile['verified'] = $value->verified;
-                $profile['handle'] = $value->handle;
-                $profile['image_meta'] = $value->image_meta;
-                $profile['is_tasting_expert'] = $value->is_tasting_expert;
-                $profile['tasting_instructions'] = $value->tasting_instructions;
-                $profile['is_premium'] = $value->is_premium;
-                $profile['name'] = $value->name;
-                $profile['desigation'] = $value->designation;
-                $data['profile'] = $profile;
-            } else $modelData['company_name'] = $value->company_name;
+                if ($model != 'product') {
+                    $profile['id'] = $value->id;
+                    $profile['tagline'] = $value->tagline;
+                    $profile['user_id'] = $value->user_id;
+                    $profile['verified'] = $value->verified;
+                    $profile['handle'] = $value->handle;
+                    $profile['image_meta'] = $value->image_meta;
+                    $profile['is_tasting_expert'] = $value->is_tasting_expert;
+                    $profile['tasting_instructions'] = $value->tasting_instructions;
+                    $profile['is_premium'] = $value->is_premium;
+                    $profile['name'] = $value->name;
+                    $profile['desigation'] = $value->designation;
+                    $data['profile'] = $profile;
 
-            $modelData['id'] = $value->model_id;
-            $modelData['title'] = $value->title;
-            $modelData['description'] = $value->description;
-            $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
+                    $modelData['id'] = $value->model_id;
+                    $modelData['title'] = $value->title;
+                    $modelData['description'] = $value->description;
+                    $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
+                } else {
+                    $modelData = $value;
+                }
 
-
-
-            $data[$model] = $modelData;
-            $carousel['elements'][] = $data;
+                $data[$model] = $modelData;
+                $carousel['elements'][] = $data;
+            }
         }
         return $carousel;
     }
@@ -321,7 +327,7 @@ class LandingPageController extends Controller
         $carousel["elements"] = [];
 
 
-        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'companies.id', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.*')
+        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'companies.id as company_id', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.*')
             ->leftJoin('profiles', 'profiles.id', 'poll_questions.profile_id')
             ->leftJoin('users', 'users.id', 'profiles.user_id')
             ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
@@ -330,7 +336,8 @@ class LandingPageController extends Controller
             ->whereNull('poll_questions.deleted_at')
             ->where('poll_questions.profile_id', '<>', $profileId)
             ->where('poll_votes.profile_id', '<>', $profileId)
-            ->where('poll_questions.is_expired', 0);
+            ->where('poll_questions.is_expired', 0)
+            ->orderBy('poll_questions.created_at', 'desc');
 
         if ($type == 'TagTaste') {
             $carouseldata = $carouseldata->where('companies.id', config("constant.POLL_COMPANY_ID"))
@@ -341,10 +348,15 @@ class LandingPageController extends Controller
         }
         $carouseldata = $carouseldata->take(5)->get();
 
+        $admins = [];
         foreach ($carouseldata as $key => $value) {
+            if (!empty($value->company_id)) {
+                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
+            }
+            if (!in_array($profileId, $admins)) {
 
-            $data["meta"] = $value->getMetaFor($profileId);
-            $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
+                $data["meta"] = $value->getMetaFor($profileId);
+                $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
                 "meta": {
                     "width": 343,
                     "height": 190,
@@ -353,27 +365,28 @@ class LandingPageController extends Controller
                 "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
             }');
 
-            $profile['id'] = $value->profile_id;
-            $profile['tagline'] = $value->tagline;
-            $profile['user_id'] = $value->user_id;
-            $profile['verified'] = $value->verified;
-            $profile['handle'] = $value->handle;
-            $profile['image_meta'] = $value->image_meta;
-            $profile['is_tasting_expert'] = $value->is_tasting_expert;
-            $profile['tasting_instructions'] = $value->tasting_instructions;
-            $profile['is_premium'] = $value->is_premium;
-            $profile['name'] = $value->name;
-            $profile['designation'] = $value->designation;
+                $profile['id'] = $value->profile_id;
+                $profile['tagline'] = $value->tagline;
+                $profile['user_id'] = $value->user_id;
+                $profile['verified'] = $value->verified;
+                $profile['handle'] = $value->handle;
+                $profile['image_meta'] = $value->image_meta;
+                $profile['is_tasting_expert'] = $value->is_tasting_expert;
+                $profile['tasting_instructions'] = $value->tasting_instructions;
+                $profile['is_premium'] = $value->is_premium;
+                $profile['name'] = $value->name;
+                $profile['designation'] = $value->designation;
 
-            $modelData['id'] = $value->poll_id;
-            $modelData['title'] = $value->title;
-            $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
+                $modelData['id'] = $value->poll_id;
+                $modelData['title'] = $value->title;
+                $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
 
 
 
-            $data['profile'] = $profile;
-            $data["polling"] = $modelData;
-            $carousel['elements'][] = $data;
+                $data['profile'] = $profile;
+                $data["polling"] = $modelData;
+                $carousel['elements'][] = $data;
+            }
         }
 
         return $carousel;
@@ -388,7 +401,7 @@ class LandingPageController extends Controller
         $carousel["value"] = "poll_result";
         $carousel["elements"] = [];
 
-        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.name', 'poll_options.text as result')
+        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.company_id', 'poll_questions.image_meta as post_meta', 'users.name', 'poll_options.text as result')
             ->join('profiles', 'profiles.id', 'poll_questions.profile_id')
             ->join('users', 'users.id', 'profiles.user_id')
             ->join('experiences', 'experiences.profile_id', 'profiles.id')
@@ -407,9 +420,14 @@ class LandingPageController extends Controller
 
         $carouseldata = $carouseldata->take(5)->get();
 
+        $admins = [];
         foreach ($carouseldata as $key => $value) {
-            $data["meta"] = $value->getMetaFor($profileId);
-            $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
+            if (!empty($value->company_id)) {
+                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
+            }
+            if (!in_array($profileId, $admins)) {
+                $data["meta"] = $value->getMetaFor($profileId);
+                $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
                 "meta": {
                     "width": 343,
                     "height": 190,
@@ -417,26 +435,27 @@ class LandingPageController extends Controller
                 },
                 "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
             }');
-            $profile['id'] = $value->profile_id;
-            $profile['tagline'] = $value->tagline;
-            $profile['user_id'] = $value->user_id;
-            $profile['verified'] = $value->verified;
-            $profile['handle'] = $value->handle;
-            $profile['image_meta'] = $value->image_meta;
-            $profile['is_tasting_expert'] = $value->is_tasting_expert;
-            $profile['tasting_instructions'] = $value->tasting_instructions;
-            $profile['is_premium'] = $value->is_premium;
-            $profile['name'] = $value->name;
-            $profile['designation'] = $value->designation;
+                $profile['id'] = $value->profile_id;
+                $profile['tagline'] = $value->tagline;
+                $profile['user_id'] = $value->user_id;
+                $profile['verified'] = $value->verified;
+                $profile['handle'] = $value->handle;
+                $profile['image_meta'] = $value->image_meta;
+                $profile['is_tasting_expert'] = $value->is_tasting_expert;
+                $profile['tasting_instructions'] = $value->tasting_instructions;
+                $profile['is_premium'] = $value->is_premium;
+                $profile['name'] = $value->name;
+                $profile['designation'] = $value->designation;
 
-            $modelData['id'] = $value->poll_id;
-            $modelData['title'] = $value->title;
-            $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-            // $modelData['value'] = $result[0];
+                $modelData['id'] = $value->poll_id;
+                $modelData['title'] = $value->title;
+                $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
+                // $modelData['value'] = $result[0];
 
-            $data['profile'] = $profile;
-            $data["polling"] = $modelData;
-            $carousel['elements'][] = $data;
+                $data['profile'] = $profile;
+                $data["polling"] = $modelData;
+                $carousel['elements'][] = $data;
+            }
         }
 
         return $carousel;
@@ -481,28 +500,28 @@ class LandingPageController extends Controller
         $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, 'collaborate');
         $surveySugges = $this->getModelSuggestionIds($client, $profileId, 'surveys');
         $pollSugges = $this->getModelSuggestionIds($client, $profileId, 'polling');
-        
+
         $tempMixSuggs = [];
-        
+
         $suggCount = 0;
-        while($suggCount <= 5){
+        while ($suggCount <= 5) {
             array_push($tempMixSuggs, array_shift($productReviewSuggs));
             array_push($tempMixSuggs, array_shift($productSuggs));
             array_push($tempMixSuggs, array_shift($collaborateSugges));
             array_push($tempMixSuggs, array_shift($surveySugges));
             array_push($tempMixSuggs, array_shift($pollSugges));
-            
-            if((count($productReviewSuggs) + count($productSuggs) + count($collaborateSugges)
-              + count($surveySugges) + count($pollSugges)) == 0){
+
+            if ((count($productReviewSuggs) + count($productSuggs) + count($collaborateSugges)
+                + count($surveySugges) + count($pollSugges)) == 0) {
                 break;
             }
             $suggCount = count($tempMixSuggs);
         }
         $suggestionsList = array_slice($tempMixSuggs, 0, 5, true);
         $finalSuggestionData = [];
-        foreach($suggestionsList as $suggObj){
+        foreach ($suggestionsList as $suggObj) {
             $dataObj = $this->getModelSuggestion($client, $profileId, $suggObj);
-            if(!is_null($dataObj) && count($dataObj) > 0){
+            if (!is_null($dataObj) && count($dataObj) > 0) {
                 $finalSuggestionData[] = $dataObj;
             }
         }
@@ -523,8 +542,10 @@ class LandingPageController extends Controller
                 $result = $client->run($query);
                 $data = [];
                 foreach ($result->records() as $record) {
-                    array_push($data, ['id'=>$record->get('product.product_id'), 
-                    'model_name'=>'product']);
+                    array_push($data, [
+                        'id' => $record->get('product.product_id'),
+                        'model_name' => 'product'
+                    ]);
                 }
                 return $data;
                 break;
@@ -535,13 +556,15 @@ class LandingPageController extends Controller
                 WITH survey, rand() AS number
                 ORDER BY number
                 return survey.survey_id, survey.payload_id LIMIT 3;";
-                
+
                 $result = $client->run($query);
                 $data = [];
                 foreach ($result->records() as $record) {
-                    array_push($data, ['id'=>$record->get('survey.survey_id'), 
-                    'payload_id'=>$record->get('survey.payload_id'),
-                    'model_name'=>'surveys']);
+                    array_push($data, [
+                        'id' => $record->get('survey.survey_id'),
+                        'payload_id' => $record->get('survey.payload_id'),
+                        'model_name' => 'surveys'
+                    ]);
                 }
                 return $data;
                 break;
@@ -555,9 +578,11 @@ class LandingPageController extends Controller
                 $result = $client->run($query);
                 $data = [];
                 foreach ($result->records() as $record) {
-                    array_push($data, ['id'=>$record->get('polls.poll_id'), 
-                    'payload_id'=>$record->get('polls.payload_id'),
-                    'model_name'=>'polling']);
+                    array_push($data, [
+                        'id' => $record->get('polls.poll_id'),
+                        'payload_id' => $record->get('polls.payload_id'),
+                        'model_name' => 'polling'
+                    ]);
                 }
                 return $data;
                 break;
@@ -567,13 +592,15 @@ class LandingPageController extends Controller
                 WITH collabs, rand() AS number
                 ORDER BY number
                 return collabs.collaborate_id,collabs.payload_id LIMIT 3;";
-                
+
                 $result = $client->run($query);
                 $data = [];
                 foreach ($result->records() as $record) {
-                    array_push($data, ['id'=>$record->get('collabs.collaborate_id'), 
-                    'payload_id'=>$record->get('collabs.payload_id'),
-                    'model_name'=>'collaborate']);
+                    array_push($data, [
+                        'id' => $record->get('collabs.collaborate_id'),
+                        'payload_id' => $record->get('collabs.payload_id'),
+                        'model_name' => 'collaborate'
+                    ]);
                 }
                 return $data;
                 break;
@@ -583,13 +610,15 @@ class LandingPageController extends Controller
                 WITH collabs, rand() AS number
                 ORDER BY number
                 return collabs.collaborate_id,collabs.payload_id LIMIT 3;";
-                
+
                 $result = $client->run($query);
                 $data = [];
                 foreach ($result->records() as $record) {
-                    array_push($data, ['id'=>$record->get('collabs.collaborate_id'), 
-                    'payload_id'=>$record->get('collabs.payload_id'),
-                    'model_name'=>'product-review']);
+                    array_push($data, [
+                        'id' => $record->get('collabs.collaborate_id'),
+                        'payload_id' => $record->get('collabs.payload_id'),
+                        'model_name' => 'product-review'
+                    ]);
                 }
                 return $data;
                 break;
@@ -598,13 +627,13 @@ class LandingPageController extends Controller
                 break;
         };
     }
-    
+
     protected function getModelSuggestion($client, $profileId, $suggestionObj)
     {
         $data = null;
-        if($suggestionObj['model_name'] == 'product'){
+        if ($suggestionObj['model_name'] == 'product') {
             $productId = $suggestionObj['id'];
-            $key = 'public-review/product:'.$productId.':V2';
+            $key = 'public-review/product:' . $productId . ':V2';
             $cachedData = Redis::connection('V2')->get($key);
             $product = json_decode($cachedData, true);
 
@@ -621,7 +650,7 @@ class LandingPageController extends Controller
                 WITH users, rand() as number
                 ORDER BY number   
                 RETURN users;";
-                
+
                 $result = $client->run($query);
                 $totalProfileCount = count($result->records());
                 $showProfileCount = 3;
@@ -646,34 +675,34 @@ class LandingPageController extends Controller
                     "sub_title" => $subTitle,
                     "suggestion" => $product
                 ];
-             }
-             return $data;
-        }else{
+            }
+            return $data;
+        } else {
             // $modelName = ucfirst($suggestionObj['model_name']);
             $modelName = $suggestionObj['model_name'];
-            
-            $payloads = Payload::where('id','=',$suggestionObj['payload_id'])->whereNull('deleted_at')->get();
+
+            $payloads = Payload::where('id', '=', $suggestionObj['payload_id'])->whereNull('deleted_at')->get();
             $modelData = $this->getPayloadData($payloads, $profileId);
-            if(count($modelData) > 0){
+            if (count($modelData) > 0) {
                 $query = '';
                 $modelId = $suggestionObj['id'];
-                if($modelName == 'polling'){
+                if ($modelName == 'polling') {
                     $query = "MATCH (users:User) -[:POLL_PARTICIPATION]-> (polls:Polling{poll_id:$modelId})
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
-                }else if($modelName == 'surveys'){
+                } else if ($modelName == 'surveys') {
                     $query = "MATCH (users:User) -[:SURVEY_PARTICIPATION]-> (survey:Surveys{survey_id:'$modelId'})
                     WITH users, rand() as number
                     ORDER BY number   
                     RETURN users;";
-                }else if($modelName == 'collaborate'){
+                } else if ($modelName == 'collaborate') {
                     $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
                         WHERE collab.collaborate_type = 'collaborate'
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
-                }else if($modelName == 'product-review'){
+                } else if ($modelName == 'product-review') {
                     $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
                     WHERE collab.collaborate_type = 'product-review'
                     WITH users, rand() as number
@@ -693,14 +722,14 @@ class LandingPageController extends Controller
                 }
 
                 $subTitle = '';
-                if($modelName == 'polling' || $modelName == 'surveys'){
+                if ($modelName == 'polling' || $modelName == 'surveys') {
                     $subTitle = 'others participated';
                     if ($totalProfileCount <= $showProfileCount) {
                         $subTitle = 'participated';
                     } else if ($totalProfileCount <= ($showProfileCount + 1)) {
                         $subTitle = 'other participated';
                     }
-                }else{
+                } else {
                     $subTitle = 'others showed interest';
                     if ($totalProfileCount <= $showProfileCount) {
                         $subTitle = 'showed interest';
@@ -742,7 +771,7 @@ class LandingPageController extends Controller
                 if (!$cachedData) {
                     \Log::warning("could not get from $key");
                 }
-                
+
                 $data[$name] = json_decode($cachedData, true);
             }
 
@@ -762,7 +791,7 @@ class LandingPageController extends Controller
             if ($model != null && $type == "surveys") {
                 $data["surveys"]["totalApplicants"] = $this->getSurveyApplicantCount($model);
             }
-            
+
             $data['type'] = $type;
             $finalData[] = $data;
         }
@@ -792,10 +821,10 @@ class LandingPageController extends Controller
         $current_post_count =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->count();
         $elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->limit(15)->get();
 
-        if ( $current_post_count< 15) {
+        if ($current_post_count < 15) {
             $past_posts_count = 15 - $current_post_count;
             $past_elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '<', date('Y-m-d 00:00:00'))->orderBy("updated_at")->take($past_posts_count)->get();
-            if(count($past_elements) != 0) $elements =$elements->merge($past_elements);
+            if (count($past_elements) != 0) $elements = $elements->merge($past_elements);
         }
         foreach ($elements as &$value) {
             $value->images_meta = json_decode($value->images_meta ?? "{}");
@@ -803,7 +832,7 @@ class LandingPageController extends Controller
         }
         $big_banner["elements"] = $elements;
 
-        
+
         $this->model[] = $big_banner;
 
         if ($platform == 'mobile') {
@@ -823,15 +852,15 @@ class LandingPageController extends Controller
                 $this->model[] = $banner;
             }
         }
-        $suggestion = $this->getSuggestion($profileId);
-        if(count($suggestion) > 0){
-            array_push($this->model, ...$suggestion);
-        }
+        // $suggestion = $this->getSuggestion($profileId);
+        // if(count($suggestion) > 0){
+        //     array_push($this->model, ...$suggestion);
+        // }
         // $this->model = [];
         // $this->model[] = $suggestion;
         // return $this->sendResponse();
-        
-        
+
+
         $carouselCollab = $this->carousel($profileId, 'collaborate');
         if (count($carouselCollab["elements"]) != 0)
             $this->model[] = $carouselCollab;
@@ -869,12 +898,12 @@ class LandingPageController extends Controller
 
         if ($platform == 'mobile') {
             $tags = [];
-            $tags = $this->trendingHashtags();
-            foreach ($tags as &$tag) {
-                $tag["total_count"] = $tag["count"];
-                unset($tag["updated_at"]);
-                unset($tag["count"]);
-            }
+            // $tags = $this->trendingHashtags();
+            // foreach ($tags as &$tag) {
+            //     $tag["total_count"] = $tag["count"];
+            //     unset($tag["updated_at"]);
+            //     unset($tag["count"]);
+            // }
 
             $hashtags["ui_type"] = "hashtag";
             $hashtags["title"] = "Trending #tags";
