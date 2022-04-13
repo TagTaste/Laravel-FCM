@@ -342,7 +342,7 @@ class Surveys extends Model implements Feedable
             }
         }
     }
-    
+
     public function removeFromGraph(){        
         $surveyCount = \App\Neo4j\Surveys::where('survey_id', $this->id)->count();
         if ($surveyCount > 0) {
