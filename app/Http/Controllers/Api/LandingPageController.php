@@ -825,8 +825,8 @@ class LandingPageController extends Controller
         // $this->model = [];
         // $this->model[] = $suggestion;
         // return $this->sendResponse();
-
-
+        
+        
         $carouselCollab = $this->carousel($profileId, 'collaborate');
         if (count($carouselCollab["elements"]) != 0)
             $this->model[] = $carouselCollab;
