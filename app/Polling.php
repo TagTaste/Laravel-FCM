@@ -326,4 +326,48 @@ class Polling extends Model implements Feedable
         }
         return $totalMatches;
     }
+
+    public function addToGraph(){        
+        $data = ['id'=>$this->id, 
+        'poll_id'=>$this->id,
+        'title'=>substr($this->title, 0, 150), 
+        'is_expired'=>$this->is_expired,
+        'profile_id'=>$this->profile_id,
+        'company_id'=>$this->company_id,
+        'payload_id'=>$this->payload_id,
+        'created_at'=>$this->created_at];
+        
+        $poll = \App\Neo4j\Polling::where('poll_id', $data['id'])->first();
+        if (!$poll) {
+            \App\Neo4j\Polling::create($data);
+        } else {
+            unset($data['id']);
+            \App\Neo4j\Polling::where('poll_id', $data['poll_id'])->update($data);
+        }
+    }
+
+    public function addParticipationEdge($profileId){
+        $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
+        $poll = \App\Neo4j\Polling::where('poll_id', $this->id)->first();
+        if ($userProfile && $poll) {
+            $isUserParticipated = $userProfile->participated->where('poll_id',$this->id)->first();
+            if (!$isUserParticipated) {
+                $relation = $userProfile->participated()->attach($poll);
+                $relation->save();
+            } else {
+                $relation = $userProfile->participated()->edge($poll);
+                $relation->save();
+            }
+        }
+    }
+
+    public function removeFromGraph(){        
+        $pollCount = \App\Neo4j\Polling::where('poll_id', $this->id)->count();
+        if ($pollCount > 0) {
+            $client = config('database.neo4j_uri_client');
+             $query = "MATCH (p:Polling{poll_id:'$this->id'})
+                        DETACH DELETE p;";
+            $result = $client->run($query);
+        }
+    }
 }
