@@ -242,7 +242,7 @@ class PublicReviewProduct extends Model
             // old code
             // $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
             $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->count(\DB::raw('DISTINCT profile_id'));
-            $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();
+            $question = \DB::table('public_review_questions')->where('header_id',$header->id)->whereRaw("JSON_CONTAINS(questions, '5', '$.select_type')")->first();
             $question = json_decode($question->questions);
             $option = isset($question->option) ? $question->option : [];
             $meta = [];
