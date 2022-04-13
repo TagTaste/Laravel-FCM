@@ -265,12 +265,6 @@ class LandingPageController extends Controller
                 ->where('profiles.id', '<>', $profileId)
                 ->whereNull('surveys.deleted_at')
                 ->where('surveys.is_active', 1)
-                ->where(function ($query) use ($companyIds) {
-                    if (!empty($companyIds)) {
-                        $query->whereNotIn('surveys.company_id', $companyIds)
-                            ->orWhereNull('surveys.company_id');
-                    }
-                })
                 ->whereNotIn("surveys.id", $ids)
                 ->orderBy('surveys.created_at', 'desc')
                 ->take(5)->get();
@@ -281,12 +275,6 @@ class LandingPageController extends Controller
                 ->whereNull('public_review_products.deleted_at')
                 ->where('public_review_products.is_active', 1)
                 ->where('payment_details.is_active', 1)
-                ->where(function ($query) use ($companyIds) {
-                    if (!empty($companyIds)) {
-                        $query->whereNotIn('public_review_products.company_id', $companyIds)
-                            ->orWhereNull('public_review_products.company_id');
-                    }
-                })
                 ->whereNotIn("public_review_products.id", $ids)
                 ->orderBy('public_review_products.created_at', 'desc')
                 ->take(5)->get();
@@ -356,12 +344,6 @@ class LandingPageController extends Controller
             ->leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->leftJoin('companies', 'companies.id', 'poll_questions.company_id')
             ->whereNull('poll_questions.deleted_at')
-            ->where(function ($query) use ($companyIds) {
-                if (!empty($companyIds)) {
-                    $query->whereNotIn('poll_questions.company_id', $companyIds)
-                        ->orWhereNull('poll_questions.company_id');
-                }
-            })
             ->where('poll_questions.profile_id', '<>', $profileId)
             ->where('poll_votes.profile_id', '<>', $profileId)
             ->where('poll_questions.is_expired', 0)
@@ -436,14 +418,16 @@ class LandingPageController extends Controller
             ->join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->join('poll_options', 'poll_options.poll_id', 'poll_questions.id')
             ->whereNull('poll_questions.deleted_at')
-            ->where('poll_questions.profile_id', '<>', $profileId)
+            ->where(function ($query) use ($profileId){
+                $query->where('poll_questions.profile_id', $profileId)
+                        ->orwhere('poll_votes.profile_id', $profileId);
+            })
             ->where(function ($query) use ($companyIds) {
                 if (!empty($companyIds)) {
-                    $query->whereNotIn('poll_questions.company_id', $companyIds)
+                    $query->whereIn('poll_questions.company_id', $companyIds)
                         ->orWhereNull('poll_questions.company_id');
                 }
             })
-            ->where('poll_votes.profile_id', '<>', $profileId)
             ->where('poll_questions.is_expired', 1)
             ->where('poll_questions.created_at', '>=', Carbon::now()->subDays(7)->toDateTimeString())
             ->orderBy('poll_questions.created_at', 'desc');
