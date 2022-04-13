@@ -63,6 +63,7 @@ class Polling extends Model implements Feedable
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'profile_id'=>$this->profile_id,
+            'company_id'=>$this->company_id,
             'image_meta'=>$this->image_meta,
             'preview'=>$this->preview,
             'type'=>$this->type,

@@ -8,11 +8,14 @@ use App\Traits\HashtagFactory;
 use Illuminate\Support\Collection;
 use App\Channel\Payload;
 use App\Collaborate;
+use App\Collaborate\Applicant;
 use App\CompanyUser;
+use App\Console\Commands\Build\Cache\Survey;
 use Illuminate\Support\Facades\Redis;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 use App\FeedCard;
+use App\Payment\PaymentDetails as PaymentPaymentDetails;
 use App\Polling;
 use App\Product;
 use App\PublicReviewProduct;
@@ -20,7 +23,7 @@ use App\PublicReviewProduct\Review;
 use App\Surveys;
 use Carbon\Carbon;
 use App\V2\Photo;
-
+use PaymentDetails;
 
 class LandingPageController extends Controller
 {
@@ -231,267 +234,197 @@ class LandingPageController extends Controller
         $carousel["title"] = $model;
         $carousel["see_more"] = true;
         $carousel["elements"] = [];
-
+        
         if ($model == 'collaborate' || $model == 'product_review') {
-            $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
-            $carouseldata = Collaborate::select('profiles.*', 'experiences.designation', 'users.name', 'collaborates.id as model_id', 'collaborates.title', 'collaborates.profile_id', 'collaborates.description', 'collaborates.company_id')
-                ->join('profiles', 'collaborates.profile_id', 'profiles.id')
-                ->join('users', 'users.id', 'profiles.id')
-                ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
-                ->where('profiles.id', '<>', $profileId)
-                ->where(function ($query) use ($companyIds) {
-                    if (!empty($companyIds)) {
-                        $query->whereNotIn('collaborates.company_id', $companyIds)
-                            ->orWhereNull('collaborates.company_id');
-                    }
-                })
-                ->whereNull('collaborates.deleted_at')
-                ->whereNotIn('collaborates.id', $ids)
-                ->orderBy('collaborates.created_at', 'desc')
-                ->where('expires_on', '>=', Carbon::now()->toDateTimeString());
-            if ($model == 'product_review') {
-                $carouseldata = $carouseldata->where("collaborates.collaborate_type", 'product-review');
-            } else {
-                $carouseldata = $carouseldata->where("collaborates.collaborate_type", 'collaborate');
-            }
+            $ids = Applicant::where('profile_id','=',$profileId)
+                ->pluck('collaborate_id')->toArray();
 
-            $carouseldata = $carouseldata->take(5)->get();
+            // $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
+            
+            $collaborateType = $model == 'collaborate' ? $model : 'product-review';
+            $carouseldata = Collaborate::where('state','=',1)
+                ->whereNotIn('id', $ids)
+                ->where('collaborate_type','=',$collaborateType)
+                ->whereNull('deleted_at')
+                ->orderBy('created_at', 'desc')
+                ->take(5)->pluck('id')->toArray();
         } elseif ($model == 'surveys') {
-            $ids = DB::table("survey_applicants")->where("profile_id", $profileId)->pluck("survey_id")->toArray();
-            $carouseldata = Surveys::select('profiles.*', 'experiences.designation', 'users.name', 'surveys.id as model_id', 'surveys.title', 'surveys.company_id', 'surveys.profile_id', 'surveys.description', 'surveys.image_meta as post_meta')
-                ->join('profiles', 'surveys.profile_id', 'profiles.id')
-                ->join('users', 'users.id', 'profiles.id')
-                ->join('experiences', 'experiences.profile_id', 'profiles.id')
-                ->where('profiles.id', '<>', $profileId)
-                ->whereNull('surveys.deleted_at')
-                ->where('surveys.is_active', 1)
-                ->where(function ($query) use ($companyIds) {
-                    if (!empty($companyIds)) {
-                        $query->whereNotIn('surveys.company_id', $companyIds)
-                            ->orWhereNull('surveys.company_id');
-                    }
-                })
-                ->whereNotIn("surveys.id", $ids)
-                ->orderBy('surveys.created_at', 'desc')
-                ->take(5)->get();
+            $ids = DB::table("survey_applicants")->where("profile_id", $profileId)
+                ->whereNull("deleted_at")
+                ->pluck("survey_id")->toArray();
+            
+            $carouseldata = Surveys::whereNull('deleted_at')
+                ->where('state','=',2)
+                ->where('is_active','=',1)
+                ->where('profile_id', '<>', $profileId)
+                ->whereNotIn("id", $ids)
+                ->orderBy('created_at', 'desc')
+                ->take(5)->pluck('id')->toArray();
         } elseif ($model == 'product') {
-            $ids =  DB::table("public_product_user_review")->where('profile_id', $profileId)->pluck('product_id')->toArray();
-            $carouseldata =  PublicReviewProduct::select('public_review_products.*')
-                ->join("payment_details", "payment_details.model_id", "public_review_products.id")
-                ->whereNull('public_review_products.deleted_at')
-                ->where('public_review_products.is_active', 1)
-                ->where('payment_details.is_active', 1)
-                ->where(function ($query) use ($companyIds) {
-                    if (!empty($companyIds)) {
-                        $query->whereNotIn('public_review_products.company_id', $companyIds)
-                            ->orWhereNull('public_review_products.company_id');
-                    }
-                })
-                ->whereNotIn("public_review_products.id", $ids)
-                ->orderBy('public_review_products.created_at', 'desc')
-                ->take(5)->get();
+            $ids = Review::where('current_status','=',2)
+            ->where('profile_id','=',$profileId)
+            ->distinct('product_id')
+            ->pluck('product_id')->toArray();
+            
+            //pls put check of excluded profile later
+            $carouseldata = PaymentPaymentDetails::where('is_active','=',1)
+                ->whereNull('deleted_at')
+                ->where('model_type','=','Public Review')
+                ->whereNotIn("id", $ids)
+                ->orderBy('updated_at', 'desc')
+                ->take(5)->pluck('model_id')->toArray();
+            
+            // $ids =  DB::table("public_product_user_review")->where('profile_id', $profileId)->pluck('product_id')->toArray();
+            // $carouseldata =  PublicReviewProduct::select('public_review_products.*')
+            //     ->join("payment_details", "payment_details.model_id", "public_review_products.id")
+            //     ->whereNull('public_review_products.deleted_at')
+            //     ->where('public_review_products.is_active', 1)
+            //     ->where('payment_details.is_active', 1)
+            //     ->where(function ($query) use ($companyIds) {
+            //         if (!empty($companyIds)) {
+            //             $query->whereNotIn('public_review_products.company_id', $companyIds)
+            //                 ->orWhereNull('public_review_products.company_id');
+            //         }
+            //     })
+            //     ->whereNotIn("public_review_products.id", $ids)
+            //     ->orderBy('public_review_products.created_at', 'desc')
+            //     ->take(5)->get();
         }
-
+        
         $data = [];
-        $profile = [];
-        $modelData = [];
-        $admins = [];
         foreach ($carouseldata as $key => $value) {
-            if (!empty($value->company_id)) {
-                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
-            }
-            if (!in_array($profileId, $admins)) {
-                $data['meta'] = $value->getMetaFor($profileId);
-                $data['placeholder_images_meta'] =  isset($this->placeholderimage[$model]) ? $this->placeholderimage[$model] : json_decode('{
-                        "meta": {
-                            "width": 343,
-                            "height": 190,
-                            "tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
-                        },
-                        "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
-                    }');
-                if ($model != 'product') {
-                    $profile['id'] = $value->id;
-                    $profile['tagline'] = $value->tagline;
-                    $profile['user_id'] = $value->user_id;
-                    $profile['verified'] = $value->verified;
-                    $profile['handle'] = $value->handle;
-                    $profile['image_meta'] = $value->image_meta;
-                    $profile['is_tasting_expert'] = $value->is_tasting_expert;
-                    $profile['tasting_instructions'] = $value->tasting_instructions;
-                    $profile['is_premium'] = $value->is_premium;
-                    $profile['name'] = $value->name;
-                    $profile['desigation'] = $value->designation;
-                    $data['profile'] = $profile;
-
-                    $modelData['id'] = $value->model_id;
-                    $modelData['title'] = $value->title;
-                    $modelData['description'] = $value->description;
-
-                    $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-                } else {
-                    $modelData = $value;
+            if($model == 'surveys'){
+                $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
+                $surveyModel = Surveys::find($value);
+                $data['meta'] = $surveyModel->getMetaFor($profileId);
+                if(isset($data['polling']['company_id'])){
+                    $data['company'] = json_decode(Redis::get("company:small:".$data['surveys']['company_id'].":V2"), true);
+                }else{
+                    $data['profile'] = json_decode(Redis::get("profile:small:".$data['surveys']['profile_id'].":V2"), true);
                 }
-
-                $data[$model] = $modelData;
+                $data['type'] = $model;
+                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+                    },
+                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
+                }');
+                $carousel['elements'][] = $data;
+            }else if($model == 'collaborate' || $model == 'product_review'){
+                $data['collaborate'] = json_decode(Redis::get("collaborate:".$value.":V2"), true);
+                $collabModel = Collaborate::find($value);
+                $data['meta'] = $collabModel->getMetaForV2($profileId);
+                if(isset($data['polling']['company_id'])){
+                    $data['company'] = json_decode(Redis::get("company:small:".$data['collaborate']['company_id'].":V2"), true);
+                }else{
+                    $data['profile'] = json_decode(Redis::get("profile:small:".$data['collaborate']['profile_id'].":V2"), true);
+                }
+                $data['type'] = 'collaborate';
+                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+                    },
+                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
+                }'); 
+                $carousel['elements'][] = $data;
+            }else if($model == 'product'){
+                $data['product'] = json_decode(Redis::get("public-review/product:".$value.":V2"), true);
+                $productModel = PublicReviewProduct::find($value);
+                $data['meta'] = $productModel->getMetaFor($profileId);
+                $data['type'] = 'product';
+                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+                    },
+                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
+                }'); 
                 $carousel['elements'][] = $data;
             }
         }
         return $carousel;
     }
-
+    
     public function poll($profileId, $type, $companyIds = null)
     {
         $carousel["ui_type"] = "carousel";
         $carousel["model_name"] = "polling";
-        $carousel["title"] = "poll $type";
         $carousel["see_more"] = true;
         $carousel["elements"] = [];
-
-
-        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'companies.id as company_id', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.*')
-            ->leftJoin('profiles', 'profiles.id', 'poll_questions.profile_id')
-            ->leftJoin('users', 'users.id', 'profiles.user_id')
-            ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
-            ->leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
-            ->leftJoin('companies', 'companies.id', 'poll_questions.company_id')
-            ->whereNull('poll_questions.deleted_at')
-            ->where(function ($query) use ($companyIds) {
-                if (!empty($companyIds)) {
-                    $query->whereNotIn('poll_questions.company_id', $companyIds)
-                        ->orWhereNull('poll_questions.company_id');
-                }
-            })
-            ->where('poll_questions.profile_id', '<>', $profileId)
-            ->where('poll_votes.profile_id', '<>', $profileId)
-            ->where('poll_questions.is_expired', 0)
-            ->orderBy('poll_questions.created_at', 'desc');
-
-        if ($type == 'TagTaste') {
-            $carouseldata = $carouseldata->where('companies.id', config("constant.POLL_COMPANY_ID"))
-                ->orderBy('poll_questions.created_at', 'desc');
-        } elseif ($type == 'NotTagTaste') {
-            $carouseldata = $carouseldata->where('companies.id', '<>', config("constant.POLL_COMPANY_ID"))
-                ->orderBy('poll_questions.created_at', 'desc');
+        
+        if($type == 'TagTaste'){
+            $carousel["title"] = "Polls From Tagtaste";
+            $carouseldata = Polling::leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
+                ->where('poll_votes.profile_id', '<>', $profileId)
+                ->whereNull('poll_votes.deleted_at')
+                ->where('poll_questions.is_expired', 0)
+                ->where('poll_questions.profile_id', '<>', $profileId)  
+                ->whereNull('poll_questions.deleted_at')
+                ->whereIn('poll_questions.company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                ->orderBy('poll_questions.created_at', 'desc')
+                ->take(10)->pluck('poll_questions.id')->toArray();
+        }else{
+            $carousel["title"] = "Polls From Community";
+            $carouseldata = Polling::leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
+                ->where('poll_votes.profile_id', '<>', $profileId)
+                ->whereNull('poll_votes.deleted_at')
+                ->where('poll_questions.is_expired', 0)
+                ->where('poll_questions.profile_id', '<>', $profileId)  
+                ->whereNull('poll_questions.deleted_at')
+                ->whereNotIn('poll_questions.company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                ->orWhereNull('poll_questions.company_id')
+                ->orderBy('poll_questions.created_at', 'desc')
+                ->take(10)->pluck('poll_questions.id')->toArray(); 
         }
-        $carouseldata = $carouseldata->take(5)->get();
 
-        $admins = [];
         foreach ($carouseldata as $key => $value) {
-            if (!empty($value->company_id)) {
-                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
+            $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
+            $pollModel = Polling::find($value);
+            $data['meta'] = $pollModel->getMetaForV2($profileId);
+            if(isset($data['polling']['company_id'])){
+                $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
+            }else{
+                $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
             }
-            if (!in_array($profileId, $admins)) {
-
-                $data["meta"] = $value->getMetaFor($profileId);
-                $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
-                "meta": {
-                    "width": 343,
-                    "height": 190,
-                    "tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+            $data['type'] = 'polling';
+            $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
                 },
                 "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
             }');
-
-                $profile['id'] = $value->profile_id;
-                $profile['tagline'] = $value->tagline;
-                $profile['user_id'] = $value->user_id;
-                $profile['verified'] = $value->verified;
-                $profile['handle'] = $value->handle;
-                $profile['image_meta'] = $value->image_meta;
-                $profile['is_tasting_expert'] = $value->is_tasting_expert;
-                $profile['tasting_instructions'] = $value->tasting_instructions;
-                $profile['is_premium'] = $value->is_premium;
-                $profile['name'] = $value->name;
-                $profile['designation'] = $value->designation;
-
-                $modelData['id'] = $value->poll_id;
-                $modelData['title'] = $value->title;
-                $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-
-
-
-                $data['profile'] = $profile;
-                $data["polling"] = $modelData;
-                $carousel['elements'][] = $data;
-            }
+            $carousel['elements'][] = $data;
         }
-
         return $carousel;
     }
 
-    public function expiredpoll($profileId, $companyIds = null)
+    public function participatedExpiredpoll($profileId)
     {
         $carousel["ui_type"] = "carousel";
         $carousel["model_name"] = "polling";
-        $carousel["title"] = "poll in which you have participated";
+        $carousel["title"] = "Polls in which you have participated";
         $carousel["see_more"] = true;
         $carousel["value"] = "poll_result";
         $carousel["elements"] = [];
 
-        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.company_id', 'poll_questions.image_meta as post_meta', 'users.name', 'poll_options.text as result')
-            ->join('profiles', 'profiles.id', 'poll_questions.profile_id')
-            ->join('users', 'users.id', 'profiles.user_id')
-            ->join('experiences', 'experiences.profile_id', 'profiles.id')
-            ->join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
-            ->join('poll_options', 'poll_options.poll_id', 'poll_questions.id')
-            ->whereNull('poll_questions.deleted_at')
-            ->where('poll_questions.profile_id', '<>', $profileId)
-            ->where(function ($query) use ($companyIds) {
-                if (!empty($companyIds)) {
-                    $query->whereNotIn('poll_questions.company_id', $companyIds)
-                        ->orWhereNull('poll_questions.company_id');
-                }
-            })
-            ->where('poll_votes.profile_id', '<>', $profileId)
+        $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
+            ->where('poll_votes.profile_id', $profileId)
             ->where('poll_questions.is_expired', 1)
+            ->whereNull('poll_votes.deleted_at')
+            ->whereNull('poll_questions.deleted_at')
             ->where('poll_questions.created_at', '>=', Carbon::now()->subDays(7)->toDateTimeString())
-            ->orderBy('poll_questions.created_at', 'desc');
-        $count["count"] = $carouseldata->count();
-        if ($count["count"] <= 2) return $count;
-        $carousel["count"] = $count["count"];
+            ->distinct('poll_questions.id')
+            ->orderBy('poll_questions.created_at', 'desc')
+            ->take(10)->pluck('poll_questions.id')->toArray();
 
 
-        $carouseldata = $carouseldata->take(5)->get();
-
-        $admins = [];
         foreach ($carouseldata as $key => $value) {
-            if (!empty($value->company_id)) {
-                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
+            $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
+            $pollModel = Polling::find($value);
+            $data['meta'] = $pollModel->getMetaForV2($profileId);
+            if(isset($data['polling']['company_id'])){
+                $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
+            }else{
+                $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
             }
-            if (!in_array($profileId, $admins)) {
-                $data["meta"] = $value->getMetaFor($profileId);
-                $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
-                "meta": {
-                    "width": 343,
-                    "height": 190,
-                    "tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+            $data['type'] = 'polling';
+            $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
                 },
                 "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
             }');
-                $profile['id'] = $value->profile_id;
-                $profile['tagline'] = $value->tagline;
-                $profile['user_id'] = $value->user_id;
-                $profile['verified'] = $value->verified;
-                $profile['handle'] = $value->handle;
-                $profile['image_meta'] = $value->image_meta;
-                $profile['is_tasting_expert'] = $value->is_tasting_expert;
-                $profile['tasting_instructions'] = $value->tasting_instructions;
-                $profile['is_premium'] = $value->is_premium;
-                $profile['name'] = $value->name;
-                $profile['designation'] = $value->designation;
-
-                $modelData['id'] = $value->poll_id;
-                $modelData['title'] = $value->title;
-                $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-                // $modelData['value'] = $result[0];
-
-                $data['profile'] = $profile;
-                $data["polling"] = $modelData;
-                $carousel['elements'][] = $data;
-            }
+            $carousel['elements'][] = $data;
         }
-
         return $carousel;
     }
 
@@ -501,26 +434,19 @@ class LandingPageController extends Controller
         $carousel["ui_type"] = "image_carousel";
         $carousel["title"] = "Tagtaste Insights";
         $carousel["model_name"] = "hashtag";
-        $carousel["model_id"] = "tagtasteInsight";
+        $carousel["model_id"] = "ttinsights";
         $carousel["see_more"] = true;
-
+        
         $carousel["elements"] = [];
-        $photos = Photo::forCompany(config("constant.POLL_COMPANY_ID"))->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(5)->get();
-        $carouseldata = [];
 
-        foreach ($photos as $photo) {
-            $photo->images = json_decode($photo->images);
-            $photoArray = $photo->toArray();
-            $item = $photoArray['owner'];
-            unset($item["about"]);
-            unset($photoArray["owner"]);
-            unset($photoArray["profile_id"]);
-            unset($photoArray["company_id"]);
+        $payloads = Payload::where('model','App\\V2\\Photo')
+            ->whereNull('deleted_at')
+            ->where('channel_name','company.public.45')
+            ->orderBy('created_at', 'desc')
+            ->take(5)->get();
 
-            $carouseldata[] = ['photo' => $photoArray, 'company' => $item, 'meta' => $photo->getMetaFor($profileId), 'type' => 'photo'];
-        }
+        $carouseldata = $this->getPayloadData($payloads, $profileId);
         $carousel["elements"] = $carouseldata;
-
         return $carousel;
     }
 
@@ -832,12 +758,14 @@ class LandingPageController extends Controller
 
         return $finalData;
     }
-
+    
     public function landingPage(Request $request)
     {
         $companyIds = CompanyUser::where("profile_id", $request->user()->profile->id)->get()->pluck("id");
         $this->errors['status'] = 0;
         $profileId = $request->user()->profile->id;
+
+        //improvement needed
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $platform = $request->input('platform');
@@ -853,6 +781,8 @@ class LandingPageController extends Controller
         $big_banner["autoplay_duration"] = 3000;
         $big_banner["loop"] = true;
         $big_banner["autoplay"] = true;
+
+        //improvement needed
         $current_post_count =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->count();
         $elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->limit(15)->get();
 
@@ -866,7 +796,7 @@ class LandingPageController extends Controller
             $value->model_id = (string)$value->model_id;
         }
         $big_banner["elements"] = $elements;
-
+        
 
         $this->model[] = $big_banner;
 
@@ -874,6 +804,7 @@ class LandingPageController extends Controller
             $passbook["ui_type"] = "passbook";
             $this->model[] = $passbook;
 
+            //Need to make it dynamic
             $products["ui_type"] = "product_available";
             $products["title"] = "3 Products available";
             $products["sub_title"] = "Review Now";
@@ -887,6 +818,7 @@ class LandingPageController extends Controller
                 $this->model[] = $banner;
             }
         }
+
         $suggestion = $this->getSuggestion($profileId);
         if (count($suggestion) > 0) {
             array_push($this->model, ...$suggestion);
@@ -904,6 +836,7 @@ class LandingPageController extends Controller
         if (count($carouselSurvey["elements"]) != 0)
             $this->model[] = $carouselSurvey;
 
+
         $carouselProduct = $this->carousel($profileId, 'product_review', $companyIds);
         if (count($carouselProduct["elements"]) != 0)
             $this->model[] = $carouselProduct;
@@ -912,20 +845,21 @@ class LandingPageController extends Controller
         if (count($carouselPublicReview["elements"]) != 0)
             $this->model[] = $carouselPublicReview;
 
+
         $poll = $this->poll($profileId, 'TagTaste');
         if (count($poll["elements"]) != 0)
             $this->model[] = $poll;
+
 
         $pollNotTagtaste = $this->poll($profileId, 'NotTagTaste');
         if (count($pollNotTagtaste["elements"]) != 0)
             $this->model[] = $pollNotTagtaste;
 
-        $expiredPoll = $this->expiredpoll($profileId);
-        // dd($expiredPoll['count']);
-        if ($expiredPoll['count'] > 2) {
-            unset($expiredPoll["count"]);
-            $this->model[] = $expiredPoll;
-        }
+        
+        $expiredPoll = $this->participatedExpiredpoll($profileId);
+        if (count($expiredPoll["elements"]) != 0)
+            $this->model[] = $expiredPoll;        
+
 
         $imageCarousel = $this->imageCarousel($profileId);
         if (count($imageCarousel["elements"]) != 0)
@@ -939,24 +873,19 @@ class LandingPageController extends Controller
                 unset($tag["updated_at"]);
                 unset($tag["count"]);
             }
-
+            
             $hashtags["ui_type"] = "hashtag";
             $hashtags["title"] = "Trending #tags";
             $hashtags["see_more"] = true;
             $hashtags["elements"] = $tags;
             $this->model[] = $hashtags;
         }
-
+        
         $feed["ui_type"] = "feed";
         $feed["title"] = "From Your Feed";
         $feed["see_more"] = true;
         $feed["total_count"] = 5;
-        // $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
-        //     ->where('subscribers.profile_id', $profileId)
-        //     ->whereNull('subscribers.deleted_at')
-        //     ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
-        //     ->orderBy('channel_payloads.created_at', 'desc')
-        //     ->count();
+
         $this->model[] = $feed;
         return $this->sendResponse();
     }

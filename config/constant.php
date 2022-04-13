@@ -83,7 +83,8 @@ return  [
     ],
     "DEFAULT_SIZE" => 8,
 
-    "POLL_COMPANY_ID" => 9
+    "TAGTASTE_POLL_COMPANY_ID" => '9,10',
+    "TAGTASTE_INSIGHT_COMPANY_ID" => '9,10'
     
 ];
 
