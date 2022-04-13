@@ -177,6 +177,7 @@ class LandingPageController extends Controller
         $index = 0;
         //dd($payloads);
         foreach ($payloads as $payload) {
+
             $type = null;
             $data = [];
             $cached = json_decode($payload->payload, true);
@@ -194,7 +195,7 @@ class LandingPageController extends Controller
                 }
                 $data[$name] = json_decode($cachedData, true);
             }
-
+            
 
             if ($payload->model !== null) {
                 $model = $payload->model;
@@ -202,6 +203,7 @@ class LandingPageController extends Controller
                 if ($model == "App\Surveys") {
                     $model = $model::find($data["surveys"]["id"]);
                 } else {
+                    // echo "m here";
                     $model = $model::find($payload->model_id);
                 }
                 if ($model !== null && method_exists($model, 'getMetaForV2')) {
@@ -472,40 +474,146 @@ class LandingPageController extends Controller
     public function getSuggestion($profileId)
     {
         $client = config('database.neo4j_uri_client');
-        //models - collaborate, product-review, product, surveys, polling, 
-        $productSuggestionIds = $this->getModelSuggestionIds($client, $profileId, 'product');
-        $productSuggestion = $this->getModelSuggestion($client, $profileId, $productSuggestionIds, 'product');
-        return $productSuggestion;
+
+        //models - product-review, product, collaborate, surveys, polling 
+        $productReviewSuggs = $this->getModelSuggestionIds($client, $profileId, 'product-review');
+        $productSuggs = $this->getModelSuggestionIds($client, $profileId, 'product');
+        $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, 'collaborate');
+        // $surveySugges = $this->getModelSuggestionIds($client, $profileId, 'surveys');
+        $pollSugges = $this->getModelSuggestionIds($client, $profileId, 'polling');
+        
+        $tempMixSuggs = [];
+        
+        $suggCount = 0;
+        while($suggCount <= 5){
+            array_push($tempMixSuggs, array_shift($productReviewSuggs));
+            array_push($tempMixSuggs, array_shift($productSuggs));
+            array_push($tempMixSuggs, array_shift($collaborateSugges));
+            // array_push($tempMixSuggs, array_shift($surveySugges));
+            array_push($tempMixSuggs, array_shift($pollSugges));
+            
+            if((count($productReviewSuggs) + count($productSuggs) + count($collaborateSugges)
+              + count($pollSugges)) == 0){
+                break;
+            }
+            $suggCount = count($tempMixSuggs);
+        }
+        $suggestionsList = array_slice($tempMixSuggs, 0, 5, true);
+        $finalSuggestionData = [];
+        foreach($suggestionsList as $suggObj){
+            $dataObj = $this->getModelSuggestion($client, $profileId, $suggObj);
+            if(!is_null($dataObj) && count($dataObj) > 0){
+                $finalSuggestionData[] = $dataObj;
+            }
+        }
+
+        return $finalSuggestionData;
     }
 
     protected function getModelSuggestionIds($client, $profileId, $modelName)
     {
-        $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS]-> (users:User), (product:Product)
-        WHERE NOT ((user) -[:REVIEWED]->(product)) AND ((users) -[:REVIEWED]->(product)) 
-        WITH product, rand() AS number
-        ORDER BY number
-        return product.product_id LIMIT 3;";
+        switch ($modelName) {
+            case 'product':
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (product:Product)
+                WHERE NOT ((user) -[:REVIEWED]->(product)) AND ((users) -[:REVIEWED]->(product)) 
+                WITH product, rand() AS number
+                ORDER BY number
+                return product.product_id LIMIT 3;";
 
-        $result = $client->run($query);
-        $data = [];
-        foreach ($result->records() as $record) {
-            array_push($data, $record->get('product.product_id'));
-        }
-        return $data;
+                $result = $client->run($query);
+                $data = [];
+                foreach ($result->records() as $record) {
+                    array_push($data, ['id'=>$record->get('product.product_id'), 
+                    'model_name'=>'product']);
+                }
+                return $data;
+                break;
+
+            case 'surveys':
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (survey:Surveys)
+                WHERE NOT ((user) -[:SURVEY_PARTICIPATION]->(survey)) AND ((users) -[:SURVEY_PARTICIPATION]->(survey)) AND survey.profile_id <> $profileId
+                WITH survey, rand() AS number
+                ORDER BY number
+                return survey.survey_id, survey.payload_id LIMIT 3;";
+                
+                $result = $client->run($query);
+                $data = [];
+                foreach ($result->records() as $record) {
+                    array_push($data, ['id'=>$record->get('survey.survey_id'), 
+                    'payload_id'=>$record->get('survey.payload_id'),
+                    'model_name'=>'surveys']);
+                }
+                return $data;
+                break;
+            case 'polling':
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (polls:Polling)
+                WHERE NOT ((user) -[:POLL_PARTICIPATION]->(polls)) AND ((users) -[:POLL_PARTICIPATION]->(polls)) AND polls.profile_id <> $profileId
+                WITH polls, rand() AS number
+                ORDER BY number
+                return polls.poll_id, polls.payload_id LIMIT 3;";
+                // echo $query;
+                $result = $client->run($query);
+                $data = [];
+                foreach ($result->records() as $record) {
+                    array_push($data, ['id'=>$record->get('polls.poll_id'), 
+                    'payload_id'=>$record->get('polls.payload_id'),
+                    'model_name'=>'polling']);
+                }
+                return $data;
+                break;
+            case 'collaborate':
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (collabs:Collaborate)
+                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND ((users) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'collaborate'
+                WITH collabs, rand() AS number
+                ORDER BY number
+                return collabs.collaborate_id,collabs.payload_id LIMIT 3;";
+                
+                $result = $client->run($query);
+                $data = [];
+                foreach ($result->records() as $record) {
+                    array_push($data, ['id'=>$record->get('collabs.collaborate_id'), 
+                    'payload_id'=>$record->get('collabs.payload_id'),
+                    'model_name'=>'collaborate']);
+                }
+                return $data;
+                break;
+            case 'product-review':
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (collabs:Collaborate)
+                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND ((users) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'product-review'
+                WITH collabs, rand() AS number
+                ORDER BY number
+                return collabs.collaborate_id,collabs.payload_id LIMIT 3;";
+                
+                $result = $client->run($query);
+                $data = [];
+                foreach ($result->records() as $record) {
+                    array_push($data, ['id'=>$record->get('collabs.collaborate_id'), 
+                    'payload_id'=>$record->get('collabs.payload_id'),
+                    'model_name'=>'product-review']);
+                }
+                return $data;
+                break;
+            default:
+                return null;
+                break;
+        };
     }
 
-    protected function getModelSuggestion($client, $profileId, $suggestionList, $modelName)
+    protected function getModelSuggestion($client, $profileId, $suggestionObj)
     {
-        $data = [];
-        foreach ($suggestionList as $productId) {
-            $product = \App\PublicReviewProduct::where('is_active', 1)
-                ->whereNull('deleted_at')
-                ->where('id', $productId)->first();
+        $data = null;
+        if($suggestionObj['model_name'] == 'product'){
+            $productId = $suggestionObj['id'];
+            $key = 'public-review/product:'.$productId.':V2';
+            $cachedData = Redis::connection('V2')->get($key);
+            $product = json_decode($cachedData, true);
+
+            $productModel = \App\PublicReviewProduct::find($productId);
 
             if ($product != null) {
                 $product = [
                     'product' => $product,
-                    'meta' => $product->getMetaFor($profileId),
+                    'meta' => $productModel->getMetaFor($profileId),
                     'type' => 'product'
                 ];
 
@@ -513,6 +621,7 @@ class LandingPageController extends Controller
                 WITH users, rand() as number
                 ORDER BY number   
                 RETURN users;";
+                
                 $result = $client->run($query);
                 $totalProfileCount = count($result->records());
                 $showProfileCount = 3;
@@ -529,7 +638,7 @@ class LandingPageController extends Controller
                 } else if ($totalProfileCount <= ($showProfileCount + 1)) {
                     $subTitle = 'other completed review';
                 }
-                $suggestionObj = [
+                $data = [
                     "ui_type" => "suggestion",
                     "title" => "Suggested for you",
                     "total_count" => count($result->records()),
@@ -537,10 +646,123 @@ class LandingPageController extends Controller
                     "sub_title" => $subTitle,
                     "suggestion" => $product
                 ];
-                array_push($data, $suggestionObj);
+             }
+             return $data;
+        }else{
+            // $modelName = ucfirst($suggestionObj['model_name']);
+            $modelName = $suggestionObj['model_name'];
+            
+            $payloads = Payload::where('id','=',$suggestionObj['payload_id'])->whereNull('deleted_at')->get();
+            $modelData = $this->getPayloadData($payloads, $profileId);
+            if(count($modelData) > 0){
+                $query = '';
+                $modelId = $suggestionObj['id'];
+                if($modelName == 'polling'){
+                    $query = "MATCH (users:User) -[:POLL_PARTICIPATION]-> (polls:Polling{poll_id:$modelId})
+                        WITH users, rand() as number
+                        ORDER BY number   
+                        RETURN users;";
+                }else if($modelName == 'collaborate'){
+                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
+                        WHERE collab.collaborate_type = 'collaborate'
+                        WITH users, rand() as number
+                        ORDER BY number   
+                        RETURN users;";
+                }else if($modelName == 'product-review'){
+                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
+                    WHERE collab.collaborate_type = 'product-review'
+                    WITH users, rand() as number
+                    ORDER BY number   
+                    RETURN users;";
+                }
+                // echo $query;
+                $result = $client->run($query);
+                $totalProfileCount = count($result->records());
+                $showProfileCount = 3;
+
+                $showProfiles = [];
+                $slicedProfileList = array_slice($result->records(), 0, $showProfileCount, true);
+
+                foreach ($slicedProfileList as $profileData) {
+                    array_push($showProfiles, $profileData->get('users')->values());
+                }
+
+                $subTitle = '';
+                if($modelName == 'polling' || $modelName == 'surveys'){
+                    $subTitle = 'others participated';
+                    if ($totalProfileCount <= $showProfileCount) {
+                        $subTitle = 'participated';
+                    } else if ($totalProfileCount <= ($showProfileCount + 1)) {
+                        $subTitle = 'other participated';
+                    }
+                }else{
+                    $subTitle = 'others showed interest';
+                    if ($totalProfileCount <= $showProfileCount) {
+                        $subTitle = 'showed interest';
+                    } else if ($totalProfileCount <= ($showProfileCount + 1)) {
+                        $subTitle = 'other showed interest';
+                    }
+                }
+
+                return $data = [
+                    "ui_type" => "suggestion",
+                    "title" => "Suggested for you",
+                    "total_count" => $totalProfileCount,
+                    "profiles" => $showProfiles,
+                    "sub_title" => $subTitle,
+                    "suggestion" => $modelData[0]
+                ];
             }
         }
-        return $data;
+    }
+
+    private function getPayloadData(&$payloads, &$profileId)
+    {
+        $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
+        $index = 0;
+        //dd($payloads);
+        $finalData = [];
+        foreach ($payloads as $payload) {
+            $type = null;
+            $data = [];
+            $cached = json_decode($payload->payload, true);
+            foreach ($cached as $name => $key) {
+                $cachedData = null;
+                if (in_array($name, $indexTypeV2)) {
+                    $key = $key . ":V2";
+                    $cachedData = Redis::connection('V2')->get($key);
+                } else {
+                    $cachedData = Redis::get($key);
+                }
+                if (!$cachedData) {
+                    \Log::warning("could not get from $key");
+                }
+                
+                $data[$name] = json_decode($cachedData, true);
+            }
+
+            if ($payload->model !== null) {
+                $model = $payload->model;
+                $type = $this->getType($payload->model);
+                if ($model == "App\Surveys") {
+                    $model = $model::find($data["surveys"]["id"]);
+                } else {
+                    // echo "payload id".$payload->model_id;
+                    $model = $model::find($payload->model_id);
+                }
+                if ($model !== null && method_exists($model, 'getMetaForV2')) {
+                    $data['meta'] = $model->getMetaForV2($profileId);
+                }
+            }
+            if ($model != null && $type == "surveys") {
+                $data["surveys"]["totalApplicants"] = $this->getSurveyApplicantCount($model);
+            }
+            
+            $data['type'] = $type;
+            $finalData[] = $data;
+        }
+
+        return $finalData;
     }
 
     public function landingPage(Request $request)
@@ -600,6 +822,10 @@ class LandingPageController extends Controller
         if(count($suggestion) > 0){
             array_push($this->model, ...$suggestion);
         }
+        // $this->model = [];
+        // $this->model[] = $suggestion;
+        // return $this->sendResponse();
+
 
         $carouselCollab = $this->carousel($profileId, 'collaborate');
         if (count($carouselCollab["elements"]) != 0)
