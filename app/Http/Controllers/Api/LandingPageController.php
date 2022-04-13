@@ -396,7 +396,7 @@ class LandingPageController extends Controller
             ->where('poll_questions.profile_id', '<>', $profileId)
             ->where('poll_votes.profile_id', '<>', $profileId)
             ->where('poll_questions.is_expired', 1)
-            ->where('poll_questions.expired_time', '>=', Carbon::now()->subDays(7)->toDateTimeString())
+            ->where('poll_questions.created_at', '>=', Carbon::now()->subDays(7)->toDateTimeString())
             ->orderBy('poll_questions.created_at', 'desc');
         $count["count"] = $carouseldata->count();
         if ($count["count"] <= 2) return $count;
