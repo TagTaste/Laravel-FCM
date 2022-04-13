@@ -246,6 +246,8 @@ class LandingPageController extends Controller
                 ->whereNotIn('id', $ids)
                 ->where('collaborate_type','=',$collaborateType)
                 ->whereNull('deleted_at')
+                ->whereNotIn('company_id',$companyIds)
+                ->orWhereNull('company_id')
                 ->orderBy('created_at', 'desc')
                 ->take(5)->pluck('id')->toArray();
         } elseif ($model == 'surveys') {
@@ -764,7 +766,7 @@ class LandingPageController extends Controller
         $companyIds = CompanyUser::where("profile_id", $request->user()->profile->id)->get()->pluck("id");
         $this->errors['status'] = 0;
         $profileId = $request->user()->profile->id;
-
+        
         //improvement needed
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
@@ -864,6 +866,7 @@ class LandingPageController extends Controller
         $imageCarousel = $this->imageCarousel($profileId);
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
+            
 
         if ($platform == 'mobile') {
             $tags = [];
