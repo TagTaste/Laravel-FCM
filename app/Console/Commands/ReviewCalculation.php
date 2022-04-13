@@ -131,7 +131,7 @@ class ReviewCalculation extends Command
 
             $message->to('v-hussein@tagtaste.com');
 
-            $message->cc('nikhil@tagtaste.com', 'Nikhil');
+            // $message->cc('nikhil@tagtaste.com', 'Nikhil');
             // $message->bcc('john@johndoe.com', 'John Doe');
 
             $message->subject('Review Excel');
