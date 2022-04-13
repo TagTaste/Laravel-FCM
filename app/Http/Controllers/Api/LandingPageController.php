@@ -239,7 +239,7 @@ class LandingPageController extends Controller
                 ->join('users', 'users.id', 'profiles.id')
                 ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
                 ->where('profiles.id', '<>', $profileId)
-                ->where('company_id.id', '<>', $profileId)
+                ->where('company_id', '<>', $profileId)
                 ->where('collaborate_type', $model)
                 ->whereNull('collaborates.deleted_at')
                 ->whereNotIn('collaborates.id', $ids)
@@ -803,7 +803,7 @@ class LandingPageController extends Controller
     }
 
     public function landingPage(Request $request) {
-        $companyIds = Company::where("profile_id",$request->user()->profile->id)->get()->pluck("id");
+        $companyIds = Company::where("user_id",$request->user()->id)->get()->pluck("id");
         $this->errors['status'] = 0;
         $profileId = $request->user()->profile->id;
         $this->validatePayloadForVersion($request);
