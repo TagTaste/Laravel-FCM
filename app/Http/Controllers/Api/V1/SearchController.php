@@ -33,11 +33,11 @@ class SearchController extends Controller
         'jobs' => \App\Recipe\Job::class,
         'product' => \App\PublicReviewProduct::class,
         'polls' => \App\Polling::class,
-        'private-review' => \App\Recipe\Collaborate::class,
+        'product-review' => \App\Recipe\Collaborate::class,
     ];
 
     private $filters = [
-        'private-review' => \App\Filter\Collaborate::class,
+        'product-review' => \App\Filter\Collaborate::class,
         'collaborate' => \App\Filter\Collaborate::class,
         'recipe' => \App\Filter\Recipe::class,
         'recipes' => \App\Filter\Recipe::class,
@@ -1613,7 +1613,7 @@ class SearchController extends Controller
                     $placeholders = implode(',', array_fill(0, count($ids), '?'));
                     $model = $model::whereIn('id', $ids);
 
-                    if ($type == 'private-review') {
+                    if ($type == 'product-review') {
                         $model = $model->where('collaborate_type', 'product-review');
                     } else if ($type == 'collaborate') {
                         $model = $model->where('collaborate_type', "<>", 'product-review');
@@ -1636,13 +1636,13 @@ class SearchController extends Controller
             $idCol = 'poll_questions.id';
         }
         if (count($ids)) {
-            if ($type == 'collaborate' || $type == 'private-review') {
+            if ($type == 'collaborate' || $type == 'product-review') {
                 $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3);
             } else {
 
                 $model = $model::whereNull($deleted_at)->orderByRaw("field(" . $idCol . ",{$placeholders})", $ids);
             }
-        } else if ($type == 'collaborate' || $type == 'private-review') {
+        } else if ($type == 'collaborate' || $type == 'product-review') {
             $model = $model::where('step', 3)->whereNull('deleted_at');
         } else {
 
@@ -1660,7 +1660,7 @@ class SearchController extends Controller
             }
         }
 
-        if ($type == 'private-review') {
+        if ($type == 'product-review') {
             $model = $model->where('collaborate_type', 'product-review');
         } else if ($type == 'collaborate') {
             $model = $model->where('collaborate_type', "<>", 'product-review');
@@ -1727,7 +1727,7 @@ class SearchController extends Controller
 
         if ($suggestions && $suggestions->count()) {
 
-            if ($type == 'collaborate' || $type == 'private-review' || $type == 'surveys' || $type == 'polls') {
+            if ($type == 'collaborate' || $type == 'product-review' || $type == 'surveys' || $type == 'polls') {
                 $this->model[$type] = $suggestions;
             } else {
                 $this->model[$type] = $suggestions->toArray();
@@ -1775,8 +1775,8 @@ class SearchController extends Controller
             }
         }
 
-        if (isset($this->model['private-review'])) {
-            $prs = $this->model['private-review'];
+        if (isset($this->model['product-review'])) {
+            $prs = $this->model['product-review'];
             $this->model = [];
 
             foreach ($prs as $pr) {

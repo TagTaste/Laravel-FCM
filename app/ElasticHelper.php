@@ -79,7 +79,7 @@ class ElasticHelper
         }
         if($type){
             $params['type'] = $type;
-            if($type=="private-review"){
+            if($type=="product-review"){
                 $params['type'] = "collaborate";
             }else if($type=="polls"){
                 $params['type'] = "polling";

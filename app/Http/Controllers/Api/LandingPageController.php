@@ -913,6 +913,8 @@ class LandingPageController extends Controller
         }
 
         $feed["ui_type"] = "feed";
+        $feed["title"] = "From Your Feed";
+        $feed["see_more"] = true;
         $feed["total_count"] = 5;
         // $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
         //     ->where('subscribers.profile_id', $profileId)
