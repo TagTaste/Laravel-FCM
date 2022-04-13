@@ -479,7 +479,7 @@ class LandingPageController extends Controller
         $productReviewSuggs = $this->getModelSuggestionIds($client, $profileId, 'product-review');
         $productSuggs = $this->getModelSuggestionIds($client, $profileId, 'product');
         $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, 'collaborate');
-        // $surveySugges = $this->getModelSuggestionIds($client, $profileId, 'surveys');
+        $surveySugges = $this->getModelSuggestionIds($client, $profileId, 'surveys');
         $pollSugges = $this->getModelSuggestionIds($client, $profileId, 'polling');
         
         $tempMixSuggs = [];
@@ -489,11 +489,11 @@ class LandingPageController extends Controller
             array_push($tempMixSuggs, array_shift($productReviewSuggs));
             array_push($tempMixSuggs, array_shift($productSuggs));
             array_push($tempMixSuggs, array_shift($collaborateSugges));
-            // array_push($tempMixSuggs, array_shift($surveySugges));
+            array_push($tempMixSuggs, array_shift($surveySugges));
             array_push($tempMixSuggs, array_shift($pollSugges));
             
             if((count($productReviewSuggs) + count($productSuggs) + count($collaborateSugges)
-              + count($pollSugges)) == 0){
+              + count($surveySugges) + count($pollSugges)) == 0){
                 break;
             }
             $suggCount = count($tempMixSuggs);
@@ -598,7 +598,7 @@ class LandingPageController extends Controller
                 break;
         };
     }
-
+    
     protected function getModelSuggestion($client, $profileId, $suggestionObj)
     {
         $data = null;
@@ -662,6 +662,11 @@ class LandingPageController extends Controller
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
+                }else if($modelName == 'surveys'){
+                    $query = "MATCH (users:User) -[:SURVEY_PARTICIPATION]-> (survey:Surveys{survey_id:'$modelId'})
+                    WITH users, rand() as number
+                    ORDER BY number   
+                    RETURN users;";
                 }else if($modelName == 'collaborate'){
                     $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
                         WHERE collab.collaborate_type = 'collaborate'
