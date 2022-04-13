@@ -8,6 +8,7 @@ use App\Traits\HashtagFactory;
 use Illuminate\Support\Collection;
 use App\Channel\Payload;
 use App\Collaborate;
+use App\Company;
 use Illuminate\Support\Facades\Redis;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
@@ -222,8 +223,9 @@ class LandingPageController extends Controller
         $this->model = array_values(array_filter($this->model));
     }
 
-    public function carousel($profileId, $model)
+    public function carousel($profileId, $model,$companyIds = null)
     {
+        
         $carousel["ui_type"] = "carousel";
         $carousel["model_name"] = $model;
         $carousel["title"] = $model;
@@ -237,6 +239,7 @@ class LandingPageController extends Controller
                 ->join('users', 'users.id', 'profiles.id')
                 ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
                 ->where('profiles.id', '<>', $profileId)
+                ->where('company_id.id', '<>', $profileId)
                 ->where('collaborate_type', $model)
                 ->whereNull('collaborates.deleted_at')
                 ->whereNotIn('collaborates.id', $ids)
@@ -799,8 +802,8 @@ class LandingPageController extends Controller
         return $finalData;
     }
 
-    public function landingPage(Request $request)
-    {
+    public function landingPage(Request $request) {
+        $companyIds = Company::where("profile_id",$request->user()->profile->id)->get()->pluck("id");
         $this->errors['status'] = 0;
         $profileId = $request->user()->profile->id;
         $this->validatePayloadForVersion($request);
@@ -861,19 +864,19 @@ class LandingPageController extends Controller
         // return $this->sendResponse();
 
 
-        $carouselCollab = $this->carousel($profileId, 'collaborate');
+        $carouselCollab = $this->carousel($profileId, 'collaborate',$companyIds);
         if (count($carouselCollab["elements"]) != 0)
             $this->model[] = $carouselCollab;
 
-        $carouselSurvey = $this->carousel($profileId, 'surveys');
+        $carouselSurvey = $this->carousel($profileId, 'surveys',$companyIds);
         if (count($carouselSurvey["elements"]) != 0)
             $this->model[] = $carouselSurvey;
 
-        $carouselProduct = $this->carousel($profileId, 'product_review');
+        $carouselProduct = $this->carousel($profileId, 'product_review',$companyIds);
         if (count($carouselProduct["elements"]) != 0)
             $this->model[] = $carouselProduct;
 
-        $carouselPublicReview = $this->carousel($profileId, 'product');
+        $carouselPublicReview = $this->carousel($profileId, 'product',$companyIds);
         if (count($carouselPublicReview["elements"]) != 0)
             $this->model[] = $carouselPublicReview;
 
