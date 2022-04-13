@@ -130,7 +130,8 @@ class ReviewCalculation extends Command
         \Mail::raw($linkMessage, function ($message) {
 
             $message->to('v-hussein@tagtaste.com');
-            // $message->cc('john@johndoe.com', 'John Doe');
+
+            $message->cc('nikhil@tagtaste.com', 'Nikhil');
             // $message->bcc('john@johndoe.com', 'John Doe');
 
             $message->subject('Review Excel');
