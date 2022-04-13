@@ -8,7 +8,7 @@ use App\Traits\HashtagFactory;
 use Illuminate\Support\Collection;
 use App\Channel\Payload;
 use App\Collaborate;
-use App\Company;
+use App\CompanyUser;
 use Illuminate\Support\Facades\Redis;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
@@ -223,9 +223,9 @@ class LandingPageController extends Controller
         $this->model = array_values(array_filter($this->model));
     }
 
-    public function carousel($profileId, $model,$companyIds = null)
+    public function carousel($profileId, $model, $companyIds = null)
     {
-        
+
         $carousel["ui_type"] = "carousel";
         $carousel["model_name"] = $model;
         $carousel["title"] = $model;
@@ -239,14 +239,20 @@ class LandingPageController extends Controller
                 ->join('users', 'users.id', 'profiles.id')
                 ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
                 ->where('profiles.id', '<>', $profileId)
-                ->where('company_id', '<>', $profileId)
-                ->where('collaborate_type', $model)
+                ->where(function ($query) use ($companyIds) {
+                    if (!empty($companyIds)) {
+                        $query->whereNotIn('collaborates.company_id', $companyIds)
+                            ->orWhereNull('collaborates.company_id');
+                    }
+                })
                 ->whereNull('collaborates.deleted_at')
                 ->whereNotIn('collaborates.id', $ids)
                 ->orderBy('collaborates.created_at', 'desc')
                 ->where('expires_on', '>=', Carbon::now()->toDateTimeString());
             if ($model == 'product_review') {
                 $carouseldata = $carouseldata->where("collaborates.collaborate_type", 'product-review');
+            } else {
+                $carouseldata = $carouseldata->where("collaborates.collaborate_type", 'collaborate');
             }
 
             $carouseldata = $carouseldata->take(5)->get();
@@ -309,6 +315,7 @@ class LandingPageController extends Controller
                     $modelData['id'] = $value->model_id;
                     $modelData['title'] = $value->title;
                     $modelData['description'] = $value->description;
+
                     $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
                 } else {
                     $modelData = $value;
@@ -321,7 +328,7 @@ class LandingPageController extends Controller
         return $carousel;
     }
 
-    public function poll($profileId, $type)
+    public function poll($profileId, $type, $companyIds = null)
     {
         $carousel["ui_type"] = "carousel";
         $carousel["model_name"] = "polling";
@@ -395,7 +402,7 @@ class LandingPageController extends Controller
         return $carousel;
     }
 
-    public function expiredpoll($profileId)
+    public function expiredpoll($profileId, $companyIds = null)
     {
         $carousel["ui_type"] = "carousel";
         $carousel["model_name"] = "polling";
@@ -411,8 +418,16 @@ class LandingPageController extends Controller
             ->join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->join('poll_options', 'poll_options.poll_id', 'poll_questions.id')
             ->whereNull('poll_questions.deleted_at')
-            ->where('poll_questions.profile_id', '<>', $profileId)
-            ->where('poll_votes.profile_id', '<>', $profileId)
+            ->where(function ($query) use ($profileId){
+                $query->where('poll_questions.profile_id', $profileId)
+                        ->orwhere('poll_votes.profile_id', $profileId);
+            })
+            ->where(function ($query) use ($companyIds) {
+                if (!empty($companyIds)) {
+                    $query->whereIn('poll_questions.company_id', $companyIds)
+                        ->orWhereNull('poll_questions.company_id');
+                }
+            })
             ->where('poll_questions.is_expired', 1)
             ->where('poll_questions.created_at', '>=', Carbon::now()->subDays(7)->toDateTimeString())
             ->orderBy('poll_questions.created_at', 'desc');
@@ -802,8 +817,9 @@ class LandingPageController extends Controller
         return $finalData;
     }
 
-    public function landingPage(Request $request) {
-        $companyIds = Company::where("user_id",$request->user()->id)->get()->pluck("id");
+    public function landingPage(Request $request)
+    {
+        $companyIds = CompanyUser::where("profile_id", $request->user()->profile->id)->get()->pluck("id");
         $this->errors['status'] = 0;
         $profileId = $request->user()->profile->id;
         $this->validatePayloadForVersion($request);
@@ -856,7 +872,7 @@ class LandingPageController extends Controller
             }
         }
         $suggestion = $this->getSuggestion($profileId);
-        if(count($suggestion) > 0){
+        if (count($suggestion) > 0) {
             array_push($this->model, ...$suggestion);
         }
         // $this->model = [];
@@ -864,19 +880,19 @@ class LandingPageController extends Controller
         // return $this->sendResponse();
 
 
-        $carouselCollab = $this->carousel($profileId, 'collaborate',$companyIds);
+        $carouselCollab = $this->carousel($profileId, 'collaborate', $companyIds);
         if (count($carouselCollab["elements"]) != 0)
             $this->model[] = $carouselCollab;
 
-        $carouselSurvey = $this->carousel($profileId, 'surveys',$companyIds);
+        $carouselSurvey = $this->carousel($profileId, 'surveys', $companyIds);
         if (count($carouselSurvey["elements"]) != 0)
             $this->model[] = $carouselSurvey;
 
-        $carouselProduct = $this->carousel($profileId, 'product_review',$companyIds);
+        $carouselProduct = $this->carousel($profileId, 'product_review', $companyIds);
         if (count($carouselProduct["elements"]) != 0)
             $this->model[] = $carouselProduct;
 
-        $carouselPublicReview = $this->carousel($profileId, 'product',$companyIds);
+        $carouselPublicReview = $this->carousel($profileId, 'product', $companyIds);
         if (count($carouselPublicReview["elements"]) != 0)
             $this->model[] = $carouselPublicReview;
 
