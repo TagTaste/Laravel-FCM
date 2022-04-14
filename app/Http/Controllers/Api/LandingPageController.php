@@ -837,7 +837,7 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
-        return $this->sendResponse();
+        // return $this->sendResponse();
 
         if ($platform == 'mobile') {
             //hashtags
@@ -850,7 +850,7 @@ class LandingPageController extends Controller
         $feed["title"] = "From Your Feed";
         $feed["see_more"] = true;
         $feed["total_count"] = 5;
-        
+
         $this->model[] = $feed;
         return $this->sendResponse();
     }
