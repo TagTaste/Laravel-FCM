@@ -228,7 +228,6 @@ class LandingPageController extends Controller
 
     public function carousel($profileId, $model, $companyIds = null)
     {
-
         $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.CAROUSEL");
         $carousel["model_name"] = $model;
         $carousel["title"] = $model;
@@ -788,31 +787,11 @@ class LandingPageController extends Controller
             $links["elements"] = DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
             $this->model[] = $links;
         }
-        $elements = [];
-        $past_elements = [];
-        $big_banner["ui_type"] = config("constant.LANDING_UI_TYPE.BIG_BANNNER");
-        $big_banner["autoplay_duration"] = 3000;
-        $big_banner["loop"] = true;
-        $big_banner["autoplay"] = true;
-
-        //improvement needed
-        $current_post_count =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->count();
-        $elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->limit(15)->get();
-
-        if ($current_post_count < 15) {
-            $past_posts_count = 15 - $current_post_count;
-            $past_elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '<', date('Y-m-d 00:00:00'))->orderBy("updated_at")->take($past_posts_count)->get();
-            if (count($past_elements) != 0) $elements = $elements->merge($past_elements);
-        }
-        foreach ($elements as &$value) {
-            $value->images_meta = json_decode($value->images_meta ?? "{}");
-            $value->model_id = (string)$value->model_id;
-        }
-        $big_banner["elements"] = $elements;
         
-
-        $this->model[] = $big_banner;
-
+        $bigBanner = $this->getBigBanner();
+        if (count($bigBanner["elements"]) != 0)
+            $this->model[] = $bigBanner;
+            
         if ($platform == 'mobile') {
             $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
             $this->model[] = $passbook;
@@ -903,5 +882,40 @@ class LandingPageController extends Controller
 
         $this->model[] = $feed;
         return $this->sendResponse();
+    }
+
+    public function getBigBanner(){
+        $bigBanner["ui_type"] = config("constant.LANDING_UI_TYPE.BIG_BANNNER");
+        $bigBanner["autoplay_duration"] = 3000;
+        $bigBanner["loop"] = true;
+        $bigBanner["autoplay"] = true;
+
+        $bigBannerList =  DB::table('landing_banner')
+            ->select('updated_at','title','images_meta', 'model_name', 'model_id','filter_meta')
+            ->where('banner_type', 'big_banner')
+            ->whereNull('deleted_at')
+            ->where('is_active', 1)
+            ->orderBy('updated_at','desc')
+            ->limit(15)->get();
+        
+        $todayElement = []; 
+        $pastElement = []; 
+        foreach ($bigBannerList as &$value) {
+            $value->images_meta = json_decode($value->images_meta ?? "{}");
+            if($value->updated_at >= date('Y-m-d 00:00:00')){
+                $todayElement[] = $value;
+            }else{
+                $pastElement[] = $value;
+            }
+        }
+        
+        shuffle($todayElement);
+        shuffle($pastElement);
+        
+        array_push($todayElement, ...$pastElement); //merge all elements in todayElement
+        $bigBanner["elements"] = $todayElement;
+    
+        return $bigBanner;
+        
     }
 }
