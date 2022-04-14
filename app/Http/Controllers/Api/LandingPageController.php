@@ -842,7 +842,7 @@ class LandingPageController extends Controller
         if ($platform == 'mobile') {
             //hashtags
             $hashTags = $this->getTrendingHashtag();
-            if(count($hashTags['elemets']) > 0)
+            if(count($hashTags['elements']) > 0)
                 $this->model[] = $hashTags;
         }
         
