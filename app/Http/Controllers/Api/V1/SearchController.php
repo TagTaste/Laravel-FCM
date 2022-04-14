@@ -21,7 +21,7 @@ class SearchController extends Controller
 {
     //aliases added for frontend
     private $models = [
-        'collaborate' => \App\Recipe\Collaborate::class,
+        'collaborate' => \App\Collaborate::class,
         'collaborates' => \App\Recipe\Collaborate::class,
         'recipe' => \App\Recipe::class,
         'recipes' => \App\Recipe::class,
@@ -33,7 +33,7 @@ class SearchController extends Controller
         'jobs' => \App\Recipe\Job::class,
         'product' => \App\PublicReviewProduct::class,
         'polls' => \App\Polling::class,
-        'product-review' => \App\Recipe\Collaborate::class,
+        'product-review' => \App\Collaborate::class,
     ];
 
     private $filters = [
