@@ -439,7 +439,7 @@ class LandingPageController extends Controller
         $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.IMAGE_CAROUSEL");
         $carousel["title"] = "Tagtaste Insights";
         $carousel["model_name"] = config("constant.LANDING_MODEL.HASHTAG");
-        $carousel["model_id"] = "ttinsights";
+        $carousel["model_id"] = "#ttinsights";
         $carousel["see_more"] = true;
         
         $carousel["elements"] = [];
@@ -865,7 +865,7 @@ class LandingPageController extends Controller
         $pollNotTagtaste = $this->poll($profileId, 'NotTagTaste');
         if (count($pollNotTagtaste["elements"]) != 0)
             $this->model[] = $pollNotTagtaste;
-
+        
         
         $expiredPoll = $this->participatedExpiredpoll($profileId);
         if (count($expiredPoll["elements"]) != 0)
