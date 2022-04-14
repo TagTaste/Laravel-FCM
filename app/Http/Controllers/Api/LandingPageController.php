@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use App\Channel\Payload;
 use App\Collaborate;
 use App\Collaborate\Applicant;
+use App\Collaborate\BatchAssign;
 use App\CompanyUser;
 use App\Console\Commands\Build\Cache\Survey;
 use Illuminate\Support\Facades\Redis;
@@ -18,6 +19,7 @@ use App\FeedCard;
 use App\Payment\PaymentDetails as PaymentPaymentDetails;
 use App\Polling;
 use App\Product;
+use App\Profile;
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\Review;
 use App\Surveys;
@@ -58,46 +60,29 @@ class LandingPageController extends Controller
      *
      * @return Response
      */
-    public function sideData()
+    public function sideData(Request $request)
     {
-
+        $profileId = $request->user()->profile->id;
         $this->errors['status'] = 0;
 
         //passbook
         $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
+        $this->model[] = $passbook;
 
         //products available
-        $products["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
-        $products["title"] = "3 Products available";
-        $products["sub_title"] = "Review Now";
-        $products["images_meta"] = "";
-
-        $this->model[] = $passbook;
-        $this->model[] = $products;
+        $reviewCard = $this->getProductAvailableForReview($profileId);
+        if(count($reviewCard) != 0)
+            $this->model[] = $reviewCard;
 
         //banner
-        $banner =   DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
-        if ($banner) {
-            $banner->ui_type = config("constant.LANDING_UI_TYPE.BANNER");
-            $banner->images_meta = json_decode($banner->images_meta ?? []);
+        $banner = $this->getBanner();
+        if($banner != null)
             $this->model[] = $banner;
-        }
-
-        $tags = [];
-        $tags = $this->trendingHashtags();
-        foreach ($tags as &$tag) {
-
-            $tag['total_count'] = $tag['count'];
-            unset($tag["count"]);
-            unset($tag["updated_at"]);
-        }
 
         //hashtags
-        $hashtags["ui_type"] = config("constant.LANDING_UI_TYPE.HASHTAG");
-        $hashtags["title"] = "Trending #tags";
-        $hashtags["see_more"] = true;
-        $hashtags["elements"] = $tags;
-        $this->model[] = $hashtags;
+        $hashTags = $this->getTrendingHashtag();
+        if(count($hashTags['elemets']) > 0)
+            $this->model[] = $hashTags;
 
         return $this->sendResponse();
     }
@@ -791,24 +776,19 @@ class LandingPageController extends Controller
         $bigBanner = $this->getBigBanner();
         if (count($bigBanner["elements"]) != 0)
             $this->model[] = $bigBanner;
-            
+        
         if ($platform == 'mobile') {
             $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
             $this->model[] = $passbook;
 
-            //Need to make it dynamic
-            $products["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
-            $products["title"] = "3 Products available";
-            $products["sub_title"] = "Review Now";
-            $products["image"] = "https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/icons/group.png";
-            $this->model[] = $products;
+            $reviewCard = $this->getProductAvailableForReview($profileId);
+            if(count($reviewCard) != 0)
+                $this->model[] = $reviewCard;
 
-            $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->orderBy("updated_at", "desc")->first();
-            if ($banner) {
-                $banner->ui_type = config("constant.LANDING_UI_TYPE.BANNER");
-                $banner->images_meta = json_decode($banner->images_meta ?? []);
+            //banner
+            $banner = $this->getBanner();
+            if($banner != null)
                 $this->model[] = $banner;
-            }
         }
 
         $suggestion = $this->getSuggestion($profileId);
@@ -860,28 +840,43 @@ class LandingPageController extends Controller
         return $this->sendResponse();
 
         if ($platform == 'mobile') {
-            $tags = [];
-            $tags = $this->trendingHashtags();
-            foreach ($tags as &$tag) {
-                $tag["total_count"] = $tag["count"];
-                unset($tag["updated_at"]);
-                unset($tag["count"]);
-            }
-            
-            $hashtags["ui_type"] = config("constant.LANDING_UI_TYPE.HASHTAG");
-            $hashtags["title"] = "Trending #tags";
-            $hashtags["see_more"] = true;
-            $hashtags["elements"] = $tags;
-            $this->model[] = $hashtags;
+            //hashtags
+            $hashTags = $this->getTrendingHashtag();
+            if(count($hashTags['elemets']) > 0)
+                $this->model[] = $hashTags;
         }
         
         $feed["ui_type"] = config("constant.LANDING_UI_TYPE.FEED");
         $feed["title"] = "From Your Feed";
         $feed["see_more"] = true;
         $feed["total_count"] = 5;
-
+        
         $this->model[] = $feed;
         return $this->sendResponse();
+    }
+
+    public function getProductAvailableForReview($profileId){
+        $reviewData = [];
+        
+        $reviewCount = BatchAssign::join('collaborate_tasting_user_review' ,'collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
+            ->join('collaborates','collaborate_tasting_user_review.collaborate_id','=','collaborates.id')
+            ->where('collaborate_batches_assign.begin_tasting',1)
+            ->where('collaborate_tasting_user_review.current_status', '<>', 3)
+            ->where('collaborates.state',1)
+            ->distinct('collaborate_batches_assign.batch_id')
+            ->pluck('collaborate_batches_assign.batch_id')->count();
+
+        if($reviewCount > 0){
+            $reviewData["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
+            $reviewData["title"] = $reviewCount." Product available";
+            if($reviewCount > 1){
+                $reviewData["title"] = $reviewCount." Products available";
+            }          
+            $reviewData["sub_title"] = "Review Now";
+            $reviewData["image"] = "https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/icons/group.png";    
+        }     
+        
+        return $reviewData;
     }
 
     public function getBigBanner(){
@@ -917,5 +912,33 @@ class LandingPageController extends Controller
     
         return $bigBanner;
         
+    }
+
+    public function getTrendingHashtag(){
+        $tags = [];
+        $tags = $this->trendingHashtags();
+        foreach ($tags as &$tag) {
+            $tag['total_count'] = $tag['count'];
+            unset($tag["count"]);
+            unset($tag["updated_at"]);
+        }
+
+        $hashTags["ui_type"] = config("constant.LANDING_UI_TYPE.HASHTAG");
+        $hashTags["title"] = "Trending #tags";
+        $hashTags["see_more"] = true;
+        $hashTags["elements"] = $tags;
+        
+        return $hashTags;
+    }
+
+    public function getBanner(){
+        $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
+        if ($banner) {
+            $banner->ui_type = config("constant.LANDING_UI_TYPE.BANNER");
+            $banner->images_meta = json_decode($banner->images_meta ?? []);
+            return $banner;
+        }else{
+            return null;
+        }
     }
 }
