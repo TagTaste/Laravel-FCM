@@ -269,14 +269,16 @@ class LandingPageController extends Controller
             ->distinct('product_id')
             ->pluck('product_id')->toArray();
             
+            // dd($ids);
             //pls put check of excluded profile later
             $carouseldata = PaymentPaymentDetails::where('is_active','=',1)
                 ->whereNull('deleted_at')
                 ->where('model_type','=','Public Review')
-                ->whereNotIn("id", $ids)
+                ->whereNotIn("model_id", $ids)
                 ->orderBy('updated_at', 'desc')
                 ->take(5)->pluck('model_id')->toArray();
-            
+
+            // dd($carouseldata);
             // $ids =  DB::table("public_product_user_review")->where('profile_id', $profileId)->pluck('product_id')->toArray();
             // $carouseldata =  PublicReviewProduct::select('public_review_products.*')
             //     ->join("payment_details", "payment_details.model_id", "public_review_products.id")
@@ -875,6 +877,8 @@ class LandingPageController extends Controller
         $imageCarousel = $this->imageCarousel($profileId);
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
+            
+        return $this->sendResponse();
 
         if ($platform == 'mobile') {
             $tags = [];
