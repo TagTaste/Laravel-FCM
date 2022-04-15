@@ -81,7 +81,7 @@ class LandingPageController extends Controller
 
         //hashtags
         $hashTags = $this->getTrendingHashtag();
-        if(count($hashTags['elemets']) > 0)
+        if(count($hashTags['elements']) > 0)
             $this->model[] = $hashTags;
 
         return $this->sendResponse();
@@ -845,7 +845,7 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
-            return $this->sendResponse();
+            // return $this->sendResponse();
 
         if ($platform == 'mobile') {
             //hashtags
@@ -871,6 +871,7 @@ class LandingPageController extends Controller
             ->where('collaborate_batches_assign.begin_tasting',1)
             ->where('collaborate_tasting_user_review.current_status', '<>', 3)
             ->where('collaborates.state',1)
+            ->where('collaborates.profile_id',$profileId)
             ->distinct('collaborate_batches_assign.batch_id')
             ->pluck('collaborate_batches_assign.batch_id')->count();
 
