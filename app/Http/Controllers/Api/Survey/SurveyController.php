@@ -660,13 +660,13 @@ class SurveyController extends Controller
             $responseData = [];
             if ($commit) {
                 DB::commit();
-
+                
                 // if (is_null($id->company_id)) {
                 //     event(new SurveyAnswered($id, $user, null, null, null, null));
                 // } else {
                 //     event(new SurveyAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
                 // }
-
+                
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
