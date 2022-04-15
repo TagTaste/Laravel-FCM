@@ -858,7 +858,8 @@ class LandingPageController extends Controller
         $feed["title"] = "From Your Feed";
         $feed["see_more"] = true;
         $feed["total_count"] = 5;
-        
+
+
         $this->model[] = $feed;
         return $this->sendResponse();
     }
