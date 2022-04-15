@@ -642,26 +642,28 @@ class LandingPageController extends Controller
                 if ($modelName == config("constant.LANDING_MODEL.POLLING")) {
                     $query = "MATCH (users:User) -[:POLL_PARTICIPATION]-> (polls:Polling{poll_id:$modelId}),
                         (user:User{profile_id:$profileId})
+                        WHERE ((user) -[:FOLLOWS{following:1}]-> (users))
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
                 } else if ($modelName == config("constant.LANDING_MODEL.SURVEYS")) {
                     $query = "MATCH (users:User) -[:SURVEY_PARTICIPATION]-> (survey:Surveys{survey_id:'$modelId'}),
                         (user:User{profile_id:$profileId})
+                        WHERE ((user) -[:FOLLOWS{following:1}]-> (users))
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
                 } else if ($modelName == config("constant.LANDING_MODEL.COLLABORATE")) {
                     $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId}),
                         (user:User{profile_id:$profileId})
-                        WHERE collab.collaborate_type = 'collaborate'
+                        WHERE collab.collaborate_type = 'collaborate' AND ((user) -[:FOLLOWS{following:1}]-> (users))
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
                 } else if ($modelName == config("constant.LANDING_MODEL.PRODUCT-REVIEW")) {
                     $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId}),
                         (user:User{profile_id:$profileId})
-                        WHERE collab.collaborate_type = 'product-review'
+                        WHERE collab.collaborate_type = 'product-review' AND ((user) -[:FOLLOWS{following:1}]-> (users))
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
@@ -843,6 +845,7 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
+
         if ($platform == 'mobile') {
             //hashtags
             $hashTags = $this->getTrendingHashtag();
