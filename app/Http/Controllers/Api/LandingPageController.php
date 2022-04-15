@@ -446,12 +446,12 @@ class LandingPageController extends Controller
         $client = config('database.neo4j_uri_client');
 
         //models - product-review, product, collaborate, surveys, polling 
-        $productReviewSuggs = $this->getModelSuggestionIds($client, $profileId, 'product-review');
-        $productSuggs = $this->getModelSuggestionIds($client, $profileId, 'product');
-        $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, 'collaborate');
-        $surveySugges = $this->getModelSuggestionIds($client, $profileId, 'surveys');
-        $pollSugges = $this->getModelSuggestionIds($client, $profileId, 'polling');
-
+        $productReviewSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT-REVIEW"));
+        $productSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT"));
+        $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.COLLABORATE"));
+        $surveySugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.SURVEYS"));
+        $pollSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.POLLING"));
+        
         $tempMixSuggs = [];
 
         $suggCount = 0;
@@ -578,7 +578,7 @@ class LandingPageController extends Controller
                 break;
         };
     }
-
+    
     protected function getModelSuggestion($client, $profileId, $suggestionObj)
     {
         $data = null;
@@ -597,7 +597,9 @@ class LandingPageController extends Controller
                     'type' => $suggestionObj['model_name']
                 ];
 
-                $query = "MATCH (users:User) -[:REVIEWED]-> (product:Product{product_id:'$productId'})
+                $query = "MATCH (users:User) -[:REVIEWED]-> (product:Product{product_id:'$productId'}), 
+                (user:User{profile_id:$profileId})
+                WHERE (user)-[:FOLLOWS{following:1}]->(users)
                 WITH users, rand() as number
                 ORDER BY number   
                 RETURN users;";
@@ -638,27 +640,31 @@ class LandingPageController extends Controller
                 $query = '';
                 $modelId = $suggestionObj['id'];
                 if ($modelName == config("constant.LANDING_MODEL.POLLING")) {
-                    $query = "MATCH (users:User) -[:POLL_PARTICIPATION]-> (polls:Polling{poll_id:$modelId})
+                    $query = "MATCH (users:User) -[:POLL_PARTICIPATION]-> (polls:Polling{poll_id:$modelId}),
+                        (user:User{profile_id:$profileId})
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
                 } else if ($modelName == config("constant.LANDING_MODEL.SURVEYS")) {
-                    $query = "MATCH (users:User) -[:SURVEY_PARTICIPATION]-> (survey:Surveys{survey_id:'$modelId'})
-                    WITH users, rand() as number
-                    ORDER BY number   
-                    RETURN users;";
+                    $query = "MATCH (users:User) -[:SURVEY_PARTICIPATION]-> (survey:Surveys{survey_id:'$modelId'}),
+                        (user:User{profile_id:$profileId})
+                        WITH users, rand() as number
+                        ORDER BY number   
+                        RETURN users;";
                 } else if ($modelName == config("constant.LANDING_MODEL.COLLABORATE")) {
-                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
+                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId}),
+                        (user:User{profile_id:$profileId})
                         WHERE collab.collaborate_type = 'collaborate'
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
                 } else if ($modelName == config("constant.LANDING_MODEL.PRODUCT-REVIEW")) {
-                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
-                    WHERE collab.collaborate_type = 'product-review'
-                    WITH users, rand() as number
-                    ORDER BY number   
-                    RETURN users;";
+                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId}),
+                        (user:User{profile_id:$profileId})
+                        WHERE collab.collaborate_type = 'product-review'
+                        WITH users, rand() as number
+                        ORDER BY number   
+                        RETURN users;";
                 }
                 // echo $query;
                 $result = $client->run($query);
@@ -837,8 +843,6 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
-        // return $this->sendResponse();
-
         if ($platform == 'mobile') {
             //hashtags
             $hashTags = $this->getTrendingHashtag();
