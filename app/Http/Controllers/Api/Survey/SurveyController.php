@@ -1938,12 +1938,12 @@ class SurveyController extends Controller
         if ($survey) {
             $this->model = \DB::table('surveys_close_reasons')->insert($data);;
             $this->messages = "Survey Closed Successfully";
-            $survey->removeFromGraph(); // remove node and edge from neo4j
+            $get->removeFromGraph(); // remove node and edge from neo4j
             event(new DeleteFeedable($get));
         }
         return $this->sendResponse();
     }
-
+    
     public function surveyCloseReason()
     {
         $data[] = ['id' => 1, 'reason' => 'Completed'];
