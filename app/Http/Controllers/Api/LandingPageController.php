@@ -380,7 +380,7 @@ class LandingPageController extends Controller
             ->orderBy('poll_questions.created_at', 'desc')
             ->take(10)->pluck('poll_questions.id')->toArray();
 
-        
+
         foreach ($carouseldata as $key => $value) {
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
@@ -823,7 +823,6 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
-        return $this->sendResponse();
 
         if ($platform == 'mobile') {
             //hashtags
