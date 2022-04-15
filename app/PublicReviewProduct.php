@@ -289,10 +289,12 @@ class PublicReviewProduct extends Model
         $meta['current_status'] = $this->getCurrentStatusAttribute();
         $meta['is_sample_available'] = false;
         $meta['is_sample_requested'] = false;
-        $payment = PaymentDetails::where("model_type","Public Review")->where("model_id",$this->id)->where("is_active",1)->first();
+        $payment = PaymentDetails::where("model_type","Public Review")
+            ->where("model_id",$this->id)
+            ->where("is_active",1)
+            ->whereNull('deleted_at')
+            ->first();
         if (!empty($payment)) {
-
-
             $ispaid = true;
             $exp = (!empty($payment) && !empty($payment->excluded_profiles) ? $payment->excluded_profiles : null);
             if ($exp != null) {
@@ -303,14 +305,13 @@ class PublicReviewProduct extends Model
                 }
             }
             if ($ispaid == true) {
-                
                 $getCount = PaymentHelper::getDispatchedPaymentUserTypes($payment);
                 if (request()->user()->profile->is_expert) {
                     $ukey = "expert";
                 } else {
                     $ukey = "consumer";
                 }
-
+                
                 if ($payment->review_type == config("payment.PAYMENT_REVIEW_TYPE.USER_TYPE")) {
                     $getAmount = json_decode($payment->amount_json, true);
                     if (($getCount[$ukey] + 1) > $getAmount["current"][$ukey][0]["user_count"]) {

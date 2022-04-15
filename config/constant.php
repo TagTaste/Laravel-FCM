@@ -107,7 +107,25 @@ return  [
         "IMAGE_CAROUSEL"=>"image_carousel",
         "HASHTAG"=>"hashtag",
         "FEED"=>"feed"
-    ]
+    ],
+
+    "POLL_PLACEHOLDER_IMAGE"=>[
+        '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650040773892_Poll%201.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650040773892_Poll%201.png"}',
+        '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650040872771_Poll%202.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650040872771_Poll%202.png"}',
+        '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650040951080_Poll%203.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650040951080_Poll%203.png"}',
+        '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650040980028_Poll%204.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650040980028_Poll%204.png"}',
+        '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650041006499_Poll%205.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650041006499_Poll%205.png"}'
+    ],
+    
+    "LANDING_PLACEHOLDER_IMAGE"=>[
+        '{"meta":{"height":281,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/tiny/1650041076526_3.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/1650041076526_3.png"}',
+        '{"meta":{"height":281,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/tiny/1650041117841_7.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/1650041117841_7.png"}',
+        '{"meta":{"height":281,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/tiny/1650041145634_8.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/1650041145634_8.png"}',
+        '{"meta":{"height":281,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/tiny/1650041192663_13.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/1650041192663_13.png"}',
+        '{"meta":{"height":281,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/tiny/1650041244422_18.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/1650041244422_18.png"}',
+        '{"meta":{"height":281,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/tiny/1650041288090_20.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/1650041288090_20.png"}'
+    ],
+
 ];
 
 

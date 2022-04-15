@@ -253,18 +253,22 @@ class LandingPageController extends Controller
             ->distinct('product_id')
             ->pluck('product_id')->toArray();
             
-            // dd($ids);
             //pls put check of excluded profile later
             $carouseldata = PaymentPaymentDetails::where('is_active','=',1)
                 ->whereNull('deleted_at')
                 ->where('model_type','=','Public Review')
                 ->whereNotIn("model_id", $ids)
+                ->where('excluded_profiles', 'not like', '%,'.$profileId.',%')
+                ->where('excluded_profiles', 'not like', '%,'.$profileId.'%')
+                ->where('excluded_profiles', 'not like', '%'.$profileId.',%')
                 ->orderBy('updated_at', 'desc')
-                ->take(10)->pluck('model_id')->toArray();
+                ->take(40)->pluck('model_id')->toArray();
         }
         
         $data = [];
+        
         foreach ($carouseldata as $key => $value) {
+            $placeHolderImage = json_decode(config("constant.LANDING_PLACEHOLDER_IMAGE")[array_rand(config("constant.LANDING_PLACEHOLDER_IMAGE"))]);
             if($model == config("constant.LANDING_MODEL.SURVEYS")){
                 $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
                 $surveyModel = Surveys::find($value);
@@ -275,36 +279,32 @@ class LandingPageController extends Controller
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['surveys']['profile_id'].":V2"), true);
                 }
                 $data['type'] = $model;
-                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
-                    },
-                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
-                }');
+                $data['placeholder_images_meta'] = $placeHolderImage;
                 $carousel['elements'][] = $data;
             }else if($model == config("constant.LANDING_MODEL.COLLABORATE") || $model == config("constant.LANDING_MODEL.PRODUCT-REVIEW")){
                 $data['collaborate'] = json_decode(Redis::get("collaborate:".$value.":V2"), true);
                 $collabModel = Collaborate::find($value);
                 $data['meta'] = $collabModel->getMetaForV2($profileId);
-                if(isset($data['polling']['company_id'])){
+                if(isset($data['collaborate']['company_id'])){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['collaborate']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['collaborate']['profile_id'].":V2"), true);
                 }
-                $data['type'] = $model;
-                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
-                    },
-                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
-                }'); 
+                $data['type'] = $model;                
+                $data['placeholder_images_meta'] = $placeHolderImage;
                 $carousel['elements'][] = $data;
             }else if($model == config("constant.LANDING_MODEL.PRODUCT")){
                 $data['product'] = json_decode(Redis::get("public-review/product:".$value.":V2"), true);
                 $productModel = PublicReviewProduct::find($value);
                 $data['meta'] = $productModel->getMetaFor($profileId);
                 $data['type'] = $model;
-                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
-                    },
-                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
-                }'); 
-                $carousel['elements'][] = $data;
+                $data['placeholder_images_meta'] = $placeHolderImage;
+                if($data['meta']['isPaid']){
+                    $carousel['elements'][] = $data;
+                }
+                if(count($carousel['elements']) >= 10){
+                    break;
+                }
             }
         }
         return $carousel;
@@ -354,10 +354,8 @@ class LandingPageController extends Controller
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
             }
             $data['type'] = config("constant.LANDING_MODEL.POLLING");
-            $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
-                },
-                "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
-            }');
+            
+            $data['placeholder_images_meta'] = json_decode(config("constant.POLL_PLACEHOLDER_IMAGE")[array_rand(config("constant.POLL_PLACEHOLDER_IMAGE"))]);
             $carousel['elements'][] = $data;
         }
         return $carousel;
@@ -382,7 +380,7 @@ class LandingPageController extends Controller
             ->orderBy('poll_questions.created_at', 'desc')
             ->take(10)->pluck('poll_questions.id')->toArray();
 
-
+        
         foreach ($carouseldata as $key => $value) {
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
@@ -393,10 +391,7 @@ class LandingPageController extends Controller
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
             }
             $data['type'] = config("constant.LANDING_MODEL.POLLING");
-            $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
-                },
-                "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
-            }');
+            $data['placeholder_images_meta'] = json_decode(config("constant.POLL_PLACEHOLDER_IMAGE")[array_rand(config("constant.POLL_PLACEHOLDER_IMAGE"))]);
             $carousel['elements'][] = $data;
         }
         return $carousel;
@@ -828,6 +823,7 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
+        return $this->sendResponse();
 
         if ($platform == 'mobile') {
             //hashtags
