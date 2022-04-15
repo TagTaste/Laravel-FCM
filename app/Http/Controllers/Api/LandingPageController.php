@@ -224,17 +224,17 @@ class LandingPageController extends Controller
                 ->pluck('collaborate_id')->toArray();
 
             // $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
-            
             $carouseldata = Collaborate::where('state','=',1)
                 ->whereNotIn('id', $ids)
                 ->where('collaborate_type','=',$model)
                 ->whereNull('deleted_at')
                 ->where(function ($query) use ($companyIds){
-                    $query  ->whereNotIn('company_id',$companyIds)
-                            ->orWhereNull('company_id');
+                    $query->whereNotIn('company_id',$companyIds)
+                        ->orWhereNull('company_id');
                 })
                 ->orderBy('created_at', 'desc')
-                ->take(5)->pluck('id')->toArray();
+                ->take(10)->pluck('id')->toArray();
+            
         } else if ($model == config("constant.LANDING_MODEL.SURVEYS")) {
             $ids = DB::table("survey_applicants")->where("profile_id", $profileId)
                 ->whereNull("deleted_at")
@@ -246,7 +246,7 @@ class LandingPageController extends Controller
                 ->where('profile_id', '<>', $profileId)
                 ->whereNotIn("id", $ids)
                 ->orderBy('created_at', 'desc')
-                ->take(5)->pluck('id')->toArray();
+                ->take(10)->pluck('id')->toArray();
         } elseif ($model == config("constant.LANDING_MODEL.PRODUCT")) {
             $ids = Review::where('current_status','=',2)
             ->where('profile_id','=',$profileId)
@@ -260,24 +260,7 @@ class LandingPageController extends Controller
                 ->where('model_type','=','Public Review')
                 ->whereNotIn("model_id", $ids)
                 ->orderBy('updated_at', 'desc')
-                ->take(5)->pluck('model_id')->toArray();
-
-            // dd($carouseldata);
-            // $ids =  DB::table("public_product_user_review")->where('profile_id', $profileId)->pluck('product_id')->toArray();
-            // $carouseldata =  PublicReviewProduct::select('public_review_products.*')
-            //     ->join("payment_details", "payment_details.model_id", "public_review_products.id")
-            //     ->whereNull('public_review_products.deleted_at')
-            //     ->where('public_review_products.is_active', 1)
-            //     ->where('payment_details.is_active', 1)
-            //     ->where(function ($query) use ($companyIds) {
-            //         if (!empty($companyIds)) {
-            //             $query->whereNotIn('public_review_products.company_id', $companyIds)
-            //                 ->orWhereNull('public_review_products.company_id');
-            //         }
-            //     })
-            //     ->whereNotIn("public_review_products.id", $ids)
-            //     ->orderBy('public_review_products.created_at', 'desc')
-            //     ->take(5)->get();
+                ->take(10)->pluck('model_id')->toArray();
         }
         
         $data = [];
@@ -434,7 +417,7 @@ class LandingPageController extends Controller
             ->whereNull('deleted_at')
             ->where('channel_name','company.public.45')
             ->orderBy('created_at', 'desc')
-            ->take(5)->get();
+            ->take(10)->get();
 
         $carouseldata = $this->getPayloadData($payloads, $profileId);
         $carousel["elements"] = $carouseldata;
@@ -766,7 +749,7 @@ class LandingPageController extends Controller
         $pollingModel = config("constant.LANDING_MODEL.POLLING");
         $productModel = config("constant.LANDING_MODEL.PRODUCT");        
 
-        $companyIds = CompanyUser::where("profile_id", $request->user()->profile->id)->get()->pluck("id");
+        $companyIds = CompanyUser::where("profile_id", $request->user()->profile->id)->get()->pluck("company_id");
         $this->errors['status'] = 0;
         $profileId = $request->user()->profile->id;
         
@@ -845,7 +828,6 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
-            // return $this->sendResponse();
 
         if ($platform == 'mobile') {
             //hashtags
