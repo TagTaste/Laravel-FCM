@@ -459,7 +459,8 @@ class SurveyController extends Controller
             event(new UpdateFeedable($getSurvey));
         }
         
-        if ($previousState == config("constant.SURVEY_STATES.EXPIRED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
+        if (($previousState == config("constant.SURVEY_STATES.EXPIRED") || $previousState == config("constant.SURVEY_STATES.CLOSED"))
+         && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $this->addSurveyGraph($getSurvey); //add node and edge to neo4j
         }
 
@@ -470,7 +471,7 @@ class SurveyController extends Controller
         $surveyersIds = SurveyAnswers::where('survey_id','=',$survey->id)
             ->where('is_active',1)
             ->whereNull('deleted_at')
-            ->pluck('profile_id')->toArrray();
+            ->pluck('profile_id')->toArray();
         if(count($surveyersIds) > 0){
             $survey->addToGraph();
             foreach($surveyersIds as $profileId){
@@ -679,9 +680,10 @@ class SurveyController extends Controller
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true && $request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $responseData = $this->paidProcessing($request);
+                $id->addToGraph();
                 $id->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
-
+            
             return $this->sendResponse($responseData);
         } catch (Exception $ex) {
             DB::rollback();
