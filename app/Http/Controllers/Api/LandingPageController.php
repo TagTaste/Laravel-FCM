@@ -910,7 +910,6 @@ class LandingPageController extends Controller
                 $pastElement[] = $value;
             }
         }
-        
         shuffle($todayElement);
         shuffle($pastElement);
         
