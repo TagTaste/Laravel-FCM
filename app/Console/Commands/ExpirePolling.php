@@ -67,7 +67,7 @@ class ExpirePolling extends Command
                         $profiles->push($admin);
                     }
                     DB::table('poll_questions')->where('id', $mData->id)->update(['expired_time' => Carbon::now()->toDateTimeString(), 'is_expired' => 1]);
-
+                    $model->removeFromGraph(); //remove this poll from neo4j
                     foreach ($profiles as $profile) {
                         $event = $mData;
 
