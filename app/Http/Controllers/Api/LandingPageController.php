@@ -253,14 +253,16 @@ class LandingPageController extends Controller
             ->distinct('product_id')
             ->pluck('product_id')->toArray();
             
-            // dd($ids);
             //pls put check of excluded profile later
             $carouseldata = PaymentPaymentDetails::where('is_active','=',1)
                 ->whereNull('deleted_at')
                 ->where('model_type','=','Public Review')
                 ->whereNotIn("model_id", $ids)
+                ->where('excluded_profiles', 'not like', '%,'.$profileId.',%')
+                ->where('excluded_profiles', 'not like', '%,'.$profileId.'%')
+                ->where('excluded_profiles', 'not like', '%'.$profileId.',%')
                 ->orderBy('updated_at', 'desc')
-                ->take(10)->pluck('model_id')->toArray();
+                ->take(40)->pluck('model_id')->toArray();
         }
         
         $data = [];
@@ -304,7 +306,12 @@ class LandingPageController extends Controller
                     },
                     "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
                 }'); 
-                $carousel['elements'][] = $data;
+                if($data['meta']['isPaid']){
+                    $carousel['elements'][] = $data;
+                }
+                if(count($carousel['elements']) >= 10){
+                    break;
+                }
             }
         }
         return $carousel;
@@ -828,6 +835,7 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
+        return $this->sendResponse();
 
         if ($platform == 'mobile') {
             //hashtags
