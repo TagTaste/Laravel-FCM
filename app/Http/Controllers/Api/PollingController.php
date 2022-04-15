@@ -178,6 +178,9 @@ class PollingController extends Controller
         }
         $poll = Polling::find($pollId);
         $poll->addToCache();
+        $poll->addToGraph(); //add node to neo4j
+        $poll->addParticipationEdge($loggedInProfileId); //add edge in neo4j
+        
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
 
@@ -310,10 +313,12 @@ class PollingController extends Controller
             $this->model = [];
             return $this->sendError("Poll is not related to login user");
         }
-
+        
         event(new DeleteFeedable($poll));
         $poll->removeFromCache();
         $poll->options()->delete();
+        $poll->removeFromGraph(); //Removde node and edge from neo4j
+
         $this->model = $poll->delete();
         return $this->sendResponse();
     }
@@ -506,6 +511,7 @@ class PollingController extends Controller
         \DB::table('poll_options')->where('poll_id',$pollId)->update(['deleted_at'=>null]);
         $poll = Polling::find($pollId);
         $poll->addToCache();
+        $this->addRenewedPollToNeo4j($poll); //add to neo4j
         $this->model = $poll;
         //add to feed
         if ($request->has('company_id')) {
@@ -515,6 +521,18 @@ class PollingController extends Controller
         event(new Create($poll,$request->user()->profile));
         $this->model = true;
         return $this->sendResponse();
+    }
+
+    protected function addRenewedPollToNeo4j($poll){
+        $pollVoters = PollingVote::where('poll_id','=',$poll->id)
+            ->whereNull('deleted_at')
+            ->pluck('profile_id')->toArray();
+
+        if(count($pollVoters) > 0){
+            $poll->addToGraph();
+            foreach($pollVoters as $profileId)
+                $poll->addParticipationEdge($profileId);
+        }
     }
 
     public function getExternalImage($url,$profileId){

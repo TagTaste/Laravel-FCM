@@ -362,11 +362,11 @@ class Polling extends Model implements Feedable
         }
     }
 
-    public function removeFromGraph(){        
+    public function removeFromGraph(){    
         $pollCount = \App\Neo4j\Polling::where('poll_id', $this->id)->count();
         if ($pollCount > 0) {
             $client = config('database.neo4j_uri_client');
-             $query = "MATCH (p:Polling{poll_id:'$this->id'})
+             $query = "MATCH (p:Polling{poll_id:$this->id})
                         DETACH DELETE p;";
             $result = $client->run($query);
         }

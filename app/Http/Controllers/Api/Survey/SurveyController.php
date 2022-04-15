@@ -331,7 +331,7 @@ class SurveyController extends Controller
 
         $create = Surveys::where("id", "=", $id);
         $getSurvey = $create->first();
-
+        $previousState = $getSurvey->state;
         if (empty($getSurvey)) {
             $this->errors = ["Survey Id is Invalid"];
             return $this->sendResponse();
@@ -458,7 +458,26 @@ class SurveyController extends Controller
             $getSurvey->addToCache();
             event(new UpdateFeedable($getSurvey));
         }
+        
+        if (($previousState == config("constant.SURVEY_STATES.EXPIRED") || $previousState == config("constant.SURVEY_STATES.CLOSED"))
+         && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
+            $this->addSurveyGraph($getSurvey); //add node and edge to neo4j
+        }
+
         return $this->sendResponse();
+    }
+    
+    protected function addSurveyGraph($survey){
+        $surveyersIds = SurveyAnswers::where('survey_id','=',$survey->id)
+            ->where('is_active',1)
+            ->whereNull('deleted_at')
+            ->pluck('profile_id')->toArray();
+        if(count($surveyersIds) > 0){
+            $survey->addToGraph();
+            foreach($surveyersIds as $profileId){
+                $survey->addParticipationEdge($profileId);
+            }
+        }
     }
 
     /**
@@ -479,6 +498,7 @@ class SurveyController extends Controller
             $this->model = true;
             $this->messages = "Survey Deleted Successfully";
             event(new DeleteFeedable($survey));
+            $survey->removeFromGraph(); //Remove node and edge from neo4j
             $survey->removeFromCache();
         }
         return $this->sendResponse();
@@ -640,13 +660,13 @@ class SurveyController extends Controller
             $responseData = [];
             if ($commit) {
                 DB::commit();
-
+                
                 // if (is_null($id->company_id)) {
                 //     event(new SurveyAnswered($id, $user, null, null, null, null));
                 // } else {
                 //     event(new SurveyAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
                 // }
-
+                
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
@@ -660,8 +680,10 @@ class SurveyController extends Controller
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true && $request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $responseData = $this->paidProcessing($request);
+                $id->addToGraph();
+                $id->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
-
+            
             return $this->sendResponse($responseData);
         } catch (Exception $ex) {
             DB::rollback();
@@ -1918,11 +1940,12 @@ class SurveyController extends Controller
         if ($survey) {
             $this->model = \DB::table('surveys_close_reasons')->insert($data);;
             $this->messages = "Survey Closed Successfully";
+            $get->removeFromGraph(); // remove node and edge from neo4j
             event(new DeleteFeedable($get));
         }
         return $this->sendResponse();
     }
-
+    
     public function surveyCloseReason()
     {
         $data[] = ['id' => 1, 'reason' => 'Completed'];

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api\V1\Profile\Company;
 
 use App\Collaborate;
+use App\Collaborate\Applicant;
 use App\Company;
 use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Events\UploadQuestionEvent;
+use App\Http\Controllers\Api\Collaborate\ApplicantController;
 use App\Http\Controllers\Api\Controller;
 use App\Payment\PaymentDetails;
 use App\Profile;
@@ -389,6 +391,7 @@ class CollaborateController extends Controller
         \App\Filter\Collaborate::removeModel($id);
 
         $this->model = $collaborate->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[1]]);
+        $this->model->removeFromGraph();
         return $this->sendResponse();
     }
 
@@ -705,7 +708,23 @@ class CollaborateController extends Controller
             return $this->sendResponse();
 
         }
+
+        if($collaborate->state != 1 && $this->model->state == 1){
+            $this->addCollabToNeo4j($this->model);
+        }
+
         return $this->sendResponse();
+    }
+
+    protected function addCollabToNeo4j($collaborate){
+        $interestedPofiles = Applicant::where('collaborate_id',$collaborate->id)
+            ->whereNull('rejected_at')
+            ->pluck('profile_id')->toArray();
+
+        $collaborate->addToGraph();
+        foreach($interestedPofiles as $profileId){
+            $collaborate->addParticipationEdge($profileId);
+        }        
     }
 
     protected function storeCity($addresses, $collaborateId, $collaborate)
@@ -910,6 +929,8 @@ class CollaborateController extends Controller
 
         $this->model = \DB::table('collaborate_close_reason')->insert($data);
 
+        //remove collab from neo4j
+        $collaborate->removeFromGraph();
         return $this->sendResponse();
     }
     public function getRoles(Request $request,$proifleId,$companyId,$id)

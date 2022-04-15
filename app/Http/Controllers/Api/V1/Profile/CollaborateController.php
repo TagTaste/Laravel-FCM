@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Profile;
 
 use App\Collaborate;
+use App\Collaborate\Applicant;
 use App\Company;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
@@ -415,6 +416,8 @@ class CollaborateController extends Controller
         \App\Filter\Collaborate::removeModel($id);
 
         $this->model = $collaborate->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[1]]);;
+    
+        $this->model->removeFromGraph();
         return $this->sendResponse();
     }
 
@@ -570,7 +573,9 @@ class CollaborateController extends Controller
         event(new DeleteFeedable($collaboration));
         PaymentDetails::where("model_id",$id)->update(["is_active"=>0]);
         $this->model = \DB::table('collaborate_close_reason')->insert($data);
-
+        
+        //remove collab from neo4j
+        $collaboration->removeFromGraph();
         return $this->sendResponse();
     }
 
@@ -858,7 +863,22 @@ class CollaborateController extends Controller
             return $this->sendResponse();
 
         }
+
+        if($collaborate->state != 1 && $this->model->state == 1){
+            $this->addCollabToNeo4j($this->model);
+        }
         return $this->sendResponse();
+    }
+
+    protected function addCollabToNeo4j($collaborate){
+        $interestedPofiles = Applicant::where('collaborate_id',$collaborate->id)
+            ->whereNull('rejected_at')
+            ->pluck('profile_id')->toArray();
+
+        $collaborate->addToGraph();
+        foreach($interestedPofiles as $profileId){
+            $collaborate->addParticipationEdge($profileId);
+        }        
     }
 
     public function checkInputForScopeReview(&$inputs)
