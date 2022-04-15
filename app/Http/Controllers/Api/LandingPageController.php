@@ -849,10 +849,10 @@ class LandingPageController extends Controller
             ->where('collaborate_batches_assign.begin_tasting',1)
             ->where('collaborate_tasting_user_review.current_status', '<>', 3)
             ->where('collaborates.state',1)
-            ->where('collaborates.profile_id',$profileId)
+            ->where('collaborate_batches_assign.profile_id',$profileId)
             ->distinct('collaborate_batches_assign.batch_id')
             ->pluck('collaborate_batches_assign.batch_id')->count();
-
+        
         if($reviewCount > 0){
             $reviewData["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
             $reviewData["title"] = $reviewCount." Product available";
