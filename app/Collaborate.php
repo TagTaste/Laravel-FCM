@@ -812,7 +812,7 @@ class Collaborate extends Model implements Feedable
         $collabCount = \App\Neo4j\Collaborate::where('collaborate_id', $this->id)->count();
         if ($collabCount > 0) {
             $client = config('database.neo4j_uri_client');
-             $query = "MATCH (p:Collaborate{collaborate_id:'$this->id'})
+             $query = "MATCH (p:Collaborate{collaborate_id:$this->id})
                         DETACH DELETE p;";
             $result = $client->run($query);
         }
