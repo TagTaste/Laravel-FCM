@@ -8,19 +8,24 @@ use App\Traits\HashtagFactory;
 use Illuminate\Support\Collection;
 use App\Channel\Payload;
 use App\Collaborate;
+use App\Collaborate\Applicant;
+use App\Collaborate\BatchAssign;
 use App\CompanyUser;
+use App\Console\Commands\Build\Cache\Survey;
 use Illuminate\Support\Facades\Redis;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 use App\FeedCard;
+use App\Payment\PaymentDetails as PaymentPaymentDetails;
 use App\Polling;
 use App\Product;
+use App\Profile;
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\Review;
 use App\Surveys;
 use Carbon\Carbon;
 use App\V2\Photo;
-
+use PaymentDetails;
 
 class LandingPageController extends Controller
 {
@@ -44,7 +49,7 @@ class LandingPageController extends Controller
         $this->errors['status'] = 0;
 
         $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
-        $data["ui_type"] = "quick_links";
+        $data["ui_type"] = config("constant.LANDING_UI_TYPE.QUICK_LINKS");
         $data["elements"] = $quick_links;
         $this->model[] = $data;
         return $this->sendResponse();
@@ -55,46 +60,29 @@ class LandingPageController extends Controller
      *
      * @return Response
      */
-    public function sideData()
+    public function sideData(Request $request)
     {
-
+        $profileId = $request->user()->profile->id;
         $this->errors['status'] = 0;
 
         //passbook
-        $passbook["ui_type"] = "passbook";
+        $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
+        $this->model[] = $passbook;
 
         //products available
-        $products["ui_type"] = "product_available";
-        $products["title"] = "3 Products available";
-        $products["sub_title"] = "Review Now";
-        $products["images_meta"] = "";
-
-        $this->model[] = $passbook;
-        $this->model[] = $products;
+        $reviewCard = $this->getProductAvailableForReview($profileId);
+        if(count($reviewCard) != 0)
+            $this->model[] = $reviewCard;
 
         //banner
-        $banner =   DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
-        if ($banner) {
-            $banner->ui_type = "banner";
-            $banner->images_meta = json_decode($banner->images_meta ?? []);
+        $banner = $this->getBanner();
+        if($banner != null)
             $this->model[] = $banner;
-        }
-
-        $tags = [];
-        $tags = $this->trendingHashtags();
-        foreach ($tags as &$tag) {
-
-            $tag['total_count'] = $tag['count'];
-            unset($tag["count"]);
-            unset($tag["updated_at"]);
-        }
 
         //hashtags
-        $hashtags["ui_type"] = "hashtags";
-        $hashtags["title"] = "Trending #tags";
-        $hashtags["see_more"] = true;
-        $hashtags["elements"] = $tags;
-        $this->model[] = $hashtags;
+        $hashTags = $this->getTrendingHashtag();
+        if(count($hashTags['elemets']) > 0)
+            $this->model[] = $hashTags;
 
         return $this->sendResponse();
     }
@@ -225,286 +213,231 @@ class LandingPageController extends Controller
 
     public function carousel($profileId, $model, $companyIds = null)
     {
-
-        $carousel["ui_type"] = "carousel";
+        $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.CAROUSEL");
         $carousel["model_name"] = $model;
         $carousel["title"] = $model;
         $carousel["see_more"] = true;
         $carousel["elements"] = [];
+        
+        if ($model == config("constant.LANDING_MODEL.COLLABORATE") || $model == config("constant.LANDING_MODEL.PRODUCT-REVIEW")) {
+            $ids = Applicant::where('profile_id','=',$profileId)
+                ->pluck('collaborate_id')->toArray();
 
-        if ($model == 'collaborate' || $model == 'product_review') {
-            $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
-            $carouseldata = Collaborate::select('profiles.*', 'experiences.designation', 'users.name', 'collaborates.id as model_id', 'collaborates.title', 'collaborates.profile_id', 'collaborates.description', 'collaborates.company_id')
-                ->join('profiles', 'collaborates.profile_id', 'profiles.id')
-                ->join('users', 'users.id', 'profiles.id')
-                ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
-                ->where('profiles.id', '<>', $profileId)
-                ->where(function ($query) use ($companyIds) {
-                    if (!empty($companyIds)) {
-                        $query->whereNotIn('collaborates.company_id', $companyIds)
-                            ->orWhereNull('collaborates.company_id');
-                    }
+            // $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
+            
+            $carouseldata = Collaborate::where('state','=',1)
+                ->whereNotIn('id', $ids)
+                ->where('collaborate_type','=',$model)
+                ->whereNull('deleted_at')
+                ->where(function ($query) use ($companyIds){
+                    $query  ->whereNotIn('company_id',$companyIds)
+                            ->orWhereNull('company_id');
                 })
-                ->whereNull('collaborates.deleted_at')
-                ->whereNotIn('collaborates.id', $ids)
-                ->orderBy('collaborates.created_at', 'desc')
-                ->where('expires_on', '>=', Carbon::now()->toDateTimeString());
-            if ($model == 'product_review') {
-                $carouseldata = $carouseldata->where("collaborates.collaborate_type", 'product-review');
-            } else {
-                $carouseldata = $carouseldata->where("collaborates.collaborate_type", 'collaborate');
-            }
+                ->orderBy('created_at', 'desc')
+                ->take(5)->pluck('id')->toArray();
+        } else if ($model == config("constant.LANDING_MODEL.SURVEYS")) {
+            $ids = DB::table("survey_applicants")->where("profile_id", $profileId)
+                ->whereNull("deleted_at")
+                ->pluck("survey_id")->toArray();
+            
+            $carouseldata = Surveys::whereNull('deleted_at')
+                ->where('state','=',2)
+                ->where('is_active','=',1)
+                ->where('profile_id', '<>', $profileId)
+                ->whereNotIn("id", $ids)
+                ->orderBy('created_at', 'desc')
+                ->take(5)->pluck('id')->toArray();
+        } elseif ($model == config("constant.LANDING_MODEL.PRODUCT")) {
+            $ids = Review::where('current_status','=',2)
+            ->where('profile_id','=',$profileId)
+            ->distinct('product_id')
+            ->pluck('product_id')->toArray();
+            
+            // dd($ids);
+            //pls put check of excluded profile later
+            $carouseldata = PaymentPaymentDetails::where('is_active','=',1)
+                ->whereNull('deleted_at')
+                ->where('model_type','=','Public Review')
+                ->whereNotIn("model_id", $ids)
+                ->orderBy('updated_at', 'desc')
+                ->take(5)->pluck('model_id')->toArray();
 
-            $carouseldata = $carouseldata->take(5)->get();
-        } elseif ($model == 'surveys') {
-            $ids = DB::table("survey_applicants")->where("profile_id", $profileId)->pluck("survey_id")->toArray();
-            $carouseldata = Surveys::select('profiles.*', 'experiences.designation', 'users.name', 'surveys.id as model_id', 'surveys.title', 'surveys.company_id', 'surveys.profile_id', 'surveys.description', 'surveys.image_meta as post_meta')
-                ->join('profiles', 'surveys.profile_id', 'profiles.id')
-                ->join('users', 'users.id', 'profiles.id')
-                ->join('experiences', 'experiences.profile_id', 'profiles.id')
-                ->where('profiles.id', '<>', $profileId)
-                ->whereNull('surveys.deleted_at')
-                ->where('surveys.is_active', 1)
-                ->whereNotIn("surveys.id", $ids)
-                ->orderBy('surveys.created_at', 'desc')
-                ->take(5)->get();
-        } elseif ($model == 'product') {
-            $ids =  DB::table("public_product_user_review")->where('profile_id', $profileId)->pluck('product_id')->toArray();
-            $carouseldata =  PublicReviewProduct::select('public_review_products.*')
-                ->join("payment_details", "payment_details.model_id", "public_review_products.id")
-                ->whereNull('public_review_products.deleted_at')
-                ->where('public_review_products.is_active', 1)
-                ->where('payment_details.is_active', 1)
-                ->whereNotIn("public_review_products.id", $ids)
-                ->orderBy('public_review_products.created_at', 'desc')
-                ->take(5)->get();
+            // dd($carouseldata);
+            // $ids =  DB::table("public_product_user_review")->where('profile_id', $profileId)->pluck('product_id')->toArray();
+            // $carouseldata =  PublicReviewProduct::select('public_review_products.*')
+            //     ->join("payment_details", "payment_details.model_id", "public_review_products.id")
+            //     ->whereNull('public_review_products.deleted_at')
+            //     ->where('public_review_products.is_active', 1)
+            //     ->where('payment_details.is_active', 1)
+            //     ->where(function ($query) use ($companyIds) {
+            //         if (!empty($companyIds)) {
+            //             $query->whereNotIn('public_review_products.company_id', $companyIds)
+            //                 ->orWhereNull('public_review_products.company_id');
+            //         }
+            //     })
+            //     ->whereNotIn("public_review_products.id", $ids)
+            //     ->orderBy('public_review_products.created_at', 'desc')
+            //     ->take(5)->get();
         }
-
+        
         $data = [];
-        $profile = [];
-        $modelData = [];
-        $admins = [];
         foreach ($carouseldata as $key => $value) {
-            if (!empty($value->company_id)) {
-                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
-            }
-            if (!in_array($profileId, $admins)) {
-                $data['meta'] = $value->getMetaFor($profileId);
-                $data['placeholder_images_meta'] =  isset($this->placeholderimage[$model]) ? $this->placeholderimage[$model] : json_decode('{
-                        "meta": {
-                            "width": 343,
-                            "height": 190,
-                            "tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
-                        },
-                        "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
-                    }');
-                if ($model != 'product') {
-                    $profile['id'] = $value->id;
-                    $profile['tagline'] = $value->tagline;
-                    $profile['user_id'] = $value->user_id;
-                    $profile['verified'] = $value->verified;
-                    $profile['handle'] = $value->handle;
-                    $profile['image_meta'] = $value->image_meta;
-                    $profile['is_tasting_expert'] = $value->is_tasting_expert;
-                    $profile['tasting_instructions'] = $value->tasting_instructions;
-                    $profile['is_premium'] = $value->is_premium;
-                    $profile['name'] = $value->name;
-                    $profile['desigation'] = $value->designation;
-                    $data['profile'] = $profile;
-
-                    $modelData['id'] = $value->model_id;
-                    $modelData['title'] = $value->title;
-                    $modelData['description'] = $value->description;
-
-                    $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-                } else {
-                    $modelData = $value;
+            if($model == config("constant.LANDING_MODEL.SURVEYS")){
+                $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
+                $surveyModel = Surveys::find($value);
+                $data['meta'] = $surveyModel->getMetaFor($profileId);
+                if(isset($data['polling']['company_id'])){
+                    $data['company'] = json_decode(Redis::get("company:small:".$data['surveys']['company_id'].":V2"), true);
+                }else{
+                    $data['profile'] = json_decode(Redis::get("profile:small:".$data['surveys']['profile_id'].":V2"), true);
                 }
-
-                $data[$model] = $modelData;
+                $data['type'] = $model;
+                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+                    },
+                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
+                }');
+                $carousel['elements'][] = $data;
+            }else if($model == config("constant.LANDING_MODEL.COLLABORATE") || $model == config("constant.LANDING_MODEL.PRODUCT-REVIEW")){
+                $data['collaborate'] = json_decode(Redis::get("collaborate:".$value.":V2"), true);
+                $collabModel = Collaborate::find($value);
+                $data['meta'] = $collabModel->getMetaForV2($profileId);
+                if(isset($data['polling']['company_id'])){
+                    $data['company'] = json_decode(Redis::get("company:small:".$data['collaborate']['company_id'].":V2"), true);
+                }else{
+                    $data['profile'] = json_decode(Redis::get("profile:small:".$data['collaborate']['profile_id'].":V2"), true);
+                }
+                $data['type'] = $model;
+                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+                    },
+                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
+                }'); 
+                $carousel['elements'][] = $data;
+            }else if($model == config("constant.LANDING_MODEL.PRODUCT")){
+                $data['product'] = json_decode(Redis::get("public-review/product:".$value.":V2"), true);
+                $productModel = PublicReviewProduct::find($value);
+                $data['meta'] = $productModel->getMetaFor($profileId);
+                $data['type'] = $model;
+                $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+                    },
+                    "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
+                }'); 
                 $carousel['elements'][] = $data;
             }
         }
         return $carousel;
     }
-
+    
     public function poll($profileId, $type, $companyIds = null)
     {
-        $carousel["ui_type"] = "carousel";
-        $carousel["model_name"] = "polling";
-        $carousel["title"] = "poll $type";
+        $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.CAROUSEL");
+        $carousel["model_name"] = config("constant.LANDING_MODEL.POLLING");
         $carousel["see_more"] = true;
         $carousel["elements"] = [];
-
-
-        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'companies.id as company_id', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.image_meta as post_meta', 'users.*')
-            ->leftJoin('profiles', 'profiles.id', 'poll_questions.profile_id')
-            ->leftJoin('users', 'users.id', 'profiles.user_id')
-            ->leftJoin('experiences', 'experiences.profile_id', 'profiles.id')
-            ->leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
-            ->leftJoin('companies', 'companies.id', 'poll_questions.company_id')
-            ->whereNull('poll_questions.deleted_at')
-            ->where('poll_questions.profile_id', '<>', $profileId)
-            ->where('poll_votes.profile_id', '<>', $profileId)
-            ->where('poll_questions.is_expired', 0)
-            ->orderBy('poll_questions.created_at', 'desc');
-
-        if ($type == 'TagTaste') {
-            $carouseldata = $carouseldata->where('companies.id', config("constant.POLL_COMPANY_ID"))
-                ->orderBy('poll_questions.created_at', 'desc');
-        } elseif ($type == 'NotTagTaste') {
-            $carouseldata = $carouseldata->where('companies.id', '<>', config("constant.POLL_COMPANY_ID"))
-                ->orderBy('poll_questions.created_at', 'desc');
+        
+        if($type == 'TagTaste'){
+            $carousel["title"] = "Polls From Tagtaste";
+            $carouseldata = Polling::leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
+                ->where('poll_votes.profile_id', '<>', $profileId)
+                ->whereNull('poll_votes.deleted_at')
+                ->where('poll_questions.is_expired', 0)
+                ->where('poll_questions.profile_id', '<>', $profileId)  
+                ->whereNull('poll_questions.deleted_at')
+                ->whereIn('poll_questions.company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                ->orderBy('poll_questions.created_at', 'desc')
+                ->take(10)->pluck('poll_questions.id')->toArray();
+        }else{
+            $carousel["title"] = "Polls From Community";
+            $carouseldata = Polling::leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
+                ->where('poll_votes.profile_id', '<>', $profileId)
+                ->whereNull('poll_votes.deleted_at')
+                ->where('poll_questions.is_expired', 0)
+                ->where('poll_questions.profile_id', '<>', $profileId)  
+                ->whereNull('poll_questions.deleted_at')
+                ->where(function($query){
+                    $query  ->whereNotIn('poll_questions.company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                            ->orWhereNull('poll_questions.company_id');
+                })
+                ->orderBy('poll_questions.created_at', 'desc')
+                ->take(10)->pluck('poll_questions.id')->toArray(); 
         }
-        $carouseldata = $carouseldata->take(5)->get();
 
-        $admins = [];
         foreach ($carouseldata as $key => $value) {
-            if (!empty($value->company_id)) {
-                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
+            $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
+            $pollModel = Polling::find($value);
+            $data['meta'] = $pollModel->getMetaForV2($profileId);
+            if(isset($data['polling']['company_id'])){
+                $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
+            }else{
+                $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
             }
-            if (!in_array($profileId, $admins)) {
-
-                $data["meta"] = $value->getMetaFor($profileId);
-                $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
-                "meta": {
-                    "width": 343,
-                    "height": 190,
-                    "tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+            $data['type'] = config("constant.LANDING_MODEL.POLLING");
+            $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
                 },
                 "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
             }');
-
-                $profile['id'] = $value->profile_id;
-                $profile['tagline'] = $value->tagline;
-                $profile['user_id'] = $value->user_id;
-                $profile['verified'] = $value->verified;
-                $profile['handle'] = $value->handle;
-                $profile['image_meta'] = $value->image_meta;
-                $profile['is_tasting_expert'] = $value->is_tasting_expert;
-                $profile['tasting_instructions'] = $value->tasting_instructions;
-                $profile['is_premium'] = $value->is_premium;
-                $profile['name'] = $value->name;
-                $profile['designation'] = $value->designation;
-
-                $modelData['id'] = $value->poll_id;
-                $modelData['title'] = $value->title;
-                $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-
-
-
-                $data['profile'] = $profile;
-                $data["polling"] = $modelData;
-                $carousel['elements'][] = $data;
-            }
+            $carousel['elements'][] = $data;
         }
-
         return $carousel;
     }
 
-    public function expiredpoll($profileId, $companyIds = null)
+    public function participatedExpiredpoll($profileId)
     {
-        $carousel["ui_type"] = "carousel";
-        $carousel["model_name"] = "polling";
-        $carousel["title"] = "poll in which you have participated";
+        $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.CAROUSEL");
+        $carousel["model_name"] = config("constant.LANDING_MODEL.POLLING");
+        $carousel["title"] = "Polls in which you have participated";
         $carousel["see_more"] = true;
         $carousel["value"] = "poll_result";
         $carousel["elements"] = [];
 
-        $carouseldata = Polling::select('profiles.*', 'experiences.designation', 'poll_questions.id as poll_id', 'poll_questions.title', 'poll_questions.profile_id', 'poll_questions.company_id', 'poll_questions.image_meta as post_meta', 'users.name', 'poll_options.text as result')
-            ->join('profiles', 'profiles.id', 'poll_questions.profile_id')
-            ->join('users', 'users.id', 'profiles.user_id')
-            ->join('experiences', 'experiences.profile_id', 'profiles.id')
-            ->join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
-            ->join('poll_options', 'poll_options.poll_id', 'poll_questions.id')
-            ->whereNull('poll_questions.deleted_at')
-            ->where(function ($query) use ($profileId){
-                $query->where('poll_questions.profile_id', $profileId)
-                        ->orwhere('poll_votes.profile_id', $profileId);
-            })
-            ->where(function ($query) use ($companyIds) {
-                if (!empty($companyIds)) {
-                    $query->whereIn('poll_questions.company_id', $companyIds)
-                        ->orWhereNull('poll_questions.company_id');
-                }
-            })
+        $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
+            ->where('poll_votes.profile_id', $profileId)
             ->where('poll_questions.is_expired', 1)
-            ->where('poll_questions.created_at', '>=', Carbon::now()->subDays(7)->toDateTimeString())
-            ->orderBy('poll_questions.created_at', 'desc');
-        $count["count"] = $carouseldata->count();
-        if ($count["count"] <= 2) return $count;
-        $carousel["count"] = $count["count"];
+            ->whereNull('poll_votes.deleted_at')
+            ->whereNull('poll_questions.deleted_at')
+            ->where('poll_questions.expired_time', '>=', Carbon::now()->subDays(7)->toDateTimeString())
+            ->distinct('poll_questions.id')
+            ->orderBy('poll_questions.created_at', 'desc')
+            ->take(10)->pluck('poll_questions.id')->toArray();
 
 
-        $carouseldata = $carouseldata->take(5)->get();
-
-        $admins = [];
         foreach ($carouseldata as $key => $value) {
-            if (!empty($value->company_id)) {
-                $admins = DB::table('company_users')->where('company_id', $value->company_id)->pluck('profile_id')->toArray();
+            $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
+            $pollModel = Polling::find($value);
+            $data['meta'] = $pollModel->getMetaForV2($profileId);
+            if(isset($data['polling']['company_id'])){
+                $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
+            }else{
+                $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
             }
-            if (!in_array($profileId, $admins)) {
-                $data["meta"] = $value->getMetaFor($profileId);
-                $data['placeholder_images_meta'] =  isset($this->placeholderimage['poll']) ? $this->placeholderimage['poll'] : json_decode('{
-                "meta": {
-                    "width": 343,
-                    "height": 190,
-                    "tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
+            $data['type'] = config("constant.LANDING_MODEL.POLLING");
+            $data['placeholder_images_meta'] = json_decode('{"meta": {"width": 343,"height": 190,"tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"
                 },
                 "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"
             }');
-                $profile['id'] = $value->profile_id;
-                $profile['tagline'] = $value->tagline;
-                $profile['user_id'] = $value->user_id;
-                $profile['verified'] = $value->verified;
-                $profile['handle'] = $value->handle;
-                $profile['image_meta'] = $value->image_meta;
-                $profile['is_tasting_expert'] = $value->is_tasting_expert;
-                $profile['tasting_instructions'] = $value->tasting_instructions;
-                $profile['is_premium'] = $value->is_premium;
-                $profile['name'] = $value->name;
-                $profile['designation'] = $value->designation;
-
-                $modelData['id'] = $value->poll_id;
-                $modelData['title'] = $value->title;
-                $modelData['images_meta'] = isset($value->post_meta) ? $value->post_meta : [];
-                // $modelData['value'] = $result[0];
-
-                $data['profile'] = $profile;
-                $data["polling"] = $modelData;
-                $carousel['elements'][] = $data;
-            }
+            $carousel['elements'][] = $data;
         }
-
         return $carousel;
     }
 
 
     public function imageCarousel($profileId)
     {
-        $carousel["ui_type"] = "image_carousel";
+        $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.IMAGE_CAROUSEL");
         $carousel["title"] = "Tagtaste Insights";
-        $carousel["model_name"] = "hashtag";
-        $carousel["model_id"] = "tagtasteInsight";
+        $carousel["model_name"] = config("constant.LANDING_MODEL.HASHTAG");
+        $carousel["model_id"] = "#ttinsights";
         $carousel["see_more"] = true;
-
+        
         $carousel["elements"] = [];
-        $photos = Photo::forCompany(config("constant.POLL_COMPANY_ID"))->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->take(5)->get();
-        $carouseldata = [];
 
-        foreach ($photos as $photo) {
-            $photo->images = json_decode($photo->images);
-            $photoArray = $photo->toArray();
-            $item = $photoArray['owner'];
-            unset($item["about"]);
-            unset($photoArray["owner"]);
-            unset($photoArray["profile_id"]);
-            unset($photoArray["company_id"]);
+        $payloads = Payload::where('model','App\\V2\\Photo')
+            ->whereNull('deleted_at')
+            ->where('channel_name','company.public.45')
+            ->orderBy('created_at', 'desc')
+            ->take(5)->get();
 
-            $carouseldata[] = ['photo' => $photoArray, 'company' => $item, 'meta' => $photo->getMetaFor($profileId), 'type' => 'photo'];
-        }
+        $carouseldata = $this->getPayloadData($payloads, $profileId);
         $carousel["elements"] = $carouseldata;
-
         return $carousel;
     }
 
@@ -513,12 +446,12 @@ class LandingPageController extends Controller
         $client = config('database.neo4j_uri_client');
 
         //models - product-review, product, collaborate, surveys, polling 
-        $productReviewSuggs = $this->getModelSuggestionIds($client, $profileId, 'product-review');
-        $productSuggs = $this->getModelSuggestionIds($client, $profileId, 'product');
-        $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, 'collaborate');
-        $surveySugges = $this->getModelSuggestionIds($client, $profileId, 'surveys');
-        $pollSugges = $this->getModelSuggestionIds($client, $profileId, 'polling');
-
+        $productReviewSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT-REVIEW"));
+        $productSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT"));
+        $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.COLLABORATE"));
+        $surveySugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.SURVEYS"));
+        $pollSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.POLLING"));
+        
         $tempMixSuggs = [];
 
         $suggCount = 0;
@@ -550,7 +483,7 @@ class LandingPageController extends Controller
     protected function getModelSuggestionIds($client, $profileId, $modelName)
     {
         switch ($modelName) {
-            case 'product':
+            case config("constant.LANDING_MODEL.PRODUCT"):
                 $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (product:Product)
                 WHERE NOT ((user) -[:REVIEWED]->(product)) AND ((users) -[:REVIEWED]->(product)) 
                 WITH product, rand() AS number
@@ -562,13 +495,13 @@ class LandingPageController extends Controller
                 foreach ($result->records() as $record) {
                     array_push($data, [
                         'id' => $record->get('product.product_id'),
-                        'model_name' => 'product'
+                        'model_name' => $modelName
                     ]);
                 }
                 return $data;
                 break;
 
-            case 'surveys':
+            case config("constant.LANDING_MODEL.SURVEYS"):
                 $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (survey:Surveys)
                 WHERE NOT ((user) -[:SURVEY_PARTICIPATION]->(survey)) AND ((users) -[:SURVEY_PARTICIPATION]->(survey)) AND survey.profile_id <> $profileId
                 WITH survey, rand() AS number
@@ -581,12 +514,12 @@ class LandingPageController extends Controller
                     array_push($data, [
                         'id' => $record->get('survey.survey_id'),
                         'payload_id' => $record->get('survey.payload_id'),
-                        'model_name' => 'surveys'
+                        'model_name' => $modelName
                     ]);
                 }
                 return $data;
                 break;
-            case 'polling':
+            case config("constant.LANDING_MODEL.POLLING"):
                 $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (polls:Polling)
                 WHERE NOT ((user) -[:POLL_PARTICIPATION]->(polls)) AND ((users) -[:POLL_PARTICIPATION]->(polls)) AND polls.profile_id <> $profileId
                 WITH polls, rand() AS number
@@ -599,12 +532,12 @@ class LandingPageController extends Controller
                     array_push($data, [
                         'id' => $record->get('polls.poll_id'),
                         'payload_id' => $record->get('polls.payload_id'),
-                        'model_name' => 'polling'
+                        'model_name' => $modelName
                     ]);
                 }
                 return $data;
                 break;
-            case 'collaborate':
+            case config("constant.LANDING_MODEL.COLLABORATE"):
                 $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (collabs:Collaborate)
                 WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND ((users) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'collaborate'
                 WITH collabs, rand() AS number
@@ -617,12 +550,12 @@ class LandingPageController extends Controller
                     array_push($data, [
                         'id' => $record->get('collabs.collaborate_id'),
                         'payload_id' => $record->get('collabs.payload_id'),
-                        'model_name' => 'collaborate'
+                        'model_name' => $modelName
                     ]);
                 }
                 return $data;
                 break;
-            case 'product-review':
+            case config("constant.LANDING_MODEL.PRODUCT-REVIEW"):
                 $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (collabs:Collaborate)
                 WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND ((users) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'product-review'
                 WITH collabs, rand() AS number
@@ -635,7 +568,7 @@ class LandingPageController extends Controller
                     array_push($data, [
                         'id' => $record->get('collabs.collaborate_id'),
                         'payload_id' => $record->get('collabs.payload_id'),
-                        'model_name' => 'product-review'
+                        'model_name' => $modelName
                     ]);
                 }
                 return $data;
@@ -645,11 +578,11 @@ class LandingPageController extends Controller
                 break;
         };
     }
-
+    
     protected function getModelSuggestion($client, $profileId, $suggestionObj)
     {
         $data = null;
-        if ($suggestionObj['model_name'] == 'product') {
+        if ($suggestionObj['model_name'] == config("constant.LANDING_MODEL.PRODUCT")) {
             $productId = $suggestionObj['id'];
             $key = 'public-review/product:' . $productId . ':V2';
             $cachedData = Redis::connection('V2')->get($key);
@@ -661,10 +594,12 @@ class LandingPageController extends Controller
                 $product = [
                     'product' => $product,
                     'meta' => $productModel->getMetaFor($profileId),
-                    'type' => 'product'
+                    'type' => $suggestionObj['model_name']
                 ];
 
-                $query = "MATCH (users:User) -[:REVIEWED]-> (product:Product{product_id:'$productId'})
+                $query = "MATCH (users:User) -[:REVIEWED]-> (product:Product{product_id:'$productId'}), 
+                (user:User{profile_id:$profileId})
+                WHERE (user)-[:FOLLOWS{following:1}]->(users)
                 WITH users, rand() as number
                 ORDER BY number   
                 RETURN users;";
@@ -686,7 +621,7 @@ class LandingPageController extends Controller
                     $subTitle = 'other completed review';
                 }
                 $data = [
-                    "ui_type" => "suggestion",
+                    "ui_type" => config("constant.LANDING_UI_TYPE.SUGGESTION"),
                     "title" => "Suggested for you",
                     "total_count" => count($result->records()),
                     "profiles" => $showProfiles,
@@ -704,28 +639,34 @@ class LandingPageController extends Controller
             if (count($modelData) > 0) {
                 $query = '';
                 $modelId = $suggestionObj['id'];
-                if ($modelName == 'polling') {
-                    $query = "MATCH (users:User) -[:POLL_PARTICIPATION]-> (polls:Polling{poll_id:$modelId})
+                if ($modelName == config("constant.LANDING_MODEL.POLLING")) {
+                    $query = "MATCH (users:User) -[:POLL_PARTICIPATION]-> (polls:Polling{poll_id:$modelId}),
+                        (user:User{profile_id:$profileId})
+                        WHERE ((user) -[:FOLLOWS{following:1}]-> (users))
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
-                } else if ($modelName == 'surveys') {
-                    $query = "MATCH (users:User) -[:SURVEY_PARTICIPATION]-> (survey:Surveys{survey_id:'$modelId'})
-                    WITH users, rand() as number
-                    ORDER BY number   
-                    RETURN users;";
-                } else if ($modelName == 'collaborate') {
-                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
-                        WHERE collab.collaborate_type = 'collaborate'
+                } else if ($modelName == config("constant.LANDING_MODEL.SURVEYS")) {
+                    $query = "MATCH (users:User) -[:SURVEY_PARTICIPATION]-> (survey:Surveys{survey_id:'$modelId'}),
+                        (user:User{profile_id:$profileId})
+                        WHERE ((user) -[:FOLLOWS{following:1}]-> (users))
                         WITH users, rand() as number
                         ORDER BY number   
                         RETURN users;";
-                } else if ($modelName == 'product-review') {
-                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId})
-                    WHERE collab.collaborate_type = 'product-review'
-                    WITH users, rand() as number
-                    ORDER BY number   
-                    RETURN users;";
+                } else if ($modelName == config("constant.LANDING_MODEL.COLLABORATE")) {
+                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId}),
+                        (user:User{profile_id:$profileId})
+                        WHERE collab.collaborate_type = 'collaborate' AND ((user) -[:FOLLOWS{following:1}]-> (users))
+                        WITH users, rand() as number
+                        ORDER BY number   
+                        RETURN users;";
+                } else if ($modelName == config("constant.LANDING_MODEL.PRODUCT-REVIEW")) {
+                    $query = "MATCH (users:User) -[:SHOWN_INTEREST]-> (collab:Collaborate{collaborate_id:$modelId}),
+                        (user:User{profile_id:$profileId})
+                        WHERE collab.collaborate_type = 'product-review' AND ((user) -[:FOLLOWS{following:1}]-> (users))
+                        WITH users, rand() as number
+                        ORDER BY number   
+                        RETURN users;";
                 }
                 // echo $query;
                 $result = $client->run($query);
@@ -740,7 +681,7 @@ class LandingPageController extends Controller
                 }
 
                 $subTitle = '';
-                if ($modelName == 'polling' || $modelName == 'surveys') {
+                if ($modelName == config("constant.LANDING_MODEL.POLLING") || $modelName == config("constant.LANDING_MODEL.SURVEYS")) {
                     $subTitle = 'others participated';
                     if ($totalProfileCount <= $showProfileCount) {
                         $subTitle = 'participated';
@@ -757,7 +698,7 @@ class LandingPageController extends Controller
                 }
 
                 return $data = [
-                    "ui_type" => "suggestion",
+                    "ui_type" => config("constant.LANDING_UI_TYPE.SUGGESTION"),
                     "title" => "Suggested for you",
                     "total_count" => $totalProfileCount,
                     "profiles" => $showProfiles,
@@ -816,61 +757,48 @@ class LandingPageController extends Controller
 
         return $finalData;
     }
-
+    
     public function landingPage(Request $request)
     {
+        $collaborateModel = config("constant.LANDING_MODEL.COLLABORATE");
+        $surveyModel = config("constant.LANDING_MODEL.SURVEYS");
+        $productReviewModel = config("constant.LANDING_MODEL.PRODUCT-REVIEW");
+        $pollingModel = config("constant.LANDING_MODEL.POLLING");
+        $productModel = config("constant.LANDING_MODEL.PRODUCT");        
+
         $companyIds = CompanyUser::where("profile_id", $request->user()->profile->id)->get()->pluck("id");
         $this->errors['status'] = 0;
         $profileId = $request->user()->profile->id;
+        
+        //improvement needed
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $platform = $request->input('platform');
 
         if ($platform == 'mobile') {
-            $links["ui_type"] = "quick_links";
+            $links["ui_type"] = config("constant.LANDING_UI_TYPE.QUICK_LINKS");
             $links["elements"] = DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
             $this->model[] = $links;
         }
-        $elements = [];
-        $past_elements = [];
-        $big_banner["ui_type"] = "big_banner";
-        $big_banner["autoplay_duration"] = 3000;
-        $big_banner["loop"] = true;
-        $big_banner["autoplay"] = true;
-        $current_post_count =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->count();
-        $elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '>=', date('Y-m-d 00:00:00'))->orderByRaw("RAND()")->limit(15)->get();
-
-        if ($current_post_count < 15) {
-            $past_posts_count = 15 - $current_post_count;
-            $past_elements =  DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'big_banner')->whereNull('deleted_at')->where('is_active', 1)->where('created_at', '<', date('Y-m-d 00:00:00'))->orderBy("updated_at")->take($past_posts_count)->get();
-            if (count($past_elements) != 0) $elements = $elements->merge($past_elements);
-        }
-        foreach ($elements as &$value) {
-            $value->images_meta = json_decode($value->images_meta ?? "{}");
-            $value->model_id = (string)$value->model_id;
-        }
-        $big_banner["elements"] = $elements;
-
-
-        $this->model[] = $big_banner;
-
+        
+        $bigBanner = $this->getBigBanner();
+        if (count($bigBanner["elements"]) != 0)
+            $this->model[] = $bigBanner;
+        
         if ($platform == 'mobile') {
-            $passbook["ui_type"] = "passbook";
+            $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
             $this->model[] = $passbook;
 
-            $products["ui_type"] = "product_available";
-            $products["title"] = "3 Products available";
-            $products["sub_title"] = "Review Now";
-            $products["image"] = "https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/icons/group.png";
-            $this->model[] = $products;
+            $reviewCard = $this->getProductAvailableForReview($profileId);
+            if(count($reviewCard) != 0)
+                $this->model[] = $reviewCard;
 
-            $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->orderBy("updated_at", "desc")->first();
-            if ($banner) {
-                $banner->ui_type = "banner";
-                $banner->images_meta = json_decode($banner->images_meta ?? []);
+            //banner
+            $banner = $this->getBanner();
+            if($banner != null)
                 $this->model[] = $banner;
-            }
         }
+
         $suggestion = $this->getSuggestion($profileId);
         if (count($suggestion) > 0) {
             array_push($this->model, ...$suggestion);
@@ -880,68 +808,143 @@ class LandingPageController extends Controller
         // return $this->sendResponse();
 
 
-        $carouselCollab = $this->carousel($profileId, 'collaborate', $companyIds);
+        $carouselCollab = $this->carousel($profileId, $collaborateModel, $companyIds);
         if (count($carouselCollab["elements"]) != 0)
             $this->model[] = $carouselCollab;
 
-        $carouselSurvey = $this->carousel($profileId, 'surveys', $companyIds);
+        $carouselSurvey = $this->carousel($profileId, $surveyModel, $companyIds);
         if (count($carouselSurvey["elements"]) != 0)
             $this->model[] = $carouselSurvey;
 
-        $carouselProduct = $this->carousel($profileId, 'product_review', $companyIds);
+
+        $carouselProduct = $this->carousel($profileId, $productReviewModel, $companyIds);
         if (count($carouselProduct["elements"]) != 0)
             $this->model[] = $carouselProduct;
 
-        $carouselPublicReview = $this->carousel($profileId, 'product', $companyIds);
+        $carouselPublicReview = $this->carousel($profileId, $productModel, $companyIds);
         if (count($carouselPublicReview["elements"]) != 0)
             $this->model[] = $carouselPublicReview;
+
 
         $poll = $this->poll($profileId, 'TagTaste');
         if (count($poll["elements"]) != 0)
             $this->model[] = $poll;
 
+
         $pollNotTagtaste = $this->poll($profileId, 'NotTagTaste');
         if (count($pollNotTagtaste["elements"]) != 0)
             $this->model[] = $pollNotTagtaste;
+        
+        
+        $expiredPoll = $this->participatedExpiredpoll($profileId);
+        if (count($expiredPoll["elements"]) != 0)
+            $this->model[] = $expiredPoll;        
 
-        $expiredPoll = $this->expiredpoll($profileId);
-        // dd($expiredPoll['count']);
-        if ($expiredPoll['count'] > 2) {
-            unset($expiredPoll["count"]);
-            $this->model[] = $expiredPoll;
-        }
 
         $imageCarousel = $this->imageCarousel($profileId);
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
 
         if ($platform == 'mobile') {
-            $tags = [];
-            $tags = $this->trendingHashtags();
-            foreach ($tags as &$tag) {
-                $tag["total_count"] = $tag["count"];
-                unset($tag["updated_at"]);
-                unset($tag["count"]);
-            }
-
-            $hashtags["ui_type"] = "hashtag";
-            $hashtags["title"] = "Trending #tags";
-            $hashtags["see_more"] = true;
-            $hashtags["elements"] = $tags;
-            $this->model[] = $hashtags;
+            //hashtags
+            $hashTags = $this->getTrendingHashtag();
+            if(count($hashTags['elements']) > 0)
+                $this->model[] = $hashTags;
         }
-
-        $feed["ui_type"] = "feed";
+        
+        $feed["ui_type"] = config("constant.LANDING_UI_TYPE.FEED");
         $feed["title"] = "From Your Feed";
         $feed["see_more"] = true;
         $feed["total_count"] = 5;
-        // $feed["total_count"] = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
-        //     ->where('subscribers.profile_id', $profileId)
-        //     ->whereNull('subscribers.deleted_at')
-        //     ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
-        //     ->orderBy('channel_payloads.created_at', 'desc')
-        //     ->count();
+
+
         $this->model[] = $feed;
         return $this->sendResponse();
+    }
+
+    public function getProductAvailableForReview($profileId){
+        $reviewData = [];
+        
+        $reviewCount = BatchAssign::join('collaborate_tasting_user_review' ,'collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
+            ->join('collaborates','collaborate_tasting_user_review.collaborate_id','=','collaborates.id')
+            ->where('collaborate_batches_assign.begin_tasting',1)
+            ->where('collaborate_tasting_user_review.current_status', '<>', 3)
+            ->where('collaborates.state',1)
+            ->distinct('collaborate_batches_assign.batch_id')
+            ->pluck('collaborate_batches_assign.batch_id')->count();
+
+        if($reviewCount > 0){
+            $reviewData["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
+            $reviewData["title"] = $reviewCount." Product available";
+            if($reviewCount > 1){
+                $reviewData["title"] = $reviewCount." Products available";
+            }          
+            $reviewData["sub_title"] = "Review Now";
+            $reviewData["image"] = "https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/icons/group.png";    
+        }     
+        
+        return $reviewData;
+    }
+
+    public function getBigBanner(){
+        $bigBanner["ui_type"] = config("constant.LANDING_UI_TYPE.BIG_BANNNER");
+        $bigBanner["autoplay_duration"] = 3000;
+        $bigBanner["loop"] = true;
+        $bigBanner["autoplay"] = true;
+
+        $bigBannerList =  DB::table('landing_banner')
+            ->select('updated_at','title','images_meta', 'model_name', 'model_id','filter_meta')
+            ->where('banner_type', 'big_banner')
+            ->whereNull('deleted_at')
+            ->where('is_active', 1)
+            ->orderBy('updated_at','desc')
+            ->limit(15)->get();
+        
+        $todayElement = []; 
+        $pastElement = []; 
+        foreach ($bigBannerList as &$value) {
+            $value->images_meta = json_decode($value->images_meta ?? "{}");
+            if($value->updated_at >= date('Y-m-d 00:00:00')){
+                $todayElement[] = $value;
+            }else{
+                $pastElement[] = $value;
+            }
+        }
+        shuffle($todayElement);
+        shuffle($pastElement);
+        
+        array_push($todayElement, ...$pastElement); //merge all elements in todayElement
+        $bigBanner["elements"] = $todayElement;
+    
+        return $bigBanner;
+        
+    }
+
+    public function getTrendingHashtag(){
+        $tags = [];
+        $tags = $this->trendingHashtags();
+        foreach ($tags as &$tag) {
+            $tag['total_count'] = $tag['count'];
+            unset($tag["count"]);
+            unset($tag["updated_at"]);
+        }
+
+        $hashTags["ui_type"] = config("constant.LANDING_UI_TYPE.HASHTAG");
+        $hashTags["title"] = "Trending #tags";
+        $hashTags["see_more"] = true;
+        $hashTags["elements"] = $tags;
+        
+        return $hashTags;
+    }
+
+    public function getBanner(){
+        $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
+        if ($banner) {
+            $banner->ui_type = config("constant.LANDING_UI_TYPE.BANNER");
+            $banner->images_meta = json_decode($banner->images_meta ?? []);
+            return $banner;
+        }else{
+            return null;
+        }
     }
 }

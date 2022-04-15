@@ -83,8 +83,31 @@ return  [
     ],
     "DEFAULT_SIZE" => 8,
 
-    "POLL_COMPANY_ID" => 9
+    "TAGTASTE_POLL_COMPANY_ID" => '9,10',
+    "TAGTASTE_INSIGHT_COMPANY_ID" => '9,10',
+
+    "LANDING_MODEL" =>[
+        "COLLABORATE"=>"collaborate",
+        "PRODUCT-REVIEW" =>"product-review",
+        "SURVEYS" =>"surveys",
+        "POLLING" =>"polling",
+        "PRODUCT" =>"product",
+        "HASHTAG" => "hashtag"
+    ],
     
+    "LANDING_UI_TYPE"=>[
+        "QUICK_LINKS"=>"quick_links",
+        "BIG_BANNNER"=>"big_banner",
+        "BANNER"=>"banner",
+        "PASSBOOK"=>"passbook",
+        "PRODUCT_AVAILABLE"=>"product_available",
+        "PAID_TASTER"=>"paid_taster",
+        "SUGGESTION"=>"suggestion",
+        "CAROUSEL"=>"carousel",
+        "IMAGE_CAROUSEL"=>"image_carousel",
+        "HASHTAG"=>"hashtag",
+        "FEED"=>"feed"
+    ]
 ];
 
 
