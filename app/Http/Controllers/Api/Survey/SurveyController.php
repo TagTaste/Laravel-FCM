@@ -455,7 +455,8 @@ class SurveyController extends Controller
             event(new UpdateFeedable($getSurvey));
         }
         
-        if ($previousState == config("constant.SURVEY_STATES.EXPIRED") && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
+        if (($previousState == config("constant.SURVEY_STATES.EXPIRED") || $previousState == config("constant.SURVEY_STATES.CLOSED"))
+         && $request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
             $this->addSurveyGraph($getSurvey); //add node and edge to neo4j
         }
 
@@ -466,7 +467,7 @@ class SurveyController extends Controller
         $surveyersIds = SurveyAnswers::where('survey_id','=',$survey->id)
             ->where('is_active',1)
             ->whereNull('deleted_at')
-            ->pluck('profile_id')->toArrray();
+            ->pluck('profile_id')->toArray();
         if(count($surveyersIds) > 0){
             $survey->addToGraph();
             foreach($surveyersIds as $profileId){
@@ -655,13 +656,13 @@ class SurveyController extends Controller
             $responseData = [];
             if ($commit) {
                 DB::commit();
-
+                
                 // if (is_null($id->company_id)) {
                 //     event(new SurveyAnswered($id, $user, null, null, null, null));
                 // } else {
                 //     event(new SurveyAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
                 // }
-
+                
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
@@ -675,9 +676,10 @@ class SurveyController extends Controller
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true && $request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $responseData = $this->paidProcessing($request);
+                $id->addToGraph();
                 $id->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
-
+            
             return $this->sendResponse($responseData);
         } catch (Exception $ex) {
             DB::rollback();
@@ -1934,12 +1936,12 @@ class SurveyController extends Controller
         if ($survey) {
             $this->model = \DB::table('surveys_close_reasons')->insert($data);;
             $this->messages = "Survey Closed Successfully";
-            $survey->removeFromGraph(); // remove node and edge from neo4j
+            $get->removeFromGraph(); // remove node and edge from neo4j
             event(new DeleteFeedable($get));
         }
         return $this->sendResponse();
     }
-
+    
     public function surveyCloseReason()
     {
         $data[] = ['id' => 1, 'reason' => 'Completed'];

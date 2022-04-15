@@ -412,7 +412,7 @@ class PublicReviewProduct extends Model
     }
     
     public function addToGraph(){
-        $data = \App\PublicReviewProduct::find($this->id)->toArray();
+        // $data = \App\PublicReviewProduct::find($this->id)->toArray();
         
         $data = ['id'=>$this->id, 
         'product_id'=>$this->id,

@@ -437,11 +437,13 @@ class ReviewController extends Controller
 
     public function reviewAnswers(Request $request, $productId, $headerId)
     {
+        
         $this->now = Carbon::now()->toDateTimeString();
         $data = [];
         $answers = $request->input('answer');
         $loggedInProfileId = $request->user()->profile->id;
         $product = PublicReviewProduct::where('id', $productId)->first();
+
         if ($product === null) {
             $this->model = ["status" => false];
             return $this->sendError("Product not found.");
@@ -539,13 +541,13 @@ class ReviewController extends Controller
                 }
             }
         }
-
+        
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
         if ($currentStatus == 2 && $this->model) {
             $responseData = $this->paidProcessing($productId, $request);
 
             //Adding node and edges to neo4j for suggestions
-            $$product->addToGraph();
+            $product->addToGraph();
             $product->addReviewEdge($loggedInProfileId);
         }
 

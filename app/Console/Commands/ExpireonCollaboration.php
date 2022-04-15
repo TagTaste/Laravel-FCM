@@ -84,10 +84,10 @@ class ExpireonCollaboration extends Command
                     event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
                     $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
                     event(new DeleteFeedable($model));
-
+                    $model->removeFromGraph();
                 }
             });
-
+            
         //notify 1 day before expiry
 //        \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
 //            ->where('expires_on','<=',Carbon::now()->addDays(1)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){

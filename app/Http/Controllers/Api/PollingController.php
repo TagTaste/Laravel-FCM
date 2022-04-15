@@ -511,7 +511,7 @@ class PollingController extends Controller
         \DB::table('poll_options')->where('poll_id',$pollId)->update(['deleted_at'=>null]);
         $poll = Polling::find($pollId);
         $poll->addToCache();
-        $poll->addRenewedPollToNeo4j($poll); //add to neo4j
+        $this->addRenewedPollToNeo4j($poll); //add to neo4j
         $this->model = $poll;
         //add to feed
         if ($request->has('company_id')) {
