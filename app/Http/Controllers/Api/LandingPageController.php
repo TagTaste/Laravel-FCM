@@ -380,7 +380,7 @@ class LandingPageController extends Controller
             ->orderBy('poll_questions.created_at', 'desc')
             ->take(10)->pluck('poll_questions.id')->toArray();
 
-        
+
         foreach ($carouseldata as $key => $value) {
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
@@ -823,7 +823,6 @@ class LandingPageController extends Controller
         if (count($imageCarousel["elements"]) != 0)
             $this->model[] = $imageCarousel;
             
-        return $this->sendResponse();
 
         if ($platform == 'mobile') {
             //hashtags
@@ -841,7 +840,7 @@ class LandingPageController extends Controller
         $this->model[] = $feed;
         return $this->sendResponse();
     }
-
+    
     public function getProductAvailableForReview($profileId){
         $reviewData = [];
         
@@ -850,10 +849,10 @@ class LandingPageController extends Controller
             ->where('collaborate_batches_assign.begin_tasting',1)
             ->where('collaborate_tasting_user_review.current_status', '<>', 3)
             ->where('collaborates.state',1)
-            ->where('collaborates.profile_id',$profileId)
+            ->where('collaborate_batches_assign.profile_id',$profileId)
             ->distinct('collaborate_batches_assign.batch_id')
             ->pluck('collaborate_batches_assign.batch_id')->count();
-
+        
         if($reviewCount > 0){
             $reviewData["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
             $reviewData["title"] = $reviewCount." Product available";
@@ -894,8 +893,16 @@ class LandingPageController extends Controller
         shuffle($todayElement);
         shuffle($pastElement);
         
-        array_push($todayElement, ...$pastElement); //merge all elements in todayElement
-        $bigBanner["elements"] = $todayElement;
+        if(count($todayElement) > 0 && count($pastElement) > 0){
+            array_push($todayElement, ...$pastElement); //merge all elements in todayElement
+            $bigBanner["elements"] = $todayElement;
+        }else if(count($todayElement) > 0){
+            $bigBanner["elements"] = $todayElement;
+        }else if(count($pastElement) > 0){
+            $bigBanner["elements"] = $pastElement;
+        }else{
+            $bigBanner["elements"] = [];
+        }
     
         return $bigBanner;
         
