@@ -34,6 +34,7 @@ class SearchController extends Controller
         'product' => \App\PublicReviewProduct::class,
         'polls' => \App\Polling::class,
         'product-review' => \App\Collaborate::class,
+        'surveys' => \App\Surveys::class
     ];
 
     private $filters = [
@@ -1614,9 +1615,9 @@ class SearchController extends Controller
                     $model = $model::whereIn('id', $ids);
 
                     if ($type == 'product-review') {
-                        $model = $model->where('collaborate_type', 'product-review')->where("expires_on",">",date("Y-m-d H:i:s"))->where('step', 3);
+                        $model = $model->where('collaborate_type', 'product-review')->where("expires_on", ">", date("Y-m-d H:i:s"))->where('step', 3);
                     } else if ($type == 'collaborate') {
-                        $model = $model->where('collaborate_type', "<>", 'product-review')->where("expires_on",">",date("Y-m-d H:i:s"))->where('step', 3);
+                        $model = $model->where('collaborate_type', "<>", 'product-review')->where("expires_on", ">", date("Y-m-d H:i:s"));
                     }
                     return $model->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
                 } else {
@@ -1632,21 +1633,27 @@ class SearchController extends Controller
             $deleted_at = "poll_questions.deleted_at";
         }
         $idCol = 'id';
+        $cr_at = 'created_at';
         if ($type == "polls") {
             $idCol = 'poll_questions.id';
+            $cr_at = 'poll_questions.created_at';
         }
         if (count($ids)) {
             if ($type == 'collaborate' || $type == 'product-review') {
-                $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3)->where("expires_on",">",date("Y-m-d H:i:s"));
+                $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where("expires_on", ">", date("Y-m-d H:i:s"));
+                if ($type == "product-review") {
+                    $model = $model->where('step', 3);
+                }
             } else {
 
-                $model = $model::whereNull($deleted_at)->orderByRaw("field(" . $idCol . ",{$placeholders})", $ids);
+                $model = $model->whereNull($deleted_at)->orderByRaw("field(" . $idCol . ",{$placeholders})", $ids);
             }
-        } else if ($type == 'collaborate' || $type == 'product-review') {
-            $model = $model::where('step', 3)->whereNull('deleted_at');
         } else {
 
-            $model = $model::whereNull($deleted_at);
+            if ($type == "product-review") {
+                $model = $model->where('step', 3);
+            }
+            $model = $model->whereNull($deleted_at);
         }
         if (!empty($ids)) {
             $model = $model->whereIn($idCol, $ids);
@@ -1655,7 +1662,7 @@ class SearchController extends Controller
         if ($type == 'polls') {
             if (request()->has('participated')) {
                 if (request()->participated == "true") {
-                    $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id')->where("poll_votes.profile_id", request()->user()->profile->id)->select("poll_questions.*");    
+                    $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id')->where("poll_votes.profile_id", request()->user()->profile->id)->select("poll_questions.*");
                 }
             }
         }
@@ -1668,7 +1675,7 @@ class SearchController extends Controller
 
 
         if (null !== $skip && null !== $take) {
-            $model = $model->orderBy($idCol, "desc")->skip($skip)->take($take);
+            $model = $model->orderBy($cr_at, "desc")->skip($skip)->take($take);
         }
 
 
