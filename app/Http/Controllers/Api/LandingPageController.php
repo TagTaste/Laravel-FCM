@@ -75,9 +75,11 @@ class LandingPageController extends Controller
             $this->model[] = $reviewCard;
 
         //banner
-        $banner = $this->getBanner();
-        if($banner != null)
-            $this->model[] = $banner;
+        if(!($request->user()->profile->is_paid)){
+            $banner = $this->getBanner();
+            if($banner != null)
+                $this->model[] = $banner;    
+        }
 
         //hashtags
         $hashTags = $this->getTrendingHashtag();
@@ -773,9 +775,11 @@ class LandingPageController extends Controller
                 $this->model[] = $reviewCard;
 
             //banner
-            $banner = $this->getBanner();
-            if($banner != null)
-                $this->model[] = $banner;
+            if(!($request->user()->profile->is_paid)){
+                $banner = $this->getBanner();
+                if($banner != null)
+                    $this->model[] = $banner;    
+            }
         }
 
         $suggestion = $this->getSuggestion($profileId);
@@ -932,13 +936,12 @@ class LandingPageController extends Controller
     }
 
     public function getBanner(){
-        $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
-        if ($banner) {
-            $banner->ui_type = config("constant.LANDING_UI_TYPE.BANNER");
-            $banner->images_meta = json_decode($banner->images_meta ?? []);
-            return $banner;
-        }else{
-            return null;
-        }
+        // $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
+        $banner = ["ui_type"=>config("constant.LANDING_UI_TYPE.BANNER"),
+        "images_meta"=>json_decode(config("constant.LEARN_AND_EARN_IMAGE")),
+        "model_name"=>config("constant.LANDING_MODEL.LEARN_AND_EARN"),
+        "title"=>"Learn and Earn",
+        "model_id"=>null];
+        return $banner;
     }
 }
