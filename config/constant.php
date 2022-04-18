@@ -92,7 +92,8 @@ return  [
         "SURVEYS" =>"surveys",
         "POLLING" =>"polling",
         "PRODUCT" =>"product",
-        "HASHTAG" => "hashtag"
+        "HASHTAG" => "hashtag",
+        "LEARN_AND_EARN" => "paid_taster"
     ],
     
     "LANDING_UI_TYPE"=>[
@@ -126,6 +127,7 @@ return  [
         '{"meta":{"height":281,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/tiny/1650041288090_20.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-images/1650041288090_20.png"}'
     ],
 
+    "LEARN_AND_EARN_IMAGE" => '{"meta": {"width": 343, "height": 190, "tiny_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images/tiny/1649688161520_learn_earn.png"}, "original_photo": "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/banner-images1649688161520_learn_earn.png"}'
 ];
 
 
