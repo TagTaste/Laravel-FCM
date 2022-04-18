@@ -322,7 +322,7 @@ class LandingPageController extends Controller
         
         if($type == 'TagTaste'){
             $carousel["title"] = "Polls From Tagtaste";
-            $carouseldata = Polling::leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
+            $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
                 ->where('poll_votes.profile_id', '<>', $profileId)
                 ->whereNull('poll_votes.deleted_at')
                 ->where('poll_questions.is_expired', 0)
@@ -333,7 +333,7 @@ class LandingPageController extends Controller
                 ->take(10)->pluck('poll_questions.id')->toArray();
         }else{
             $carousel["title"] = "Polls From Community";
-            $carouseldata = Polling::leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
+            $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
                 ->where('poll_votes.profile_id', '<>', $profileId)
                 ->whereNull('poll_votes.deleted_at')
                 ->where('poll_questions.is_expired', 0)
@@ -346,7 +346,7 @@ class LandingPageController extends Controller
                 ->orderBy('poll_questions.created_at', 'desc')
                 ->take(10)->pluck('poll_questions.id')->toArray(); 
         }
-
+        
         foreach ($carouseldata as $key => $value) {
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
