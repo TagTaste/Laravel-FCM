@@ -69,7 +69,13 @@ class SearchController extends Controller
             if($type=='collaborate') {
                 $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step',3);
             } else 
-                $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
+                $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
+                
+                if($type=="surveys"){
+                    $model = $model->orderBy('created_at',"desc");
+                }else{
+                    $model = $model->orderByRaw("field(id,{$placeholders})", $ids);   
+            }
         } else if($type=='collaborate') {
             $model = $model::whereIn('id',$ids)->where('step',3)->whereNull('deleted_at');
         } else
@@ -86,6 +92,7 @@ class SearchController extends Controller
             });
             return $model;    
         } else
+            // dd($model->toSql());
             return $model->get();
 
         return $model->get();
@@ -264,7 +271,7 @@ class SearchController extends Controller
         {
             $surveyList = \DB::table('surveys')->where('state','!=',1)
                 ->where('title', 'like','%'.$term.'%')
-                ->whereNull('deleted_at')->orderBy('id','desc')->skip($skip)
+                ->whereNull('deleted_at')->orderBy('created_at','desc')->skip($skip)
                 ->take($take)->get();
 
             if(count($surveyList)){
@@ -372,7 +379,6 @@ class SearchController extends Controller
         $this->model = [];
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
@@ -397,6 +403,7 @@ class SearchController extends Controller
                 }
                     $this->model[$name] = $searched;
             }
+        
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = Redis::sMembers("following:profile:" . $profileId);
