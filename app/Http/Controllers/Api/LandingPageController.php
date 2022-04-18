@@ -840,7 +840,7 @@ class LandingPageController extends Controller
         $this->model[] = $feed;
         return $this->sendResponse();
     }
-
+    
     public function getProductAvailableForReview($profileId){
         $reviewData = [];
         
@@ -893,8 +893,16 @@ class LandingPageController extends Controller
         shuffle($todayElement);
         shuffle($pastElement);
         
-        array_push($todayElement, ...$pastElement); //merge all elements in todayElement
-        $bigBanner["elements"] = $todayElement;
+        if(count($todayElement) > 0 && count($pastElement) > 0){
+            array_push($todayElement, ...$pastElement); //merge all elements in todayElement
+            $bigBanner["elements"] = $todayElement;
+        }else if(count($todayElement) > 0){
+            $bigBanner["elements"] = $todayElement;
+        }else if(count($pastElement) > 0){
+            $bigBanner["elements"] = $pastElement;
+        }else{
+            $bigBanner["elements"] = [];
+        }
     
         return $bigBanner;
         
