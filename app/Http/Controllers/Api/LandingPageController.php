@@ -228,6 +228,7 @@ class LandingPageController extends Controller
                 ->whereNotIn('id', $ids)
                 ->where('collaborate_type','=',$model)
                 ->whereNull('deleted_at')
+                ->where('profile_id','<>',$profileId)
                 ->where(function ($query) use ($companyIds){
                     $query->whereNotIn('company_id',$companyIds)
                         ->orWhereNull('company_id');
@@ -273,7 +274,7 @@ class LandingPageController extends Controller
                 $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
                 $surveyModel = Surveys::find($value);
                 $data['meta'] = $surveyModel->getMetaFor($profileId);
-                if(isset($data['polling']['company_id'])){
+                if(isset($data['surveys']['company_id'])){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['surveys']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['surveys']['profile_id'].":V2"), true);
@@ -790,6 +791,7 @@ class LandingPageController extends Controller
         if (count($carouselCollab["elements"]) != 0)
             $this->model[] = $carouselCollab;
 
+
         $carouselSurvey = $this->carousel($profileId, $surveyModel, $companyIds);
         if (count($carouselSurvey["elements"]) != 0)
             $this->model[] = $carouselSurvey;
@@ -920,8 +922,12 @@ class LandingPageController extends Controller
         $hashTags["ui_type"] = config("constant.LANDING_UI_TYPE.HASHTAG");
         $hashTags["title"] = "Trending #tags";
         $hashTags["see_more"] = true;
-        $hashTags["elements"] = $tags;
         
+        if(count($tags) > 5){
+            $tags = array_slice($tags, 0, 5, true);            
+        }
+
+        $hashTags["elements"] = $tags;
         return $hashTags;
     }
 
