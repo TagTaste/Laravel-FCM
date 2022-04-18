@@ -1717,6 +1717,7 @@ class SearchController extends Controller
                     $this->messages = ['Nothing found.'];
                     return $this->sendResponse();
                 }
+                $this->model = [];
                 $this->model[$type] = $searched;
             }
 
