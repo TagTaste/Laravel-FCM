@@ -76,7 +76,7 @@ class LandingPageController extends Controller
             $this->model[] = $reviewCard;
 
         //banner
-        if(!($request->user()->profile->is_paid)){
+        if(!($request->user()->profile->is_paid_taster)){
             $banner = $this->getBanner();
             if($banner != null)
                 $this->model[] = $banner;    
@@ -277,7 +277,7 @@ class LandingPageController extends Controller
                 $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
                 $surveyModel = Surveys::find($value);
                 $data['meta'] = $surveyModel->getMetaFor($profileId);
-                if(isset($data['surveys']['company_id'])){
+                if(!(is_null($data['surveys']['company_id']))){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['surveys']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['surveys']['profile_id'].":V2"), true);
@@ -289,7 +289,7 @@ class LandingPageController extends Controller
                 $data['collaborate'] = json_decode(Redis::get("collaborate:".$value.":V2"), true);
                 $collabModel = Collaborate::find($value);
                 $data['meta'] = $collabModel->getMetaForV2($profileId);
-                if(isset($data['collaborate']['company_id'])){
+                if(!(is_null($data['collaborate']['company_id']))){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['collaborate']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['collaborate']['profile_id'].":V2"), true);
@@ -357,7 +357,7 @@ class LandingPageController extends Controller
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
-            if(isset($data['polling']['company_id'])){
+            if(!(is_null($data['polling']['company_id']))){
                 $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
             }else{
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
@@ -394,7 +394,7 @@ class LandingPageController extends Controller
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
-            if(isset($data['polling']['company_id'])){
+            if(!(is_null($data['polling']['company_id']))){
                 $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
             }else{
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
@@ -781,7 +781,7 @@ class LandingPageController extends Controller
                 $this->model[] = $reviewCard;
 
             //banner
-            if(!($request->user()->profile->is_paid)){
+            if(!($request->user()->profile->is_paid_taster)){
                 $banner = $this->getBanner();
                 if($banner != null)
                     $this->model[] = $banner;    
@@ -856,7 +856,7 @@ class LandingPageController extends Controller
     public function getProductAvailableForReview($profileId){
         $reviewData = [];
         
-        $reviewCount = BatchAssign::join('collaborate_tasting_user_review' ,'collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
+        $reviewCount = BatchAssign::leftJoin('collaborate_tasting_user_review' ,'collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
             ->join('collaborates','collaborate_tasting_user_review.collaborate_id','=','collaborates.id')
             ->where('collaborate_batches_assign.begin_tasting',1)
             ->where('collaborate_tasting_user_review.current_status', '<>', 3)
