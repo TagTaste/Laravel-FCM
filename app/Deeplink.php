@@ -76,8 +76,8 @@ class Deeplink
 
                 "data" => [
                     '$canonical_identifier' =>  $data['deeplinkCanonicalId'],
-                    '$og_title' =>              strip_tags($data['ogTitle']),
-                    '$og_description' =>        strip_tags($data['ogDescription']),
+                    '$og_title' =>              mb_convert_encoding(strip_tags($data['ogTitle']),'UTF-8', 'UTF-8'),
+                    '$og_description' =>        mb_convert_encoding(strip_tags($data['ogDescription']),'UTF-8', 'UTF-8'),
                     '$og_image_url' =>          $data['ogImage'],
 //                    '$og_image_width' =>      '273px',
 //                    '$og_image_height' =>     '526px',
@@ -86,8 +86,8 @@ class Deeplink
                     '$desktop_url' =>           Deeplink::getActualUrl($this->modelName, $this->modelId, $this->shared, $this->share_id),
 
                     '$twitter_card' =>          $data['cardType'],
-                    '$twitter_title' =>         strip_tags($data['ogTitle']),
-                    '$twitter_description' =>   strip_tags($data['ogDescription']),
+                    '$twitter_title' =>         mb_convert_encoding(strip_tags($data['ogTitle']),'UTF-8', 'UTF-8'),
+                    '$twitter_description' =>   mb_convert_encoding(strip_tags($data['ogDescription']),'UTF-8', 'UTF-8'),
                     '$twitter_image_url' =>     $data['ogImage'],
                     '$twitter_site' =>          '@tagtaste',
 
@@ -118,8 +118,8 @@ class Deeplink
 
                 "data" => [
                     '$canonical_identifier' =>  'share_feed/',
-                    '$og_title' =>              strip_tags($data->title),
-                    '$og_description' =>        strip_tags(substr($data->description,0,155).'...'),
+                    '$og_title' =>              mb_convert_encoding(strip_tags($data->title),'UTF-8', 'UTF-8'),
+                    '$og_description' =>        mb_convert_encoding(strip_tags(substr($data->description,0,155).'...'),'UTF-8', 'UTF-8'),
                     '$og_image_url' =>          $data->image_meta->original_photo,
 //                    '$og_image_width' =>      '273px',
 //                    '$og_image_height' =>     '526px',
@@ -128,8 +128,8 @@ class Deeplink
                     '$desktop_url' =>           Deeplink::getActualUrl($this->modelName, $this->modelId, $this->shared, $this->share_id),
 
                     '$twitter_card' =>         'summary',
-                    '$twitter_title' =>         strip_tags($data->title),
-                    '$twitter_description' =>   strip_tags(substr($data->description,0,155).'...'),
+                    '$twitter_title' =>         mb_convert_encoding(strip_tags($data->title),'UTF-8', 'UTF-8'),
+                    '$twitter_description' =>   mb_convert_encoding(strip_tags(substr($data->description,0,155).'...'),'UTF-8', 'UTF-8'),
                     '$twitter_image_url' =>     $data->image_meta->original_photo,
                     '$twitter_site' =>          '@tagtaste',
 
@@ -215,7 +215,7 @@ class Deeplink
 
     public static function getFeedCardText($model)
     {
-        return strip_tags("Checkout ".$model->title." on TagTaste! \r\n");
+        return mb_convert_encoding(strip_tags("Checkout ".$model->title." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
     }
 
     public static function getShoutoutText($model)
@@ -231,26 +231,26 @@ class Deeplink
                 } else {
                     $description = isset($model->preview["description"])?$model->preview["description"]:null;
                 }
-                return strip_tags(Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n");
+                return mb_convert_encoding(strip_tags(Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
             }
             if($model->media_url != null && $model->content !=  null){
-                return strip_tags(Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste! \r\n");
+                return mb_convert_encoding(strip_tags(Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
             } else if ($content != null) {
-               return strip_tags(Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n");
+               return mb_convert_encoding(strip_tags(Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
             }
-        return strip_tags("Checkout this post by ".$model->owner->name." on TagTaste! \r\n");
+        return mb_convert_encoding(strip_tags("Checkout this post by ".$model->owner->name." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
 
     }
 
     public static function getPhotoText($model)
     {
         $caption = $model->caption;
-            return strip_tags(Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste! \r\n");
+            return mb_convert_encoding(strip_tags(Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
     }
 
     public static function getPollingText($model){
 
-        return strip_tags("Checkout this poll by ".$model->owner->name." on TagTaste! \r\n");
+        return mb_convert_encoding(strip_tags("Checkout this poll by ".$model->owner->name." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
     }
 
     public static function getReviewCollectionText($model) {
@@ -260,20 +260,20 @@ class Deeplink
 
     public static function getCollaborateText($model)
     {
-        return strip_tags(Str::words(substr($model->description,0,155))."...\r\nCheckout this collaboration by ".$model->owner->name." on TagTaste! \r\n");
+        return mb_convert_encoding(strip_tags(Str::words(substr($model->description,0,155))."...\r\nCheckout this collaboration by ".$model->owner->name." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
     }
 
     public static function getProductText($model)
     {
-        return strip_tags(Str::words(substr($model->description,0,155))."...\r\nCheckout ".$model->name." by ".$model->company_name." on TagTaste! \r\n");
+        return mb_convert_encoding(strip_tags(Str::words(substr($model->description,0,155))."...\r\nCheckout ".$model->name." by ".$model->company_name." on TagTaste! \r\n"),'UTF-8', 'UTF-8');
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return strip_tags(Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste! \r\n");
+            return mb_convert_encoding(strip_tags(Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste! \r\n"),'UTF-8', 'UTF-8');
         else
-            return strip_tags("Checkout this profile on TagTaste. \r\n");
+            return mb_convert_encoding(strip_tags("Checkout this profile on TagTaste. \r\n"),'UTF-8', 'UTF-8');
     }
 
     public static function getCompanyText($model)
@@ -281,7 +281,7 @@ class Deeplink
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
             return Str::words(substr($model->about,0,155))."...\r\nCheckout this company on TagTaste! \r\n";
         else
-            return strip_tags("Checkout this company on TagTaste! \r\n");
+            return mb_convert_encoding(strip_tags("Checkout this company on TagTaste! \r\n"),'UTF-8', 'UTF-8');
     }
 
     public static function getSurveyText($model)
