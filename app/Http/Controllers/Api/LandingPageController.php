@@ -856,7 +856,7 @@ class LandingPageController extends Controller
     public function getProductAvailableForReview($profileId){
         $reviewData = [];
         
-        $reviewCount = BatchAssign::join('collaborate_tasting_user_review' ,'collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
+        $reviewCount = BatchAssign::leftJoin('collaborate_tasting_user_review' ,'collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
             ->join('collaborates','collaborate_tasting_user_review.collaborate_id','=','collaborates.id')
             ->where('collaborate_batches_assign.begin_tasting',1)
             ->where('collaborate_tasting_user_review.current_status', '<>', 3)
