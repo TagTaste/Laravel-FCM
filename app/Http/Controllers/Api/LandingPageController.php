@@ -10,6 +10,7 @@ use App\Channel\Payload;
 use App\Collaborate;
 use App\Collaborate\Applicant;
 use App\Collaborate\BatchAssign;
+use App\Collaborate\Review as CollaborateReview;
 use App\CompanyUser;
 use App\Console\Commands\Build\Cache\Survey;
 use Illuminate\Support\Facades\Redis;
@@ -277,7 +278,7 @@ class LandingPageController extends Controller
                 $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
                 $surveyModel = Surveys::find($value);
                 $data['meta'] = $surveyModel->getMetaFor($profileId);
-                if(!(is_null($data['surveys']['company_id']))){
+                if(isset($data['surveys']['company_id']) && !(is_null($data['surveys']['company_id']))){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['surveys']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['surveys']['profile_id'].":V2"), true);
@@ -289,7 +290,7 @@ class LandingPageController extends Controller
                 $data['collaborate'] = json_decode(Redis::get("collaborate:".$value.":V2"), true);
                 $collabModel = Collaborate::find($value);
                 $data['meta'] = $collabModel->getMetaForV2($profileId);
-                if(!(is_null($data['collaborate']['company_id']))){
+                if(isset($data['collaborate']['company_id']) && !(is_null($data['collaborate']['company_id']))){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['collaborate']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['collaborate']['profile_id'].":V2"), true);
@@ -357,7 +358,7 @@ class LandingPageController extends Controller
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
-            if(!(is_null($data['polling']['company_id']))){
+            if(isset($data['polling']['company_id']) &&  !(is_null($data['polling']['company_id']))){
                 $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
             }else{
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
@@ -394,7 +395,7 @@ class LandingPageController extends Controller
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
-            if(!(is_null($data['polling']['company_id']))){
+            if(isset($data['polling']['company_id']) && !(is_null($data['polling']['company_id']))){
                 $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
             }else{
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
@@ -855,15 +856,18 @@ class LandingPageController extends Controller
     
     public function getProductAvailableForReview($profileId){
         $reviewData = [];
-        
-        $reviewCount = BatchAssign::leftJoin('collaborate_tasting_user_review' ,'collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
-            ->join('collaborates','collaborate_tasting_user_review.collaborate_id','=','collaborates.id')
+        $completeBatch = CollaborateReview::where('profile_id',$profileId)
+            ->where('current_status',3)
+            ->distinct('batch_id')
+            ->pluck('batch_id')->toArray();
+
+        $reviewCount = BatchAssign::join('collaborates','collaborate_batches_assign.collaborate_id','=','collaborates.id')
             ->where('collaborate_batches_assign.begin_tasting',1)
-            ->where('collaborate_tasting_user_review.current_status', '<>', 3)
             ->where('collaborates.state',1)
             ->where('collaborate_batches_assign.profile_id',$profileId)
+            ->whereNotIn('collaborate_batches_assign.batch_id', $completeBatch)
             ->distinct('collaborate_batches_assign.batch_id')
-            ->pluck('collaborate_batches_assign.batch_id')->count();
+            ->pluck('collaborate_batches_assign.batch_id')->count(); 
         
         if($reviewCount > 0){
             $reviewData["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
