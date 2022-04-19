@@ -76,7 +76,7 @@ class LandingPageController extends Controller
             $this->model[] = $reviewCard;
 
         //banner
-        if(!($request->user()->profile->is_paid)){
+        if(!($request->user()->profile->is_paid_taster)){
             $banner = $this->getBanner();
             if($banner != null)
                 $this->model[] = $banner;    
@@ -781,7 +781,7 @@ class LandingPageController extends Controller
                 $this->model[] = $reviewCard;
 
             //banner
-            if(!($request->user()->profile->is_paid)){
+            if(!($request->user()->profile->is_paid_taster)){
                 $banner = $this->getBanner();
                 if($banner != null)
                     $this->model[] = $banner;    
