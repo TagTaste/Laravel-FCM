@@ -277,7 +277,7 @@ class LandingPageController extends Controller
                 $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
                 $surveyModel = Surveys::find($value);
                 $data['meta'] = $surveyModel->getMetaFor($profileId);
-                if(isset($data['surveys']['company_id'])){
+                if(!(is_null($data['surveys']['company_id']))){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['surveys']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['surveys']['profile_id'].":V2"), true);
@@ -289,7 +289,7 @@ class LandingPageController extends Controller
                 $data['collaborate'] = json_decode(Redis::get("collaborate:".$value.":V2"), true);
                 $collabModel = Collaborate::find($value);
                 $data['meta'] = $collabModel->getMetaForV2($profileId);
-                if(isset($data['collaborate']['company_id'])){
+                if(!(is_null($data['collaborate']['company_id']))){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['collaborate']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['collaborate']['profile_id'].":V2"), true);
@@ -357,7 +357,7 @@ class LandingPageController extends Controller
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
-            if(isset($data['polling']['company_id'])){
+            if(!(is_null($data['polling']['company_id']))){
                 $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
             }else{
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
@@ -394,7 +394,7 @@ class LandingPageController extends Controller
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
-            if(isset($data['polling']['company_id'])){
+            if(!(is_null($data['polling']['company_id']))){
                 $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
             }else{
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
