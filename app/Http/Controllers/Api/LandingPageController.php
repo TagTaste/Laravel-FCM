@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use App\FeedCard;
 use App\Payment\PaymentDetails as PaymentPaymentDetails;
 use App\Polling;
+use App\PollingVote;
 use App\Product;
 use App\Profile;
 use App\PublicReviewProduct;
@@ -322,31 +323,36 @@ class LandingPageController extends Controller
         
         if($type == 'TagTaste'){
             $carousel["title"] = "Polls From Tagtaste";
-            $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
-                ->where('poll_votes.profile_id', '<>', $profileId)
-                ->whereNull('poll_votes.deleted_at')
-                ->where('poll_questions.is_expired', 0)
-                ->where('poll_questions.profile_id', '<>', $profileId)  
-                ->whereNull('poll_questions.deleted_at')
-                ->whereIn('poll_questions.company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
-                ->orderBy('poll_questions.created_at', 'desc')
-                ->take(10)->pluck('poll_questions.id')->toArray();
+            $ids = PollingVote::where('profile_id',$profileId)
+                    ->whereNull('deleted_at')
+                    ->pluck('poll_id')->toArray();
+
+            $carouseldata = Polling::where('is_expired', 0)
+                ->where('profile_id', '<>', $profileId)  
+                ->whereNotIn('id',$ids)
+                ->whereNull('deleted_at')
+                ->whereIn('company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                ->orderBy('created_at', 'desc')
+                ->take(10)->pluck('id')->toArray();
+
         }else{
             $carousel["title"] = "Polls From Community";
-            $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
-                ->where('poll_votes.profile_id', '<>', $profileId)
-                ->whereNull('poll_votes.deleted_at')
-                ->where('poll_questions.is_expired', 0)
-                ->where('poll_questions.profile_id', '<>', $profileId)  
-                ->whereNull('poll_questions.deleted_at')
+            $ids = PollingVote::where('profile_id',$profileId)
+                    ->whereNull('deleted_at')
+                    ->pluck('poll_id')->toArray();
+
+            $carouseldata = Polling::where('is_expired', 0)
+                ->where('profile_id', '<>', $profileId)  
+                ->whereNotIn('id',$ids)
+                ->whereNull('deleted_at')
                 ->where(function($query){
-                    $query  ->whereNotIn('poll_questions.company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
-                            ->orWhereNull('poll_questions.company_id');
+                    $query  ->whereNotIn('company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                            ->orWhereNull('company_id');
                 })
-                ->orderBy('poll_questions.created_at', 'desc')
-                ->take(10)->pluck('poll_questions.id')->toArray(); 
+                ->orderBy('created_at', 'desc')
+                ->take(10)->pluck('id')->toArray(); 
         }
-        
+
         foreach ($carouseldata as $key => $value) {
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
@@ -372,7 +378,7 @@ class LandingPageController extends Controller
         $carousel["see_more"] = true;
         $carousel["value"] = "poll_result";
         $carousel["elements"] = [];
-
+        
         $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->where('poll_votes.profile_id', $profileId)
             ->where('poll_questions.is_expired', 1)
