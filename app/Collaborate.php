@@ -459,7 +459,7 @@ class Collaborate extends Model implements Feedable
 
         $description = "";
         if (!is_null($this->description)) {
-            $description = substr(strip_tags($this->description), 0, 160) . "...";
+            $description = mb_convert_encoding(substr(strip_tags($this->description), 0, 160),'UTF-8', 'UTF-8') . "...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
