@@ -39,9 +39,6 @@ class ReviewCalculation extends Command
     public function handle()
     {
         $collab_id = $this->argument('id');
-
-
-
         $batches = Batches::select('id', 'name')->where('collaborate_id', $collab_id)->get();
 
         $finalData = [];
@@ -63,7 +60,7 @@ class ReviewCalculation extends Command
                 $dataset[$value->profile_id][$batch->id]["product"] = $batch->name;
                 $seconds = strtotime($value->duration) - strtotime('00:00:00');
                 $dataset[$value->profile_id][$batch->id]["review_time_seconds"] = $seconds;
-                $dataset[$value->profile_id]["profile_url"] = "https://dev.tagtaste.com/@" . $value->profile_name;
+                $dataset[$value->profile_id]["profile_url"] = env('APP_URL').'/@'. $value->profile_name;   
             }
         }
 
@@ -129,7 +126,7 @@ class ReviewCalculation extends Command
         $linkMessage = 'Excel Report Review ' . $url;
         \Mail::raw($linkMessage, function ($message) {
 
-            $message->to('v-hussein@tagtaste.com');
+            $message->to('nikhil@tagtaste.com');
 
             // $message->cc('nikhil@tagtaste.com', 'Nikhil');
             // $message->bcc('john@johndoe.com', 'John Doe');
