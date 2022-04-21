@@ -340,7 +340,7 @@ class LandingPageController extends Controller
             $ids = PollingVote::where('profile_id',$profileId)
                     ->whereNull('deleted_at')
                     ->pluck('poll_id')->toArray();
-
+            
             $carouseldata = Polling::where('is_expired', 0)
                 ->where('profile_id', '<>', $profileId)  
                 ->whereNotIn('id',$ids)
@@ -354,6 +354,7 @@ class LandingPageController extends Controller
         }
 
         foreach ($carouseldata as $key => $value) {
+            $data = [];
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
@@ -391,6 +392,7 @@ class LandingPageController extends Controller
 
 
         foreach ($carouseldata as $key => $value) {
+            $data = [];
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
@@ -931,7 +933,8 @@ class LandingPageController extends Controller
             unset($tag["count"]);
             unset($tag["updated_at"]);
         }
-
+        $hashTags["model_name"] = config("constant.LANDING_MODEL.HASHTAG");
+        
         $hashTags["ui_type"] = config("constant.LANDING_UI_TYPE.HASHTAG");
         $hashTags["title"] = "Trending #tags";
         $hashTags["see_more"] = true;
