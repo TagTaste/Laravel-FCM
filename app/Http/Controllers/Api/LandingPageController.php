@@ -269,10 +269,9 @@ class LandingPageController extends Controller
                 ->orderBy('updated_at', 'desc')
                 ->take(40)->pluck('model_id')->toArray();
         }
-        
-        $data = [];
-        
+                
         foreach ($carouseldata as $key => $value) {
+            $data = [];
             $placeHolderImage = json_decode(config("constant.LANDING_PLACEHOLDER_IMAGE")[array_rand(config("constant.LANDING_PLACEHOLDER_IMAGE"))]);
             if($model == config("constant.LANDING_MODEL.SURVEYS")){
                 $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
