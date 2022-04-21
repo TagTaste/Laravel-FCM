@@ -920,7 +920,11 @@ class LandingPageController extends Controller
         }else{
             $bigBanner["elements"] = [];
         }
-    
+        
+        if(count($bigBanner["elements"]) == 1){
+            $bigBanner["autoplay"] = false;
+        }
+
         return $bigBanner;
         
     }
