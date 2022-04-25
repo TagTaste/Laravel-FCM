@@ -1615,9 +1615,9 @@ class SearchController extends Controller
                     $model = $model::whereIn('id', $ids);
 
                     if ($type == 'product-review') {
-                        $model = $model->where('collaborate_type', 'product-review')->where("expires_on", ">", date("Y-m-d H:i:s"))->where('step', 3);
+                        $model = $model->where('collaborate_type', 'product-review')->where("state", 1)->where('step', 3);
                     } else if ($type == 'collaborate') {
-                        $model = $model->where('collaborate_type', "<>", 'product-review')->where("expires_on", ">", date("Y-m-d H:i:s"));
+                        $model = $model->where('collaborate_type', "<>", 'product-review')->where("state",1);
                     }
                     return $model->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
                 } else {
@@ -1668,9 +1668,9 @@ class SearchController extends Controller
         }
 
         if ($type == 'product-review') {
-            $model = $model->where('collaborate_type', 'product-review')->where("expires_on", ">", date("Y-m-d H:i:s"));
+            $model = $model->where('collaborate_type', 'product-review')->where("state", 1);
         } else if ($type == 'collaborate') {
-            $model = $model->where('collaborate_type', "<>", 'product-review')->where("expires_on", ">", date("Y-m-d H:i:s"));
+            $model = $model->where('collaborate_type', "<>", 'product-review')->where("state", 1);
         }
 
 
