@@ -10,6 +10,7 @@ use App\Channel\Payload;
 use App\Collaborate;
 use App\Collaborate\Applicant;
 use App\Collaborate\BatchAssign;
+use App\Collaborate\Review as CollaborateReview;
 use App\CompanyUser;
 use App\Console\Commands\Build\Cache\Survey;
 use Illuminate\Support\Facades\Redis;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 use App\FeedCard;
 use App\Payment\PaymentDetails as PaymentPaymentDetails;
 use App\Polling;
+use App\PollingVote;
 use App\Product;
 use App\Profile;
 use App\PublicReviewProduct;
@@ -75,9 +77,11 @@ class LandingPageController extends Controller
             $this->model[] = $reviewCard;
 
         //banner
-        $banner = $this->getBanner();
-        if($banner != null)
-            $this->model[] = $banner;
+        if(!($request->user()->profile->is_paid_taster)){
+            $banner = $this->getBanner();
+            if($banner != null)
+                $this->model[] = $banner;    
+        }
 
         //hashtags
         $hashTags = $this->getTrendingHashtag();
@@ -228,6 +232,7 @@ class LandingPageController extends Controller
                 ->whereNotIn('id', $ids)
                 ->where('collaborate_type','=',$model)
                 ->whereNull('deleted_at')
+                ->where('profile_id','<>',$profileId)
                 ->where(function ($query) use ($companyIds){
                     $query->whereNotIn('company_id',$companyIds)
                         ->orWhereNull('company_id');
@@ -264,16 +269,15 @@ class LandingPageController extends Controller
                 ->orderBy('updated_at', 'desc')
                 ->take(40)->pluck('model_id')->toArray();
         }
-        
-        $data = [];
-        
+                
         foreach ($carouseldata as $key => $value) {
+            $data = [];
             $placeHolderImage = json_decode(config("constant.LANDING_PLACEHOLDER_IMAGE")[array_rand(config("constant.LANDING_PLACEHOLDER_IMAGE"))]);
             if($model == config("constant.LANDING_MODEL.SURVEYS")){
                 $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
                 $surveyModel = Surveys::find($value);
                 $data['meta'] = $surveyModel->getMetaFor($profileId);
-                if(isset($data['polling']['company_id'])){
+                if(isset($data['surveys']['company_id']) && !(is_null($data['surveys']['company_id']))){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['surveys']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['surveys']['profile_id'].":V2"), true);
@@ -285,7 +289,7 @@ class LandingPageController extends Controller
                 $data['collaborate'] = json_decode(Redis::get("collaborate:".$value.":V2"), true);
                 $collabModel = Collaborate::find($value);
                 $data['meta'] = $collabModel->getMetaForV2($profileId);
-                if(isset($data['collaborate']['company_id'])){
+                if(isset($data['collaborate']['company_id']) && !(is_null($data['collaborate']['company_id']))){
                     $data['company'] = json_decode(Redis::get("company:small:".$data['collaborate']['company_id'].":V2"), true);
                 }else{
                     $data['profile'] = json_decode(Redis::get("profile:small:".$data['collaborate']['profile_id'].":V2"), true);
@@ -319,36 +323,42 @@ class LandingPageController extends Controller
         
         if($type == 'TagTaste'){
             $carousel["title"] = "Polls From Tagtaste";
-            $carouseldata = Polling::leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
-                ->where('poll_votes.profile_id', '<>', $profileId)
-                ->whereNull('poll_votes.deleted_at')
-                ->where('poll_questions.is_expired', 0)
-                ->where('poll_questions.profile_id', '<>', $profileId)  
-                ->whereNull('poll_questions.deleted_at')
-                ->whereIn('poll_questions.company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
-                ->orderBy('poll_questions.created_at', 'desc')
-                ->take(10)->pluck('poll_questions.id')->toArray();
+            $ids = PollingVote::where('profile_id',$profileId)
+                    ->whereNull('deleted_at')
+                    ->pluck('poll_id')->toArray();
+
+            $carouseldata = Polling::where('is_expired', 0)
+                ->where('profile_id', '<>', $profileId)  
+                ->whereNotIn('id',$ids)
+                ->whereNull('deleted_at')
+                ->whereIn('company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                ->orderBy('created_at', 'desc')
+                ->take(10)->pluck('id')->toArray();
+
         }else{
             $carousel["title"] = "Polls From Community";
-            $carouseldata = Polling::leftJoin('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
-                ->where('poll_votes.profile_id', '<>', $profileId)
-                ->whereNull('poll_votes.deleted_at')
-                ->where('poll_questions.is_expired', 0)
-                ->where('poll_questions.profile_id', '<>', $profileId)  
-                ->whereNull('poll_questions.deleted_at')
+            $ids = PollingVote::where('profile_id',$profileId)
+                    ->whereNull('deleted_at')
+                    ->pluck('poll_id')->toArray();
+            
+            $carouseldata = Polling::where('is_expired', 0)
+                ->where('profile_id', '<>', $profileId)  
+                ->whereNotIn('id',$ids)
+                ->whereNull('deleted_at')
                 ->where(function($query){
-                    $query  ->whereNotIn('poll_questions.company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
-                            ->orWhereNull('poll_questions.company_id');
+                    $query  ->whereNotIn('company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                            ->orWhereNull('company_id');
                 })
-                ->orderBy('poll_questions.created_at', 'desc')
-                ->take(10)->pluck('poll_questions.id')->toArray(); 
+                ->orderBy('created_at', 'desc')
+                ->take(10)->pluck('id')->toArray(); 
         }
 
         foreach ($carouseldata as $key => $value) {
+            $data = [];
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
-            if(isset($data['polling']['company_id'])){
+            if(isset($data['polling']['company_id']) &&  !(is_null($data['polling']['company_id']))){
                 $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
             }else{
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
@@ -369,7 +379,7 @@ class LandingPageController extends Controller
         $carousel["see_more"] = true;
         $carousel["value"] = "poll_result";
         $carousel["elements"] = [];
-
+        
         $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->where('poll_votes.profile_id', $profileId)
             ->where('poll_questions.is_expired', 1)
@@ -382,10 +392,11 @@ class LandingPageController extends Controller
 
 
         foreach ($carouseldata as $key => $value) {
+            $data = [];
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
-            if(isset($data['polling']['company_id'])){
+            if(isset($data['polling']['company_id']) && !(is_null($data['polling']['company_id']))){
                 $data['company'] = json_decode(Redis::get("company:small:".$data['polling']['company_id'].":V2"), true);
             }else{
                 $data['profile'] = json_decode(Redis::get("profile:small:".$data['polling']['profile_id'].":V2"), true);
@@ -772,9 +783,11 @@ class LandingPageController extends Controller
                 $this->model[] = $reviewCard;
 
             //banner
-            $banner = $this->getBanner();
-            if($banner != null)
-                $this->model[] = $banner;
+            if(!($request->user()->profile->is_paid_taster)){
+                $banner = $this->getBanner();
+                if($banner != null)
+                    $this->model[] = $banner;    
+            }
         }
 
         $suggestion = $this->getSuggestion($profileId);
@@ -789,6 +802,7 @@ class LandingPageController extends Controller
         $carouselCollab = $this->carousel($profileId, $collaborateModel, $companyIds);
         if (count($carouselCollab["elements"]) != 0)
             $this->model[] = $carouselCollab;
+
 
         $carouselSurvey = $this->carousel($profileId, $surveyModel, $companyIds);
         if (count($carouselSurvey["elements"]) != 0)
@@ -843,15 +857,18 @@ class LandingPageController extends Controller
     
     public function getProductAvailableForReview($profileId){
         $reviewData = [];
-        
-        $reviewCount = BatchAssign::join('collaborate_tasting_user_review' ,'collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
-            ->join('collaborates','collaborate_tasting_user_review.collaborate_id','=','collaborates.id')
+        $completeBatch = CollaborateReview::where('profile_id',$profileId)
+            ->where('current_status',3)
+            ->distinct('batch_id')
+            ->pluck('batch_id')->toArray();
+
+        $reviewCount = BatchAssign::join('collaborates','collaborate_batches_assign.collaborate_id','=','collaborates.id')
             ->where('collaborate_batches_assign.begin_tasting',1)
-            ->where('collaborate_tasting_user_review.current_status', '<>', 3)
             ->where('collaborates.state',1)
             ->where('collaborate_batches_assign.profile_id',$profileId)
+            ->whereNotIn('collaborate_batches_assign.batch_id', $completeBatch)
             ->distinct('collaborate_batches_assign.batch_id')
-            ->pluck('collaborate_batches_assign.batch_id')->count();
+            ->pluck('collaborate_batches_assign.batch_id')->count(); 
         
         if($reviewCount > 0){
             $reviewData["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
@@ -903,7 +920,11 @@ class LandingPageController extends Controller
         }else{
             $bigBanner["elements"] = [];
         }
-    
+        
+        if(count($bigBanner["elements"]) == 1){
+            $bigBanner["autoplay"] = false;
+        }
+
         return $bigBanner;
         
     }
@@ -916,23 +937,27 @@ class LandingPageController extends Controller
             unset($tag["count"]);
             unset($tag["updated_at"]);
         }
-
+        $hashTags["model_name"] = config("constant.LANDING_MODEL.HASHTAG");
+        
         $hashTags["ui_type"] = config("constant.LANDING_UI_TYPE.HASHTAG");
         $hashTags["title"] = "Trending #tags";
         $hashTags["see_more"] = true;
-        $hashTags["elements"] = $tags;
         
+        if(count($tags) > 5){
+            $tags = array_slice($tags, 0, 5, true);            
+        }
+
+        $hashTags["elements"] = $tags;
         return $hashTags;
     }
 
     public function getBanner(){
-        $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
-        if ($banner) {
-            $banner->ui_type = config("constant.LANDING_UI_TYPE.BANNER");
-            $banner->images_meta = json_decode($banner->images_meta ?? []);
-            return $banner;
-        }else{
-            return null;
-        }
+        // $banner = DB::table('landing_banner')->select('images_meta', 'model_name', 'model_id')->where('banner_type', 'banner')->whereNull('deleted_at')->where('is_active', 1)->first();
+        $banner = ["ui_type"=>config("constant.LANDING_UI_TYPE.BANNER"),
+        "images_meta"=>json_decode(config("constant.LEARN_AND_EARN_IMAGE")),
+        "model_name"=>config("constant.LANDING_MODEL.LEARN_AND_EARN"),
+        "title"=>"Learn and Earn",
+        "model_id"=>null];
+        return $banner;
     }
 }
