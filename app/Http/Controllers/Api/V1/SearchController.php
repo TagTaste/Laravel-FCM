@@ -1692,7 +1692,7 @@ class SearchController extends Controller
             $response['hits']['total'] = 0;
             $this->isSearched = 0;
         } else {
-            $response = ElasticHelper::suggestedSearch($query, $type, 0, 1);
+            $response = ElasticHelper::suggestedSearch($query, $type, 1, 1);
             $this->isSearched = 1;
         }
         if ($response['hits']['total'] == 0 && isset($response["suggest"])) {
