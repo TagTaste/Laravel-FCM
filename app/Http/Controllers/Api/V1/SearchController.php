@@ -1640,7 +1640,7 @@ class SearchController extends Controller
         }
         if (count($ids)) {
             if ($type == 'collaborate' || $type == 'product-review') {
-                $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where("expires_on", ">", date("Y-m-d H:i:s"));
+                $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
                 if ($type == "product-review") {
                     $model = $model->where('step', 3);
                 }
@@ -1668,9 +1668,9 @@ class SearchController extends Controller
         }
 
         if ($type == 'product-review') {
-            $model = $model->where('collaborate_type', 'product-review');
+            $model = $model->where('collaborate_type', 'product-review')->where("expires_on", ">", date("Y-m-d H:i:s"));
         } else if ($type == 'collaborate') {
-            $model = $model->where('collaborate_type', "<>", 'product-review');
+            $model = $model->where('collaborate_type', "<>", 'product-review')->where("expires_on", ">", date("Y-m-d H:i:s"));
         }
 
 
