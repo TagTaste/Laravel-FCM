@@ -418,7 +418,7 @@ class LandingPageController extends Controller
         $carousel["see_more"] = true;
         
         $carousel["elements"] = [];
-
+        
         $payloads = Payload::where('model','App\\V2\\Photo')
             ->whereNull('deleted_at')
             ->where('channel_name','company.public.45')
