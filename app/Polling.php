@@ -113,7 +113,7 @@ class Polling extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-        $meta['seen_count'] = "1.2k";
+        // $meta['seen_count'] = "0";
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
