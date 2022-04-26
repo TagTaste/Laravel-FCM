@@ -57,7 +57,11 @@ class SearchController extends Controller
                 $ids = count($ids) ? array_intersect($ids,$modelIds->toArray()) : $modelIds->toArray();
                 if(count($ids)) {
                     $placeholders = implode(',',array_fill(0, count($ids), '?')); 
-                    return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
+                     $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take);
+                     if($type=='collaborate'){
+                        $model = $model->where("state",1);
+                     }
+                     return $model->get();
                 } else {
                     return false;
                 }
@@ -67,7 +71,7 @@ class SearchController extends Controller
         }
         if(count($ids)) {
             if($type=='collaborate') {
-                $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step',3);
+                $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step',3)->where("state",1);
             } else 
                 $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
                 
@@ -370,7 +374,7 @@ class SearchController extends Controller
             $response['hits']['total'] = 0;
             $this->isSearched = 0;
         } else {
-            $response = ElasticHelper::suggestedSearch($query,$type,0,1);
+            $response = ElasticHelper::suggestedSearch($query,$type,1,1);
             $this->isSearched = 1;
         }
         if($response['hits']['total'] == 0 && isset($response["suggest"])) {
