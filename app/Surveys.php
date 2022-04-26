@@ -88,7 +88,7 @@ class Surveys extends Model implements Feedable
     public function getMetaFor(int $profileId): array
     {
         $meta = [];
-        $meta['seen_count'] = "1.2k";
+        // $meta['seen_count'] = "0";
         $meta['expired_at'] = $this->expired_at;
         $key = "meta:surveys:likes:" . $this->id;
         $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
