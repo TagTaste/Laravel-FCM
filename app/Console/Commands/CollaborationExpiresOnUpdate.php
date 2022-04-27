@@ -44,13 +44,19 @@ class CollaborationExpiresOnUpdate extends Command
     public function handle()
     {
 
-        Collaborate::where('expires_on', '<=', Carbon::now()->toDateTimeString())->whereNull('deleted_at')
+            Collaborate::where('state', '=', 1)->whereNull('deleted_at')->where(function($q){
+                $q->orWhere("expires_on","=",null);
+                $q->orWhere("expires_on","=","");
+            })
             ->orderBy('id')->chunk(100, function ($models) {
                 foreach ($models as $model) {
-                    $updated_at =   strtotime('+1 month', strtotime($model->updated_at));
+                    $updated_at =   date("Y-m-d H:i:s",strtotime('+1 month', strtotime($model->updated_at)));
+                    echo $model->id.PHP_EOL;
+                    // continue;
+            
                     // dd($updated_at);
                     \DB::table('collaborates')->where('id', $model->id)->update(['expires_on' => $updated_at]);
-                    \Log::info("updated expireson");
+                    
                 }
             });
     }
