@@ -284,7 +284,9 @@ class Kernel extends ConsoleKernel
 
         SurveyApplicantStatus::class,
         \App\Console\Commands\CollaborateReviewCalculation::class,
-        \App\Console\Commands\ReviewCalculation::class
+        \App\Console\Commands\ReviewCalculation::class,
+        \App\Console\Commands\CollaborationExpiresOnUpdate::class
+
 
 
     ];
@@ -335,6 +337,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
 
         // $schedule->command('review:calculation')->dailyAt('01:00');
+       // $schedule->command('SetExpireon:Collab')->dailyAt('12:00');
+
 
 
     }
