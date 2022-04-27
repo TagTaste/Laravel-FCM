@@ -41,7 +41,7 @@ class BannerExpire extends Command
     public function handle()
     {
 
-        DB::table('landing_banner')->where('expires_on','<',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
+        DB::table('landing_banner')->where('expires_on','<',Carbon::now()->toDateTimeString())->where("is_active",1)->whereNull('deleted_at')
         ->orderBy('id')->chunk(100, function ($models) {
 
                 foreach ($models as $model) {
