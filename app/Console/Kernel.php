@@ -350,7 +350,7 @@ class Kernel extends ConsoleKernel
         //payment link reminder command
 
         $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
-        $schedule->command('expires_on:banner')->dailyAt('12:00');
+        $schedule->command('expires_on:banner')->dailyAt('12:10');
 
         // $schedule->command('review:calculation')->dailyAt('01:00');
 

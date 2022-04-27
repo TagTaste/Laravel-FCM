@@ -41,14 +41,14 @@ class BannerExpire extends Command
     public function handle()
     {
 
-        DB::table('landing_banner')->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
+        DB::table('landing_banner')->where('expires_on','<',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
         ->orderBy('id')->chunk(100, function ($models) {
 
                 foreach ($models as $model) {
 
                     $mData = $model;
                   
-                    DB::table('landing_banner')->where('id', $mData->id)->update(['is_active' => 0, 'deleted_at' => null]);
+                    DB::table('landing_banner')->where('id', $mData->id)->update(['is_active' => 0]);
          
                 }
             });
