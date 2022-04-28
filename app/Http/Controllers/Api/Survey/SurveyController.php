@@ -276,6 +276,7 @@ class SurveyController extends Controller
         $profileId = $request->user()->profile->id;
         $surveys = $this->model->where('state', 2)
             ->whereNull('deleted_at')->where("id","<>",$surveyId)
+            ->where('is_active',1)
             ->inRandomOrder()
             ->take(3)->get();
 
