@@ -21,6 +21,8 @@ class SurveyApplicantController extends Controller
 {
 
     use SendsJsonResponse, FilterTraits;
+
+    private $frontEndApplicationStatus = [0=>"Begin Tasting",1=>"Notified",2=>"Completed"];
     public function __construct(Surveys $model)
     {
         $this->model = $model;
@@ -454,7 +456,7 @@ class SurveyApplicantController extends Controller
                     }
                 }
             }
-
+            $status = 
             $temp = array(
                 "S. No" => $key + 1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
@@ -465,7 +467,8 @@ class SurveyApplicantController extends Controller
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
                 "Hometown" => $applicant->hometown,
-                "Current City" => $applicant->current_city
+                "Current City" => $applicant->current_city,
+                "Application Status"=>$this->frontEndApplicationStatus[$applicant->application_status] ?? ""
             );
             array_push($finalData, $temp);
         }
