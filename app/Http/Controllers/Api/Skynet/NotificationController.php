@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Api\Skynet;
 
+
+
 use App\Collaborate;
+use App\Company;
 use App\CompanyUser;
+use App\Deeplink;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use App\Surveys;
 use Illuminate\Support\Facades\Redis;
 use Carbon\Carbon;
 
 class NotificationController extends Controller
 {
-
+    
     // protected $model;
     // protected $now;
     
@@ -20,7 +25,7 @@ class NotificationController extends Controller
      *
      * @return void
      */
-
+    
     public function notifyUsers(Request $request)
     {
         $data = $request->all();
@@ -45,6 +50,32 @@ class NotificationController extends Controller
                 }
             } else {
                 event(new \App\Events\CollaborationReportUpload($collaborate, $data["notification"], $data["mode"]));
+            }
+        }else if($data["type"] == "survey_user_invite"){
+            $survey = Surveys::where('id', $data["survey_id"])->first();
+            if($survey == null){
+                return $this->sendResponse(false);
+            }
+            $companyObj = null;
+            if (!empty($survey->company_id)) {
+                $companyObj = Company::find($survey->company_id);
+            }
+            $profileIdsList = explode(',',$data["profile_ids"]);
+            foreach ($profileIdsList as $profileId) {
+                Redis::set("surveys:application_status:$survey->id:profile:$profileId", 1);
+                $survey->profile_id = $profileId;                
+                event(new \App\Events\Actions\surveyApplicantEvents(
+                    $survey,
+                    null,
+                    null,
+                    null,
+                    'fill_survey',
+                    null,
+                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, 
+                    "survey_id" => $survey->id, "profile" => (object)["id" => $companyObj->id, 
+                    "name" => $companyObj->name, "image" => $companyObj->image], "is_private" => $survey->is_private, 
+                    "type" => "inviteForReview"]
+                ));
             }
         }
         return $this->sendResponse(true);
