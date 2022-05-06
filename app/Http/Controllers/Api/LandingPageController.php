@@ -239,7 +239,11 @@ class LandingPageController extends Controller
                 })
                 ->orderBy('created_at', 'desc')
                 ->take(10)->pluck('id')->toArray();
-            
+                
+            $carousel["title"] = "Collaborations";
+            if($model == config("constant.LANDING_MODEL.PRODUCT-REVIEW")){
+                $carousel["title"] = "Product Reviews";
+            }
         } else if ($model == config("constant.LANDING_MODEL.SURVEYS")) {
             $ids = DB::table("survey_applicants")->where("profile_id", $profileId)
                 ->whereNull("deleted_at")
@@ -252,6 +256,8 @@ class LandingPageController extends Controller
                 ->whereNotIn("id", $ids)
                 ->orderBy('created_at', 'desc')
                 ->take(10)->pluck('id')->toArray();
+                
+            $carousel["title"] = "Surveys";
         } elseif ($model == config("constant.LANDING_MODEL.PRODUCT")) {
             $ids = Review::where('current_status','=',2)
             ->where('profile_id','=',$profileId)
@@ -268,6 +274,8 @@ class LandingPageController extends Controller
                 ->where('excluded_profiles', 'not like', '%'.$profileId.',%')
                 ->orderBy('updated_at', 'desc')
                 ->take(40)->pluck('model_id')->toArray();
+            
+            $carousel["title"] = "Products you’d like to review";
         }
                 
         foreach ($carouseldata as $key => $value) {
@@ -322,7 +330,7 @@ class LandingPageController extends Controller
         $carousel["elements"] = [];
         
         if($type == 'TagTaste'){
-            $carousel["title"] = "Polls From Tagtaste";
+            $carousel["title"] = "TagTaste Polls";
             $ids = PollingVote::where('profile_id',$profileId)
                     ->whereNull('deleted_at')
                     ->pluck('poll_id')->toArray();
@@ -336,7 +344,7 @@ class LandingPageController extends Controller
                 ->take(10)->pluck('id')->toArray();
 
         }else{
-            $carousel["title"] = "Polls From Community";
+            $carousel["title"] = "Community Polls";
             $ids = PollingVote::where('profile_id',$profileId)
                     ->whereNull('deleted_at')
                     ->pluck('poll_id')->toArray();
@@ -375,7 +383,7 @@ class LandingPageController extends Controller
     {
         $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.CAROUSEL");
         $carousel["model_name"] = config("constant.LANDING_MODEL.POLLING");
-        $carousel["title"] = "Polls in which you have participated";
+        $carousel["title"] = "Poll results out";
         $carousel["see_more"] = true;
         $carousel["value"] = "poll_result";
         $carousel["elements"] = [];
@@ -872,9 +880,9 @@ class LandingPageController extends Controller
         
         if($reviewCount > 0){
             $reviewData["ui_type"] = config("constant.LANDING_UI_TYPE.PRODUCT_AVAILABLE");
-            $reviewData["title"] = $reviewCount." Product available";
+            $reviewData["title"] = $reviewCount." Product Available";
             if($reviewCount > 1){
-                $reviewData["title"] = $reviewCount." Products available";
+                $reviewData["title"] = $reviewCount." Products Available";
             }          
             $reviewData["sub_title"] = "Review Now";
             $reviewData["image"] = "https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/icons/group.png";    
@@ -940,7 +948,7 @@ class LandingPageController extends Controller
         $hashTags["model_name"] = config("constant.LANDING_MODEL.HASHTAG");
         
         $hashTags["ui_type"] = config("constant.LANDING_UI_TYPE.HASHTAG");
-        $hashTags["title"] = "Trending #tags";
+        $hashTags["title"] = "Trending #Tags";
         $hashTags["see_more"] = true;
         
         if(count($tags) > 5){
