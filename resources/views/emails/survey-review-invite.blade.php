@@ -73,6 +73,7 @@
                                           color: #171717;
                                           margin: 0px;
                                           line-height: 1.67;
+                                          text-decoration: none;
                                         " href="{{$info["survey_url"]}}" target="_blank" rel="noreferrer">
                                                                 &ldquo;{{$info["survey_name"]}}&ldquo;</a>.
                                                         </p>
@@ -93,6 +94,7 @@
                                           font-size: 16px;
                                           font-weight: bold;
                                           cursor: pointer;
+                                          text-decoration: none;
                                         " href="{{$info["survey_url"]}}">
                                                                 Fill Survey
                                                             </a>
