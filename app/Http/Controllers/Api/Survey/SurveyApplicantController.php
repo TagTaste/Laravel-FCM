@@ -88,7 +88,7 @@ class SurveyApplicantController extends Controller
                 ->whereIn('profile_id', $profileIds);
         }
 
-        $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
+        $applicants = $applicants->orderBy("created_at","desc")->skip($skip)->take($take)->get()->toArray();
 
 
         $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
