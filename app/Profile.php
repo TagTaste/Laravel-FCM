@@ -15,18 +15,17 @@ use Illuminate\Support\Facades\Redis;
 
 class Profile extends Model
 {
-    use PushesToChannel,Notifiable, SoftDeletes;
+    use PushesToChannel, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'tagline', 'about', 'image','hero_image','phone', 'country_code','address', 'dob', 'interests', 'website_url',
-        'blog_url','facebook_url','linkedin_url','instagram_link','pinterest_url','twitter_url', 'google_url', 'other_links',
+        'tagline', 'about', 'image', 'hero_image', 'phone', 'country_code', 'address', 'dob', 'interests', 'website_url',
+        'blog_url', 'facebook_url', 'linkedin_url', 'instagram_link', 'pinterest_url', 'twitter_url', 'google_url', 'other_links',
         'ingredients', 'favourite_moments', 'verified', 'youtube_channel', 'followers', 'following', 'user_id', 'created_at',
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
-        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete'
-        ,"image_meta","hero_image_meta",'is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','is_ttfb_user', 
+        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step', 'gender', 'foodie_type_id', 'onboarding_complete', "image_meta", "hero_image_meta", 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'is_ttfb_user',
         // palate data
-        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status','tasting_instructions','is_premium','hometown','is_sensory_trained','is_paid_taster'
+        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_sensory_trained', 'is_paid_taster'
     ];
 
     // palate_visibility 1 visible to all, 0 hidden from everyone, 2 visible to people I follow
@@ -38,49 +37,54 @@ class Profile extends Model
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
         'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training',
-        'profile_occupations', 'profile_specializations'];
+        'profile_occupations', 'profile_specializations'
+    ];
 
-    protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
+    protected $visible = [
+        'id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
         'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',
         'pinterest_url', 'other_links', 'twitter_url', 'ingredients', 'favourite_moments', 'verified', 'youtube_channel',
         'interested_in_opportunities', 'followers', 'following', 'experience', 'awards', 'certifications', 'tvshows', 'books',
-        'patents', 'followingProfiles', 'followerProfiles', 'mutualFollowers', 'name', 'photos', 'education','address', 'projects', 'professional',
+        'patents', 'followingProfiles', 'followerProfiles', 'mutualFollowers', 'name', 'photos', 'education', 'address', 'projects', 'professional',
         'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
-        'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
-        'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens','totalPostCount', 'imagePostCount','document_meta','is_ttfb_user','palate_sensitivity','palate_visibility','palate_test_status','tasting_instructions','is_premium','hometown','is_paid_taster','is_sensory_trained','payment'];
+        'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy', 'profileCompletion', 'batchesCount', 'gender', 'user_id', 'newBatchesCount', 'shippingaddress',
+        'profile_occupations', 'profile_specializations', 'is_veteran', 'is_expert', 'foodie_type_id', 'foodie_type', 'establishment_types', 'cuisines', 'interested_collections',
+        'onboarding_complete', "image_meta", "hero_image_meta", 'fb_info', 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'reviewCount', 'allergens', 'totalPostCount', 'imagePostCount', 'document_meta', 'is_ttfb_user', 'palate_sensitivity', 'palate_visibility', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_paid_taster', 'is_sensory_trained', 'payment', 'formatted_earning'
+    ];
 
 
-    protected $appends = ['imageUrl','shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount','privateReviewCount','surveyCount','totalPostCount','amount','imagePostCount','document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount','payment'];
+    protected $appends = [
+        'imageUrl', 'shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name',
+        'resumeUrl', 'experience', 'education', 'mutualFollowers', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount',
+        'remainingMessages', 'isFollowedBy', 'isMessageAble', 'profileCompletion', 'batchesCount', 'newBatchesCount', 'foodie_type', 'establishment_types',
+        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment', 'formatted_earning'
+    ];
 
     /**
         profile completion mandatory field
         private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone', 'verified_phone', 'city', 'country','is_facebook_connected','is_linkedin_connected', 'keywords', 'expertise', 'experience', 'education'];
-    **/
+     **/
     private $profileCompletionMandatoryField = ['name', 'handle', 'tagline', 'dob', 'city', 'gender', 'foodie_type_id', 'profile_occupations', 'cuisines'];
 
-   
+
     /**
         profile completion optional field
         private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
-    **/
-    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone'];
+     **/
+    private $profileCompletionOptionalField = ['keywords', 'imageUrl', 'phone'];
 
     private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','profile_occupations','phone','verified_phone'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob', 'name', 'gender', 'profile_occupations', 'phone', 'verified_phone'];
 
 
     private $profileCompletionMandatoryFieldForCampusConnect = ['phone'];
-    
-    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress','phone'];
-    
-    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['phone','verified_phone'];
+
+    private $profileCompletionMandatoryFieldForGetProductSample = ['shippingaddress', 'phone'];
+
+    private $profileCompletionMandatoryFieldForCollaborationApplyV1 = ['phone', 'verified_phone'];
 
 
     public static function boot()
@@ -96,13 +100,12 @@ class Profile extends Model
             $name = preg_replace("/[^ \w]+/", '', $name);
             $name = str_replace(' ', '_', $name);
             $name = str_replace('__', '_', $name);
-            $name = rtrim($name,'_');
-            $hanleExist = Profile::where('handle',$name)->exists();
-            if($hanleExist)
-            {
-                $name = $name.'_'.mt_rand(100,999);
+            $name = rtrim($name, '_');
+            $hanleExist = Profile::where('handle', $name)->exists();
+            if ($hanleExist) {
+                $name = $name . '_' . mt_rand(100, 999);
             }
-            $profile->update(['handle'=>$name]);
+            $profile->update(['handle' => $name]);
 
 
             //create profile's feed channel
@@ -147,11 +150,11 @@ class Profile extends Model
 
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
-//            event(new SuggestionEngineEvent($profile, 'update'));
+            //            event(new SuggestionEngineEvent($profile, 'update'));
 
         });
 
-        self::deleting(function($profile){
+        self::deleting(function ($profile) {
             \App\Filter\Profile::removeModel($profile->id);
             \App\Documents\Profile::delete($profile);
             $profile->removeFromCache();
@@ -161,19 +164,19 @@ class Profile extends Model
     public function addToCache()
     {
         $smallProfile = \App\Recipe\Profile::find($this->id);
-        Redis::set("profile:small:".$this->id, $smallProfile->toJson());
+        Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
     }
 
     public function addToCacheV2()
     {
         $smallProfile = \App\V2\Profile::find($this->id);
-        Redis::set("profile:small:".$this->id.":V2", $smallProfile->toJson());
+        Redis::set("profile:small:" . $this->id . ":V2", $smallProfile->toJson());
     }
 
     public function addToGraph()
     {
         $data = \App\V2\Profile::find($this->id)->toArray();
-        
+
         foreach ($data as $key => $value) {
             if (in_array($key, ["verified", "is_tasting_expert", "is_premium"])) {
                 continue;
@@ -182,7 +185,7 @@ class Profile extends Model
             if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
-        
+
         if (isset($data['id'])) {
             $data['profile_id'] = $data['id'];
         }
@@ -200,7 +203,7 @@ class Profile extends Model
     {
         if ($this->dob) {
             $time = strtotime($this->dob);
-            $date = date('d-m',$time);
+            $date = date('d-m', $time);
             $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
             if ($user) {
                 $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
@@ -230,7 +233,7 @@ class Profile extends Model
         }
         if ($this->dob) {
             $time = strtotime($this->dob);
-            $date = date('d-m',$time);
+            $date = date('d-m', $time);
             if ($user) {
                 $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
                 $date_type_have_user = $date_type->have->where('user_id', $this->user_id)->first();
@@ -413,7 +416,7 @@ class Profile extends Model
 
     public function removeFromCache()
     {
-        Redis::connection('V2')->del('profile:small:' . $this->id.":V2");
+        Redis::connection('V2')->del('profile:small:' . $this->id . ":V2");
         return Redis::del('profile:small:' . $this->id);
     }
 
@@ -438,7 +441,7 @@ class Profile extends Model
     {
         $keyPreifx = "profile:small:";
         foreach ($ids as &$id) {
-            $id = $keyPreifx . $id.":V2";
+            $id = $keyPreifx . $id . ":V2";
         }
         $profiles = Redis::connection('V2')->mget($ids);
         if (count(array_filter($profiles)) == 0) {
@@ -471,11 +474,11 @@ class Profile extends Model
             $id = $keyPreifx . $id;
         }
         $profiles = Redis::mget($ids);
-        
+
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
-        
+
         foreach ($profiles as $index => &$profile) {
             $data = json_decode($profile);
             $profile = array(
@@ -483,13 +486,12 @@ class Profile extends Model
                 "name" => $data->name,
                 "handle" => $data->handle
             );
-            
         }
         return $profiles;
     }
 
 
-    
+
     public function user()
     {
         return $this->belongsTo('App\User');
@@ -499,24 +501,26 @@ class Profile extends Model
     {
         try {
             return $this->user->name;
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $message = "Accessing deleted profile " . $this->id;
             \Log::warning($message);
             $client =  new \GuzzleHttp\Client();
             $hook = env('SLACK_HOOK');
-            if($hook){
-                $client->request('POST', $hook,
+            if ($hook) {
+                $client->request(
+                    'POST',
+                    $hook,
                     [
                         'json' =>
-                            [
-                                "channel" => env('SLACK_CHANNEL'),
-                                "username" => "ramukaka",
-                                "icon_emoji" => ":older_man::skin-tone-3:",
-                                "text" => $message]
-                    ]);
-
+                        [
+                            "channel" => env('SLACK_CHANNEL'),
+                            "username" => "ramukaka",
+                            "icon_emoji" => ":older_man::skin-tone-3:",
+                            "text" => $message
+                        ]
+                    ]
+                );
             }
-
         }
         return "Inactive User";
     }
@@ -530,24 +534,22 @@ class Profile extends Model
     {
         if (!empty($value)) {
             return date("d-m-Y", strtotime($value));
-            if(request()->user()->profile->id == $this->id)
-            {
+            if (request()->user()->profile->id == $this->id) {
                 return date("d-m-Y", strtotime($value));
             }
 
-            if($this->dob_private == 3)
-            {
+            if ($this->dob_private == 3) {
                 return null;
             }
-            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
-            {
+            if (!Redis::sIsMember("followers:profile:" . request()->user()->profile->id, $this->id) && $this->dob_private == 2) {
                 return null;
             }
             return date("d-m-Y", strtotime($value));
         }
     }
 
-    public function getExperienceAttribute(){
+    public function getExperienceAttribute()
+    {
         $experiences = $this->experience()->get();
         $dates = $experiences->toArray();
 
@@ -568,10 +570,10 @@ class Profile extends Model
         }
 
 
-        $currentCompanies = $sortedExperience->pluck('start_date','id')->toArray();
+        $currentCompanies = $sortedExperience->pluck('start_date', 'id')->toArray();
         $startDates = [];
 
-        foreach($currentCompanies as $id=>$startDate){
+        foreach ($currentCompanies as $id => $startDate) {
 
             $dateArray = explode("-", $startDate);
             $temp = array_fill(0, 3 - count($dateArray), '01');
@@ -581,7 +583,7 @@ class Profile extends Model
         $startDates = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
         $sortedExperience = collect([]);
 
-        foreach($startDates as $id=>$date){
+        foreach ($startDates as $id => $date) {
 
             $sortedExperience->push($experiences->get($id));
         }
@@ -590,16 +592,16 @@ class Profile extends Model
         $sorted = collect($endDates)->sortByDesc('time')->keyBy('id')->toArray();
         unset($endDates);
 
-        foreach($sorted as $id=>$date){
+        foreach ($sorted as $id => $date) {
             $sortedExperience->push($experiences->get($id));
         }
 
         unset($experiences);
         return $sortedExperience;
-
     }
 
-    public function getEducationAttribute(){
+    public function getEducationAttribute()
+    {
 
         $educations = $this->education()->get();
 
@@ -622,10 +624,10 @@ class Profile extends Model
         }
 
 
-        $currentColleges = $sortedEducation->pluck('start_date','id')->toArray();
+        $currentColleges = $sortedEducation->pluck('start_date', 'id')->toArray();
         $startDates = [];
 
-        foreach($currentColleges as $id=>$startDate){
+        foreach ($currentColleges as $id => $startDate) {
 
             $dateArray = explode("-", $startDate);
             $temp = array_fill(0, 3 - count($dateArray), '01');
@@ -635,7 +637,7 @@ class Profile extends Model
         $startDates = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
         $sortedEducation = collect([]);
 
-        foreach($startDates as $id=>$date){
+        foreach ($startDates as $id => $date) {
 
             $sortedEducation->push($educations->get($id));
         }
@@ -644,13 +646,12 @@ class Profile extends Model
         $sorted = collect($endDates)->sortByDesc('time')->keyBy('id')->toArray();
         unset($endDates);
 
-        foreach($sorted as $id=>$date){
+        foreach ($sorted as $id => $date) {
             $sortedEducation->push($educations->get($id));
         }
 
         unset($educations);
         return $sortedEducation;
-
     }
 
     public function experience()
@@ -727,7 +728,6 @@ class Profile extends Model
     public function iAmFollowing()
     {
         return $this->belongsToMany('App\Profile', 'followers', 'follower_id', 'follows_id');
-
     }
 
     /**
@@ -753,19 +753,18 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        $count = Redis::SCARD("following:profile:".$this->id);
-        if( $count > 0 && Redis::sIsMember("following:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("following:profile:" . $this->id);
+        if ($count > 0 && Redis::sIsMember("following:profile:" . $this->id, $this->id)) {
             $count = $count - 1;
         }
 
-//        if ($count > 1000000) {
-//            $count = round($count / 1000000, 1) . "m";
-//        } elseif ($count > 1000) {
-//            $count = round($count / 1000, 1) . "k";
-//        }
+        //        if ($count > 1000000) {
+        //            $count = round($count / 1000000, 1) . "m";
+        //        } elseif ($count > 1000) {
+        //            $count = round($count / 1000, 1) . "k";
+        //        }
 
         return ['count' => $count];
-
     }
 
     public static function getFollowers($id)
@@ -791,47 +790,44 @@ class Profile extends Model
      */
     public function getFollowerProfilesAttribute()
     {
-        $count = Redis::SCARD("followers:profile:".$this->id);
-        if(Redis::sIsMember("followers:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("followers:profile:" . $this->id);
+        if (Redis::sIsMember("followers:profile:" . $this->id, $this->id)) {
             $count = $count - 1;
         }
 
-        if($count === 0){
+        if ($count === 0) {
             return ['count' => 0, 'profiles' => null];
         }
 
-//        if ($count > 1000000) {
-//            $count = round($count / 1000000, 1) . "m";
-//        } elseif ($count > 1000) {
-//            $count = round($count / 1000, 1) . "k";
-//        }
+        //        if ($count > 1000000) {
+        //            $count = round($count / 1000000, 1) . "m";
+        //        } elseif ($count > 1000) {
+        //            $count = round($count / 1000, 1) . "k";
+        //        }
 
         return ['count' => $count];
-
     }
 
     public function getMutualFollowersAttribute()
     {
-        if($this->id != request()->user()->profile->id)
-        {
-            $profileIds = Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
-            if(!count($profileIds)){
+        if ($this->id != request()->user()->profile->id) {
+            $profileIds = Redis::SINTER("followers:profile:" . $this->id, "followers:profile:" . request()->user()->profile->id);
+            if (!count($profileIds)) {
                 return ['count' => 0, 'profiles' => []];
             }
             $i = 0;
             $profileInfo = [];
-            foreach ($profileIds as $profileId)
-            {
-                if($i == 5)
+            foreach ($profileIds as $profileId) {
+                if ($i == 5)
                     break;
-                $profileInfo[] = "profile:small:".$profileId;
+                $profileInfo[] = "profile:small:" . $profileId;
                 $i++;
             }
             $data = [];
-            if(count($profileInfo))
+            if (count($profileInfo))
                 $data = Redis::mget($profileInfo);
 
-            foreach($data as &$profile){
+            foreach ($data as &$profile) {
                 $profile = json_decode($profile);
             }
             return ['count' => count($profileIds), 'profiles' => $data];
@@ -1044,13 +1040,13 @@ class Profile extends Model
 
     public static function isFollowing($profileId, $followerProfileId)
     {
-        return Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
+        return Redis::sIsMember("following:profile:" . $profileId, $followerProfileId) === 1;
         //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
     public function getIsFollowedByAttribute()
     {
-        return Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
+        return Redis::sIsMember("followers:profile:" . request()->user()->profile->id, $this->id) === 1;
     }
 
     //specific to API
@@ -1065,17 +1061,14 @@ class Profile extends Model
             return null;
         }
         if (!empty($value)) {
-            if(request()->user()->profile->id == $this->id)
-            {
+            if (request()->user()->profile->id == $this->id) {
                 return $value;
             }
 
-            if($this->address_private == 3)
-            {
+            if ($this->address_private == 3) {
                 return null;
             }
-            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
-            {
+            if (!Redis::sIsMember("followers:profile:" . request()->user()->profile->id, $this->id) && $this->address_private == 2) {
                 return null;
             }
             return $value;
@@ -1085,17 +1078,14 @@ class Profile extends Model
     public function getPhoneAttribute($value)
     {
         if (!empty($value) && isset(request()->user()->profile->id)) {
-            if(request()->user()->profile->id == $this->id)
-            {
+            if (request()->user()->profile->id == $this->id) {
                 return $value;
             }
 
-            if($this->phone_private == 3)
-            {
+            if ($this->phone_private == 3) {
                 return null;
             }
-            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
-            {
+            if (!Redis::sIsMember("followers:profile:" . request()->user()->profile->id, $this->id) && $this->phone_private == 2) {
                 return null;
             }
             return $value;
@@ -1104,12 +1094,12 @@ class Profile extends Model
 
     public function getNotificationCountAttribute()
     {
-        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
+        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id', request()->user()->profile->id)->count();
     }
 
     public function getNotificationContent($action = null)
     {
-//        if($action && $action == 'follow') {
+        //        if($action && $action == 'follow') {
         return [
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
@@ -1117,23 +1107,20 @@ class Profile extends Model
             'image' => $this->imageUrl,
             'content' => null,
         ];
-//        }
+        //        }
     }
 
     public function getMessageCountAttribute()
     {
-        return \DB::table('message_recepients')->whereNull('read_on')->whereNull('last_seen')->where('recepient_id',request()->user()->profile->id)->distinct('chat_id')->count();
+        return \DB::table('message_recepients')->whereNull('read_on')->whereNull('last_seen')->where('recepient_id', request()->user()->profile->id)->distinct('chat_id')->count();
     }
 
     public function getAddPasswordAttribute()
     {
-        if(request()->user()->profile->id != $this->id)
-        {
+        if (request()->user()->profile->id != $this->id) {
             return false;
-        }
-        else
-        {
-            return \DB::table('users')->whereNull('password')->where('id',request()->user()->id)->exists();
+        } else {
+            return \DB::table('users')->whereNull('password')->where('id', request()->user()->id)->exists();
         }
     }
 
@@ -1144,43 +1131,41 @@ class Profile extends Model
 
     public function getUnreadNotificationCountAttribute()
     {
-        return \DB::table('notifications')->whereNull('read_at')->where('notifiable_id',request()->user()->profile->id)->count();
+        return \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', request()->user()->profile->id)->count();
     }
 
     public function getPreviewContent()
     {
         $data = [];
         $data['modelId'] = $this->id;
-        $data['deeplinkCanonicalId'] = 'share_profile/'.$this->id;
+        $data['deeplinkCanonicalId'] = 'share_profile/' . $this->id;
         $data['owner'] = $this->id;
-        $data['title'] = 'Checkout '.$this->name.'\'s profile on TagTaste';
-        $data['description'] = substr($this->tagline,0,155);
-        $data['ogTitle'] = 'Checkout '.$this->name.'\'s profile on TagTaste';
+        $data['title'] = 'Checkout ' . $this->name . '\'s profile on TagTaste';
+        $data['description'] = substr($this->tagline, 0, 155);
+        $data['ogTitle'] = 'Checkout ' . $this->name . '\'s profile on TagTaste';
         $data['ogDescription'] = null;
         $data['ogImage'] = $this->imageUrl;
         $data['cardType'] = 'summary_large_image';
-        $data['ogUrl'] = env('APP_URL').'/profile/'.$this->id;
-        $data['redirectUrl'] = env('APP_URL').'/profile/'.$this->id;
-        if(empty($this->imageUrl)) {
+        $data['ogUrl'] = env('APP_URL') . '/profile/' . $this->id;
+        $data['redirectUrl'] = env('APP_URL') . '/profile/' . $this->id;
+        if (empty($this->imageUrl)) {
             $data['cardType'] = 'summary';
         }
 
         return $data;
-
     }
 
     public function getremainingMessagesAttribute()
     {
-        if(request()->user()->profile->id == $this->id)
-        {
-            $remaining = \DB::table('chat_limits')->where('profile_id',$this->id)->first();
+        if (request()->user()->profile->id == $this->id) {
+            $remaining = \DB::table('chat_limits')->where('profile_id', $this->id)->first();
             return isset($remaining) ? $remaining : null;
         }
     }
 
     public function getIsMessageAbleAttribute()
     {
-        $chat = Chat::open($this->id,request()->user()->profile->id);
+        $chat = Chat::open($this->id, request()->user()->profile->id);
         //return is_null($chat) ? false : true;
         return true;
     }
@@ -1188,121 +1173,102 @@ class Profile extends Model
     public function getProfileCompletionAttribute($fields = null)
     {
         if (!is_null(request()->user())) {
-            if(request()->user()->profile->id == $this->id)
-            {
-                if($fields == null) {
+            if (request()->user()->profile->id == $this->id) {
+                if ($fields == null) {
                     $remaningMandatoryItem = [];
-                $remaningOptionalItem = [];
-                $remaningAdditionalOptionalItem = [];
-                $profileCompletionMandatoryFieldForCollaborationApply = [];
-                $profileCompletionMandatoryFieldForCollaborationApplyV1 = []; 
-                $profileCompletionMandatoryFieldForCampusConnect = [];
-                $profileCompletionMandatoryFieldForGetProductSample = [];
-                $index = 0;
-                if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
-                {
-                    $index++;
-                    $remaningMandatoryItem = ['verified_email'];
-                    $profileCompletionMandatoryFieldForCampusConnect[] = 'verified_email';
-                    $profileCompletionMandatoryFieldForGetProductSample[] = 'verified_email';
-                }
-
-                if(!isset(request()->user()->email) && is_null(request()->user()->email))
-                {
-                    $index++;
-                    $remaningMandatoryItem = ['email'];
-                }
-
-
-                foreach ($this->profileCompletionMandatoryField as $item)
-                {
-                    if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0 || ($item == "cuisines" && $this->{$item}->count() == 0))
-                    {
+                    $remaningOptionalItem = [];
+                    $remaningAdditionalOptionalItem = [];
+                    $profileCompletionMandatoryFieldForCollaborationApply = [];
+                    $profileCompletionMandatoryFieldForCollaborationApplyV1 = [];
+                    $profileCompletionMandatoryFieldForCampusConnect = [];
+                    $profileCompletionMandatoryFieldForGetProductSample = [];
+                    $index = 0;
+                    if (!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at)) {
                         $index++;
-                        $remaningMandatoryItem[] = $item;
+                        $remaningMandatoryItem = ['verified_email'];
+                        $profileCompletionMandatoryFieldForCampusConnect[] = 'verified_email';
+                        $profileCompletionMandatoryFieldForGetProductSample[] = 'verified_email';
                     }
-                }
 
-                foreach ($this->profileCompletionOptionalField as $item)
-                {
-                    if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
-                    {
+                    if (!isset(request()->user()->email) && is_null(request()->user()->email)) {
                         $index++;
-                        $remaningOptionalItem[] = $item;
+                        $remaningMandatoryItem = ['email'];
                     }
-                }
-                $percentage = ((15 - $index) / 15 ) * 100;
 
-                foreach ($this->profileCompletionExtraOptionalField as $item) {
-                    if (is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0 || (is_object($this->{$item}) && $this->{$item}->count() == 0) || (is_array($this->{$item}) && $this->{$item}->count() == 0)) {
-                        $index++;
-                        $remaningAdditionalOptionalItem[] = $item;
+
+                    foreach ($this->profileCompletionMandatoryField as $item) {
+                        if (is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0 || ($item == "cuisines" && $this->{$item}->count() == 0)) {
+                            $index++;
+                            $remaningMandatoryItem[] = $item;
+                        }
                     }
-                }
-                
-                foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
-                {
-                    if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
-                    {
-                        $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
+
+                    foreach ($this->profileCompletionOptionalField as $item) {
+                        if (is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0) {
+                            $index++;
+                            $remaningOptionalItem[] = $item;
+                        }
                     }
-                }
+                    $percentage = ((15 - $index) / 15) * 100;
 
-                foreach ($this->profileCompletionMandatoryFieldForCollaborationApplyV1 as $item)
-                {
-                    if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
-                    {
-                        $profileCompletionMandatoryFieldForCollaborationApplyV1[] = $item;
+                    foreach ($this->profileCompletionExtraOptionalField as $item) {
+                        if (is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0 || (is_object($this->{$item}) && $this->{$item}->count() == 0) || (is_array($this->{$item}) && $this->{$item}->count() == 0)) {
+                            $index++;
+                            $remaningAdditionalOptionalItem[] = $item;
+                        }
                     }
-                }
 
-                foreach ($this->profileCompletionMandatoryFieldForCampusConnect as $item)
-                {
-                    if(is_null($this->{$item}) || empty($this->{$item})|| count([$this->{$item}]) == 0)
-                    {
-                        $profileCompletionMandatoryFieldForCampusConnect[] = $item;
+                    foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item) {
+                        if (is_null($this->{$item}) || empty($this->{$item}) || count([$this->{$item}]) == 0) {
+                            $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
+                        }
                     }
-                }
 
-                foreach ($this->profileCompletionMandatoryFieldForGetProductSample as $item)
-                {
-                    if(is_null($this->{$item}) || empty($this->{$item}) || count([$this->{$item}]) == 0 || (is_object($this->{$item}) && $this->{$item}->count() == 0) || (is_array($this->{$item}) && $this->{$item}->count() == 0))
-                    {
-                        $profileCompletionMandatoryFieldForGetProductSample[] = $item;
+                    foreach ($this->profileCompletionMandatoryFieldForCollaborationApplyV1 as $item) {
+                        if (is_null($this->{$item}) || empty($this->{$item}) || count([$this->{$item}]) == 0) {
+                            $profileCompletionMandatoryFieldForCollaborationApplyV1[] = $item;
+                        }
                     }
-                }
 
-                $percentage_total = ((25 - $index) / 25 ) * 100;
-                $profileCompletion = [
-                    'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
-                    'overall_percentage' => (round($percentage_total)%5 === 0) ? round($percentage_total) : round(($percentage_total+5/2)/5)*5,
-                    'mandatory_remaining_field' => $remaningMandatoryItem,
-                    'optional_remaining_field' => $remaningOptionalItem,
-                    'additional_optional_field' => $remaningAdditionalOptionalItem,
-                    'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply,
-                    'mandatory_field_for_collaboration_apply_v1' => $profileCompletionMandatoryFieldForCollaborationApplyV1,
-                    'mandatory_field_for_campus_connect' => $profileCompletionMandatoryFieldForCampusConnect,
-                    'mandatory_field_for_get_product_sample' => $profileCompletionMandatoryFieldForGetProductSample
-                ];
+                    foreach ($this->profileCompletionMandatoryFieldForCampusConnect as $item) {
+                        if (is_null($this->{$item}) || empty($this->{$item}) || count([$this->{$item}]) == 0) {
+                            $profileCompletionMandatoryFieldForCampusConnect[] = $item;
+                        }
+                    }
 
-                return $profileCompletion;
-                }   else {
+                    foreach ($this->profileCompletionMandatoryFieldForGetProductSample as $item) {
+                        if (is_null($this->{$item}) || empty($this->{$item}) || count([$this->{$item}]) == 0 || (is_object($this->{$item}) && $this->{$item}->count() == 0) || (is_array($this->{$item}) && $this->{$item}->count() == 0)) {
+                            $profileCompletionMandatoryFieldForGetProductSample[] = $item;
+                        }
+                    }
+
+                    $percentage_total = ((25 - $index) / 25) * 100;
+                    $profileCompletion = [
+                        'complete_percentage' => (round($percentage) % 5 === 0) ? round($percentage) : round(($percentage + 5 / 2) / 5) * 5,
+                        'overall_percentage' => (round($percentage_total) % 5 === 0) ? round($percentage_total) : round(($percentage_total + 5 / 2) / 5) * 5,
+                        'mandatory_remaining_field' => $remaningMandatoryItem,
+                        'optional_remaining_field' => $remaningOptionalItem,
+                        'additional_optional_field' => $remaningAdditionalOptionalItem,
+                        'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply,
+                        'mandatory_field_for_collaboration_apply_v1' => $profileCompletionMandatoryFieldForCollaborationApplyV1,
+                        'mandatory_field_for_campus_connect' => $profileCompletionMandatoryFieldForCampusConnect,
+                        'mandatory_field_for_get_product_sample' => $profileCompletionMandatoryFieldForGetProductSample
+                    ];
+
+                    return $profileCompletion;
+                } else {
                     $remaningMandatoryItem = [];
                     foreach ($fields as $field) {
-                        if($field == 'verified_email' )
-                        {
-                            if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
-                            $remaningMandatoryItem[] = 'verified_email';
-                        } else if($field == 'email' && !isset(request()->user()->email) && is_null(request()->user()->email))
-                        {
+                        if ($field == 'verified_email') {
+                            if (!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
+                                $remaningMandatoryItem[] = 'verified_email';
+                        } else if ($field == 'email' && !isset(request()->user()->email) && is_null(request()->user()->email)) {
                             $remaningMandatoryItem[] = 'email';
-
-                        }else if($field == 'document_meta' || $field == 'address') {
+                        } else if ($field == 'document_meta' || $field == 'address') {
                             $remaningMandatoryItem[] = $field;
-                        } else if(is_null($this->{$field}) || empty($this->{$field})|| count($this->{$field}) == 0) {  
+                        } else if (is_null($this->{$field}) || empty($this->{$field}) || count($this->{$field}) == 0) {
                             $remaningMandatoryItem[] = $field;
                         }
-                        
                     }
                     return $remaningMandatoryItem;
                 }
@@ -1312,43 +1278,43 @@ class Profile extends Model
 
     public function getBatchesCountAttribute()
     {
-        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)->where('begin_tasting',1)->count();
+        return \DB::table('collaborate_batches_assign')->where('profile_id', request()->user()->profile->id)->where('begin_tasting', 1)->count();
     }
 
     public function getNewBatchesCountAttribute()
     {
-        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)
-            ->where('begin_tasting',1)->whereNull('last_seen')->count();
+        return \DB::table('collaborate_batches_assign')->where('profile_id', request()->user()->profile->id)
+            ->where('begin_tasting', 1)->whereNull('last_seen')->count();
     }
 
     public function getReviewCountAttribute()
     {
-        return \DB::table('public_product_user_review')->where('profile_id',$this->id)->where('current_status',2)->get()->unique('product_id')->count();
+        return \DB::table('public_product_user_review')->where('profile_id', $this->id)->where('current_status', 2)->get()->unique('product_id')->count();
     }
 
     public function getPrivateReviewCountAttribute()
     {
-        return \DB::table('collaborate_tasting_user_review')->where('profile_id',$this->id)->where('current_status',3)->get()->unique('batch_id')->count();
+        return \DB::table('collaborate_tasting_user_review')->where('profile_id', $this->id)->where('current_status', 3)->get()->unique('batch_id')->count();
     }
 
     public function getSurveyCountAttribute()
     {
-        return \DB::table('survey_answers')->where('profile_id',$this->id)->where('current_status',2)->whereNull('deleted_at')->get()->unique('survey_id')->count();
+        return \DB::table('survey_answers')->where('profile_id', $this->id)->where('current_status', 2)->whereNull('deleted_at')->get()->unique('survey_id')->count();
     }
 
     public function getAmountAttribute()
     {
-        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->whereNull('deleted_at')->where("status_id", '<>',config("constant.PAYMENT_CANCELLED_STATUS_ID"))->select("amount")->get()->pluck('amount');
+        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->whereNull('deleted_at')->where("status_id", '<>', config("constant.PAYMENT_CANCELLED_STATUS_ID"))->select("amount")->get()->pluck('amount');
         $sum = array_sum($getPaymentDetails->toArray());
         return $sum;
     }
 
     public function getShippingaddressAttribute()
-    {        
+    {
         $request = request()->user();
-        if($request != null && $request->profile->id == $this->id)
-            return \App\Profile\ShippingAddress::where('profile_id',$this->id)->get();        
-        else 
+        if ($request != null && $request->profile->id == $this->id)
+            return \App\Profile\ShippingAddress::where('profile_id', $this->id)->get();
+        else
             return null;
     }
 
@@ -1369,93 +1335,93 @@ class Profile extends Model
 
     public function getFoodieTypeAttribute()
     {
-        return isset($this->foodie_type_id) ? \DB::table('foodie_type')->where('id',$this->foodie_type_id)->first() : null;
+        return isset($this->foodie_type_id) ? \DB::table('foodie_type')->where('id', $this->foodie_type_id)->first() : null;
     }
 
     public function getCuisinesAttribute()
     {
-        $cuisineIds =  \DB::table('profiles_cuisines')->where('profile_id',$this->id)->get()->pluck('cuisine_id');
-        return  \DB::table('cuisines')->whereIn('id',$cuisineIds)->get();
+        $cuisineIds =  \DB::table('profiles_cuisines')->where('profile_id', $this->id)->get()->pluck('cuisine_id');
+        return  \DB::table('cuisines')->whereIn('id', $cuisineIds)->get();
     }
 
     public function getEstablishmentTypesAttribute()
     {
-        $establishmentTypeIds =  \DB::table('profile_establishment_types')->where('profile_id',request()->user()->profile->id)->get()->pluck('establishment_type_id');
-        return  \DB::table('establishment_types')->whereIn('id',$establishmentTypeIds)->get();
+        $establishmentTypeIds =  \DB::table('profile_establishment_types')->where('profile_id', request()->user()->profile->id)->get()->pluck('establishment_type_id');
+        return  \DB::table('establishment_types')->whereIn('id', $establishmentTypeIds)->get();
     }
 
     public function getInterestedCollectionsAttribute()
     {
-        $interestedCollectionIds =  \DB::table('profiles_interested_collections')->where('profile_id',request()->user()->profile->id)->get()->pluck('interested_collection_id');
-        return  \DB::table('interested_collections')->whereIn('id',$interestedCollectionIds)->get();
+        $interestedCollectionIds =  \DB::table('profiles_interested_collections')->where('profile_id', request()->user()->profile->id)->get()->pluck('interested_collection_id');
+        return  \DB::table('interested_collections')->whereIn('id', $interestedCollectionIds)->get();
     }
 
     public function getFbInfoAttribute()
     {
-        return \DB::table('social_accounts')->where('provider', 'facebook')->where('user_id',request()->user()->id)->first();
+        return \DB::table('social_accounts')->where('provider', 'facebook')->where('user_id', request()->user()->id)->first();
     }
-    
+
     public function getAllergensAttribute()
     {
-        return \DB::table('allergens')->join('profiles_allergens','profiles_allergens.allergens_id','=','allergens.id')->where('profiles_allergens.profile_id',$this->id)->get(['id', 'name', 'description', 'image']);
+        return \DB::table('allergens')->join('profiles_allergens', 'profiles_allergens.allergens_id', '=', 'allergens.id')->where('profiles_allergens.profile_id', $this->id)->get(['id', 'name', 'description', 'image']);
     }
 
     public function getTotalPostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->whereNull('deleted_at')->count();
     }
 
     // count calculation function start
     public function getShoutoutPostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shoutout')->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->where('model', 'App\Shoutout')->whereNull('deleted_at')->count();
     }
 
     public function getShoutoutSharePostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Shoutout')->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->where('model', 'App\Shareable\Shoutout')->whereNull('deleted_at')->count();
     }
 
     public function getCollaboratePostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Collaborate')->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->where('model', 'App\Collaborate')->whereNull('deleted_at')->count();
     }
 
     public function getCollaborateSharePostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Collaborate')->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->where('model', 'App\Shareable\Collaborate')->whereNull('deleted_at')->count();
     }
 
     public function getPhotoPostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->whereIn('model',['App\Photo', 'App\V2\Photo'])->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->whereIn('model', ['App\Photo', 'App\V2\Photo'])->whereNull('deleted_at')->count();
     }
 
     public function getPhotoSharePostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Photo')->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->where('model', 'App\Shareable\Photo')->whereNull('deleted_at')->count();
     }
 
     public function getPollingPostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Polling')->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->where('model', 'App\Polling')->whereNull('deleted_at')->count();
     }
 
     public function getPollingSharePostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Polling')->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->where('model', 'App\Shareable\Polling')->whereNull('deleted_at')->count();
     }
 
     public function getProductSharePostCountAttribute()
     {
-        return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->where('model','App\Shareable\Product')->whereNull('deleted_at')->count();
+        return \DB::table('channel_payloads')->where('channel_name', 'public.' . $this->id)->where('model', 'App\Shareable\Product')->whereNull('deleted_at')->count();
     }
     // count calculation function end 
 
     public function getImagePostCountAttribute()
     {
         return \DB::table('channel_payloads')
-            ->where('channel_name','public.'.$this->id)
+            ->where('channel_name', 'public.' . $this->id)
             ->whereNull('deleted_at')
             ->where('model', 'like', '%Photo')
             ->where('model', 'not like', '%Shareable%')
@@ -1465,8 +1431,8 @@ class Profile extends Model
     public function getDocumentMetaAttribute()
     {
         $docs = \DB::table('profile_documents')
-            ->where('profile_id',$this->id)
-            ->select('document_meta','is_verified')
+            ->where('profile_id', $this->id)
+            ->select('document_meta', 'is_verified')
             ->first();
         if ($docs) {
             $doc_meta = json_decode($docs->document_meta);
@@ -1481,7 +1447,7 @@ class Profile extends Model
     public function getPalateSensitivityAttribute()
     {
         $palate_tasting = null;
-        
+
         if (request()->user()->profile->id == $this->id) {
             $palate_tasting = $this->getPalateSensitivityResult();
             return $palate_tasting;
@@ -1489,7 +1455,7 @@ class Profile extends Model
             if ($this->palate_visibility == 0) {
                 return $palate_tasting;
             } else if ($this->palate_visibility == 2) {
-                if (Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id)) {
+                if (Redis::sIsMember("followers:profile:" . request()->user()->profile->id, $this->id)) {
                     $palate_tasting = $this->getPalateSensitivityResult();
                     return $palate_tasting;
                 } else {
@@ -1498,7 +1464,7 @@ class Profile extends Model
             } else {
                 $palate_tasting = $this->getPalateSensitivityResult();
                 return $palate_tasting;
-            } 
+            }
         }
         return $palate_tasting;
     }
@@ -1524,8 +1490,8 @@ class Profile extends Model
     {
         $palate_result = null;
         $current_palate_iteration = $this->getCurrentPalateIterationValue();
-        $palate_responses = \App\PalateResponses::where('profile_id',$this->id)
-            ->where('iteration_id',$current_palate_iteration)
+        $palate_responses = \App\PalateResponses::where('profile_id', $this->id)
+            ->where('iteration_id', $current_palate_iteration)
             ->whereNull('deleted_at')
             ->get();
         if (count($palate_responses)) {
@@ -1549,7 +1515,7 @@ class Profile extends Model
                             $palate_result[$group_key]['status'] = $value['status'];
                             $palate_result[$group_key]['ui_style_meta'] = $value['ui_style_meta'];
                             break;
-                        }                        
+                        }
                     }
                 } else if ($group_key === "Bitter") {
                     $palate_result[$group_key] = array(
@@ -1570,13 +1536,14 @@ class Profile extends Model
      * @param {String} $key Property to sort by.
      * @param {Array} $data Array that stores multiple associative arrays.
      */
-    function group_by($key, $data) {
+    function group_by($key, $data)
+    {
         $result = array();
 
-        foreach($data as $val) {
-            if(array_key_exists($key, $val)){
+        foreach ($data as $val) {
+            if (array_key_exists($key, $val)) {
                 $result[$val[$key]][] = $val;
-            }else{
+            } else {
                 $result[""][] = $val;
             }
         }
@@ -1589,12 +1556,12 @@ class Profile extends Model
      * @param int $profileId
      * @return array
      */
-    public function getSeoTags() : array
+    public function getSeoTags(): array
     {
         $follower_count = $this->getFollowerProfilesAttribute()['count'];
-        $title = "TagTaste | ".htmlspecialchars_decode($this->name)." | Profile";
-        
-        $description = "View ".htmlspecialchars_decode($this->name)."'s profile on TagTaste. ".htmlspecialchars_decode($this->name)." has ".$follower_count." followers. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate with each other.";
+        $title = "TagTaste | " . htmlspecialchars_decode($this->name) . " | Profile";
+
+        $description = "View " . htmlspecialchars_decode($this->name) . "'s profile on TagTaste. " . htmlspecialchars_decode($this->name) . " has " . $follower_count . " followers. TagTaste is the world's first ever online community for food professionals to discover, network & collaborate with each other.";
 
         $seo_tags = [
             "title" => $title,
@@ -1605,7 +1572,7 @@ class Profile extends Model
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "user, profile, tagtaste, tagtaste profile, ".htmlspecialchars_decode($this->name),
+                    "content" => "user, profile, tagtaste, tagtaste profile, " . htmlspecialchars_decode($this->name),
                 )
             ),
             "og" => array(
@@ -1628,8 +1595,14 @@ class Profile extends Model
 
     public function getPaymentAttribute()
     {
-        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->whereNull('deleted_at')->where("status_id", '<>',config("constant.PAYMENT_CANCELLED_STATUS_ID"))->select("amount")->get()->pluck('amount');
+        $getPaymentDetails = PaymentLinks::where("profile_id", $this->id)->whereNull('deleted_at')->where("status_id", '<>', config("constant.PAYMENT_CANCELLED_STATUS_ID"))->select("amount")->get()->pluck('amount');
         $sum = array_sum($getPaymentDetails->toArray());
         return ["earning" => $sum];
+    }
+
+    public function getFormattedEarningAttribute()
+    {
+        $sum = $this->getPaymentAttribute();
+        return "Rs " . $sum["earning"] . '.00';
     }
 }
