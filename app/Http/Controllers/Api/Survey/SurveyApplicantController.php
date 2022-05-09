@@ -456,7 +456,6 @@ class SurveyApplicantController extends Controller
                     }
                 }
             }
-            $status = 
             $temp = array(
                 "S. No" => $key + 1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),

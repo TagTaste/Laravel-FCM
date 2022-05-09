@@ -544,10 +544,12 @@ class ApplicantController extends Controller
         }
         $company = Company::where('id',$collaborate->company_id)->first();
         $now = Carbon::now()->toDateTimeString();
+        $profile =  Profile::join('users','users.id','profiles.user_id')->where('id',$profileId)->first();
+
         foreach ($profileIds as $profileId)
         {
             $collaborate->profile_id = $profileId;
-            event(new \App\Events\Actions\InviteForReview($collaborate,null,null,null,null,$company));
+            event(new \App\Events\Actions\InviteForReview($collaborate,$profile,null,null,null,$company));
             $inputs[] = ['profile_id'=>$profileId, 'collaborate_id'=>$id,'is_invited'=>1,'created_at'=>$now,'updated_at'=>$now];
         }
         $this->model = $this->model->insert($inputs);

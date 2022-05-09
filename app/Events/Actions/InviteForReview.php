@@ -34,11 +34,16 @@ class InviteForReview extends Action
      */
     public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null)
     {
-        parent::__construct($model,$who = null);
+        parent::__construct($model,$who);
         $this->model = $model;
         if(isset($company))
         {
             $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline, 'verified'=>$company->verified];
+        }
+        else{
+            
+            $this->who = ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->image,'type'=>'user', 'tagline'=>$who->tagline, 'verified'=>$who->verified];
+
         }
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
