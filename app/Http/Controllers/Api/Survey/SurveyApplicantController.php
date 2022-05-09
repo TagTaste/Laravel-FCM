@@ -328,8 +328,8 @@ class SurveyApplicantController extends Controller
                     null,
                     null,
                     'fill_survey',
-                    null,
-                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => isset($comp->image)?$comp->image:$comp->logo], "is_private" => $survey->is_private, "type" => "inviteForReview"]
+                    $comp,
+                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "logo" => isset($comp->image)?$comp->image:$comp->logo], "is_private" => $survey->is_private, "type" => "inviteForReview"]
                 ));
             }
         }
