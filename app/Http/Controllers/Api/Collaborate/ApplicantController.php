@@ -544,7 +544,7 @@ class ApplicantController extends Controller
         }
         $company = Company::where('id',$collaborate->company_id)->first();
         $now = Carbon::now()->toDateTimeString();
-        $profile =  Profile::join('users','users.id','profiles.user_id')->where('id',$profileId)->first();
+        $profile =  Profile::join('users','users.id','profiles.user_id')->where('profiles.id',$profileId)->first();
 
         foreach ($profileIds as $profileId)
         {

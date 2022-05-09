@@ -39,11 +39,11 @@ class surveyApplicantEvents extends Action
         $this->model = $model;
         if(isset($company))
         {
-            $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline, 'verified'=>$company->verified];
+            $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->image,'type'=>'company', 'tagline'=>$company->tagline, 'verified'=>$company->verified];
         }
-        
+       
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
-        $this->image = $image;
+        $this->image = $surveyInfo["profile"]->image;
         $this->content = $content;
         $this->actionModel = null;
         $this->surveyInfo = $surveyInfo;     
