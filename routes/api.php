@@ -910,7 +910,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::delete('/{id}', 'SurveyController@destroy');
         Route::post('/', 'SurveyController@store');
         Route::post("/{id}/showInterest", "SurveyApplicantController@showInterest");
-
+        Route::post("/{id}/rollback", "SurveyApplicantController@rollbackTaster");
         Route::post("/{id}/beginSurvey", "SurveyApplicantController@beginSurvey")->middleware('manage.permission');
         Route::get('/{id}/applicants', 'SurveyApplicantController@index')->middleware('manage.permission');
         Route::get('/{id}/invite/profiles', 'SurveyApplicantController@userList')->middleware('manage.permission');
