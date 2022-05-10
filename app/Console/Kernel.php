@@ -303,6 +303,10 @@ class Kernel extends ConsoleKernel
 
 
         syncPollElasticSearch::class
+        \App\Console\Commands\ReviewCalculation::class,
+        \App\Console\Commands\CollaborationExpiresOnUpdate::class
+
+
 
     ];
 
@@ -352,7 +356,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
         $schedule->command('expires_on:banner')->dailyAt('12:10');
 
+
         // $schedule->command('review:calculation')->dailyAt('01:00');
+       // $schedule->command('SetExpireon:Collab')->dailyAt('12:00');
+
 
 
     }
