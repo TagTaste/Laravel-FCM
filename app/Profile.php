@@ -1603,6 +1603,6 @@ class Profile extends Model
     public function getFormattedEarningAttribute()
     {
         $sum = $this->getPaymentAttribute();
-        return "Rs " . $sum["earning"] . '.00';
+        return utf8_encode("&#8377;") . number_format($sum["earning"],2);
     }
 }
