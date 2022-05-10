@@ -64,4 +64,24 @@ class User extends NeoEloquent
     {
         return $this->belongsToMany('\App\Neo4j\Company', 'FOLLOWS');
     }
+
+    public function reviewed()
+    {
+        return $this->hasMany('\App\Neo4j\PublicReviewProduct', 'REVIEWED');
+    }
+
+    public function participated()
+    {
+        return $this->hasMany('\App\Neo4j\Polling', 'POLL_PARTICIPATION');
+    }
+
+    public function survey_participated()
+    {
+        return $this->hasMany('\App\Neo4j\Surveys', 'SURVEY_PARTICIPATION');
+    }
+
+    public function shown_interest()
+    {
+        return $this->hasMany('\App\Neo4j\Collaborate', 'SHOWN_INTEREST');
+    }
 }

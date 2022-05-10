@@ -57,7 +57,11 @@ class SearchController extends Controller
                 $ids = count($ids) ? array_intersect($ids,$modelIds->toArray()) : $modelIds->toArray();
                 if(count($ids)) {
                     $placeholders = implode(',',array_fill(0, count($ids), '?')); 
-                    return $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
+                     $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take);
+                     if($type=='collaborate'){
+                        $model = $model->where("state",1);
+                     }
+                     return $model->get();
                 } else {
                     return false;
                 }
@@ -67,9 +71,15 @@ class SearchController extends Controller
         }
         if(count($ids)) {
             if($type=='collaborate') {
-                $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step',3);
+                $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step',3)->where("state",1);
             } else 
-                $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
+                $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
+                
+                if($type=="surveys"){
+                    $model = $model->orderBy('created_at',"desc");
+                }else{
+                    $model = $model->orderByRaw("field(id,{$placeholders})", $ids);   
+            }
         } else if($type=='collaborate') {
             $model = $model::whereIn('id',$ids)->where('step',3)->whereNull('deleted_at');
         } else
@@ -86,6 +96,7 @@ class SearchController extends Controller
             });
             return $model;    
         } else
+            // dd($model->toSql());
             return $model->get();
 
         return $model->get();
@@ -264,7 +275,7 @@ class SearchController extends Controller
         {
             $surveyList = \DB::table('surveys')->where('state','!=',1)
                 ->where('title', 'like','%'.$term.'%')
-                ->whereNull('deleted_at')->orderBy('id','desc')->skip($skip)
+                ->whereNull('deleted_at')->orderBy('created_at','desc')->skip($skip)
                 ->take($take)->get();
 
             if(count($surveyList)){
@@ -363,7 +374,7 @@ class SearchController extends Controller
             $response['hits']['total'] = 0;
             $this->isSearched = 0;
         } else {
-            $response = ElasticHelper::suggestedSearch($query,$type,0,1);
+            $response = ElasticHelper::suggestedSearch($query,$type,1,1);
             $this->isSearched = 1;
         }
         if($response['hits']['total'] == 0 && isset($response["suggest"])) {
@@ -372,7 +383,6 @@ class SearchController extends Controller
         $this->model = [];
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
@@ -397,6 +407,7 @@ class SearchController extends Controller
                 }
                     $this->model[$name] = $searched;
             }
+        
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = Redis::sMembers("following:profile:" . $profileId);

@@ -19,6 +19,7 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\Build\Cache\Polling;
+use App\Console\Commands\Build\Cache\Survey;
 use App\Console\Commands\CapitalizeExpertise;
 use App\Console\Commands\ChatMergeMessage;
 use App\Console\Commands\CloseCollaborate;
@@ -57,6 +58,7 @@ use App\Console\Commands\Build\Graph\Education as GraphEducation;
 use App\Console\Commands\Build\Graph\Experiance as GraphExperiance;
 use App\Console\Commands\Build\Graph\Profiles as GraphProfiles;
 use App\Console\Commands\Build\Graph\Companies as GraphCompanies;
+use App\Console\Commands\Build\Graph\PublicReviewProduct as GraphPublicReviewProducts;
 
 use App\Console\Commands\Build\Graph\Build\Following as GraphFollowing;
 use App\Console\Commands\Build\Graph\Build\UserDoB as GraphUserDoB;
@@ -65,12 +67,20 @@ use App\Console\Commands\Build\Graph\Build\UserFoodieType as GraphUserFoodieType
 use App\Console\Commands\Build\Graph\Build\UserSpecialization as GraphUserSpecialization;
 use App\Console\Commands\Build\Graph\Build\UserEducation as GraphUserEducation;
 use App\Console\Commands\Build\Graph\Build\UserExperiance as GraphUserExperiance;
+use App\Console\Commands\Build\Graph\Build\UserPublicReview as GraphUserPublicReview;
+use App\Console\Commands\Build\Graph\Build\UserPolling as GraphUserPolling;
+use App\Console\Commands\Build\Graph\Build\UserSurveys as GraphUserSurveys;
+use App\Console\Commands\Build\Graph\Build\UserInterestCollaborate as GraphUserInterestCollaborate;
+
+
+
 use App\Console\Commands\Build\SurveyApplicantStatus;
 use App\Console\Commands\SurveyAnswerSync;
 use App\Console\Commands\InsertTTFBQuestion as TTFBQuestionaire;
 use App\Console\Commands\makePaidTasters;
 use App\Console\Commands\TTFBQuestionUpload;
 use App\Console\Commands\removeNotifications;
+use App\Console\Commands\syncPollElasticSearch;
 
 class Kernel extends ConsoleKernel
 {
@@ -97,9 +107,10 @@ class Kernel extends ConsoleKernel
         SettingChanges::class,
         PublicReviewProduct::class,
         Polling::class,
-
+        Survey::class,
         
         // Rebuild Graph
+        GraphPublicReviewProducts::class,
         GraphProfiles::class,
         GraphCompanies::class,
         GraphFollowing::class,
@@ -116,6 +127,10 @@ class Kernel extends ConsoleKernel
         GraphExperiance::class,
         GraphUserExperiance::class,
         removeNotifications::class,
+        GraphUserPublicReview::class,
+        GraphUserPolling::class,
+        GraphUserSurveys::class,
+        GraphUserInterestCollaborate::class,
 
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
@@ -284,6 +299,10 @@ class Kernel extends ConsoleKernel
 
         SurveyApplicantStatus::class,
         \App\Console\Commands\CollaborateReviewCalculation::class,
+        \App\Console\Commands\BannerExpire::class,
+
+
+        syncPollElasticSearch::class
         \App\Console\Commands\ReviewCalculation::class,
         \App\Console\Commands\CollaborationExpiresOnUpdate::class
 
@@ -335,6 +354,8 @@ class Kernel extends ConsoleKernel
         //payment link reminder command
 
         $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
+        $schedule->command('expires_on:banner')->dailyAt('12:10');
+
 
         // $schedule->command('review:calculation')->dailyAt('01:00');
        // $schedule->command('SetExpireon:Collab')->dailyAt('12:00');

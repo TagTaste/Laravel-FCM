@@ -65,7 +65,7 @@ class ExpireSurveys extends Command
                     $model->update(['state'=>config("constant.SURVEY_STATES.EXPIRED")]);
                     PaymentDetails::where('model_id', $model->id)->update(['is_active' => 0]);
                     event(new DeleteFeedable($model));
-
+                    $model->removeFromGraph(); //remove node and edge from neo4j
                 }
             });
 
