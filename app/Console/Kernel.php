@@ -302,7 +302,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\BannerExpire::class,
 
 
-        syncPollElasticSearch::class
+        
+        syncPollElasticSearch::class,
         \App\Console\Commands\ReviewCalculation::class,
         \App\Console\Commands\CollaborationExpiresOnUpdate::class
 
