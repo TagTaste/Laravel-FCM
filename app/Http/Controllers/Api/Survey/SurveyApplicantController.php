@@ -88,7 +88,7 @@ class SurveyApplicantController extends Controller
                 ->whereIn('profile_id', $profileIds);
         }
 
-        $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
+        $applicants = $applicants->orderBy("created_at","desc")->skip($skip)->take($take)->get()->toArray();
 
 
         $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
@@ -329,7 +329,7 @@ class SurveyApplicantController extends Controller
                     null,
                     'fill_survey',
                     $comp,
-                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "logo" => isset($comp->image)?$comp->image:$comp->logo], "is_private" => $survey->is_private, "type" => "inviteForReview"]
+                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => isset($comp->image)?$comp->image:$comp->logo], "is_private" => $survey->is_private, "type" => "inviteForReview"]
                 ));
             }
         }
