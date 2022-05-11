@@ -2042,15 +2042,15 @@ class SurveyController extends Controller
             if (empty($checkApplicant->age_group)) {
                 $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
             }
-            
+
             if($isInvited){
                 $hometown = $request->input('hometown');
                 $current_city = $request->input('current_city');
                 if (empty($checkApplicant->hometown)) {
-                    $update['city'] = $hometown;
+                    $update['hometown'] = $hometown;
                 }
                 if (empty($checkApplicant->current_city)) {
-                    $update['city'] = $current_city;
+                    $update['current_city'] = $current_city;
                 }
             }
 
