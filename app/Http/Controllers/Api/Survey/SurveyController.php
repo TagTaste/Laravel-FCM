@@ -2042,11 +2042,7 @@ class SurveyController extends Controller
             if (empty($checkApplicant->age_group)) {
                 $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
             }
-
-            if (!empty($update)) {
-                $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
-            }
-
+            
             if($isInvited){
                 $hometown = $request->input('hometown');
                 $current_city = $request->input('current_city');
@@ -2057,6 +2053,12 @@ class SurveyController extends Controller
                     $update['city'] = $current_city;
                 }
             }
+
+            if (!empty($update)) {
+                $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
+            }
+
+           
     
         }
         $this->model = true;
