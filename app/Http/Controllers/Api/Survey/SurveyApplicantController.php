@@ -300,7 +300,7 @@ class SurveyApplicantController extends Controller
 
         $profileIds = $request->input('profile_id');
 
-        $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->exists();
+        $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->whereNull('deleted_at')->exists();
         if ($checkExist) {
             return $this->sendError("Already Invited");
         }

@@ -2019,7 +2019,7 @@ class SurveyController extends Controller
         $isInvited = 0;
 
         $loggedInprofileId = $request->user()->profile->id;
-        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->first();
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->whereNull('deleted_at')->first();
         if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
             $this->model = false;
             return $this->sendError("Already Applied");
@@ -2030,11 +2030,14 @@ class SurveyController extends Controller
             $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress, true);
             $city = (isset($address['survey_city'])) ? $address['survey_city'] : null;
+           
         } else {
             $city = null;
             $applierAddress = null;
+           
         }
 
+     
 
         $profile = $request->user()->profile;
         if (empty($checkApplicant)) {
@@ -2054,14 +2057,29 @@ class SurveyController extends Controller
             if (empty($checkApplicant->city)) {
                 $update['city'] = $city;
             }
+           
 
             if (empty($checkApplicant->age_group)) {
                 $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
             }
 
+            if($checkApplicant->is_invited){
+                $hometown = $request->input('hometown');
+                $current_city = $request->input('current_city');
+                if (empty($checkApplicant->hometown)) {
+                    $update['hometown'] = $hometown;
+                }
+                if (empty($checkApplicant->current_city)) {
+                    $update['current_city'] = $current_city;
+                }
+            }
+
             if (!empty($update)) {
                 $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
             }
+
+           
+    
         }
         $this->model = true;
         return $this->sendResponse();
