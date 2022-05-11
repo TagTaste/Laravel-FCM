@@ -30,8 +30,6 @@ class RollbackTaster
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
         if(isset($profile)){
-            if($event->model->is_survey)  //means its a survey
-        Notification::send($profile, new \App\Notifications\Actions\SurveyRollbackTaster($event));
-        }
+        Notification::send($profile, new \App\Notifications\Actions\RollbackTaster($event));
     }
 }
