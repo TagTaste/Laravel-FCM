@@ -510,5 +510,55 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
 
-   
+    public function rollbackTaster(Request $request, $id)
+    {
+        $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
+
+        if (empty($survey)) {
+            return $this->sendError("You cannot perform this action on this survey anymore.");
+        }
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
+        $profileIds = $request->input('profile_id');
+        $err = true;
+        foreach ($profileIds as $profileId) {
+            $info =[];
+            $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
+
+            if ($currentStatus == 1 || $currentStatus == 0) {
+                //perform operation
+                Redis::set("surveys:application_status:$id:profile:$profileId", 0);
+                $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', $currentStatus)->update(["application_status" => 0]);
+                $err = false;
+                if ($t) {
+                    $this->model = true;
+                    $info["is_survey"] = 1;
+                    $info["is_invited"] = $t->is_invited;
+
+                } else {
+                    $err = true;
+                }
+                $who = null;
+
+
+                $company = Company::where('id', $survey->company_id)->first();
+                if (empty($company)) {
+                    $who = Profile::join('users','users.id','profiles.user_id')->where("profiles.id", "=", $survey->profile_id)->first();
+                }
+                $survey->profile_id = $profileId;
+                event(new \App\Events\Actions\RollbackTaster($survey, $who, null, null, null, $company,$info));
+            } else {
+                $err = true;
+            }
+        }
+        if ($err) {
+            $this->model = false;
+            return $this->sendError('Sorry, you cannot undo begin tasting as the tasting is in progress');
+        }
+        return $this->sendResponse();
+    }
 }
