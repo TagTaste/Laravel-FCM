@@ -535,13 +535,16 @@ class SurveyApplicantController extends Controller
             if ($currentStatus == 1) {
                 //perform operation
                 Redis::set("surveys:application_status:$id:profile:$profileId", 0);
-                $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', $currentStatus)->update(["application_status" => 0]);
+                $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->update(["application_status" => 0]);
                 $err = false;
+
                 if ($t) {
                     $this->model = true;
+                    $applicant =  surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->first();
+
                     $info["is_survey"] = 1;
-                    $info["is_invited"] = $t->is_invited;
-                    if ($t->is_invited) {
+                    $info["is_invited"] = $applicant->is_invited;
+                    if ($applicant->is_invited) {
                         surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->update(["deleted_at" => \Carbon\Carbon::now()]);
                     }
                 } else {
