@@ -513,7 +513,7 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
 
-    public function rollbackTaster(Request $request, $id)
+    public function rollbackSurveyApplicant(Request $request, $id)
     {
         $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
             $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
@@ -523,16 +523,14 @@ class SurveyApplicantController extends Controller
         if (empty($survey)) {
             return $this->sendError("You cannot perform this action on this survey anymore.");
         }
-        if ($survey === null) {
-            return $this->sendError("Invalid survey Project.");
-        }
+        
         $profileIds = $request->input('profile_id');
         $err = true;
         foreach ($profileIds as $profileId) {
             $info = [];
             $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
 
-            if ($currentStatus == 1 || $currentStatus == 0) {
+            if ($currentStatus == 1) {
                 //perform operation
                 Redis::set("surveys:application_status:$id:profile:$profileId", 0);
                 $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', $currentStatus)->update(["application_status" => 0]);
