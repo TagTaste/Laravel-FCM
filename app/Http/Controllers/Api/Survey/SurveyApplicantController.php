@@ -515,7 +515,7 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
 
-    public function rollbackTaster(Request $request, $id)
+    public function rollbackSurveyApplicant(Request $request, $id)
     {
         $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
             $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
@@ -525,9 +525,7 @@ class SurveyApplicantController extends Controller
         if (empty($survey)) {
             return $this->sendError("You cannot perform this action on this survey anymore.");
         }
-        if ($survey === null) {
-            return $this->sendError("Invalid survey Project.");
-        }
+        
         $profileIds = $request->input('profile_id');
         $err = true;
         foreach ($profileIds as $profileId) {
