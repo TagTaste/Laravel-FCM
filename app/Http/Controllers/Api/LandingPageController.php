@@ -798,14 +798,11 @@ class LandingPageController extends Controller
             }
         }
 
-        $suggestion = $this->getSuggestion($profileId);
-        if (count($suggestion) > 0) {
-            array_push($this->model, ...$suggestion);
-        }
-        // $this->model = [];
-        // $this->model[] = $suggestion;
-        // return $this->sendResponse();
-
+        // $suggestion = $this->getSuggestion($profileId);
+        // if (count($suggestion) > 0) {
+        //     array_push($this->model, ...$suggestion);
+        // }
+        
 
         $carouselCollab = $this->carousel($profileId, $collaborateModel, $companyIds);
         if (count($carouselCollab["elements"]) != 0)
@@ -863,6 +860,87 @@ class LandingPageController extends Controller
         return $this->sendResponse();
     }
     
+    public function testLandingPage(Request $request)
+    {
+        $collaborateModel = config("constant.LANDING_MODEL.COLLABORATE");
+        $surveyModel = config("constant.LANDING_MODEL.SURVEYS");
+        $productReviewModel = config("constant.LANDING_MODEL.PRODUCT-REVIEW");
+        $pollingModel = config("constant.LANDING_MODEL.POLLING");
+        $productModel = config("constant.LANDING_MODEL.PRODUCT");        
+
+        $companyIds = CompanyUser::where("profile_id", $request->user()->profile->id)->get()->pluck("company_id");
+        $this->errors['status'] = 0;
+        $profileId = $request->user()->profile->id;
+        
+        //improvement needed
+        $this->validatePayloadForVersion($request);
+        $this->removeReportedPayloads($profileId);
+        $platform = $request->input('platform');
+        
+        
+        $suggestion = $this->getSuggestion($profileId);
+        if (count($suggestion) > 0) {
+            array_push($this->model, ...$suggestion);
+        }
+        
+        return $this->sendResponse();
+
+        $carouselCollab = $this->carousel($profileId, $collaborateModel, $companyIds);
+        if (count($carouselCollab["elements"]) != 0)
+            $this->model[] = $carouselCollab;
+
+
+        $carouselSurvey = $this->carousel($profileId, $surveyModel, $companyIds);
+        if (count($carouselSurvey["elements"]) != 0)
+            $this->model[] = $carouselSurvey;
+
+
+        $carouselProduct = $this->carousel($profileId, $productReviewModel, $companyIds);
+        if (count($carouselProduct["elements"]) != 0)
+            $this->model[] = $carouselProduct;
+
+        $carouselPublicReview = $this->carousel($profileId, $productModel, $companyIds);
+        if (count($carouselPublicReview["elements"]) != 0)
+            $this->model[] = $carouselPublicReview;
+
+
+        $poll = $this->poll($profileId, 'TagTaste');
+        if (count($poll["elements"]) != 0)
+            $this->model[] = $poll;
+
+
+        $pollNotTagtaste = $this->poll($profileId, 'NotTagTaste');
+        if (count($pollNotTagtaste["elements"]) != 0)
+            $this->model[] = $pollNotTagtaste;
+        
+        
+        $expiredPoll = $this->participatedExpiredpoll($profileId);
+        if (count($expiredPoll["elements"]) != 0)
+            $this->model[] = $expiredPoll;        
+
+
+        $imageCarousel = $this->imageCarousel($profileId);
+        if (count($imageCarousel["elements"]) != 0)
+            $this->model[] = $imageCarousel;
+            
+
+        if ($platform == 'mobile') {
+            //hashtags
+            $hashTags = $this->getTrendingHashtag();
+            if(count($hashTags['elements']) > 0)
+                $this->model[] = $hashTags;
+        }
+        
+        $feed["ui_type"] = config("constant.LANDING_UI_TYPE.FEED");
+        $feed["title"] = "From Your Feed";
+        $feed["see_more"] = true;
+        $feed["total_count"] = 5;
+
+
+        $this->model[] = $feed;
+        return $this->sendResponse();
+    }
+
     public function getProductAvailableForReview($profileId){
         $reviewData = [];
         $completeBatch = CollaborateReview::where('profile_id',$profileId)
