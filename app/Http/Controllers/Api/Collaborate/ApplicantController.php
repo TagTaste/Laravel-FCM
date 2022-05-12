@@ -548,9 +548,9 @@ class ApplicantController extends Controller
           
             foreach ($batches as $value) {
 
-                $inputs[] = ['profile_id' => $profileId, 'batch_id' => $value, 'begin_tasting' => 0, 'created_at' => Carbon::now()->toDateTimeString(), 'collaborate_id' => $id];
+                $input[] = ['profile_id' => $profileId, 'batch_id' => $value, 'begin_tasting' => 0, 'created_at' => Carbon::now()->toDateTimeString(), 'collaborate_id' => $id];
 
-                BatchAssign::insert($inputs);
+                BatchAssign::insert($input);
             }
         }
         $this->model = $this->model->insert($inputs);
