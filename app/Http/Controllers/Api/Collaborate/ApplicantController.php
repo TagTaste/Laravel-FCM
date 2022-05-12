@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
+use App\Collaborate\Batches;
+use App\Collaborate\BatchAssign;
 use App\CompanyUser;
 use App\Recipe\Company;
 use App\Recipe\Profile;
@@ -91,7 +93,7 @@ class ApplicantController extends Controller
         $applicants = $applicants
             ->whereIn('profile_id', $profileIds)
             ->whereNotNull('shortlisted_at')
-            ->whereNull('rejected_at')->orderBy("created_at","desc")
+            ->whereNull('rejected_at')->orderBy("created_at", "desc")
             ->skip($skip)->take($take)->get();
 
         $applicants = $applicants->toArray();
@@ -532,13 +534,24 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
         $profile =  Profile::join('users', 'users.id', 'profiles.user_id')->where('profiles.id', $profileId)->first();
 
+        $batches = Batches::where('collaborate_id', $id)->get()->pluck('id');
         foreach ($profileIds as $profileId) {
             $collaborate->profile_id = $profileId;
             event(new \App\Events\Actions\InviteForReview($collaborate, $profile, null, null, null, $company));
             $inputs[] = ['profile_id' => $profileId, 'collaborate_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now];
+            //assigning batches while  invitating
+          
+            foreach ($batches as $value) {
+
+                $inputs[] = ['profile_id' => $profileId, 'batch_id' => $value, 'begin_tasting' => 0, 'created_at' => Carbon::now()->toDateTimeString(), 'collaborate_id' => $id];
+
+                BatchAssign::insert($inputs);
+            }
         }
         $this->model = $this->model->insert($inputs);
         $this->model = Collaborate\Applicant::whereIn('profile_id', $profileIds)->where('collaborate_id', $id)->get();
+
+
         return $this->sendResponse();
     }
 
@@ -600,14 +613,7 @@ class ApplicantController extends Controller
                 'share_number' => $share_number
             ]);
 
-//assigning batches while accepting invitations
-        $batches = \DB::table('collaborate_batches')->where('collaborate_id', $id)->get()->pluck('id');
-        foreach ($batches as $value) {
 
-            $inputs[] = ['profile_id' => $request->user()->profile->id, 'batch_id' => $value, 'begin_tasting' => 0, 'created_at' => Carbon::now()->toDateTimeString(), 'collaborate_id' => $id];
-
-            \DB::table('collaborate_batches_assign')->insert($inputs);
-        }
         return $this->sendResponse();
 
         if ($this->model) {
