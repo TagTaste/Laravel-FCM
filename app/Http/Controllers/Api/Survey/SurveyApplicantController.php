@@ -532,7 +532,7 @@ class SurveyApplicantController extends Controller
             $info = [];
             $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
 
-            if ($currentStatus == 1 || $currentStatus == 0) {
+            if ($currentStatus == 1) {
                 //perform operation
                 Redis::set("surveys:application_status:$id:profile:$profileId", 0);
                 $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', $currentStatus)->update(["application_status" => 0]);
