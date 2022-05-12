@@ -523,7 +523,7 @@ class SurveyApplicantController extends Controller
         if (empty($survey)) {
             return $this->sendError("You cannot perform this action on this survey anymore.");
         }
-        
+
         $profileIds = $request->input('profile_id');
         $err = true;
         foreach ($profileIds as $profileId) {
