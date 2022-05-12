@@ -429,7 +429,7 @@ class LandingPageController extends Controller
         
         $payloads = Payload::where('model','App\\V2\\Photo')
             ->whereNull('deleted_at')
-            ->where('channel_name','company.public.45')
+            ->where('channel_name','company.public.137')
             ->orderBy('created_at', 'desc')
             ->take(10)->get();
 
