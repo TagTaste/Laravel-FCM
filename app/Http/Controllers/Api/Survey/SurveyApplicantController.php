@@ -16,6 +16,7 @@ use SurveyApplicants as GlobalSurveyApplicants;
 use Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class SurveyApplicantController extends Controller
 {
@@ -182,13 +183,17 @@ class SurveyApplicantController extends Controller
                 null,
                 'survey_manage',
                 null,
-                ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id),
-                 "survey_name" => $checkIFExists->title, 
-                 "survey_id" => $checkIFExists->id, 
-                 "profile" => (object)["id" => $request->user()->profile->id, 
-                 "name" => $request->user()->profile->name,
-                  "image" => $request->user()->profile->image],
-                   "is_private" => $checkIFExists->is_private, "type" => "showInterest","comment" => $request->message ?? null]
+                [
+                    "survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id),
+                    "survey_name" => $checkIFExists->title,
+                    "survey_id" => $checkIFExists->id,
+                    "profile" => (object)[
+                        "id" => $request->user()->profile->id,
+                        "name" => $request->user()->profile->name,
+                        "image" => $request->user()->profile->image
+                    ],
+                    "is_private" => $checkIFExists->is_private, "type" => "showInterest", "comment" => $request->message ?? null
+                ]
             ));
         } else {
             $this->model = false;
@@ -526,10 +531,10 @@ class SurveyApplicantController extends Controller
         $profileIds = $request->input('profile_id');
         $err = true;
         foreach ($profileIds as $profileId) {
-            $info =[];
+            $info = [];
             $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
 
-            if ($currentStatus == 1 || $currentStatus == 0) {
+            if ($currentStatus == 1) {
                 //perform operation
                 Redis::set("surveys:application_status:$id:profile:$profileId", 0);
                 $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', $currentStatus)->update(["application_status" => 0]);
@@ -538,7 +543,9 @@ class SurveyApplicantController extends Controller
                     $this->model = true;
                     $info["is_survey"] = 1;
                     $info["is_invited"] = $t->is_invited;
-
+                    if ($t->is_invited) {
+                        surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->update(["deleted_at" => \Carbon\Carbon::now()]);
+                    }
                 } else {
                     $err = true;
                 }
@@ -547,10 +554,10 @@ class SurveyApplicantController extends Controller
 
                 $company = Company::where('id', $survey->company_id)->first();
                 if (empty($company)) {
-                    $who = Profile::join('users','users.id','profiles.user_id')->where("profiles.id", "=", $survey->profile_id)->first();
+                    $who = Profile::join('users', 'users.id', 'profiles.user_id')->where("profiles.id", "=", $survey->profile_id)->first();
                 }
                 $survey->profile_id = $profileId;
-                event(new \App\Events\Actions\RollbackTaster($survey, $who, null, null, null, $company,$info));
+                event(new \App\Events\Actions\RollbackTaster($survey, $who, null, null, null, $company, $info));
             } else {
                 $err = true;
             }
