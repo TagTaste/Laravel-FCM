@@ -444,7 +444,7 @@ class LandingPageController extends Controller
 
         //models - product-review, product, collaborate, surveys, polling 
         $productReviewSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT-REVIEW"));
-        $productSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT"));
+        // $productSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT"));
         $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.COLLABORATE"));
         $surveySugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.SURVEYS"));
         $pollSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.POLLING"));
@@ -454,12 +454,16 @@ class LandingPageController extends Controller
         $suggCount = 0;
         while ($suggCount <= 5) {
             array_push($tempMixSuggs, array_shift($productReviewSuggs));
-            array_push($tempMixSuggs, array_shift($productSuggs));
+            // array_push($tempMixSuggs, array_shift($productSuggs));
             array_push($tempMixSuggs, array_shift($collaborateSugges));
             array_push($tempMixSuggs, array_shift($surveySugges));
             array_push($tempMixSuggs, array_shift($pollSugges));
 
-            if ((count($productReviewSuggs) + count($productSuggs) + count($collaborateSugges)
+            // if ((count($productReviewSuggs) + count($productSuggs) + count($collaborateSugges)
+            //     + count($surveySugges) + count($pollSugges)) == 0) {
+            //     break;
+            // }
+            if ((count($productReviewSuggs) + count($collaborateSugges)
                 + count($surveySugges) + count($pollSugges)) == 0) {
                 break;
             }
@@ -798,10 +802,10 @@ class LandingPageController extends Controller
             }
         }
 
-        // $suggestion = $this->getSuggestion($profileId);
-        // if (count($suggestion) > 0) {
-        //     array_push($this->model, ...$suggestion);
-        // }
+        $suggestion = $this->getSuggestion($profileId);
+        if (count($suggestion) > 0) {
+            array_push($this->model, ...$suggestion);
+        }
         
 
         $carouselCollab = $this->carousel($profileId, $collaborateModel, $companyIds);
