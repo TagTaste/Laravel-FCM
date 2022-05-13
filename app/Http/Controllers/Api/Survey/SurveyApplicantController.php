@@ -570,7 +570,7 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
 
-    public function rejectPeople(Request $request, $id)
+    public function rejectApplicant(Request $request, $id)
     {
         $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
             $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
