@@ -578,7 +578,7 @@ class SurveyApplicantController extends Controller
         })->first();
 
         if ($survey === null) {
-            return $this->sendError("Invalid Collaboration Project.");
+            return $this->sendError("Invalid survey Project.");
         }
 
         $profileId = $request->user()->profile->id;
@@ -594,7 +594,7 @@ class SurveyApplicantController extends Controller
             ->where('application_status', 1)
             ->exists();
         if ($checkAssignUser) {
-            return $this->sendError("You can not remove.");
+            return $this->sendError("You can not remove this user.");
         }
         $now = Carbon::now()->toDateTimeString();
 
