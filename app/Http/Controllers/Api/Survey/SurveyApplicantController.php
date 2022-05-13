@@ -350,7 +350,7 @@ class SurveyApplicantController extends Controller
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('survey_applicants')->where('survey_id', $id)->get();
-        $applicationStatus = ['TO BE NOTIFIED','NOTIFIED','COMPLETED'];
+        $applicationStatus = ['TO BE NOTIFIED','NOTIFIED','COMPLETED','REJECTED'];
         $city = [];
         $profile = [];
         $hometown = [];
@@ -650,7 +650,7 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
 
-    public function shortlistPeople(Request $request, $id)
+    public function shortlistApplicant(Request $request, $id)
     {
         $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
             $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
