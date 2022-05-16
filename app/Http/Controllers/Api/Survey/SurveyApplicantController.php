@@ -352,6 +352,7 @@ class SurveyApplicantController extends Controller
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('survey_applicants')->where('survey_id', $id)->get();
+        $applicationStatus = ['TO BE NOTIFIED','NOTIFIED','COMPLETED','REJECTED'];
         $city = [];
         $profile = [];
         $hometown = [];
@@ -383,7 +384,6 @@ class SurveyApplicantController extends Controller
                     $data['age'] = $age;
                 if ($filter == 'city')
                     $data['city'] = $city;
-
                 if ($filter == 'profile')
                     $data['profile'] = $profile;
                 if ($filter == 'super_taster')
@@ -392,9 +392,11 @@ class SurveyApplicantController extends Controller
                     $data['user_type'] = $userType;
                 if ($filter == 'sensory_trained')
                     $data['sensory_trained'] = $sensoryTrained;
+                if ($filter == 'application_status')
+                    $data['application_status'] = $applicationStatus;
             }
         } else {
-            $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
+            $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster,"application_status" => $applicationStatus];
         }
         $this->model = $data;
         return $this->sendResponse();
@@ -525,7 +527,7 @@ class SurveyApplicantController extends Controller
         if (empty($survey)) {
             return $this->sendError("You cannot perform this action on this survey anymore.");
         }
-        
+
         $profileIds = $request->input('profile_id');
         $err = true;
         foreach ($profileIds as $profileId) {
@@ -535,13 +537,16 @@ class SurveyApplicantController extends Controller
             if ($currentStatus == 1) {
                 //perform operation
                 Redis::set("surveys:application_status:$id:profile:$profileId", 0);
-                $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->where('application_status', $currentStatus)->update(["application_status" => 0]);
+                $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->update(["application_status" => 0]);
                 $err = false;
+
                 if ($t) {
                     $this->model = true;
+                    $applicant =  surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->first();
+
                     $info["is_survey"] = 1;
-                    $info["is_invited"] = $t->is_invited;
-                    if ($t->is_invited) {
+                    $info["is_invited"] = $applicant->is_invited;
+                    if ($applicant->is_invited) {
                         surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->update(["deleted_at" => \Carbon\Carbon::now()]);
                     }
                 } else {
@@ -564,6 +569,143 @@ class SurveyApplicantController extends Controller
             $this->model = false;
             return $this->sendError('Sorry, you cannot undo begin tasting as the tasting is in progress');
         }
+        return $this->sendResponse();
+    }
+
+    public function rejectApplicant(Request $request, $id)
+    {
+        $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
+
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
+
+        $profileId = $request->user()->profile->id;
+
+
+        $shortlistedProfiles = $request->input('profile_id');
+        if (!is_array($shortlistedProfiles)) {
+            $shortlistedProfiles = [$shortlistedProfiles];
+        }
+
+        // check if any user is already notified or not
+        $checkAssignUser = \DB::table('survey_applicants')->where('survey_id', $id)->whereIn('profile_id', $shortlistedProfiles)
+            ->where('application_status', 1)
+            ->exists();
+        if ($checkAssignUser) {
+            return $this->sendError("You can not remove this user.");
+        }
+        $now = Carbon::now()->toDateTimeString();
+
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+
+            // remove applicant
+            $this->model = \DB::table('survey_applicants')
+                ->where('survey_id', $id)
+                ->whereIn('profile_id', $shortlistedProfiles)
+                ->update(['rejected_at' => $now]);
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendError("Please try again after some time.");
+        }
+
+        return $this->sendResponse();
+    }
+
+    public function getRejectApplicants(Request $request, $id)
+    {
+        $page = $request->input('page');
+        $q = $request->input('q');
+        $filters = $request->input('filters');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
+        $list = surveyApplicants::where('survey_id', $id) //->whereNull('shortlisted_at')
+            ->whereNotNull('rejected_at');
+
+        if (isset($q) && $q != null) {
+            $ids = $this->getSearchedProfile($q, $id);
+            $list = $list->whereIn('id', $ids);
+        }
+
+        if (isset($filters) && $filters != null) {
+            $profileIds = $this->getFilteredProfile($filters, $id);
+            $list = $list->whereIn('profile_id', $profileIds);
+        }
+        if ($request->sortBy != null) {
+            $archived = $this->sortApplicants($request->sortBy, $list, $id);
+        }
+
+        $this->model['rejectedApplicantsCount'] = $list->count();
+        $list = $list->skip($skip)->take($take)->get();
+        $this->model['rejectedApplicantList'] = $list;
+
+        return $this->sendResponse();
+    }
+
+    public function shortlistApplicant(Request $request, $id)
+    {
+        $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
+
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+
+
+        $shortlistedProfiles = $request->input('profile_id');
+        if (!is_array($shortlistedProfiles)) {
+            $shortlistedProfiles = [$shortlistedProfiles];
+        }
+        $now = Carbon::now()->toDateTimeString();
+
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+
+            // shortlist applicant
+            $this->model = \DB::table('survey_applicants')
+                ->where('survey_id', $id)
+                ->whereIn('profile_id', $shortlistedProfiles)
+                ->update([
+                    'application_status' => 0,
+                    'rejected_at' => null
+                ]);
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendError("Please try again after some time.");
+        }
+
+
+
+        return $this->sendResponse();
+    }
+
+    public function getShortlistApplicants(Request $request, $id)
+    {
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = surveyApplicants::where('survey_id', $id)->where('application_status', 0)
+            ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+
         return $this->sendResponse();
     }
 }
