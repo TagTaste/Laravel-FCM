@@ -397,8 +397,11 @@ class LandingPageController extends Controller
             ->distinct('poll_questions.id')
             ->orderBy('poll_questions.created_at', 'desc')
             ->take(10)->pluck('poll_questions.id')->toArray();
-
-
+        
+        if(count($carouseldata) <= 2){
+            $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.SUGGESTION");
+        }
+        $suggestionList = [];
         foreach ($carouseldata as $key => $value) {
             $data = [];
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
@@ -411,9 +414,23 @@ class LandingPageController extends Controller
             }
             $data['type'] = config("constant.LANDING_MODEL.POLLING");
             $data['placeholder_images_meta'] = json_decode(config("constant.POLL_PLACEHOLDER_IMAGE")[array_rand(config("constant.POLL_PLACEHOLDER_IMAGE"))]);
-            $carousel['elements'][] = $data;
+            
+            if($carousel["ui_type"] == config("constant.LANDING_UI_TYPE.SUGGESTION")){
+                $suggestionList[] = [
+                        "ui_type" => config("constant.LANDING_UI_TYPE.SUGGESTION"),
+                        "title" => "Poll result out",
+                        "suggestion" => $data
+                    ];
+            }else{
+                $carousel['elements'][] = $data;
+            }            
         }
-        return $carousel;
+
+        if($carousel["ui_type"] == config("constant.LANDING_UI_TYPE.SUGGESTION")){
+            return $suggestionList;
+        }else{
+            return $carousel;
+        }
     }
 
 
@@ -426,10 +443,10 @@ class LandingPageController extends Controller
         $carousel["see_more"] = true;
         
         $carousel["elements"] = [];
-        
+        $companyPayloadName = 'company.public.'.config("constant.TAGTASTE_INSIGHT_COMPANY_ID");
         $payloads = Payload::where('model','App\\V2\\Photo')
             ->whereNull('deleted_at')
-            ->where('channel_name','company.public.137')
+            ->where('channel_name',$companyPayloadName)
             ->orderBy('created_at', 'desc')
             ->take(10)->get();
 
@@ -807,6 +824,12 @@ class LandingPageController extends Controller
             array_push($this->model, ...$suggestion);
         }
         
+        //Fill in the suggestion for expired poll if expired polls are less than 3
+        $expiredPoll = $this->participatedExpiredpoll($profileId);
+        $expiredPollUIType = $expiredPoll['ui_type'] ?? '';
+        if($expiredPollUIType != config("constant.LANDING_UI_TYPE.CAROUSEL") && count($expiredPoll) > 0){
+            array_push($this->model, ...$expiredPoll);      
+        }
 
         $carouselCollab = $this->carousel($profileId, $collaborateModel, $companyIds);
         if (count($carouselCollab["elements"]) != 0)
@@ -831,16 +854,15 @@ class LandingPageController extends Controller
         if (count($poll["elements"]) != 0)
             $this->model[] = $poll;
 
-
+        
         $pollNotTagtaste = $this->poll($profileId, 'NotTagTaste');
         if (count($pollNotTagtaste["elements"]) != 0)
             $this->model[] = $pollNotTagtaste;
         
-        
-        $expiredPoll = $this->participatedExpiredpoll($profileId);
-        if (count($expiredPoll["elements"]) != 0)
+        //Fill expired polls in carousel if the count is greater than 2
+        if($expiredPollUIType == config("constant.LANDING_UI_TYPE.CAROUSEL") && count($expiredPoll["elements"]) != 0){
             $this->model[] = $expiredPoll;        
-
+        }
 
         $imageCarousel = $this->imageCarousel($profileId);
         if (count($imageCarousel["elements"]) != 0)
