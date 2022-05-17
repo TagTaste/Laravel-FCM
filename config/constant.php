@@ -89,8 +89,8 @@ return  [
     ],
     "DEFAULT_SIZE" => 8,
 
-    "TAGTASTE_POLL_COMPANY_ID" => '137',
-    "TAGTASTE_INSIGHT_COMPANY_ID" => '137',
+    "TAGTASTE_POLL_COMPANY_ID" => '9', //'137'
+    "TAGTASTE_INSIGHT_COMPANY_ID" => '9',//'137',
 
     "LANDING_MODEL" => [
         "COLLABORATE" => "collaborate",
