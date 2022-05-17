@@ -461,7 +461,7 @@ class LandingPageController extends Controller
 
         //models - product-review, product, collaborate, surveys, polling 
         $productReviewSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT-REVIEW"));
-        // $productSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT"));
+        $productSuggs = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.PRODUCT"));
         $collaborateSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.COLLABORATE"));
         $surveySugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.SURVEYS"));
         $pollSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.POLLING"));
@@ -471,19 +471,19 @@ class LandingPageController extends Controller
         $suggCount = 0;
         while ($suggCount <= 5) {
             array_push($tempMixSuggs, array_shift($productReviewSuggs));
-            // array_push($tempMixSuggs, array_shift($productSuggs));
+            array_push($tempMixSuggs, array_shift($productSuggs));
             array_push($tempMixSuggs, array_shift($collaborateSugges));
             array_push($tempMixSuggs, array_shift($surveySugges));
             array_push($tempMixSuggs, array_shift($pollSugges));
 
-            // if ((count($productReviewSuggs) + count($productSuggs) + count($collaborateSugges)
-            //     + count($surveySugges) + count($pollSugges)) == 0) {
-            //     break;
-            // }
-            if ((count($productReviewSuggs) + count($collaborateSugges)
+            if ((count($productReviewSuggs) + count($productSuggs) + count($collaborateSugges)
                 + count($surveySugges) + count($pollSugges)) == 0) {
                 break;
             }
+            // if ((count($productReviewSuggs) + count($collaborateSugges)
+            //     + count($surveySugges) + count($pollSugges)) == 0) {
+            //     break;
+            // }
             $suggCount = count($tempMixSuggs);
         }
         $suggestionsList = array_slice($tempMixSuggs, 0, 5, true);
@@ -502,12 +502,12 @@ class LandingPageController extends Controller
     {
         switch ($modelName) {
             case config("constant.LANDING_MODEL.PRODUCT"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (product:Product)
-                WHERE NOT ((user) -[:REVIEWED]->(product)) AND ((users) -[:REVIEWED]->(product)) 
+                $query = "MATCH (user:User{profile_id:$profileId})-[:FOLLOWS{following:1}]->(users:User)-[:REVIEWED]->(product:Product)
+                WHERE NOT (user)-[:REVIEWED]->(product)
                 WITH product, rand() AS number
                 ORDER BY number
                 return product.product_id LIMIT 3;";
-
+                
                 $result = $client->run($query);
                 $data = [];
                 foreach ($result->records() as $record) {
@@ -520,8 +520,8 @@ class LandingPageController extends Controller
                 break;
 
             case config("constant.LANDING_MODEL.SURVEYS"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (survey:Surveys)
-                WHERE NOT ((user) -[:SURVEY_PARTICIPATION]->(survey)) AND ((users) -[:SURVEY_PARTICIPATION]->(survey)) AND survey.profile_id <> $profileId
+                $query = "MATCH (user:User{profile_id:$profileId})-[:FOLLOWS{following:1}]-> (users:User)-[:SURVEY_PARTICIPATION]->(survey:Surveys)
+                WHERE NOT ((user) -[:SURVEY_PARTICIPATION]->(survey)) AND survey.profile_id <> $profileId
                 WITH survey, rand() AS number
                 ORDER BY number
                 return survey.survey_id, survey.payload_id LIMIT 3;";
@@ -538,8 +538,8 @@ class LandingPageController extends Controller
                 return $data;
                 break;
             case config("constant.LANDING_MODEL.POLLING"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (polls:Polling)
-                WHERE NOT ((user) -[:POLL_PARTICIPATION]->(polls)) AND ((users) -[:POLL_PARTICIPATION]->(polls)) AND polls.profile_id <> $profileId
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User)-[:POLL_PARTICIPATION]->(polls:Polling)
+                WHERE NOT ((user) -[:POLL_PARTICIPATION]->(polls)) AND polls.profile_id <> $profileId
                 WITH polls, rand() AS number
                 ORDER BY number
                 return polls.poll_id, polls.payload_id LIMIT 3;";
@@ -556,8 +556,8 @@ class LandingPageController extends Controller
                 return $data;
                 break;
             case config("constant.LANDING_MODEL.COLLABORATE"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (collabs:Collaborate)
-                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND ((users) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'collaborate'
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User)-[:SHOWN_INTEREST]->(collabs:Collaborate)
+                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'collaborate'
                 WITH collabs, rand() AS number
                 ORDER BY number
                 return collabs.collaborate_id,collabs.payload_id LIMIT 3;";
@@ -574,8 +574,8 @@ class LandingPageController extends Controller
                 return $data;
                 break;
             case config("constant.LANDING_MODEL.PRODUCT-REVIEW"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (collabs:Collaborate)
-                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND ((users) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'product-review'
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User)-[:SHOWN_INTEREST]->(collabs:Collaborate)
+                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'product-review'
                 WITH collabs, rand() AS number
                 ORDER BY number
                 return collabs.collaborate_id,collabs.payload_id LIMIT 3;";
@@ -869,12 +869,12 @@ class LandingPageController extends Controller
             $this->model[] = $imageCarousel;
             
 
-        if ($platform == 'mobile') {
-            //hashtags
-            $hashTags = $this->getTrendingHashtag();
-            if(count($hashTags['elements']) > 0)
-                $this->model[] = $hashTags;
-        }
+        // if ($platform == 'mobile') {
+        //     //hashtags
+        //     $hashTags = $this->getTrendingHashtag();
+        //     if(count($hashTags['elements']) > 0)
+        //         $this->model[] = $hashTags;
+        // }
         
         $feed["ui_type"] = config("constant.LANDING_UI_TYPE.FEED");
         $feed["title"] = "From Your Feed";
