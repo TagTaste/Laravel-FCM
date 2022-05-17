@@ -397,8 +397,11 @@ class LandingPageController extends Controller
             ->distinct('poll_questions.id')
             ->orderBy('poll_questions.created_at', 'desc')
             ->take(10)->pluck('poll_questions.id')->toArray();
-
-
+        
+        if(count($carouseldata) <= 2){
+            $carousel["ui_type"] = config("constant.LANDING_UI_TYPE.SUGGESTION");
+        }
+        $suggestionList = [];
         foreach ($carouseldata as $key => $value) {
             $data = [];
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
@@ -411,9 +414,23 @@ class LandingPageController extends Controller
             }
             $data['type'] = config("constant.LANDING_MODEL.POLLING");
             $data['placeholder_images_meta'] = json_decode(config("constant.POLL_PLACEHOLDER_IMAGE")[array_rand(config("constant.POLL_PLACEHOLDER_IMAGE"))]);
-            $carousel['elements'][] = $data;
+            
+            if($carousel["ui_type"] == config("constant.LANDING_UI_TYPE.SUGGESTION")){
+                $suggestionList[] = [
+                        "ui_type" => config("constant.LANDING_UI_TYPE.SUGGESTION"),
+                        "title" => "Poll result out",
+                        "suggestion" => $data
+                    ];
+            }else{
+                $carousel['elements'][] = $data;
+            }            
         }
-        return $carousel;
+
+        if($carousel["ui_type"] == config("constant.LANDING_UI_TYPE.SUGGESTION")){
+            return $suggestionList;
+        }else{
+            return $carousel;
+        }
     }
 
 
@@ -426,10 +443,10 @@ class LandingPageController extends Controller
         $carousel["see_more"] = true;
         
         $carousel["elements"] = [];
-        
+        $companyPayloadName = 'company.public.'.config("constant.TAGTASTE_INSIGHT_COMPANY_ID");
         $payloads = Payload::where('model','App\\V2\\Photo')
             ->whereNull('deleted_at')
-            ->where('channel_name','company.public.137')
+            ->where('channel_name',$companyPayloadName)
             ->orderBy('created_at', 'desc')
             ->take(10)->get();
 
@@ -450,7 +467,7 @@ class LandingPageController extends Controller
         $pollSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.POLLING"));
         
         $tempMixSuggs = [];
-
+        
         $suggCount = 0;
         while ($suggCount <= 5) {
             array_push($tempMixSuggs, array_shift($productReviewSuggs));
@@ -463,6 +480,10 @@ class LandingPageController extends Controller
                 + count($surveySugges) + count($pollSugges)) == 0) {
                 break;
             }
+            // if ((count($productReviewSuggs) + count($collaborateSugges)
+            //     + count($surveySugges) + count($pollSugges)) == 0) {
+            //     break;
+            // }
             $suggCount = count($tempMixSuggs);
         }
         $suggestionsList = array_slice($tempMixSuggs, 0, 5, true);
@@ -481,12 +502,12 @@ class LandingPageController extends Controller
     {
         switch ($modelName) {
             case config("constant.LANDING_MODEL.PRODUCT"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (product:Product)
-                WHERE NOT ((user) -[:REVIEWED]->(product)) AND ((users) -[:REVIEWED]->(product)) 
+                $query = "MATCH (user:User{profile_id:$profileId})-[:FOLLOWS{following:1}]->(users:User)-[:REVIEWED]->(product:Product)
+                WHERE NOT (user)-[:REVIEWED]->(product)
                 WITH product, rand() AS number
                 ORDER BY number
                 return product.product_id LIMIT 3;";
-
+                
                 $result = $client->run($query);
                 $data = [];
                 foreach ($result->records() as $record) {
@@ -499,8 +520,8 @@ class LandingPageController extends Controller
                 break;
 
             case config("constant.LANDING_MODEL.SURVEYS"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (survey:Surveys)
-                WHERE NOT ((user) -[:SURVEY_PARTICIPATION]->(survey)) AND ((users) -[:SURVEY_PARTICIPATION]->(survey)) AND survey.profile_id <> $profileId
+                $query = "MATCH (user:User{profile_id:$profileId})-[:FOLLOWS{following:1}]-> (users:User)-[:SURVEY_PARTICIPATION]->(survey:Surveys)
+                WHERE NOT ((user) -[:SURVEY_PARTICIPATION]->(survey)) AND survey.profile_id <> $profileId
                 WITH survey, rand() AS number
                 ORDER BY number
                 return survey.survey_id, survey.payload_id LIMIT 3;";
@@ -517,8 +538,8 @@ class LandingPageController extends Controller
                 return $data;
                 break;
             case config("constant.LANDING_MODEL.POLLING"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (polls:Polling)
-                WHERE NOT ((user) -[:POLL_PARTICIPATION]->(polls)) AND ((users) -[:POLL_PARTICIPATION]->(polls)) AND polls.profile_id <> $profileId
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User)-[:POLL_PARTICIPATION]->(polls:Polling)
+                WHERE NOT ((user) -[:POLL_PARTICIPATION]->(polls)) AND polls.profile_id <> $profileId
                 WITH polls, rand() AS number
                 ORDER BY number
                 return polls.poll_id, polls.payload_id LIMIT 3;";
@@ -535,8 +556,8 @@ class LandingPageController extends Controller
                 return $data;
                 break;
             case config("constant.LANDING_MODEL.COLLABORATE"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (collabs:Collaborate)
-                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND ((users) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'collaborate'
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User)-[:SHOWN_INTEREST]->(collabs:Collaborate)
+                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'collaborate'
                 WITH collabs, rand() AS number
                 ORDER BY number
                 return collabs.collaborate_id,collabs.payload_id LIMIT 3;";
@@ -553,8 +574,8 @@ class LandingPageController extends Controller
                 return $data;
                 break;
             case config("constant.LANDING_MODEL.PRODUCT-REVIEW"):
-                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User), (collabs:Collaborate)
-                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND ((users) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'product-review'
+                $query = "MATCH (user:User {profile_id:$profileId}) -[:FOLLOWS{following:1}]-> (users:User)-[:SHOWN_INTEREST]->(collabs:Collaborate)
+                WHERE NOT ((user) -[:SHOWN_INTEREST]->(collabs)) AND collabs.profile_id <> $profileId AND collabs.collaborate_type = 'product-review'
                 WITH collabs, rand() AS number
                 ORDER BY number
                 return collabs.collaborate_id,collabs.payload_id LIMIT 3;";
@@ -798,11 +819,17 @@ class LandingPageController extends Controller
             }
         }
 
-        // $suggestion = $this->getSuggestion($profileId);
-        // if (count($suggestion) > 0) {
-        //     array_push($this->model, ...$suggestion);
-        // }
+        $suggestion = $this->getSuggestion($profileId);
+        if (count($suggestion) > 0) {
+            array_push($this->model, ...$suggestion);
+        }
         
+        //Fill in the suggestion for expired poll if expired polls are less than 3
+        $expiredPoll = $this->participatedExpiredpoll($profileId);
+        $expiredPollUIType = $expiredPoll['ui_type'] ?? '';
+        if($expiredPollUIType != config("constant.LANDING_UI_TYPE.CAROUSEL") && count($expiredPoll) > 0){
+            array_push($this->model, ...$expiredPoll);      
+        }
 
         $carouselCollab = $this->carousel($profileId, $collaborateModel, $companyIds);
         if (count($carouselCollab["elements"]) != 0)
@@ -827,16 +854,15 @@ class LandingPageController extends Controller
         if (count($poll["elements"]) != 0)
             $this->model[] = $poll;
 
-
+        
         $pollNotTagtaste = $this->poll($profileId, 'NotTagTaste');
         if (count($pollNotTagtaste["elements"]) != 0)
             $this->model[] = $pollNotTagtaste;
         
-        
-        $expiredPoll = $this->participatedExpiredpoll($profileId);
-        if (count($expiredPoll["elements"]) != 0)
+        //Fill expired polls in carousel if the count is greater than 2
+        if($expiredPollUIType == config("constant.LANDING_UI_TYPE.CAROUSEL") && count($expiredPoll["elements"]) != 0){
             $this->model[] = $expiredPoll;        
-
+        }
 
         $imageCarousel = $this->imageCarousel($profileId);
         if (count($imageCarousel["elements"]) != 0)
