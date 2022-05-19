@@ -88,6 +88,7 @@ class Surveys extends Model implements Feedable
     public function getMetaFor(int $profileId): array
     {
         $meta = [];
+        // $meta['seen_count'] = "0";
         $meta['expired_at'] = $this->expired_at;
         $key = "meta:surveys:likes:" . $this->id;
         $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
@@ -230,7 +231,18 @@ class Surveys extends Model implements Feedable
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
-
+        
+        $image = null;
+        if(gettype($this->image_meta) != 'array'){
+            $this->image_meta = json_decode($this->image_meta, true);
+        }
+        
+        if(isset($this->image_meta) && $this->image_meta != null && $this->image_meta != ''){
+            $image = $this->image_meta[0]['original_photo'] ?? null;
+        }
+        
+        
+        
         $seo_tags = [
             "title" => $title,
             "meta" => array(
@@ -254,7 +266,7 @@ class Surveys extends Model implements Feedable
                 ),
                 array(
                     "property" => "og:image",
-                    "content" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/icon_survey.png",
+                    "content" => $image,
                 )
             ),
         ];
@@ -308,4 +320,47 @@ class Surveys extends Model implements Feedable
         return 0;
     }
 
+    public function addToGraph(){        
+        $data = ['id'=>$this->id, 
+        'survey_id'=>$this->id,
+        'title'=>substr($this->title, 0, 150), 
+        'state'=>$this->state,
+        'profile_id'=>$this->profile_id,
+        'company_id'=>$this->company_id,
+        'payload_id'=>$this->payload_id,
+        'created_at'=>$this->created_at];
+        
+        $survey = \App\Neo4j\Surveys::where('survey_id', $data['id'])->first();
+        if (!$survey) {
+            \App\Neo4j\Surveys::create($data);
+        } else {
+            unset($data['id']);
+            \App\Neo4j\Surveys::where('survey_id', $data['survey_id'])->update($data);
+        }
+    }
+
+    public function addParticipationEdge($profileId){
+        $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
+        $survey = \App\Neo4j\Surveys::where('survey_id', $this->id)->first();
+        if ($userProfile && $survey) {
+            $isUserParticipated = $userProfile->participated->where('poll_id',$this->id)->first();
+            if (!$isUserParticipated) {
+                $relation = $userProfile->survey_participated()->attach($survey);
+                $relation->save();
+            } else {
+                $relation = $userProfile->survey_participated()->edge($survey);
+                $relation->save();
+            }
+        }
+    }
+
+    public function removeFromGraph(){        
+        $surveyCount = \App\Neo4j\Surveys::where('survey_id', $this->id)->count();
+        if ($surveyCount > 0) {
+            $client = config('database.neo4j_uri_client');
+             $query = "MATCH (p:Surveys{survey_id:'$this->id'})
+                        DETACH DELETE p;";
+            $result = $client->run($query);
+        }
+    }
 }

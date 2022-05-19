@@ -272,10 +272,15 @@ class ApplicantController extends Controller
             }
 
             \DB::table('collaborate_batches_assign')->insert($batch_inputs);
+            
+            //Add to neo4j
+            $collaborate->addToGraph();
+            $collaborate->addParticipationEdge($loggedInprofileId);
+            
         } catch (Exception $e) {
             \Log::info($e->getMessage());
         }
-
+        
         return $this->sendResponse();
     }
 

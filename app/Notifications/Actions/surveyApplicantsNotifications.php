@@ -21,7 +21,7 @@ class surveyApplicantsNotifications extends Action
         parent::__construct($event);
 
         $this->surveyInfo = $event->surveyInfo;
-
+        
         if ($event->surveyInfo["type"] == "showInterest") {
             $this->view = 'emails.survey-show-interest';
             $this->sub = htmlspecialchars_decode($event->surveyInfo["profile"]->name) . " has shown interest in your survey " . $event->surveyInfo["survey_name"];

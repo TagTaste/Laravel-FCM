@@ -33,6 +33,7 @@ class Polling extends Model implements Feedable
             if(count($matches)) {
                 $model->createHashtag($matches,'App\Polling',$model->id);
             }
+            \App\Documents\Polling::create($model);
         });
 
         self::updated(function($model){
@@ -42,6 +43,7 @@ class Polling extends Model implements Feedable
                 $model->createHashtag($matches,'App\Polling',$model->id);
             }
             $model->addToCache();
+            \App\Documents\Polling::create($model);
             //update the search
         });
         self::deleted(function($model){
@@ -61,6 +63,7 @@ class Polling extends Model implements Feedable
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'profile_id'=>$this->profile_id,
+            'company_id'=>$this->company_id,
             'image_meta'=>$this->image_meta,
             'preview'=>$this->preview,
             'type'=>$this->type,
@@ -110,6 +113,7 @@ class Polling extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
+        // $meta['seen_count'] = "0";
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
@@ -322,5 +326,49 @@ class Polling extends Model implements Feedable
             $totalMatches = array_merge($totalMatches,$matches[0]);
         }
         return $totalMatches;
+    }
+
+    public function addToGraph(){        
+        $data = ['id'=>$this->id, 
+        'poll_id'=>$this->id,
+        'title'=>substr($this->title, 0, 150), 
+        'is_expired'=>$this->is_expired,
+        'profile_id'=>$this->profile_id,
+        'company_id'=>$this->company_id,
+        'payload_id'=>$this->payload_id,
+        'created_at'=>$this->created_at];
+        
+        $poll = \App\Neo4j\Polling::where('poll_id', $data['id'])->first();
+        if (!$poll) {
+            \App\Neo4j\Polling::create($data);
+        } else {
+            unset($data['id']);
+            \App\Neo4j\Polling::where('poll_id', $data['poll_id'])->update($data);
+        }
+    }
+
+    public function addParticipationEdge($profileId){
+        $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
+        $poll = \App\Neo4j\Polling::where('poll_id', $this->id)->first();
+        if ($userProfile && $poll) {
+            $isUserParticipated = $userProfile->participated->where('poll_id',$this->id)->first();
+            if (!$isUserParticipated) {
+                $relation = $userProfile->participated()->attach($poll);
+                $relation->save();
+            } else {
+                $relation = $userProfile->participated()->edge($poll);
+                $relation->save();
+            }
+        }
+    }
+
+    public function removeFromGraph(){    
+        $pollCount = \App\Neo4j\Polling::where('poll_id', $this->id)->count();
+        if ($pollCount > 0) {
+            $client = config('database.neo4j_uri_client');
+             $query = "MATCH (p:Polling{poll_id:$this->id})
+                        DETACH DELETE p;";
+            $result = $client->run($query);
+        }
     }
 }

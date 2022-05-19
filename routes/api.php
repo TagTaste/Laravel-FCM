@@ -200,7 +200,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             Route::get("search/explore", "ExplorePageController@explore");
             Route::get("search_test/explore_test", "ExplorePageController@exploreTest");
+            
         });
+
         //Routes to get personalised meta
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
         Route::get("/meta/{modelName}/{id}/{modelId}", "MetaController@getSharedMeta");
@@ -275,6 +277,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                     Route::get('collaborate/{collaborateId}/getRole', 'CollaborateController@getProfileRole');
                 });
             });
+
+            Route::get("filterSearch/{type?}", 'SearchController@filterSearch');
         });
 
         /**
@@ -828,6 +832,14 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("ios_module_version/{id}", "VersionController@postIosModuleVersion");
         Route::post("android_module_version/{id}", "VersionController@postAndroidModuleVersion");
         Route::resource("advertisements", "AdvertisementController");
+
+              //landing page
+    Route::get("landing/quick_links", "LandingPageController@quickLinks");
+    Route::get("landing/side_data", "LandingPageController@sideData");
+    Route::get("landing/feed", "LandingPageController@feed");
+    Route::get("landing", "LandingPageController@landingPage");
+    Route::get("test-landing", "LandingPageController@testLandingPage");
+
     }); // end of authenticated routes. Add routes before this line to be able to
     // get current logged in user.
 
@@ -931,4 +943,15 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
     //route to send notification from skynet
     Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
+
+   
+
+
+
 });
+
+
+        
+
+
+
