@@ -467,7 +467,7 @@ class LandingPageController extends Controller
         $pollSugges = $this->getModelSuggestionIds($client, $profileId, config("constant.LANDING_MODEL.POLLING"));
         
         $tempMixSuggs = [];
-
+        
         $suggCount = 0;
         while ($suggCount <= 5) {
             array_push($tempMixSuggs, array_shift($productReviewSuggs));
@@ -869,12 +869,12 @@ class LandingPageController extends Controller
             $this->model[] = $imageCarousel;
             
 
-        // if ($platform == 'mobile') {
-        //     //hashtags
-        //     $hashTags = $this->getTrendingHashtag();
-        //     if(count($hashTags['elements']) > 0)
-        //         $this->model[] = $hashTags;
-        // }
+        if ($platform == 'mobile') {
+            //hashtags
+            $hashTags = $this->getTrendingHashtag();
+            if(count($hashTags['elements']) > 0)
+                $this->model[] = $hashTags;
+        }
         
         $feed["ui_type"] = config("constant.LANDING_UI_TYPE.FEED");
         $feed["title"] = "From Your Feed";

@@ -588,14 +588,36 @@ class SurveyController extends Controller
 
             $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
             $optionArray = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
+
+
+            $mandateQuestions = [];
+            $mandateQuestions =  array_map(function ($v) {
+                if (isset($v["is_mandatory"]) && $v["is_mandatory"] == true) {
+                    return  $v["id"];
+                }
+            }, $prepareQuestionJson);
+
+            $answerQuestionIds = [];
+
+            $answerQuestionIds =  array_map(function ($vi) {
+                return  $vi["question_id"];
+            }, $optionArray);
+            
+            $mandateQuestions = array_values(array_filter($mandateQuestions));
+
+
+            if (!empty(array_diff($mandateQuestions, $answerQuestionIds))) {
+                return $this->sendError("Mandatory Questions Cannot Be Blank");
+            }
+
             DB::beginTransaction();
             $commit = true;
             foreach ($optionArray as $values) {
 
-                if (isset($prepareQuestionJson[$values["question_id"]]["is_mandatory"]) && $prepareQuestionJson[$values["question_id"]]["is_mandatory"] == true && (!isset($values["options"]) || empty($values["options"]))) {
+                if (!isset($values["options"]) || empty($values["options"])) {
                     DB::rollback();
                     $this->model = ["status" => false];
-                    return $this->sendError("Mandatory Questions Cannot Be Blank");
+                    return $this->sendError("Options not found");
                 }
                 $answerArray = [];
                 $answerArray["profile_id"] = $request->user()->profile->id;
