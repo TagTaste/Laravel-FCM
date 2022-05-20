@@ -442,12 +442,17 @@ class ReviewController extends Controller
         $data = [];
         $answers = $request->input('answer');
         $loggedInProfileId = $request->user()->profile->id;
-        $product = PublicReviewProduct::where('id', $productId)->where("not_accepting_response",0)->first();
+        $product = PublicReviewProduct::where('id', $productId)->first();
 
         if ($product === null) {
             $this->model = ["status" => false];
             return $this->sendError("Product not found.");
         }
+        if ($product->not_accepting_response == 1) {
+            $this->model = ["status" => false];
+            return $this->sendError("We are not accepting reviews for this product.");
+        }
+        
         $userReview = Review::where('profile_id', $loggedInProfileId)->where('product_id', $productId)->orderBy('id', 'desc')->first();
         if (isset($userReview) && $userReview->current_status == 2) {
             $this->model = ["status" => false];
