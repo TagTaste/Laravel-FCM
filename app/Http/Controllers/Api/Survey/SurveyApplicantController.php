@@ -698,19 +698,6 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
 
-    public function getShortlistApplicants(Request $request, $id)
-    {
-        $page = $request->input('page');
-        $this->model = [];
-        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $list = surveyApplicants::where('survey_id', $id)->where('application_status', 0)
-            ->whereNull('deleted_at')
-            ->whereNull('rejected_at');
-
-        $this->model['shortlistedApplicantsCount'] = $list->count();
-        $this->model['shortlistedApplicantList'] = $list->skip($skip)->take($take)->get();
-        return $this->sendResponse();
-    }
 
     public function getInvitedApplicants(Request $request, $id)
     {
