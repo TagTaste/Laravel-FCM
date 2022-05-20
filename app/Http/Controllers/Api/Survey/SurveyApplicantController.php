@@ -350,7 +350,7 @@ class SurveyApplicantController extends Controller
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('survey_applicants')->where('survey_id', $id)->get();
-        $applicationStatus = ['TO BE NOTIFIED','NOTIFIED','COMPLETED','REJECTED'];
+        $applicationStatus = ['TO BE NOTIFIED', 'NOTIFIED', 'COMPLETED', 'REJECTED'];
         $city = [];
         $profile = [];
         $hometown = [];
@@ -394,7 +394,7 @@ class SurveyApplicantController extends Controller
                     $data['application_status'] = $applicationStatus;
             }
         } else {
-            $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster,"application_status" => $applicationStatus];
+            $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster, "application_status" => $applicationStatus];
         }
         $this->model = $data;
         return $this->sendResponse();
@@ -535,12 +535,12 @@ class SurveyApplicantController extends Controller
             if ($currentStatus == 1) {
                 //perform operation
                 Redis::set("surveys:application_status:$id:profile:$profileId", 0);
-                $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->update(["application_status" => 0]);
+                $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->whereNull('deleted_at')->update(["application_status" => 0]);
                 $err = false;
 
                 if ($t) {
                     $this->model = true;
-                    $applicant =  surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->first();
+                    $applicant =  surveyApplicants::where("profile_id", $profileId)->whereNull('deleted_at')->where('survey_id', $id)->first();
 
                     $info["is_survey"] = 1;
                     $info["is_invited"] = $applicant->is_invited;
@@ -590,7 +590,7 @@ class SurveyApplicantController extends Controller
         }
 
         // check if any user is already notified or not
-        $checkAssignUser = \DB::table('survey_applicants')->where('survey_id', $id)->whereIn('profile_id', $shortlistedProfiles)
+        $checkAssignUser = \DB::table('survey_applicants')->where('survey_id', $id)->whereNull('deleted_at')->whereIn('profile_id', $shortlistedProfiles)
             ->where('application_status', 1)
             ->exists();
         if ($checkAssignUser) {
@@ -627,7 +627,7 @@ class SurveyApplicantController extends Controller
         $filters = $request->input('filters');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $list = surveyApplicants::where('survey_id', $id) //->whereNull('shortlisted_at')
+        $list = surveyApplicants::where('survey_id', $id)->whereNull('deleted_at') //->whereNull('shortlisted_at')
             ->whereNotNull('rejected_at');
 
         if (isset($q) && $q != null) {
@@ -677,6 +677,7 @@ class SurveyApplicantController extends Controller
             // shortlist applicant
             $this->model = \DB::table('survey_applicants')
                 ->where('survey_id', $id)
+                ->whereNull('deleted_at')
                 ->whereIn('profile_id', $shortlistedProfiles)
                 ->update([
                     'application_status' => 0,
@@ -700,9 +701,26 @@ class SurveyApplicantController extends Controller
     public function getShortlistApplicants(Request $request, $id)
     {
         $page = $request->input('page');
+        $this->model = [];
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = surveyApplicants::where('survey_id', $id)->where('application_status', 0)
-            ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+        $list = surveyApplicants::where('survey_id', $id)->where('application_status', 0)
+            ->whereNull('deleted_at')
+            ->whereNull('rejected_at');
+
+        $this->model['shortlistedApplicantsCount'] = $list->count();
+        $this->model['shortlistedApplicantList'] = $list->skip($skip)->take($take)->get();
+        return $this->sendResponse();
+    }
+
+    public function getInvitedApplicants(Request $request, $id)
+    {
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
+        $list = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull('deleted_at')
+            ->whereNull('rejected_at');
+        $this->model['invitedApplicantsCount'] = $list->count();
+        $this->model['invitedApplicants'] = $list->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
