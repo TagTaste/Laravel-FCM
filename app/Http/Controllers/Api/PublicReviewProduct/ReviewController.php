@@ -442,7 +442,7 @@ class ReviewController extends Controller
         $data = [];
         $answers = $request->input('answer');
         $loggedInProfileId = $request->user()->profile->id;
-        $product = PublicReviewProduct::where('id', $productId)->first();
+        $product = PublicReviewProduct::where('id', $productId)->where("not_accepting_response",0)->first();
 
         if ($product === null) {
             $this->model = ["status" => false];
