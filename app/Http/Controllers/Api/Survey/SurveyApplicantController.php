@@ -60,7 +60,7 @@ class SurveyApplicantController extends Controller
         }
 
 
-        $applicants = surveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at");
+        $applicants = surveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("rejected_at");
         if ($q != null) {
             $searchByProfile = surveyApplicants::where('survey_id', $id)
                 ->whereNUll('company_id')
