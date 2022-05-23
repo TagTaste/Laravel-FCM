@@ -46,7 +46,7 @@ class RollbackTaster extends Action
         $this->content = $content;
         $this->actionModel = null;
 
-        if (isset($info["is_survey"]))
+        if (isset($info["is_survey"]))  
             $this->info = $info;
         elseif (!is_null($info))
             $this->info = \DB::table('collaborate_batches')->where('id', $info)->first();
