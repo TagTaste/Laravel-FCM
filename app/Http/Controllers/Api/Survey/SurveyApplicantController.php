@@ -532,8 +532,8 @@ class SurveyApplicantController extends Controller
         $err = true;
         foreach ($profileIds as $profileId) {
             $info = [];
-            $currentStatus = Redis::get("surveys:application_status:$id:profile:$profileId");
-
+            $currentStatus = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->whereNull('deleted_at')->pluck('application_status');
+            $currentStatus = $currentStatus[0];
             if ($currentStatus == 1) {
                 //perform operation
                 Redis::set("surveys:application_status:$id:profile:$profileId", 0);
