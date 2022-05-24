@@ -577,9 +577,11 @@ class SurveyApplicantController extends Controller
             $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
         })->first();
 
+        $this->model = false;
         if ($survey === null) {
             return $this->sendError("Invalid survey Project.");
         }
+
 
         $profileId = $request->user()->profile->id;
 
@@ -597,16 +599,17 @@ class SurveyApplicantController extends Controller
             return $this->sendError("You can not remove this user.");
         }
         $now = Carbon::now()->toDateTimeString();
-
         // begin transaction
         \DB::beginTransaction();
         try {
 
             // remove applicant
-            $this->model = \DB::table('survey_applicants')
+            $updated = \DB::table('survey_applicants')
                 ->where('survey_id', $id)
                 ->whereIn('profile_id', $shortlistedProfiles)
                 ->update(['rejected_at' => $now]);
+
+            $this->model = (bool) $updated;
 
             \DB::commit();
         } catch (\Exception $e) {
@@ -656,7 +659,7 @@ class SurveyApplicantController extends Controller
             $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
             $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
         })->first();
-
+        $this->model = false;
         if ($survey === null) {
             return $this->sendError("Invalid survey Project.");
         }
@@ -675,7 +678,7 @@ class SurveyApplicantController extends Controller
         try {
 
             // shortlist applicant
-            $this->model = \DB::table('survey_applicants')
+            $updated =  \DB::table('survey_applicants')
                 ->where('survey_id', $id)
                 ->whereNull('deleted_at')
                 ->whereIn('profile_id', $shortlistedProfiles)
@@ -683,6 +686,7 @@ class SurveyApplicantController extends Controller
                     'application_status' => 0,
                     'rejected_at' => null
                 ]);
+            $this->model  = (bool)$updated;
 
             \DB::commit();
         } catch (\Exception $e) {
