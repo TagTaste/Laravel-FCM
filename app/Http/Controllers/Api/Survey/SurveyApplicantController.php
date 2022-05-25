@@ -545,7 +545,9 @@ class SurveyApplicantController extends Controller
                     $info["is_survey"] = 1;
                     $info["is_invited"] = $applicant->is_invited;
                     if ($applicant->is_invited) {
+                        Redis::del("surveys:application_status:$id:profile:$profileId");
                         surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->update(["deleted_at" => \Carbon\Carbon::now()]);
+
                     }
                 } else {
                     $err = true;
@@ -565,7 +567,7 @@ class SurveyApplicantController extends Controller
         }
         if ($err) {
             $this->model = false;
-            return $this->sendError('Sorry, you cannot undo begin tasting as the tasting is in progress');
+            return $this->sendError('Sorry, something went wrong');
         }
         return $this->sendResponse();
     }
