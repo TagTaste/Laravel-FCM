@@ -24,18 +24,7 @@ trait FilterTraits
             $profileIds = $profileIds->merge($filterProfile);
         }
 
-        if (isset($filters['application_status'])) {
-            $currentStatusIds = collect([]);
-            foreach ($filters['application_status'] as $currentStatus) {
-                $ids = surveyApplicants::where('survey_id', $surveyDetails->id)->where('application_status', $currentStatus)->get()->pluck('profile_id');
-            }
-
-
-            $currentStatusIds = $currentStatusIds->merge($ids);
-
-            $isFilterAble = true;
-            $profileIds = $profileIds->merge($currentStatusIds);
-        }
+     
 
 
         if (!empty($filters)) {
@@ -86,7 +75,7 @@ trait FilterTraits
                 }
             });
         }
-
+       
         if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
             $Ids =   $Ids->leftJoin('profiles', 'survey_applicants.profile_id', '=', 'profiles.id');
         }
