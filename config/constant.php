@@ -28,9 +28,9 @@ return  [
     ],
 
     "SURVEY_APPLICANT_STATUS" => [
-        "TO BE NOTIFIED" => 0,
-        "NOTIFIED" => 1,
-        "COMPLETED" => 2
+        "To Be Notified" => 0,
+        "Notified" => 1,
+        "Completed" => 2
     ],
 
     "MEDIA_SURVEY_QUESTION_TYPE" => 5,
