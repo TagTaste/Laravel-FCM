@@ -65,17 +65,12 @@ trait FilterTraits
 
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['application_status'] as $status) {
-                    if($status == "REJECTED")
-                    {
-                        $query->orWhereNotNull('survey_applicants.rejected_at');
-   
-                    }
-                    else
+                
                     $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS.$status"));
                 }
             });
         }
-       
+         
         if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
             $Ids =   $Ids->leftJoin('profiles', 'survey_applicants.profile_id', '=', 'profiles.id');
         }
@@ -119,7 +114,7 @@ trait FilterTraits
         if ($profileIds->count() > 0 && isset($Ids)) {
             $Ids = $Ids->whereIn('profile_id', $profileIds);
         }
-
+       
         if (isset($Ids)) {
             $isFilterAble = true;
             $Ids = $Ids->get()->pluck('profile_id');

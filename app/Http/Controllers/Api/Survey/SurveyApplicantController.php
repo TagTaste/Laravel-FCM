@@ -350,7 +350,7 @@ class SurveyApplicantController extends Controller
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('survey_applicants')->where('survey_id', $id)->get();
-        $applicationStatus = ['TO BE NOTIFIED', 'NOTIFIED', 'COMPLETED', 'REJECTED'];
+        $applicationStatus = ['TO BE NOTIFIED', 'NOTIFIED', 'COMPLETED'];
         $city = [];
         $profile = [];
         $hometown = [];
