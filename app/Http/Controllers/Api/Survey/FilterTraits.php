@@ -66,7 +66,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['application_status'] as $status) {
                 
-                    $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS.$status"));
+                    $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS.".ucwords($status)));
                 }
             });
         }
