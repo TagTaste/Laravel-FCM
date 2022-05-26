@@ -747,6 +747,7 @@ class SurveyApplicantController extends Controller
 
     public function getRejectApplicants(Request $request, $id)
     {
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
         $page = $request->input('page');
         $q = $request->input('q');
         $filters = $request->input('filters');
@@ -754,14 +755,15 @@ class SurveyApplicantController extends Controller
         $this->model = [];
         $list = surveyApplicants::where('survey_id', $id)->whereNull('deleted_at') //->whereNull('shortlisted_at')
             ->whereNotNull('rejected_at');
-
+       
         if (isset($q) && $q != null) {
             $ids = $this->getSearchedProfile($q, $id);
             $list = $list->whereIn('id', $ids);
         }
 
         if (isset($filters) && $filters != null) {
-            $profileIds = $this->getFilteredProfile($filters, $id);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
             $list = $list->whereIn('profile_id', $profileIds);
         }
         if ($request->sortBy != null) {
@@ -827,11 +829,31 @@ class SurveyApplicantController extends Controller
 
     public function getInvitedApplicants(Request $request, $id)
     {
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
         $page = $request->input('page');
+        $q = $request->input('q');
+        $filters = $request->input('filters');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
         $list = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull('deleted_at')
             ->whereNull('rejected_at');
+       
+        
+        if (isset($q) && $q != null) {
+            $ids = $this->getSearchedProfile($q, $id);
+            $list = $list->whereIn('id', $ids);
+        }
+       
+
+        if (isset($filters) && $filters != null) { 
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $list = $list->whereIn('profile_id', $profileIds);
+        }
+        if ($request->sortBy != null) {
+            $archived = $this->sortApplicants($request->sortBy, $list, $id);
+        }
+
         $this->model['invitedApplicantsCount'] = $list->count();
         $this->model['invitedApplicants'] = $list->skip($skip)->take($take)->get();
 
