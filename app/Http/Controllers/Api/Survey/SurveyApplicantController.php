@@ -23,7 +23,7 @@ class SurveyApplicantController extends Controller
 
     use SendsJsonResponse, FilterTraits;
 
-    private $frontEndApplicationStatus = [0=>"Begin Tasting",1=>"Notified",2=>"Completed"];
+    private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed"];
     public function __construct(Surveys $model)
     {
         $this->model = $model;
@@ -89,7 +89,7 @@ class SurveyApplicantController extends Controller
                 ->whereIn('profile_id', $profileIds);
         }
 
-        $applicants = $applicants->orderBy("created_at","desc")->skip($skip)->take($take)->get()->toArray();
+        $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
 
 
         $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
@@ -269,8 +269,11 @@ class SurveyApplicantController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $query = $request->input('q');
 
+        $alreadyInApplicantsList = surveyApplicants::select('survey_applicants.profile_id')
+            ->where('survey_applicants.profile_id', '!=', $loggedInProfileId)->whereNull('survey_applicants.deleted_at')->where('survey_applicants.survey_id', $id)->get()->toArray();
+        $alreadyInApplicantsList = array_column($alreadyInApplicantsList, 'profile_id');
         $this->model = \App\Recipe\Profile::select('profiles.*')->join('users', 'profiles.user_id', '=', 'users.id')
-            ->where('profiles.id', '!=', $loggedInProfileId)->where('users.name', 'like', "%$query%")->take(15)->get();
+            ->where('profiles.id', '!=', $loggedInProfileId)->whereNotIn('profiles.id', $alreadyInApplicantsList)->where('users.name', 'like', "%$query%")->take(15)->get();
 
         return $this->sendResponse();
     }
@@ -336,7 +339,7 @@ class SurveyApplicantController extends Controller
                     null,
                     'fill_survey',
                     $comp,
-                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => isset($comp->image)?$comp->image:$comp->logo], "is_private" => $survey->is_private, "type" => "inviteForReview"]
+                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => isset($comp->image) ? $comp->image : $comp->logo], "is_private" => $survey->is_private, "type" => "inviteForReview"]
                 ));
             }
         }
@@ -480,7 +483,7 @@ class SurveyApplicantController extends Controller
                 "Specialization" => $specialization,
                 "Hometown" => $applicant->hometown,
                 "Current City" => $applicant->current_city,
-                "Application Status"=>$this->frontEndApplicationStatus[$applicant->application_status] ?? ""
+                "Application Status" => $this->frontEndApplicationStatus[$applicant->application_status] ?? ""
             );
             array_push($finalData, $temp);
         }
@@ -757,7 +760,7 @@ class SurveyApplicantController extends Controller
         $this->model = [];
         $list = surveyApplicants::where('survey_id', $id)->whereNull('deleted_at') //->whereNull('shortlisted_at')
             ->whereNotNull('rejected_at');
-       
+
         if (isset($q) && $q != null) {
             $ids = $this->getSearchedProfile($q, $id);
             $list = $list->whereIn('id', $ids);
@@ -839,15 +842,15 @@ class SurveyApplicantController extends Controller
         $this->model = [];
         $list = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull('deleted_at')
             ->whereNull('rejected_at');
-       
-        
+
+
         if (isset($q) && $q != null) {
             $ids = $this->getSearchedProfile($q, $id);
             $list = $list->whereIn('id', $ids);
         }
-       
 
-        if (isset($filters) && $filters != null) { 
+
+        if (isset($filters) && $filters != null) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $list = $list->whereIn('profile_id', $profileIds);
