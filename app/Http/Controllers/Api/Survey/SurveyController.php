@@ -77,9 +77,6 @@ class SurveyController extends Controller
         $getData = $getSurvey->toArray();
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
-
-
-
         // $count = \DB::table('survey_applicants')->where('survey_id', $id)->get()->count();
         $this->messages = "Request successfull";
         $this->model = [
@@ -280,6 +277,7 @@ class SurveyController extends Controller
         $profileId = $request->user()->profile->id;
         $surveys = $this->model->where('state', 2)
             ->whereNull('deleted_at')->where("id", "<>", $surveyId)
+            ->where('is_active',1)
             ->inRandomOrder()
             ->take(3)->get();
 
@@ -368,8 +366,9 @@ class SurveyController extends Controller
             }
         }
 
+        
+        if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))){
 
-        if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))) {
             return $this->sendError("Survey status cannot be changed");
         }
 
@@ -603,14 +602,36 @@ class SurveyController extends Controller
 
             $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
             $optionArray = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
+
+
+            $mandateQuestions = [];
+            $mandateQuestions =  array_map(function ($v) {
+                if (isset($v["is_mandatory"]) && $v["is_mandatory"] == true) {
+                    return  $v["id"];
+                }
+            }, $prepareQuestionJson);
+
+            $answerQuestionIds = [];
+
+            $answerQuestionIds =  array_map(function ($vi) {
+                return  $vi["question_id"];
+            }, $optionArray);
+            
+            $mandateQuestions = array_values(array_filter($mandateQuestions));
+
+
+            if (!empty(array_diff($mandateQuestions, $answerQuestionIds))) {
+                return $this->sendError("Mandatory Questions Cannot Be Blank");
+            }
+
             DB::beginTransaction();
             $commit = true;
             foreach ($optionArray as $values) {
 
-                if (isset($prepareQuestionJson[$values["question_id"]]["is_mandatory"]) && $prepareQuestionJson[$values["question_id"]]["is_mandatory"] == true && (!isset($values["options"]) || empty($values["options"]))) {
+                if (!isset($values["options"]) || empty($values["options"])) {
                     DB::rollback();
                     $this->model = ["status" => false];
-                    return $this->sendError("Mandatory Questions Cannot Be Blank");
+                    return $this->sendError("Options not found");
                 }
                 $answerArray = [];
                 $answerArray["profile_id"] = $request->user()->profile->id;
@@ -2034,7 +2055,7 @@ class SurveyController extends Controller
         $isInvited = 0;
 
         $loggedInprofileId = $request->user()->profile->id;
-        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->first();
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->whereNull('deleted_at')->first();
         if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
             $this->model = false;
             return $this->sendError("Already Applied");
@@ -2045,11 +2066,14 @@ class SurveyController extends Controller
             $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress, true);
             $city = (isset($address['survey_city'])) ? $address['survey_city'] : null;
+           
         } else {
             $city = null;
             $applierAddress = null;
+           
         }
 
+     
 
         $profile = $request->user()->profile;
         if (empty($checkApplicant)) {
@@ -2069,14 +2093,29 @@ class SurveyController extends Controller
             if (empty($checkApplicant->city)) {
                 $update['city'] = $city;
             }
+           
 
             if (empty($checkApplicant->age_group)) {
                 $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
             }
 
+            if($checkApplicant->is_invited){
+                $hometown = $request->input('hometown');
+                $current_city = $request->input('current_city');
+                if (empty($checkApplicant->hometown)) {
+                    $update['hometown'] = $hometown;
+                }
+                if (empty($checkApplicant->current_city)) {
+                    $update['current_city'] = $current_city;
+                }
+            }
+
             if (!empty($update)) {
                 $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
             }
+
+           
+    
         }
         $this->model = true;
         return $this->sendResponse();

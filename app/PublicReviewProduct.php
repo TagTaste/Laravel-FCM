@@ -25,7 +25,7 @@ class PublicReviewProduct extends Model
 
     protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id','is_active','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id','is_newly_launched'];
 
-    protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active','product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id','is_newly_launched'];
+    protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo','company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active','product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check','brand_description','company_description','paired_best_with','portion_size','product_ingredients','nutritional_info','allergic_info_contains','brand_id','is_newly_launched','not_accepting_response','admin_note'];
 
     protected $appends = ['type','review_count'];
 
@@ -80,7 +80,8 @@ class PublicReviewProduct extends Model
             "product_category",
             "product_sub_category",
             "overall_rating",
-            "current_status"
+            "current_status",
+            "not_accepting_response"
         ])->toArray();
         foreach ($data as $key => $value) {
             if (is_null($value) || $value == '')
@@ -351,7 +352,7 @@ class PublicReviewProduct extends Model
         
         $description = "";
         if (!is_null($this->description)) {
-            $description = substr(htmlspecialchars_decode($this->description),0,160)."...";
+            $description = mb_convert_encoding(substr(htmlspecialchars_decode($this->description),0,160),'UTF-8', 'UTF-8')."...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }

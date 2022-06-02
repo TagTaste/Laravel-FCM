@@ -15,6 +15,7 @@ class FCMPush extends Model
 {
     public function send($notifiable,Notification $notification)
     {
+        file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here in FCMPush to send notification.\n", FILE_APPEND); 
         $data = $notification->toArray($notifiable);
         if(isset($data["action"]) && $data["action"] === 'upgrade-apk')
         {
@@ -22,12 +23,14 @@ class FCMPush extends Model
         }
         else
         {
+            file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Call fcmNotification fucntion.\n", FILE_APPEND); 
             $this->fcmNotification($data,$notifiable->id);
         }
     }
     
     public function fcmNotification($data,$profileId)
     {
+        // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here in fcmNotification fucntion.\n", FILE_APPEND); 
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
         
@@ -63,10 +66,11 @@ class FCMPush extends Model
             //     $data = $dataBuilder->build();
             // }
             // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nSending push android for profile_id : ".$profileId, FILE_APPEND);
-
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
+        }else{
+            // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here don't have any token. - ANDROID\n", FILE_APPEND); 
         }
 
 
@@ -87,11 +91,13 @@ class FCMPush extends Model
 
         if(count($token) && !Redis::sIsMember("online:profile:",$profileId))
         {   
-            file_put_contents(storage_path("logs") . "/notification_test.txt", "\nSending push ios for profile_id : ".$profileId, FILE_APPEND);
+            // file_put_contents(storage_path("logs") . "/notification_test.txt", "\nSending push ios for profile_id : ".$profileId, FILE_APPEND);
 
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
+        }else{
+            // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n User is online in redis\n", FILE_APPEND); 
         }
 //         file_put_contents(storage_path("logs") . "/notification_test.txt", "\n\n++++++++++++++++++++++++++\n\n ", FILE_APPEND);
 

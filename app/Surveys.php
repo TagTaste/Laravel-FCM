@@ -37,7 +37,6 @@ class Surveys extends Model implements Feedable
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
     "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants"];
 
-
     protected $cast = [
         "form_json" => 'array',
     ];
@@ -227,11 +226,22 @@ class Surveys extends Model implements Feedable
         $title = "TagTaste | " . $this->title . " | Survey";
         $description = "";
         if (!is_null($this->description)) {
-            $description = substr(htmlspecialchars_decode($this->description), 0, 160) . "...";
+            $description = mb_convert_encoding(substr(htmlspecialchars_decode($this->description), 0, 160),'UTF-8', 'UTF-8') . "...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
-
+        
+        $image = null;
+        if(gettype($this->image_meta) != 'array'){
+            $this->image_meta = json_decode($this->image_meta, true);
+        }
+        
+        if(isset($this->image_meta) && $this->image_meta != null && $this->image_meta != ''){
+            $image = $this->image_meta[0]['original_photo'] ?? null;
+        }
+        
+        
+        
         $seo_tags = [
             "title" => $title,
             "meta" => array(
@@ -255,7 +265,7 @@ class Surveys extends Model implements Feedable
                 ),
                 array(
                     "property" => "og:image",
-                    "content" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/icon_survey.png",
+                    "content" => $image,
                 )
             ),
         ];
@@ -289,6 +299,7 @@ class Surveys extends Model implements Feedable
             ->where('surveys_mandatory_fields_mapping.survey_id', $this->id)
             ->get()->toArray();
     }
+  
 
     public function getTotalApplicantsAttribute()
     {

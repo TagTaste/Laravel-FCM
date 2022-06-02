@@ -22,6 +22,8 @@ class SurveyApplicantController extends Controller
 {
 
     use SendsJsonResponse, FilterTraits;
+
+    private $frontEndApplicationStatus = [0=>"Begin Tasting",1=>"Notified",2=>"Completed"];
     public function __construct(Surveys $model)
     {
         $this->model = $model;
@@ -87,7 +89,7 @@ class SurveyApplicantController extends Controller
                 ->whereIn('profile_id', $profileIds);
         }
 
-        $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
+        $applicants = $applicants->orderBy("created_at","desc")->skip($skip)->take($take)->get()->toArray();
 
 
         $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
@@ -305,7 +307,7 @@ class SurveyApplicantController extends Controller
 
         $profileIds = $request->input('profile_id');
 
-        $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->exists();
+        $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->whereNull('deleted_at')->exists();
         if ($checkExist) {
             return $this->sendError("Already Invited");
         }
@@ -333,8 +335,8 @@ class SurveyApplicantController extends Controller
                     null,
                     null,
                     'fill_survey',
-                    null,
-                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => $comp->image], "is_private" => $survey->is_private, "type" => "inviteForReview"]
+                    $comp,
+                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => isset($comp->image)?$comp->image:$comp->logo], "is_private" => $survey->is_private, "type" => "inviteForReview"]
                 ));
             }
         }
@@ -467,7 +469,6 @@ class SurveyApplicantController extends Controller
                     }
                 }
             }
-
             $temp = array(
                 "S. No" => $key + 1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
@@ -478,7 +479,8 @@ class SurveyApplicantController extends Controller
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
                 "Hometown" => $applicant->hometown,
-                "Current City" => $applicant->current_city
+                "Current City" => $applicant->current_city,
+                "Application Status"=>$this->frontEndApplicationStatus[$applicant->application_status] ?? ""
             );
             array_push($finalData, $temp);
         }

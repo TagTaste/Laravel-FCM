@@ -280,7 +280,7 @@ class Shoutout extends Model implements Feedable
         $title = "TagTaste | Post";
         $description = "";
         if (!is_null($this->content)) {
-            $description = substr(htmlspecialchars_decode($this->getContent($this->content)),0,160)."...";
+            $description = mb_convert_encoding(substr(htmlspecialchars_decode($this->getContent($this->content)),0,160),'UTF-8', 'UTF-8')."...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
@@ -337,8 +337,7 @@ class Shoutout extends Model implements Feedable
         if($this->preview != null && isset($this->preview["title"])) {
             return  $this->preview["title"];
         }
-
-        return $this->getContent($this->content)!=null ? substr($this->getContent($this->content),0,155) : "Checkout this post by ".$this->owner->name;
+        return $this->getContent($this->content)!=null ? mb_convert_encoding(substr(htmlspecialchars_decode($this->getContent($this->content)),0,155),'UTF-8', 'UTF-8') : "Checkout this post by ".$this->owner->name;
     }
 
     public function getOgDescription()
