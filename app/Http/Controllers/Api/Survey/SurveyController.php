@@ -585,6 +585,9 @@ class SurveyController extends Controller
             if (empty($checkApplicant) && (is_null($id->is_private) || !$id->is_private)) {
 
                 $this->saveApplicants($id, $request);
+            } elseif (empty($checkApplicant)) {
+                $this->messages = "Can't perform this action anymore. Admin Declined your participation request for the survey.";
+                return $this->sendError("Something went wrong");
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
