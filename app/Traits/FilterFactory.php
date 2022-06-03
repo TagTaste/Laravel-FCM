@@ -113,12 +113,12 @@ trait FilterFactory
         $Ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId);
 
 
-        if (isset($filters['profiles'])) {
+        if (isset($filters['profile'])) {
             $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
                 ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
 
             $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['profiles'] as $profile) {
+                foreach ($filters['profile'] as $profile) {
                     $query->orWhere('name', 'LIKE', $profile);
                 }
             });
