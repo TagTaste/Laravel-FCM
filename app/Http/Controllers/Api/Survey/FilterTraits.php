@@ -24,11 +24,12 @@ trait FilterTraits
             $profileIds = $profileIds->merge($filterProfile);
         }
 
-     
+
 
 
         if (!empty($filters)) {
-            $Ids = surveyApplicants::where('survey_id', $surveyDetails->id);
+            $Ids = surveyApplicants::where('survey_id', $surveyDetails->id)
+                ->whereNull('deleted_at');
         }
 
         if (isset($filters['city'])) {
@@ -48,8 +49,16 @@ trait FilterTraits
             });
         }
 
-        if (isset($filters['profile_id'])) {
-            $Ids = $Ids->whereIn("profile_id", $filters['profile_id']);
+
+        if (isset($filters['profile'])) {
+            $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
+                ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
+
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['profile'] as $profile) {
+                    $query->orWhere('name', 'LIKE', $profile);
+                }
+            });
         }
 
         if (isset($filters['gender'])) {
@@ -65,12 +74,12 @@ trait FilterTraits
 
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['application_status'] as $status) {
-                
-                    $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS.".ucwords($status)));
+
+                    $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS." . ucwords($status)));
                 }
             });
         }
-         
+
         if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
             $Ids =   $Ids->leftJoin('profiles', 'survey_applicants.profile_id', '=', 'profiles.id');
         }
@@ -114,7 +123,7 @@ trait FilterTraits
         if ($profileIds->count() > 0 && isset($Ids)) {
             $Ids = $Ids->whereIn('profile_id', $profileIds);
         }
-       
+
         if (isset($Ids)) {
             $isFilterAble = true;
             $Ids = $Ids->get()->pluck('profile_id');

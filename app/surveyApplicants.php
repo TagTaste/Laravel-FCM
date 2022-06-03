@@ -38,8 +38,11 @@ class surveyApplicants extends Model
 
     public function getPhoneAttribute()
     {
-       
-     return \DB::table('profiles')->where('id', $this->profile_id)->first()->phone;
-       
+
+        $profile =  \DB::table('profiles')->where('id', $this->profile_id)->first();
+        if (!is_null($profile)) {
+            return $profile->phone;
+        }
+        return null;
     }
 }
