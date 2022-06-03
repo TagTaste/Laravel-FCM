@@ -51,7 +51,7 @@ trait FilterTraits
 
 
         if (isset($filters['profile'])) {
-            $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
+            $Ids =   $Ids->leftJoin('profile_specializations', 'survey_applicants.profile_id', '=', 'profile_specializations.profile_id')
                 ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
 
             $Ids = $Ids->where(function ($query) use ($filters) {
