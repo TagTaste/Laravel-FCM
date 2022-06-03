@@ -43,6 +43,6 @@ class surveyApplicants extends Model
         if (!is_null($profile)) {
             return $profile->phone;
         }
-        return $profile;
+        return null;
     }
 }
