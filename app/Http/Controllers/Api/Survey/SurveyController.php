@@ -554,7 +554,8 @@ class SurveyController extends Controller
                 return $this->sendResponse();
             }
 
-            $id = $this->model->where("id", "=", $request->survey_id)->first();
+            $id = $this->model->where("id", "=", $request->survey_id)->first(); 
+
             $this->model = [];
             if (empty($id)) {
                 $this->model = ["status" => false];
@@ -580,12 +581,11 @@ class SurveyController extends Controller
 
             $checkIfMandatoryOptionsActive = \DB::table("surveys_mandatory_fields_mapping")->where("survey_id", "=", $id->id)->get();
 
-
             if (empty($checkApplicant) && (is_null($id->is_private) || !$id->is_private)) {
 
                 $this->saveApplicants($id, $request);
             } elseif (empty($checkApplicant)) {
-                $this->messages = "Can't perform this action anymore. Admin Declined your participation request for the survey.";
+                $this->messages = $id->profile->user->name." accepted your survey participation request by mistake and it has been reversed.";
                 return $this->sendError("Something went wrong");
             }
 
@@ -595,7 +595,7 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")) {
-                $this->messages = "Can't perform this action anymore. Admin Declined your participation request for the survey.";
+                $this->messages = $id->profile->user->name." accepted your survey participation request by mistake and it has been reversed.";
                 $this->model = ["status" => false];
                 return $this->sendError("Something went wrong");
             }
