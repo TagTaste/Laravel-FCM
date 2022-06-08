@@ -90,7 +90,7 @@ class ShoutoutController extends Controller
         {
             $inputs['preview'] = json_encode($inputs['preview']);
         }
-
+        
         if($request->has('media_file'))
         {
             $path = Shoutout::getProfileMediaPath($profile->id);
@@ -103,6 +103,8 @@ class ShoutoutController extends Controller
             $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
         }
         $this->model = $this->model->create($inputs);
+
+        // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\nCreate event for shoutout\n", FILE_APPEND); 
         event(new Create($this->model,$profile));
 
         if($inputs['has_tags']){

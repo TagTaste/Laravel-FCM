@@ -56,8 +56,8 @@ class Surveys extends Share
             //from original_post_meta to originalPostMeta 
         }
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->surveys_id)->where("is_active", 1)->first();
-        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
 
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         $meta['isReported'] =  $this->isSurveyReported();
         $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status == 2) ? true : false);
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
@@ -79,8 +79,8 @@ class Surveys extends Share
             //from original_post_meta to originalPostMeta 
         }
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->surveys_id)->where("is_active", 1)->first();
-        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
 
+        $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         $meta['isReported'] =  $this->isSurveyReported();
         $meta['isReviewed'] = ((!empty($reviewed) && $reviewed->application_status == 2) ? true : false);
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
@@ -194,5 +194,4 @@ class Surveys extends Share
 
         return 0;
     }
-
 }

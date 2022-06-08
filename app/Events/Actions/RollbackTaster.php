@@ -27,29 +27,28 @@ class RollbackTaster extends Action
     public $content;
     public $image;
     public $actionModel;
-    public $batchInfo;
+    public $info;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null,$batchId = null)
+    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null, $info = null)
     {
-        parent::__construct($model,$who);
+        parent::__construct($model, $who);
         $this->model = $model;
-        if(isset($company))
-        {
-            $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline, 'verified'=>$company->verified];
+        if (isset($company)) {
+            $this->who = ['id' => $company->id, 'name' => $company->name, 'imageUrl' => isset($company->logo) ? $company->logo : $company->image, 'type' => isset($company->logo)?'company':'user', 'tagline' => $company->tagline, 'verified' => $company->verified];
         }
-        
+
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
         $this->actionModel = null;
-        if(!is_null($batchId))
-            $this->batchInfo = \DB::table('collaborate_batches')->where('id',$batchId)->first();
-        else
-            $this->batchInfo = null;
-    }
 
+        if (isset($info["is_survey"]))  
+            $this->info = $info;
+        elseif (!is_null($info))
+            $this->info = \DB::table('collaborate_batches')->where('id', $info)->first();
+    }
 }

@@ -14,15 +14,28 @@ class RollbackTaster extends Action
     public $view;
     public $sub;
     public $notification ;
-    public $batchInfo;
+    public $info;
 
     public function __construct($event)
     {
         parent::__construct($event);
-        $this->batchInfo = $event->batchInfo;
+        $this->info = $event->info;
         // $this->view = 'emails.begintasting';
 
-        $this->sub = htmlspecialchars_decode($this->data->who['name']) ." assigned product (".$event->batchInfo->name.") by mistake and it has been reversed.";
+        if($event->info["is_survey"] = 1){
+
+            if($event->info["is_invited"]){
+                $this->sub = htmlspecialchars_decode($this->data->who['name']) ." invited you to survey  (".htmlspecialchars_decode($event->model->title).") by mistake and it has been reversed.";
+
+            }
+            else{
+                $this->sub = htmlspecialchars_decode($this->data->who['name']) ." accepted your survey participation request by mistake and it has been reversed. ";
+
+            }
+        }
+        else{
+        $this->sub = htmlspecialchars_decode($this->data->who['name']) ." assigned product (".$event->info->name.") by mistake and it has been reversed.";
+        }
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
 
@@ -46,7 +59,7 @@ class RollbackTaster extends Action
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,
-                    'content'=>$this->getContent($this->allData['content']),'batchInfo'=>$this->batchInfo]
+                    'content'=>$this->getContent($this->allData['content']),'batchInfo'=>$this->info]
             );
         }
     }
@@ -57,7 +70,7 @@ class RollbackTaster extends Action
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
             'notification' => $this->notification,
-            'batchInfo'=>$this->batchInfo
+            'batchInfo'=>$this->info
         ];
 
         if(method_exists($this->model,'getNotificationContent')){

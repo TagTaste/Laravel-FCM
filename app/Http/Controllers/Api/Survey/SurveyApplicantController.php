@@ -16,13 +16,14 @@ use SurveyApplicants as GlobalSurveyApplicants;
 use Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class SurveyApplicantController extends Controller
 {
 
     use SendsJsonResponse, FilterTraits;
 
-    private $frontEndApplicationStatus = [0=>"Begin Tasting",1=>"Notified",2=>"Completed"];
+    private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed"];
     public function __construct(Surveys $model)
     {
         $this->model = $model;
@@ -61,7 +62,7 @@ class SurveyApplicantController extends Controller
         }
 
 
-        $applicants = surveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at");
+        $applicants = surveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("rejected_at");
         if ($q != null) {
             $searchByProfile = surveyApplicants::where('survey_id', $id)
                 ->whereNUll('company_id')
@@ -88,7 +89,7 @@ class SurveyApplicantController extends Controller
                 ->whereIn('profile_id', $profileIds);
         }
 
-        $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
+        $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
 
 
         $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
@@ -116,6 +117,8 @@ class SurveyApplicantController extends Controller
             ->whereNull('deleted_at')->count();
 
         $this->model['invitedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model['rejectedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
+
         $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
         $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
@@ -182,13 +185,17 @@ class SurveyApplicantController extends Controller
                 null,
                 'survey_manage',
                 null,
-                ["survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id),
-                 "survey_name" => $checkIFExists->title, 
-                 "survey_id" => $checkIFExists->id, 
-                 "profile" => (object)["id" => $request->user()->profile->id, 
-                 "name" => $request->user()->profile->name,
-                  "image" => $request->user()->profile->image],
-                   "is_private" => $checkIFExists->is_private, "type" => "showInterest","comment" => $request->message ?? null]
+                [
+                    "survey_url" => Deeplink::getShortLink("surveys", $checkIFExists->id),
+                    "survey_name" => $checkIFExists->title,
+                    "survey_id" => $checkIFExists->id,
+                    "profile" => (object)[
+                        "id" => $request->user()->profile->id,
+                        "name" => $request->user()->profile->name,
+                        "image" => $request->user()->profile->image
+                    ],
+                    "is_private" => $checkIFExists->is_private, "type" => "showInterest", "comment" => $request->message ?? null
+                ]
             ));
         } else {
             $this->model = false;
@@ -262,8 +269,11 @@ class SurveyApplicantController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $query = $request->input('q');
 
+        $alreadyInApplicantsList = surveyApplicants::select('survey_applicants.profile_id')
+            ->where('survey_applicants.profile_id', '!=', $loggedInProfileId)->whereNull('survey_applicants.deleted_at')->where('survey_applicants.survey_id', $id)->get()->toArray();
+        $alreadyInApplicantsList = array_column($alreadyInApplicantsList, 'profile_id');
         $this->model = \App\Recipe\Profile::select('profiles.*')->join('users', 'profiles.user_id', '=', 'users.id')
-            ->where('profiles.id', '!=', $loggedInProfileId)->where('users.name', 'like', "%$query%")->take(15)->get();
+            ->where('profiles.id', '!=', $loggedInProfileId)->whereNotIn('profiles.id', $alreadyInApplicantsList)->where('users.name', 'like', "%$query%")->take(15)->get();
 
         return $this->sendResponse();
     }
@@ -300,7 +310,7 @@ class SurveyApplicantController extends Controller
 
         $profileIds = $request->input('profile_id');
 
-        $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->exists();
+        $checkExist = surveyApplicants::whereIn('profile_id', $profileIds)->where('survey_id', $id)->whereNull('deleted_at')->exists();
         if ($checkExist) {
             return $this->sendError("Already Invited");
         }
@@ -328,8 +338,8 @@ class SurveyApplicantController extends Controller
                     null,
                     null,
                     'fill_survey',
-                    null,
-                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => $comp->image], "is_private" => $survey->is_private, "type" => "inviteForReview"]
+                    $comp,
+                    ["survey_url" => Deeplink::getShortLink("surveys", $survey->id), "survey_name" => $survey->title, "survey_id" => $survey->id, "profile" => (object)["id" => $comp->id, "name" => $comp->name, "image" => isset($comp->image) ? $comp->image : $comp->logo], "is_private" => $survey->is_private, "type" => "inviteForReview"]
                 ));
             }
         }
@@ -347,6 +357,11 @@ class SurveyApplicantController extends Controller
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('survey_applicants')->where('survey_id', $id)->get();
+        $applicationStatus = [
+            'To Be Notified',
+            'Notified',
+            'Completed'
+        ];
         $city = [];
         $profile = [];
         $hometown = [];
@@ -378,7 +393,6 @@ class SurveyApplicantController extends Controller
                     $data['age'] = $age;
                 if ($filter == 'city')
                     $data['city'] = $city;
-
                 if ($filter == 'profile')
                     $data['profile'] = $profile;
                 if ($filter == 'super_taster')
@@ -387,9 +401,11 @@ class SurveyApplicantController extends Controller
                     $data['user_type'] = $userType;
                 if ($filter == 'sensory_trained')
                     $data['sensory_trained'] = $sensoryTrained;
+                if ($filter == 'application_status')
+                    $data['application_status'] = $applicationStatus;
             }
         } else {
-            $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
+            $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster, "application_status" => $applicationStatus];
         }
         $this->model = $data;
         return $this->sendResponse();
@@ -467,7 +483,7 @@ class SurveyApplicantController extends Controller
                 "Specialization" => $specialization,
                 "Hometown" => $applicant->hometown,
                 "Current City" => $applicant->current_city,
-                "Application Status"=>$this->frontEndApplicationStatus[$applicant->application_status] ?? ""
+                "Application Status" => $this->frontEndApplicationStatus[$applicant->application_status] ?? ""
             );
             array_push($finalData, $temp);
         }
@@ -506,6 +522,345 @@ class SurveyApplicantController extends Controller
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
         $this->model = Storage::url($resp);
         unlink($excel_save_path);
+
+        return $this->sendResponse();
+    }
+
+    public function downloadRejectedApplicants($id, Request $request)
+    {
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+
+        if ($survey === null) {
+            $this->model = false;
+            return $this->sendError("Invalid Survey");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if (isset($survey->company_id) && !empty($survey->company_id)) {
+            $companyId = $survey->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($survey->profile_id) &&  $survey->profile_id != $request->user()->profile->id) {
+            // return $this->sendError("Only Admin can download report of this survey");
+        }
+
+        //filters data
+        $profileIds = null;
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+        }
+
+        $applicants = surveyApplicants::where('survey_id', $id);
+        // ->whereIn('profile_id', $profileIds, $boolean, $type)
+        if ($profileIds !== null) {
+            $applicants  = $applicants->whereIn('profile_id', $profileIds);
+        }
+        $applicants = $applicants->whereNull('deleted_at')
+            ->whereNotNull('rejected_at')
+            ->orderBy("created_at", "desc")
+            ->get();
+
+
+        $finalData = array();
+
+        // return $this->sendResponse($applicants);
+
+        foreach ($applicants as $key => $applicant) {
+            $job_profile = '';
+            if (isset($applicant->profile->profile_occupations)) {
+                if (isset($applicant->profile->profile_occupations->toArray()['0'])) {
+                    $job_profile = $applicant->profile->profile_occupations->toArray()['0']['name'];
+                }
+            }
+            $specialization = '';
+            foreach ($applicant->profile->profile_specializations as $profile_specialization_key => $profile_specialization) {
+                if (isset($profile_specialization->toArray()['name'])) {
+                    if ($profile_specialization_key == 0) {
+                        $specialization .= $profile_specialization->toArray()['name'];
+                    } else {
+                        $specialization .= ", " . $profile_specialization->toArray()['name'];
+                    }
+                }
+            }
+
+            $temp = array(
+                "S. No" => $key + 1,
+                "Name" => htmlspecialchars_decode($applicant->profile->name),
+                "Gender" => $applicant->profile->gender,
+                "Profile link" => env('APP_URL') . "/@" . $applicant->profile->handle,
+                "Email" => $applicant->profile->email,
+                "Phone Number" => $applicant->profile->getContactDetail(),
+                "Occupation" => $job_profile,
+                "Specialization" => $specialization,
+                "Hometown" => $applicant->hometown,
+                "Current City" => $applicant->current_city
+            );
+            array_push($finalData, $temp);
+        }
+
+
+        $relativePath = "reports/surveysAnsweredExcel/$id";
+        $name = "survey-" . $id . "-" . uniqid();
+
+        $excel = Excel::create($name, function ($excel) use ($name, $finalData) {
+            // Set the title
+            $excel->setTitle($name);
+
+            // Chain the setters
+            $excel->setCreator('Tagtaste')
+                ->setCompany('Tagtaste');
+
+            // Call them separately
+            $excel->setDescription('A Surveys Applicants list');
+
+            $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
+                $sheet->fromArray($finalData);
+                foreach ($sheet->getColumnIterator() as $row) {
+                    foreach ($row->getCellIterator() as $cell) {
+                        if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
+                            $cell_link = $cell->getValue();
+                            $cell->getHyperlink()
+                                ->setUrl($cell_link)
+                                ->setTooltip('Click here to access profile');
+                        }
+                    }
+                }
+            })->store('xlsx', false, true);
+        });
+        $excel_save_path = storage_path("exports/" . $excel->filename . ".xlsx");
+        $s3 = Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
+        $this->model = Storage::url($resp);
+        unlink($excel_save_path);
+
+        return $this->sendResponse();
+    }
+
+    public function rollbackSurveyApplicant(Request $request, $id)
+    {
+        $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
+
+        if (empty($survey)) {
+            return $this->sendError("You cannot perform this action on this survey anymore.");
+        }
+
+        $profileIds = $request->input('profile_id');
+        $err = true;
+        foreach ($profileIds as $profileId) {
+            $info = [];
+            $currentStatus = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->whereNull('deleted_at')->pluck('application_status');
+            $currentStatus = $currentStatus[0];
+            if ($currentStatus == 1) {
+                //perform operation
+                Redis::set("surveys:application_status:$id:profile:$profileId", 0);
+                $t = surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->whereNull('deleted_at')->update(["application_status" => 0]);
+                $err = false;
+
+                if ($t) {
+                    $this->model = true;
+                    $applicant =  surveyApplicants::where("profile_id", $profileId)->whereNull('deleted_at')->where('survey_id', $id)->first();
+
+                    $info["is_survey"] = 1;
+                    $info["is_invited"] = $applicant->is_invited;
+                    if ($applicant->is_invited) {
+                        Redis::del("surveys:application_status:$id:profile:$profileId");
+                        surveyApplicants::where("profile_id", $profileId)->where('survey_id', $id)->update(["deleted_at" => \Carbon\Carbon::now()]);
+                    }
+                } else {
+                    $err = true;
+                }
+                $who = null;
+
+
+                $company = Company::where('id', $survey->company_id)->first();
+                if (empty($company)) {
+                    $who = Profile::join('users', 'users.id', 'profiles.user_id')->where("profiles.id", "=", $survey->profile_id)->first();
+                }
+                $survey->profile_id = $profileId;
+                event(new \App\Events\Actions\RollbackTaster($survey, $who, null, null, null, $company, $info));
+            } else {
+                $err = true;
+            }
+        }
+        if ($err) {
+            $this->model = false;
+            return $this->sendError('Sorry, something went wrong');
+        }
+        return $this->sendResponse();
+    }
+
+    public function rejectApplicant(Request $request, $id)
+    {
+        $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
+
+        $this->model = false;
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
+
+
+        $profileId = $request->user()->profile->id;
+
+
+        $shortlistedProfiles = $request->input('profile_id');
+        if (!is_array($shortlistedProfiles)) {
+            $shortlistedProfiles = [$shortlistedProfiles];
+        }
+
+        // check if any user is already notified or not
+        $checkAssignUser = \DB::table('survey_applicants')->where('survey_id', $id)->whereNull('deleted_at')->whereIn('profile_id', $shortlistedProfiles)
+            ->where('application_status', 1)
+            ->exists();
+        if ($checkAssignUser) {
+            return $this->sendError("You can not remove this user.");
+        }
+        $now = Carbon::now()->toDateTimeString();
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+
+            // remove applicant
+            $updated = \DB::table('survey_applicants')
+                ->where('survey_id', $id)
+                ->whereIn('profile_id', $shortlistedProfiles)
+                ->update(['rejected_at' => $now]);
+
+            $this->model = (bool) $updated;
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendError("Please try again after some time.");
+        }
+
+        return $this->sendResponse();
+    }
+
+    public function getRejectApplicants(Request $request, $id)
+    {
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+        $page = $request->input('page');
+        $q = $request->input('q');
+        $filters = $request->input('filters');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
+        $list = surveyApplicants::where('survey_id', $id)->whereNull('deleted_at') //->whereNull('shortlisted_at')
+            ->whereNotNull('rejected_at');
+
+        if (isset($q) && $q != null) {
+            $ids = $this->getSearchedProfile($q, $id);
+            $list = $list->whereIn('id', $ids);
+        }
+
+        if (isset($filters) && $filters != null) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $list = $list->whereIn('profile_id', $profileIds);
+        }
+        if ($request->sortBy != null) {
+            $archived = $this->sortApplicants($request->sortBy, $list, $id);
+        }
+
+        $this->model['rejectedApplicantsCount'] = $list->count();
+        $list = $list->skip($skip)->take($take)->get();
+        $this->model['rejectedApplicantList'] = $list;
+
+        return $this->sendResponse();
+    }
+
+    public function shortlistApplicant(Request $request, $id)
+    {
+        $survey = $this->model->where("id", "=", $id)->whereNull("deleted_at")->where(function ($q) {
+            $q->orWhere('state', "!=", config("constant.SURVEY_STATES.CLOSED"));
+            $q->orWhere("state", "!=", config("constant.SURVEY_STATES.EXPIRED"));
+        })->first();
+        $this->model = false;
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+
+
+        $shortlistedProfiles = $request->input('profile_id');
+        if (!is_array($shortlistedProfiles)) {
+            $shortlistedProfiles = [$shortlistedProfiles];
+        }
+        $now = Carbon::now()->toDateTimeString();
+
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+
+            // shortlist applicant
+            $updated =  \DB::table('survey_applicants')
+                ->where('survey_id', $id)
+                ->whereNull('deleted_at')
+                ->whereIn('profile_id', $shortlistedProfiles)
+                ->update([
+                    'application_status' => 0,
+                    'rejected_at' => null
+                ]);
+            $this->model  = (bool)$updated;
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendError("Please try again after some time.");
+        }
+
+
+
+        return $this->sendResponse();
+    }
+
+
+    public function getInvitedApplicants(Request $request, $id)
+    {
+        $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+        $page = $request->input('page');
+        $q = $request->input('q');
+        $filters = $request->input('filters');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
+        $list = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull('deleted_at')
+            ->whereNull('rejected_at');
+
+
+        if (isset($q) && $q != null) {
+            $ids = $this->getSearchedProfile($q, $id);
+            $list = $list->whereIn('id', $ids);
+        }
+
+
+        if (isset($filters) && $filters != null) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $list = $list->whereIn('profile_id', $profileIds);
+        }
+        if ($request->sortBy != null) {
+            $archived = $this->sortApplicants($request->sortBy, $list, $id);
+        }
+
+        $this->model['invitedApplicantsCount'] = $list->count();
+        $this->model['invitedApplicants'] = $list->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }

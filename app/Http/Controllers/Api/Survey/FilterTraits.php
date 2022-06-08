@@ -14,7 +14,7 @@ trait FilterTraits
 
         $filters = $request->filters;
         $profileIds = collect([]);
-        
+
         if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
             $filterProfile = [];
             foreach ($filters['include_profile_id'] as $filter) {
@@ -24,22 +24,12 @@ trait FilterTraits
             $profileIds = $profileIds->merge($filterProfile);
         }
 
-        if (isset($filters['application_status'])) {
-            $currentStatusIds = collect([]);
-            foreach ($filters['application_status'] as $currentStatus) {
-                $ids = surveyApplicants::where('survey_id', $surveyDetails->id)->where('application_status', $currentStatus)->get()->pluck('profile_id');
-            }
 
-
-            $currentStatusIds = $currentStatusIds->merge($ids);
-
-            $isFilterAble = true;
-            $profileIds = $profileIds->merge($currentStatusIds);
-        }
 
 
         if (!empty($filters)) {
-            $Ids = surveyApplicants::where('survey_id', $surveyDetails->id);
+            $Ids = surveyApplicants::where('survey_id', $surveyDetails->id)
+                ->whereNull('deleted_at');
         }
 
         if (isset($filters['city'])) {
@@ -59,15 +49,33 @@ trait FilterTraits
             });
         }
 
-        if (isset($filters['profile_id'])) {
-            $Ids = $Ids->whereIn("profile_id",$filters['profile_id']);
+
+        if (isset($filters['profile'])) {
+            $Ids =   $Ids->leftJoin('profile_specializations', 'survey_applicants.profile_id', '=', 'profile_specializations.profile_id')
+                ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
+
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['profile'] as $profile) {
+                    $query->orWhere('name', 'LIKE', $profile);
+                }
+            });
         }
 
         if (isset($filters['gender'])) {
-            
+
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['gender'] as $gender) {
                     $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                }
+            });
+        }
+
+        if (isset($filters['application_status'])) {
+
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['application_status'] as $status) {
+
+                    $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS." . ucwords($status)));
                 }
             });
         }
@@ -121,7 +129,6 @@ trait FilterTraits
             $Ids = $Ids->get()->pluck('profile_id');
             $profileIds = $profileIds->merge($Ids);
         }
-
         if ($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter) {
@@ -238,5 +245,23 @@ trait FilterTraits
             })->leftJoin('users', 'p.user_id', '=', 'users.id')->where('users.name', '!=', null)
             ->select('users.name as name', 'survey_applicants.id')
             ->get();
+    }
+
+    public function getSearchedProfile($q, $id)
+    {
+        $searchByProfile = \DB::table('survey_applicants')
+            ->where('survey_id', $id)
+            ->whereNUll('company_id')
+            ->join('profiles', 'survey_applicants.profile_id', '=', 'profiles.id')
+            ->join('users', 'profiles.user_id', '=', 'users.id')
+            ->where('users.name', 'LIKE', '%' . $q . '%')
+            ->pluck('survey_applicants.id');
+
+        $searchByCompany = \DB::table('survey_applicants')
+            ->where('survey_id', $id)
+            ->leftJoin('companies', 'survey_applicants.company_id', '=', 'companies.id')
+            ->where('companies.name', 'LIKE', $q . '%')
+            ->pluck('survey_applicants.id');
+        return $searchByProfile->merge($searchByCompany);
     }
 }

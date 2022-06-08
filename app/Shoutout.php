@@ -337,8 +337,7 @@ class Shoutout extends Model implements Feedable
         if($this->preview != null && isset($this->preview["title"])) {
             return  $this->preview["title"];
         }
-
-        return $this->getContent($this->content)!=null ? substr($this->getContent($this->content),0,155) : "Checkout this post by ".$this->owner->name;
+        return $this->getContent($this->content)!=null ? mb_convert_encoding(substr(htmlspecialchars_decode($this->getContent($this->content)),0,155),'UTF-8', 'UTF-8') : "Checkout this post by ".$this->owner->name;
     }
 
     public function getOgDescription()

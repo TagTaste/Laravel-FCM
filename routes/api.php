@@ -911,13 +911,19 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::delete('/{id}', 'SurveyController@destroy');
         Route::post('/', 'SurveyController@store');
         Route::post("/{id}/showInterest", "SurveyApplicantController@showInterest");
-
+        Route::post("/{id}/rollback", "SurveyApplicantController@rollbackSurveyApplicant");
         Route::post("/{id}/beginSurvey", "SurveyApplicantController@beginSurvey")->middleware('manage.permission');
         Route::get('/{id}/applicants', 'SurveyApplicantController@index')->middleware('manage.permission');
         Route::get('/{id}/invite/profiles', 'SurveyApplicantController@userList')->middleware('manage.permission');
         Route::post('/{id}/inviteForReview', 'SurveyApplicantController@inviteForReview')->middleware('manage.permission'); 
         Route::get('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission'); 
         Route::get('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission'); 
+        Route::post('/{id}/rejectApplicant', 'SurveyApplicantController@rejectApplicant')->middleware('manage.permission');
+        Route::get("/{id}/getRejectApplicants", "SurveyApplicantController@getRejectApplicants"); //->middleware('permissionCollaborate');
+        Route::post('/{id}/shortlistApplicant', 'SurveyApplicantController@shortlistApplicant')->middleware('manage.permission');
+        Route::get("/{id}/getInvitedApplicants", "SurveyApplicantController@getInvitedApplicants"); //->middleware('permissionCollaborate');
+        Route::get('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission'); 
+
         
     });
 
