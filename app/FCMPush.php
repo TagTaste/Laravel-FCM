@@ -15,7 +15,7 @@ class FCMPush extends Model
 {
     public function send($notifiable,Notification $notification)
     {
-        file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here in FCMPush to send notification.\n", FILE_APPEND); 
+        // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Here in FCMPush to send notification.\n", FILE_APPEND); 
         $data = $notification->toArray($notifiable);
         if(isset($data["action"]) && $data["action"] === 'upgrade-apk')
         {
@@ -23,7 +23,7 @@ class FCMPush extends Model
         }
         else
         {
-            file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Call fcmNotification fucntion.\n", FILE_APPEND); 
+            // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Call fcmNotification fucntion.\n", FILE_APPEND); 
             $this->fcmNotification($data,$notifiable->id);
         }
     }

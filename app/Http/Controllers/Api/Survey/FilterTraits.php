@@ -29,9 +29,9 @@ trait FilterTraits
 
         if (!empty($filters)) {
             $Ids = surveyApplicants::where('survey_id', $surveyDetails->id)
-                ->whereNull('deleted_at');
+                ->whereNull('survey_applicants.deleted_at');
         }
-
+        
         if (isset($filters['city'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['city'] as $city) {

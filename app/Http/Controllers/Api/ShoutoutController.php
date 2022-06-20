@@ -104,7 +104,7 @@ class ShoutoutController extends Controller
         }
         $this->model = $this->model->create($inputs);
 
-        file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\nCreate event for shoutout\n", FILE_APPEND); 
+        // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\nCreate event for shoutout\n", FILE_APPEND); 
         event(new Create($this->model,$profile));
 
         if($inputs['has_tags']){

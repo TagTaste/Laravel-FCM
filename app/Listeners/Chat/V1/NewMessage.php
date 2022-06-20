@@ -34,12 +34,12 @@ class NewMessage
                     ->where('chat_id',$event->chatId)
                     ->where('profile_id','!=',$event->profile->id)->whereNull('chat_members.exited_on')->get();
         
-        file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\nHere in Newmeesage listener to send notification for message id : ".$event->id." to profile id : ".$profiles."\n", FILE_APPEND); 
+        // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\nHere in Newmeesage listener to send notification for message id : ".$event->id." to profile id : ".$profiles."\n", FILE_APPEND); 
         if($profiles->count() == 0){
-            file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Profile count 0 so return\n", FILE_APPEND); 
+            // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Profile count 0 so return\n", FILE_APPEND); 
             return;
         }
-        file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Moving forward to Send notification to profiles.\n", FILE_APPEND); 
+        // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Moving forward to Send notification to profiles.\n", FILE_APPEND); 
         Notification::send($profiles, new ChatMessage($event));
     }
 }
