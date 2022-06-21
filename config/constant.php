@@ -27,6 +27,12 @@ return  [
         "REJECTED" => 3
     ],
 
+    "QUIZ_APPLICANT_ANSWER_STATUS" => [
+        "INCOMPLETE" => 1,
+        "COMPLETED" => 2,
+    ],
+
+
     "SURVEY_APPLICANT_STATUS" => [
         "To Be Notified" => 0,
         "Notified" => 1,
@@ -77,6 +83,13 @@ return  [
 
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
+
+    "QUIZ_STATES" => [
+        'ACTIVE' => 1,
+        'CLOSED' => 2,
+        'EXPIRED' => 3,
+        'DELETED' => 4
+    ],
 
     "COLLABORATE_HEADER_SELECTION_TYPE" => [
         "instruction" => 0,
