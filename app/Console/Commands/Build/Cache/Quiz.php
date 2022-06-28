@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands\Build\Cache;
 
-use App\Quiz;
 use Illuminate\Console\Command;
 
-class Quizes extends Command
+class Quiz extends Command
 {
     /**
      * The name and signature of the console command.
@@ -38,7 +37,7 @@ class Quizes extends Command
      */
     public function handle()
     {
-        Quiz::chunk(200,function($models) {
+        \App\Quiz::chunk(200,function($models) {
            foreach ($models as $model) {
                 echo "Caching: quiz:" .$model->id."\n";
                 $model->addToCache();

@@ -310,7 +310,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CollaborationExpiresOnUpdate::class,
         //quiz expiry
         \App\Console\Commands\ExpireQuiz::class,
-        \App\Console\Commands\Build\Cache\Quizes::class,
+        \App\Console\Commands\Build\Cache\Quiz::class,
         \App\Console\Commands\Build\Search\Quiz::class
 
 

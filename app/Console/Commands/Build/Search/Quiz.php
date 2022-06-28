@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands\Build\Search;
 
-use App\Documents\Quiz;
 use Illuminate\Console\Command;
 
-class Surveys extends Command
+class Quiz extends Command
 {
     /**
      * The name and signature of the console command.
