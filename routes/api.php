@@ -947,10 +947,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
 
     //quiz 
-    Route::resource('quiz', '\App\Http\Controllers\Api\Quiz\QuizController', ['middleware' => ['api.auth']]);
     Route::group(['namespace' => 'Quiz', 'as' => 'quiz.', 'prefix' => 'quiz', 'middleware' => 'api.auth'], function () {
         Route::post('/{id}/close', 'QuizController@closeQuizes');
         Route::post('/{id}/submit', 'QuizController@submitQuiz');
         Route::get('/close-reasons', 'QuizController@quizCloseReason');
     });
+    Route::resource('quiz', '\App\Http\Controllers\Api\Quiz\QuizController', ['middleware' => ['api.auth']]);
+
 });
