@@ -108,9 +108,10 @@ class FeedController extends Controller
         }
 
 
-        $reported_payload = Payload::leftJoin('report_content', 'report_content.payload_id', '=', 'channel_payloads.id')
-            ->where('report_content.profile_id', $profileId)
-            ->pluck('channel_payloads.id')->toArray();
+        // $reported_payload = Payload::leftJoin('report_content', 'report_content.payload_id', '=', 'channel_payloads.id')
+        //     ->where('report_content.profile_id', $profileId)
+        //     ->pluck('channel_payloads.id')->toArray();
+
 
         $payloads = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)

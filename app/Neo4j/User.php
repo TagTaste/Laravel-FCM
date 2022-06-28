@@ -80,6 +80,12 @@ class User extends NeoEloquent
         return $this->hasMany('\App\Neo4j\Surveys', 'SURVEY_PARTICIPATION');
     }
 
+    public function quiz_participated()
+    {
+        return $this->hasMany('\App\Neo4j\Quiz', 'QUIZ_PARTICIPATION');
+    }
+
+
     public function shown_interest()
     {
         return $this->hasMany('\App\Neo4j\Collaborate', 'SHOWN_INTEREST');

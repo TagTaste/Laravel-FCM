@@ -49,6 +49,9 @@ class ShareController extends Controller
             }else if($modelName == 'surveys'){
                 return $class::where('id',$id)->where('state',config("constant.SURVEY_STATES.PUBLISHED"))->first();
             }
+            else if($modelName == 'quiz'){
+                return $class::where('id',$id)->where('state',config("constant.QUIZ_STATES.ACTIVE"))->first();
+            }
             return $class::where('id',$id)->whereNull('deleted_at')->first();
         }
     }
@@ -73,6 +76,7 @@ class ShareController extends Controller
         $class = "\\App\\Shareable\\" . ucwords($modelName);
         
         $share = new $class();
+        //dd($share);
         $exists = $share->where('profile_id', $loggedInProfileId)
             ->where($this->column, $sharedModel->id)->whereNull('deleted_at')->first();
         

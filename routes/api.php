@@ -25,19 +25,19 @@ Route::group(['namespace' => 'Api\Company', 'prefix' => 'meta/'], function () {
     Route::resource('types', 'TypeController');
 });
 
-Route::get('privacy','Api\PrivacyController@index');
-Route::post('mail/tieReport','GeneralMailController@tieReportMail');
-Route::post('mail/foodComposition','GeneralMailController@foodCompositionMail');
+Route::get('privacy', 'Api\PrivacyController@index');
+Route::post('mail/tieReport', 'GeneralMailController@tieReportMail');
+Route::post('mail/foodComposition', 'GeneralMailController@foodCompositionMail');
 
 // Route::post('link/status/callback','GeneralMailController@paymentCallback');
 
-Route::post('login',function(Request $request) {
-    $credentials = $request->only('email','password');
-//    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
-//    if($userVerified)
-//    {
-//        return response()->json(['error' => 'Please verify your email address'], 401);
-//    }
+Route::post('login', function (Request $request) {
+    $credentials = $request->only('email', 'password');
+    //    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
+    //    if($userVerified)
+    //    {
+    //        return response()->json(['error' => 'Please verify your email address'], 401);
+    //    }
     try {
         // attempt to verify the credentials and create a token for the user
         if (!$token = \JWTAuth::attempt($credentials)) {
@@ -200,7 +200,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             Route::get("search/explore", "ExplorePageController@explore");
             Route::get("search_test/explore_test", "ExplorePageController@exploreTest");
-            
         });
 
         //Routes to get personalised meta
@@ -479,7 +478,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments", "BatchController@comments");
             Route::get("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
             Route::post("storeHeaderWeight", "BatchController@storeHeaderWeight"); //->middleware('permissionCollaborate');
-            Route::get("batches/{id}/headers/{headerId}/question/{questionId}/reports", "BatchController@getList"); 
+            Route::get("batches/{id}/headers/{headerId}/question/{questionId}/reports", "BatchController@getList");
 
             //filter for dashboard of product review
             Route::get("dashboard/filters", "BatchController@filters"); //->middleware('permissionCollaborate');
@@ -517,15 +516,15 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post("insertHeaders", "QuestionController@insertHeaders");
             Route::post("insertHeaders/{id}/insertQuestions", "QuestionController@insertQuestions");
             Route::post("headers/{headerId}/insertQuestion/{id}/aroma", "QuestionController@aromQuestions");
-               
+
             //collaborate graph
 
-            Route::get("graph/headers", "GraphController@graphHeaders"); 
-            Route::get("graphfilters", "GraphController@graphFilters"); 
-            Route::get("skynet/reports", "GraphController@graphReports"); 
+            Route::get("graph/headers", "GraphController@graphHeaders");
+            Route::get("graphfilters", "GraphController@graphFilters");
+            Route::get("skynet/reports", "GraphController@graphReports");
             Route::get("header/{id}/graph", "GraphController@createGraphs");
             Route::post("graph/combination", "GraphController@graphCombination");
-             //collaborate comments
+            //collaborate comments
             Route::resource('comments', 'CommentController');
         });
 
@@ -678,8 +677,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("people/filters", "ProfileController@filters");
         // Route::post("profile/filters", "ProfileController@filtersData");
 
-        Route::resource('profile','ProfileController');
-        Route::get("/short_profile","ProfileController@shortProfile");
+        Route::resource('profile', 'ProfileController');
+        Route::get("/short_profile", "ProfileController@shortProfile");
         // onboarding routes
         Route::get("onboarding/network", "OnboardingController@getNetworkFollowers");
         Route::get('onboarding/skills', 'OnboardingController@skills');
@@ -833,13 +832,12 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("android_module_version/{id}", "VersionController@postAndroidModuleVersion");
         Route::resource("advertisements", "AdvertisementController");
 
-              //landing page
-    Route::get("landing/quick_links", "LandingPageController@quickLinks");
-    Route::get("landing/side_data", "LandingPageController@sideData");
-    Route::get("landing/feed", "LandingPageController@feed");
-    Route::get("landing", "LandingPageController@landingPage");
-    Route::get("test-landing", "LandingPageController@testLandingPage");
-
+        //landing page
+        Route::get("landing/quick_links", "LandingPageController@quickLinks");
+        Route::get("landing/side_data", "LandingPageController@sideData");
+        Route::get("landing/feed", "LandingPageController@feed");
+        Route::get("landing", "LandingPageController@landingPage");
+        Route::get("test-landing", "LandingPageController@testLandingPage");
     }); // end of authenticated routes. Add routes before this line to be able to
     // get current logged in user.
 
@@ -915,16 +913,14 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/{id}/beginSurvey", "SurveyApplicantController@beginSurvey")->middleware('manage.permission');
         Route::get('/{id}/applicants', 'SurveyApplicantController@index')->middleware('manage.permission');
         Route::get('/{id}/invite/profiles', 'SurveyApplicantController@userList')->middleware('manage.permission');
-        Route::post('/{id}/inviteForReview', 'SurveyApplicantController@inviteForReview')->middleware('manage.permission'); 
-        Route::get('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission'); 
-        Route::get('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission'); 
+        Route::post('/{id}/inviteForReview', 'SurveyApplicantController@inviteForReview')->middleware('manage.permission');
+        Route::get('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission');
+        Route::get('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission');
         Route::post('/{id}/rejectApplicant', 'SurveyApplicantController@rejectApplicant')->middleware('manage.permission');
         Route::get("/{id}/getRejectApplicants", "SurveyApplicantController@getRejectApplicants"); //->middleware('permissionCollaborate');
         Route::post('/{id}/shortlistApplicant', 'SurveyApplicantController@shortlistApplicant')->middleware('manage.permission');
         Route::get("/{id}/getInvitedApplicants", "SurveyApplicantController@getInvitedApplicants"); //->middleware('permissionCollaborate');
-        Route::get('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission'); 
-
-        
+        Route::get('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission');
     });
 
     Route::get('/uploadQuestion/{id}/{question_id}', function ($id, $question_id) {
@@ -940,24 +936,21 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("/overview", "PaymentController@paymentOverview");
         Route::get("/taster/program", "PaymentController@getTasterProgram");
         Route::get("/review/rules/{model}/{modelId}/{subModelId?}", "PaymentController@getReviewConditions");
-        
+
         Route::post("/issue/{txn_id}", "PaymentController@transactionComplain");
-        Route::post("/sensory/enroll", "PaymentController@enrollSensoryProgram");        
-        Route::post("/expert/enroll", "PaymentController@enrollExpertProgram");        
+        Route::post("/sensory/enroll", "PaymentController@enrollSensoryProgram");
+        Route::post("/expert/enroll", "PaymentController@enrollExpertProgram");
     });
-    Route::post('link/status/callback','\App\Http\Controllers\Api\Payment\PaymentController@paymentCallback');
+    Route::post('link/status/callback', '\App\Http\Controllers\Api\Payment\PaymentController@paymentCallback');
 
     //route to send notification from skynet
     Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
 
-   
-
-
-
+    //quiz 
+    Route::resource('quiz', '\App\Http\Controllers\Api\Quiz\QuizController', ['middleware' => ['api.auth']]);
+    Route::group(['namespace' => 'Quiz', 'as' => 'quiz.', 'prefix' => 'quiz', 'middleware' => 'api.auth'], function () {
+        Route::post('/{id}/close', 'QuizController@closeQuizes');
+        Route::post('/{id}/submit', 'QuizController@submitQuiz');
+        Route::get('/close-reasons', 'QuizController@quizCloseReason');
+    });
 });
-
-
-        
-
-
-
