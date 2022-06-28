@@ -30,13 +30,7 @@ class PushNewFeedable
         //            throw new \Exception("Owner not defined on Feedable " . class_basename($event->model));
         //        }
 
-        if ($event->model == 'quiz') {
-            $event->owner->pushToPublic($event->model, $event->payloadable);
-            $event->owner->pushToNetwork($event->model, $event->payloadable);
-            $event->owner->pushToMyFeed($event->model, $event->payloadable);
-            return;
-        }
-
+      
         if (!method_exists($event->model, 'privacy') || is_null($event->model->privacy)) {
             //if Privacy is not defined on the model,
             //don't throw an Exception.

@@ -112,7 +112,8 @@ return  [
         "POLLING" => "polling",
         "PRODUCT" => "product",
         "HASHTAG" => "hashtag",
-        "LEARN_AND_EARN" => "paid_taster"
+        "LEARN_AND_EARN" => "paid_taster",
+        "QUIZ" => "quiz"
     ],
 
     "LANDING_UI_TYPE" => [

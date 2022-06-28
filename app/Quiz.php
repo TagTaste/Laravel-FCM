@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 use App\Payment\PaymentDetails;
+use App\QuizApplicants;
 
 
 class Quiz extends Model implements Feedable
@@ -79,7 +80,7 @@ class Quiz extends Model implements Feedable
 
     public function comments()
     {
-        return $this->belongsToMany('App\Comment', 'comment_quizes', 'quiz_id', 'comment_id');
+        return $this->belongsToMany('App\Comment', 'comment_quiz', 'quiz_id', 'comment_id');
     }
 
     public function getMetaFor(int $profileId): array
@@ -121,14 +122,18 @@ class Quiz extends Model implements Feedable
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
 
+        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
 
+        if(!$meta['isAdmin'] && $k == config('QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){ //check if not admin and played te quiz then show score
+            $score = QuizApplicants::where('quiz_id',$this->id)->where('profile_id', request()->user()->profile->id)->pluck('score');
+            $meta['score'] = $score[0];
+        }
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
 
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
-        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
 
 
@@ -146,6 +151,14 @@ class Quiz extends Model implements Feedable
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        $k = Redis::get("quiz:application_status:$this->id:profile:".request()->user()->profile->id);
+        $meta['applicationStatus'] = $k !== null ? (int)$k : null;
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+        ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
+        if(!$meta['isAdmin'] && $k == config('QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){
+            $meta['score'] = QuizApplicants::where('quiz_id',$this->id)->where('profile_id', request()->user()->profile->id)->pluck('score');
+        }
+        
         return $meta;
     }
 

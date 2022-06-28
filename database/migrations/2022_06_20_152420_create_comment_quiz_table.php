@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCommentQuizesTable extends Migration
+class CreateCommentQuizTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateCommentQuizesTable extends Migration
     public function up()
     {
         //
-        Schema::create('comment_quizes', function (Blueprint $table) {
+        Schema::create('comment_quiz', function (Blueprint $table) {
             $table->integer('comment_id')->unsigned();
             $table->uuid('quiz_id');
             $table->foreign("comment_id")->references('id')->on('comments')->onDelete('cascade');;
@@ -30,7 +30,7 @@ class CreateCommentQuizesTable extends Migration
     public function down()
     {
         //
-        Schema::dropIfExists('comment_quizes');
+        Schema::dropIfExists('comment_quiz');
 
     }
 }

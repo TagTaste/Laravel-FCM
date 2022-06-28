@@ -24,6 +24,7 @@ class CreateQuizesTable extends Migration
             $table->json("form_json")->nullable();
             $table->unsignedInteger('updated_by')->nullable();
             $table->unsignedInteger('payload_id')->nullable();
+            $table->unsignedInteger('privacy_id')->nullable();
             $table->boolean('replay')->default(false);
             $table->integer('state')->default(1);
             $table->timestamp('created_at')->useCurrent();
@@ -36,6 +37,8 @@ class CreateQuizesTable extends Migration
             $table->foreign('company_id')->references('id')->on('companies');
             $table->foreign('updated_by')->references('id')->on('profiles');
             $table->foreign('payload_id')->references('id')->on('channel_payloads');
+            $table->foreign('privacy_id')->references('id')->on('privacies');
+
 
             
         });

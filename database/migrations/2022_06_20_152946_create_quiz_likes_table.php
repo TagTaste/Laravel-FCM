@@ -14,7 +14,7 @@ class CreateQuizLikesTable extends Migration
     public function up()
     {
         //
-        Schema::create('quizes_likes', function (Blueprint $table) {
+        Schema::create('quiz_likes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('profile_id')->unsigned();
             $table->uuid('quiz_id');
@@ -34,7 +34,7 @@ class CreateQuizLikesTable extends Migration
     public function down()
     {
         //
-        Schema::dropIfExists('quizes_likes');
+        Schema::dropIfExists('quiz_likes');
 
     }
 }

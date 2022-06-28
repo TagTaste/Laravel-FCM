@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateQuizesShareLikesTable extends Migration
+class CreateQuizShareLikesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +14,11 @@ class CreateQuizesShareLikesTable extends Migration
     public function up()
     {
         //
-        Schema::create('quizes_share_likes', function (Blueprint $table) {
-            $table->unsignedInteger('quizes_share_id');
+        Schema::create('quiz_share_likes', function (Blueprint $table) {
+            $table->unsignedInteger('quiz_share_id');
             $table->unsignedInteger('profile_id');
             $table->foreign("profile_id")->references('id')->on('profiles')->onDelete('cascade');
-            $table->foreign("quizes_share_id")->references('id')->on('quizes_shares')->onDelete('cascade');
+            $table->foreign("quiz_share_id")->references('id')->on('quiz_shares')->onDelete('cascade');
         });
     }
 
@@ -30,7 +30,7 @@ class CreateQuizesShareLikesTable extends Migration
     public function down()
     {
         //
-        Schema::dropIfExists('quizes_share_likes');
+        Schema::dropIfExists('quiz_share_likes');
 
     }
 }

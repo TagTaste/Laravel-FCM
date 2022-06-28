@@ -774,4 +774,12 @@ class QuizController extends Controller
         $score = ($score / count($answers)) * 100;
         return $score;
     }
+
+    public function quizResult(Request $request){
+        $data = [];
+        $data["title"] = "Quiz Completed Successfully";
+        $data["subtitle"] = "";
+        $data["score"] = "";
+
+    }
 }

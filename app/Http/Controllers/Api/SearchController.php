@@ -518,6 +518,16 @@ class SearchController extends Controller
                     $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
                 }
             }
+
+            if(isset($this->model['quiz']))
+            {
+                $quizes = $this->model['quiz']->where("state","=",config("constant.QUIZ_STATES.ACTIVE"));
+                $this->model['quiz'] = [];
+                foreach($quizes as $quiz){
+                    $quiz->image_meta = json_decode($quiz->image_meta);
+                    $this->model['quizes'][] = ['quiz' => $quiz, 'meta' => $quiz->getMetaFor($profileId)];
+                }
+            }
            
             return $this->sendResponse();
         }
