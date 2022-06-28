@@ -110,7 +110,7 @@ class QuizController extends Controller
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
         $prepData["replay"] = $request->replay;
-
+        $prepData["privacy_id"] = 1;
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
