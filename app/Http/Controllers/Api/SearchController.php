@@ -24,7 +24,9 @@ class SearchController extends Controller
         'job' => \App\Recipe\Job::class,
         'jobs' => \App\Recipe\Job::class,
         'product' => \App\PublicReviewProduct::class,
-        'surveys' => \App\Surveys::class
+        'surveys' => \App\Surveys::class,
+        'quiz' => \App\Quiz::class
+
     ];
     
     private $filters = [

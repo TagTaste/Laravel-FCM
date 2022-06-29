@@ -29,7 +29,7 @@ return  [
 
     "QUIZ_APPLICANT_ANSWER_STATUS" => [
         "INCOMPLETE" => 1,
-        "COMPLETED" => 2,
+        "COMPLETED" => 2
     ],
 
 
