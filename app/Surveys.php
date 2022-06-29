@@ -343,7 +343,7 @@ class Surveys extends Model implements Feedable
         $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
         $survey = \App\Neo4j\Surveys::where('survey_id', $this->id)->first();
         if ($userProfile && $survey) {
-            $isUserParticipated = $userProfile->participated->where('poll_id',$this->id)->first();
+            $isUserParticipated = $userProfile->survey_participated->where('survey_id',$this->id)->first();
             if (!$isUserParticipated) {
                 $relation = $userProfile->survey_participated()->attach($survey);
                 $relation->save();

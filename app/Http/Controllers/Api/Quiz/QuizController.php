@@ -286,11 +286,11 @@ class QuizController extends Controller
             event(new UpdateFeedable($getQuiz));
         }
 
-        // if (($previousState == config("constant.SURVEY_STATES.EXPIRED") || $previousState == config("constant.SURVEY_STATES.CLOSED"))
-        //     && $request->state == config("constant.SURVEY_STATES.PUBLISHED")
-        // ) {
-        //     $this->addSurveyGraph($getQuiz); //add node and edge to neo4j
-        // }
+        if (($previousState == config("constant.QUIZ_STATES.EXPIRED") || $previousState == config("constant.QUIZ_STATES.CLOSED"))
+            && $request->state == config("constant.QUIZ_STATES.ACTIVE")
+        ) {
+            $this->addQuizGraph($getQuiz); //add node and edge to neo4j
+        }
 
         return $this->sendResponse();
     }
@@ -313,8 +313,8 @@ class QuizController extends Controller
             $this->model = true;
             $this->messages = "Quiz Deleted Successfully";
             event(new DeleteFeedable($quiz));
-            // $quiz->removeFromGraph(); //Remove node and edge from neo4j
-            // $quiz->removeFromCache();
+            $quiz->removeFromGraph(); //Remove node and edge from neo4j
+            $quiz->removeFromCache();
         }
         return $this->sendResponse();
     }
@@ -498,7 +498,7 @@ class QuizController extends Controller
         if ($quiz) {
             $this->model = \DB::table('quiz_close_reasons')->insert($data);;
             $this->messages = "Quiz Closed Successfully";
-            //  $get->removeFromGraph(); // remove node and edge from neo4j
+              $get->removeFromGraph(); // remove node and edge from neo4j
             event(new DeleteFeedable($get));
         }
         return $this->sendResponse();
@@ -610,8 +610,8 @@ class QuizController extends Controller
             if ($this->model == true && $request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $request->quiz_id = $id;
                 $responseData = $this->paidProcessing($request);
-                // $quiz->addToGraph();
-                // $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
+                $quiz->addToGraph();
+                $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
 
             return $this->sendResponse($responseData);
@@ -752,9 +752,12 @@ class QuizController extends Controller
     public function calculateScore($id)
     {
         //calculation of final score of an applicant
+
+        $correctAnswersCount = 0;
         $questions =  Quiz::where("id", $id)->first();
         $questions = json_decode($questions->form_json);
         $answerMapping = [];
+        $total = count($questions);
         foreach ($questions as $value) {
             foreach ($value->options as $option) {
                 if (isset($option->is_correct) && $option->is_correct) {
@@ -766,20 +769,29 @@ class QuizController extends Controller
         }
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
         $score = 0;
+       
         foreach ($answers as $answer) {
             if ($answerMapping[$answer->question_id] == $answer->option_id) {
+                $correctAnswersCount++;
                 $score += 1;
             }
         }
         $score = ($score / count($answers)) * 100;
-        return $score;
+        $result["score"] = $score;
+        $result["correctAnswerCount"] = $correctAnswersCount;
+        $result["total"] = $total;
+
+        return $result;
     }
 
-    public function quizResult(Request $request){
+    public function quizResult($id){
         $data = [];
+        $result = $this->calculateScore($id);
+        $data["helper"] = "Congrats";
         $data["title"] = "Quiz Completed Successfully";
-        $data["subtitle"] = "";
-        $data["score"] = "";
+        $data["subtitle"] = "You attempted {$result["total"]} questions and from that {$result["correctAnswerCount"]} answer is correct";
+        $data["score"] = $result["score"]. "% Score";
+        return $result;
 
     }
 }

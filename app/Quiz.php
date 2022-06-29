@@ -27,7 +27,7 @@ class Quiz extends Model implements Feedable
     public $incrementing = false;
 
 
-    protected $fillable = ["id","profile_id","company_id","title","description","image_meta","form_json","payload_id","updated_by","expired_at","state","deleted_at","replay"];
+    protected $fillable = ["id","profile_id","company_id","title","description","image_meta","form_json","payload_id","updated_by","expired_at","state","deleted_at","replay","privacy_id"];
     
     protected $with = ['profile','company'];
     
@@ -66,6 +66,11 @@ class Quiz extends Model implements Feedable
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
+    }
+
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
     }
 
     public function company()
@@ -123,8 +128,7 @@ class Quiz extends Model implements Feedable
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
 
         $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
-
-        if(!$meta['isAdmin'] && $k == config('QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){ //check if not admin and played te quiz then show score
+        if(!$meta['isAdmin'] && $k == config('constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){ //check if not admin and played te quiz then show score
             $score = QuizApplicants::where('quiz_id',$this->id)->where('profile_id', request()->user()->profile->id)->pluck('score');
             $meta['score'] = $score[0];
         }
@@ -155,7 +159,7 @@ class Quiz extends Model implements Feedable
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
         ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
-        if(!$meta['isAdmin'] && $k == config('QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){
+        if(!$meta['isAdmin'] && $k == config('constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){
             $meta['score'] = QuizApplicants::where('quiz_id',$this->id)->where('profile_id', request()->user()->profile->id)->pluck('score');
         }
         
@@ -222,9 +226,9 @@ class Quiz extends Model implements Feedable
 
     public function addParticipationEdge($profileId){
         $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
-        $quiz = \App\Neo4j\Quiz::where('survey_id', $this->id)->first();
+        $quiz = \App\Neo4j\Quiz::where('quiz_id', $this->id)->first();
         if ($userProfile && $quiz) {
-            $isUserParticipated = $userProfile->participated->where('poll_id',$this->id)->first();
+            $isUserParticipated = $userProfile->quiz_participated->where('quiz_id',$this->id)->first();
             if (!$isUserParticipated) {
                 $relation = $userProfile->quiz_participated()->attach($quiz);
                 $relation->save();
