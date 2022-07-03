@@ -32,12 +32,11 @@ class AccountDeactivateRequestController extends Controller
         $data = AccountDeactivateRequests::insert(['profile_id' => $profile_id, 'reason_id' => $reason_id, 'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()]);
         
         if($data){
-            return $this->sendResponse($data);
+            return $this->sendResponse(['title'=>'Your account is deactivated as per your request. Your account will be hidden from the TagTaste community. You will not receive any notification or update until you log in with the same email.', 'sub_title'=>'','description'=>'']);
         }else{
             return $this->sendError(["display_message"=>"Something went wrong. Please try again.", "status"=>false]);
         }
     }   
-
 }
 
 ?>
