@@ -19,6 +19,7 @@ class CreateAccountDeactivateRequests extends Migration
             $table->integer('profile_id')->unsigned();
             $table->integer('reason_id')->unsigned();            
             $table->integer('account_management_id')->unsigned();
+            $table->string('value')->nullable();
             
             $table->timestamp('deleted_on')->nullable();                
             $table->timestamp('reactived_on')->nullable();                

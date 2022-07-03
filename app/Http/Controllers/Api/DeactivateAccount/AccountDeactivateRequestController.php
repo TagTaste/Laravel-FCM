@@ -24,17 +24,17 @@ class AccountDeactivateRequestController extends Controller
         $profile_id = $request->user()->profile->id;
         $reason_id = $request->reason_id;
         $value = $request->value;
-
+        
         if (empty($reason_id)) {
-            return $this->sendError("Reason is mandatory.");
+            return $this->sendError(["display_message"=>"Reason is mandatory.", "status"=>false]);
         }
         
-        $data = AccountDeactivateRequests::insert(['profile_id' => $profile_id, 'reason_id' => $reason_id, 'account_management_id' => $account_mgmt_id]);
-
+        $data = AccountDeactivateRequests::insert(['profile_id' => $profile_id, 'reason_id' => $reason_id, 'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()]);
+        
         if($data){
-            return $this->sendResponse();
+            return $this->sendResponse($data);
         }else{
-            return $this->sendError(["status"=>false, "display_messgae"=>"Error occured"]);
+            return $this->sendError(["display_message"=>"Something went wrong. Please try again.", "status"=>false]);
         }
     }   
 
