@@ -950,9 +950,13 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     //route to send notification from skynet
     Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
 
-   
+    // Route::get('/account_management/list', '\App\Http\Controllers\Api\DeactivateAccount\AccountManagementOptionController@index')->middleware("api.auth");
 
-
+    Route::group(['namespace' => 'DeactivateAccount', 'prefix' => 'account_management', 'as' => 'account_management.', 'middleware' => 'api.auth'], function () {
+        Route::get("/list", "AccountManagementOptionController@index");
+        Route::get("/{account_mgmt_id}/reasons", "AccountDeactivateReasonController@index");
+        Route::post("/{account_mgmt_id}/action", "AccountDeactivateRequestController@create");
+    });
 
 });
 
