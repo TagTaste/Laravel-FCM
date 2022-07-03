@@ -17,7 +17,7 @@ class Polling extends Model implements Feedable
     use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported,HashtagFactory;
 
     protected $table = 'poll_questions';
-
+    
     protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image_meta','type','preview'];
 
     protected $with = ['profile','company'];
