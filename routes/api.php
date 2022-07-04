@@ -955,6 +955,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("/{account_mgmt_id}/reasons", "AccountDeactivateReasonController@index");
         Route::get("/{account_mgmt_id}/activity", "AccountManagementOptionController@get_user_activity");
         Route::post("/{account_mgmt_id}/action", "AccountDeactivateRequestController@create");
+        Route::post("/{account_mgmt_id}/send_otp", "AccountDeactivateRequestController@send_otp");
+        Route::post("/{account_mgmt_id}/verify_otp", "AccountDeactivateRequestController@verify_otp");
     });
 
 });

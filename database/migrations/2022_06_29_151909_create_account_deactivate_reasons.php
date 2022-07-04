@@ -17,6 +17,7 @@ class CreateAccountDeactivateReasons extends Migration
         Schema::create('account_deactivate_reasons', function (Blueprint $table){
             $table->increments('id');
             $table->string('title');
+            $table->integer('option_type')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

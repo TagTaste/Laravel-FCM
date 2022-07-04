@@ -17,7 +17,7 @@ class CreateAccountManagementOptions extends Migration
         Schema::create('account_management_options', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title',250);
-            $table->string('description');	
+            $table->text('description');	
             $table->timestamps();
             $table->softDeletes();   
         });
