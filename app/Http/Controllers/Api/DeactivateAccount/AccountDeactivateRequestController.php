@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Tagtaste\Api\SendsJsonResponse;
 use Carbon\Carbon;
+use App\OTPMaster;
+use App\Profile;
+use App\Profile\User;
+use App\Services\SMS;
+use App\User as AppUser;
 
 
 class AccountDeactivateRequestController extends Controller
