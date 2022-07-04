@@ -952,12 +952,14 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/{id}/submit', 'QuizController@submitQuiz');
         Route::get('/close-reasons', 'QuizController@quizCloseReason');
     });
+    
     Route::resource('quiz', '\App\Http\Controllers\Api\Quiz\QuizController', ['middleware' => ['api.auth']]);
     Route::group(['namespace' => 'DeactivateAccount', 'prefix' => 'account_management', 'as' => 'account_management.', 'middleware' => 'api.auth'], function () {
         Route::get("/list", "AccountManagementOptionController@index");
         Route::get("/{account_mgmt_id}/reasons", "AccountDeactivateReasonController@index");
         Route::get("/{account_mgmt_id}/activity", "AccountManagementOptionController@get_user_activity");
         Route::post("/{account_mgmt_id}/action", "AccountDeactivateRequestController@create");
+        Route::post("/{account_mgmt_id}/send_otp", "AccountDeactivateRequestController@send_otp");
+        Route::post("/{account_mgmt_id}/verify_otp", "AccountDeactivateRequestController@verify_otp");
     });
-
 });
