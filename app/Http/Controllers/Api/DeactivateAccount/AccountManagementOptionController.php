@@ -27,7 +27,7 @@ class AccountManagementOptionController extends Controller
     public function __construct(AccountManagementOptions $model){
         $this->model = $model;
     }
-
+    
     public function index(Request $request){
         
         $data = AccountManagementOptions::whereNull('deleted_at')->get();
