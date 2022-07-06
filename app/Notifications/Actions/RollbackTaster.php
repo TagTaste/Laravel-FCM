@@ -22,8 +22,7 @@ class RollbackTaster extends Action
         $this->info = $event->info;
         // $this->view = 'emails.begintasting';
 
-        if($event->info["is_survey"] = 1){
-
+        if(isset($info["is_survey"]) && $event->info["is_survey"] == 1){
             if($event->info["is_invited"]){
                 $this->sub = htmlspecialchars_decode($this->data->who['name']) ." invited you to survey  (".htmlspecialchars_decode($event->model->title).") by mistake and it has been reversed.";
 
