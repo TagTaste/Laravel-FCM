@@ -453,7 +453,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("getCities", "CollaborateController@getCities");
         Route::post("addCities", "CollaborateController@addCities");
         Route::get("collaborateCloseReason", "CollaborateController@collaborateCloseReason");
-
+        
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
@@ -499,7 +499,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("getUnassignedApplicants", "ApplicantController@getUnassignedApplicants"); //->middleware('permissionCollaborate');
             Route::get("getApplicantFilter", "ApplicantController@getApplicantFilter"); //->middleware('permissionCollaborate');
             //});
-
+                
             Route::post("showInterest", "ApplicantController@store")->middleware('iosCollaborate');
             Route::get("cities/{cityId}/outlets", "ApplicantController@getOutlets");
             Route::get("cities", "ApplicantController@getCities");

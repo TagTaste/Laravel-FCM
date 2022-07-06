@@ -100,7 +100,7 @@ class AccountManagementOptionController extends Controller
             $collaborate_obj = ['model_id'=>"$collaborate->id", 'model_name'=>'collaborate', 'title'=>$collaborate->title, 'sub_title'=>$collaborate->description];
             $data[] = $collaborate_obj;
         }
-
+        
         //private review
         $pr_list = Collaborate::where('profile_id',$profile_id)->where('state', 1)->where('collaborate_type','product-review')->whereNull('deleted_at')->get();
         foreach($pr_list as $private_collab){
@@ -119,9 +119,9 @@ class AccountManagementOptionController extends Controller
         foreach($company_list as $company){
             $admins = CompanyUser::getCompanyAdminIds($company->id);
             if(count($admins) > 1){
-                $company_obj = ['model_id'=>$company->id, 'model_name'=>'company','name'=>$company->name, 'sub_title'=>count($admins).' Admins','image_meta'=>json_decode($company->logo_meta, true)];
+                $company_obj = ['model_id'=>"$company->id", 'model_name'=>'company','name'=>$company->name, 'sub_title'=>count($admins).' Admins','image_meta'=>json_decode($company->logo_meta, true)];
             }else{
-                $company_obj = ['model_id'=>$company->id, 'model_name'=>'company','name'=>$company->name, 'sub_title'=>'You are sole admin of the company, you will loose company adminship after 15 days if you delete your account. You must add an additional superadmin to keep the company accessible.','image_meta'=>json_decode($company->logo_meta, true)];
+                $company_obj = ['model_id'=>"$company->id", 'model_name'=>'company','name'=>$company->name, 'sub_title'=>'You are sole admin of the company, you will loose company adminship after 15 days if you delete your account. You must add an additional superadmin to keep the company accessible.','image_meta'=>json_decode($company->logo_meta, true)];
             }
             $data[] = $company_obj;
         }
