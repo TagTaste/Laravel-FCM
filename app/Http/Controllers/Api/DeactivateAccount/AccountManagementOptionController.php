@@ -83,28 +83,28 @@ class AccountManagementOptionController extends Controller
         //polls
         $poll_list = Polling::where('profile_id',$profile_id)->where('is_expired',0)->whereNull('deleted_at')->get();
         foreach($poll_list as $poll){
-            $poll_obj = ['model_id'=>"$poll->id", 'model_name'=>'polling', 'title'=>$poll->title, 'sub_tit;e'=>''];
+            $poll_obj = ['model_id'=>"$poll->id", 'model_name'=>'polling', 'title'=>$poll->title, 'sub_title'=>''];
             $data[] = $poll_obj;
         }
 
         //surveys
         $survey_list = Surveys::where('profile_id',$profile_id)->where('state', config('constant.SURVEY_STATES.PUBLISHED'))->whereNull('deleted_at')->get();
         foreach($survey_list as $survey){
-            $survey_obj = ['model_id'=>"$survey->id", 'model_name'=>'surveys', 'title'=>$survey->title, 'sub_tit;e'=>$survey->description];
+            $survey_obj = ['model_id'=>"$survey->id", 'model_name'=>'surveys', 'title'=>$survey->title, 'sub_title'=>$survey->description];
             $data[] = $survey_obj;
         }
 
         //collaboration
         $collaborate_list = Collaborate::where('profile_id',$profile_id)->where('state', 1)->where('collaborate_type','collaborate')->whereNull('deleted_at')->get();
         foreach($collaborate_list as $collaborate){
-            $collaborate_obj = ['model_id'=>"$collaborate->id", 'model_name'=>'collaborate', 'title'=>$collaborate->title, 'sub_tit;e'=>$collaborate->description];
+            $collaborate_obj = ['model_id'=>"$collaborate->id", 'model_name'=>'collaborate', 'title'=>$collaborate->title, 'sub_title'=>$collaborate->description];
             $data[] = $collaborate_obj;
         }
 
         //private review
         $pr_list = Collaborate::where('profile_id',$profile_id)->where('state', 1)->where('collaborate_type','product-review')->whereNull('deleted_at')->get();
         foreach($pr_list as $private_collab){
-            $private_collab_obj = ['model_id'=>"$private_collab->id", 'model_name'=>'product-review', 'title'=>$private_collab->title, 'sub_tit;e'=>$private_collab->description];
+            $private_collab_obj = ['model_id'=>"$private_collab->id", 'model_name'=>'product-review', 'title'=>$private_collab->title, 'sub_title'=>$private_collab->description];
             $data[] = $private_collab_obj;
         }
         
