@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\V2\CompanyUser;
+use App\V2\Profile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller {
@@ -123,6 +126,37 @@ class CompanyController extends Controller {
             } else {
                 return $this->sendError("Invalid company id.");
             }
+        }
+    }
+
+    function update_ownership(Request $request, $id){
+        $company = Company::where('id',$id)->whereNull('deleted_at')->first();
+        if(empty($company)){
+            return $this->sendError(["display_message"=>"This company doesn't exist.", "status"=>false]);
+        }
+        
+        if($company->user_id != $request->user()->id){
+            return $this->sendError(["display_message"=>"You are not allowed to change ownership of this company.", "status"=>false]);
+        }
+
+        //new superadmin profile id
+        $profile_id = $request->profile_id;
+        $profile = Profile::where('id',$profile_id)->whereNull('deleted_at')->first();
+        
+        $is_company_admin = CompanyUser::where('company_id',$id)->where('profile_id',$profile_id)->first();
+
+        if(empty($is_company_admin)){
+            return $this->sendError(["display_message"=>"Request user is not a company admin. He needs to be admin first.", "status"=>false]);
+        }
+        $data = ['user_id'=>$profile->user_id, 'updated_at'=>Carbon::now()];
+        if($company->update($data)){
+            $this->model = $company;
+            $this->model->addToCache();
+            $this->model->addToCacheV2();
+            $this->model->addToGraph();    
+            return $this->sendResponse(true);
+        }else{
+            return $this->sendError(["display_message"=>"Error while updation. Please try again", "status"=>false]);
         }
     }
 }
