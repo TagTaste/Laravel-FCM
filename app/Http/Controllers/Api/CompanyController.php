@@ -154,9 +154,8 @@ class CompanyController extends Controller {
             $this->model->addToCache();
             $this->model->addToCacheV2();
             $this->model->addToGraph();    
-            return $this->sendResponse(true);
+            return $this->sendNewResponse(true);
         }else{
-            return $this->sendNewError('Error while updation. Please try again.');
-        }
+            return $this->sendNewError('Error while updation. Please try again.');        }
     }
 }
