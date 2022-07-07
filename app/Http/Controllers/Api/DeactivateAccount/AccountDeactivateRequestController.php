@@ -31,15 +31,15 @@ class AccountDeactivateRequestController extends Controller
         $value = $request->value;
         
         if (empty($reason_id)) {
-            return $this->sendError(["display_message"=>"Reason is mandatory.", "status"=>false]);
+            return $this->sendNewError("Reason is mandatory.");
         }
         
         $data = AccountDeactivateRequests::insert(['profile_id' => $profile_id, 'reason_id' => $reason_id, 'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()]);
         
         if($data){
-            return $this->sendResponse(['title'=>'Your account is deactivated as per your request. Your account will be hidden from the TagTaste community. You will not receive any notification or update until you log in with the same email.', 'sub_title'=>'','description'=>'']);
+            return $this->sendNewResponse(['title'=>'Your account is deactivated as per your request. Your account will be hidden from the TagTaste community. You will not receive any notification or update until you log in with the same email.', 'sub_title'=>'','description'=>'']);
         }else{
-            return $this->sendError(["display_message"=>"Something went wrong. Please try again.", "status"=>false]);
+            return $this->sendNewError("Something went wrong. Please try again.");
         }
     }   
 
@@ -80,7 +80,7 @@ class AccountDeactivateRequestController extends Controller
                     $message->to($user->email, $user->name);
                     $message->subject('OTP Verification');                
                 });
-
+                
                 // \Mail::send('emails.verify-mail', $data, function($message)
                 // {
                 //     $message->to($this->user->email, $this->user->name)->subject('Verify your email');
@@ -94,12 +94,12 @@ class AccountDeactivateRequestController extends Controller
             $insert = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "mobile" => $phone, "service" => $service, "source" => $source, "platform" => $request->profile["platform"] ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
             if ($insert) {
                 $this->model = true;
-                return $this->sendResponse();
+                return $this->sendNewResponse();
             }
         } else {
-            return $this->sendError(['display_message'=>'OTP sent already. Please try again in 1 minute.', 'status'=>true]);
+            return $this->sendNewError('OTP sent already. Please try again in 1 minute.');
         }
-        return $this->sendError(['display_message'=>'Something went wrong. Please try again..', 'status'=>true]);
+        return $this->sendNewError('Something went wrong. Please try again.');
     }
 
     public function verify_otp(Request $request){
@@ -114,7 +114,7 @@ class AccountDeactivateRequestController extends Controller
 
         if ($otp && $otp->attempts > config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
             $otp->update(["deleted_at" => date("Y-m-d H:i:s")]);
-            return $this->sendError(['display_messgae'=>'OTP attempts exhausted. Please regenerate OTP or try other login methods.','status'=>true]);
+            return $this->sendNewError('OTP attempts exhausted. Please regenerate OTP or try other login methods');
         }
 
         if ($otp) {
@@ -124,10 +124,10 @@ class AccountDeactivateRequestController extends Controller
         if ($otp && $otp->otp==$request->otp) {
             $otp->update(["deleted_at" => date("Y-m-d H:i:s")]);
             $this->model = true;
-            return $this->sendResponse();
+            return $this->sendNewResponse();
         }
         $this->model = false;
-        return $this->sendError(['display_messgae'=>'Incorrect OTP entered. Please try again.','status'=>true]);
+        return $this->sendNewError('Incorrect OTP entered. Please try again.');
     }
 }
 

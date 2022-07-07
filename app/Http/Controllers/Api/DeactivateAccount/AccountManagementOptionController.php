@@ -32,7 +32,7 @@ class AccountManagementOptionController extends Controller
         
         $data = AccountManagementOptions::whereNull('deleted_at')->get();
         $this->model = $data;
-        return $this->sendResponse();
+        return $this->sendNewResponse();
     }   
 
     public function get_user_activity(Request $request){
@@ -60,7 +60,7 @@ class AccountManagementOptionController extends Controller
             $data[] = $user_company_obj;
         // }
         
-        return $this->sendResponse($data);
+        return $this->sendNewResponse($data);
     }
 
     function get_user_passbook_details($profile_id){
