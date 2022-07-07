@@ -48,7 +48,7 @@
         {
           "type": "vcs",
           "url":  "https://github.com/TagTaste/api-response.git",
-          "version": "1.2.1"
+          "version": "v1.2.1"
         },
         {
             "type": "vcs",
