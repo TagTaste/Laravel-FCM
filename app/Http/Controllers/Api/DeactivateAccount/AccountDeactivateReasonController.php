@@ -26,7 +26,7 @@ class AccountDeactivateReasonController extends Controller
         
         $data = AccountDeactivateReasons::whereNull('deleted_at')->get();
         $this->model = $data;
-        return $this->sendResponse();
+        return $this->sendNewResponse();
     }
 
 }

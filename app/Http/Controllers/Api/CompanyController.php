@@ -132,11 +132,11 @@ class CompanyController extends Controller {
     function update_ownership(Request $request, $id){
         $company = Company::where('id',$id)->whereNull('deleted_at')->first();
         if(empty($company)){
-            return $this->sendError(["display_message"=>"This company doesn't exist.", "status"=>false]);
+            return $this->sendNewError("This company doesn't exist.");
         }
         
         if($company->user_id != $request->user()->id){
-            return $this->sendError(["display_message"=>"You are not allowed to change ownership of this company.", "status"=>false]);
+            return $this->sendNewError('You are not allowed to change ownership of this company.');
         }
 
         //new superadmin profile id
@@ -146,7 +146,7 @@ class CompanyController extends Controller {
         $is_company_admin = CompanyUser::where('company_id',$id)->where('profile_id',$profile_id)->first();
 
         if(empty($is_company_admin)){
-            return $this->sendError(["display_message"=>"Request user is not a company admin. He needs to be admin first.", "status"=>false]);
+            return $this->sendNewError('Request user is not a company admin. He needs to be admin first.');
         }
         $data = ['user_id'=>$profile->user_id, 'updated_at'=>Carbon::now()];
         if($company->update($data)){
@@ -154,9 +154,8 @@ class CompanyController extends Controller {
             $this->model->addToCache();
             $this->model->addToCacheV2();
             $this->model->addToGraph();    
-            return $this->sendResponse(true);
+            return $this->sendNewResponse(true);
         }else{
-            return $this->sendError(["display_message"=>"Error while updation. Please try again", "status"=>false]);
-        }
+            return $this->sendNewError('Error while updation. Please try again.');        }
     }
 }
