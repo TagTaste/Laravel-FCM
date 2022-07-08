@@ -55,10 +55,10 @@ class AccountManagementOptionController extends Controller
         
         //get company activity
         $user_companies = $this->get_user_companies($request->user()->id);
-        // if(count($user_companies) > 0){
+        if(count($user_companies) > 0){
             $user_company_obj = ['title'=>'Transfer Company Access', 'sub_title'=>'Transfer company access before deactiviting your account it will make company active after deactivition of account.', 'ui_type'=> 'comapny_action', 'elements'=>$user_companies];
             $data[] = $user_company_obj;
-        // }
+        }
         
         return $this->sendNewResponse($data);
     }
