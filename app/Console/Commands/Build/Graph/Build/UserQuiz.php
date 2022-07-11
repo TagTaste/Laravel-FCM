@@ -4,6 +4,8 @@ namespace App\Console\Commands\Build\Graph\Build;
 
 use Illuminate\Console\Command;
 use Vinelab\NeoEloquent\Exceptions\NeoEloquentException;
+use GraphAware\Neo4j\Client\ClientBuilder;
+
 
 class UserQuiz extends Command
 {
@@ -37,7 +39,7 @@ class UserQuiz extends Command
      * @return mixed
      */
     public function handle()
-    {   
+    { 
         $counter = 1;
         \App\Quiz::select('quizes.*')
         ->join('quiz_answers', 'quiz_answers.quiz_id', '=', 'quizes.id')

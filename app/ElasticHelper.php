@@ -39,6 +39,12 @@ class ElasticHelper
 
         $params = [];
 
+        $suggestWithFields = [
+            'text' => $query,
+            'term' => [
+                'field' => 'name'
+            ]
+        ];
         if ($suggest) {
             $params = [
                 'index' => "api",
@@ -54,18 +60,15 @@ class ElasticHelper
                         'my-suggestion-1' => [
                             'text' => $query,
                             'term' => [
-                                'field' => 'name'
-                            ]
-                        ],
-                        'my-suggestion-2' => [
-                            'text' => $query,
-                            'term' => [
                                 'field' => 'title'
                             ]
                         ]
                     ]
                 ]
             ];
+            if ($type != 'quiz' && $type != "surveys" && $type != "collaborate") {
+                $params['body']['suggest']['my-suggestion-2'] = $suggestWithFields;
+            }
         } else {
             $params = [
                 'index' => "api",

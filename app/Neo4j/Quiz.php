@@ -13,7 +13,7 @@ class Quiz extends NeoEloquent
     
     protected $dates = ['created_at'];
     
-    protected $label = 'Quizes';
+    protected $label = 'Quiz';
 
     protected $fillable = ['id', 'quiz_id', 'title', 'state', 'profile_id', 'company_id', 'payload_id'];
     
