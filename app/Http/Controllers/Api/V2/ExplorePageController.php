@@ -881,9 +881,9 @@ class ExplorePageController extends Controller
         );
         //quiz serch filter
         $quizes_search_filter = array(
-            "name" => "quizes",
+            "name" => "quiz",
             "key" => "type",
-            "value" => "quizes",
+            "value" => "quiz",
             "is_selected" => false
         );
 

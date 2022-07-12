@@ -266,7 +266,7 @@ class LandingPageController extends Controller
                 ->pluck("quiz_id")->toArray();
 
             $carouseldata = Quiz::whereNull('deleted_at')
-                ->where('state', '=', 2)
+                ->where('state', '=', 1)
                 ->where('profile_id', '<>', $profileId)
                 ->whereNotIn("id", $ids)
                 ->orderBy('created_at', 'desc')

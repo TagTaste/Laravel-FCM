@@ -595,13 +595,15 @@ class QuizController extends Controller
             $responseData = [];
             if ($commit) {
                 DB::commit();
-                $score = $this->calculateScore($id);
+                $result = $this->calculateScore($id);
+                $responseData["result"] = $this->quizResult($id,$result);
                 $this->model = true;
-                $responseData = ["status" => true];
+                $responseData["status"] = true;
                 $this->messages = "Answer Submitted Successfully";
-                $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $score, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 $user = $request->user()->profile->id;
+                \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', request()->user()->profile->id)->update(["score" => $result["score"], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 Redis::set("quizes:application_status:$request->survey_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+                
             } else {
                 $responseData = ["status" => false];
             }
@@ -609,7 +611,7 @@ class QuizController extends Controller
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true && $request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $request->quiz_id = $id;
-                $responseData = $this->paidProcessing($request);
+                $responseData = array_merge($responseData,$this->paidProcessing($request));
                 $quiz->addToGraph();
                 $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
@@ -784,14 +786,14 @@ class QuizController extends Controller
         return $result;
     }
 
-    public function quizResult($id){
+    public function quizResult($id,$result){
         $data = [];
-        $result = $this->calculateScore($id);
+
         $data["helper"] = "Congrats";
         $data["title"] = "Quiz Completed Successfully";
         $data["subtitle"] = "You attempted {$result["total"]} questions and from that {$result["correctAnswerCount"]} answer is correct";
         $data["score"] = $result["score"]. "% Score";
-        return $result;
+        return $data;
 
     }
 }
