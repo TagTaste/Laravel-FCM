@@ -498,7 +498,7 @@ class QuizController extends Controller
         if ($quiz) {
             $this->model = \DB::table('quiz_close_reasons')->insert($data);;
             $this->messages = "Quiz Closed Successfully";
-              $get->removeFromGraph(); // remove node and edge from neo4j
+            $get->removeFromGraph(); // remove node and edge from neo4j
             event(new DeleteFeedable($get));
         }
         return $this->sendResponse();
@@ -596,14 +596,13 @@ class QuizController extends Controller
             if ($commit) {
                 DB::commit();
                 $result = $this->calculateScore($id);
-                $responseData["result"] = $this->quizResult($id,$result);
+                $responseData["result"] = $this->quizResult($id, $result);
                 $this->model = true;
                 $responseData["status"] = true;
                 $this->messages = "Answer Submitted Successfully";
                 $user = $request->user()->profile->id;
                 \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', request()->user()->profile->id)->update(["score" => $result["score"], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 Redis::set("quizes:application_status:$request->survey_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
-                
             } else {
                 $responseData = ["status" => false];
             }
@@ -611,7 +610,7 @@ class QuizController extends Controller
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true && $request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $request->quiz_id = $id;
-                $responseData = array_merge($responseData,$this->paidProcessing($request));
+                $responseData = array_merge($responseData, $this->paidProcessing($request));
                 $quiz->addToGraph();
                 $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
@@ -771,7 +770,7 @@ class QuizController extends Controller
         }
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
         $score = 0;
-       
+
         foreach ($answers as $answer) {
             if ($answerMapping[$answer->question_id] == $answer->option_id) {
                 $correctAnswersCount++;
@@ -786,14 +785,21 @@ class QuizController extends Controller
         return $result;
     }
 
-    public function quizResult($id,$result){
+    public function quizResult($id, $result = [])
+    {
         $data = [];
-
+        $empty=false;
+        if (empty($result)) {
+            $empty=true;
+            $result = $this->calculateScore($id);
+        }
         $data["helper"] = "Congrats";
         $data["title"] = "Quiz Completed Successfully";
         $data["subtitle"] = "You attempted {$result["total"]} questions and from that {$result["correctAnswerCount"]} answer is correct";
-        $data["score"] = $result["score"]. "% Score";
+        $data["score"] = $result["score"] . "% Score";
+        if ($empty) {
+            return $this->sendResponse($data);
+        }
         return $data;
-
     }
 }
