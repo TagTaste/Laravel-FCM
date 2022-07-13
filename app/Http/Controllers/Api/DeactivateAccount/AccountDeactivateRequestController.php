@@ -106,12 +106,18 @@ class AccountDeactivateRequestController extends Controller
         $source = config("constant.LOGIN_OTP_SOURCE");
         $profile_id = $request->user()->profile->id;
 
+       
+
         $otp = OTPMaster::where('profile_id', "=", $profile_id)
             ->where("expired_at", '>', date("Y-m-d H:i:s"))
             ->where("source", $source)
             ->orderBy("id", "desc")
             ->where("deleted_at", null)->first();
         
+        if(empty($otp)){
+            return $this->sendNewError('Please generate new OTP. Existing OTP might expired.');
+        }
+
         if ($otp && $otp->attempts > config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
             $otp->update(["deleted_at" => date("Y-m-d H:i:s")]);
             return $this->sendNewError('OTP attempts exhausted. Please regenerate OTP.');
