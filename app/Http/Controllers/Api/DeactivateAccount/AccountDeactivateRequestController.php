@@ -111,10 +111,10 @@ class AccountDeactivateRequestController extends Controller
             ->where("source", $source)
             ->orderBy("id", "desc")
             ->where("deleted_at", null)->first();
-
+        
         if ($otp && $otp->attempts > config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
             $otp->update(["deleted_at" => date("Y-m-d H:i:s")]);
-            return $this->sendNewError('OTP attempts exhausted. Please regenerate OTP or try other login methods');
+            return $this->sendNewError('OTP attempts exhausted. Please regenerate OTP.');
         }
 
         if ($otp) {
