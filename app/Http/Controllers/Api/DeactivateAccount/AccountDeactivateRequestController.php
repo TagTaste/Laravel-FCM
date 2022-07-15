@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\DeactivateAccount;
 use App\DeactivateAccount\AccountDeactivateRequests as AccountDeactivateRequests;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Jobs\AccountDeactivateChanges;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -29,14 +30,28 @@ class AccountDeactivateRequestController extends Controller
         $profile_id = $request->user()->profile->id;
         $reason_id = $request->reason_id;
         $value = $request->value;
-        
+        $user = $request->user();
+
         if (empty($reason_id)) {
             return $this->sendNewError("Reason is mandatory.");
         }
         
-        $data = AccountDeactivateRequests::insert(['profile_id' => $profile_id, 'reason_id' => $reason_id, 'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()]);
+        $user_detail = ["name"=>$user->name, "email"=>$user->email, "gender"=>$user->profile->gender, "dob"=>$user->profile->dob, "phone"=>$user->profile->phone];
+        
+        $user_detail = json_encode($user_detail);
+
+        $data = AccountDeactivateRequests::insert(['profile_id' => $profile_id, 'reason_id' => $reason_id, 'user_detail'=> $user_detail ,'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()]);
         
         if($data){
+            //deactivate user
+            $user = User::findOrFail($user->id);
+            $user->account_deactivated = true;
+            $user->save();
+            
+            //send a deactivate changes in queue
+            $deactivate_changes = (new AccountDeactivateChanges($profile_id))->onQueue('deactivate');
+            dispatch($deactivate_changes);
+
             return $this->sendNewResponse(['title'=>'Your account is deactivated as per your request. Your account will be hidden from the TagTaste community. You will not receive any notification or update until you log in with the same email.', 'sub_title'=>'','description'=>'']);
         }else{
             return $this->sendNewError("Something went wrong. Please try again.");
@@ -53,7 +68,7 @@ class AccountDeactivateRequestController extends Controller
             ->where("source", $source)->orderBy("id", "desc")
             ->where("deleted_at", null)
             ->first();
-
+        
         if ($check == null) {
             //Send OTP     
             $otpNo = mt_rand(100000, 999999);
@@ -106,8 +121,6 @@ class AccountDeactivateRequestController extends Controller
         $source = config("constant.LOGIN_OTP_SOURCE");
         $profile_id = $request->user()->profile->id;
 
-       
-
         $otp = OTPMaster::where('profile_id', "=", $profile_id)
             ->where("expired_at", '>', date("Y-m-d H:i:s"))
             ->where("source", $source)
@@ -126,7 +139,7 @@ class AccountDeactivateRequestController extends Controller
         if ($otp) {
             $otp->update(["attempts" => $otp->attempts + 1]);
         }
-
+        
         if ($otp && $otp->otp==$request->otp) {
             $otp->update(["deleted_at" => date("Y-m-d H:i:s")]);
             $this->model = true;
@@ -135,7 +148,6 @@ class AccountDeactivateRequestController extends Controller
         $this->model = false;
         return $this->sendNewError('Incorrect OTP entered. Please try again.');
     }
-
 }
 
 ?>
