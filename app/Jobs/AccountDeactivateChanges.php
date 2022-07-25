@@ -5,8 +5,10 @@ namespace App\Jobs;
 use App\Channel\Payload;
 use App\Collaborate;
 use App\Polling;
+use App\Recipe\Profile;
 use App\Shoutout;
 use App\Surveys;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -43,7 +45,17 @@ class AccountDeactivateChanges implements ShouldQueue
         $this->update_user_feed();
         $this->update_activity();
         $this->update_elastic_search();
+        $this->deactivate_profile();
         file_put_contents(storage_path("logs") . "/nikhil_delete.txt", $this->profile_id, FILE_APPEND); 
+    
+    }
+    
+    function deactivate_profile(){
+        if ($this->deactivate){
+            Profile::where('id',$this->profile_id)->update(['deleted_at'=>Carbon::now()]);
+        }else{
+            Profile::where('id',$this->profile_id)->update(['deleted_at'=>null]);
+        }
     }
     
     function update_activity(){
