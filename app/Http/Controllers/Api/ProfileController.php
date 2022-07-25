@@ -49,13 +49,16 @@ class ProfileController extends Controller
      */
     public function show(Request $request, $id)
     {
-
         //id can either be id or handle
         //we can use both profile/{id} or handle in api call
-        $profile = \App\Profile\User::whereHas("profile", function ($query) use ($id) {
+        // $profile = \App\Profile\User::where('account_deactivated', false)->whereHas("profile", function ($query) use ($id) {
+        //     $query->where('id', $id);
+        // })->first();
+
+        $profile = \App\Profile\User::where('account_deactivated', false)->whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
-
+        
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }

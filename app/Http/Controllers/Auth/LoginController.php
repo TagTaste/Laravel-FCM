@@ -22,6 +22,9 @@ use Laravel\Socialite\Facades\Socialite;
 use Tagtaste\Api\SendsJsonResponse;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+use App\Jobs\AccountDeactivateChanges;
+
+
 class LoginController extends Controller
 {
     use  SendsJsonResponse;
@@ -306,7 +309,7 @@ class LoginController extends Controller
     //         return $this->sendError("OTP not generated");
     //     }
     // }
-
+    
     public function verifyOTP(Request $request)
     {
         $source = config("constant.LOGIN_OTP_SOURCE");
@@ -320,7 +323,7 @@ class LoginController extends Controller
         if ($otp) {
             $otp->update(["attempts" => $otp->attempts + 1]);
         }
-
+        
         //for testing
         $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])
 
@@ -330,7 +333,7 @@ class LoginController extends Controller
             ->orderBy("id", "desc")
             ->where("deleted_at", null)
             ->first();
-
+        
         if ($getOTP && $getOTP->attempts > config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
             $getOTP->update(["deleted_at" => date("Y-m-d H:i:s")]);
             return $this->sendError("OTP attempts exhausted. Please regenerate OTP or try other login methods.");
@@ -347,7 +350,18 @@ class LoginController extends Controller
             return $this->sendResponse();
         }
 
-
         return $this->sendError("Incorrect OTP entered. Please try again.");
+    }
+
+    public function checkForDeactivation(Request $request){
+        $credentials = $request->only('email','password');
+        $user = \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
+        if (count($user) > 0){
+            \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
+            $profile_id = \App\Profile::where('user_id',$user[0])->withTrashed()->pluck('id')->toArray();
+            \App\Profile::where('id',$profile_id[0])->withTrashed()->update(['deleted_at'=>NULL]);
+            $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
+            dispatch($deactivate_changes);
+        }
     }
 }
