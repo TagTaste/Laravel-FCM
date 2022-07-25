@@ -318,6 +318,8 @@ class Kernel extends ConsoleKernel
 
 
 
+        //delete user
+        \App\Console\Commands\DeleteUser::class
 
     ];
 
@@ -369,8 +371,9 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
         $schedule->command('expires_on:banner')->dailyAt('12:10');
+        $schedule->command('delete:deactivated_user')->dailyAt('12:30');
 
-
+        
 
         // $schedule->command('review:calculation')->dailyAt('01:00');
        // $schedule->command('SetExpireon:Collab')->dailyAt('12:00');
