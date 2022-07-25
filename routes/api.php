@@ -47,6 +47,8 @@ Route::post('login',function(Request $request) {
         // something went wrong whilst attempting to encode the token
         return response()->json(['error' => 'could_not_create_token'], 500);
     }
+    
+    app('App\Http\Controllers\Auth\LoginController')->checkForDeactivation($request);
     return response()->json(compact('token'));
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');

@@ -51,9 +51,9 @@ class AccountDeactivateChanges implements ShouldQueue
     
     function deactivate_profile(){
         if ($this->deactivate){
-            Profile::where('id',$this->profile_id)->update(['deleted_at'=>Carbon::now()]);
+            \App\Profile::where('id',$this->profile_id)->update(['deleted_at'=>Carbon::now()]);
         }else{
-            Profile::where('id',$this->profile_id)->update(['deleted_at'=>null]);
+            \App\Profile::where('id',$this->profile_id)->update(['deleted_at'=>null]);
         }
     }
     
@@ -89,7 +89,7 @@ class AccountDeactivateChanges implements ShouldQueue
     }
 
     function update_elastic_search(){
-        $profile = \App\Profile::where('profile_id', $this->profile_id)->whereNull('deleted_at')->get();
+        $profile = \App\Profile::where('id', $this->profile_id)->whereNull('deleted_at')->get();
         if($this->deactivate && !empty($profile)){
             //deactivate user in elastic search
             \App\Documents\Profile::delete($profile);
