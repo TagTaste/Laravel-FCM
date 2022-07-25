@@ -42,7 +42,7 @@ class AccountDeactivateRequestController extends Controller
         if(!empty($check_user)){
             return $this->sendNewError("We already have your request.");
         }
-
+        
         $user_detail = ["name"=>$user->name, "email"=>$user->email, "gender"=>$user->profile->gender, "dob"=>$user->profile->dob, "phone"=>$user->profile->phone];
         
         $user_detail = json_encode($user_detail);
