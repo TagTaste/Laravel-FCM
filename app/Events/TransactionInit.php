@@ -13,7 +13,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 class TransactionInit
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
+    
     /**
      * Create a new event instance.
      *

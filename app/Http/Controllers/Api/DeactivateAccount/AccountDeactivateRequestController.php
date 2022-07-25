@@ -49,7 +49,7 @@ class AccountDeactivateRequestController extends Controller
             $user->save();
             
             //send a deactivate changes in queue
-            $deactivate_changes = (new AccountDeactivateChanges($profile_id, true))->onQueue('deactivate');
+            $deactivate_changes = (new AccountDeactivateChanges($profile_id, true));
             dispatch($deactivate_changes);
             return $this->sendNewResponse(['title'=>'Your account is deactivated as per your request. Your account will be hidden from the TagTaste community. You will not receive any notification or update until you log in with the same email.', 'sub_title'=>'','description'=>'']);
         }else{

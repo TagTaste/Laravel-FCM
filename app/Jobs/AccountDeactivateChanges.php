@@ -47,7 +47,6 @@ class AccountDeactivateChanges implements ShouldQueue
         $this->update_elastic_search();
         $this->deactivate_profile();
         file_put_contents(storage_path("logs") . "/nikhil_delete.txt", $this->profile_id, FILE_APPEND); 
-    
     }
     
     function deactivate_profile(){
