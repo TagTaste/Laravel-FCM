@@ -352,7 +352,7 @@ class LoginController extends Controller
 
         return $this->sendError("Incorrect OTP entered. Please try again.");
     }
-    
+
     public function checkForDeactivation(Request $request){
         $credentials = $request->only('email','password');
         $user = \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
