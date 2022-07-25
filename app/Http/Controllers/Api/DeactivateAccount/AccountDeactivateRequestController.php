@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api\DeactivateAccount;
 
 use App\DeactivateAccount\AccountDeactivateRequests as AccountDeactivateRequests;
+use App\DeactivateAccount\AccountManagementOptions;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Jobs\AccountDeactivateChanges;
@@ -31,16 +32,27 @@ class AccountDeactivateRequestController extends Controller
         $reason_id = $request->reason_id;
         $value = $request->value;
         $user = $request->user();
+        $account_mgmt_details = AccountManagementOptions::where('id',$account_mgmt_id)->first();
 
-        if (empty($reason_id)) {
+        if (empty($reason_id) || empty($account_mgmt_details)) {
             return $this->sendNewError("Reason is mandatory.");
         }
         
+        $check_user = AccountDeactivateRequests::where('profile_id',$profile_id)->whereNull('deleted_at')->first();
+        if(!empty($check_user)){
+            return $this->sendNewError("We already have your request.");
+        }
+
         $user_detail = ["name"=>$user->name, "email"=>$user->email, "gender"=>$user->profile->gender, "dob"=>$user->profile->dob, "phone"=>$user->profile->phone];
         
         $user_detail = json_encode($user_detail);
-
-        $data = AccountDeactivateRequests::insert(['profile_id' => $profile_id, 'reason_id' => $reason_id, 'user_detail'=> $user_detail ,'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()]);
+        $insert_data = ['profile_id' => $profile_id, 'reason_id' => $reason_id, 'user_detail'=> $user_detail ,'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
+        if($account_mgmt_details['slug'] == 'delete'){
+            $deleted_date = Carbon::now()->startOfDay();
+            $deleted_date->addDays(15);
+            $insert_data['deleted_on'] = $deleted_date;
+        }
+        $data = AccountDeactivateRequests::insert($insert_data);
         
         if($data){
             //deactivate user
