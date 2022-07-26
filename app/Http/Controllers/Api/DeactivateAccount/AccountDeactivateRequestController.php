@@ -84,22 +84,22 @@ class AccountDeactivateRequestController extends Controller
             //Send OTP     
             $otpNo = mt_rand(100000, 999999);
             $text =  "Use OTP ".$otpNo." to verify your TagTaste account.Please DO NOT share OTP with anyone.";
-            $country_code = $request->user()->profile->country_code;
-            $phone = $request->user()->profile->phone;
+            // $country_code = $request->user()->profile->country_code;
+            // $phone = $request->user()->profile->phone;
 
-            if($country_code == '+91' || $country_code == '91'){
-                if(!empty($phone)){
-                    $service = 'gupshup';
-                    $getResp = SMS::sendSMS($country_code . $phone, $text, $service);    
-                }
-            }else if(!empty($phone) && !empty($country_code)){
-                $service = "twilio";
-                $getResp = SMS::sendSMS($country_code . $phone, $text, $service);
-            }
-
+            // if($country_code == '+91' || $country_code == '91'){
+            //     if(!empty($phone)){
+            //         $service = 'gupshup';
+            //         $getResp = SMS::sendSMS($country_code . $phone, $text, $service);    
+            //     }
+            // }else if(!empty($phone) && !empty($country_code)){
+            //     $service = "twilio";
+            //     $getResp = SMS::sendSMS($country_code . $phone, $text, $service);
+            // }
+            
             //send otp on mail
             $email = $request->user()->email;
-
+            
             $user = \App\Profile\User::where('id', $request->user()->id)->whereNull('deleted_at')->first();
             if ($user) {  
                 \Mail::raw($text, function ($message) use($user) {
