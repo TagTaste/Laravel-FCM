@@ -22,11 +22,11 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'is_active', 'social_registration','email_token','verified_at'
+        'name', 'email', 'password', 'is_active', 'social_registration','email_token','verified_at','account_deactivated'
     ];
 
 
-    protected $visible = ['name','email','profile','id','verified_at'];
+    protected $visible = ['name','email','profile','id','verified_at','account_deactivated'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -77,6 +77,6 @@ class User extends Authenticatable
         } else {
             $this->notify(new PasswordReset($token, $this->email));
         }
-
     }
+    
 }

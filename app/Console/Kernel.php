@@ -319,7 +319,10 @@ class Kernel extends ConsoleKernel
 
 
         //delete user
-        \App\Console\Commands\DeleteUser::class
+        \App\Console\Commands\DeleteUser::class,
+
+        //deacitveted user push
+        \App\Console\Commands\Build\Cache\DeactivatedUsers::class
 
     ];
 

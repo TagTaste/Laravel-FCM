@@ -23,7 +23,7 @@ use Tagtaste\Api\SendsJsonResponse;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 use App\Jobs\AccountDeactivateChanges;
-
+use Illuminate\Support\Facades\Redis;
 
 class LoginController extends Controller
 {
@@ -349,7 +349,7 @@ class LoginController extends Controller
             $this->model = ["token" => $token];
             return $this->sendResponse();
         }
-
+        
         return $this->sendError("Incorrect OTP entered. Please try again.");
     }
     
@@ -359,6 +359,7 @@ class LoginController extends Controller
         if (count($user) > 0){
             \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
             $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
+            Redis:: lrem('deactivated_users', 0, $user[0]);
             $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
             dispatch($deactivate_changes);
         }

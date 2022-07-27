@@ -115,7 +115,7 @@ class AccountManagementOptionController extends Controller
         $data = [];
         
         $company_list = Company::where('user_id',$user_id)->whereNull('deleted_at')->get();
-
+        
         foreach($company_list as $company){
             $admins = CompanyUser::getCompanyAdminIds($company->id);
             if(count($admins) > 1){
