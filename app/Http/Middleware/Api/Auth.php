@@ -13,6 +13,7 @@ use App\Version;
 use App\Events\ContentAnalysisEvent;
 use App\userActivityTracking;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Redis;
 
 class Auth extends GetUserFromToken
 {
@@ -42,7 +43,7 @@ class Auth extends GetUserFromToken
         if (!$token = $this->auth->setRequest($request)->getToken()) {
             return $this->respond('tymon.jwt.absent', 'token_not_provided', 401);
         }
-
+        
         try {
             $user = $this->auth->authenticate($token);
         } catch (TokenExpiredException $e) {
@@ -58,8 +59,14 @@ class Auth extends GetUserFromToken
         }
 
         $this->events->fire('tymon.jwt.valid', $user);
+        
+        $position = Redis::executeRaw(array('lpos','deactivated_users',$user->id));
+        if(is_numeric($position)){
+            return response()->json(['error' => 'token_expired'], 401);
+        }
 
         $request->setUserResolver(function () use ($user) {
+            // echo $user;
             return $user;
         });
 

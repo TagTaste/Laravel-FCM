@@ -17,7 +17,7 @@ use App\Profile;
 use App\Profile\User;
 use App\Services\SMS;
 use App\User as AppUser;
-
+use Illuminate\Support\Facades\Redis;
 
 class AccountDeactivateRequestController extends Controller
 {
@@ -66,6 +66,8 @@ class AccountDeactivateRequestController extends Controller
             $user->account_deactivated = true;
             $user->save();
             
+            Redis::lpush('deactivated_users',$user->id); 
+            
             //send a deactivate changes in queue
             $deactivate_changes = (new AccountDeactivateChanges($profile_id, true));
             dispatch($deactivate_changes);
@@ -92,7 +94,7 @@ class AccountDeactivateRequestController extends Controller
             $text =  "Use OTP ".$otpNo." to verify your TagTaste account.Please DO NOT share OTP with anyone.";
             $country_code = $request->user()->profile->country_code;
             $phone = $request->user()->profile->phone;
-            
+
             if($country_code == '+91' || $country_code == '91'){
                 if(!empty($phone)){
                     $service = 'gupshup';
