@@ -45,16 +45,7 @@ class AccountDeactivateChanges implements ShouldQueue
         $this->update_user_feed();
         $this->update_activity();
         $this->update_elastic_search();
-        $this->deactivate_profile();
         file_put_contents(storage_path("logs") . "/nikhil_delete.txt", $this->profile_id, FILE_APPEND); 
-    }
-    
-    function deactivate_profile(){
-        if ($this->deactivate){
-            \App\Profile::where('id',$this->profile_id)->update(['deleted_at'=>Carbon::now()]);
-        }else{
-            \App\Profile::where('id',$this->profile_id)->update(['deleted_at'=>null]);
-        }
     }
     
     function update_activity(){

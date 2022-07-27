@@ -352,14 +352,13 @@ class LoginController extends Controller
 
         return $this->sendError("Incorrect OTP entered. Please try again.");
     }
-
+    
     public function checkForDeactivation(Request $request){
         $credentials = $request->only('email','password');
         $user = \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
         if (count($user) > 0){
             \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
-            $profile_id = \App\Profile::where('user_id',$user[0])->withTrashed()->pluck('id')->toArray();
-            \App\Profile::where('id',$profile_id[0])->withTrashed()->update(['deleted_at'=>NULL]);
+            $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
             $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
             dispatch($deactivate_changes);
         }
