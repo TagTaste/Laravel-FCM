@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api\DeactivateAccount;
 
+use App\Company;
 use App\DeactivateAccount\AccountDeactivateRequests as AccountDeactivateRequests;
 use App\DeactivateAccount\AccountManagementOptions;
 use Illuminate\Http\Request;
@@ -42,7 +43,12 @@ class AccountDeactivateRequestController extends Controller
         if(!empty($check_user)){
             return $this->sendNewError("We already have your request.");
         }
-        
+
+        $company_list = Company::where('user_id',$request->user()->id)->whereNull('deleted_at')->get();
+        if (count($company_list) > 0){
+            return $this->sendNewError("You are still the superadmin of a company. Please transfer your ownership or delete the company.");
+        }
+
         $user_detail = ["name"=>$user->name, "email"=>$user->email, "gender"=>$user->profile->gender, "dob"=>$user->profile->dob, "phone"=>$user->profile->phone];
         
         $user_detail = json_encode($user_detail);
@@ -84,18 +90,18 @@ class AccountDeactivateRequestController extends Controller
             //Send OTP     
             $otpNo = mt_rand(100000, 999999);
             $text =  "Use OTP ".$otpNo." to verify your TagTaste account.Please DO NOT share OTP with anyone.";
-            // $country_code = $request->user()->profile->country_code;
-            // $phone = $request->user()->profile->phone;
-
-            // if($country_code == '+91' || $country_code == '91'){
-            //     if(!empty($phone)){
-            //         $service = 'gupshup';
-            //         $getResp = SMS::sendSMS($country_code . $phone, $text, $service);    
-            //     }
-            // }else if(!empty($phone) && !empty($country_code)){
-            //     $service = "twilio";
-            //     $getResp = SMS::sendSMS($country_code . $phone, $text, $service);
-            // }
+            $country_code = $request->user()->profile->country_code;
+            $phone = $request->user()->profile->phone;
+            
+            if($country_code == '+91' || $country_code == '91'){
+                if(!empty($phone)){
+                    $service = 'gupshup';
+                    $getResp = SMS::sendSMS($country_code . $phone, $text, $service);    
+                }
+            }else if(!empty($phone) && !empty($country_code)){
+                $service = "twilio";
+                $getResp = SMS::sendSMS($country_code . $phone, $text, $service);
+            }
             
             //send otp on mail
             $email = $request->user()->email;
