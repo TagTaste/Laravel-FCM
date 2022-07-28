@@ -153,7 +153,7 @@ class Profile extends Model
             //            event(new SuggestionEngineEvent($profile, 'update'));
 
         });
-
+        
         self::deleting(function ($profile) {
             \App\Filter\Profile::removeModel($profile->id);
             \App\Documents\Profile::delete($profile);

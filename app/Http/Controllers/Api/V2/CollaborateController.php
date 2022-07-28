@@ -41,7 +41,7 @@ class CollaborateController extends BaseController
     public function show(Request $request, $id)
     {
         
-        $collaboration = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+        $collaboration = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->where('account_deactivated',0)->first();
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }

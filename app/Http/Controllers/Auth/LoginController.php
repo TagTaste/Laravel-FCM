@@ -23,6 +23,7 @@ use Tagtaste\Api\SendsJsonResponse;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 use App\Jobs\AccountDeactivateChanges;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class LoginController extends Controller
@@ -194,7 +195,7 @@ class LoginController extends Controller
         }
         return $user;
     }
-
+    
     public function loginLinkedin(Request $request)
     {
         $code = $request->input('code');
@@ -360,6 +361,7 @@ class LoginController extends Controller
             \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
             $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
             Redis:: lrem('deactivated_users', 0, $user[0]);
+            DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
             $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
             dispatch($deactivate_changes);
         }
