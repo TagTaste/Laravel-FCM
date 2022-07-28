@@ -497,6 +497,10 @@ class Profile extends Model
         return $this->belongsTo('App\User');
     }
 
+    public function getAccountDeactivatedAttribute(){
+        return $this->user->account_deactivated;
+    }
+
     public function getNameAttribute()
     {
         try {
