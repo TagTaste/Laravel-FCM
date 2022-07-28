@@ -33,7 +33,7 @@ class AccountDeactivateChanges implements ShouldQueue
         $this->profile_id = $profile_id;
         $this->deactivate = $deactivate;
     }
-    
+
     /**
      * Execute the job.
      *
@@ -86,7 +86,7 @@ class AccountDeactivateChanges implements ShouldQueue
             \App\Documents\Profile::delete($profile);
         }else if(!empty($profile)){
             //activate user in elastic search
-            \App\Documents\Profile::create($model);
+            \App\Documents\Profile::create($profile);
         }
     }
 
