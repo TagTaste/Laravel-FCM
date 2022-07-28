@@ -49,7 +49,7 @@ class AccountDeactivateRequestController extends Controller
             return $this->sendNewError("You are still the superadmin of a company. Please transfer your ownership or delete the company.");
         }
 
-        $user_detail = ["name"=>$user->name, "email"=>$user->email, "gender"=>$user->profile->gender, "dob"=>$user->profile->dob, "phone"=>$user->profile->phone];
+        $user_detail = ["name"=>$user->name, "email"=>$user->email, "gender"=>$user->profile->gender, "dob"=>$user->profile->dob, "phone"=>$user->profile->phone,"verified_at"=>$user->verified_at];
         
         $user_detail = json_encode($user_detail);
         $insert_data = ['profile_id' => $profile_id, 'reason_id' => $reason_id, 'user_detail'=> $user_detail ,'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
@@ -64,8 +64,9 @@ class AccountDeactivateRequestController extends Controller
             //deactivate user
             $user = User::findOrFail($user->id);
             $user->account_deactivated = true;
+            $user->verified_at = NULL;
             $user->save();
-            
+                        
             Redis::lpush('deactivated_users',$user->id); 
             
             //send a deactivate changes in queue
