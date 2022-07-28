@@ -178,6 +178,10 @@ class SurveyController extends Controller
 
 
         $final_json = $this->validateSurveyFormJson($request);
+        $is_section = false;   //for section 
+        if (isset($final_json[0]["element_type"])  && $final_json[0]["element_type"] == "section") {
+            $is_section = true;
+        }
 
         if (!empty($this->errors)) {
             return $this->sendResponse();
@@ -207,6 +211,7 @@ class SurveyController extends Controller
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
         $prepData["privacy_id"] = 1;
+        $prepData["is_section"] = $is_section;
         $prepData["is_private"] = (isset($request->is_private) ? (int)$request->is_private :  null);
 
         if ($request->has("company_id")) {
@@ -242,7 +247,6 @@ class SurveyController extends Controller
         $create->video_meta = json_decode($create->video_meta);
         // $create->form_json = json_decode($create->final_json);
         $create->form_json = $final_json;
-
         if (isset($create->id)) {
 
             $this->storeMandatoryFields($request, $create->id);
@@ -277,7 +281,7 @@ class SurveyController extends Controller
         $profileId = $request->user()->profile->id;
         $surveys = $this->model->where('state', 2)
             ->whereNull('deleted_at')->where("id", "<>", $surveyId)
-            ->where('is_active',1)
+            ->where('is_active', 1)
             ->inRandomOrder()
             ->take(3)->get();
 
@@ -366,8 +370,8 @@ class SurveyController extends Controller
             }
         }
 
-        
-        if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))){
+
+        if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))) {
 
             return $this->sendError("Survey status cannot be changed");
         }
@@ -380,6 +384,10 @@ class SurveyController extends Controller
         }
 
         $final_json = $this->validateSurveyFormJson($request, $id);
+        $is_section = false; //for section
+        if (isset($final_json[0]["element_type"])  && $final_json[0]["element_type"] == "section") {
+            $is_section = true;
+        }
 
         if (!empty($this->errors)) {
             return $this->sendResponse();
@@ -399,6 +407,8 @@ class SurveyController extends Controller
         $prepData->state = $request->state;
         $prepData->title = $request->title;
         $prepData->description = $request->description;
+        $prepData->is_section = $is_section;
+
 
         if ($request->has("image_meta")) {
             $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
@@ -554,7 +564,7 @@ class SurveyController extends Controller
                 return $this->sendResponse();
             }
 
-            $id = $this->model->where("id", "=", $request->survey_id)->first(); 
+            $id = $this->model->where("id", "=", $request->survey_id)->first();
 
             $this->model = [];
             if (empty($id)) {
@@ -585,7 +595,7 @@ class SurveyController extends Controller
 
                 $this->saveApplicants($id, $request);
             } elseif (empty($checkApplicant)) {
-                $this->messages = $id->profile->user->name." accepted your survey participation request by mistake and it has been reversed.";
+                $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
                 return $this->sendError("Something went wrong");
             }
 
@@ -595,7 +605,7 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")) {
-                $this->messages = $id->profile->user->name." accepted your survey participation request by mistake and it has been reversed.";
+                $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
                 $this->model = ["status" => false];
                 return $this->sendError("Something went wrong");
             }
@@ -616,7 +626,7 @@ class SurveyController extends Controller
             $answerQuestionIds =  array_map(function ($vi) {
                 return  $vi["question_id"];
             }, $optionArray);
-            
+
             $mandateQuestions = array_values(array_filter($mandateQuestions));
 
 
@@ -1139,11 +1149,8 @@ class SurveyController extends Controller
         //FORM JSON Validation;
         $decodeJson = (is_array($request->form_json) ? $request->form_json : json_decode($request->form_json, true));
         if (!empty($decodeJson)) {
-            if ($isUpdation) {
-                $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json")->first()->toArray();
-                $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
-                $listOfQuestionIds = array_keys($oldJsonArray);
-            }
+
+            $sectionNodeChecker = ["title", "image_meta", "video_meta", "element_type", "description", "id", "questions"];
             //required node for questions    
             $requiredNode = ["question_type", "title", "image_meta", "video_meta", "description", "id", "is_mandatory", "options"];
             //required option nodes
@@ -1155,14 +1162,74 @@ class SurveyController extends Controller
             ];
             //getTypeOfQuestions  
             $getListOfFormQuestions = SurveyQuestionsType::where("is_active", "=", 1)->get()->pluck("question_type_id")->toArray();
+
+            $colorCodeList = $this->colorCodeList;
+            $section = false; //flag to know is section
+            $sectionQuesArray = []; //question json array from form_json
+            $sectionWiseCount = [];  //section wise question count
+            $sectionJson = $decodeJson;    //form_json response  of section
+
+            //for sectioning validation
+            foreach ($sectionJson as $key => $values) {
+                if (isset($values["element_type"]) && $values["element_type"] == "section") {
+                    $sectionWiseCount[$key] = count($values["questions"]);
+                    $sectionJson[$key]["id"] = $key + 1;   //assigning ids to sections
+                    $sectionQuesArray = array_merge($sectionQuesArray, $values["questions"]);
+                    $diff = array_diff($sectionNodeChecker, array_keys($values));
+                    
+                    if (!$key) {   //first time initialization of section type
+                        $section = true;
+                    }
+                    if (!empty($diff)) {
+                        $this->errors["form_json"] = "Not a Valid section json";
+                    }
+                    else if ($key && !$section) { //section type false after n no. of iteration 
+                        $section = true;
+                        $this->errors["form_json"] = "Invalid form Json";
+                    }
+                } else if (isset($values["element_type"]) && $values["element_type"] == "question" && $section) {
+                    //if section is true and current iteration element type is question
+                    $this->errors["form_json"] = "Invalid form Json";
+                }
+                unset($sectionJson[$key]["questions"]);
+                $sectionJson[$key]["questions"] = [];
+            }
+
+            if (!empty($this->errors)) {
+                return $this->sendResponse();
+            }
+
+            //max ques id calculation
             $maxQueId = 1;
             if ($isUpdation) {
-                $maxQueId = max($listOfQuestionIds);
-                $maxQueId++;
-            }
-            $colorCodeList = $this->colorCodeList;
+                if ($section) {
+                    $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json")->first()->toArray();
+                    $oldJsonArray = [];
+                    $getOldJson = $this->prepQuestionJson($getOldJson["form_json"]); //old section array
+                    foreach ($getOldJson as $value) {
+                        $maxQueId += count($value["questions"]);
+                        $oldJsonArray = array_merge($oldJsonArray, $value["questions"]);
+                    }
+                    $oldJsonArray = $this->prepQuestionJson(json_encode($oldJsonArray));//old questionarray
+ 
+                } else {
+                    $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json")->first()->toArray();
+                    $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
+                    $listOfQuestionIds = array_keys($oldJsonArray);
 
-            foreach ($decodeJson as &$values) {
+                    $maxQueId = max($listOfQuestionIds);
+                    $maxQueId++;
+                }
+            }
+
+            if ($section) {
+                $decodeJson = $sectionQuesArray;  
+            } //if sectioning exists
+
+           
+            $count = 0;  //key value of section
+            foreach ($decodeJson as $key => &$values) {
+
                 if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
                     $diff = array_diff($requiredNode, array_keys($values));
                     // echo (isset($values['id']));
@@ -1171,7 +1238,6 @@ class SurveyController extends Controller
                         $values['id'] = (int) $maxQueId;
                         $maxQueId++;
                     }
-
                     if (isset($values["multiOptions"])) {
                         $rowId = 1;
                         $columnId = 1;
@@ -1240,9 +1306,16 @@ class SurveyController extends Controller
                 } else if (!in_array($values["question_type"], $questionWithoutOption)) {
                     $this->errors["form_json"] = "Invalid Question Type " . $values["question_type"];
                 }
+                //assigning modified question value to section response
+                if (count($sectionJson[$count]["questions"]) < $sectionWiseCount[$count]) {
+                    $sectionJson[$count]["questions"][] = $values;
+                } else {
+                    $count++;
+                    $sectionJson[$count]["questions"][] = $values;
+                }
+                //        print_r($sectionJson[$count]["questions"]);
             }
             // echo '<pre>'; print_r($decodeJson); echo '</pre>';
-
 
         } else {
             $this->errors["image_meta"] = "Invalid Form Json";
@@ -1253,6 +1326,9 @@ class SurveyController extends Controller
 
         if (!is_array($request->video_meta)) {
             $this->errors["video_meta"] = "The image meta must be an array.";
+        }
+        if ($section) {
+            $decodeJson = $sectionJson;
         }
         return $decodeJson;
     }
@@ -2067,14 +2143,12 @@ class SurveyController extends Controller
             $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress, true);
             $city = (isset($address['survey_city'])) ? $address['survey_city'] : null;
-           
         } else {
             $city = null;
             $applierAddress = null;
-           
         }
 
-     
+
 
         $profile = $request->user()->profile;
         if (empty($checkApplicant)) {
@@ -2094,13 +2168,13 @@ class SurveyController extends Controller
             if (empty($checkApplicant->city)) {
                 $update['city'] = $city;
             }
-           
+
 
             if (empty($checkApplicant->age_group)) {
                 $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
             }
 
-            if($checkApplicant->is_invited){
+            if ($checkApplicant->is_invited) {
                 $hometown = $request->input('hometown');
                 $current_city = $request->input('current_city');
                 if (empty($checkApplicant->hometown)) {
@@ -2114,9 +2188,6 @@ class SurveyController extends Controller
             if (!empty($update)) {
                 $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
             }
-
-           
-    
         }
         $this->model = true;
         return $this->sendResponse();
