@@ -60,11 +60,13 @@ class Auth extends GetUserFromToken
 
         $this->events->fire('tymon.jwt.valid', $user);
         
-        $position = Redis::executeRaw(array('lpos','deactivated_users',$user->id));
-        if(is_numeric($position)){
+        //Workaround to check if element exist in list or not bcoz redis 4.0.10 doesn't suppport lpos command
+        $position = Redis:: lrem('deactivated_users', 0, $user->id);
+        if ($position > 0){
+            Redis::lpush('deactivated_users',$user->id);
             return response()->json(['error' => 'token_expired'], 401);
         }
-
+        
         $request->setUserResolver(function () use ($user) {
             // echo $user;
             return $user;
