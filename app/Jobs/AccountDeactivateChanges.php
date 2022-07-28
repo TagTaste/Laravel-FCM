@@ -47,6 +47,12 @@ class AccountDeactivateChanges implements ShouldQueue
         $this->update_elastic_search();
         file_put_contents(storage_path("logs") . "/nikhil_delete.txt", $this->profile_id, FILE_APPEND); 
     }
+
+    function remove_fcm_token(){
+        if($this->deactivate){
+            DB::table('app_info')->where('profile_id',$this->profile_id)->delete();
+        }
+    }
     
     function update_activity(){
         //survey
@@ -84,8 +90,7 @@ class AccountDeactivateChanges implements ShouldQueue
         
         
         //Shoutout
-        $polls = Shoutout::where('profile_id',$this->profile_id)
-        ->where('state','=',$collab_check_state)
+        $shououts = Shoutout::where('profile_id',$this->profile_id)
         ->where('account_deactivated',!$this->deactivate)
         ->whereNull('company_id')->whereNull('deleted_at')->update(['account_deactivated'=>$this->deactivate]);
 
