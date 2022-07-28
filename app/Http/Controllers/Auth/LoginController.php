@@ -24,6 +24,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 use App\Jobs\AccountDeactivateChanges;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redis;
 
 class LoginController extends Controller
@@ -364,6 +365,11 @@ class LoginController extends Controller
             DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
             $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
             dispatch($deactivate_changes);
+            
+            $data = ['name'=>$user->name, 'email'=>$user->email];
+            Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
+                $message->to($user->email, $user->name)->subject('Account Reactivated');
+            });
         }
     }
 }
