@@ -1176,14 +1176,13 @@ class SurveyController extends Controller
                     $sectionJson[$key]["id"] = $key + 1;   //assigning ids to sections
                     $sectionQuesArray = array_merge($sectionQuesArray, $values["questions"]);
                     $diff = array_diff($sectionNodeChecker, array_keys($values));
-                    
+
                     if (!$key) {   //first time initialization of section type
                         $section = true;
                     }
                     if (!empty($diff)) {
                         $this->errors["form_json"] = "Not a Valid section json";
-                    }
-                    else if ($key && !$section) { //section type false after n no. of iteration 
+                    } else if ($key && !$section) { //section type false after n no. of iteration 
                         $section = true;
                         $this->errors["form_json"] = "Invalid form Json";
                     }
@@ -1210,8 +1209,8 @@ class SurveyController extends Controller
                         $maxQueId += count($value["questions"]);
                         $oldJsonArray = array_merge($oldJsonArray, $value["questions"]);
                     }
-                    $oldJsonArray = $this->prepQuestionJson(json_encode($oldJsonArray));//old questionarray
- 
+                    $oldJsonArray = $this->prepQuestionJson(json_encode($oldJsonArray)); //old questionarray
+
                 } else {
                     $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json")->first()->toArray();
                     $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
@@ -1223,10 +1222,10 @@ class SurveyController extends Controller
             }
 
             if ($section) {
-                $decodeJson = $sectionQuesArray;  
+                $decodeJson = $sectionQuesArray;
             } //if sectioning exists
 
-           
+
             $count = 0;  //key value of section
             foreach ($decodeJson as $key => &$values) {
 
@@ -1307,11 +1306,13 @@ class SurveyController extends Controller
                     $this->errors["form_json"] = "Invalid Question Type " . $values["question_type"];
                 }
                 //assigning modified question value to section response
-                if (count($sectionJson[$count]["questions"]) < $sectionWiseCount[$count]) {
-                    $sectionJson[$count]["questions"][] = $values;
-                } else {
-                    $count++;
-                    $sectionJson[$count]["questions"][] = $values;
+                if ($section) {
+                    if (count($sectionJson[$count]["questions"]) < $sectionWiseCount[$count]) {
+                        $sectionJson[$count]["questions"][] = $values;
+                    } else {
+                        $count++;
+                        $sectionJson[$count]["questions"][] = $values;
+                    }
                 }
                 //        print_r($sectionJson[$count]["questions"]);
             }
