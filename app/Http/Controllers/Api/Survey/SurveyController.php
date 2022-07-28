@@ -62,7 +62,7 @@ class SurveyController extends Controller
      */
     public function index(Request $request, $id)
     {
-        $getSurvey = Surveys::where("id", "=", $id)->where("is_active", "=", 1)->first();
+        $getSurvey = Surveys::where("id", "=", $id)->where("is_active", "=", 1)->where('account_deactivated',0)->first();
 
         $this->model = false;
         $this->messages = "Survey Doesn't Exists";
@@ -268,7 +268,7 @@ class SurveyController extends Controller
 
     public function similarSurveys(Request $request, $surveyId)
     {
-        $survey = $this->model->where('id', $surveyId)->where("is_active", "=", 1)->first();
+        $survey = $this->model->where('id', $surveyId)->where('account_deactivated',0)->where("is_active", "=", 1)->first();
         if ($survey == null) {
             $this->model = false;
             return $this->sendError("Invalid Survey Id");

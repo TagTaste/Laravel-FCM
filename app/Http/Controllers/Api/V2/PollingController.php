@@ -40,11 +40,11 @@ class PollingController extends BaseController
         $this->model = $model;
     }
     
-
+    
     public function show(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $poll = $this->model->where('id',$pollId)->whereNull('deleted_at')->first();
+        $poll = $this->model->where('id',$pollId)->where('account_deactivated',0)->whereNull('deleted_at')->first();
         if (!$poll) {
             return $this->sendError("Poll not found.");
         }

@@ -76,11 +76,23 @@ class AccountDeactivateChanges implements ShouldQueue
         ->where('state','=',$collab_check_state)
         ->where('account_deactivated',!$this->deactivate)
         ->whereNull('company_id')->update(['state'=>$collab_final_state, 'account_deactivated'=>$this->deactivate]);
-            
+        
+        //Polling
+        $polls = Polling::where('profile_id',$this->profile_id)
+        ->where('account_deactivated',!$this->deactivate)
+        ->whereNull('company_id')->whereNull('deleted_at')->update(['account_deactivated'=>$this->deactivate]);
+        
+        
+        //Shoutout
+        $polls = Shoutout::where('profile_id',$this->profile_id)
+        ->where('state','=',$collab_check_state)
+        ->where('account_deactivated',!$this->deactivate)
+        ->whereNull('company_id')->whereNull('deleted_at')->update(['account_deactivated'=>$this->deactivate]);
+
     }
 
     function update_elastic_search(){
-        $profile = \App\Profile::where('id', $this->profile_id)->whereNull('deleted_at')->get();
+        $profile = \App\Profile::where('id', $this->profile_id)->whereNull('deleted_at')->first();
         if($this->deactivate && !empty($profile)){
             //deactivate user in elastic search
             \App\Documents\Profile::delete($profile);
@@ -89,7 +101,7 @@ class AccountDeactivateChanges implements ShouldQueue
             \App\Documents\Profile::create($profile);
         }
     }
-
+    
     function update_user_feed(){
         //polls
         $polls = Polling::where('profile_id',$this->profile_id)

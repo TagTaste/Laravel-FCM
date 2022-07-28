@@ -1604,7 +1604,7 @@ class SearchController extends Controller
         if (!$model) {
             return $model;
         }
-
+        
         if (isset($this->filters) && !empty($filters)) {
 
             $modelIds = $this->filters[$type]::getModelIds($filters);
