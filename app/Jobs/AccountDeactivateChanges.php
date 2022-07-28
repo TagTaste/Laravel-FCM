@@ -33,7 +33,7 @@ class AccountDeactivateChanges implements ShouldQueue
         $this->profile_id = $profile_id;
         $this->deactivate = $deactivate;
     }
-
+    
     /**
      * Execute the job.
      *
