@@ -42,11 +42,8 @@ class DeactivatedUsers extends Command
         Redis::del('deactivated_users');
         \App\User::where('account_deactivated',1)->chunk(200, function($users){
             foreach($users as $user){
-                $position = Redis::executeRaw(array('lpos','deactivated_users',$user->id));
-                if(!is_numeric($position)){
-                    echo "Updating ".$user->id."\n";
-                    Redis::lpush('deactivated_users',$user->id);        
-                }
+                echo "Updating ".$user->id."\n";
+                Redis::lpush('deactivated_users',$user->id);
             }
         });
     }
