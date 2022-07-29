@@ -62,7 +62,7 @@
                                 <tr>
                                   <td bgcolor="#FFFFFF" align="left">
                                     <p style="font-size: 16px; color: #171717; margin: 0px; line-height: 1.5">
-                                      Hi Harsh Arora,
+                                      Hi {{$data['name']}},
                                     </p>
                                   </td>
                                 </tr>
@@ -76,10 +76,10 @@
                                         line-height: 1.5;
                                       "
                                     >
-                                      <a href="/profile/id" target="_blank" rel="noreferrer" style="color: #171717"
-                                        >Ahren Pradhan</a
+                                      <a href={{$data['old_super_admin_url']}} target="_blank" rel="noreferrer" style="color: #171717"
+                                        >{{$data['old_super_admin']}}</a
                                       >
-                                      transferred the super admin access to you for TagTaste Foods Pvt. Ltd.
+                                      transferred the super admin access to you for {{$data['company_name']}}
                                     </p>
                                     <div style="display: flex; margin: 16px 0px 0px 0px">
                                       <div
@@ -91,13 +91,13 @@
                                         "
                                       >
                                         <img
-                                          src="https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/images/p/21/original/ABfK74F2UoWHf8H9OnpXQpbL0UeU1piQ.jpg"
+                                          src={{$data['image']}}
                                           alt="'user image"
                                           style="height: 40px; width: 40px; object-fit: cover"
                                         />
                                       </div>
                                       <div style="align-self: center; margin: 0 0 0 16px">
-                                        <span style="font-weight: 900">Ahren Pradhan</span>
+                                        <span style="font-weight: 900">{{$data['company_name']}}</span>
                                       </div>
                                     </div>
                                     <div style="margin-top: 24px">
