@@ -45,9 +45,10 @@ class AccountDeactivateChanges implements ShouldQueue
         $this->update_user_feed();
         $this->update_activity();
         $this->update_elastic_search();
+        $this->remove_fcm_token();
         file_put_contents(storage_path("logs") . "/nikhil_delete.txt", $this->profile_id, FILE_APPEND); 
     }
-
+    
     function remove_fcm_token(){
         if($this->deactivate){
             DB::table('app_info')->where('profile_id',$this->profile_id)->delete();

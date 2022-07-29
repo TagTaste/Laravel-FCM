@@ -49,14 +49,21 @@ class AccountDeactivateRequestController extends Controller
             return $this->sendNewError("You are still the superadmin of a company. Please transfer your ownership or delete the company.");
         }
 
-        $user_detail = ["name"=>$user->name, "email"=>$user->email, "gender"=>$user->profile->gender, "dob"=>$user->profile->dob, "phone"=>$user->profile->phone];
+        $user_detail = ["name"=>$user->name, "email"=>$user->email, "gender"=>$user->profile->gender, "dob"=>$user->profile->dob, "phone"=>$user->profile->phone,"verified_at"=>$user->verified_at];
         
         $user_detail = json_encode($user_detail);
         $insert_data = ['profile_id' => $profile_id, 'reason_id' => $reason_id, 'user_detail'=> $user_detail ,'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
+        
+        $email_balde = 'email.account-deactivation-confirm';
+        $email_subject = 'Account Deactivated';
+        $final_date = '';
         if($account_mgmt_details['slug'] == 'delete'){
             $deleted_date = Carbon::now()->startOfDay();
             $deleted_date->addDays(15);
             $insert_data['deleted_on'] = $deleted_date;
+            $email_balde = 'email.account-deletion-confirm';
+            $email_subject = 'Account Deletion';
+            $final_date = $deleted_date->format('d M Y');
         }
         $data = AccountDeactivateRequests::insert($insert_data);
         
@@ -64,20 +71,32 @@ class AccountDeactivateRequestController extends Controller
             //deactivate user
             $user = User::findOrFail($user->id);
             $user->account_deactivated = true;
+            $user->verified_at = NULL;
             $user->save();
-            
+                        
             Redis::lpush('deactivated_users',$user->id); 
             
             //send a deactivate changes in queue
             $deactivate_changes = (new AccountDeactivateChanges($profile_id, true));
             dispatch($deactivate_changes);
+
+            $data = ['name'=>$user->name, 'date'=>$final_date];
+            Mail::send($email_balde, ["data" => $data], function($message) use($user, $email_subject){
+                $message->to($user->email, $user->name)->subject($email_subject);
+            });
+
             return $this->sendNewResponse(['title'=>'Your account is deactivated as per your request. Your account will be hidden from the TagTaste community. You will not receive any notification or update until you log in with the same email.', 'sub_title'=>'','description'=>'']);
         }else{
             return $this->sendNewError("Something went wrong. Please try again.");
         }
-    }   
+    }  
+    
+    public function send_otp(Request $request, $account_mgmt_id){
+        $account_mgmt_details = AccountManagementOptions::where('id',$account_mgmt_id)->first();
+        if (empty($account_mgmt_details)) {
+            return $this->sendNewError("Reason is mandatory.");
+        }
 
-    public function send_otp(Request $request){
         $source = config("constant.LOGIN_OTP_SOURCE");
         $profile_id = $request->user()->profile->id;        
         //verifyIfOtpAlreadySent 
@@ -109,22 +128,22 @@ class AccountDeactivateRequestController extends Controller
             $email = $request->user()->email;
             
             $user = \App\Profile\User::where('id', $request->user()->id)->whereNull('deleted_at')->first();
-            if ($user) {  
-                \Mail::raw($text, function ($message) use($user) {
-                    $message->to($user->email, $user->name);
-                    $message->subject('OTP Verification');                
-                });
+            if ($user) { 
+                $email_blade = 'emails.account-deactivated-otp';
+                if($account_mgmt_details['slug'] == 'delete'){
+                    $email_blade = 'emails.account-deleted-otp';
+                }
                 
-                // \Mail::send('emails.verify-mail', $data, function($message)
-                // {
-                //     $message->to($this->user->email, $this->user->name)->subject('Verify your email');
-                // });
+                $deleted_date = Carbon::now()->startOfDay();
+                $deleted_date->addDays(15);
+                $final_date = $deleted_date->format('d M Y');
 
-                // $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
-                // \Log::info('Queueing OTP Email...');    
-                // dispatch($mail);
+                $data = ['name'=>$user->name, 'otp'=>$otpNo, 'date'=>$final_date];
+                Mail::send($email_blade, ["data" => $data], function($message) use($user){
+                    $message->to($user->email, $user->name)->subject('OTP Verification');
+                });
             }
-
+            
             $insert = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "mobile" => $phone, "service" => $service, "source" => $source, "platform" => $request->profile["platform"] ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
             if ($insert) {
                 $this->model = true;
