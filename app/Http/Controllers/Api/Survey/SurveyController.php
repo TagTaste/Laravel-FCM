@@ -178,14 +178,17 @@ class SurveyController extends Controller
 
 
         $final_json = $this->validateSurveyFormJson($request);
+
+        if (!empty($this->errors)) {
+            return $this->sendResponse();
+        }
+
         $is_section = false;   //for section 
         if (isset($final_json[0]["element_type"])  && $final_json[0]["element_type"] == "section") {
             $is_section = true;
         }
 
-        if (!empty($this->errors)) {
-            return $this->sendResponse();
-        }
+
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if ($request->has('company_id')) {
@@ -384,14 +387,15 @@ class SurveyController extends Controller
         }
 
         $final_json = $this->validateSurveyFormJson($request, $id);
+        if (!empty($this->errors)) {
+            return $this->sendResponse();
+        }
         $is_section = false; //for section
         if (isset($final_json[0]["element_type"])  && $final_json[0]["element_type"] == "section") {
             $is_section = true;
         }
 
-        if (!empty($this->errors)) {
-            return $this->sendResponse();
-        }
+
 
 
         $prepData = (object)[];
@@ -1171,31 +1175,38 @@ class SurveyController extends Controller
 
             //for sectioning validation
             foreach ($sectionJson as $key => $values) {
-                if (isset($values["element_type"]) && $values["element_type"] == "section") {
-                    $sectionWiseCount[$key] = count($values["questions"]);
-                    $sectionJson[$key]["id"] = $key + 1;   //assigning ids to sections
-                    $sectionQuesArray = array_merge($sectionQuesArray, $values["questions"]);
-                    $diff = array_diff($sectionNodeChecker, array_keys($values));
+                if (isset($values["element_type"])) {
+                    if ($values["element_type"] == "section") {
 
-                    if (!$key) {   //first time initialization of section type
-                        $section = true;
-                    }
-                    if (!empty($diff)) {
-                        $this->errors["form_json"] = "Not a Valid section json";
-                    } else if ($key && !$section) { //section type false after n no. of iteration 
-                        $section = true;
+                        $diff = array_diff($sectionNodeChecker, array_keys($values));
+
+                        if (!$key) {   //first time initialization of section type
+                            $section = true;
+                        }
+
+                        if (!empty($diff)) {
+                            $this->errors["form_json"] = "Not a Valid section json";
+                        } else if ($key && !$section) { //section type false after n no. of iteration 
+                            $section = true;
+                            $this->errors["form_json"] = "Invalid form Json";
+                        } else {     //if no error
+                            $sectionWiseCount[$key] = count($values["questions"]);
+                            $sectionJson[$key]["id"] = $key + 1;   //assigning ids to sections
+                            $sectionQuesArray = array_merge($sectionQuesArray, $values["questions"]);
+                        }
+                    } else if (($values["element_type"] == "question" && $section)
+                        || ($values["element_type"] == "question" && isset($values["questions"]))
+                    ) {
+                        //if section is true and current iteration element type is question
                         $this->errors["form_json"] = "Invalid form Json";
                     }
-                } else if (isset($values["element_type"]) && $values["element_type"] == "question" && $section) {
-                    //if section is true and current iteration element type is question
-                    $this->errors["form_json"] = "Invalid form Json";
+                    unset($sectionJson[$key]["questions"]);
+                    $sectionJson[$key]["questions"] = [];
                 }
-                unset($sectionJson[$key]["questions"]);
-                $sectionJson[$key]["questions"] = [];
             }
 
             if (!empty($this->errors)) {
-                return $this->sendResponse();
+                return;
             }
 
             //max ques id calculation
