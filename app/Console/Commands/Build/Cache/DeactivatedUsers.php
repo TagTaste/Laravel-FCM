@@ -14,7 +14,7 @@ class DeactivatedUsers extends Command
      * @var string
      */
     protected $signature = 'build:cache:deactivated_users';
-
+    
     /**
      * The console command description.
      *

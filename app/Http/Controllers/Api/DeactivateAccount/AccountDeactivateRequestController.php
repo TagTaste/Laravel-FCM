@@ -113,7 +113,7 @@ class AccountDeactivateRequestController extends Controller
             $text =  "Use OTP ".$otpNo." to verify your TagTaste account.Please DO NOT share OTP with anyone.";
             $country_code = $request->user()->profile->country_code;
             $phone = $request->user()->profile->phone;
-
+            $service = '';
             if($country_code == '+91' || $country_code == '91'){
                 if(!empty($phone)){
                     $service = 'gupshup';
@@ -143,8 +143,8 @@ class AccountDeactivateRequestController extends Controller
                     $message->to($user->email, $user->name)->subject('OTP Verification');
                 });
             }
-            
-            $insert = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "mobile" => $phone, "service" => $service, "source" => $source, "platform" => $request->profile["platform"] ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
+
+            $insert = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "mobile" => $phone ?? '', "service" => $service, "source" => $source, "platform" => $request->profile["platform"] ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
             if ($insert) {
                 $this->model = true;
                 return $this->sendNewResponse();
