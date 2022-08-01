@@ -366,7 +366,7 @@ class LoginController extends Controller
             DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
             $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
             dispatch($deactivate_changes);
-            
+            $user = \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->first();
             $data = ['name'=>$user->name, 'email'=>$user->email];
             Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
                 $message->to($user->email, $user->name)->subject('Account Reactivated');
@@ -374,16 +374,17 @@ class LoginController extends Controller
         }
     }
     
-    public function checkForDeactivationViaOTP(AppUser $user){
-        $user = \App\User::where('email',$user->email)->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
+    public function checkForDeactivationViaOTP(AppUser $userApp){
+        $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
         if (count($user) > 0){
-            \App\User::where('email',$user->email)->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
+            \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
             $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
             Redis:: lrem('deactivated_users', 0, $user[0]);
             DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
             $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
             dispatch($deactivate_changes);
-            
+
+            $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->first();
             $data = ['name'=>$user->name, 'email'=>$user->email];
             Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
                 $message->to($user->email, $user->name)->subject('Account Reactivated');
@@ -391,16 +392,17 @@ class LoginController extends Controller
         }
     }
 
-    public function checkForDeactivationViaSocial(User $user){
-        $user = \App\User::where('email',$user->email)->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
+    public function checkForDeactivationViaSocial(User $userApp){
+        $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
         if (count($user) > 0){
-            \App\User::where('email',$user->email)->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
+            \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
             $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
             Redis:: lrem('deactivated_users', 0, $user[0]);
             DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
             $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
             dispatch($deactivate_changes);
-            
+
+            $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->first();
             $data = ['name'=>$user->name, 'email'=>$user->email];
             Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
                 $message->to($user->email, $user->name)->subject('Account Reactivated');
