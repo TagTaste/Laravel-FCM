@@ -33,7 +33,7 @@
                         width="100%"
                       >
                         <div style="font-size: 18px; font-weight: bold; padding: 0 40px 0 40px">
-                          Your Account Deactivated
+                          Account Deletion Confirmation
                         </div>
                       </td>
                     </tr>

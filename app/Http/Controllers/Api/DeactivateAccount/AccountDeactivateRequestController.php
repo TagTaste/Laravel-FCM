@@ -54,14 +54,14 @@ class AccountDeactivateRequestController extends Controller
         $user_detail = json_encode($user_detail);
         $insert_data = ['profile_id' => $profile_id, 'reason_id' => $reason_id, 'user_detail'=> $user_detail ,'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
         
-        $email_balde = 'email.account-deactivation-confirm';
+        $email_balde = 'emails.account-deactivation-confirm';
         $email_subject = 'Account Deactivated';
         $final_date = '';
         if($account_mgmt_details['slug'] == 'delete'){
             $deleted_date = Carbon::now()->startOfDay();
             $deleted_date->addDays(15);
             $insert_data['deleted_on'] = $deleted_date;
-            $email_balde = 'email.account-deletion-confirm';
+            $email_balde = 'emails.account-deletion-confirm';
             $email_subject = 'Account Deletion';
             $final_date = $deleted_date->format('d M Y');
         }
