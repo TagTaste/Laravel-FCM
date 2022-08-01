@@ -120,7 +120,9 @@ class AccountDeactivateChanges implements ShouldQueue
         ->update(['account_deactivated'=>$this->deactivate]);
         
         //update the landing page
-        DB::table('landing_banner')->whereNull('deleted_at')->where('model_name','polling')->whereIn('model_id',$polls)->update(['deleted_at'=>Carbon::now()]);
+        if($this->deactivate){
+            DB::table('landing_banner')->whereNull('deleted_at')->where('model_name','polling')->whereIn('model_id',$polls)->update(['deleted_at'=>Carbon::now()]);
+        }
 
         //update the neo4j
         $poll_list = Polling::where('profile_id',$this->profile_id)
@@ -154,7 +156,9 @@ class AccountDeactivateChanges implements ShouldQueue
         ->update(['account_deactivated'=>$this->deactivate]);
 
          //update the landing page
-         DB::table('landing_banner')->whereNull('deleted_at')->where('model_name','surveys')->whereIn('model_id',$surveys)->update(['deleted_at'=>Carbon::now()]);
+         if($this->deactivate){
+            DB::table('landing_banner')->whereNull('deleted_at')->where('model_name','surveys')->whereIn('model_id',$surveys)->update(['deleted_at'=>Carbon::now()]);
+         }
 
         //update neo4j
         $survey_list = Surveys::where('profile_id',$this->profile_id)
@@ -187,8 +191,10 @@ class AccountDeactivateChanges implements ShouldQueue
 
 
         //update the landing page
-        DB::table('landing_banner')->whereNull('deleted_at')->whereIn('model_name',['collaborate','product-review'])->whereIn('model_id',$collabs)->update(['deleted_at'=>Carbon::now()]);
-
+        if($this->deactivate){
+            DB::table('landing_banner')->whereNull('deleted_at')->whereIn('model_name',['collaborate','product-review'])->whereIn('model_id',$collabs)->update(['deleted_at'=>Carbon::now()]);
+        }
+        
 
         //update neo4j
         $collab_list = Collaborate::where('profile_id',$this->profile_id)
@@ -215,14 +221,17 @@ class AccountDeactivateChanges implements ShouldQueue
         ->whereNull('company_id')
         ->pluck('id')->toArray();
         
+        
         Payload::where('model','App\Shoutout')->whereIn('model_id',$shoutouts)
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
 
 
          //update the landing page
-         DB::table('landing_banner')->whereNull('deleted_at')->whereIn('model_name','shoutout')->whereIn('model_id',$shoutouts)->update(['deleted_at'=>Carbon::now()]);
-
+         if($this->deactivate){
+            DB::table('landing_banner')->whereNull('deleted_at')->where('model_name','shoutout')->whereIn('model_id',$shoutouts)->update(['deleted_at'=>Carbon::now()]);
+         }
+         
 
         //sharable shoutouts
         $shared_collabs = \DB::table('shoutout_shares')->where('profile_id',$this->profile_id)
