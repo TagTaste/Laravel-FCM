@@ -391,7 +391,7 @@ class LoginController extends Controller
             });
         }
     }
-
+    
     public function checkForDeactivationViaSocial(User $userApp){
         $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
         if (count($user) > 0){
