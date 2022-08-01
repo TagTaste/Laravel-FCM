@@ -118,6 +118,18 @@ class AccountDeactivateChanges implements ShouldQueue
         Payload::where('model','App\Polling')->whereIn('model_id',$polls)
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
+        
+        //update the neo4j
+        $poll_list = Polling::where('profile_id',$this->profile_id)
+        ->whereNull('company_id')
+        ->whereNull('deleted_at')->get();
+        foreach($poll_list as $poll){
+            if($this->deactivate){
+                $poll->removeFromGraph();
+            }else{
+                $poll->addToGraph();
+            }
+        }
 
         //shared polls
         $shared_polls = \DB::table('polling_shares')->where('profile_id',$this->profile_id)
@@ -138,6 +150,18 @@ class AccountDeactivateChanges implements ShouldQueue
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
 
+        //update neo4j
+        $survey_list = Surveys::where('profile_id',$this->profile_id)
+        ->whereNull('company_id')
+        ->whereNull('deleted_at')->get();
+        foreach($survey_list as $survey){
+            if($this->deactivate){
+                $survey->removeFromGraph();
+            }else{
+                $survey->addToGraph();
+            }
+        }
+
         //shared surveys
         $shared_surveys = \DB::table('surveys_shares')->where('profile_id',$this->profile_id)
         ->whereNull('deleted_at')->pluck('id')->toArray(); 
@@ -155,6 +179,18 @@ class AccountDeactivateChanges implements ShouldQueue
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
 
+        //update neo4j
+        $collab_list = Collaborate::where('profile_id',$this->profile_id)
+        ->where('state','!=',2)
+        ->whereNull('company_id')->get();
+        foreach($collab_list as $collab){
+            if($this->deactivate){
+                $collab->removeFromGraph();
+            }else{
+                $collab->addToGraph();
+            }
+        }
+        
         //shared collaborations
         $shared_collabs = \DB::table('collaborate_shares')->where('profile_id',$this->profile_id)
         ->whereNull('deleted_at')->pluck('id')->toArray(); 
