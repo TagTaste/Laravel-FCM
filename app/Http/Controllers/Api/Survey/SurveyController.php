@@ -613,10 +613,22 @@ class SurveyController extends Controller
                 $this->model = ["status" => false];
                 return $this->sendError("Something went wrong");
             }
-
-            $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
             $optionArray = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
 
+            $prepareQuestionJson = [];
+            if ($id->is_section) {    //check if section and make preparequestionjson accdng to that
+                $questionJson = [];
+                $sectionJson = json_decode($id->form_json);
+
+                foreach ($sectionJson as $section) {
+                    if (isset($section->questions)) {
+                        array_merge($questionJson, $section->questions);
+                    }
+                }
+                $prepareQuestionJson = $this->prepQuestionJson(json_encode($questionJson));
+            } else {
+                $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
+            }
 
             $mandateQuestions = [];
             $mandateQuestions =  array_map(function ($v) {
@@ -1153,7 +1165,7 @@ class SurveyController extends Controller
         $decodeJson = (is_array($request->form_json) ? $request->form_json : json_decode($request->form_json, true));
         if (!empty($decodeJson)) {
 
-            $sectionNodeChecker = ["title", "image_meta", "video_meta", "element_type", "description", "id", "questions"];
+            $sectionNodeChecker = ["title", "image_meta", "video_meta", "element_type", "description", "id"];
             //required node for questions    
             $requiredNode = ["question_type", "title", "image_meta", "video_meta", "description", "id", "is_mandatory", "options"];
             //required option nodes
@@ -1189,9 +1201,13 @@ class SurveyController extends Controller
                             $section = true;
                             $this->errors["form_json"] = "Invalid form Json";
                         } else {     //if no error
-                            $sectionWiseCount[$key] = count($values["questions"]);
                             $sectionJson[$key]["id"] = $key + 1;   //assigning ids to sections
-                            $sectionQuesArray = array_merge($sectionQuesArray, $values["questions"]);
+                            $sectionWiseCount[$key] = 0;
+
+                            if (isset($values["questions"])) {
+                                $sectionWiseCount[$key] = count($values["questions"]);
+                                $sectionQuesArray = array_merge($sectionQuesArray, $values["questions"]);
+                            }
                         }
                     } else if (($values["element_type"] == "question" && $section)
                         || ($values["element_type"] == "question" && isset($values["questions"]))
@@ -1208,30 +1224,30 @@ class SurveyController extends Controller
                 return;
             }
 
-            //max ques id calculation
-            $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json","is_section")->first()->toArray();
+           //max ques id calculation
+           $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json","is_section")->first()->toArray();
 
-            $maxQueId = 1;
-            if ($isUpdation) {
-                if (isset($getOldJson["is_section"]) && $getOldJson["is_section"]) {
-                    $oldJsonArray = [];
-                    $getOldJson = $this->prepQuestionJson($getOldJson["form_json"]); //old section array
-                    foreach ($getOldJson as $value) {
-                        if(isset($value["questions"])){
-                        $maxQueId += count($value["questions"]);
-                        $oldJsonArray = array_merge($oldJsonArray, $value["questions"]);
-                        }
-                    }
-                    $oldJsonArray = $this->prepQuestionJson(json_encode($oldJsonArray)); //old questionarray
+           $maxQueId = 1;
+           if ($isUpdation) {
+               if (isset($getOldJson["is_section"]) && $getOldJson["is_section"]) {
+                   $oldJsonArray = [];
+                   $getOldJson = $this->prepQuestionJson($getOldJson["form_json"]); //old section array
+                   foreach ($getOldJson as $value) {
+                       if(isset($value["questions"])){
+                       $maxQueId += count($value["questions"]);
+                       $oldJsonArray = array_merge($oldJsonArray, $value["questions"]);
+                       }
+                   }
+                   $oldJsonArray = $this->prepQuestionJson(json_encode($oldJsonArray)); //old questionarray
 
-                } else {
-                    $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
-                    $listOfQuestionIds = array_keys($oldJsonArray);
+               } else {
+                   $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
+                   $listOfQuestionIds = array_keys($oldJsonArray);
 
-                    $maxQueId = max($listOfQuestionIds);
-                    $maxQueId++;
-                }
-            }
+                   $maxQueId = max($listOfQuestionIds);
+                   $maxQueId++;
+               }
+           }
 
             if ($section) {
                 $decodeJson = $sectionQuesArray;
@@ -2223,5 +2239,41 @@ class SurveyController extends Controller
     public function getFilters($surveyId, Request $request)
     {
         return $this->getFilterParameters($surveyId, $request);
+    }
+
+    public function getAnswers($surveyId)
+    {
+        $getSurvey = Surveys::where("id", "=", $surveyId)->where("is_active", "=", 1)->first();
+
+        $this->model = false;
+        $this->messages = "Survey Doesn't Exists";
+        if (empty($getSurvey)) {
+            $this->errors = ["Survey Doesn't Exists"];
+            return $this->sendResponse();
+        }
+
+        $survey =  Surveys::where("id", $surveyId)->select("form_json", "is_section")->first();
+        $form_json = json_decode($survey->form_json);
+        if ($survey->is_section) {
+            foreach ($form_json as &$section) {
+                if (isset($section->questions)) {
+                    foreach ($section->questions as &$question) {
+                        $answer =  SurveyAnswers::select("option_id", "image_meta", "video_meta", "option_type", "answer_value as value")
+                            ->where("survey_id", $surveyId)
+                            ->where("question_id", $question->id)
+                            ->where("profile_id", request()->user()->profile->id)->get()->toArray();
+                            
+                        if (!count($answer) && $question->is_mandatory) {
+                            break 2;
+                        } elseif(count($answer)) {
+                            $question->answer_value = $answer;
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->model[] = $form_json;
+        return $this->sendResponse();
     }
 }
