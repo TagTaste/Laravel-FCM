@@ -925,9 +925,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("/{id}/getRejectApplicants", "SurveyApplicantController@getRejectApplicants"); //->middleware('permissionCollaborate');
         Route::post('/{id}/shortlistApplicant', 'SurveyApplicantController@shortlistApplicant')->middleware('manage.permission');
         Route::get("/{id}/getInvitedApplicants", "SurveyApplicantController@getInvitedApplicants"); //->middleware('permissionCollaborate');
-        Route::get('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission'); 
+        Route::get('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission');
+        Route::get('/{id}/answers', 'SurveyController@getAnswers');
 
-        
     });
 
     Route::get('/uploadQuestion/{id}/{question_id}', function ($id, $question_id) {

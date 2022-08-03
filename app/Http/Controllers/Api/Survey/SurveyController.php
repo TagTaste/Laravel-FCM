@@ -1210,20 +1210,22 @@ class SurveyController extends Controller
             }
 
             //max ques id calculation
+            $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json","is_section")->first()->toArray();
+
             $maxQueId = 1;
             if ($isUpdation) {
-                if ($section) {
-                    $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json")->first()->toArray();
+                if (isset($getOldJson["is_section"]) && $getOldJson["is_section"]) {
                     $oldJsonArray = [];
                     $getOldJson = $this->prepQuestionJson($getOldJson["form_json"]); //old section array
                     foreach ($getOldJson as $value) {
+                        if(isset($value["questions"])){
                         $maxQueId += count($value["questions"]);
                         $oldJsonArray = array_merge($oldJsonArray, $value["questions"]);
+                        }
                     }
                     $oldJsonArray = $this->prepQuestionJson(json_encode($oldJsonArray)); //old questionarray
 
                 } else {
-                    $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json")->first()->toArray();
                     $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
                     $listOfQuestionIds = array_keys($oldJsonArray);
 
