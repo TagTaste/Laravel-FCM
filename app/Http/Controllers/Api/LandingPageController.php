@@ -132,13 +132,14 @@ class LandingPageController extends Controller
             $limit = 20;
         }
         $profileId = $request->user()->profile->id;
-
+        
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $payloads =  Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
             ->whereNull('subscribers.deleted_at')
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
+            ->where('channel_payloads.account_deactivated',0)
             ->orderBy('channel_payloads.created_at', 'desc')
             ->skip(0)
             ->take($limit)
