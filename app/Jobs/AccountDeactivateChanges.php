@@ -148,14 +148,13 @@ class AccountDeactivateChanges implements ShouldQueue
         Payload::where('model','App\Shareable\Polling')->whereIn('model_id',$shared_polls)
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
-        
-        
+
         //surveys
         $surveys = Surveys::where('profile_id',$this->profile_id)
         ->whereNull('company_id')
         ->whereNull('deleted_at')
         ->pluck('payload_id')->toArray();
-        
+
         Payload::where('model','App\Surveys')->whereIn('id',$surveys)
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
@@ -176,7 +175,7 @@ class AccountDeactivateChanges implements ShouldQueue
                 $survey->addToGraph();
             }
         }
-
+        
         //shared surveys
         $shared_surveys = \DB::table('surveys_shares')->where('profile_id',$this->profile_id)
         ->whereNull('deleted_at')->pluck('id')->toArray(); 
