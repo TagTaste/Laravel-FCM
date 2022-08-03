@@ -133,13 +133,14 @@ class LandingPageController extends Controller
             $limit = 20;
         }
         $profileId = $request->user()->profile->id;
-
+        
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $payloads =  Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
             ->whereNull('subscribers.deleted_at')
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
+            ->where('channel_payloads.account_deactivated',0)
             ->orderBy('channel_payloads.created_at', 'desc')
             ->skip(0)
             ->take($limit)
@@ -231,7 +232,8 @@ class LandingPageController extends Controller
             // $ids = DB::table("collaborate_applicants")->where("profile_id", $profileId)->pluck("collaborate_id")->toArray();
             $carouseldata = Collaborate::where('state', '=', 1)
                 ->whereNotIn('id', $ids)
-                ->where('collaborate_type', '=', $model)
+                ->where('collaborate_type','=',$model)
+                ->where('account_deactivated',0)
                 ->whereNull('deleted_at')
                 ->where('profile_id', '<>', $profileId)
                 ->where(function ($query) use ($companyIds) {
@@ -254,6 +256,7 @@ class LandingPageController extends Controller
                 ->where('state', '=', 2)
                 ->where('is_active', '=', 1)
                 ->where('profile_id', '<>', $profileId)
+                ->where('account_deactivated',0)
                 ->whereNotIn("id", $ids)
                 ->orderBy('created_at', 'desc')
                 ->take(10)->pluck('id')->toArray();
@@ -370,7 +373,8 @@ class LandingPageController extends Controller
                 ->where('profile_id', '<>', $profileId)
                 ->whereNotIn('id', $ids)
                 ->whereNull('deleted_at')
-                ->whereIn('company_id', [config("constant.TAGTASTE_POLL_COMPANY_ID")])
+                ->where('account_deactivated',0)
+                ->whereIn('company_id',[config("constant.TAGTASTE_POLL_COMPANY_ID")])
                 ->orderBy('created_at', 'desc')
                 ->take(10)->pluck('id')->toArray();
         } else {
@@ -380,8 +384,9 @@ class LandingPageController extends Controller
                 ->pluck('poll_id')->toArray();
 
             $carouseldata = Polling::where('is_expired', 0)
-                ->where('profile_id', '<>', $profileId)
-                ->whereNotIn('id', $ids)
+                ->where('profile_id', '<>', $profileId)  
+                ->where('account_deactivated',0)
+                ->whereNotIn('id',$ids)
                 ->whereNull('deleted_at')
                 ->where(function ($query) {
                     $query->whereNotIn('company_id', [config("constant.TAGTASTE_POLL_COMPANY_ID")])
@@ -421,6 +426,7 @@ class LandingPageController extends Controller
         $carouseldata = Polling::join('poll_votes', 'poll_votes.poll_id', 'poll_questions.id')
             ->where('poll_votes.profile_id', $profileId)
             ->where('poll_questions.is_expired', 1)
+            ->where('poll_questions.account_deactivated',0)
             ->whereNull('poll_votes.deleted_at')
             ->whereNull('poll_questions.deleted_at')
             ->where('poll_questions.expired_time', '>=', Carbon::now()->subDays(7)->toDateTimeString())
@@ -1039,10 +1045,11 @@ class LandingPageController extends Controller
             ->distinct('batch_id')
             ->pluck('batch_id')->toArray();
 
-        $reviewCount = BatchAssign::join('collaborates', 'collaborate_batches_assign.collaborate_id', '=', 'collaborates.id')
-            ->where('collaborate_batches_assign.begin_tasting', 1)
-            ->where('collaborates.state', 1)
-            ->where('collaborate_batches_assign.profile_id', $profileId)
+        $reviewCount = BatchAssign::join('collaborates','collaborate_batches_assign.collaborate_id','=','collaborates.id')
+            ->where('collaborate_batches_assign.begin_tasting',1)
+            ->where('collaborates.state',1)
+            ->where('collaborates.account_deactivated',0)
+            ->where('collaborate_batches_assign.profile_id',$profileId)
             ->whereNotIn('collaborate_batches_assign.batch_id', $completeBatch)
             ->distinct('collaborate_batches_assign.batch_id')
             ->pluck('collaborate_batches_assign.batch_id')->count();

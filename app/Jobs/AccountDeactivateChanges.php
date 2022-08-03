@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Channel\Payload;
 use App\Collaborate;
+use App\Photo;
 use App\Polling;
 use App\Recipe\Profile;
 use App\Shoutout;
@@ -95,6 +96,10 @@ class AccountDeactivateChanges implements ShouldQueue
         ->where('account_deactivated',!$this->deactivate)
         ->whereNull('company_id')->whereNull('deleted_at')->update(['account_deactivated'=>$this->deactivate]);
 
+        //Photos
+        $photo_id_list = DB::table('profile_photos')->where('profile_id',$this->profile_id)->pluck('photo_id')->toArray();
+        $photos = Photo::whereIn('id',$photo_id_list)->where('account_deactivated',!$this->deactivate)->whereNull('deleted_at')->update(['account_deactivated'=>$this->deactivate]);
+        
     }
 
     function update_elastic_search(){
@@ -123,7 +128,7 @@ class AccountDeactivateChanges implements ShouldQueue
         if($this->deactivate){
             DB::table('landing_banner')->whereNull('deleted_at')->where('model_name','polling')->whereIn('model_id',$polls)->update(['deleted_at'=>Carbon::now()]);
         }
-
+        
         //update the neo4j
         $poll_list = Polling::where('profile_id',$this->profile_id)
         ->whereNull('company_id')
@@ -135,7 +140,7 @@ class AccountDeactivateChanges implements ShouldQueue
                 $poll->addToGraph();
             }
         }
-
+        
         //shared polls
         $shared_polls = \DB::table('polling_shares')->where('profile_id',$this->profile_id)
         ->whereNull('deleted_at')->pluck('id')->toArray();        
@@ -143,15 +148,14 @@ class AccountDeactivateChanges implements ShouldQueue
         Payload::where('model','App\Shareable\Polling')->whereIn('model_id',$shared_polls)
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
-        
 
         //surveys
         $surveys = Surveys::where('profile_id',$this->profile_id)
         ->whereNull('company_id')
         ->whereNull('deleted_at')
-        ->pluck('id')->toArray();
+        ->pluck('payload_id')->toArray();
 
-        Payload::where('model','App\Surveys')->whereIn('model_id',$surveys)
+        Payload::where('model','App\Surveys')->whereIn('id',$surveys)
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
 
@@ -171,7 +175,7 @@ class AccountDeactivateChanges implements ShouldQueue
                 $survey->addToGraph();
             }
         }
-
+        
         //shared surveys
         $shared_surveys = \DB::table('surveys_shares')->where('profile_id',$this->profile_id)
         ->whereNull('deleted_at')->pluck('id')->toArray(); 
@@ -189,7 +193,7 @@ class AccountDeactivateChanges implements ShouldQueue
         ->where('account_deactivated',!$this->deactivate)
         ->update(['account_deactivated'=>$this->deactivate]);
 
-
+        
         //update the landing page
         if($this->deactivate){
             DB::table('landing_banner')->whereNull('deleted_at')->whereIn('model_name',['collaborate','product-review'])->whereIn('model_id',$collabs)->update(['deleted_at'=>Carbon::now()]);
@@ -232,13 +236,31 @@ class AccountDeactivateChanges implements ShouldQueue
             DB::table('landing_banner')->whereNull('deleted_at')->where('model_name','shoutout')->whereIn('model_id',$shoutouts)->update(['deleted_at'=>Carbon::now()]);
          }
          
-
-        //sharable shoutouts
-        $shared_collabs = \DB::table('shoutout_shares')->where('profile_id',$this->profile_id)
-        ->whereNull('deleted_at')->pluck('id')->toArray();     
-        Payload::where('model','App\Shareable\Shoutout')->whereIn('model_id',$shared_collabs)
-        ->where('account_deactivated',!$this->deactivate)
-        ->update(['account_deactivated'=>$this->deactivate]);       
         
+        //sharable shoutouts
+        $shared_shoutouts = DB::table('shoutout_shares')->where('profile_id',$this->profile_id)
+        ->whereNull('deleted_at')->pluck('id')->toArray();     
+        Payload::where('model','App\Shareable\Shoutout')->whereIn('model_id',$shared_shoutouts)
+        ->where('account_deactivated',!$this->deactivate)
+        ->update(['account_deactivated'=>$this->deactivate]);    
+        
+        
+        //Photos
+        $photo_id_list = DB::table('profile_photos')->where('profile_id',$this->profile_id)->pluck('photo_id')->toArray();
+        $photos = Photo::whereIn('id',$photo_id_list)->whereNull('deleted_at')->pluck('id')->toArray();
+
+        Payload::whereIn('model',['App\Photos','App\V2\Photo'])->whereIn('id', $photos)->where('account_deactivated',!$this->deactivate)->update(['account_deactivated'=>$this->deactivate]);
+        
+        
+         //sharable photos
+         $shared_photos = DB::table('photo_shares')->where('profile_id',$this->profile_id)
+         ->whereNull('deleted_at')->pluck('payload_id')->toArray();
+         Payload::where('model','App\Shareable\Photo')->whereIn('id',$shared_photos)->where('account_deactivated',!$this->deactivate)->update(['account_deactivated'=>$this->deactivate]);  
+         
+         //shared products
+         $shared_products = DB::table('public_review_product_shares')->where('profile_id',$this->profile_id)
+         ->whereNull('deleted_at')->pluck('payload_id')->toArray();
+         Payload::where('model','App\Shareable\Product')->whereIn('id',$shared_products)->where('account_deactivated',!$this->deactivate)->update(['account_deactivated'=>$this->deactivate]);  
+
     }
 }
