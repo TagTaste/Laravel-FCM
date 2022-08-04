@@ -489,7 +489,7 @@ class Profile extends Model
         }
         return $profiles;
     }
-
+    
 
 
     public function user()
