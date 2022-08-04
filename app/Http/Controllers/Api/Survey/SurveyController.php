@@ -1169,7 +1169,9 @@ class SurveyController extends Controller
             $counter++;
         }
 
-
+        if(!$checkIFExists["is_section"]){  //for normal survey
+            $getJson = $prepareNode;
+        }
 
         $this->messages = "Report Successful";
         $this->model = $getJson;
