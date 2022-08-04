@@ -494,9 +494,14 @@ class ProfileController extends Controller
     public function followers(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-
+        
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:" . $id);
+
+        $deac_profiles = User::join('profiles','users.id','=','profiles.user_id')->whereNull('users.deleted_at')->where('users.account_deactivated',1)->pluck('profiles.id')->toArray();
+
+        $profileIds = array_diff($profileIds, $deac_profiles);
+
         $count = count($profileIds);
         if ($count > 0 && Redis::sIsMember("followers:profile:" . $id, $id)) {
             $count = $count - 1;
@@ -506,7 +511,7 @@ class ProfileController extends Controller
 
         $page = $request->has('page') ? $request->input('page') : 1;
         $profileIds = array_slice($profileIds, ($page - 1) * 20, 20);
-
+        
         foreach ($profileIds as $key => $value) {
             if ($id == $value) {
                 unset($profileIds[$key]);
