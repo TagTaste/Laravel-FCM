@@ -360,7 +360,8 @@ class SurveyApplicantController extends Controller
         $applicationStatus = [
             'To Be Notified',
             'Notified',
-            'Completed'
+            'Completed',
+            'In Progress'
         ];
         $city = [];
         $profile = [];

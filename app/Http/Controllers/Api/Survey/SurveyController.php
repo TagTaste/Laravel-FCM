@@ -1183,6 +1183,7 @@ class SurveyController extends Controller
             $sectionQuesArray = []; //question json array from form_json
             $sectionWiseCount = [];  //section wise question count
             $sectionJson = $decodeJson;    //form_json response  of section
+            $sectionKeyArray = [];  //keys of sections that is having questions
 
             //for sectioning validation
             foreach ($sectionJson as $key => $values) {
@@ -1202,11 +1203,12 @@ class SurveyController extends Controller
                             $this->errors["form_json"] = "Invalid form Json";
                         } else {     //if no error
                             $sectionJson[$key]["id"] = $key + 1;   //assigning ids to sections
-                            $sectionWiseCount[$key] = 0;
-
                             if (isset($values["questions"])) {
+                                $sectionKeyArray[] = $key;
                                 $sectionWiseCount[$key] = count($values["questions"]);
                                 $sectionQuesArray = array_merge($sectionQuesArray, $values["questions"]);
+                                unset($sectionJson[$key]["questions"]);
+                                $sectionJson[$key]["questions"] = [];
                             }
                         }
                     } else if (($values["element_type"] == "question" && $section)
@@ -1215,8 +1217,7 @@ class SurveyController extends Controller
                         //if section is true and current iteration element type is question
                         $this->errors["form_json"] = "Invalid form Json";
                     }
-                    unset($sectionJson[$key]["questions"]);
-                    $sectionJson[$key]["questions"] = [];
+                   
                 }
             }
 
@@ -1335,14 +1336,13 @@ class SurveyController extends Controller
                 }
                 //assigning modified question value to section response
                 if ($section) {
-                    if (count($sectionJson[$count]["questions"]) < $sectionWiseCount[$count]) {
-                        $sectionJson[$count]["questions"][] = $values;
+                    if (count($sectionJson[$sectionKeyArray[$count]]["questions"]) < $sectionWiseCount[$sectionKeyArray[$count]]) {
+                        $sectionJson[$sectionKeyArray[$count]]["questions"][] = $values;
                     } else {
                         $count++;
-                        $sectionJson[$count]["questions"][] = $values;
+                        $sectionJson[$sectionKeyArray[$count]]["questions"][] = $values;
                     }
                 }
-                //        print_r($sectionJson[$count]["questions"]);
             }
             // echo '<pre>'; print_r($decodeJson); echo '</pre>';
 
