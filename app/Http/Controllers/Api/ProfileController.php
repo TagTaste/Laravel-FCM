@@ -695,8 +695,7 @@ class ProfileController extends Controller
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \App\Recipe\Profile::select('profiles.*')->join('users', 'profiles.user_id', '=', 'users.id')
-        ->where('users.account_deactivated',0)
-        ->where('users.name', 'like', "%$query%")
+        ->where('users.account_deactivated',0)->where('users.name', 'like', "%$query%")
             ->whereIn('profiles.id', $profileIds)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();

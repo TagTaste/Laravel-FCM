@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Redis;
 class Profile extends Model
 {
     use PushesToChannel, Notifiable, SoftDeletes;
-
+    
     protected $fillable = [
         'tagline', 'about', 'image', 'hero_image', 'phone', 'country_code', 'address', 'dob', 'interests', 'website_url',
         'blog_url', 'facebook_url', 'linkedin_url', 'instagram_link', 'pinterest_url', 'twitter_url', 'google_url', 'other_links',
@@ -160,7 +160,7 @@ class Profile extends Model
             $profile->removeFromCache();
         });
     }
-
+    
     public function addToCache()
     {
         $smallProfile = \App\Recipe\Profile::find($this->id);
@@ -496,7 +496,7 @@ class Profile extends Model
     {
         return $this->belongsTo('App\User');
     }
-
+    
     public function getAccountDeactivatedAttribute(){
         return $this->user->account_deactivated;
     }
