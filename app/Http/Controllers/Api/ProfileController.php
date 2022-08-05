@@ -686,7 +686,7 @@ class ProfileController extends Controller
         $this->model['profile'] = $data;
         return $this->sendResponse();
     }
-
+    
     public function tagging(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;

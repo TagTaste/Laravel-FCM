@@ -44,8 +44,15 @@ class DeleteUser extends Command
                     $profile = \App\Profile::Where('id',$mData->profile_id)->withTrashed()->first();
                     $user = \App\User::where('id', $profile->user_id)->first();
                     $new_email = $user['email'].'_deleted';
-                    \App\User::where('id',$profile->user_id)->update(['name'=>'Deleted User','email'=>$new_email,'deleted_at'=>Carbon::now()]);
+                    \App\User::where('id',$profile->user_id)->update(['name'=>'Deleted User','email'=>$new_email]);
+                    \App\Profile::where('id',$profile->id)->update(['phone'=>'','verified_phone'=>0]);
+                                        
+                    //update redis
+                    $profile->addToCache();
+                    $profile->addToCacheV2();       
+                    \App\User::where('id',$profile->user_id)->update(['deleted_at'=>Carbon::now()]);
                     DB::table('account_deactivate_requests')->where('id', $mData->id)->update(['deleted_at'=>Carbon::now()]);         
+                    echo "Deleting profile id: ".$profile->id;
                 }
             });
     }
