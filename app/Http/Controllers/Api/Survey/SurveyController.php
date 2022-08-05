@@ -1534,13 +1534,32 @@ class SurveyController extends Controller
         $colorCodeList = $this->colorCodeList;
 
         $prepareNode = ["reports" => []];
-
-        $getJson = json_decode($checkIFExists["form_json"], true);
-        $counter = 0;
         $rankMapping = [];
         $optionValues = [];
 
-        foreach ($getJson as $values) {
+        $getJsonQues = [];
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $sectionQuesCount = [];
+        $sectionKeys = [];
+        $sectionKey = 0;
+
+        if ($checkIFExists["is_section"]) {         //for section type form_json
+
+            foreach ($getJson as $key => $section) {
+                if (isset($section["questions"]) && count($section["questions"])) {
+                    $sectionQuesCount[$key] = count($section["questions"]);
+                    $sectionKeys[] = $key;
+                    $getJsonQues = array_merge($getJsonQues, $section["questions"]);
+                    $getJson[$key]["questions"] = [];
+                }
+            }
+        } else {
+            $getJsonQues = $getJson;
+        }
+
+        $counter = 0;
+
+        foreach ($getJsonQues as $values) {
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->get();
 
@@ -1702,12 +1721,29 @@ class SurveyController extends Controller
                     $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
                 }
             }
+
+             //for sections having questions 
+             if ($checkIFExists["is_section"] && count($sectionKeys)) {  
+
+                if (count($getJson[$sectionKeys[$sectionKey]]["questions"]) < $sectionQuesCount[$sectionKeys[$sectionKey]]) {
+                    $getJson[$sectionKeys[$sectionKey]]["questions"][] = $prepareNode["reports"][$counter];
+                } else {
+                    $sectionKey++;
+                    $getJson[$sectionKeys[$sectionKey]]["questions"][] = $prepareNode["reports"][$counter];
+                }
+            }
+            //
+
             $answers = [];
             $counter++;
         }
 
+        if(!$checkIFExists["is_section"]){  //for normal survey
+            $getJson = $prepareNode;
+        }
+
         $this->messages = "Report Successful";
-        $this->model = $prepareNode;
+        $this->model = $getJson;
         return $this->sendResponse();
     }
 
