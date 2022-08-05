@@ -38,7 +38,7 @@ class SuperAdminMail implements ShouldQueue
         $data = $this->old_super_admin;
         $data['new_super_admin_url'] = Deeplink::getShortLink('profile',$data['new_super_admin_id']);
         //mail to old super admin
-        Mail::send('emails.super-admin-access', ["data" => $data], function($message) use($data){
+        Mail::send('emails.super-admin-access-transferred', ["data" => $data], function($message) use($data){
             $message->to($data['email'], $data['name'])->subject('Super admin access transferred');
         });
         
@@ -46,7 +46,7 @@ class SuperAdminMail implements ShouldQueue
         $data['old_super_admin_url'] = Deeplink::getShortLink('profile',$data['old_super_admin_id']);
         $data['company_url'] = Deeplink::getShortLink('company',$data['company_id']);
         //mail to new super admin
-        Mail::send('emails.super-admin-user', ["data" => $data], function($message) use($data){
+        Mail::send('emails.super-admin-user-recieved', ["data" => $data], function($message) use($data){
             $message->to($data['email'], $data['name'])->subject('Super admin access');
         });       
     }

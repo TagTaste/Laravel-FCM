@@ -161,7 +161,7 @@ class CompanyController extends Controller {
             
             $image = json_decode($profile->image_meta)->original_photo ?? '';
             $old_super_admin_data = ['name'=>$request->user()->name, 'email'=>$request->user()->email, 'new_super_admin'=>$new_super_admin->name, 'image'=>$image,'company_name'=>$company->name,'new_super_admin_id'=>$profile->id];
-              
+            
             $image = json_decode($company->logo_meta)->original_photo ?? '';
             $new_super_admin_data = ['name'=>$new_super_admin->name, 'email'=>$new_super_admin->email,'old_super_admin'=>$request->user()->name,'company_name'=>$company->name,'image'=>$image,'old_super_admin_id'=>$request->user()->profile->id,'company_id'=>$company->id];
 
