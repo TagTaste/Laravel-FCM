@@ -1170,11 +1170,18 @@ class SurveyController extends Controller
         }
 
         if(!$checkIFExists["is_section"]){  //for normal survey
-            $getJson = $prepareNode;
+            $this->model = $prepareNode;
+
+        }
+        else{
+            $finalRespnse =[];
+            $finalRespnse["reports"]= $getJson;
+            $finalRespnse["answer_count"] = $prepareNode["answer_count"];
+            $this->model = $finalRespnse;
+
         }
 
         $this->messages = "Report Successful";
-        $this->model = $getJson;
         return $this->sendResponse();
     }
 
@@ -1739,11 +1746,18 @@ class SurveyController extends Controller
         }
 
         if(!$checkIFExists["is_section"]){  //for normal survey
-            $getJson = $prepareNode;
+            $this->model = $prepareNode;
+
+        }
+        else{
+            $finalRespnse =[];
+            $finalRespnse["reports"]= $getJson;
+            $finalRespnse["answer_count"] = $prepareNode["answer_count"];
+            $this->model = $finalRespnse;
+
         }
 
         $this->messages = "Report Successful";
-        $this->model = $getJson;
         return $this->sendResponse();
     }
 
