@@ -55,15 +55,21 @@ class AccountDeactivateRequestController extends Controller
         $insert_data = ['profile_id' => $profile_id, 'reason_id' => $reason_id, 'user_detail'=> $user_detail ,'account_management_id' => $account_mgmt_id, 'value' => $value, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
         
         $email_balde = 'emails.account-deactivation-confirm';
-        $email_subject = 'Account Deactivated';
+        $email_subject = 'TagTaste account deactivated';
         $final_date = '';
+        $success_msg = 'Your account is deactivated as per your request. To reactivate your account, login with your email and you are good to go.
+        
+        We hope you come back soon.';
         if($account_mgmt_details['slug'] == 'delete'){
             $deleted_date = Carbon::now()->startOfDay();
             $deleted_date->addDays(15);
             $insert_data['deleted_on'] = $deleted_date;
             $email_balde = 'emails.account-deletion-confirm';
-            $email_subject = 'Account Deletion';
+            $email_subject = 'TagTaste account delete confirmation';
             $final_date = $deleted_date->format('d M Y');
+            $success_msg = 'Your account is scheduled for permanent deletion.
+            
+            If you log in to TagTaste within the next 15 days, your deletion request will automatically be cancelled and you can continue using TagTaste.';
         }
         $data = AccountDeactivateRequests::insert($insert_data);
         
@@ -85,7 +91,7 @@ class AccountDeactivateRequestController extends Controller
                 $message->to($user->email, $user->name)->subject($email_subject);
             });
 
-            return $this->sendNewResponse(['title'=>'Your account is deactivated as per your request. Your account will be hidden from the TagTaste community. You will not receive any notification or update until you log in with the same email.', 'sub_title'=>'','description'=>'']);
+            return $this->sendNewResponse(['title'=>$success_msg, 'sub_title'=>'','description'=>'']);
         }else{
             return $this->sendNewError("Something went wrong. Please try again.");
         }
@@ -130,8 +136,10 @@ class AccountDeactivateRequestController extends Controller
             $user = \App\Profile\User::where('id', $request->user()->id)->whereNull('deleted_at')->first();
             if ($user) { 
                 $email_blade = 'emails.account-deactivated-otp';
+                $subject = 'TagTaste account deactivation request';
                 if($account_mgmt_details['slug'] == 'delete'){
                     $email_blade = 'emails.account-deleted-otp';
+                    $subject = 'TagTaste account deletion request';
                 }
                 
                 $deleted_date = Carbon::now()->startOfDay();
@@ -139,8 +147,8 @@ class AccountDeactivateRequestController extends Controller
                 $final_date = $deleted_date->format('d M Y');
 
                 $data = ['name'=>$user->name, 'otp'=>$otpNo, 'date'=>$final_date];
-                Mail::send($email_blade, ["data" => $data], function($message) use($user){
-                    $message->to($user->email, $user->name)->subject('OTP Verification');
+                Mail::send($email_blade, ["data" => $data], function($message) use($user, $subject){
+                    $message->to($user->email, $user->name)->subject($subject);
                 });
             }
 

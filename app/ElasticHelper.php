@@ -13,7 +13,7 @@ class ElasticHelper
         } else {
             $query = $query;
         }
-
+        
         switch($type){
             case "company":
                 $fields = ['name^3','cuisines^1','speciality^1','about^2'];

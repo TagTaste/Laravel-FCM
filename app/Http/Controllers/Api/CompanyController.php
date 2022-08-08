@@ -132,7 +132,7 @@ class CompanyController extends Controller {
             }
         }
     }
-
+    
     function update_ownership(Request $request, $id){
         $company = Company::where('id',$id)->whereNull('deleted_at')->first();
         if(empty($company)){
@@ -140,7 +140,7 @@ class CompanyController extends Controller {
         }
         
         if($company->user_id != $request->user()->id){
-            return $this->sendNewError('You are not allowed to change ownership of this company.');
+            return $this->sendNewError('You are not allowed to change the ownership of this company.');
         }
 
         //new superadmin profile id
@@ -170,6 +170,6 @@ class CompanyController extends Controller {
 
             return $this->sendNewResponse(true);
         }else{
-            return $this->sendNewError('Error while updation. Please try again.');        }
+            return $this->sendNewError('Something went wrong. Please try again.');        }
     }
 }
