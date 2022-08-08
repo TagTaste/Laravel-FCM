@@ -1752,7 +1752,6 @@ class SurveyController extends Controller
         else{
             $finalRespnse =[];
             $finalRespnse["reports"]= $getJson;
-            $finalRespnse["answer_count"] = $prepareNode["answer_count"];
             $this->model = $finalRespnse;
 
         }
