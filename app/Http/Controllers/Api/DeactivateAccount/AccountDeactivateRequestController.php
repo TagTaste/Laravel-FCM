@@ -57,9 +57,7 @@ class AccountDeactivateRequestController extends Controller
         $email_balde = 'emails.account-deactivation-confirm';
         $email_subject = 'TagTaste account deactivated';
         $final_date = '';
-        $success_msg = 'Your account is deactivated as per your request. To reactivate your account, login with your email and you are good to go.
-        
-        We hope you come back soon.';
+        $success_msg = 'Your account is deactivated as per your request. To reactivate your account, login with your email and you are good to go.\n\nWe hope you come back soon.';
         if($account_mgmt_details['slug'] == 'delete'){
             $deleted_date = Carbon::now()->startOfDay();
             $deleted_date->addDays(15);
@@ -67,9 +65,7 @@ class AccountDeactivateRequestController extends Controller
             $email_balde = 'emails.account-deletion-confirm';
             $email_subject = 'TagTaste account delete confirmation';
             $final_date = $deleted_date->format('d M Y');
-            $success_msg = 'Your account is scheduled for permanent deletion.
-            
-            If you log in to TagTaste within the next 15 days, your deletion request will automatically be cancelled and you can continue using TagTaste.';
+            $success_msg = 'Your account is scheduled for permanent deletion.\n\nIf you log in to TagTaste within the next 15 days, your deletion request will automatically be cancelled and you can continue using TagTaste.';
         }
         $data = AccountDeactivateRequests::insert($insert_data);
         
