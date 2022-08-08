@@ -47,7 +47,7 @@ class AccountManagementOptionController extends Controller
         if($account_mgmt_details['slug'] == 'delete'){
             $description = 'Deleting your account will delete your profile and your profile details like your name, photos, comments, etc will no longer be visible on the platform.';
         }
-
+        
         $overvire_obj = ['title'=>$request->user()->profile->name.', we’re sorry to see you go…', 'description'=>$description, 'ui_type'=>'card'];
 
         //get passbook activity
