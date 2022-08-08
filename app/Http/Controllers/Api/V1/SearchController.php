@@ -1597,7 +1597,7 @@ class SearchController extends Controller
 
     private function getModelsForSeeAll($type, $ids = [], $filters = [], $skip, $take)
     {
-
+        
         if (empty($ids) && $this->isSearched) {
             return false;
         }
@@ -1614,14 +1614,14 @@ class SearchController extends Controller
                 $ids = count($ids) ? array_intersect($ids, $modelIds->toArray()) : $modelIds->toArray();
                 if (count($ids)) {
                     $placeholders = implode(',', array_fill(0, count($ids), '?'));
-                    $model = $model::whereIn('id', $ids);
+                    $model = $model::whereIn('id', $ids)->where('account_deactivated',0);
 
                     if ($type == 'product-review') {
-                        $model = $model->where('collaborate_type', 'product-review')->where("state", 1)->where('step', 3);
+                        $model = $model->where('collaborate_type', 'product-review')->where("state", 1)->where('step', 3)->where('account_deactivated',0);
                     } else if ($type == 'collaborate') {
-                        $model = $model->where('collaborate_type', "<>", 'product-review')->where("state",1);
+                        $model = $model->where('collaborate_type', "<>", 'product-review')->where("state",1)->where('account_deactivated',0);
                     }
-                    return $model->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
+                    return $model->whereNull('deleted_at')->where('account_deactivated',0)->orderByRaw("field(id,{$placeholders})", $ids)->skip($skip)->take($take)->get();
                 } else {
                     return false;
                 }
@@ -1631,8 +1631,10 @@ class SearchController extends Controller
         }
 
         $deleted_at = 'deleted_at';
+        $account_deactivated = 'account_deactivated';
         if ($type == 'polls') {
             $deleted_at = "poll_questions.deleted_at";
+            $account_deactivated = 'poll_questions.account_deactivated';
         }
         $idCol = 'id';
         $cr_at = 'created_at';
@@ -1642,44 +1644,43 @@ class SearchController extends Controller
         }
         if (count($ids)) {
             if ($type == 'collaborate' || $type == 'product-review') {
-                $model = $model::whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
+                $model = $model::whereNull('deleted_at')->where('account_deactivated',0)->orderByRaw("field(id,{$placeholders})", $ids);
                 if ($type == "product-review") {
-                    $model = $model->where('step', 3);
+                    $model = $model->where('step', 3)->where('account_deactivated',0);
                 }
             } else {
-
-                $model = $model->whereNull($deleted_at)->orderByRaw("field(" . $idCol . ",{$placeholders})", $ids);
+                $model = $model->whereNull($deleted_at)->where('account_deactivated',0)->orderByRaw("field(" . $idCol . ",{$placeholders})", $ids);
             }
         } else {
 
             if ($type == "product-review") {
-                $model = $model->where('step', 3);
+                $model = $model->where('step', 3)->where($account_deactivated,0);
             }
-            $model = $model->whereNull($deleted_at);
+            $model = $model->whereNull($deleted_at)->where($account_deactivated,0);
         }
         if (!empty($ids)) {
-            $model = $model->whereIn($idCol, $ids);
+            $model = $model->whereIn($idCol, $ids)->where('account_deactivated',0);
         }
 
         if ($type == 'polls') {
             if (request()->has('participated')) {
                 if (request()->participated == "true") {
-                    $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id')->where("poll_votes.profile_id", request()->user()->profile->id)->select("poll_questions.*");
+                    $model = $model->join("poll_votes", "poll_votes.poll_id", "=", 'poll_questions.id')->where("poll_votes.profile_id", request()->user()->profile->id)->where($account_deactivated,0)->select("poll_questions.*");
                 }
             }
         }
 
         if ($type == 'product-review') {
-            $model = $model->where('collaborate_type', 'product-review')->where("state", 1);
+            $model = $model->where('collaborate_type', 'product-review')->where("state", 1)->where('account_deactivated',0);
         } else if ($type == 'collaborate') {
-            $model = $model->where('collaborate_type', "<>", 'product-review')->where("state", 1);
+            $model = $model->where('collaborate_type', "<>", 'product-review')->where("state", 1)->where('account_deactivated',0);
         }
 
-
+        
         if (null !== $skip && null !== $take) {
-            $model = $model->orderBy($cr_at, "desc")->skip($skip)->take($take);
+            $model = $model->where('account_deactivated',0)->orderBy($cr_at, "desc")->skip($skip)->take($take);
         }
-
+        
 
 
         return $model->get();

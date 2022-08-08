@@ -32,9 +32,9 @@
                         style="padding: 20px 0 0; border-radius: 4px 4px 0 0; width: 100% !important"
                         width="100%"
                       >
-                        <div style="font-size: 18px; font-weight: bold; padding: 0 40px 0 40px">
+                        {{-- <div style="font-size: 18px; font-weight: bold; padding: 0 40px 0 40px">
                           Account Deletion Confirmation
-                        </div>
+                        </div> --}}
                       </td>
                     </tr>
                     <tr>

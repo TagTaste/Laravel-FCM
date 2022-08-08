@@ -369,7 +369,7 @@ class LoginController extends Controller
             $user = \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->first();
             $data = ['name'=>$user->name, 'email'=>$user->email];
             Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
-                $message->to($user->email, $user->name)->subject('Account Reactivated');
+                $message->to($user->email, $user->name)->subject('Welcome back to TagTaste');
             });
         }
     }
@@ -387,7 +387,7 @@ class LoginController extends Controller
             $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->first();
             $data = ['name'=>$user->name, 'email'=>$user->email];
             Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
-                $message->to($user->email, $user->name)->subject('Account Reactivated');
+                $message->to($user->email, $user->name)->subject('Welcome back to TagTaste');
             });
         }
     }
@@ -405,7 +405,7 @@ class LoginController extends Controller
             $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->first();
             $data = ['name'=>$user->name, 'email'=>$user->email];
             Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
-                $message->to($user->email, $user->name)->subject('Account Reactivated');
+                $message->to($user->email, $user->name)->subject('Welcome back to TagTaste');
             });
         }
     }

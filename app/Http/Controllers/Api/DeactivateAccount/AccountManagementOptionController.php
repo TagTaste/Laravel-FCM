@@ -39,7 +39,7 @@ class AccountManagementOptionController extends Controller
         
         $data = [];
         
-        $overvire_obj = ['title'=>$request->user()->profile->name.', we’re sorry to see you go', 'description'=>'Just a quick reminder, deactivating your account means you’ll lose access to the following ongoing activity.', 'ui_type'=>'card'];
+        $overvire_obj = ['title'=>$request->user()->profile->name.', we’re sorry to see you go…', 'description'=>'Deactivating / Deleting your account will disable / delete your profile and your profile details like your name, photos, comments, etc will no longer be visible on the platform.', 'ui_type'=>'card'];
 
         //get passbook activity
         $overvire_obj['elements'] = $this->get_user_passbook_details($request->user()->profile->id);
@@ -49,14 +49,14 @@ class AccountManagementOptionController extends Controller
         //get users post
         $user_posts = $this->get_user_posts($request->user()->profile->id);
         if(count($user_posts) > 0){
-            $post_obj = ['title'=>'Recent Ongoing Activity', 'sub_title'=>'Recent ongoing activity will be closed once you deactive your account.', 'ui_type'=>'list','elements'=>$user_posts];
+            $post_obj = ['title'=>'Ongoing Activities', 'sub_title'=>'Following ongoing activities will be closed once you deactivate or delete your account.', 'ui_type'=>'list','elements'=>$user_posts];
             $data[] = $post_obj;
         }
         
         //get company activity
         $user_companies = $this->get_user_companies($request->user()->id);
         if(count($user_companies) > 0){
-            $user_company_obj = ['title'=>'Transfer Company Access', 'sub_title'=>'Transfer company access before deactiviting your account it will make company active after deactivition of account.', 'ui_type'=> 'company_action', 'elements'=>$user_companies];
+            $user_company_obj = ['title'=>'TRANSFER COMPANY ACCESS', 'sub_title'=>'You’re either the super admin or the creator of the following companies. Please either transfer the super admin access or delete the company from companies setting page accessible via web.', 'ui_type'=> 'company_action', 'elements'=>$user_companies];
             $data[] = $user_company_obj;
         }
         
@@ -70,7 +70,7 @@ class AccountManagementOptionController extends Controller
                             ->whereNull('deleted_at')->sum('amount');
 
         if($pending_balance > 0){
-            $passbook_obj = ['title'=>'Pending Balance', 'sub_title'=>'A pending balance indicates the portion of your earnings that has not been redeemed yet.','model_name'=>'passbook','description'=>'Amount to be Redeemed','amount'=>'₹'.$pending_balance];
+            $passbook_obj = ['title'=>'Pending Balance', 'sub_title'=>'A pending balance indicates the portion of your earnings that has not been redeemed yet.','model_name'=>'passbook','description'=>'Amount to be redeemed','amount'=>'₹'.$pending_balance];
             $data[] = $passbook_obj;
             return $data;
         }else{
@@ -119,9 +119,9 @@ class AccountManagementOptionController extends Controller
         foreach($company_list as $company){
             $admins = CompanyUser::getCompanyAdminIds($company->id);
             if(count($admins) > 1){
-                $company_obj = ['model_id'=>"$company->id", 'model_name'=>'company','name'=>$company->name, 'sub_title'=>count($admins).' Admins','image_meta'=>json_decode($company->logo_meta, true)];
+                $company_obj = ['model_id'=>"$company->id", 'model_name'=>'company','name'=>$company->name, 'sub_title'=>count($admins).' admins','image_meta'=>json_decode($company->logo_meta, true)];
             }else{
-                $company_obj = ['model_id'=>"$company->id", 'model_name'=>'company','name'=>$company->name, 'sub_title'=>'You are sole admin of the company, you will loose company adminship after 15 days if you delete your account. You must add an additional superadmin to keep the company accessible.','image_meta'=>json_decode($company->logo_meta, true)];
+                $company_obj = ['model_id'=>"$company->id", 'model_name'=>'company','name'=>$company->name, 'sub_title'=>'You’re sole admin of the company','image_meta'=>json_decode($company->logo_meta, true)];
             }
             $data[] = $company_obj;
         }

@@ -16,7 +16,7 @@ use Carbon\Carbon;
 class AccountDeactivateReasonController extends Controller
 {
     use SendsJsonResponse;
-
+    
     protected $model;
     public function __construct(AccountDeactivateReasons $model){
         $this->model = $model;
