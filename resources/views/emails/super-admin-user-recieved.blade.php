@@ -94,6 +94,8 @@
                                             border-radius: 50%;
                                             overflow: hidden;
                                             flex-shrink: 0;
+                                            height:40px;
+                                            width:40px;
                                           "
                                         >
                                           <img
@@ -102,7 +104,7 @@
                                             style="height: 40px; width: 40px; object-fit: cover"
                                           />
                                         </div>
-                                        <div style="align-self: center; margin: 0 0 0 16px">
+                                        <div style="padding:12px 0 0 0; margin: 0 0 0 16px">
                                           <span style="font-weight: 900">{{$data['company_name']}}</span>
                                         </div>
                                       </div>
