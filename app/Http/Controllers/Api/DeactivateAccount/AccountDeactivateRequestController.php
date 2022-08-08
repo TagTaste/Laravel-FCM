@@ -67,9 +67,7 @@ class AccountDeactivateRequestController extends Controller
             $email_balde = 'emails.account-deletion-confirm';
             $email_subject = 'TagTaste account delete confirmation';
             $final_date = $deleted_date->format('d M Y');
-            $success_msg = 'Your account is scheduled for permanent deletion.
-            
-            If you log in to TagTaste within the next 15 days, your deletion request will automatically be cancelled and you can continue using TagTaste.';
+            $success_msg = 'Your account is scheduled for permanent deletion.\n\nIf you log in to TagTaste within the next 15 days, your deletion request will automatically be cancelled and you can continue using TagTaste.';
         }
         $data = AccountDeactivateRequests::insert($insert_data);
         
