@@ -35,11 +35,20 @@ class AccountManagementOptionController extends Controller
         return $this->sendNewResponse();
     }   
 
-    public function get_user_activity(Request $request){
+    public function get_user_activity(Request $request, $account_mgmt_id){
         
         $data = [];
+
+        $account_mgmt_details = AccountManagementOptions::where('id',$account_mgmt_id)->first();
+        if (empty($account_mgmt_details)) {
+            return $this->sendNewError("Reason is mandatory.");
+        }
+        $description = 'Deactivating your account will disable your profile and your profile details like your name, photos, comments, etc will no longer be visible on the platform.';
+        if($account_mgmt_details['slug'] == 'delete'){
+            $description = 'Deleting your account will delete your profile and your profile details like your name, photos, comments, etc will no longer be visible on the platform.';
+        }
         
-        $overvire_obj = ['title'=>$request->user()->profile->name.', we’re sorry to see you go…', 'description'=>'Deactivating / Deleting your account will disable / delete your profile and your profile details like your name, photos, comments, etc will no longer be visible on the platform.', 'ui_type'=>'card'];
+        $overvire_obj = ['title'=>$request->user()->profile->name.', we’re sorry to see you go…', 'description'=>$description, 'ui_type'=>'card'];
 
         //get passbook activity
         $overvire_obj['elements'] = $this->get_user_passbook_details($request->user()->profile->id);

@@ -95,6 +95,8 @@
                                             border-radius: 50%;
                                             overflow: hidden;
                                             flex-shrink: 0;
+                                            height: 40px;
+                                            width:40px;
                                           "
                                         >
                                           <img
@@ -103,7 +105,7 @@
                                             style="height: 40px; width: 40px; object-fit: cover"
                                           />
                                         </div>
-                                        <div style="align-self: center; margin: 0 0 0 16px">
+                                        <div style="padding:12px 0 0 0; margin: 0 0 0 16px">
                                           <span style="font-weight: 900">{{$data['new_super_admin']}}</span>
                                         </div>
                                       </div>
@@ -119,7 +121,7 @@
                                       Note: If you have not requested this transfer, please reach out to us at
                                       <a href="/profile/id" target="_blank" rel="noreferrer" style="color: #4990e2"
                                         >contact@tagtaste.com</a
-                                      >immediately.
+                                      > immediately.
                                     </p>
                                     <div style="margin-top: 24px">
                                       <p style="color: #181818; font-size: 14px; margin: 0px; line-height: 1.5">
