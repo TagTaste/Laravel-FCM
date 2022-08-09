@@ -213,7 +213,7 @@ class ChatController extends Controller
 
         $this->model = $data;
     	return $this->sendResponse();
-    	
+        
 	
     }
 

@@ -41,7 +41,7 @@ class ShoutoutController extends BaseController
     public function show(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $shoutout = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+        $shoutout = $this->model->where('id', $id)->where('account_deactivated',0)->whereNull('deleted_at')->first();
 
 
         if (!$shoutout) {

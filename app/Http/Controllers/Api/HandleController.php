@@ -9,10 +9,10 @@ use App\Profile;
 class HandleController extends Controller
 {
 	public function show(Request $request,$handle)
-	{;
-	    $model = Profile::where('handle','like',$handle)->first();
+	{
+	    $model = Profile::join('users','profiles.user_id','=','users.id')->select('profiles.id')->where('users.account_deactivated', false)->where('profiles.handle','like',$handle)->first();
         // \DB::table("profiles")->select("id")->where('handle','like',$handle)->first();
-
+                    
         if($model){
             $this->model = [
                 'type'=>"profile",

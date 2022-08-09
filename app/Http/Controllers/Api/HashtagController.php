@@ -46,11 +46,12 @@ class HashtagController extends Controller
         $profileId = $request->user()->profile->id;
         $this->removeReportedPayloads($profileId);
         $page = $request->input('page');
-
+        
         list($skip,$take) = Paginator::paginate($page, 20);
         $payloadIds = $this->getPayloadIds($models,$skip,$take);
         $payloads = Payload::whereIn('id',$payloadIds)
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
+            ->where('channel_payloads.account_deactivated',0)
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.

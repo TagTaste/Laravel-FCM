@@ -164,7 +164,7 @@ class UserController extends Controller
         $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$request->input('otp'))->update(['verified_phone'=>1]);
         return $this->sendResponse();
     }
-
+    
     public function logout(Request $request)
     {
         //updated by nikhil

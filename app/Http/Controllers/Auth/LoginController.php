@@ -22,6 +22,11 @@ use Laravel\Socialite\Facades\Socialite;
 use Tagtaste\Api\SendsJsonResponse;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+use App\Jobs\AccountDeactivateChanges;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redis;
+
 class LoginController extends Controller
 {
     use  SendsJsonResponse;
@@ -124,12 +129,12 @@ class LoginController extends Controller
         if (!$authUser) {
             return ['status' => 'failed', 'errors' => "Could not login.", 'result' => [], 'newRegistered' => false];
         }
-
+        
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
         $result['result'] = ['user' => $authUser, 'token' => $token];
         $result['newRegistered'] = $this->newRegistered;
-
+        $this->checkForDeactivationViaSocial($authUser);
         return response()->json($result);
     }
 
@@ -191,7 +196,7 @@ class LoginController extends Controller
         }
         return $user;
     }
-
+    
     public function loginLinkedin(Request $request)
     {
         $code = $request->input('code');
@@ -306,7 +311,7 @@ class LoginController extends Controller
     //         return $this->sendError("OTP not generated");
     //     }
     // }
-
+    
     public function verifyOTP(Request $request)
     {
         $source = config("constant.LOGIN_OTP_SOURCE");
@@ -320,7 +325,7 @@ class LoginController extends Controller
         if ($otp) {
             $otp->update(["attempts" => $otp->attempts + 1]);
         }
-
+        
         //for testing
         $getOTP = OTPMaster::where('mobile', "=", $request->profile["mobile"])
 
@@ -330,7 +335,7 @@ class LoginController extends Controller
             ->orderBy("id", "desc")
             ->where("deleted_at", null)
             ->first();
-
+        
         if ($getOTP && $getOTP->attempts > config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
             $getOTP->update(["deleted_at" => date("Y-m-d H:i:s")]);
             return $this->sendError("OTP attempts exhausted. Please regenerate OTP or try other login methods.");
@@ -343,11 +348,89 @@ class LoginController extends Controller
                 return $this->sendError("Failed to login");
             }
             OTPMaster::where("profile_id", $getOTP->profile_id)->update(["deleted_at" => date("Y-m-d H:i:s")]);
+            $this->checkForDeactivationViaOTP($user);
             $this->model = ["token" => $token];
             return $this->sendResponse();
         }
-
-
+        
         return $this->sendError("Incorrect OTP entered. Please try again.");
+    }
+    
+    public function checkForDeactivation(Request $request){
+        $credentials = $request->only('email','password');
+        $user = \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
+        if (count($user) > 0){
+            $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
+
+            $req_data = DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->first();
+            $user_update_data = ['account_deactivated'=>0];
+            $user_detail = json_decode($req_data->user_detail, true);
+            if(!empty($user_detail['verified_at'])){
+                $user_update_data['verified_at'] = $user_detail['verified_at'];
+            }
+
+            \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->update($user_update_data);
+            Redis:: lrem('deactivated_users', 0, $user[0]);
+            DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
+            $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
+            dispatch($deactivate_changes);
+            $user = \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->first();
+            $data = ['name'=>$user->name, 'email'=>$user->email];
+            Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
+                $message->to($user->email, $user->name)->subject('Welcome back to TagTaste');
+            });
+        }
+    }
+    
+    public function checkForDeactivationViaOTP(AppUser $userApp){
+        $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
+        if (count($user) > 0){
+            $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
+
+            $req_data = DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->first();
+            $user_update_data = ['account_deactivated'=>0];
+            $user_detail = json_decode($req_data->user_detail, true);
+            if(!empty($user_detail['verified_at'])){
+                $user_update_data['verified_at'] = $user_detail['verified_at'];
+            }
+            
+            \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->update($user_update_data);
+            Redis:: lrem('deactivated_users', 0, $user[0]);
+            DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
+            $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
+            dispatch($deactivate_changes);
+
+            $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->first();
+            $data = ['name'=>$user->name, 'email'=>$user->email];
+            Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
+                $message->to($user->email, $user->name)->subject('Welcome back to TagTaste');
+            });
+        }
+    }
+    
+    public function checkForDeactivationViaSocial(User $userApp){
+        $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
+        if (count($user) > 0){
+            $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
+
+            $req_data = DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->first();
+            $user_update_data = ['account_deactivated'=>0];
+            $user_detail = json_decode($req_data->user_detail, true);
+            if(!empty($user_detail['verified_at'])){
+                $user_update_data['verified_at'] = $user_detail['verified_at'];
+            }
+            
+            \App\User::where('email',$userApp->email)->whereNull('deleted_at')->where('account_deactivated',1)->update($user_update_data);
+            Redis:: lrem('deactivated_users', 0, $user[0]);
+            DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
+            $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
+            dispatch($deactivate_changes);
+
+            $user = \App\User::where('email',$userApp->email)->whereNull('deleted_at')->first();
+            $data = ['name'=>$user->name, 'email'=>$user->email];
+            Mail::send('emails.account-reactivate', ["data" => $data], function($message) use($user){
+                $message->to($user->email, $user->name)->subject('Welcome back to TagTaste');
+            });
+        }
     }
 }

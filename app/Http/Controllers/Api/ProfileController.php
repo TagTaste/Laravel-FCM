@@ -49,13 +49,16 @@ class ProfileController extends Controller
      */
     public function show(Request $request, $id)
     {
-
         //id can either be id or handle
         //we can use both profile/{id} or handle in api call
-        $profile = \App\Profile\User::whereHas("profile", function ($query) use ($id) {
+        // $profile = \App\Profile\User::where('account_deactivated', false)->whereHas("profile", function ($query) use ($id) {
+        //     $query->where('id', $id);
+        // })->first();
+
+        $profile = \App\Profile\User::where('account_deactivated', false)->whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
-
+        
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }
@@ -491,9 +494,14 @@ class ProfileController extends Controller
     public function followers(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-
+        
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:" . $id);
+
+        $deac_profiles = User::join('profiles','users.id','=','profiles.user_id')->whereNull('users.deleted_at')->where('users.account_deactivated',1)->pluck('profiles.id')->toArray();
+
+        $profileIds = array_diff($profileIds, $deac_profiles);
+
         $count = count($profileIds);
         if ($count > 0 && Redis::sIsMember("followers:profile:" . $id, $id)) {
             $count = $count - 1;
@@ -503,7 +511,7 @@ class ProfileController extends Controller
 
         $page = $request->has('page') ? $request->input('page') : 1;
         $profileIds = array_slice($profileIds, ($page - 1) * 20, 20);
-
+        
         foreach ($profileIds as $key => $value) {
             if ($id == $value) {
                 unset($profileIds[$key]);
@@ -678,7 +686,7 @@ class ProfileController extends Controller
         $this->model['profile'] = $data;
         return $this->sendResponse();
     }
-
+    
     public function tagging(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
@@ -686,7 +694,8 @@ class ProfileController extends Controller
         $query = $request->input('term');
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = \App\Recipe\Profile::select('profiles.*')->join('users', 'profiles.user_id', '=', 'users.id')->where('users.name', 'like', "%$query%")
+        $this->model = \App\Recipe\Profile::select('profiles.*')->join('users', 'profiles.user_id', '=', 'users.id')
+        ->where('users.account_deactivated',0)->where('users.name', 'like', "%$query%")
             ->whereIn('profiles.id', $profileIds)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();

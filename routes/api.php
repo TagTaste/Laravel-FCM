@@ -47,6 +47,8 @@ Route::post('login',function(Request $request) {
         // something went wrong whilst attempting to encode the token
         return response()->json(['error' => 'could_not_create_token'], 500);
     }
+    
+    app('App\Http\Controllers\Auth\LoginController')->checkForDeactivation($request);
     return response()->json(compact('token'));
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
@@ -392,7 +394,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("profile/premium", "ProfileController@getPremium");
         Route::post('profile/{id}/update-details', ['uses' => 'ProfileController@updateDetails']);
         Route::post('company/{id}/update-details', ['uses' => 'CompanyController@updateDetails']);
-
+        Route::post('company/{id}/update_ownership', ['uses' => 'CompanyController@update_ownership']);
+        
         //jobs
         Route::get("jobs/all", "JobController@all");
         Route::get("jobs/filters", "JobController@filters");
@@ -454,7 +457,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("getCities", "CollaborateController@getCities");
         Route::post("addCities", "CollaborateController@addCities");
         Route::get("collaborateCloseReason", "CollaborateController@collaborateCloseReason");
-
+        
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
@@ -500,7 +503,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("getUnassignedApplicants", "ApplicantController@getUnassignedApplicants"); //->middleware('permissionCollaborate');
             Route::get("getApplicantFilter", "ApplicantController@getApplicantFilter"); //->middleware('permissionCollaborate');
             //});
-
+                
             Route::post("showInterest", "ApplicantController@store")->middleware('iosCollaborate');
             Route::get("cities/{cityId}/outlets", "ApplicantController@getOutlets");
             Route::get("cities", "ApplicantController@getCities");
@@ -950,9 +953,14 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     //route to send notification from skynet
     Route::post('/skynet/notify', '\App\Http\Controllers\Api\Skynet\NotificationController@notifyUsers')->middleware("api.auth");
 
-   
-
-
+    Route::group(['namespace' => 'DeactivateAccount', 'prefix' => 'account_management', 'as' => 'account_management.', 'middleware' => 'api.auth'], function () {
+        Route::get("/list", "AccountManagementOptionController@index");
+        Route::get("/{account_mgmt_id}/reasons", "AccountDeactivateReasonController@index");
+        Route::get("/{account_mgmt_id}/activity", "AccountManagementOptionController@get_user_activity");
+        Route::post("/{account_mgmt_id}/action", "AccountDeactivateRequestController@create");
+        Route::post("/{account_mgmt_id}/send_otp", "AccountDeactivateRequestController@send_otp");
+        Route::post("/{account_mgmt_id}/verify_otp", "AccountDeactivateRequestController@verify_otp");
+    });
 
 });
 
