@@ -360,8 +360,13 @@ class LoginController extends Controller
         $credentials = $request->only('email','password');
         $user = \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->pluck('id')->toArray();
         if (count($user) > 0){
-            \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->update(['account_deactivated'=>0]);
             $profile_id = \App\Profile::where('user_id',$user[0])->pluck('id')->toArray();
+            $user_detail = DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->first();
+            $user_update_data = ['account_deactivated'=>0];
+            if(!empty($user_detail->verified_at)){
+                $user_update_data['verified_at'] = $user_detail->verified_at;
+            }
+            \App\User::where('email',$credentials['email'])->whereNull('deleted_at')->where('account_deactivated',1)->update($user_update_data);
             Redis:: lrem('deactivated_users', 0, $user[0]);
             DB::table('account_deactivate_requests')->where('profile_id', $profile_id[0])->update(['deleted_at'=>Carbon::now()]);         
             $deactivate_changes = (new AccountDeactivateChanges($profile_id[0], false));
