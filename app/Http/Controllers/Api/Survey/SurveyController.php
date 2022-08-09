@@ -1259,6 +1259,11 @@ class SurveyController extends Controller
                         $this->errors["form_json"] = "Invalid form Json";
                     }
                 }
+                else if(isset($values["questions"])){
+                    $this->errors["form_json"] = "Element type neccessary for section type";
+                    break;
+
+                }
             }
 
             if (!empty($this->errors)) {
@@ -2328,7 +2333,6 @@ class SurveyController extends Controller
         $getSurvey = Surveys::where("id", "=", $surveyId)->where("is_active", "=", 1)->first();
 
         $this->model = false;
-        $this->messages = "Survey Doesn't Exists";
         if (empty($getSurvey)) {
             $this->errors = ["Survey Doesn't Exists"];
             return $this->sendResponse();
@@ -2355,6 +2359,7 @@ class SurveyController extends Controller
             }
         }
 
+        $this->messages = "Request successfull";
         $this->model[] = $form_json;
         return $this->sendResponse();
     }
