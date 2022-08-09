@@ -86,7 +86,7 @@
                                         line-height: 1.5;
                                       "
                                     >
-                                      Your TagTaste account will be deleted on ({{$data['date']}}). You won't be able to
+                                      Your TagTaste account will be deleted on {{$data['date']}}. You won't be able to
                                       access your account after deletion.
                                     </p>
                                     <p
@@ -97,7 +97,7 @@
                                         line-height: 1.5;
                                       "
                                     >
-                                      If you wish to cancel the account deletion, just login with your email before ({{$data['date']}}).
+                                      If you wish to cancel the account deletion, just login with your email before {{$data['date']}}.
                                     </p>
                                     <p
                                       style="

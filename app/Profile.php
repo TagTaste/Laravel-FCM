@@ -498,7 +498,7 @@ class Profile extends Model
     }
     
     public function getAccountDeactivatedAttribute(){
-        return $this->user->account_deactivated;
+        return $this->user->account_deactivated ?? 1;
     }
 
     public function getNameAttribute()
