@@ -88,7 +88,7 @@ class BackupDatabase extends Command
     }
 
     private function notifyUsingSlack($message){
-        $hook = env('SLACK_HOOK');
+        $hook = 'https://hooks.slack.com/services/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';
         $client =  new \GuzzleHttp\Client();
         $client->request('POST', $hook,
             [
