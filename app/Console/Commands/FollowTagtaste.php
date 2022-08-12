@@ -41,7 +41,7 @@ class FollowTagtaste extends Command
         //111, 137, 322
         //1,6,7
         $companies = \App\Company::whereIn('id',[111,137,322])->get();
-        $hook = env('SLACK_HOOK');
+        $hook = 'https://hooks.slack.com/services/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';
         $client =  new \GuzzleHttp\Client();
         \App\User::whereNull('deleted_at')->chunk(100,function($users) use ($companies){
             foreach ($users as $user){

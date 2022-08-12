@@ -599,7 +599,7 @@ class PublicReviewProductController extends Controller
     {
         \Log::warning($message);
         $client =  new \GuzzleHttp\Client();
-        $hook = env('SLACK_HOOK');
+        $hook = 'https://hooks.slack.com/services/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';
         if ($hook) {
             $client->request(
                 'POST',
@@ -607,7 +607,7 @@ class PublicReviewProductController extends Controller
                 [
                     'json' =>
                     [
-                        "channel" => env('SLACK_CHANNEL'),
+                        "channel" => '@testerrors',
                         "username" => "ramukaka",
                         "icon_emoji" => ":older_man::skin-tone-3:",
                         "text" => $message
