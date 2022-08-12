@@ -61,15 +61,15 @@ class Handler extends ExceptionHandler
     
     private function sendMessage($hook,$message){
         $client =  new \GuzzleHttp\Client();
-        $response = $client->request('POST', $hook,
-            [
-                'json' =>
-                    [
-                        "channel" => '@testerrors',
-                        "username" => "ramukaka",
-                        "icon_emoji" => ":older_man::skin-tone-3:",
-                        "text" => $message]
-            ]);
+        // $response = $client->request('POST', $hook,
+        //     [
+        //         'json' =>
+        //             [
+        //                 "channel" => '@testerrors',
+        //                 "username" => "ramukaka",
+        //                 "icon_emoji" => ":older_man::skin-tone-3:",
+        //                 "text" => $message]
+        //     ]);
     }
 
     /**

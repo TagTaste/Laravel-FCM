@@ -60,15 +60,15 @@ class FollowTagtaste extends Command
                 }
             }
         });
-        $client->request('POST', $hook,
-            [
-                'json' =>
-                    [
-                        "channel" => "@tushar",
-                        "username" => "ramukaka",
-                        "icon_emoji" => ":older_man::skin-tone-3:",
-                        "text" => "Every profile on live server subscribed to ".$companies[0]->name.",".$companies[1]->name." and ".$companies[2]->name
-                    ]
-            ]);
+        // $client->request('POST', $hook,
+        //     [
+        //         'json' =>
+        //             [
+        //                 "channel" => "@tushar",
+        //                 "username" => "ramukaka",
+        //                 "icon_emoji" => ":older_man::skin-tone-3:",
+        //                 "text" => "Every profile on live server subscribed to ".$companies[0]->name.",".$companies[1]->name." and ".$companies[2]->name
+        //             ]
+        //     ]);
     }
 }
