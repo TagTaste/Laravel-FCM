@@ -88,18 +88,18 @@ class BackupDatabase extends Command
     }
 
     private function notifyUsingSlack($message){
-        $hook = env('SLACK_HOOK');
+        $hook = 'https://hooks.slack.com/services/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';
         $client =  new \GuzzleHttp\Client();
-        $client->request('POST', $hook,
-            [
-                'json' =>
-                    [
-                        "channel" => "#backup",
-                        "username" => "ramukaka",
-                        "icon_emoji" => ":older_man::skin-tone-3:",
-                        "text" => $message
-                    ]
-            ]);
+        // $client->request('POST', $hook,
+        //     [
+        //         'json' =>
+        //             [
+        //                 "channel" => "#backup",
+        //                 "username" => "ramukaka",
+        //                 "icon_emoji" => ":older_man::skin-tone-3:",
+        //                 "text" => $message
+        //             ]
+        //     ]);
     }
 
 }

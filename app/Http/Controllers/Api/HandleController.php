@@ -10,9 +10,13 @@ class HandleController extends Controller
 {
 	public function show(Request $request,$handle)
 	{
-	    $model = Profile::join('users','profiles.user_id','=','users.id')->select('profiles.id')->where('users.account_deactivated', false)->where('profiles.handle','like',$handle)->first();
-        // \DB::table("profiles")->select("id")->where('handle','like',$handle)->first();
-                    
+	    // $model = Profile::join('users','profiles.user_id','=','users.id')->select('profiles.id')->where('users.account_deactivated', false)->where('profiles.handle','like',$handle)->first();
+        // // \DB::table("profiles")->select("id")->where('handle','like',$handle)->first();
+          
+        $model = \App\Profile\User::where('account_deactivated', false)->whereHas("profile", function ($query) use ($handle) {
+            $query->where('handle', $handle);
+        })->first();
+
         if($model){
             $this->model = [
                 'type'=>"profile",
