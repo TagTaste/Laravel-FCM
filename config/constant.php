@@ -24,7 +24,7 @@ return  [
         "INVITED" => 0,
         "INCOMPLETE" => 1,
         "COMPLETED" => 2,
-        "REJECTED" => 3
+        "INPROGRESS" => 3
     ],
 
     "QUIZ_APPLICANT_ANSWER_STATUS" => [

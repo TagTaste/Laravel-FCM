@@ -604,11 +604,12 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                $this->model = ["status" => false];
+                $this->model = ["status" => false]; 
                 return $this->sendError("Already Answered");
             }
 
-            if (!empty($checkApplicant) && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")) {
+            if (!empty($checkApplicant) && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")
+            && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS") ) {
                 $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
                 $this->model = ["status" => false];
                 return $this->sendError("Something went wrong");
