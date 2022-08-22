@@ -629,9 +629,10 @@ class SurveyController extends Controller
             foreach ($optionArray as $values) {
 
                 if (!isset($values["options"]) || empty($values["options"])) {
-                    DB::rollback();
-                    $this->model = ["status" => false];
-                    return $this->sendError("Options not found");
+                    // DB::rollback();
+                    // $this->model = ["status" => false];
+                    // return $this->sendError("Options not found");
+                    continue;
                 }
                 $answerArray = [];
                 $answerArray["profile_id"] = $request->user()->profile->id;
