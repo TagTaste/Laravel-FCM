@@ -2361,7 +2361,7 @@ class SurveyController extends Controller
         }
 
         $this->messages = "Request successfull";
-        $this->model[] = $form_json;
+        $this->model = $form_json;
         return $this->sendResponse();
     }
 }
