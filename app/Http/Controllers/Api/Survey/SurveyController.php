@@ -604,12 +604,14 @@ class SurveyController extends Controller
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                $this->model = ["status" => false]; 
+                $this->model = ["status" => false];
                 return $this->sendError("Already Answered");
             }
 
-            if (!empty($checkApplicant) && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")
-            && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS") ) {
+            if (
+                !empty($checkApplicant) && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE")
+                && $checkApplicant->application_status != config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS")
+            ) {
                 $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
                 $this->model = ["status" => false];
                 return $this->sendError("Something went wrong");
@@ -732,7 +734,7 @@ class SurveyController extends Controller
                 $this->messages = "Answer Submitted Successfully";
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => date("Y-m-d H:i:s")]);
                 $user = $request->user()->profile->id;
-                Redis::set("surveys:application_status:$request->survey_id:profile:$user",$request->current_status);
+                Redis::set("surveys:application_status:$request->survey_id:profile:$user", $request->current_status);
             } else {
                 $responseData = ["status" => false];
             }
@@ -1152,9 +1154,9 @@ class SurveyController extends Controller
 
 
             $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
-            
+
             //for sections having questions 
-            if ($checkIFExists["is_section"] && count($sectionKeys)) {  
+            if ($checkIFExists["is_section"] && count($sectionKeys)) {
 
                 if (count($getJson[$sectionKeys[$sectionKey]]["questions"]) < $sectionQuesCount[$sectionKeys[$sectionKey]]) {
                     $getJson[$sectionKeys[$sectionKey]]["questions"][] = $prepareNode["reports"][$counter];
@@ -1169,16 +1171,13 @@ class SurveyController extends Controller
             $counter++;
         }
 
-        if(!$checkIFExists["is_section"]){  //for normal survey
+        if (!$checkIFExists["is_section"]) {  //for normal survey
             $this->model = $prepareNode;
-
-        }
-        else{
-            $finalRespnse =[];
-            $finalRespnse["reports"]= $getJson;
+        } else {
+            $finalRespnse = [];
+            $finalRespnse["reports"] = $getJson;
             $finalRespnse["answer_count"] = $prepareNode["answer_count"];
             $this->model = $finalRespnse;
-
         }
 
         $this->messages = "Report Successful";
@@ -1258,11 +1257,9 @@ class SurveyController extends Controller
                         //if section is true and current iteration element type is question
                         $this->errors["form_json"] = "Invalid form Json";
                     }
-                }
-                else if(isset($values["questions"])){
+                } else if (isset($values["questions"])) {
                     $this->errors["form_json"] = "Element type neccessary for section type";
                     break;
-
                 }
             }
 
@@ -1734,8 +1731,8 @@ class SurveyController extends Controller
                 }
             }
 
-             //for sections having questions 
-             if ($checkIFExists["is_section"] && count($sectionKeys)) {  
+            //for sections having questions 
+            if ($checkIFExists["is_section"] && count($sectionKeys)) {
 
                 if (count($getJson[$sectionKeys[$sectionKey]]["questions"]) < $sectionQuesCount[$sectionKeys[$sectionKey]]) {
                     $getJson[$sectionKeys[$sectionKey]]["questions"][] = $prepareNode["reports"][$counter];
@@ -1750,15 +1747,12 @@ class SurveyController extends Controller
             $counter++;
         }
 
-        if(!$checkIFExists["is_section"]){  //for normal survey
+        if (!$checkIFExists["is_section"]) {  //for normal survey
             $this->model = $prepareNode;
-
-        }
-        else{
-            $finalRespnse =[];
-            $finalRespnse["reports"]= $getJson;
+        } else {
+            $finalRespnse = [];
+            $finalRespnse["reports"] = $getJson;
             $this->model = $finalRespnse;
-
         }
 
         $this->messages = "Report Successful";
@@ -2347,11 +2341,14 @@ class SurveyController extends Controller
                         $answer =  SurveyAnswers::select("option_id", "image_meta", "video_meta", "option_type", "answer_value as value")
                             ->where("survey_id", $surveyId)
                             ->where("question_id", $question->id)
-                            ->where("profile_id", request()->user()->profile->id)->get()->toArray();
+                            ->where("profile_id", request()->user()->profile->id)->first();
 
-                        if (!count($answer) && $question->is_mandatory) {
+
+                        if (empty($answer) && $question->is_mandatory) {
                             break 2;
-                        } elseif (count($answer)) {
+                        } elseif (!empty($answer)) {
+                            $answer["image_meta"] = json_decode($answer["image_meta"]);
+                            $answer["video_meta"] = json_decode($answer["video_meta"]);
                             $question->answer_value = $answer;
                         }
                     }
