@@ -668,9 +668,16 @@ class SurveyController extends Controller
                 $answerArray["survey_id"] = $request->survey_id;
                 $answerArray["question_id"] = $values["question_id"];
                 $answerArray["question_type"] = $values["question_type_id"];
-
                 $answerArray["current_status"] = $request->current_status;
 
+                //checking if answer exists for this ques ,then delete and save new ones
+                $answerExists = SurveyAnswers::where('survey_id', $request->survey_id)
+                    ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])
+                    ->first();
+                if (!empty($answerExists)) {
+                    SurveyAnswers::where('survey_id', $request->survey_id)
+                        ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])->delete();
+                }
 
                 if (isset($values["options"]) && !empty($values["options"])) {
 
@@ -686,6 +693,7 @@ class SurveyController extends Controller
                                 $answerArray["video_meta"] = ((isset($optVal["video_meta"])  && is_array($optVal["video_meta"])) ? json_encode($optVal["video_meta"]) : json_encode([]));
                                 $answerArray["document_meta"] = ((isset($optVal["document_meta"])  && is_array($optVal["document_meta"])) ? json_encode($optVal["document_meta"]) : json_encode([]));
                                 $answerArray["media_url"] = ((isset($optVal["media_url"])  && is_array($optVal["media_url"])) ? json_encode($optVal["media_url"]) : json_encode([]));
+
                                 $surveyAnswer = SurveyAnswers::create($answerArray);
 
                                 if (!$surveyAnswer) {
@@ -2339,18 +2347,20 @@ class SurveyController extends Controller
             foreach ($form_json as &$section) {
                 if (isset($section->questions)) {
                     foreach ($section->questions as &$question) {
-                        $answer =  SurveyAnswers::select("option_id", "image_meta", "video_meta", "option_type", "answer_value as value")
+                        $answers =  SurveyAnswers::select("option_id", "image_meta", "video_meta", "option_type", "answer_value as value")
                             ->where("survey_id", $surveyId)
                             ->where("question_id", $question->id)
-                            ->where("profile_id", request()->user()->profile->id)->first();
+                            ->where("profile_id", request()->user()->profile->id)->get()->toArray();
 
 
-                        if (empty($answer) && $question->is_mandatory) {
+                        if (!count($answers) && $question->is_mandatory) {
                             break 2;
-                        } elseif (!empty($answer)) {
+                        } elseif (count($answers)) {
+                            foreach($answers as $answer){
                             $answer["image_meta"] = json_decode($answer["image_meta"]);
                             $answer["video_meta"] = json_decode($answer["video_meta"]);
-                            $question->answer_value = $answer;
+                            }
+                            $question->answer_value = $answers;
                         }
                     }
                 }
