@@ -2355,7 +2355,7 @@ class SurveyController extends Controller
                         if (!count($answers) && $question->is_mandatory) {
                             break 2;
                         } elseif (count($answers)) {
-                            foreach($answers as $answer){
+                            foreach($answers as &$answer){
                             $answer["image_meta"] = json_decode($answer["image_meta"]);
                             $answer["video_meta"] = json_decode($answer["video_meta"]);
                             }
