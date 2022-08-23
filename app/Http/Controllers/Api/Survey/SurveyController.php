@@ -2347,7 +2347,7 @@ class SurveyController extends Controller
             foreach ($form_json as &$section) {
                 if (isset($section->questions)) {
                     foreach ($section->questions as &$question) {
-                        $answers =  SurveyAnswers::select("option_id", "image_meta", "video_meta", "option_type", "answer_value as value")
+                        $answers =  SurveyAnswers::select("option_id", "document_meta","media_url","image_meta", "video_meta", "option_type", "answer_value as value")
                             ->where("survey_id", $surveyId)
                             ->where("question_id", $question->id)
                             ->where("profile_id", request()->user()->profile->id)->get()->toArray();
@@ -2359,6 +2359,8 @@ class SurveyController extends Controller
                             foreach($answers as &$answer){
                             $answer["image_meta"] = json_decode($answer["image_meta"]);
                             $answer["video_meta"] = json_decode($answer["video_meta"]);
+                            $answer["document_meta"] = json_decode($answer["document_meta"]);
+                            $answer["media_url"] = json_decode($answer["media_url"]);
                             }
                             $question->answer_value = $answers;
                         }
