@@ -1895,7 +1895,22 @@ class SurveyController extends Controller
         $multiChoice = [];
         $rankWeightage = [];
         $rankExists = 0;
-        foreach ($getJson as $values) {
+
+
+        $getJsonQues = [];
+
+        if ($checkIFExists["is_section"]) {         //for section type form_json
+
+            foreach ($getJson as $key => $section) {
+                if (isset($section["questions"]) && count($section["questions"])) {
+                    $getJsonQues = array_merge($getJsonQues, $section["questions"]);
+                }
+            }
+        } else {
+            $getJsonQues = $getJson;
+        }
+
+        foreach ($getJsonQues as $values) {
 
             $questionIdMapping[$values["id"]] = html_entity_decode($values["title"]);
 
