@@ -23,7 +23,7 @@ class SurveyApplicantController extends Controller
 
     use SendsJsonResponse, FilterTraits;
 
-    private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed"];
+    private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed", 3 => "In Progress" ];
     public function __construct(Surveys $model)
     {
         $this->model = $model;
