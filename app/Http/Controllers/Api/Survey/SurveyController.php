@@ -548,7 +548,7 @@ class SurveyController extends Controller
 
     public function question_list()
     {
-        $getListFromDb = SurveyQuestionsType::where("is_active", "=", 1)->get();
+        $getListFromDb = SurveyQuestionsType::where("is_active", "=", 1)->orderBy('sort_id')->get();
         $this->model = $getListFromDb;
         return $this->sendResponse();
     }
