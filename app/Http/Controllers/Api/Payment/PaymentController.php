@@ -316,7 +316,7 @@ class PaymentController extends Controller
                         "title" => "Sensory workshop: We conduct online and offline workshops for our community members from time to time. We've trained over 7000 tasters from 91 cities across India. Sensory workshop is mandatory for anyone (including experts) who wishes to become a paid taster. Click on the following button to register for upcoming workshops.",
                         "button_assets" => $sensoryButton
                     ],
-                    ["title" => "Review 3 products: Click on the 'Review' link in the header (website) or the 'Star' icon in the bottom bar (Android/ iOS apps) to go to the list of all products available on TagTaste. Review any 3 products from this list."],
+                    ["title" => "Review 3 products: Review any 3 products available in 'Products' quick links on home page."],
                     ["title" => "Read TagTaste terms & conditions for complete details."]
                 ]
             ]
