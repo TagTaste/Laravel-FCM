@@ -558,8 +558,7 @@ class SurveyController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'survey_id' => 'required|exists:surveys,id',
-                'current_status' => 'required|numeric',
-                'answer_json' => 'required|array|survey_answer_scrutiny'
+                'current_status' => 'required|numeric'
             ]);
 
             if ($validator->fails()) {
