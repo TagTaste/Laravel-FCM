@@ -1307,7 +1307,7 @@ class SurveyController extends Controller
 
             $sectionKey = 0;  //key value of section
             foreach ($decodeJson as $key => &$values) {
-
+                   $values["id"] = (int)$values["id"];
                 if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
                     $diff = array_diff($requiredNode, array_keys($values));
                     // echo (isset($values['id']));
