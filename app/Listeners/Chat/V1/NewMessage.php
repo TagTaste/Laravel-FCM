@@ -39,7 +39,7 @@ class NewMessage
             // file_put_contents(storage_path("logs") . "/nikhil_socket_test.txt", "\n Profile count 0 so return\n", FILE_APPEND); 
             return;
         }
-         file_put_contents(storage_path("logs") . "/laravel-fcm.log", "\n Moving forward to Send notification to profiles.\n", FILE_APPEND); 
+         //file_put_contents(storage_path("logs") . "/laravel-fcm.log", "\n Moving forward to Send notification to profiles.\n", FILE_APPEND); 
         Notification::send($profiles, new ChatMessage($event));
     }
 }
