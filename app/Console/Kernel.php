@@ -308,6 +308,14 @@ class Kernel extends ConsoleKernel
         syncPollElasticSearch::class,
         \App\Console\Commands\ReviewCalculation::class,
         \App\Console\Commands\CollaborationExpiresOnUpdate::class,
+        //quiz expiry
+        \App\Console\Commands\ExpireQuiz::class,
+        \App\Console\Commands\Build\Cache\Quiz::class,
+        \App\Console\Commands\Build\Search\Quiz::class,
+        \App\Console\Commands\Build\Graph\Build\UserQuiz::class,
+
+
+
 
 
         //delete user
@@ -331,6 +339,9 @@ class Kernel extends ConsoleKernel
 
         //daily polling expire at 12
         $schedule->command('expires_on:polling')->dailyAt('12:05');
+
+        //daily quiz expire at 12
+        $schedule->command('expires_on:quiz')->dailyAt('12:05');
 
         //daily polling expire at 12
         $schedule->command(UpdateProfileCompiledInfo::class)->dailyAt('12:00');

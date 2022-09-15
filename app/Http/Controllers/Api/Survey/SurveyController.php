@@ -567,9 +567,7 @@ class SurveyController extends Controller
                 return $this->sendResponse();
             }
 
-
-            $id = $this->model->where("id", "=", $request->survey_id)->first(); 
-            
+            $id = $this->model->where("id", "=", $request->survey_id)->first();             
 
             $this->model = [];
             if (empty($id)) {

@@ -34,7 +34,9 @@ class SearchController extends Controller
         'product' => \App\PublicReviewProduct::class,
         'polls' => \App\Polling::class,
         'product-review' => \App\Collaborate::class,
-        'surveys' => \App\Surveys::class
+        'surveys' => \App\Surveys::class,
+        'quiz' => \App\Quiz::class
+
     ];
 
     private $filters = [
@@ -1736,7 +1738,7 @@ class SearchController extends Controller
 
         if ($suggestions && $suggestions->count()) {
 
-            if ($type == 'collaborate' || $type == 'product-review' || $type == 'surveys' || $type == 'polls') {
+            if ($type == 'collaborate' || $type == 'product-review' || $type == 'surveys' || $type == 'polls' ||$type == 'quiz') {
                 $this->model[$type] = $suggestions;
             } else {
                 $this->model[$type] = $suggestions->toArray();

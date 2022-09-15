@@ -807,7 +807,7 @@ class Collaborate extends Model implements Feedable
             }
         }
     }
-
+    
     public function removeFromGraph(){        
         $collabCount = \App\Neo4j\Collaborate::where('collaborate_id', $this->id)->count();
         if ($collabCount > 0) {

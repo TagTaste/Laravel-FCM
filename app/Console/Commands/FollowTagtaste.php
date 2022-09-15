@@ -41,7 +41,7 @@ class FollowTagtaste extends Command
         //111, 137, 322
         //1,6,7
         $companies = \App\Company::whereIn('id',[111,137,322])->get();
-        $hook = 'https://hooks.slack.com/services/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';
+        $hook = env('SLACK_HOOK');
         $client =  new \GuzzleHttp\Client();
         \App\User::whereNull('deleted_at')->chunk(100,function($users) use ($companies){
             foreach ($users as $user){
@@ -60,15 +60,15 @@ class FollowTagtaste extends Command
                 }
             }
         });
-        // $client->request('POST', $hook,
-        //     [
-        //         'json' =>
-        //             [
-        //                 "channel" => "@tushar",
-        //                 "username" => "ramukaka",
-        //                 "icon_emoji" => ":older_man::skin-tone-3:",
-        //                 "text" => "Every profile on live server subscribed to ".$companies[0]->name.",".$companies[1]->name." and ".$companies[2]->name
-        //             ]
-        //     ]);
+        $client->request('POST', $hook,
+            [
+                'json' =>
+                    [
+                        "channel" => "@nikhil",
+                        "username" => "ramukaka",
+                        "icon_emoji" => ":older_man::skin-tone-3:",
+                        "text" => "Every profile on live server subscribed to ".$companies[0]->name.",".$companies[1]->name." and ".$companies[2]->name
+                    ]
+            ]);
     }
 }

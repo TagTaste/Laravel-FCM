@@ -448,6 +448,7 @@ class SurveyApplicantController extends Controller
             $applicants  = $applicants->whereIn('profile_id', $profileIds);
         }
         $applicants = $applicants->whereNull('deleted_at')
+            ->whereNull('rejected_at')
             ->orderBy("created_at", "desc")
             ->get();
 
