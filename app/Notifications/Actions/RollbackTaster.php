@@ -22,7 +22,7 @@ class RollbackTaster extends Action
         $this->info = $event->info;
         // $this->view = 'emails.begintasting';
 
-        if(isset($info["is_survey"]) && $event->info["is_survey"] == 1){
+        if(isset($this->info["is_survey"]) && $event->info["is_survey"] == 1){
             if($event->info["is_invited"]){
                 $this->sub = htmlspecialchars_decode($this->data->who['name']) ." invited you to survey  (".htmlspecialchars_decode($event->model->title).") by mistake and it has been reversed.";
 
@@ -33,7 +33,7 @@ class RollbackTaster extends Action
             }
         }
         else{
-        $this->sub = htmlspecialchars_decode($this->data->who['name']) ." assigned product (".$event->info->name.") by mistake and it has been reversed.";
+            $this->sub = htmlspecialchars_decode($this->data->who['name']) ." assigned product (".$event->info->name.") by mistake and it has been reversed.";
         }
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
