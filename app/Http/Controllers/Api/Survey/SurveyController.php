@@ -567,7 +567,9 @@ class SurveyController extends Controller
                 return $this->sendResponse();
             }
 
-            $id = $this->model->where("id", "=", $request->survey_id)->first();
+
+            $id = $this->model->where("id", "=", $request->survey_id)->first(); 
+            
 
             $this->model = [];
             if (empty($id)) {
@@ -582,6 +584,11 @@ class SurveyController extends Controller
             if ($id->state == config("constant.SURVEY_STATES.EXPIRED")) {
                 $this->model = ["status" => false];
                 return $this->sendError("Survey is expired. Cannot submit answers");
+            }
+
+            if ($id->state == config("constant.SURVEY_STATES.DRAFT")) {
+                $this->model = ["status" => false];
+                return $this->sendError("Survey is in draft. Cannot submit answers");
             }
 
             if (isset($id->profile_id) && $id->profile_id == $request->profile_id) {
