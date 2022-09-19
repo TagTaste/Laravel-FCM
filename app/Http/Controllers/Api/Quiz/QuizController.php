@@ -544,10 +544,10 @@ class QuizController extends Controller
                 return $this->sendError("Quiz is expired. Cannot submit answers");
             }
 
-            if (isset($quiz->profile_id) && $quiz->profile_id == $request->user()->profile->id) {
-                $this->model = ["status" => false];
-                return $this->sendError("Admin Cannot Fill the Quizes");
-            }
+            // if (isset($quiz->profile_id) && $quiz->profile_id == $request->user()->profile->id) {
+            //     $this->model = ["status" => false];
+            //     return $this->sendError("Admin Cannot Fill the Quizes");
+            // }
 
 
             $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
@@ -593,15 +593,29 @@ class QuizController extends Controller
             }
             $user = $request->user()->profile;
             $responseData = [];
+
             if ($commit) {
                 DB::commit();
-                $result = $this->calculateScore($id);
-                $responseData["result"] = $this->quizResult($id, $result);
+                // $score = $this->calculateScore($id);
+                $result = $this->quizResult($id,false);
+                // return $score;
+                // $score=(string) $score;
                 $this->model = true;
-                $responseData["status"] = true;
+                $responseData = ["status" => true];
+
+
                 $this->messages = "Answer Submitted Successfully";
+
+                $data = [];
+                $data['helper'] = $result["helper"];
+                $data['title'] = $result["title"];
+                $data['subtitle'] = $result["subtitle"];
+                $data['score_text'] = $result["score_text"];
+                $data["correctAnswerCount"] = $result["correctAnswerCount"];
+                $data["score"] = $result["score"];
+
+                $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 $user = $request->user()->profile->id;
-                \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', request()->user()->profile->id)->update(["score" => $result["score"], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 Redis::set("quizes:application_status:$request->survey_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
             } else {
                 $responseData = ["status" => false];
@@ -610,18 +624,19 @@ class QuizController extends Controller
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true && $request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $request->quiz_id = $id;
-                $responseData = array_merge($responseData, $this->paidProcessing($request));
+                $responseData = $this->paidProcessing($request);
                 $quiz->addToGraph();
                 $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
-
-            return $this->sendResponse($responseData);
+            $responseData = array_merge($responseData, $data);
+            return $this->sendResponse([$responseData]);
         } catch (Exception $ex) {
             DB::rollback();
             $this->model = ["status" => false];
             return $this->sendError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
         }
     }
+
 
     public function paidProcessing(Request $request)
     {
@@ -753,53 +768,77 @@ class QuizController extends Controller
     public function calculateScore($id)
     {
         //calculation of final score of an applicant
-
+        //  dd("helo");
         $correctAnswersCount = 0;
         $questions =  Quiz::where("id", $id)->first();
         $questions = json_decode($questions->form_json);
         $answerMapping = [];
-        $total = count($questions);
-        foreach ($questions as $value) {
-            foreach ($value->options as $option) {
-                if (isset($option->is_correct) && $option->is_correct) {
-
-                    $answerMapping[$value->id] = $option->id;
-                    break;
-                }
-            }
-        }
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
         $score = 0;
+        // return $answers;
+        $total = count($questions);
+        if (!empty($answers)) {
+            foreach ($questions as $value) {
+                foreach ($value->options as $option) {
+                    if (isset($option->is_correct) && $option->is_correct) {
 
-        foreach ($answers as $answer) {
-            if ($answerMapping[$answer->question_id] == $answer->option_id) {
-                $correctAnswersCount++;
-                $score += 1;
+                        $answerMapping[$value->id] = $option->id;
+                        break;
+                    }
+                }
             }
+            // return $answers;
+            //    print_r($answerMapping);
+            foreach ($answers as $answer) {
+                if ($answerMapping[$answer->question_id] == $answer->option_id) {
+                    $correctAnswersCount++;
+                    $score += 1;
+                }
+            }
+            $score = ($score / count($answers)) * 100;
+            $result["score"] = $score;
+            $result["correctAnswerCount"] = $correctAnswersCount;
+        } else {
+            $result["score"] = 0;
+            $result["correctAnswerCount"] = 0;
         }
-        $score = ($score / count($answers)) * 100;
-        $result["score"] = $score;
-        $result["correctAnswerCount"] = $correctAnswersCount;
         $result["total"] = $total;
 
         return $result;
     }
 
-    public function quizResult($id, $result = [])
+    // public function quizResult($id, $result = [])
+    // {
+    //     $data = [];
+    //     $empty=false;
+    //     if (empty($result)) {
+    //         $empty=true;
+    //         $result = $this->calculateScore($id);
+    //     }
+    //     $data["helper"] = "Congrats";
+    //     $data["title"] = "Quiz Completed Successfully";
+    //     $data["subtitle"] = "You attempted {$result["total"]} questions and from that {$result["correctAnswerCount"]} answer is correct";
+    //     $data["score"] = $result["score"] . "% Score";
+    //     if ($empty) {
+    //         return $this->sendResponse($data);
+    //     }
+    //     return $data;
+    // }
+    public function quizResult($id,$feed=true)
     {
         $data = [];
-        $empty=false;
-        if (empty($result)) {
-            $empty=true;
-            $result = $this->calculateScore($id);
-        }
+       
+        $result = $this->calculateScore($id);
         $data["helper"] = "Congrats";
         $data["title"] = "Quiz Completed Successfully";
         $data["subtitle"] = "You attempted {$result["total"]} questions and from that {$result["correctAnswerCount"]} answer is correct";
-        $data["score"] = $result["score"] . "% Score";
-        if ($empty) {
+        $data["score_text"] = $result["score"] . "% Score";
+        $data["correctAnswerCount"] = $result["correctAnswerCount"];
+        $data["score"] = $result["score"];
+        if($feed){
             return $this->sendResponse($data);
         }
         return $data;
     }
+
 }
