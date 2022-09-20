@@ -15,9 +15,9 @@ trait FilterTraits
         $filters = $request->filters;
         $profileIds = collect([]);
 
-        if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
+        if ($profileIds->count() == 0 && isset($filters['profile_id'])) {
             $filterProfile = [];
-            foreach ($filters['include_profile_id'] as $filter) {
+            foreach ($filters['profile_id'] as $filter) {
                 //$isFilterAble = true;
                 $filterProfile[] = (int)$filter;
             }

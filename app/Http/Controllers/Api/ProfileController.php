@@ -833,7 +833,7 @@ class ProfileController extends Controller
 
             $mail = (new \App\Jobs\EmailVerification($alreadyVerified))->onQueue('emails');
             \Log::info('Queueing Verified Email...');
-
+            
             dispatch($mail);
             $this->model = true;
             return $this->sendResponse();

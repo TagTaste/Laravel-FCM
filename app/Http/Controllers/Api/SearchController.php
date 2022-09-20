@@ -24,7 +24,9 @@ class SearchController extends Controller
         'job' => \App\Recipe\Job::class,
         'jobs' => \App\Recipe\Job::class,
         'product' => \App\PublicReviewProduct::class,
-        'surveys' => \App\Surveys::class
+        'surveys' => \App\Surveys::class,
+        'quiz' => \App\Quiz::class
+
     ];
     
     private $filters = [
@@ -516,6 +518,16 @@ class SearchController extends Controller
                 {
                     $meta = $product->getMetaFor($profileId);
                     $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
+                }
+            }
+
+            if(isset($this->model['quiz']))
+            {
+                $quizes = $this->model['quiz']->where("state","=",config("constant.QUIZ_STATES.ACTIVE"));
+                $this->model['quiz'] = [];
+                foreach($quizes as $quiz){
+                    $quiz->image_meta = json_decode($quiz->image_meta);
+                    $this->model['quizes'][] = ['quiz' => $quiz, 'meta' => $quiz->getMetaFor($profileId)];
                 }
             }
            

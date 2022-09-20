@@ -24,13 +24,20 @@ return  [
         "INVITED" => 0,
         "INCOMPLETE" => 1,
         "COMPLETED" => 2,
-        "REJECTED" => 3
+        "INPROGRESS" => 3
     ],
+
+    "QUIZ_APPLICANT_ANSWER_STATUS" => [
+        "INCOMPLETE" => 1,
+        "COMPLETED" => 2
+    ],
+
 
     "SURVEY_APPLICANT_STATUS" => [
         "To Be Notified" => 0,
         "Notified" => 1,
-        "Completed" => 2
+        "Completed" => 2,
+        'In Progress' => 3
     ],
 
     "MEDIA_SURVEY_QUESTION_TYPE" => 5,
@@ -78,6 +85,13 @@ return  [
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
 
+    "QUIZ_STATES" => [
+        'ACTIVE' => 1,
+        'CLOSED' => 2,
+        'EXPIRED' => 3,
+        'DELETED' => 4
+    ],
+
     "COLLABORATE_HEADER_SELECTION_TYPE" => [
         "instruction" => 0,
         "NORMAL" => 1,
@@ -99,7 +113,8 @@ return  [
         "POLLING" => "polling",
         "PRODUCT" => "product",
         "HASHTAG" => "hashtag",
-        "LEARN_AND_EARN" => "paid_taster"
+        "LEARN_AND_EARN" => "paid_taster",
+        "QUIZ" => "quiz"
     ],
 
     "LANDING_UI_TYPE" => [

@@ -28,7 +28,6 @@ class AccountDeactivateReasonController extends Controller
         $this->model = $data;
         return $this->sendNewResponse();
     }
-
 }
 
 ?>

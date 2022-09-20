@@ -245,14 +245,14 @@ class LoginController extends Controller
             return $this->sendError('We could not find any account associated with this phone number. Try other login methods.');
         }
         //verifyIfOtpAlreadySent 
-
+        
         $check = OTPMaster::where("profile_id", $id->id)->where('mobile', "=", $request->profile["mobile"])
             ->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
             ->where("expired_at", '>', date("Y-m-d H:i:s"))
             ->where("source", $source)->orderBy("id", "desc")
             ->where("deleted_at", null)
             ->first();
-
+        
         if ($check == null) {
             //Send OTP     
             $otpNo = mt_rand(100000, 999999);
@@ -266,7 +266,7 @@ class LoginController extends Controller
                 $service = "twilio";
                 $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
             }
-
+            
             $insert = OTPMaster::create(["profile_id" => $id->id, "otp" => $otpNo, "mobile" => $request->profile["mobile"], "service" => $service, "source" => $source, "platform" => $request->profile["platform"] ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
             if ($getResp && $insert) {
                 $this->model = true;
