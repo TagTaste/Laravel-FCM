@@ -599,21 +599,21 @@ class PublicReviewProductController extends Controller
     {
         \Log::warning($message);
         $client =  new \GuzzleHttp\Client();
-        $hook = 'https://hooks.slack.com/services/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';
+        $hook = env('SLACK_HOOK');
         if ($hook) {
-            // $client->request(
-            //     'POST',
-            //     $hook,
-            //     [
-            //         'json' =>
-            //         [
-            //             "channel" => '@testerrors',
-            //             "username" => "ramukaka",
-            //             "icon_emoji" => ":older_man::skin-tone-3:",
-            //             "text" => $message
-            //         ]
-            //     ]
-            // );
+            $client->request(
+                'POST',
+                $hook,
+                [
+                    'json' =>
+                    [
+                        "channel" => env('SLACK_CHANNEL'),
+                        "username" => "ramukaka",
+                        "icon_emoji" => ":older_man::skin-tone-3:",
+                        "text" => $message
+                    ]
+                ]
+            );
         }
     }
 
