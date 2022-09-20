@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\V2\FeedController;
 use App\ReviewCollection;
 use App\ElasticHelper;
-use App\Quiz;
 use App\Traits\HashtagFactory;
 use App\Surveys;
 
@@ -48,11 +47,11 @@ class ExplorePageController extends Controller
 
         $profile = $request->user()->profile;
         $profile_id = $profile->id;
-
+        
         $search_filter = null !== $request->input('search_filter') ? $request->input('search_filter') : null;
 
         $search_value = null !== $request->input('q') ? $request->input('q') : null;
-
+        
         $model = [];
 
         /* ui type = 1 is start */
@@ -60,7 +59,7 @@ class ExplorePageController extends Controller
             "position" => 1,
             "ui_type" => 1,
             "ui_style_meta" => (object)[],
-            "title" => "Search people, collaborations, etc...",
+            "title" => "Search people, collaborations, etc...", 
             "subtitle" => null,
             "description" => null,
             "images_meta" => null,
@@ -74,29 +73,28 @@ class ExplorePageController extends Controller
 
         if (is_null($search_value)) {
             if ($search_filter === "everything" || $search_filter == null) {
-                if (($request->header('x-version') == null
-                    || $request->header('x-version') > 106)) {
-                    $model[] = [
-                        "position" => 2,
-                        "ui_type" => 8,
-                        "ui_style_meta" => (object)[],
-                        "title" => "Trending Hashtags",
-                        "subtitle" => null,
-                        "description" => null,
-                        "images_meta" => null,
-                        "type" => "hashtag",
-                        "sub_type" => "trending",
-                        "see_more" => false,
-                        "filter_meta" => (object)[],
-                        "elements" => $this->getTrendingHashtags()
-                    ];
-                }
+                if(($request->header('x-version') == null 
+                || $request->header('x-version') > 106))   {
+                $model[] = [
+                    "position" => 2,
+                    "ui_type" => 8,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Trending Hashtags", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "hashtag",
+                    "sub_type" => "trending",
+                    "see_more" => false,
+                    "filter_meta" => (object)[],
+                    "elements" => $this->getTrendingHashtags()
+                ];}
                 /* ui type = 2 is start */
                 $model[] = [
                     "position" => 3,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Products for Review",
+                    "title" => "Products for Review", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -107,13 +105,13 @@ class ExplorePageController extends Controller
                     "elements" => $this->getProductsUserCanReview($profile, $profile_id)
                 ];
                 /* ui type = 2 is end */
-
+               
                 /* ui type = 3 is start */
                 $model[] = [
                     "position" => 4,
                     "ui_type" => 3,
                     "ui_style_meta" => (object)[],
-                    "title" => "Product Collections",
+                    "title" => "Product Collections", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -124,13 +122,13 @@ class ExplorePageController extends Controller
                     "elements" => $this->getHandpickedCollection($profile, $profile_id)
                 ];
                 /* ui type = 3 is end */
-
+                
                 /* ui type = 4 is start */
                 $model[] = [
                     "position" => 5,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "Suggested People",
+                    "title" => "Suggested People", 
                     "subtitle" => "Based on your background & interests",
                     "description" => null,
                     "images_meta" => null,
@@ -147,7 +145,7 @@ class ExplorePageController extends Controller
                     "position" => 6,
                     "ui_type" => 5,
                     "ui_style_meta" => (object)[],
-                    "title" => "Explore by Specialization",
+                    "title" => "Explore by Specialization", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -164,7 +162,7 @@ class ExplorePageController extends Controller
                     "position" => 7,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Collaborations for you",
+                    "title" => "Collaborations for you", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -181,7 +179,7 @@ class ExplorePageController extends Controller
                     "position" => 8,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Latest Surveys",
+                    "title" => "Latest Surveys", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -192,21 +190,6 @@ class ExplorePageController extends Controller
                     "elements" => $this->getSurvey($profile, $profile_id)
                 ];
                 /* ui type = 3 is end */
-
-                $model[] = [
-                    "position" => 9,
-                    "ui_type" => 7,
-                    "ui_style_meta" => (object)[],
-                    "title" => "Latest Quizes",
-                    "subtitle" => null,
-                    "description" => null,
-                    "images_meta" => null,
-                    "type" => "collection",
-                    "sub_type" => "quizes",
-                    "see_more" => true,
-                    "filter_meta" => (object)[],
-                    "elements" => $this->getQuiz($profile, $profile_id)
-                ];
             }
 
             if ($search_filter === "surveys") {
@@ -215,7 +198,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Latest Surveys",
+                    "title" => "Latest Surveys", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -234,7 +217,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Products for Review",
+                    "title" => "Products for Review", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -251,7 +234,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 3,
                     "ui_style_meta" => (object)[],
-                    "title" => "Product Collections",
+                    "title" => "Product Collections", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -268,7 +251,7 @@ class ExplorePageController extends Controller
                     "position" => 4,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Recently Reviewed Products",
+                    "title" => "Recently Reviewed Products", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -287,7 +270,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "Suggested People",
+                    "title" => "Suggested People", 
                     "subtitle" => "Based on your network",
                     "description" => null,
                     "images_meta" => null,
@@ -304,7 +287,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "Active & Influential",
+                    "title" => "Active & Influential", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -321,7 +304,7 @@ class ExplorePageController extends Controller
                     "position" => 4,
                     "ui_type" => 5,
                     "ui_style_meta" => (object)[],
-                    "title" => "Explore by Specialization",
+                    "title" => "Explore by Specialization", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -340,7 +323,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Be a part of a Tasting Session",
+                    "title" => "Be a part of a Tasting Session", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -357,7 +340,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Interesting Opportunities for you",
+                    "title" => "Interesting Opportunities for you", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -376,7 +359,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => "Brands & Companies",
+                    "title" => "Brands & Companies", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -393,7 +376,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => "Suggested Companies",
+                    "title" => "Suggested Companies", 
                     "subtitle" => "Based on your network",
                     "description" => null,
                     "images_meta" => null,
@@ -405,52 +388,32 @@ class ExplorePageController extends Controller
                 ];
                 /* ui type = 7 is end */
             }
-
-            if ($search_filter === "quiz") {
-                /* ui type = 7 is start */
-                $model[] = [
-                    "position" => 2,
-                    "ui_type" => 7,
-                    "ui_style_meta" => (object)[],
-                    "title" => "Latest Quizes",
-                    "subtitle" => null,
-                    "description" => null,
-                    "images_meta" => null,
-                    "type" => "collection",
-                    "sub_type" => "quizes",
-                    "see_more" => true,
-                    "filter_meta" => (object)[],
-                    "elements" => $this->getQuiz($profile, $profile_id)
-                ];
-                /* ui type = 6 is end */
-            }
         } else {
             if ($search_filter === "everything" || $search_filter == null) {
                 $profile_elastic_data = $this->getSearchProfileElastic($profile, $profile_id, $search_value, 20);
 
-                if (($request->header('x-version') == null
-                    || $request->header('x-version') > 106)) {
-                    $model[] = [
-                        "position" => 2,
-                        "ui_type" => 8,
-                        "ui_style_meta" => (object)[],
-                        "title" => "Hashtag Suggestions",
-                        "subtitle" => null,
-                        "description" => null,
-                        "images_meta" => null,
-                        "type" => "hashtag",
-                        "sub_type" => "suggestions",
-                        "see_more" => false,
-                        "filter_meta" => (object)[],
-                        "elements" => $this->getHashtagSuggestions($search_value)
-                    ];
-                }
+                if(($request->header('x-version') == null 
+                || $request->header('x-version') > 106))   {
+                $model[] = [
+                    "position" => 2,
+                    "ui_type" => 8,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Hashtag Suggestions", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "hashtag",
+                    "sub_type" => "suggestions",
+                    "see_more" => false,
+                    "filter_meta" => (object)[],
+                    "elements" => $this->getHashtagSuggestions($search_value)
+                ];}
                 /* ui type = 4 is start */
                 $model[] = [
                     "position" => 3,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $profile_elastic_data['top_result']['count']) . " in People",
+                    "title" => "Top ".str_plural("Result", $profile_elastic_data['top_result']['count'])." in People", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -465,7 +428,7 @@ class ExplorePageController extends Controller
                     "position" => 4,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in People',
+                    "title" => '"'.$search_value.'"'.' in People', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -476,14 +439,14 @@ class ExplorePageController extends Controller
                     "elements" => $profile_elastic_data['match']
                 ];
                 /* ui type = 4 is end */
-
+               
                 $product_elastic_data = $this->getSearchProductElastic($profile, $profile_id, $search_value, 20);
                 // /* ui type = 2 is start */
                 $model[] = [
                     "position" => 5,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $product_elastic_data['top_result']['count']) . " in Products",
+                    "title" => "Top ".str_plural("Result", $product_elastic_data['top_result']['count'])." in Products",
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -498,7 +461,7 @@ class ExplorePageController extends Controller
                     "position" => 6,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in Products',
+                    "title" => '"'.$search_value.'"'.' in Products', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -516,7 +479,7 @@ class ExplorePageController extends Controller
                     "position" => 7,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $collaborate_elastic_data['top_result']['count']) . " in Collaborations",
+                    "title" => "Top ".str_plural("Result", $collaborate_elastic_data['top_result']['count'])." in Collaborations", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -527,11 +490,11 @@ class ExplorePageController extends Controller
                     "elements" => $collaborate_elastic_data['top_result']
                 ];
 
-                $model[] = [
+                 $model[] = [
                     "position" => 8,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in Collaborations',
+                    "title" => '"'.$search_value.'"'.' in Collaborations', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -549,7 +512,7 @@ class ExplorePageController extends Controller
                     "position" => 9,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $company_elastic_data['top_result']['count']) . " in Companies",
+                    "title" => "Top ".str_plural("Result", $company_elastic_data['top_result']['count'])." in Companies", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -563,7 +526,7 @@ class ExplorePageController extends Controller
                     "position" => 10,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in Companies',
+                    "title" => '"'.$search_value.'"'.' in Companies', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -583,7 +546,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $product_elastic_data['top_result']['count']) . " in Products",
+                    "title" => "Top ".str_plural("Result", $product_elastic_data['top_result']['count'])." in Products", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -598,7 +561,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 2,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in Products',
+                    "title" => '"'.$search_value.'"'.' in Products', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -618,7 +581,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $profile_elastic_data['top_result']['count']) . " in People",
+                    "title" => "Top ".str_plural("Result", $profile_elastic_data['top_result']['count'])." in People", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -633,7 +596,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 4,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in People',
+                    "title" => '"'.$search_value.'"'.' in People', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -652,7 +615,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $collaborate_elastic_data['top_result']['count']) . " in Collaborations",
+                    "title" => "Top ".str_plural("Result", $collaborate_elastic_data['top_result']['count'])." in Collaborations", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -663,11 +626,11 @@ class ExplorePageController extends Controller
                     "elements" => $collaborate_elastic_data['top_result']
                 ];
 
-                $model[] = [
+                 $model[] = [
                     "position" => 3,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in Collaborations',
+                    "title" => '"'.$search_value.'"'.' in Collaborations', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -686,7 +649,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $survey_elastic_data['top_result']['count']) . " in Surveys",
+                    "title" => "Top ".str_plural("Result", $survey_elastic_data['top_result']['count'])." in Surveys", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -697,11 +660,11 @@ class ExplorePageController extends Controller
                     "elements" => $survey_elastic_data['top_result']
                 ];
 
-                $model[] = [
+                 $model[] = [
                     "position" => 3,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in Surveys',
+                    "title" => '"'.$search_value.'"'.' in Surveys', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -720,7 +683,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $company_elastic_data['top_result']['count']) . " in Companies",
+                    "title" => "Top ".str_plural("Result", $company_elastic_data['top_result']['count'])." in Companies", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -734,7 +697,7 @@ class ExplorePageController extends Controller
                     "position" => 3,
                     "ui_type" => 7,
                     "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in Companies',
+                    "title" => '"'.$search_value.'"'.' in Companies', 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -746,42 +709,8 @@ class ExplorePageController extends Controller
                 ];
                 /* ui type = 7 is end */
             }
-            if ($search_filter === "quiz") {
-                $quiz_elastic_data = $this->getSearchQuizesElastic($profile, $profile_id, $search_value, 20);
-                // /* ui type = 6 is start */
-                $model[] = [
-                    "position" => 2,
-                    "ui_type" => 7,
-                    "ui_style_meta" => (object)[],
-                    "title" => "Top " . str_plural("Result", $quiz_elastic_data['top_result']['count']) . " in Quizes",
-                    "subtitle" => null,
-                    "description" => null,
-                    "images_meta" => null,
-                    "type" => "collection",
-                    "sub_type" => "quizes",
-                    "see_more" => false,
-                    "filter_meta" => (object)[],
-                    "elements" => $quiz_elastic_data['top_result']
-                ];
-
-                $model[] = [
-                    "position" => 3,
-                    "ui_type" => 7,
-                    "ui_style_meta" => (object)[],
-                    "title" => '"' . $search_value . '"' . ' in Quizes',
-                    "subtitle" => null,
-                    "description" => null,
-                    "images_meta" => null,
-                    "type" => "collection",
-                    "sub_type" => "quizes",
-                    "see_more" => true,
-                    "filter_meta" => (object)[],
-                    "elements" => $quiz_elastic_data['match']
-                ];
-                // /* ui type = 6 is end */
-            }
         }
-
+        
 
         $this->model = $model;
         return $this->sendResponse();
@@ -879,22 +808,6 @@ class ExplorePageController extends Controller
             $search_filter_detail['search_filter'],
             $surveys_search_filter
         );
-        //quiz serch filter
-        $quizes_search_filter = array(
-            "name" => "quizes",
-            "key" => "type",
-            "value" => "quizes",
-            "is_selected" => false
-        );
-
-        if ($filter_type === "quiz") {
-            $quizes_search_filter["is_selected"] = true;
-        }
-
-        array_push(
-            $search_filter_detail['search_filter'],
-            $quizes_search_filter
-        );
 
         // company search filter
         $company_search_filter = array(
@@ -914,29 +827,29 @@ class ExplorePageController extends Controller
         );
 
         $search_filter_detail['count'] = count($search_filter_detail['search_filter']);
-        return $search_filter_detail;
+        return $search_filter_detail;        
     }
 
     public function getProductsUserCanReview($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
         $products_suggestion = FeedController::suggestionProducts($client, $profile, $profile_id);
-
+        
         $products_suggestion_detail = array(
             "product" => $products_suggestion["suggestion"],
             "count" => $products_suggestion["meta"]["count"],
             "type" => "product"
         );
-        return $products_suggestion_detail;
+        return $products_suggestion_detail;     
     }
 
     public function getTrendingHashtags()
     {
         $hashtags = $this->trendingHashtags();
         return array(
-            "hashtag" => $hashtags,
-            "count" => count($hashtags),
-            "type" => "hashtag"
+            "hashtag"=>$hashtags,
+            "count"=>count($hashtags),
+            "type"=>"hashtag"
         );
     }
 
@@ -944,9 +857,9 @@ class ExplorePageController extends Controller
     {
         $hashtags = $this->hashtagSuggestions($key);
         return array(
-            "hashtag" => $hashtags,
-            "count" => count($hashtags),
-            "type" => "hashtag"
+            "hashtag"=>$hashtags,
+            "count"=>count($hashtags),
+            "type"=>"hashtag"
         );
     }
 
@@ -959,21 +872,21 @@ class ExplorePageController extends Controller
             "count" => $products_suggestion["meta"]["count"],
             "type" => "product"
         );
-        return $products_suggestion_detail;
+        return $products_suggestion_detail;     
     }
 
     public function getHandpickedCollection($profile, $profile_id)
     {
-        $collections = ReviewCollection::where("type", "collection")
-            ->where("category_type", "product")
-            ->where("is_active", 1)
+        $collections = ReviewCollection::where("type","collection")
+            ->where("category_type","product")
+            ->where("is_active",1)
             ->whereNull("deleted_at")
             ->inRandomOrder()
             ->get()
             ->makeHidden(['elements', 'backend'])
             ->take(10)
             ->toArray();
-
+        
         $handpicked_collection_detail = array(
             "collection" => array(),
             "count" => 0,
@@ -984,14 +897,14 @@ class ExplorePageController extends Controller
             array_push($handpicked_collection_detail['collection'], $collection);
             $handpicked_collection_detail['count'] += 1;
         }
-        return $handpicked_collection_detail;
+        return $handpicked_collection_detail;     
     }
 
     public function getProfileSuggestion($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
         $profile_suggestion = FeedController::suggestionOfFollower($client, $profile, $profile_id);
-
+        
         foreach ($profile_suggestion["suggestion"] as $key => $value) {
             $profile_suggestion["suggestion"][$key]["isFollowing"] = false;
         }
@@ -1001,7 +914,7 @@ class ExplorePageController extends Controller
             "count" => $profile_suggestion["meta"]["count"],
             "type" => "profile"
         );
-        return $profile_suggestion_detail;
+        return $profile_suggestion_detail;     
     }
 
     public function getActiveAndInfluentialProfileSuggestion($profile, $profile_id)
@@ -1012,7 +925,7 @@ class ExplorePageController extends Controller
             "count" => $profile_suggestion["meta"]["count"],
             "type" => "profile"
         );
-        return $profile_suggestion_detail;
+        return $profile_suggestion_detail;     
     }
 
     public function getCompanySuggestion($profile, $profile_id)
@@ -1029,7 +942,7 @@ class ExplorePageController extends Controller
             "count" => $company_suggestion["meta"]["count"],
             "type" => "company"
         );
-        return $company_suggestion_detail;
+        return $company_suggestion_detail;     
     }
 
     public function getUpcomingCompanySuggestion($profile, $profile_id)
@@ -1041,13 +954,13 @@ class ExplorePageController extends Controller
             "count" => $company_suggestion["meta"]["count"],
             "type" => "company"
         );
-        return $company_suggestion_detail;
+        return $company_suggestion_detail;     
     }
 
     public function getSpecialization($profile, $profile_id)
     {
         $specializations = \DB::table('specializations')->get()->toArray();
-
+        
         $specialization_detail = array(
             "specialization" => array(),
             "count" => 0,
@@ -1058,13 +971,13 @@ class ExplorePageController extends Controller
             array_push($specialization_detail["specialization"], $specialization);
             $specialization_detail["count"] += 1;
         }
-        return $specialization_detail;
+        return $specialization_detail;     
     }
 
     public function getSurvey($profile, $profile_id)
     {
-
-        $surveys = Surveys::where('state', 2)
+        
+        $surveys = Surveys::where('state',2)
             ->whereNull('deleted_at')
             ->inRandomOrder()
             ->take(10)
@@ -1085,40 +998,11 @@ class ExplorePageController extends Controller
                 $cached_data->video_meta = json_decode($cached_data->video_meta);
 
                 array_push($survey_detail["surveys"], $cached_data);
-                $survey_detail["count"] += 1;
+                $survey_detail["count"] += 1;    
             }
         }
-        return $survey_detail;
-    }
+        return $survey_detail; 
 
-    public function getQuiz($profile, $profile_id)
-    {
-
-        $quizes = Quiz::where('state', 2)
-            ->whereNull('deleted_at')
-            ->inRandomOrder()
-            ->take(10)
-            ->pluck('id')
-            ->toArray();
-
-
-        $quiz_detail = array(
-            "quizes" => array(),
-            "count" => 0,
-            "type" => "quizes"
-        );
-
-        foreach ($quizes as $key => $id) {
-            $cached_data = \App\Quiz::where('id', $id)->first();
-            if (!is_null($cached_data)) {
-                $cached_data->image_meta = json_decode($cached_data->image_meta);
-                $cached_data->video_meta = json_decode($cached_data->video_meta);
-
-                array_push($quiz_detail["quizes"], $cached_data);
-                $quiz_detail["count"] += 1;
-            }
-        }
-        return $quiz_detail;
     }
 
     public function getCollaborationSuggestion($profile, $profile_id)
@@ -1130,7 +1014,7 @@ class ExplorePageController extends Controller
             "count" => $collaborations_suggestion["meta"]["count"],
             "type" => "collaborate"
         );
-        return $collaboration_suggestion_detail;
+        return $collaboration_suggestion_detail;     
     }
 
     public function getPublicReviewCollaborationSuggestion($profile, $profile_id, $count)
@@ -1142,7 +1026,7 @@ class ExplorePageController extends Controller
             "count" => $collaborations_suggestion["meta"]["count"],
             "type" => "collaborate"
         );
-        return $collaboration_suggestion_detail;
+        return $collaboration_suggestion_detail;     
     }
 
     public function getGeneralCollaborationSuggestion($profile, $profile_id, $count)
@@ -1154,7 +1038,7 @@ class ExplorePageController extends Controller
             "count" => $collaborations_suggestion["meta"]["count"],
             "type" => "collaborate"
         );
-        return $collaboration_suggestion_detail;
+        return $collaboration_suggestion_detail;     
     }
 
     public function getSearchProfileElastic($profile, $profile_id, $query, $count)
@@ -1171,7 +1055,7 @@ class ExplorePageController extends Controller
                 "type" => "profile"
             )
         );
-        $elastic_profile_details = ElasticHelper::suggestedSearch($query, "profile", 0, 1);
+        $elastic_profile_details = ElasticHelper::suggestedSearch($query,"profile",0,1);
         if (isset($elastic_profile_details['hits']) && isset($elastic_profile_details['hits']['total']) && $elastic_profile_details['hits']['total'] > 0) {
             foreach ($elastic_profile_details['hits']['hits'] as $key => $hit) {
                 if ($hit["_type"] == "profile") {
@@ -1200,7 +1084,7 @@ class ExplorePageController extends Controller
                                     array_push($elastic_profile['match']["profile"], $profile);
                                 }
                             }
-                        }
+                        }   
                     }
                 }
             }
@@ -1222,15 +1106,15 @@ class ExplorePageController extends Controller
                 "type" => "product"
             )
         );
-        $elastic_product_details = ElasticHelper::suggestedSearch($query, "product", 0, 1);
+        $elastic_product_details = ElasticHelper::suggestedSearch($query,"product",0,1);
         if (isset($elastic_product_details['hits']) && isset($elastic_product_details['hits']['total']) && $elastic_product_details['hits']['total'] > 0) {
             foreach ($elastic_product_details['hits']['hits'] as $key => $hit) {
                 if ($hit["_type"] == "product") {
                     if ($count == $elastic_product['top_result']["count"] && $count == $elastic_product['match']["count"]) {
                         break;
                     } else {
-                        $public_review_product = PublicReviewProduct::where('id', $hit["_id"])
-                            ->where('is_active', 1)
+                        $public_review_product = PublicReviewProduct::where('id',$hit["_id"])
+                            ->where('is_active',1)
                             ->whereNull('deleted_at')
                             ->get()
                             ->first();
@@ -1275,19 +1159,19 @@ class ExplorePageController extends Controller
                 "type" => "surveys"
             )
         );
-        $elastic_survey_details = ElasticHelper::suggestedSearch($query, "surveys", 0, 1);
+        $elastic_survey_details = ElasticHelper::suggestedSearch($query,"surveys",0,1);
         if (isset($elastic_survey_details['hits']) && isset($elastic_survey_details['hits']['total']) && $elastic_survey_details['hits']['total'] > 0) {
             foreach ($elastic_survey_details['hits']['hits'] as $key => $hit) {
                 if ($hit["_type"] == "surveys") {
                     if ($count == $elastic_surveys['top_result']["count"] && $count == $elastic_surveys['match']["count"]) {
                         break;
                     } else {
-                        $survey = Surveys::where('id', $hit["_id"])
-                            ->where('is_active', 1)
-                            ->where('state', 2)
-                            ->whereNull('deleted_at')
-                            ->get()
-                            ->first();
+                        $survey = Surveys::where('id',$hit["_id"])
+                        ->where('is_active',1)
+                        ->where('state',2)
+                        ->whereNull('deleted_at')
+                        ->get()
+                        ->first();
 
                         if (!is_null($survey)) {
                             $data = $survey->toArray();
@@ -1314,58 +1198,6 @@ class ExplorePageController extends Controller
         return $elastic_surveys;
     }
 
-    public function getSearchQuizesElastic($profile, $profile_id, $query, $count)
-    {
-        $elastic_quiz = array(
-            "top_result" => array(
-                "quiz" => array(),
-                "count" => 0,
-                "type" => "quiz"
-            ),
-            "match" => array(
-                "quiz" => array(),
-                "count" => 0,
-                "type" => "quiz"
-            )
-        );
-        $elastic_quiz_details = ElasticHelper::suggestedSearch($query, "quiz", 0, 1);
-        if (isset($elastic_quiz_details['hits']) && isset($elastic_quiz_details['hits']['total']) && $elastic_quiz_details['hits']['total'] > 0) {
-            foreach ($elastic_quiz_details['hits']['hits'] as $key => $hit) {
-                if ($hit["_type"] == "quiz") {
-                    if ($count == $elastic_quiz['top_result']["count"] && $count == $elastic_quiz['match']["count"]) {
-                        break;
-                    } else {
-                        $quiz = Quiz::where('id', $hit["_id"])
-                            ->where('state', 2)
-                            ->whereNull('deleted_at')
-                            ->get()
-                            ->first();
-
-                        if (!is_null($quiz)) {
-                            $data = $quiz->toArray();
-                            if ($hit["_score"] > 9) {
-                                if ($count == $elastic_quiz['top_result']["count"]) {
-                                    continue;
-                                } else {
-                                    $elastic_quiz['top_result']["count"]++;
-                                    array_push($elastic_quiz['top_result']["quiz"], $data);
-                                }
-                            } else {
-                                if ($count == $elastic_quiz['match']["count"]) {
-                                    continue;
-                                } else {
-                                    $elastic_quiz['match']["count"]++;
-                                    array_push($elastic_quiz['match']["quiz"], $data);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $elastic_quiz;
-    }
-
     public function getSearchCollaborationElastic($profile, $profile_id, $query, $count)
     {
         $elastic_collaborate = array(
@@ -1380,7 +1212,7 @@ class ExplorePageController extends Controller
                 "type" => "collaborate"
             )
         );
-        $elastic_collaborate_details = ElasticHelper::suggestedSearch($query, "collaborate", 0, 1);
+        $elastic_collaborate_details = ElasticHelper::suggestedSearch($query,"collaborate",0,1);
         if (isset($elastic_collaborate_details['hits']) && isset($elastic_collaborate_details['hits']['total']) && $elastic_collaborate_details['hits']['total'] > 0) {
             foreach ($elastic_collaborate_details['hits']['hits'] as $key => $hit) {
                 if ($hit["_type"] == "collaborate") {
@@ -1388,7 +1220,7 @@ class ExplorePageController extends Controller
                         break;
                     } else {
                         $collaborate = \App\V2\Detailed\Collaborate::where('id', (int)$hit["_id"])
-                            ->where('collaborates.state', Collaborate::$state[0])
+                            ->where('collaborates.state',Collaborate::$state[0])
                             ->whereNull('deleted_at')
                             ->first();
 
@@ -1431,7 +1263,7 @@ class ExplorePageController extends Controller
                 "type" => "company"
             )
         );
-        $elastic_company_details = ElasticHelper::suggestedSearch($query, "company", 0, 1);
+        $elastic_company_details = ElasticHelper::suggestedSearch($query,"company",0,1);
         if (isset($elastic_company_details['hits']) && isset($elastic_company_details['hits']['total']) && $elastic_company_details['hits']['total'] > 0) {
             foreach ($elastic_company_details['hits']['hits'] as $key => $hit) {
                 if ($hit["_type"] == "company") {
@@ -1446,7 +1278,7 @@ class ExplorePageController extends Controller
                             $company = $company->toArray();
                             $company["company_id"] = (int)$hit["_id"];
                             $company["isFollowing"] = \App\Company::checkFollowing((int)$profile_id, (int)$hit["_id"]);
-
+                            
                             if ($hit["_score"] > 9) {
                                 if ($count == $elastic_company['top_result']["count"]) {
                                     continue;

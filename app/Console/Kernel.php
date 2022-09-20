@@ -341,7 +341,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:polling')->dailyAt('12:05');
 
         //daily quiz expire at 12
-        $schedule->command('expires_on:quiz')->dailyAt('12:05');
+        // $schedule->command('expires_on:quiz')->dailyAt('12:05');
 
         //daily polling expire at 12
         $schedule->command(UpdateProfileCompiledInfo::class)->dailyAt('12:00');
