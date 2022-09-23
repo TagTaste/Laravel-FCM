@@ -459,7 +459,8 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } else if (isset($quiz->profile_id) &&  $quiz->profile_id != $request->user()->profile->id) {
+        } 
+        else if (isset($quiz->profile_id) &&  $quiz->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Admin can close the quiz");
         }
@@ -544,10 +545,10 @@ class QuizController extends Controller
                 return $this->sendError("Quiz is expired. Cannot submit answers");
             }
 
-            // if (isset($quiz->profile_id) && $quiz->profile_id == $request->user()->profile->id) {
-            //     $this->model = ["status" => false];
-            //     return $this->sendError("Admin Cannot Fill the Quizes");
-            // }
+            if (isset($quiz->profile_id) && $quiz->profile_id == $request->user()->profile->id) {
+                $this->model = ["status" => false];
+                return $this->sendError("Admin Cannot Fill the Quizes");
+            }
 
 
             $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
