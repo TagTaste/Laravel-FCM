@@ -175,7 +175,7 @@ class QuizController extends Controller
         $getData["closing_reason"] = $getQuiz->getClosingReason();
         $this->messages = "Request successfull";
         $this->model = [
-            "surveys" => $getData,
+            "quizes" => $getData,
             "meta" => $getQuiz->getMetaFor(request()->user()->profile->id)
         ];
         return $this->sendResponse();
@@ -613,7 +613,7 @@ class QuizController extends Controller
 
                 $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 $user = $request->user()->profile->id;
-                Redis::set("quizes:application_status:$request->survey_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+                Redis::set("quizes:application_status:$request->quiz_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
             } else {
                 $responseData = ["status" => false];
             }
@@ -641,7 +641,7 @@ class QuizController extends Controller
         $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
 
-        $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
+        $paymnetExist = PaymentDetails::where('model_id', $request->quiz_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
 
 
