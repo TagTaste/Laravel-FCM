@@ -21,10 +21,7 @@ use App\QuizAnswers;
 use App\Payment\PaymentLinks;
 use App\PaymentHelper;
 use App\Events\TransactionInit;
-
-
-
-
+use App\QuizApplicants;
 
 class QuizController extends Controller
 {
@@ -349,7 +346,7 @@ class QuizController extends Controller
             //required node for questions    
             $requiredNode = ["title", "question_type", "image_meta", "id", "options"];
             //required option nodes
-            $optionNodeChecker = ["id", "image_meta", "title"];
+            $optionNodeChecker = ["id","image_meta","title"];
 
             $maxQueId = 1;
             if ($isUpdation) {
@@ -789,6 +786,20 @@ class QuizController extends Controller
     {
         $data = [];
         $empty=false;
+        $quiz = $this->model->where("id", "=", $id)->first();
+
+        $this->model = [];
+        if (empty($quiz)) {     //quiz not exists
+            $this->model = ["status" => false];
+            return $this->sendError("Invalid Quiz");
+        }
+
+       $applicant =  QuizApplicants::where("quiz_id",$id)->where("profile_id",request()->user()->profile->id)->whereNull("deleted_at")
+        ->first();
+        if(empty($applicant)){    //user has not attempted quiz
+            return $this->sendError("Quiz not attempted");
+        }
+
         if (empty($result)) {
             $empty=true;
             $result = $this->calculateScore($id);
