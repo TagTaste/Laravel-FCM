@@ -21,10 +21,7 @@ use App\QuizAnswers;
 use App\Payment\PaymentLinks;
 use App\PaymentHelper;
 use App\Events\TransactionInit;
-
-
-
-
+use App\QuizApplicants;
 
 class QuizController extends Controller
 {
@@ -498,7 +495,7 @@ class QuizController extends Controller
         if ($quiz) {
             $this->model = \DB::table('quiz_close_reasons')->insert($data);;
             $this->messages = "Quiz Closed Successfully";
-              $get->removeFromGraph(); // remove node and edge from neo4j
+            $get->removeFromGraph(); // remove node and edge from neo4j
             event(new DeleteFeedable($get));
         }
         return $this->sendResponse();
@@ -593,13 +590,28 @@ class QuizController extends Controller
             }
             $user = $request->user()->profile;
             $responseData = [];
+
             if ($commit) {
                 DB::commit();
-                $score = $this->calculateScore($id);
+                // $score = $this->calculateScore($id);
+                $result = $this->quizResult($id, false);
+                // return $score;
+                // $score=(string) $score;
                 $this->model = true;
                 $responseData = ["status" => true];
+
+
                 $this->messages = "Answer Submitted Successfully";
-                $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $score, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
+
+                $data = [];
+                $data['helper'] = $result["helper"];
+                $data['title'] = $result["title"];
+                $data['subtitle'] = $result["subtitle"];
+                $data['score_text'] = $result["score_text"];
+                $data["correctAnswerCount"] = $result["correctAnswerCount"];
+                $data["score"] = $result["score"];
+
+                $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 $user = $request->user()->profile->id;
                 Redis::set("quizes:application_status:$request->survey_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
             } else {
@@ -613,14 +625,15 @@ class QuizController extends Controller
                 $quiz->addToGraph();
                 $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
-
-            return $this->sendResponse($responseData);
+            $responseData = array_merge($responseData, $data);
+            return $this->sendResponse([$responseData]);
         } catch (Exception $ex) {
             DB::rollback();
             $this->model = ["status" => false];
             return $this->sendError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
         }
     }
+
 
     public function paidProcessing(Request $request)
     {
@@ -752,46 +765,75 @@ class QuizController extends Controller
     public function calculateScore($id)
     {
         //calculation of final score of an applicant
-
+        //  dd("helo");
         $correctAnswersCount = 0;
         $questions =  Quiz::where("id", $id)->first();
         $questions = json_decode($questions->form_json);
         $answerMapping = [];
-        $total = count($questions);
-        foreach ($questions as $value) {
-            foreach ($value->options as $option) {
-                if (isset($option->is_correct) && $option->is_correct) {
-
-                    $answerMapping[$value->id] = $option->id;
-                    break;
-                }
-            }
-        }
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
         $score = 0;
-       
-        foreach ($answers as $answer) {
-            if ($answerMapping[$answer->question_id] == $answer->option_id) {
-                $correctAnswersCount++;
-                $score += 1;
+        // return $answers;
+        $total = count($questions);
+
+        if (count($answers)) {
+            foreach ($questions as $value) {
+                foreach ($value->options as $option) {
+                    if (isset($option->is_correct) && $option->is_correct) {
+
+                        $answerMapping[$value->id][] = $option->id;
+                        
+                    }
+                }
             }
+            // return $answers;
+            //    print_r($answerMapping);
+           
+            foreach ($questions as $question) {
+                $answerArray = QuizAnswers::where("question_id",$question->id)->pluck("option_id")->toArray(); 
+                if (!count(array_diff($answerArray,$answerMapping[$question->id]))) {
+                    $correctAnswersCount++;
+                    $score += 1;
+                }
+            }
+            $score = ($score / $total) * 100;
+            $result["score"] = $score;
+            $result["correctAnswerCount"] = $correctAnswersCount;
+        } else {
+            $result["score"] = 0;
+            $result["correctAnswerCount"] = 0;
         }
-        $score = ($score / count($answers)) * 100;
-        $result["score"] = $score;
-        $result["correctAnswerCount"] = $correctAnswersCount;
         $result["total"] = $total;
 
         return $result;
     }
 
-    public function quizResult($id){
+
+    public function quizResult($id, $feed = true)
+    {
         $data = [];
+
+        $quiz = $this->model->where("id", "=", $id)->first();
+
+        $this->model = [];
+        if (empty($quiz)) {
+            $this->model = ["status" => false];
+            return $this->sendError("Invalid Quiz");
+        }
+        $applicant = QuizApplicants::where("quiz_id", $id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")
+            ->first();
+        if (empty($applicant)) {
+            return $this->sendError("user has not attempted the quiz");
+        }
         $result = $this->calculateScore($id);
         $data["helper"] = "Congrats";
         $data["title"] = "Quiz Completed Successfully";
         $data["subtitle"] = "You attempted {$result["total"]} questions and from that {$result["correctAnswerCount"]} answer is correct";
-        $data["score"] = $result["score"]. "% Score";
-        return $result;
-
+        $data["score_text"] = $result["score"] . "% Score";
+        $data["correctAnswerCount"] = $result["correctAnswerCount"];
+        $data["score"] = $result["score"];
+        if ($feed) {
+            return $this->sendResponse($data);
+        }
+        return $data;
     }
 }
