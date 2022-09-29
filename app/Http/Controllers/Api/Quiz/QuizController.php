@@ -21,10 +21,7 @@ use App\QuizAnswers;
 use App\Payment\PaymentLinks;
 use App\PaymentHelper;
 use App\Events\TransactionInit;
-
-
-
-
+use App\QuizApplicants;
 
 class QuizController extends Controller
 {
@@ -178,7 +175,7 @@ class QuizController extends Controller
         $getData["closing_reason"] = $getQuiz->getClosingReason();
         $this->messages = "Request successfull";
         $this->model = [
-            "surveys" => $getData,
+            "quiz" => $getData,
             "meta" => $getQuiz->getMetaFor(request()->user()->profile->id)
         ];
         return $this->sendResponse();
@@ -285,6 +282,27 @@ class QuizController extends Controller
             $getQuiz->addToCache();
             event(new UpdateFeedable($getQuiz));
         }
+
+        // //draft code --commented for now
+        // if ($getQuiz->state == config("constant.QUIZ_STATES.DRAFT") && $request->state == config("constant.QUIZ_STATES.PUBLISHED")) {
+        //     //create new cache
+        //     $getQuiz = $create->first();
+        //     if ($request->has('company_id')) {
+        //         event(new NewFeedable($getQuiz, Company::find($request->company_id)));
+        //     } else {
+        //         event(new NewFeedable($getQuiz, $request->user()->profile));
+        //     }
+        //     event(new Create($getQuiz, $request->user()->profile));
+
+        //     $getQuiz->addToCache();
+        //     event(new UpdateFeedable($getQuiz));
+        // } else if ($getQuiz->state == config("constant.QUIZ_STATES.PUBLISHED")) {
+        //     //update cache
+        //     $getQuiz = $create->first();
+
+        //     $getQuiz->addToCache();
+        //     event(new UpdateFeedable($getQuiz));
+        // }
 
         if (($previousState == config("constant.QUIZ_STATES.EXPIRED") || $previousState == config("constant.QUIZ_STATES.CLOSED"))
             && $request->state == config("constant.QUIZ_STATES.ACTIVE")
@@ -498,7 +516,7 @@ class QuizController extends Controller
         if ($quiz) {
             $this->model = \DB::table('quiz_close_reasons')->insert($data);;
             $this->messages = "Quiz Closed Successfully";
-              $get->removeFromGraph(); // remove node and edge from neo4j
+            $get->removeFromGraph(); // remove node and edge from neo4j
             event(new DeleteFeedable($get));
         }
         return $this->sendResponse();
@@ -562,6 +580,27 @@ class QuizController extends Controller
 
 
             $questions = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
+            $prepareQuestionJson = $this->prepQuestionJson($quiz->form_json);
+
+            $mandateQuestions = [];
+            $mandateQuestions =  array_map(function ($v) {
+                if (isset($v["is_mandatory"]) && $v["is_mandatory"] == true) {
+                    return  $v["id"];
+                }
+            }, $prepareQuestionJson);
+
+            $answerQuestionIds = [];
+
+            $answerQuestionIds =  array_map(function ($vi) {
+                return  $vi["question_id"];
+            }, $questions);
+            
+            $mandateQuestions = array_values(array_filter($mandateQuestions));
+
+
+            if (!empty(array_diff($mandateQuestions, $answerQuestionIds))) {
+                return $this->sendError("Mandatory Questions Cannot Be Blank");
+            }
 
             DB::beginTransaction();
             $commit = true;
@@ -593,15 +632,30 @@ class QuizController extends Controller
             }
             $user = $request->user()->profile;
             $responseData = [];
+
             if ($commit) {
                 DB::commit();
-                $score = $this->calculateScore($id);
+                // $score = $this->calculateScore($id);
+                $result = $this->quizResult($id, false);
+                // return $score;
+                // $score=(string) $score;
                 $this->model = true;
                 $responseData = ["status" => true];
+
+
                 $this->messages = "Answer Submitted Successfully";
-                $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $score, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
+
+                $data = [];
+                $data['helper'] = $result["helper"];
+                $data['title'] = $result["title"];
+                $data['subtitle'] = $result["subtitle"];
+                $data['score_text'] = $result["score_text"];
+                $data["correctAnswerCount"] = $result["correctAnswerCount"];
+                $data["score"] = $result["score"];
+
+                $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 $user = $request->user()->profile->id;
-                Redis::set("quizes:application_status:$request->survey_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+                Redis::set("quizes:application_status:$request->quiz_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
             } else {
                 $responseData = ["status" => false];
             }
@@ -613,8 +667,8 @@ class QuizController extends Controller
                 $quiz->addToGraph();
                 $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
             }
-
-            return $this->sendResponse($responseData);
+            $responseData = array_merge($responseData, $data);
+            return $this->sendResponse([$responseData]);
         } catch (Exception $ex) {
             DB::rollback();
             $this->model = ["status" => false];
@@ -622,13 +676,14 @@ class QuizController extends Controller
         }
     }
 
+
     public function paidProcessing(Request $request)
     {
         $responseData = $flag = [];
         $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
 
-        $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
+        $paymnetExist = PaymentDetails::where('model_id', $request->quiz_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
 
 
@@ -752,46 +807,75 @@ class QuizController extends Controller
     public function calculateScore($id)
     {
         //calculation of final score of an applicant
-
+        //  dd("helo");
         $correctAnswersCount = 0;
         $questions =  Quiz::where("id", $id)->first();
         $questions = json_decode($questions->form_json);
         $answerMapping = [];
-        $total = count($questions);
-        foreach ($questions as $value) {
-            foreach ($value->options as $option) {
-                if (isset($option->is_correct) && $option->is_correct) {
-
-                    $answerMapping[$value->id] = $option->id;
-                    break;
-                }
-            }
-        }
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
         $score = 0;
-       
-        foreach ($answers as $answer) {
-            if ($answerMapping[$answer->question_id] == $answer->option_id) {
-                $correctAnswersCount++;
-                $score += 1;
+        // return $answers;
+        $total = count($questions);
+
+        if (count($answers)) {
+            foreach ($questions as $value) {
+                foreach ($value->options as $option) {
+                    if (isset($option->is_correct) && $option->is_correct) {
+
+                        $answerMapping[$value->id][] = $option->id;
+                        
+                    }
+                }
             }
+            // return $answers;
+            //    print_r($answerMapping);
+           
+            foreach ($questions as $question) {
+                $answerArray = QuizAnswers::where("question_id",$question->id)->pluck("option_id")->toArray(); 
+                if (!count(array_diff($answerArray,$answerMapping[$question->id]))) {
+                    $correctAnswersCount++;
+                    $score += 1;
+                }
+            }
+            $score = ($score / $total) * 100;
+            $result["score"] = $score;
+            $result["correctAnswerCount"] = $correctAnswersCount;
+        } else {
+            $result["score"] = 0;
+            $result["correctAnswerCount"] = 0;
         }
-        $score = ($score / count($answers)) * 100;
-        $result["score"] = $score;
-        $result["correctAnswerCount"] = $correctAnswersCount;
         $result["total"] = $total;
 
         return $result;
     }
 
-    public function quizResult($id){
+
+    public function quizResult($id, $feed = true)
+    {
         $data = [];
+
+        $quiz = $this->model->where("id", "=", $id)->first();
+
+        $this->model = [];
+        if (empty($quiz)) {
+            $this->model = ["status" => false];
+            return $this->sendError("Invalid Quiz");
+        }
+        $applicant = QuizApplicants::where("quiz_id", $id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")
+            ->first();
+        if (empty($applicant)) {
+            return $this->sendError("user has not attempted the quiz");
+        }
         $result = $this->calculateScore($id);
         $data["helper"] = "Congrats";
         $data["title"] = "Quiz Completed Successfully";
         $data["subtitle"] = "You attempted {$result["total"]} questions and from that {$result["correctAnswerCount"]} answer is correct";
-        $data["score"] = $result["score"]. "% Score";
-        return $result;
-
+        $data["score_text"] = $result["score"] . "% Score";
+        $data["correctAnswerCount"] = $result["correctAnswerCount"];
+        $data["score"] = $result["score"];
+        if ($feed) {
+            return $this->sendResponse($data);
+        }
+        return $data;
     }
 }

@@ -261,12 +261,28 @@ class LandingPageController extends Controller
                 ->take(10)->pluck('id')->toArray();
                 
             $carousel["title"] = "Surveys";
-        } elseif ($model == config("constant.LANDING_MODEL.PRODUCT")) {
-            $ids = Review::where('current_status','=',2)
-            ->where('profile_id','=',$profileId)
-            ->distinct('product_id')
-            ->pluck('product_id')->toArray();
-            
+        } 
+        else if ($model == config("constant.LANDING_MODEL.QUIZ")) {
+            $ids = DB::table("quiz_applicants")->where("profile_id", $profileId)
+                ->whereNull("deleted_at")
+                ->pluck("quiz_id")->toArray();
+
+            $carouseldata = Quiz::whereNull('deleted_at')
+                ->where('state', '=', 1)
+                ->where('profile_id', '<>', $profileId)
+                ->whereNotIn("id", $ids)
+                ->orderBy('created_at', 'desc')
+                ->take(10)->pluck('id')->toArray();
+
+            $carousel["title"] = "Quizes";
+        }
+        
+        elseif ($model == config("constant.LANDING_MODEL.PRODUCT")) {
+            $ids = Review::where('current_status', '=', 2)
+                ->where('profile_id', '=', $profileId)
+                ->distinct('product_id')
+                ->pluck('product_id')->toArray();
+
             //pls put check of excluded profile later
             $carouseldata = PaymentPaymentDetails::where('is_active','=',1)
                 ->whereNull('deleted_at')

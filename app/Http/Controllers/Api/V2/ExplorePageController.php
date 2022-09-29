@@ -809,6 +809,24 @@ class ExplorePageController extends Controller
             $surveys_search_filter
         );
 
+        //quiz serch filter
+        $quizes_search_filter = array(
+            "name" => "quiz",
+            "key" => "type",
+            "value" => "quiz",
+            "is_selected" => false
+        );
+
+        if ($filter_type === "quiz") {
+            $quizes_search_filter["is_selected"] = true;
+        }
+
+        array_push(
+            $search_filter_detail['search_filter'],
+            $quizes_search_filter
+        );
+
+
         // company search filter
         $company_search_filter = array(
             "name" => "Companies",
