@@ -175,7 +175,7 @@ class QuizController extends Controller
         $getData["closing_reason"] = $getQuiz->getClosingReason();
         $this->messages = "Request successfull";
         $this->model = [
-            "quizes" => $getData,
+            "quiz" => $getData,
             "meta" => $getQuiz->getMetaFor(request()->user()->profile->id)
         ];
         return $this->sendResponse();
@@ -282,6 +282,27 @@ class QuizController extends Controller
             $getQuiz->addToCache();
             event(new UpdateFeedable($getQuiz));
         }
+
+        // //draft code --commented for now
+        // if ($getQuiz->state == config("constant.QUIZ_STATES.DRAFT") && $request->state == config("constant.QUIZ_STATES.PUBLISHED")) {
+        //     //create new cache
+        //     $getQuiz = $create->first();
+        //     if ($request->has('company_id')) {
+        //         event(new NewFeedable($getQuiz, Company::find($request->company_id)));
+        //     } else {
+        //         event(new NewFeedable($getQuiz, $request->user()->profile));
+        //     }
+        //     event(new Create($getQuiz, $request->user()->profile));
+
+        //     $getQuiz->addToCache();
+        //     event(new UpdateFeedable($getQuiz));
+        // } else if ($getQuiz->state == config("constant.QUIZ_STATES.PUBLISHED")) {
+        //     //update cache
+        //     $getQuiz = $create->first();
+
+        //     $getQuiz->addToCache();
+        //     event(new UpdateFeedable($getQuiz));
+        // }
 
         if (($previousState == config("constant.QUIZ_STATES.EXPIRED") || $previousState == config("constant.QUIZ_STATES.CLOSED"))
             && $request->state == config("constant.QUIZ_STATES.ACTIVE")
@@ -559,6 +580,27 @@ class QuizController extends Controller
 
 
             $questions = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
+            $prepareQuestionJson = $this->prepQuestionJson($quiz->form_json);
+
+            $mandateQuestions = [];
+            $mandateQuestions =  array_map(function ($v) {
+                if (isset($v["is_mandatory"]) && $v["is_mandatory"] == true) {
+                    return  $v["id"];
+                }
+            }, $prepareQuestionJson);
+
+            $answerQuestionIds = [];
+
+            $answerQuestionIds =  array_map(function ($vi) {
+                return  $vi["question_id"];
+            }, $questions);
+            
+            $mandateQuestions = array_values(array_filter($mandateQuestions));
+
+
+            if (!empty(array_diff($mandateQuestions, $answerQuestionIds))) {
+                return $this->sendError("Mandatory Questions Cannot Be Blank");
+            }
 
             DB::beginTransaction();
             $commit = true;
