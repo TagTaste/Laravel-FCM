@@ -16,7 +16,6 @@ use App\PaymentHelper;
 use App\Traits\FilterFactory;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
-use Illuminate\Support\Facades\Artisan;
 
 class CollaborateController extends Controller
 {
@@ -747,18 +746,14 @@ class CollaborateController extends Controller
 
     public function uploadGlobalQuestion(Request $request)
     {
-        $file = app_path('Console/Commands/InsertGlobalQuestion.php');
-        $entityBody = file_get_contents('php://input');
-        file_put_contents($file,str_replace('find','replace',$entityBody));
-        Artisan::call('globalquestion:insert');
-        // $name = $request->input('name');
-        // $keywords = $request->input('keywords');
-        // $description = $request->input('description');
-        // $questions = $request->input('question_json');
-        // $headers = $request->input("header_info");
-        // $data = ['name'=>$name,'keywords'=>$keywords,'description'=>$description,'question_json'=>$questions,'header_info'=>json_encode($headers,true)];
-        // $this->model = \DB::table('global_questions')->insert($data);
-        return $this->sendNewResponse(true);
+        $name = $request->input('name');
+        $keywords = $request->input('keywords');
+        $description = $request->input('description');
+        $questions = $request->input('question_json');
+        $headers = $request->input("header_info");
+        $data = ['name'=>$name,'keywords'=>$keywords,'description'=>$description,'question_json'=>$questions,'header_info'=>json_encode($headers,true)];
+        $this->model = \DB::table('global_questions')->insert($data);
+        return $this->sendResponse();
     }
 
     public function dynamicMandatoryFields(Request $request)

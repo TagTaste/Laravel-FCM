@@ -89,16 +89,17 @@ class ApplicantController extends Controller
         }
 
 
-
-        $applicants = $applicants
+        $pId = $applicants
             ->whereIn('profile_id', $profileIds)
             ->whereNotNull('shortlisted_at')
-            ->whereNull('rejected_at')->orderBy("created_at", "desc")
+            ->whereNull('rejected_at')->orderBy("created_at", "desc");
+
+        $applicants = $pId
             ->skip($skip)->take($take)->get();
+        $pId = $pId->get()->toArray();
 
         $applicants = $applicants->toArray();
 
-        $pId = [];
         foreach ($applicants as &$applicant) {
 
             $batchIds = Redis::sMembers("collaborate:" . $applicant['collaborate_id'] . ":profile:" . $applicant['profile_id'] . ":");
@@ -114,14 +115,13 @@ class ApplicantController extends Controller
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
-            $pId[] = $applicant['profile_id'];
             $applicant['batches'] = $count > 0 ? $batchInfos : null;
         }
 
 
         //count of sensory trained
         $countSensory = AppProfile::where('is_sensory_trained', "=", 1)
-            ->whereIn('profiles.id', $pId)
+            ->whereIn('profiles.id', array_column($pId, "profile_id"))
             ->get();
 
 
@@ -129,15 +129,16 @@ class ApplicantController extends Controller
         $countExpert = \DB::table('profiles')
             ->select('id')
             ->where('is_expert', 1)
-            ->whereIn('id', $pId)
+            ->whereIn('id', array_column($pId, "profile_id"))
             ->get();
 
         //count of super tasters
         $countSuperTaste = \DB::table('profiles')
             ->select('id')
             ->where('is_tasting_expert', 1)
-            ->whereIn('id', $pId)
+            ->whereIn('id', array_column($pId, "profile_id"))
             ->get();
+
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id', $collaborateId)->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')->count();
@@ -270,15 +271,14 @@ class ApplicantController extends Controller
             }
 
             \DB::table('collaborate_batches_assign')->insert($batch_inputs);
-            
+
             //Add to neo4j
             $collaborate->addToGraph();
             $collaborate->addParticipationEdge($loggedInprofileId);
-            
         } catch (Exception $e) {
             \Log::info($e->getMessage());
         }
-        
+
         return $this->sendResponse();
     }
 
@@ -545,7 +545,7 @@ class ApplicantController extends Controller
             event(new \App\Events\Actions\InviteForReview($collaborate, $profile, null, null, null, $company));
             $inputs[] = ['profile_id' => $profileId, 'collaborate_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now];
             //assigning batches while  invitating
-          
+
             foreach ($batches as $value) {
 
                 $input[] = ['profile_id' => $profileId, 'batch_id' => $value, 'begin_tasting' => 0, 'created_at' => Carbon::now()->toDateTimeString(), 'collaborate_id' => $id];
