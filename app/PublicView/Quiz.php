@@ -15,7 +15,7 @@ class Quiz extends BaseQuiz
     protected $with = ['profile','company'];
 
     protected $appends = ['owner'];
-    protected $visible = ["id","profile_id","company_id","title","description","image_meta","video_meta","expired_at","is_active","state","deleted_at","owner","profile","company"];
+    protected $visible = ["id","profile_id","company_id","title","replay","description","image_meta","video_meta","expired_at","is_active","state","deleted_at","owner","profile","company"];
 
     // protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
         // 'deleted_at','updated_at','is_expired','expired_time','options','owner','image_meta','type','preview'];
