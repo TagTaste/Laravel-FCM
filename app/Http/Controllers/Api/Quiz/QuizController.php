@@ -275,34 +275,26 @@ class QuizController extends Controller
         $this->messages = "Quiz Updated Successfully";
 
 
-        if ($getQuiz->state == config("constant.QUIZ_STATES.ACTIVE")) {
+        //draft code
+        if ($getQuiz->state == config("constant.QUIZ_STATES.DRAFT") && $request->state == config("constant.QUIZ_STATES.PUBLISHED")) {
+            //create new cache
+            $getQuiz = $create->first();
+            if ($request->has('company_id')) {
+                event(new NewFeedable($getQuiz, Company::find($request->company_id)));
+            } else {
+                event(new NewFeedable($getQuiz, $request->user()->profile));
+            }
+            event(new Create($getQuiz, $request->user()->profile));
+
+            $getQuiz->addToCache();
+            event(new UpdateFeedable($getQuiz));
+        } else if ($getQuiz->state == config("constant.QUIZ_STATES.PUBLISHED")) {
             //update cache
             $getQuiz = $create->first();
 
             $getQuiz->addToCache();
             event(new UpdateFeedable($getQuiz));
         }
-
-        // //draft code --commented for now
-        // if ($getQuiz->state == config("constant.QUIZ_STATES.DRAFT") && $request->state == config("constant.QUIZ_STATES.PUBLISHED")) {
-        //     //create new cache
-        //     $getQuiz = $create->first();
-        //     if ($request->has('company_id')) {
-        //         event(new NewFeedable($getQuiz, Company::find($request->company_id)));
-        //     } else {
-        //         event(new NewFeedable($getQuiz, $request->user()->profile));
-        //     }
-        //     event(new Create($getQuiz, $request->user()->profile));
-
-        //     $getQuiz->addToCache();
-        //     event(new UpdateFeedable($getQuiz));
-        // } else if ($getQuiz->state == config("constant.QUIZ_STATES.PUBLISHED")) {
-        //     //update cache
-        //     $getQuiz = $create->first();
-
-        //     $getQuiz->addToCache();
-        //     event(new UpdateFeedable($getQuiz));
-        // }
 
         if (($previousState == config("constant.QUIZ_STATES.EXPIRED") || $previousState == config("constant.QUIZ_STATES.CLOSED"))
             && $request->state == config("constant.QUIZ_STATES.ACTIVE")
