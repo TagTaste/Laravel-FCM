@@ -205,6 +205,76 @@ class Quiz extends Model implements Feedable
         return 0;
     }
 
+    public function getSeoTags(): array
+    {
+        $title = "TagTaste | " . $this->title . " | Quiz";
+        $description = "";
+        if (!is_null($this->description)) {
+            $description = mb_convert_encoding(substr(htmlspecialchars_decode($this->description), 0, 160),'UTF-8', 'UTF-8') . "...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
+        
+        $image = null;
+        if(gettype($this->image_meta) != 'array'){
+            $this->image_meta = json_decode($this->image_meta, true);
+        }
+        
+        if(isset($this->image_meta) && $this->image_meta != null && $this->image_meta != ''){
+            $image = $this->image_meta[0]['original_photo'] ?? null;
+        }
+        
+        
+        
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "quiz, quizes, online quiz, food quiz, TagTaste quiz",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $image,
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
+
+
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/' . $this->id;
+        $data['title'] = substr($this->title, 0, 65);
+        $data['description'] = "by " . $this->owner->name;
+        $data['ogTitle'] = "Quiz: " . substr($this->title, 0, 65);
+        $data['ogDescription'] = "by " . $this->owner->name;
+        $images = $this->image_meta != null ? $this->image_meta : null;
+        $data['cardType'] = isset($images) ? 'summary_large_image' : 'summary';
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/icon_survey.png';
+        $data['ogUrl'] = env('APP_URL') . '/quizes/' . $this->id;
+        $data['redirectUrl'] = env('APP_URL') . '/quizes/' . $this->id;
+
+        return $data;
+    }
+
     public function addToGraph(){        
         $data = ['id'=>$this->id, 
         'quiz_id'=>$this->id,
