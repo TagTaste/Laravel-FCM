@@ -85,10 +85,10 @@ return  [
     "SURVEY_PUBLIC" => 0,
 
     "QUIZ_STATES" => [
-        'ACTIVE' => 1,
-        'CLOSED' => 2,
-        'EXPIRED' => 3,
-        'DELETED' => 4
+        'DRAFT' => 1,
+        'PUBLISHED' => 2,
+        'CLOSED' => 3,
+        'EXPIRED' => 4
     ],
 
     "COLLABORATE_HEADER_SELECTION_TYPE" => [
