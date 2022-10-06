@@ -796,6 +796,55 @@ class QuizController extends Controller
         return ["status" => false];
     }
 
+    public function getMyQuiz(Request $request)
+    {
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $quizes = $this->model->whereNull("deleted_at");
+        if ($request->has('state') && !empty($request->input('state'))) {
+            $states = [$request->state];
+            if ($request->state == config("constant.QUIZ_STATES.PUBLISHED")) {
+                $states = [config("constant.QUIZ_STATES.PUBLISHED"), config("constant.QUIZ_STATES.CLOSED"), config("constant.QUIZ_STATES.EXPIRED")];
+            }
+            $quizes = $quizes->whereIn("state", $states);
+        }
+
+        $quizes = $quizes->orderBy('state', 'asc')->orderBy('created_at', 'desc');
+        $profileId = $request->user()->profile->id;
+        $title = isset($request->title) ? $request->title : null;
+
+        $this->model = [];
+        $data = [];
+
+        //Get compnaies of the logged in user.
+        $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
+
+        $quizes = $quizes->where(function ($q) use ($profileId, $companyIds) {
+            $q->orWhere('profile_id', "=", $profileId);
+            $q->orWhereIn('company_id', $companyIds);
+        });
+
+        if (!is_null($title)) {
+            $quizes = $quizes->where('title', 'like', '%' . $title . '%');
+        }
+        $this->model['count'] = $quizes->count();
+
+        $quizes = $quizes->skip($skip)->take($take)
+            ->get();
+        foreach ($quizes as $quiz) {
+
+            $quiz->image_meta = json_decode($quiz->image_meta);
+            $quiz->video_meta = json_decode($quiz->video_meta);
+
+            $data[] = [
+                'quiz' => $quiz,
+                'meta' => $quiz->getMetaFor($profileId)
+            ];
+        }
+        $this->model['quizes'] = $data;
+        return $this->sendResponse();
+    }
+
     public function calculateScore($id)
     {
         //calculation of final score of an applicant
