@@ -864,8 +864,10 @@ class ProfileController extends Controller
                     $number = substr($number, 3);
                 }
                 $otp = \DB::table('profiles')->where('id', $request->user()->profile->id)->first();
-
-                $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
+                
+                $otpNo = mt_rand(100000, 999999);
+                
+                // $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
                 $text = $otpNo . " is your OTP to verify your number with TagTaste.";
 
                 if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
