@@ -895,7 +895,7 @@ class QuizController extends Controller
     {
         $data = [];
 
-        $quiz = $this->model->where("id", "=", $id)->first();
+        $quiz = Quiz::where("id", "=", $id)->first();
 
         $this->model = [];
         if (empty($quiz)) {
