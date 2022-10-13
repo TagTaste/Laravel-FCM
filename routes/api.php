@@ -953,6 +953,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/close-reasons', 'QuizController@quizCloseReason');
         Route::get('/{id}/result', 'QuizController@quizResult');
         Route::get('/my-list', 'QuizController@getMyQuiz');
+        Route::post('/{id}/like', 'QuizController@like');
+        Route::get('/{id}/getAnswers/{ques_id}', 'QuizController@getAnswers');
+
+
 
 
     });
