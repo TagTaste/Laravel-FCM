@@ -978,9 +978,8 @@ class QuizController extends Controller
 
        }
        $this->model =[];
-       $this->model[] = $data;
        $this->messages = "Request Successful";
-       return $this->sendResponse();
+       return $this->sendResponse($data);
     }
 
 }
