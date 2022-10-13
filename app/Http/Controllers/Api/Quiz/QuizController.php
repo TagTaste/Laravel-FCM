@@ -7,8 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Quiz;
 use Illuminate\Support\Facades\Validator;
 use App\Company;
+use App\QuizLike;
 use Webpatser\Uuid\Uuid;
 use App\Events\NewFeedable;
+use App\Events\Actions\Like;
 use App\Events\Model\Subscriber\Create;
 use App\Events\UpdateFeedable;
 use Tagtaste\Api\SendsJsonResponse;
@@ -16,6 +18,7 @@ use App\Events\DeleteFeedable;
 use App\Payment\PaymentDetails;
 use Illuminate\Support\Facades\Redis;
 use Exception;
+use App\PeopleLike;
 use DB;
 use App\QuizAnswers;
 use App\Payment\PaymentLinks;
@@ -843,6 +846,36 @@ class QuizController extends Controller
             ];
         }
         $this->model['quizes'] = $data;
+        return $this->sendResponse();
+    }
+
+
+
+
+    public function like(Request $request, $quizId)
+    {
+        $profileId = $request->user()->profile->id;
+        $key = "meta:quiz:likes:" . $quizId;
+        // return $key;
+        $quizLike = Redis::sIsMember($key, $profileId);
+        $this->model = [];
+
+        if ($quizLike) {
+            QuizLike::where('profile_id', $profileId)->where('quiz_id', $quizId)->delete();
+            Redis::sRem($key, $profileId);
+            $this->model['liked'] = false;
+        } else {
+            QuizLike::insert(['profile_id' => $profileId, 'quiz_id' => $quizId]);
+            Redis::sAdd($key, $profileId);
+            $this->model['liked'] = true;
+            $recipe = Quiz::find($quizId);
+            event(new Like($recipe, $request->user()->profile));
+        }
+        $this->model['likeCount'] = Redis::sCard($key);
+
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($quizId, "quiz", request()->user()->profile->id);
+
         return $this->sendResponse();
     }
 
