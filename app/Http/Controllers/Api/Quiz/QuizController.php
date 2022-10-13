@@ -13,11 +13,14 @@ use App\Events\Model\Subscriber\Create;
 use App\Events\UpdateFeedable;
 use Tagtaste\Api\SendsJsonResponse;
 use App\Events\DeleteFeedable;
+use App\Events\Actions\Like;
 use App\Payment\PaymentDetails;
 use Illuminate\Support\Facades\Redis;
 use Exception;
 use DB;
 use App\QuizAnswers;
+use App\PeopleLike;
+use App\QuizLike;
 use App\Payment\PaymentLinks;
 use App\PaymentHelper;
 use App\Events\TransactionInit;
@@ -854,6 +857,7 @@ class QuizController extends Controller
         $questions = json_decode($questions->form_json);
         $answerMapping = [];
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
+        
         $score = 0;
         // return $answers;
         $total = count($questions);
@@ -872,8 +876,8 @@ class QuizController extends Controller
             //    print_r($answerMapping);
            
             foreach ($questions as $question) {
-                $answerArray = QuizAnswers::where("question_id",$question->id)->pluck("option_id")->toArray(); 
-                if (!count(array_diff($answerArray,$answerMapping[$question->id]))) {
+                $answerArray = QuizAnswers::where("question_id",$question->id)->pluck("option_id")->toArray();
+                if (!(count(array_diff($answerMapping[$question->id],$answerArray)))) {
                     $correctAnswersCount++;
                     $score += 1;
                 }
@@ -919,4 +923,64 @@ class QuizController extends Controller
         }
         return $data;
     }
+
+    public function like(Request $request, $quizId)
+    {
+        $profileId = $request->user()->profile->id;
+        $key = "meta:quizes:likes:" . $quizId;
+        $quizLike = Redis::sIsMember($key, $profileId);
+        $this->model = [];
+
+        if ($quizLike) {
+            QuizLike::where('profile_id', $profileId)->where('quiz_id', $quizId)->delete();
+            Redis::sRem($key, $profileId);
+            $this->model['liked'] = false;
+        } else {
+            QuizLike::insert(['profile_id' => $profileId, 'quiz_id' => $quizId]);
+            Redis::sAdd($key, $profileId);
+            $this->model['liked'] = true;
+            $quiz = Quiz::find($quizId);
+            event(new Like($quiz, $request->user()->profile));
+        }
+        $this->model['likeCount'] = Redis::sCard($key);
+
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($quizId, "quizes", request()->user()->profile->id);
+
+        return $this->sendResponse();
+    }
+
+    public function getAnswers($id,$ques_id){
+
+        $quiz = Quiz::where("id", "=", $id)->first();
+
+        $data = [];
+        if (empty($quiz)) {
+            $this->model = ["status" => false];
+            return $this->sendError("Invalid Quiz");
+        }
+        $applicant = QuizApplicants::where("quiz_id", $id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")
+            ->first();
+        if (empty($applicant)) {
+            return $this->sendError("user has not attempted the quiz");
+        }    
+
+       $questions =  json_decode($quiz->form_json);
+
+       foreach($questions as $question ){
+        if($ques_id == $question->id){
+          foreach($question->options as $option){
+            if(isset($option->is_correct) && $option->is_correct){
+             $data["options"][] = (int)$option->id; 
+            }
+          }
+        }
+
+       }
+       $this->model =[];
+       $this->model[] = $data;
+       $this->messages = "Request Successful";
+       return $this->sendResponse();
+    }
+
 }
