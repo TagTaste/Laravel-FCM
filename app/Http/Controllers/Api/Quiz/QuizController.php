@@ -977,4 +977,28 @@ class QuizController extends Controller
        return $this->sendResponse($data);
     }
 
+    public function similarQuizes(Request $request, $quizId)
+    {
+        $quiz = $this->model->where('id', $quizId)->whereNull("deleted_at")->first();
+        if ($quiz == null) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz Id");
+        }
+
+        $profileId = $request->user()->profile->id;
+        $quizes = $this->model->where('state', 2)
+            ->whereNull('deleted_at')->where("id", "<>", $quizId)
+            ->inRandomOrder()
+            ->take(3)->get();
+
+        $this->model = [];
+        foreach ($quizes as $quiz) {
+            $meta = $quiz->getMetaFor($profileId);
+            $quiz->image_meta = json_decode($quiz->image_meta);
+            $quiz->video_meta = json_decode($quiz->video_meta);
+
+            $this->model[] = ['quizes' => $quiz, 'meta' => $meta];
+        }
+        return $this->sendResponse();
+    }
 }
