@@ -953,17 +953,12 @@ class QuizController extends Controller
     public function getAnswers($id,$ques_id){
 
         $quiz = Quiz::where("id", "=", $id)->first();
-
+        $this->model =[];
         $data = [];
         if (empty($quiz)) {
             $this->model = ["status" => false];
             return $this->sendError("Invalid Quiz");
-        }
-        $applicant = QuizApplicants::where("quiz_id", $id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")
-            ->first();
-        if (empty($applicant)) {
-            return $this->sendError("user has not attempted the quiz");
-        }    
+        }  
 
        $questions =  json_decode($quiz->form_json);
 
@@ -977,9 +972,33 @@ class QuizController extends Controller
         }
 
        }
-       $this->model =[];
+       
        $this->messages = "Request Successful";
        return $this->sendResponse($data);
     }
 
+    public function similarQuizes(Request $request, $quizId)
+    {
+        $quiz = $this->model->where('id', $quizId)->whereNull("deleted_at")->first();
+        if ($quiz == null) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz Id");
+        }
+
+        $profileId = $request->user()->profile->id;
+        $quizes = $this->model->where('state', 2)
+            ->whereNull('deleted_at')->where("id", "<>", $quizId)
+            ->inRandomOrder()
+            ->take(3)->get();
+
+        $this->model = [];
+        foreach ($quizes as $quiz) {
+            $meta = $quiz->getMetaFor($profileId);
+            $quiz->image_meta = json_decode($quiz->image_meta);
+            $quiz->video_meta = json_decode($quiz->video_meta);
+
+            $this->model[] = ['quizes' => $quiz, 'meta' => $meta];
+        }
+        return $this->sendResponse();
+    }
 }
