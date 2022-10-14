@@ -954,6 +954,7 @@ class QuizController extends Controller
 
         $quiz = Quiz::where("id", "=", $id)->first();
 
+        $this->model =[];
         $data = [];
         if (empty($quiz)) {
             $this->model = ["status" => false];
@@ -977,7 +978,7 @@ class QuizController extends Controller
         }
 
        }
-       $this->model =[];
+       
        $this->messages = "Request Successful";
        return $this->sendResponse($data);
     }
