@@ -961,6 +961,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/{id}/like', 'QuizController@like');
         Route::get('/{id}/getAnswers/{ques_id}', 'QuizController@getAnswers');
         Route::get('/similar/{id}', 'QuizController@similarQuizes');
+        Route::get('/user-report/{id}/{profile_id}', 'QuizController@userReport');
 
 
 
