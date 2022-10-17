@@ -954,7 +954,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/result', 'QuizController@quizResult');
         Route::get('/my-list', 'QuizController@getMyQuiz');
         Route::post('/{id}/like', 'QuizController@like');
-
+        Route::get('/reports/{id}', 'QuizController@reports')->name("reports");
+        Route::get('/user-report/{id}/{profile_id}', 'QuizController@userReport');
 
     });
     Route::resource('quiz', '\App\Http\Controllers\Api\Quiz\QuizController', ['middleware' => ['api.auth']]);
