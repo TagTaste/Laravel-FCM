@@ -111,6 +111,8 @@ class QuizController extends Controller
         $prepData["description"] = $request->description;
         $prepData["replay"] = $request->replay;
         $prepData["privacy_id"] = 1;
+        $prepData["state"] = $request->state;
+
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
@@ -589,7 +591,7 @@ class QuizController extends Controller
             $answerQuestionIds =  array_map(function ($vi) {
                 return  $vi["question_id"];
             }, $questions);
-            
+
             $mandateQuestions = array_values(array_filter($mandateQuestions));
 
 
@@ -857,7 +859,7 @@ class QuizController extends Controller
         $questions = json_decode($questions->form_json);
         $answerMapping = [];
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
-        
+
         $score = 0;
         // return $answers;
         $total = count($questions);
@@ -868,16 +870,15 @@ class QuizController extends Controller
                     if (isset($option->is_correct) && $option->is_correct) {
 
                         $answerMapping[$value->id][] = $option->id;
-                        
                     }
                 }
             }
             // return $answers;
             //    print_r($answerMapping);
-           
+
             foreach ($questions as $question) {
-                $answerArray = QuizAnswers::where("question_id",$question->id)->pluck("option_id")->toArray();
-                if (!(count(array_diff($answerMapping[$question->id],$answerArray)))) {
+                $answerArray = QuizAnswers::where("question_id", $question->id)->pluck("option_id")->toArray();
+                if (!(count(array_diff($answerMapping[$question->id], $answerArray)))) {
                     $correctAnswersCount++;
                     $score += 1;
                 }
@@ -950,31 +951,31 @@ class QuizController extends Controller
         return $this->sendResponse();
     }
 
-    public function getAnswers($id,$ques_id){
+    public function getAnswers($id, $ques_id)
+    {
 
         $quiz = Quiz::where("id", "=", $id)->first();
-        $this->model =[];
+        $this->model = [];
         $data = [];
         if (empty($quiz)) {
             $this->model = ["status" => false];
             return $this->sendError("Invalid Quiz");
-        }  
-
-       $questions =  json_decode($quiz->form_json);
-
-       foreach($questions as $question ){
-        if($ques_id == $question->id){
-          foreach($question->options as $option){
-            if(isset($option->is_correct) && $option->is_correct){
-             $data["options"][] = (int)$option->id; 
-            }
-          }
         }
 
-       }
-       
-       $this->messages = "Request Successful";
-       return $this->sendResponse($data);
+        $questions =  json_decode($quiz->form_json);
+
+        foreach ($questions as $question) {
+            if ($ques_id == $question->id) {
+                foreach ($question->options as $option) {
+                    if (isset($option->is_correct) && $option->is_correct) {
+                        $data["options"][] = (int)$option->id;
+                    }
+                }
+            }
+        }
+
+        $this->messages = "Request Successful";
+        return $this->sendResponse($data);
     }
 
     public function similarQuizes(Request $request, $quizId)
@@ -999,6 +1000,91 @@ class QuizController extends Controller
 
             $this->model[] = ['quizes' => $quiz, 'meta' => $meta];
         }
+        return $this->sendResponse();
+    }
+
+    public function userReport($id, $profile_id, Request $request)
+    {
+
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        } 
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
+        }
+
+
+        $prepareNode = ["reports" => []];
+
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $counter = 0;
+        $optionValues = [];
+
+        foreach ($getJson as $values) {
+            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->get();
+
+            $pluckOpId = $answers->pluck("option_id")->toArray();
+
+            $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
+            $prepareNode["reports"][$counter]["is_answered"] = false;
+
+            if ($answers->count()) {
+                $optCounter = 0;
+                $answers = $answers->toArray();
+                $prepareNode["reports"][$counter]["is_answered"] = true;
+
+                if (isset($values["options"])) {
+
+                    foreach ($values["options"] as $optVal) {
+                        if (in_array($optVal["id"], $pluckOpId) || (isset($values["max"]) && in_array($optVal["id"], $optionValues))) {
+
+                            $flip = array_flip($pluckOpId);
+
+                            $pos = (isset($flip[$optVal["id"]]) ? $flip[$optVal["id"]] : false);
+                            if ($pos === false) {
+                                continue;
+                            }
+
+                            $prepareNode["reports"][$counter]["is_answered"] = (($answers[$pos]["option_id"] == null) ? false : true);
+
+
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+
+
+                            $optCounter++;
+                        } else {
+                            $prepareNode["reports"][$counter]["is_answered"] = (($answers[0]["option_id"] == null) ? false : true);
+                        }
+                    }
+                }
+            }
+
+            $answers = [];
+            $counter++;
+        }
+
+        $this->messages = "Report Successful";
+        $this->model = $prepareNode;
         return $this->sendResponse();
     }
 }
