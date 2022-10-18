@@ -24,11 +24,12 @@ use App\QuizLike;
 use App\Payment\PaymentLinks;
 use App\PaymentHelper;
 use App\Events\TransactionInit;
+use App\Http\Controllers\Api\quiz\FilterTraits;
 use App\QuizApplicants;
 
 class QuizController extends Controller
 {
-    use SendsJsonResponse;
+    use SendsJsonResponse,FilterTraits;
 
 
     public function __construct(Quiz $model)
@@ -1022,8 +1023,7 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } 
-        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Quiz Admin can view this report");
         }
@@ -1085,6 +1085,233 @@ class QuizController extends Controller
 
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
+        return $this->sendResponse();
+    }
+
+    public function reports($id, Request $request)
+    {
+
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+
+
+
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        }
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            //($checkIFExists->profile_id);
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
+        }
+
+        $applicants = QuizApplicants::where("quiz_id", "=", $id)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null);
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $applicants->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+        $getCount = $applicants->get();
+
+        $prepareNode = ["answer_count" => $getCount->count(), "reports" => []];
+
+        $pluck = $getCount->pluck("profile_id")->toArray();
+
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $counter = 0;
+
+        foreach ($getJson as $values) {
+
+            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->get();
+
+            $ans = $answers->pluck("option_id")->toArray();
+            $ar = array_values(array_filter($ans));
+            $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+
+            $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
+
+            $optCounter = 0;
+
+            foreach ($values["options"] as $optVal) {
+                $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
+                $optCounter++;
+            }
+
+            uasort($prepareNode["reports"][$counter]["options"], function ($a, $b) {
+                if (isset($a['answer_percentage']) && isset($b['answer_percentage'])) {
+                    if ($a['answer_percentage'] == $b['answer_percentage']) {
+                        return 0;
+                    }
+                    return ($a['answer_percentage'] < $b['answer_percentage']) ? 1 : -1;
+                }
+            });
+
+
+
+            $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
+            $answers = [];
+            $counter++;
+        }
+
+
+        $this->messages = "Report Successful";
+        $this->model = $prepareNode;
+        return $this->sendResponse();
+    }
+
+    public function quizRespondents($id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        } 
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
+        }
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $count = QuizApplicants::where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $count->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+        $this->model = [];
+        $countInt = $count->count();
+        $data = ["answer_count" => $countInt];
+
+        $respondent = $count->skip($skip)->take($take)
+            ->get();
+
+        foreach ($respondent as $profile) {
+            $data['report'][] = $profile->profile;
+        }
+
+        $this->model = $data;
+        return $this->sendResponse();
+    }
+
+    
+    function array_avg($array, $respCount = 0)
+    {
+        if (is_array($array) && count($array)) {
+            $num = $respCount;
+            return array_map(
+                function ($val) use ($num) {
+
+                    return array('count' => $val, 'avg' =>  (float)bcdiv((float)($val / $num * 100), 1, 2));
+                },
+                array_count_values($array)
+            );
+        }
+
+        return false;
+    }
+    public function getFilters($surveyId, Request $request)
+    {
+        return $this->getFilterParameters($surveyId, $request);
+    }
+
+    public function inputAnswers($id, $question_id, $option_id, Request $request)
+    {
+
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
+        }
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+
+
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->orderBy('created_at', 'desc');
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $answers->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+
+        $this->model = [];
+        $data = ["answer_count" => $answers->get()->count(), "report" => []];
+
+        $this->model['count'] = $answers->count();
+
+        $respondent = $answers->skip($skip)->take($take)
+            ->get();
+
+        foreach ($respondent as $profile) {
+            $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
+        }
+
+        $this->model = $data;
         return $this->sendResponse();
     }
 }

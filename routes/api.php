@@ -957,6 +957,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/getAnswers/{ques_id}', 'QuizController@getAnswers');
         Route::get('/similar/{id}', 'QuizController@similarQuizes');
         Route::get('/user-report/{id}/{profile_id}', 'QuizController@userReport');
+        Route::get('/reports/{id}', 'QuizController@reports')->name("reports");
+        Route::get('/respondents/{id}', 'QuizController@quizRespondents');
+        Route::get('filters-list/{id}', 'QuizController@getFilters');
+        Route::get('/text-answers/{id}/{question_id}/{option_id}', 'QuizController@inputAnswers');
 
 
 
