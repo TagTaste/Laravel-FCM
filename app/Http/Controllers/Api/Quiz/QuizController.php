@@ -24,11 +24,12 @@ use App\QuizAnswers;
 use App\Payment\PaymentLinks;
 use App\PaymentHelper;
 use App\Events\TransactionInit;
+use App\Http\Controllers\Api\quiz\FilterTraits;
 use App\QuizApplicants;
 
 class QuizController extends Controller
 {
-    use SendsJsonResponse;
+    use SendsJsonResponse,FilterTraits;
 
     protected $colorCodeList = [
         "#F3C4CD", "#F1E6C7", "#D0DEEF", "#C1E2CF",
@@ -1191,8 +1192,7 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } 
-        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Quiz Admin can view this report");
         }
@@ -1277,11 +1277,11 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
+        } 
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
         }
-        //  else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-        //     $this->model = false;
-        //     return $this->sendError("Only Quiz Admin can view this report");
-        // }
 
         if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
@@ -1293,7 +1293,6 @@ class QuizController extends Controller
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $count = QuizApplicants::where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
-        $profileId = $request->user()->profile->id;
 
         if ($request->has('filters') && !empty($request->filters)) {
             $count->whereIn('profile_id', $profileIds, 'and', $type);
@@ -1307,16 +1306,18 @@ class QuizController extends Controller
             ->get();
 
         foreach ($respondent as $profile) {
-            $data['repodants'][] = $profile->profile;
+            $data['report'][] = $profile->profile;
         }
 
         $this->model = $data;
         return $this->sendResponse();
     }
 
-
-    public function getFilters($quizid, Request $request)
+    
+    public function getFilters($surveyId, Request $request)
     {
-        return  $this->getFilterParameters($quizid, $request);
+        return $this->getFilterParameters($surveyId, $request);
     }
+
+    
 }
