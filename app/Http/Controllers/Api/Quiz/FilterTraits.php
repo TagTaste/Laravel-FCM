@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Survey;
+namespace App\Http\Controllers\Api\Quiz;
 
 use App\QuizApplicants;
 use Illuminate\Http\Request;

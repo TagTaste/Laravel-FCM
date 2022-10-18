@@ -995,10 +995,10 @@ class QuizController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         } 
-        // else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-        //     $this->model = false;
-        //     return $this->sendError("Only Quiz Admin can view this report");
-        // }
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
+        }
 
         if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
@@ -1010,6 +1010,8 @@ class QuizController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        foreach ($getJson as $values) {
             $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
             if ($request->has('filters') && !empty($request->filters)) {
                 $answers->whereIn('profile_id', $profileIds, 'and', $type);
@@ -1021,10 +1023,13 @@ class QuizController extends Controller
         $this->model['count'] = $answers->count();
          $respondent = $answers->skip($skip)->take($take)
          ->get();
-        foreach ($respondent as $profile) {
-            $data["report"][] = ["profile" => $profile->profile, "answer" => $profile['title']];
+         foreach ($respondent as $profile) {
+             foreach ($values["options"] as $optVal) {
+                  $data["report"][] = ["profile" => $profile->profile,"answer"=>$optVal["title"]];
+                  break;
+            }
         }
-       
+    }
         $this->model = $data;
         return $this->sendResponse();
     }
@@ -1314,9 +1319,9 @@ class QuizController extends Controller
     }
 
     
-    public function getFilters($surveyId, Request $request)
+    public function getFilters($quizId, Request $request)
     {
-        return $this->getFilterParameters($surveyId, $request);
+        return $this->getFilterParameters($quizId, $request);
     }
 
     
