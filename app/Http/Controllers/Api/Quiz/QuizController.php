@@ -29,7 +29,7 @@ use App\QuizApplicants;
 
 class QuizController extends Controller
 {
-    use SendsJsonResponse,FilterTraits;
+    use SendsJsonResponse, FilterTraits;
 
     protected $colorCodeList = [
         "#F3C4CD", "#F1E6C7", "#D0DEEF", "#C1E2CF",
@@ -478,8 +478,7 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } 
-        else if (isset($quiz->profile_id) &&  $quiz->profile_id != $request->user()->profile->id) {
+        } else if (isset($quiz->profile_id) &&  $quiz->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Admin can close the quiz");
         }
@@ -931,7 +930,7 @@ class QuizController extends Controller
 
         $getJson = json_decode($checkIFExists["form_json"], true);
         $counter = 0;
-        
+
         foreach ($getJson as $values) {
             shuffle($colorCodeList);
 
@@ -941,28 +940,28 @@ class QuizController extends Controller
             $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
-            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);        
-                $optCounter = 0;
+            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
+            $optCounter = 0;
 
-                foreach ($values["options"] as $optVal) {
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
-                    // $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
-                    // $prepareNode["reports"][$counter]["options"][$optCounter]["video_meta"] = (!is_array($optVal["video_meta"]) ? json_decode($optVal["video_meta"], true) : $optVal["video_meta"]);
-                    $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
+            foreach ($values["options"] as $optVal) {
+                $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
+                // $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = $optVal["option_type"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+                // $prepareNode["reports"][$counter]["options"][$optCounter]["video_meta"] = (!is_array($optVal["video_meta"]) ? json_decode($optVal["video_meta"], true) : $optVal["video_meta"]);
+                $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
 
-                        
-                        $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
-                         $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
-                      
-                        if ($answers->count() == 0) {
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = 0;
-                        } 
 
-                        
-                    $optCounter++;
+                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
+
+                if ($answers->count() == 0) {
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = 0;
                 }
+
+
+                $optCounter++;
+            }
             $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
             $answers = [];
             $counter++;
@@ -994,7 +993,7 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } 
+        }
         else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Quiz Admin can view this report");
@@ -1010,26 +1009,33 @@ class QuizController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
+
         $getJson = json_decode($checkIFExists["form_json"], true);
+        $title = "";
         foreach ($getJson as $values) {
-            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
-            if ($request->has('filters') && !empty($request->filters)) {
-                $answers->whereIn('profile_id', $profileIds, 'and', $type);
+            if ($question_id == $values["id"]) {
+                foreach ($values["options"] as $optVal) {
+                    if ($option_id == $optVal["id"]) {
+                        $title = $optVal["title"];
+                    }
+                    break;
+                }
             }
+        }
+        if ($request->has('filters') && !empty($request->filters)) {
+            $answers->whereIn('profile_id', $profileIds, 'and', $type);
+        }
 
         $this->model = [];
         $data = ["answer_count" => $answers->get()->count(), "report" => []];
-        
+
         $this->model['count'] = $answers->count();
-         $respondent = $answers->skip($skip)->take($take)
-         ->get();
-         foreach ($respondent as $profile) {
-             foreach ($values["options"] as $optVal) {
-                  $data["report"][] = ["profile" => $profile->profile,"answer"=>$optVal["title"]];
-                  break;
-            }
+        $respondent = $answers->skip($skip)->take($take)
+            ->get();
+        foreach ($respondent as $profile) {
+            $data["report"][] = ["profile" => $profile->profile, "answer" => $title];
         }
-    }
         $this->model = $data;
         return $this->sendResponse();
     }
@@ -1078,8 +1084,8 @@ class QuizController extends Controller
             //    print_r($answerMapping);
 
             foreach ($questions as $question) {
-                $answerArray = QuizAnswers::where("question_id",$question->id)->pluck("option_id")->toArray(); 
-                if (!count(array_diff($answerArray,$answerMapping[$question->id]))) {
+                $answerArray = QuizAnswers::where("question_id", $question->id)->pluck("option_id")->toArray();
+                if (!count(array_diff($answerArray, $answerMapping[$question->id]))) {
                     $correctAnswersCount++;
                     $score += 1;
                 }
@@ -1282,8 +1288,7 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } 
-        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Quiz Admin can view this report");
         }
@@ -1318,11 +1323,9 @@ class QuizController extends Controller
         return $this->sendResponse();
     }
 
-    
+
     public function getFilters($quizId, Request $request)
     {
         return $this->getFilterParameters($quizId, $request);
     }
-
-    
 }
