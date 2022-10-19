@@ -32,22 +32,22 @@ trait FilterTraits
                 ->whereNull('deleted_at');
         }
 
-        // if (isset($filters['city'])) {
-        //     $Ids = $Ids->where(function ($query) use ($filters) {
-        //         foreach ($filters['city'] as $city) {
-        //             $query->orWhere('city', 'LIKE', $city);
-        //         }
-        //     });
-        // }
+        if (isset($filters['city'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['city'] as $city) {
+                    $query->orWhere('city', 'LIKE', $city);
+                }
+            });
+        }
 
-        // if (isset($filters['age'])) {
-        //     $Ids = $Ids->where(function ($query) use ($filters) {
-        //         foreach ($filters['age'] as $age) {
-        //             $age = htmlspecialchars_decode($age);
-        //             $query->orWhere('age_group', 'LIKE', $age);
-        //         }
-        //     });
-        // }
+        if (isset($filters['age'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['age'] as $age) {
+                    $age = htmlspecialchars_decode($age);
+                    $query->orWhere('age_group', 'LIKE', $age);
+                }
+            });
+        }
 
 
         if (isset($filters['profile'])) {
@@ -61,14 +61,14 @@ trait FilterTraits
             });
         }
 
-        // if (isset($filters['gender'])) {
+        if (isset($filters['gender'])) {
 
-        //     $Ids = $Ids->where(function ($query) use ($filters) {
-        //         foreach ($filters['gender'] as $gender) {
-        //             $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
-        //         }
-        //     });
-        // }
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['gender'] as $gender) {
+                    $query->orWhere('quiz_applicants.gender', 'LIKE', $gender);
+                }
+            });
+        }
 
         if (isset($filters['application_status'])) {
 
