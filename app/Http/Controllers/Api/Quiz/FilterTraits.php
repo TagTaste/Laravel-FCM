@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\quiz;
+namespace App\Http\Controllers\Api\Quiz;
 
 use App\QuizApplicants;
 use Illuminate\Http\Request;
@@ -32,13 +32,13 @@ trait FilterTraits
                 ->whereNull('deleted_at');
         }
 
-        // if (isset($filters['city'])) {
-        //     $Ids = $Ids->where(function ($query) use ($filters) {
-        //         foreach ($filters['city'] as $city) {
-        //             $query->orWhere('city', 'LIKE', $city);
-        //         }
-        //     });
-        // }
+        if (isset($filters['city'])) {
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['city'] as $city) {
+                    $query->orWhere('city', 'LIKE', $city);
+                }
+            });
+        }
 
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
@@ -61,14 +61,14 @@ trait FilterTraits
             });
         }
 
-        // if (isset($filters['gender'])) {
+        if (isset($filters['gender'])) {
 
-        //     $Ids = $Ids->where(function ($query) use ($filters) {
-        //         foreach ($filters['gender'] as $gender) {
-        //             $query->orWhere('quiz_applicants.gender', 'LIKE', $gender);
-        //         }
-        //     });
-        // }
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['gender'] as $gender) {
+                    $query->orWhere('quiz_applicants.gender', 'LIKE', $gender);
+                }
+            });
+        }
 
         if (isset($filters['application_status'])) {
 
@@ -162,20 +162,21 @@ trait FilterTraits
         $gender = [['key' => 'Male', 'value' => 'Male'], ['key' => 'Female', 'value' => 'Female'], ['key' => 'Others', 'value' => 'Others']];
         $age = [['key' => 'gen-z', 'value' => 'Gen-Z'], ['key' => 'gen-x', 'value' => 'Gen-X'], ['key' => 'millenials', 'value' => 'Millenials'], ['key' => 'yold', 'value' => 'YOld']];
 
-        $currentStatus =  [["key" => 1, "value" => 'incomplete'], ['key' => 2, 'value' => "completed"]];
+        $application_status = [["key" => 0, "value" => 'invited'], ["key" => 1, "value" => 'incomplete'], ['key' => 2, 'value' => "completed"]];
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
         $applicants = \DB::table('quiz_applicants')->where('quiz_id', $quiz_id)->get();
+        $city = [];
         $i = 0;
-        // foreach ($applicants as $applicant) {
-        //     if (isset($applicant->city)) {
-        //         if (!in_array($applicant->city, $city))
-        //             $city[$i]['key'] = $applicant->city;
-        //         $city[$i]['value'] = $applicant->city;
-        //         $i++;
-        //     }
-        // }
+        foreach ($applicants as $applicant) {
+            if (isset($applicant->city)) {
+                if (!in_array($applicant->city, $city))
+                    $city[$i]['key'] = $applicant->city;
+                $city[$i]['value'] = $applicant->city;
+                $i++;
+            }
+        }
         $data = [];
 
         if (!empty($filters) && is_array($filters)) {
@@ -184,22 +185,21 @@ trait FilterTraits
                     $data['gender'] = $gender;
                 if ($filter == 'age')
                     $data['age'] = $age;
-                // if ($filter == 'city')
-                //     $data['city'] = $city;
+                if ($filter == 'city')
+                    $data['city'] = $city;
                 if ($filter == 'super_taster')
                     $data['super_taster'] = $superTaster;
                 if ($filter == 'user_type')
                     $data['user_type'] = $userType;
                 if ($filter == 'sensory_trained')
                     $data['sensory_trained'] = $sensoryTrained;
-                // if ($filter == 'application_status')
-                //     $data['application_status'] = $currentStatus;
+                // if($filter == 'application_status')
+                // $data['application_status'] = $currentStatus;
             }
         } else {
             $data = [
-                'gender' => $gender, 'age' => $age,
-                //'city' => $city, 
-                //'application_status' => $currentStatus
+                'gender' => $gender, 'age' => $age, 'city' => $city
+                // ,'application_status'=>$currentStatus
             ];
         }
         $this->model = $data;
