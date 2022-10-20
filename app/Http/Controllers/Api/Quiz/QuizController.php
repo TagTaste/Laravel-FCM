@@ -26,6 +26,8 @@ use App\PaymentHelper;
 use App\Events\TransactionInit;
 use App\Http\Controllers\Api\quiz\FilterTraits;
 use App\QuizApplicants;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\File;
 
 class QuizController extends Controller
 {
@@ -1023,11 +1025,20 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+        } 
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Quiz Admin can view this report");
         }
 
+        $applicants = QuizApplicants::where("quiz_id",$id)->whereNull("deleted_at")->orderBy("completion_date","desc")->get()->toArray();
+        $posToValue =[];
+        $valueToPos = [];
+        
+        foreach($applicants as $key =>$applicant){
+        $posToValue[$key] = $applicant["profile_id"];
+        $valueToPos[$applicant["profile_id"]]= $key;
+        }
 
         $prepareNode = ["reports" => []];
 
@@ -1083,6 +1094,8 @@ class QuizController extends Controller
             $counter++;
         }
 
+        $prepareNode["previous"]= isset($applicants[($valueToPos[$profile_id]-1)])?$posToValue[($valueToPos[$profile_id]-1)]:null;
+        $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id]+1)])?$posToValue[($valueToPos[$profile_id]+1)]:null;
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
         return $this->sendResponse();
@@ -1312,6 +1325,172 @@ class QuizController extends Controller
         }
 
         $this->model = $data;
+        return $this->sendResponse();
+    }
+
+    public function excelReport($id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            // return $this->sendError("Only Survey Admin can view this report");
+        }
+
+        $headers = [];
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $questionIdMapping = [];
+        $optionIdMapping =[];
+        foreach ($getJson as $values) {
+
+            $questionIdMapping[$values["id"]] = html_entity_decode($values["title"]);
+            foreach($values["options"] as $option){
+                $optionIdMapping[$values["id"]][$option["id"]] = html_entity_decode($option["title"]);
+  
+            }
+
+         
+        }
+        // dd($questionIdMapping);
+        $applicants = QuizApplicants::where("quiz_id", "=", $id)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null);
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $applicants->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+        $getCount = $applicants->get();
+
+
+        $pluck = $getCount->pluck("profile_id")->toArray();
+
+        $getQuizAnswers = QuizAnswers::where("quiz_id", "=", $id);
+
+        if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
+            $getQuizAnswers = $getQuizAnswers->whereIn("profile_id", $request->profile_ids);
+        } else if ($request->has('filters') && !empty($request->filters)) {
+            $getQuizAnswers = $getQuizAnswers->whereIn("profile_id", $pluck);
+        }
+
+        $getQuizAnswers = $getQuizAnswers->get();
+        $counter = 0;
+        foreach ($getQuizAnswers as $answers) {
+            if (!isset($headers[$answers->profile_id])) {
+                $counter++;
+                $headers[$answers->profile_id] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
+                foreach ($questionIdMapping as $key => $value) {
+
+                        $headers[$answers->profile_id][$value . "_(" . $key . ")_"] = null;
+                    
+                }
+            }
+            $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
+            if (isset($questionIdMapping[$answers->question_id])) {
+                // if (!isset($headers[$answers->profile_id])) {
+                //     ;
+                // }
+                // $headers[$answers->profile_id]["Sr no"] = $counter;
+                $headers[$answers->profile_id]["Name"] = html_entity_decode($answers->profile->name);
+                $headers[$answers->profile_id]["Email"] = html_entity_decode($answers->profile->email);
+                $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
+                $headers[$answers->profile_id]["Phone"] = \DB::Table("profiles")->where("id", "=", $answers->profile->id)->first()->phone;
+                $headers[$answers->profile_id]["City"] = html_entity_decode($answers->profile->city);
+                $headers[$answers->profile_id]["Hometown"] = html_entity_decode($answers->profile->hometown);
+                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($answers->profile->handle);
+                $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
+
+                $ans = "";
+
+
+                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"])) {
+                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
+                    }
+                    $ans .= html_entity_decode($optionIdMapping[$answers->question_id][$answers->option_id]);
+
+                $p = false;
+                if (!empty($image) && is_array($image)) {
+                    if (!empty(array_column($image, "original_photo"))) {
+                        $ans .= ";";
+                    }
+                    $ans .= implode(";", array_column($image, "original_photo"));
+                    $p = true;
+                }
+
+             
+
+                if (!empty($url) && is_array($url)) {
+                    if ($p && !empty(array_column($url, "url"))) {
+                        $ans .= ";";
+                    }
+                    $ans .=   implode(";", array_column($url, "url"));
+                }
+                 
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = $ans;
+                
+            }
+        }
+
+        $finalData = array_values($headers);
+
+        $relativePath = "reports/quizesAnsweredExcel";
+        $name = "quizes-" . $id . "-" . uniqid();
+
+        $excel = Excel::create($name, function ($excel) use ($name, $finalData) {
+            // Set the title
+            $excel->setTitle($name);
+
+            // Chain the setters
+            $excel->setCreator('Tagtaste')
+                ->setCompany('Tagtaste');
+
+            // Call them separately
+            $excel->setDescription('Quiz Response List');
+
+            $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
+                $sheet->fromArray($finalData, null, 'A1', true, true);
+                // ->getFont()->setBold(true);
+
+                foreach ($sheet->getColumnIterator() as $row) {
+                    $cellcount = 0;
+                    foreach ($row->getCellIterator() as $cell) {
+
+                        if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
+                            $cell_link = $cell->getValue();
+                            $cell->getHyperlink()
+                                ->setUrl($cell_link)
+                                ->setTooltip('Click here to access profile');
+                        }
+                        if ($cellcount == 0 && str_contains($cell->getValue(), '_(')) $cell->setValueExplicit(substr($cell->getValue(), 0, strpos($cell->getValue(), "_(")));
+                        $cellcount++;
+                    }
+                }
+            })->store('xlsx', false, true);
+        });
+        $excel->getActiveSheet()->getStyle("1:1")->getFont()->setBold(true);
+        $excel_save_path = storage_path("exports/" . $excel->filename . ".xlsx");
+        $s3 = \Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
+        $this->model = \Storage::url($resp);
+        unlink($excel_save_path);
+
         return $this->sendResponse();
     }
 }
