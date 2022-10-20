@@ -1214,7 +1214,7 @@ class QuizController extends Controller
         else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Quiz Admin can view this report");
-        // }
+         }
 
         $applicants = QuizApplicants::where("quiz_id",$id)->whereNull("deleted_at")->orderBy("completion_date","desc")->get()->toArray();
         $posToValue =[];
@@ -1285,7 +1285,7 @@ class QuizController extends Controller
         $this->model = $prepareNode;
         return $this->sendResponse();
     }
-
+    
 
     public function quizRespondents($id, Request $request)
     {
