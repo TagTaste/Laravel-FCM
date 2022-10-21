@@ -10,7 +10,7 @@ use App\Company;
 use App\QuizLike;
 use Webpatser\Uuid\Uuid;
 use App\Events\NewFeedable;
-use App\Profile;
+use App\Recipe\Profile;
 use App\Events\Actions\Like;
 use App\Events\Model\Subscriber\Create;
 use App\Events\UpdateFeedable;
@@ -1279,7 +1279,7 @@ class QuizController extends Controller
             $answers = [];
             $counter++;
         }
-
+       
         $prepareNode["previous"]= isset($applicants[($valueToPos[$profile_id]-1)])?Profile::find($posToValue[($valueToPos[$profile_id]-1)]):null;
         $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id]+1)])?Profile::find($posToValue[($valueToPos[$profile_id]+1)]):null;
         $this->messages = "Report Successful";
