@@ -25,7 +25,7 @@ use App\QuizAnswers;
 use App\Payment\PaymentLinks;
 use App\PaymentHelper;
 use App\Events\TransactionInit;
-use App\Http\Controllers\Api\quiz\FilterTraits;
+use App\Http\Controllers\Api\Quiz\FilterTraits;
 use App\QuizApplicants;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
@@ -1307,7 +1307,8 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+        } 
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Quiz Admin can view this report");
         }
