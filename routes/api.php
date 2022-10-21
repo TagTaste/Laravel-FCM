@@ -959,13 +959,14 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/result', 'QuizController@quizResult');
         Route::get('/my-list', 'QuizController@getMyQuiz');
         Route::post('/{id}/like', 'QuizController@like');
+        Route::get('/reports/{id}', 'QuizController@reports')->name("reports");
+        Route::get('/user-report/{id}/{profile_id}', 'QuizController@userReport');
+        Route::get('/respondents/{id}', 'QuizController@quizRespondents');
+        Route::get('filters-list/{id}', 'QuizController@getFilters');
+        Route::get('/text-answers/{id}/{question_id}/{option_id}', 'QuizController@inputAnswers');
+        Route::post('/download-reports/{id}', 'QuizController@excelReport');
         Route::get('/{id}/getAnswers/{ques_id}', 'QuizController@getAnswers');
         Route::get('/similar/{id}', 'QuizController@similarQuizes');
-        Route::get('/user-report/{id}/{profile_id}', 'QuizController@userReport');
-
-
-
-
 
     });
     

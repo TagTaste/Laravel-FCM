@@ -7,30 +7,34 @@ use App\Http\Controllers\Controller;
 use App\Quiz;
 use Illuminate\Support\Facades\Validator;
 use App\Company;
+use App\QuizLike;
 use Webpatser\Uuid\Uuid;
 use App\Events\NewFeedable;
+use App\Recipe\Profile;
+use App\Events\Actions\Like;
 use App\Events\Model\Subscriber\Create;
 use App\Events\UpdateFeedable;
 use Tagtaste\Api\SendsJsonResponse;
 use App\Events\DeleteFeedable;
-use App\Events\Actions\Like;
 use App\Payment\PaymentDetails;
 use Illuminate\Support\Facades\Redis;
 use Exception;
+use App\PeopleLike;
 use DB;
 use App\QuizAnswers;
-use App\PeopleLike;
-use App\QuizLike;
 use App\Payment\PaymentLinks;
 use App\PaymentHelper;
 use App\Events\TransactionInit;
+use App\Http\Controllers\Api\quiz\FilterTraits;
 use App\QuizApplicants;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\File;
 
 class QuizController extends Controller
 {
-    use SendsJsonResponse;
+    use SendsJsonResponse, FilterTraits;
 
-
+ 
     public function __construct(Quiz $model)
     {
         $this->model = $model;
@@ -850,6 +854,217 @@ class QuizController extends Controller
         return $this->sendResponse();
     }
 
+
+
+
+    public function like(Request $request, $quizId)
+    {
+        $profileId = $request->user()->profile->id;
+        $key = "meta:quizes:likes:" . $quizId;
+        // return $key;
+        $quizLike = Redis::sIsMember($key, $profileId);
+        $this->model = [];
+
+        if ($quizLike) {
+            QuizLike::where('profile_id', $profileId)->where('quiz_id', $quizId)->delete();
+            Redis::sRem($key, $profileId);
+            $this->model['liked'] = false;
+        } else {
+            QuizLike::insert(['profile_id' => $profileId, 'quiz_id' => $quizId]);
+            Redis::sAdd($key, $profileId);
+            $this->model['liked'] = true;
+            $recipe = Quiz::find($quizId);
+            event(new Like($recipe, $request->user()->profile));
+        }
+        $this->model['likeCount'] = Redis::sCard($key);
+
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($quizId, "quiz", request()->user()->profile->id);
+
+        return $this->sendResponse();
+    }
+
+
+
+    public function reports($id, Request $request)
+    {
+
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+
+
+
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        }
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            //($checkIFExists->profile_id);
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
+        }
+
+        $applicants = QuizApplicants::where("quiz_id", "=", $id)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null);
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $applicants->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+        $getCount = $applicants->get();
+
+        $prepareNode = ["answer_count" => $getCount->count(), "reports" => []];
+
+        $pluck = $getCount->pluck("profile_id")->toArray();
+
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $counter = 0;
+
+        foreach ($getJson as $values) {
+
+            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->get();
+
+            $ans = $answers->pluck("option_id")->toArray();
+            $ar = array_values(array_filter($ans));
+            $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+
+            $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
+
+            $optCounter = 0;
+
+            foreach ($values["options"] as $optVal) {
+                $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
+                $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
+                $optCounter++;
+            }
+
+            uasort($prepareNode["reports"][$counter]["options"], function ($a, $b) {
+                if (isset($a['answer_percentage']) && isset($b['answer_percentage'])) {
+                    if ($a['answer_percentage'] == $b['answer_percentage']) {
+                        return 0;
+                    }
+                    return ($a['answer_percentage'] < $b['answer_percentage']) ? 1 : -1;
+                }
+            });
+
+
+
+            $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
+            $answers = [];
+            $counter++;
+        }
+
+
+        $this->messages = "Report Successful";
+        $this->model = $prepareNode;
+        return $this->sendResponse();
+    }
+
+
+    public function inputAnswers($id, $question_id, $option_id, Request $request)
+    {
+
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        }
+        else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
+        }
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+
+
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
+
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $title = "";
+        foreach ($getJson as $values) {
+            if ($question_id == $values["id"]) {
+                foreach ($values["options"] as $optVal) {
+                    if ($option_id == $optVal["id"]) {
+                        $title = $optVal["title"];
+                        break;
+                    }
+                   
+                }
+            }
+        }
+        if ($request->has('filters') && !empty($request->filters)) {
+            $answers->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+        $this->model = [];
+        $data = ["answer_count" => $answers->get()->count(), "report" => []];
+
+        $this->model['count'] = $answers->count();
+        $respondent = $answers->skip($skip)->take($take)
+            ->get();
+        foreach ($respondent as $profile) {
+            $data["report"][] = ["profile" => $profile->profile, "answer" => $title];
+        }
+        $this->model = $data;
+        return $this->sendResponse();
+    }
+
+
+    function array_avg($array, $respCount = 0)
+    {
+        if (is_array($array) && count($array)) {
+            $num = $respCount;
+            return array_map(
+                function ($val) use ($num) {
+
+                    return array('count' => $val, 'avg' =>  (float)bcdiv((float)($val / $num * 100), 1, 2));
+                },
+                array_count_values($array)
+            );
+        }
+
+        return false;
+    }
+
     public function calculateScore($id)
     {
         //calculation of final score of an applicant
@@ -878,7 +1093,7 @@ class QuizController extends Controller
 
             foreach ($questions as $question) {
                 $answerArray = QuizAnswers::where("question_id", $question->id)->pluck("option_id")->toArray();
-                if (!(count(array_diff($answerMapping[$question->id], $answerArray)))) {
+                if (!count(array_diff($answerArray, $answerMapping[$question->id]))) {
                     $correctAnswersCount++;
                     $score += 1;
                 }
@@ -923,32 +1138,6 @@ class QuizController extends Controller
             return $this->sendResponse($data);
         }
         return $data;
-    }
-
-    public function like(Request $request, $quizId)
-    {
-        $profileId = $request->user()->profile->id;
-        $key = "meta:quizes:likes:" . $quizId;
-        $quizLike = Redis::sIsMember($key, $profileId);
-        $this->model = [];
-
-        if ($quizLike) {
-            QuizLike::where('profile_id', $profileId)->where('quiz_id', $quizId)->delete();
-            Redis::sRem($key, $profileId);
-            $this->model['liked'] = false;
-        } else {
-            QuizLike::insert(['profile_id' => $profileId, 'quiz_id' => $quizId]);
-            Redis::sAdd($key, $profileId);
-            $this->model['liked'] = true;
-            $quiz = Quiz::find($quizId);
-            event(new Like($quiz, $request->user()->profile));
-        }
-        $this->model['likeCount'] = Redis::sCard($key);
-
-        $peopleLike = new PeopleLike();
-        $this->model['peopleLiked'] = $peopleLike->peopleLike($quizId, "quizes", request()->user()->profile->id);
-
-        return $this->sendResponse();
     }
 
     public function getAnswers($id, $ques_id)
@@ -1026,8 +1215,16 @@ class QuizController extends Controller
         else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendError("Only Quiz Admin can view this report");
-        }
+         }
 
+        $applicants = QuizApplicants::where("quiz_id",$id)->whereNull("deleted_at")->orderBy("completion_date","desc")->get()->toArray();
+        $posToValue =[];
+        $valueToPos = [];
+        
+        foreach($applicants as $key =>$applicant){
+        $posToValue[$key] = $applicant["profile_id"];
+        $valueToPos[$applicant["profile_id"]]= $key;
+        }
 
         $prepareNode = ["reports" => []];
 
@@ -1082,9 +1279,238 @@ class QuizController extends Controller
             $answers = [];
             $counter++;
         }
-
+       
+        $prepareNode["previous"]= isset($applicants[($valueToPos[$profile_id]-1)])?Profile::find($posToValue[($valueToPos[$profile_id]-1)]):null;
+        $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id]+1)])?Profile::find($posToValue[($valueToPos[$profile_id]+1)]):null;
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
+        return $this->sendResponse();
+    }
+    
+
+    public function quizRespondents($id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendError("Only Quiz Admin can view this report");
+        }
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $count = QuizApplicants::where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $count->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+        $this->model = [];
+        $countInt = $count->count();
+        $data = ["answer_count" => $countInt];
+
+        $respondent = $count->skip($skip)->take($take)
+            ->get();
+
+        foreach ($respondent as $profile) {
+            $data['report'][] = $profile->profile;
+        }
+
+        $this->model = $data;
+        return $this->sendResponse();
+    }
+
+
+    public function getFilters($quizId, Request $request)
+    {
+        return $this->getFilterParameters($quizId, $request);
+    }
+
+    public function excelReport($id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Quiz");
+        }
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            // return $this->sendError("Only Survey Admin can view this report");
+        }
+
+        $headers = [];
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $questionIdMapping = [];
+        $optionIdMapping =[];
+        foreach ($getJson as $values) {
+
+            $questionIdMapping[$values["id"]] = html_entity_decode($values["title"]);
+            foreach($values["options"] as $option){
+                $optionIdMapping[$values["id"]][$option["id"]] = html_entity_decode($option["title"]);
+  
+            }
+
+         
+        }
+        // dd($questionIdMapping);
+        $applicants = QuizApplicants::where("quiz_id", "=", $id)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null);
+
+        if ($request->has('filters') && !empty($request->filters)) {
+            $applicants->whereIn('profile_id', $profileIds, 'and', $type);
+        }
+
+        $getCount = $applicants->get();
+
+
+        $pluck = $getCount->pluck("profile_id")->toArray();
+
+        $getQuizAnswers = QuizAnswers::where("quiz_id", "=", $id);
+
+        if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
+            $getQuizAnswers = $getQuizAnswers->whereIn("profile_id", $request->profile_ids);
+        } else if ($request->has('filters') && !empty($request->filters)) {
+            $getQuizAnswers = $getQuizAnswers->whereIn("profile_id", $pluck);
+        }
+
+        $getQuizAnswers = $getQuizAnswers->get();
+        $counter = 0;
+        foreach ($getQuizAnswers as $answers) {
+            if (!isset($headers[$answers->profile_id])) {
+                $counter++;
+                $headers[$answers->profile_id] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
+                foreach ($questionIdMapping as $key => $value) {
+
+                        $headers[$answers->profile_id][$value . "_(" . $key . ")_"] = null;
+                    
+                }
+            }
+            $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
+            if (isset($questionIdMapping[$answers->question_id])) {
+                // if (!isset($headers[$answers->profile_id])) {
+                //     ;
+                // }
+                // $headers[$answers->profile_id]["Sr no"] = $counter;
+                $headers[$answers->profile_id]["Name"] = html_entity_decode($answers->profile->name);
+                $headers[$answers->profile_id]["Email"] = html_entity_decode($answers->profile->email);
+                $headers[$answers->profile_id]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
+                $headers[$answers->profile_id]["Phone"] = \DB::Table("profiles")->where("id", "=", $answers->profile->id)->first()->phone;
+                $headers[$answers->profile_id]["City"] = html_entity_decode($answers->profile->city);
+                $headers[$answers->profile_id]["Hometown"] = html_entity_decode($answers->profile->hometown);
+                $headers[$answers->profile_id]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($answers->profile->handle);
+                $headers[$answers->profile_id]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
+
+                $ans = "";
+
+
+                    if (isset($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"])) {
+                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
+                    }
+                    $ans .= html_entity_decode($optionIdMapping[$answers->question_id][$answers->option_id]);
+
+                $p = false;
+                if (!empty($image) && is_array($image)) {
+                    if (!empty(array_column($image, "original_photo"))) {
+                        $ans .= ";";
+                    }
+                    $ans .= implode(";", array_column($image, "original_photo"));
+                    $p = true;
+                }
+
+             
+
+                if (!empty($url) && is_array($url)) {
+                    if ($p && !empty(array_column($url, "url"))) {
+                        $ans .= ";";
+                    }
+                    $ans .=   implode(";", array_column($url, "url"));
+                }
+                 
+                    $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = $ans;
+                
+            }
+        }
+
+        $finalData = array_values($headers);
+
+        $relativePath = "reports/quizesAnsweredExcel";
+        $name = "quizes-" . $id . "-" . uniqid();
+
+        $excel = Excel::create($name, function ($excel) use ($name, $finalData) {
+            // Set the title
+            $excel->setTitle($name);
+
+            // Chain the setters
+            $excel->setCreator('Tagtaste')
+                ->setCompany('Tagtaste');
+
+            // Call them separately
+            $excel->setDescription('Quiz Response List');
+
+            $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
+                $sheet->fromArray($finalData, null, 'A1', true, true);
+                // ->getFont()->setBold(true);
+
+                foreach ($sheet->getColumnIterator() as $row) {
+                    $cellcount = 0;
+                    foreach ($row->getCellIterator() as $cell) {
+
+                        if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
+                            $cell_link = $cell->getValue();
+                            $cell->getHyperlink()
+                                ->setUrl($cell_link)
+                                ->setTooltip('Click here to access profile');
+                        }
+                        if ($cellcount == 0 && str_contains($cell->getValue(), '_(')) $cell->setValueExplicit(substr($cell->getValue(), 0, strpos($cell->getValue(), "_(")));
+                        $cellcount++;
+                    }
+                }
+            })->store('xlsx', false, true);
+        });
+        $excel->getActiveSheet()->getStyle("1:1")->getFont()->setBold(true);
+        $excel_save_path = storage_path("exports/" . $excel->filename . ".xlsx");
+        $s3 = \Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
+        $this->model = \Storage::url($resp);
+        unlink($excel_save_path);
+
         return $this->sendResponse();
     }
 }

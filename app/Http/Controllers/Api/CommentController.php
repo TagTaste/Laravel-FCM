@@ -19,6 +19,7 @@ class CommentController extends Controller {
         'recipe' => \App\Recipe::class,
         'shoutout' =>\App\Shoutout::class,
         'surveys' =>\App\Surveys::class,
+        'quiz' =>\App\Quiz::class,
 
         'collaborate_share' => \App\Shareable\Collaborate::class,
         'photo_share' => \App\Shareable\Photo::class,
@@ -28,7 +29,9 @@ class CommentController extends Controller {
         'polling' => Polling::class,
         'polling_share' => \App\Shareable\Polling::class,
         'product_share' => \App\Shareable\Product::class,
-        'surveys_share' => \App\Shareable\Surveys::class
+        'surveys_share' => \App\Shareable\Surveys::class,
+        'quiz_share'=>\App\Shareable\Quiz::class
+        
     ];
     
     private function getModel(&$modelName, &$modelId){
@@ -140,6 +143,7 @@ class CommentController extends Controller {
     {
         $userId = $request->user()->id;
         $comment = Comment::where('user_id',$userId)->find($id);
+        // return $model;
         if($comment === null){
             return $this->sendError("Comment does not belong to the user.");
         }
