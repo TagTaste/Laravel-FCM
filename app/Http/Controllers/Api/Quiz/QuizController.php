@@ -860,7 +860,7 @@ class QuizController extends Controller
     public function like(Request $request, $quizId)
     {
         $profileId = $request->user()->profile->id;
-        $key = "meta:quizes:likes:" . $quizId;
+        $key = "meta:quiz:likes:" . $quizId;
         // return $key;
         $quizLike = Redis::sIsMember($key, $profileId);
         $this->model = [];
