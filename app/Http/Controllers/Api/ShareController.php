@@ -50,7 +50,7 @@ class ShareController extends Controller
                 return $class::where('id',$id)->where('state',config("constant.SURVEY_STATES.PUBLISHED"))->first();
             }
             else if($modelName == 'quiz'){
-                return $class::where('id',$id)->where('state',config("constant.QUIZ_STATES.ACTIVE"))->first();
+                return $class::where('id',$id)->where('state',config("constant.QUIZ_STATES.PUBLISHED"))->first();
             }
             return $class::where('id',$id)->whereNull('deleted_at')->first();
         }
