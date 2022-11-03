@@ -145,14 +145,14 @@ class QuizController extends Controller
             $quiz = Quiz::find($create->id);
             $this->model = $create;
             $this->messages = "Quiz Created Successfully";
-            if ($quiz->state == config("constant.QUIZ_STATES.ACTIVE")) {
+            if ($quiz->state == config("constant.QUIZ_STATES.PUBLISHED")) {
                 if ($request->has('company_id')) {
                     event(new NewFeedable($quiz, $company));
                 } else {
                     event(new NewFeedable($quiz, $request->user()->profile));
                 }
                 event(new Create($quiz, $request->user()->profile));
-
+    
                 $quiz->addToCache();
                 event(new UpdateFeedable($quiz));
             }
