@@ -138,6 +138,7 @@ class QuizController extends Controller
 
         $create = Quiz::create($prepData);
         $create->form_json = $final_json;
+        $create->image_meta = json_decode( $create->image_meta);
 
         if (isset($create->id)) {
 
@@ -151,7 +152,7 @@ class QuizController extends Controller
                 } else {
                     event(new NewFeedable($quiz, $request->user()->profile));
                 }
-                event(new Create($quiz, $request->user()->profile));
+               event(new Create($quiz, $request->user()->profile));
     
                 $quiz->addToCache();
                 event(new UpdateFeedable($quiz));
@@ -403,7 +404,7 @@ class QuizController extends Controller
                     $optionType = 0;
                     foreach ($values["options"] as &$opt) {
                         if (!$isUpdation || !isset($opt['id']) || empty($opt['id'])) {
-                            $opt['id'] = (string)$maxOptionId;
+                            $opt['id'] = (int)$maxOptionId;
 
                             $maxOptionId++;
                         }
@@ -426,7 +427,8 @@ class QuizController extends Controller
                         if (!empty($diffOptions)) {
                             $this->errors["form_json"] = "Option Nodes Missing " . implode(",", $diffOptions);
                         }
-                        if (isset($opt['is_correct'])) {
+                        if (isset($opt['is_correct']) && $opt["is_correct"]) {
+                            $opt["is_correct"] = true;
                             $correctOptionChecker = true;
                         }
                     }
