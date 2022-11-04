@@ -32,7 +32,7 @@ class Quiz extends Model implements Feedable
     protected $with = ['profile','company'];
     
     protected $appends = ['owner','meta','totalApplicants'];
-    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
+    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","replay","image_meta","form_json",
     "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants"];
 
 
@@ -106,7 +106,7 @@ class Quiz extends Model implements Feedable
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
         $reviewed = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
-        $meta['replay'] = $this->replay;
+       
 
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
