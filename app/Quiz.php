@@ -32,7 +32,7 @@ class Quiz extends Model implements Feedable
     protected $with = ['profile','company'];
     
     protected $appends = ['owner','meta','totalApplicants'];
-    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
+    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","replay","image_meta","form_json",
     "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants"];
 
 
