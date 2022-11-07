@@ -58,12 +58,12 @@ class Quiz extends Model implements Feedable
             'replay' => $this->replay,
         ];
 
-        Redis::set("quizes:" . $this->id, json_encode($data));
+        Redis::set("quiz:" . $this->id, json_encode($data));
     }
 
     public function removeFromCache()
     {
-        Redis::del("quizes:" . $this->id);
+        Redis::del("quiz:" . $this->id);
     }
 
     public function profile()

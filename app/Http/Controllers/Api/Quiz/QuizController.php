@@ -663,7 +663,7 @@ class QuizController extends Controller
 
                 $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                 $user = $request->user()->profile->id;
-                Redis::set("quizes:application_status:$request->quiz_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+                Redis::set("quiz:application_status:$request->quiz_id:profile:$user", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
             } else {
                 $responseData = ["status" => false];
             }

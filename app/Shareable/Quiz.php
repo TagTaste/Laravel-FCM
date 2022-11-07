@@ -30,13 +30,13 @@ class Quiz extends Share
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $key = "meta:quizesShare:likes:" . $this->id;
+        $key = "meta:quizShare:likes:" . $this->id;
 
         $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'quizesShare', request()->user()->profile->id);
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'quizShare', request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
 
@@ -48,7 +48,7 @@ class Quiz extends Share
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->quiz_id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
-        $k = Redis::get("quizes:application_status:$this->id:profile:$profileId");
+        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         return $meta;
     }
@@ -56,7 +56,7 @@ class Quiz extends Share
     public function getMetaForV2($profileId)
     {
         $meta = [];
-        $key = "meta:quizesShare:likes:" . $this->id;
+        $key = "meta:quizShare:likes:" . $this->id;
         $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
@@ -68,7 +68,7 @@ class Quiz extends Share
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->quiz_id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
-        $k = Redis::get("quizes:application_status:$this->id:profile:$profileId");
+        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         return $meta;
     }
@@ -81,7 +81,7 @@ class Quiz extends Share
     public function getMetaForPublic()
     {
         $meta = [];
-        $key = "meta:quizesShare:likes:" . $this->id;
+        $key = "meta:quizShare:likes:" . $this->id;
 
         $meta['likeCount'] = Redis::sCard($key);
 

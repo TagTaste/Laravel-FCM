@@ -53,7 +53,7 @@ class Quiz extends BaseQuiz
         // $meta['answerCount'] = 40;    
 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
-        $key = "meta:quizes:likes:" . $this->id;
+        $key = "meta:quiz:likes:" . $this->id;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['answerCount'] = \DB::table('quiz_answers')->where('quiz_id',$this->id)->where('current_status',2)->distinct('profile_id')->count('profile_id');  

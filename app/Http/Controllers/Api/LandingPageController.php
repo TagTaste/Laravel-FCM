@@ -312,7 +312,7 @@ class LandingPageController extends Controller
                 $carousel['elements'][] = $data;
             }
             if ($model == config("constant.LANDING_MODEL.QUIZ")) {
-                $data['quizes'] = json_decode(Redis::get("quizes:" . $value), true);
+                $data['quizes'] = json_decode(Redis::get("quiz:" . $value), true);
                 $quizModel = Quiz::find($value);
                 $data['meta'] = $quizModel->getMetaFor($profileId);
                 if (isset($data['quizes']['company_id']) && !(is_null($data['quizes']['company_id']))) {
