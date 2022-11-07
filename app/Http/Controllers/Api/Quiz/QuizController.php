@@ -256,8 +256,9 @@ class QuizController extends Controller
         $prepData = (object)[];
 
 
-        $prepData->state = isset($request->state) ? $request->state : config("constant.QUIZ_STATES.ACTIVE");
+        $prepData->state = isset($request->state) ? $request->state : config("constant.QUIZ_STATES.PUBLISHED");
         $prepData->title = $request->title;
+        $prepData->replay = $request->replay;
         $prepData->description = $request->description;
 
         if ($request->has("image_meta")) {
@@ -307,7 +308,7 @@ class QuizController extends Controller
         }
 
         if (($previousState == config("constant.QUIZ_STATES.EXPIRED") || $previousState == config("constant.QUIZ_STATES.CLOSED"))
-            && $request->state == config("constant.QUIZ_STATES.ACTIVE")
+            && $request->state == config("constant.QUIZ_STATES.PUBLISHED")
         ) {
             $this->addQuizGraph($getQuiz); //add node and edge to neo4j
         }
