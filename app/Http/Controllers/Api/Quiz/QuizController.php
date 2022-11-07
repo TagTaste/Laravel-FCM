@@ -129,7 +129,7 @@ class QuizController extends Controller
             $prepData["form_json"] = json_encode($final_json);
         }
 
-
+       
         if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData["expired_at"] = date("Y-m-d", strtotime($request->expired_at));
         } else {
@@ -254,7 +254,7 @@ class QuizController extends Controller
 
 
         $prepData = (object)[];
-
+      
 
         $prepData->state = isset($request->state) ? $request->state : config("constant.QUIZ_STATES.PUBLISHED");
         $prepData->title = $request->title;
