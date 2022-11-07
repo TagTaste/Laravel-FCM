@@ -4,6 +4,7 @@ namespace App;
 
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
+use App\Channel\Payload;
 use App\Traits\IdentifiesOwner;
 use App\Traits\IdentifiesContentIsReported;
 use App\Traits\HashtagFactory;
@@ -48,6 +49,7 @@ class Quiz extends Model implements Feedable
             'profile_id' => $this->profile_id,
             'company_id' => $this->company_id,
             'payload_id' => $this->payload_id,
+            'form_json' => $this->form_json,
             'title' => $this->title,
             'description' => $this->description,
             'image_meta' => json_decode($this->image_meta),
@@ -69,6 +71,11 @@ class Quiz extends Model implements Feedable
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
+    }
+
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class, 'payload_id');
     }
 
     public function privacy()

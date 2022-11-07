@@ -115,6 +115,7 @@ class FeedController extends Controller
         $payloads = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
             ->whereNull('subscribers.deleted_at')
+            ->whereNull('channel_payloads.deleted_at')
             ->where('channel_payloads.account_deactivated',0)
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
             //Query Builder's where clause doesn't work here for some reason.
