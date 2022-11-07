@@ -24,7 +24,7 @@ class Quiz extends Share
 
     public function quiz()
     {
-        return $this->belongsTo(\App\quiz::class, 'quiz_id');
+        return $this->belongsTo(\App\Quiz::class, 'quiz_id');
     }
 
     public function getMetaFor($profileId)
