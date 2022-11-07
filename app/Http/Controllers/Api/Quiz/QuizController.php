@@ -129,7 +129,7 @@ class QuizController extends Controller
             $prepData["form_json"] = json_encode($final_json);
         }
 
-
+       
         if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData["expired_at"] = date("Y-m-d", strtotime($request->expired_at));
         } else {
@@ -254,7 +254,7 @@ class QuizController extends Controller
 
 
         $prepData = (object)[];
-
+      
 
         $prepData->state = isset($request->state) ? $request->state : config("constant.QUIZ_STATES.PUBLISHED");
         $prepData->title = $request->title;
@@ -387,7 +387,7 @@ class QuizController extends Controller
                     $maxQueId++;
                 }
 
-
+                $values['id'] = (int) $values["id"];
                 if (empty($diff) && isset($values["options"])) {
                     $maxOptionId = 1;
                     if ($isUpdation) {
@@ -409,6 +409,7 @@ class QuizController extends Controller
 
                             $maxOptionId++;
                         }
+                        $opt['id'] = (int)$opt["id"];
                         if ($optionCount == 0) {               //for checking if all options type are same(image/normal)
                             if (!empty($opt['image_meta'])) {
                                 $optionType = 1;            //1 for image type
@@ -431,6 +432,9 @@ class QuizController extends Controller
                         if (isset($opt['is_correct']) && $opt["is_correct"]) {
                             $opt["is_correct"] = true;
                             $correctOptionChecker = true;
+                        }
+                        else{
+                            $opt["is_correct"] = false;
                         }
                     }
                     if (!$correctOptionChecker) {
@@ -847,7 +851,7 @@ class QuizController extends Controller
 
             $quiz->image_meta = json_decode($quiz->image_meta);
             $quiz->video_meta = json_decode($quiz->video_meta);
-
+            $quiz->form_json = json_decode($quiz->form_json);
             $data[] = [
                 'quiz' => $quiz,
                 'meta' => $quiz->getMetaFor($profileId)
@@ -958,6 +962,8 @@ class QuizController extends Controller
                 $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
+                $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = isset($optVal["is_correct"])?$optVal["is_correct"]:false;
+
                 $optCounter++;
             }
 

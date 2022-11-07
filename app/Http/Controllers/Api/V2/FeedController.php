@@ -342,7 +342,13 @@ class FeedController extends Controller
                 if (!$cachedData) {
                     \Log::warning("could not get from $key");
                 }
-                $data[$name] = json_decode($cachedData, true);
+                $data[$name] = json_decode($cachedData,true);
+                if(isset($data[$name]["image_meta"]) && !is_array($data[$name]["image_meta"])){
+                        $data[$name]["image_meta"] = json_decode($data[$name]["image_meta"],true);
+                }
+                if(isset($data[$name]["form_json"]) && !is_array($data[$name]["form_json"])){
+                        $data[$name]["form_json"] = json_decode($data[$name]["form_json"],true);
+                }
             }
 
             
