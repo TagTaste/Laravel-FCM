@@ -86,7 +86,7 @@ class BackupDatabase extends Command
             unlink($backupFilePath);
         }
     }
-
+    
     private function notifyUsingSlack($message){
         $hook = env('SLACK_HOOK');
         $client =  new \GuzzleHttp\Client();

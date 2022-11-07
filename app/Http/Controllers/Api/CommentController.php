@@ -226,14 +226,14 @@ class CommentController extends Controller {
         $this->model['next_page'] = $previousPage == 0 ? null : $previousPage;
         return $this->sendResponse();
     }
-
+    
     public function tagging(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
         $query = $request->input('term');
 
         $this->model = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
-            ->where('profiles.id','!=',$loggedInProfileId)->where('users.name','like',"%$query%")->take(15)->get();
+            ->where('profiles.id','!=',$loggedInProfileId)->where('account_deactivated', false)->where('users.name','like',"%$query%")->take(15)->get();
         return $this->sendResponse();
     }
 

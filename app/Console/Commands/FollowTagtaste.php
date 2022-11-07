@@ -64,7 +64,7 @@ class FollowTagtaste extends Command
             [
                 'json' =>
                     [
-                        "channel" => "@tushar",
+                        "channel" => "@nikhil",
                         "username" => "ramukaka",
                         "icon_emoji" => ":older_man::skin-tone-3:",
                         "text" => "Every profile on live server subscribed to ".$companies[0]->name.",".$companies[1]->name." and ".$companies[2]->name

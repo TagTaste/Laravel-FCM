@@ -177,7 +177,8 @@ class BatchController extends Controller
         $type = $resp['type'];
         $boolean = 'and';
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id', $id)->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('created_at', 'desc')->get()->pluck('profile_id');
-        $profiles = Collaborate\Applicant::where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds)->orderBy('created_at', 'desc')->get();
+        $profiles = Collaborate\Applicant::where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds)->whereNotNull('shortlisted_at')
+        ->whereNull('rejected_at')->orderBy('created_at', 'desc')->get();
         $profiles = $profiles->toArray();
         $this->model = [];
         foreach ($profiles as &$profile) {

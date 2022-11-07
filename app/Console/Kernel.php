@@ -312,12 +312,17 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ExpireQuiz::class,
         \App\Console\Commands\Build\Cache\Quiz::class,
         \App\Console\Commands\Build\Search\Quiz::class,
-        \App\Console\Commands\Build\Graph\Build\UserQuiz::class
+        \App\Console\Commands\Build\Graph\Build\UserQuiz::class,
 
 
 
 
 
+        //delete user
+        \App\Console\Commands\DeleteUser::class,
+
+        //deacitveted user push
+        \App\Console\Commands\Build\Cache\DeactivatedUsers::class
 
     ];
 
@@ -336,7 +341,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:polling')->dailyAt('12:05');
 
         //daily quiz expire at 12
-        $schedule->command('expires_on:quiz')->dailyAt('12:05');
+        // $schedule->command('expires_on:quiz')->dailyAt('12:05');
 
         //daily polling expire at 12
         $schedule->command(UpdateProfileCompiledInfo::class)->dailyAt('12:00');
@@ -369,8 +374,9 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('reminder:PaymentLink')->dailyAt('01:00');
         $schedule->command('expires_on:banner')->dailyAt('12:10');
+        $schedule->command('delete:deactivated_user')->dailyAt('12:30');
 
-
+        
 
         // $schedule->command('review:calculation')->dailyAt('01:00');
        // $schedule->command('SetExpireon:Collab')->dailyAt('12:00');

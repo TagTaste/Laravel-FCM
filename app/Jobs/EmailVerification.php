@@ -18,7 +18,7 @@ class EmailVerification implements ShouldQueue
      * @return void
      */
     public $user;
-
+    
     public function __construct($user)
     {
         $this->user = $user;

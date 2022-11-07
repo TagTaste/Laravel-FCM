@@ -96,7 +96,7 @@ class FeedController extends Controller
         }
 
         $profileId = $request->user()->profile->id;
-
+            
         list($skip, $take) = Paginator::paginate($page, 13);
 
         $this->feed_card_computation($profileId);
@@ -106,16 +106,16 @@ class FeedController extends Controller
             $skip = $skip - $this->feed_card_count;
             $this->feed_card_count = 0;
         }
-
-
-        // $reported_payload = Payload::leftJoin('report_content', 'report_content.payload_id', '=', 'channel_payloads.id')
-        //     ->where('report_content.profile_id', $profileId)
-        //     ->pluck('channel_payloads.id')->toArray();
-
-
+        
+        
+        $reported_payload = Payload::leftJoin('report_content', 'report_content.payload_id', '=', 'channel_payloads.id')
+            ->where('report_content.profile_id', $profileId)
+            ->pluck('channel_payloads.id')->toArray();
+        
         $payloads = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
             ->whereNull('subscribers.deleted_at')
+            ->where('channel_payloads.account_deactivated',0)
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
@@ -129,7 +129,7 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
-
+        
         $this->getMeta($payloads, $profileId, $request->user()->profile);
         return $this->sendResponse();
     }
@@ -351,7 +351,7 @@ class FeedController extends Controller
                 }
             }
 
-
+            
             if ($payload->model !== null) {
                 $model = $payload->model;
                 $type = $this->getType($payload->model);

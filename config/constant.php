@@ -24,7 +24,7 @@ return  [
         "INVITED" => 0,
         "INCOMPLETE" => 1,
         "COMPLETED" => 2,
-        "REJECTED" => 3
+        "INPROGRESS" => 3
     ],
 
     "QUIZ_APPLICANT_ANSWER_STATUS" => [
@@ -36,7 +36,8 @@ return  [
     "SURVEY_APPLICANT_STATUS" => [
         "To Be Notified" => 0,
         "Notified" => 1,
-        "Completed" => 2
+        "Completed" => 2,
+        'In Progress' => 3
     ],
 
     "MEDIA_SURVEY_QUESTION_TYPE" => 5,

@@ -23,7 +23,7 @@ class SurveyApplicantController extends Controller
 
     use SendsJsonResponse, FilterTraits;
 
-    private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed"];
+    private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed", 3 => "In Progress" ];
     public function __construct(Surveys $model)
     {
         $this->model = $model;
@@ -360,7 +360,8 @@ class SurveyApplicantController extends Controller
         $applicationStatus = [
             'To Be Notified',
             'Notified',
-            'Completed'
+            'Completed',
+            'In Progress'
         ];
         $city = [];
         $profile = [];
@@ -447,6 +448,7 @@ class SurveyApplicantController extends Controller
             $applicants  = $applicants->whereIn('profile_id', $profileIds);
         }
         $applicants = $applicants->whereNull('deleted_at')
+            ->whereNull('rejected_at')
             ->orderBy("created_at", "desc")
             ->get();
 

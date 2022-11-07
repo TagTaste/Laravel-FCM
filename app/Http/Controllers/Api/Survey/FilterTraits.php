@@ -15,9 +15,9 @@ trait FilterTraits
         $filters = $request->filters;
         $profileIds = collect([]);
 
-        if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
+        if ($profileIds->count() == 0 && isset($filters['profile_id'])) {
             $filterProfile = [];
-            foreach ($filters['include_profile_id'] as $filter) {
+            foreach ($filters['profile_id'] as $filter) {
                 //$isFilterAble = true;
                 $filterProfile[] = (int)$filter;
             }
@@ -29,9 +29,9 @@ trait FilterTraits
 
         if (!empty($filters)) {
             $Ids = surveyApplicants::where('survey_id', $surveyDetails->id)
-                ->whereNull('deleted_at');
+                ->whereNull('survey_applicants.deleted_at');
         }
-
+        
         if (isset($filters['city'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['city'] as $city) {

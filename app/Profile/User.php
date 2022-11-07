@@ -19,7 +19,7 @@ class User extends BaseUser
 {
     protected $with = ['profile']; //'articles','ideabooks','companies'
 
-    protected $visible = ['name','email','profile','verified_at']; //'articles','recommend','ideabooks',
+    protected $visible = ['name','email','profile','verified_at', 'account_deactivated']; //'articles','recommend','ideabooks',
     
     public static function boot()
     {
