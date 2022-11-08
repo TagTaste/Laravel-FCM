@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\V2\FeedController;
 use App\ReviewCollection;
 use App\ElasticHelper;
+use App\Quiz;
 use App\Traits\HashtagFactory;
 use App\Surveys;
 
@@ -207,6 +208,25 @@ class ExplorePageController extends Controller
                     "see_more" => true,
                     "filter_meta" => (object)[],
                     "elements" => $this->getSurvey($profile, $profile_id)
+                ];
+                /* ui type = 6 is end */
+            }
+
+            if ($search_filter === "quiz") {
+                /* ui type = 7 is start */
+                $model[] = [
+                    "position" => 2,
+                    "ui_type" => 6,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Latest Quizes", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "quiz",
+                    "see_more" => true,
+                    "filter_meta" => (object)[],
+                    "elements" => $this->getQuiz($profile, $profile_id)
                 ];
                 /* ui type = 6 is end */
             }
@@ -709,6 +729,40 @@ class ExplorePageController extends Controller
                 ];
                 /* ui type = 7 is end */
             }
+            if ($search_filter === "quiz") {
+                $quiz_elastic_data = $this->getSearchQuizElastic($profile, $profile_id, $search_value, 20);
+                // /* ui type = 6 is start */
+                $model[] = [
+                    "position" => 2,
+                    "ui_type" => 8,
+                    "ui_style_meta" => (object)[],
+                    "title" => "Top ".str_plural("Result", $quiz_elastic_data['top_result']['count'])." in Quiz", 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "quiz",
+                    "see_more" => false,
+                    "filter_meta" => (object)[],
+                    "elements" => $quiz_elastic_data['top_result']
+                ];
+
+                 $model[] = [
+                    "position" => 3,
+                    "ui_type" => 8,
+                    "ui_style_meta" => (object)[],
+                    "title" => '"'.$search_value.'"'.' in Quiz', 
+                    "subtitle" => null,
+                    "description" => null,
+                    "images_meta" => null,
+                    "type" => "collection",
+                    "sub_type" => "quiz",
+                    "see_more" => true,
+                    "filter_meta" => (object)[],
+                    "elements" => $quiz_elastic_data['match']
+                ];
+                // /* ui type = 6 is end */
+            }
         }
         
 
@@ -1023,6 +1077,38 @@ class ExplorePageController extends Controller
 
     }
 
+    public function getQuiz($profile, $profile_id)
+    {
+        
+        $quiz = Quiz::where('state',2)
+            ->whereNull('deleted_at')
+            ->inRandomOrder()
+            ->take(10)
+            ->pluck('id')
+            ->toArray();
+
+
+        $quiz_detail = array(
+            "quiz" => array(),
+            "count" => 0,
+            "type" => "quiz"
+        );
+
+        foreach ($quiz as $key => $id) {
+            $cached_data = \App\Quiz::where('id', $id)->first();
+            if (!is_null($cached_data)) {
+                $cached_data->image_meta = json_decode($cached_data->image_meta);
+                $cached_data->video_meta = json_decode($cached_data->video_meta);
+                $cached_data->form_json = json_decode($cached_data->form_json);
+
+                array_push($quiz_detail["quiz"], $cached_data);
+                $quiz_detail["count"] += 1;    
+            }
+        }
+        return $quiz_detail; 
+
+    }
+
     public function getCollaborationSuggestion($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
@@ -1205,7 +1291,7 @@ class ExplorePageController extends Controller
                                     continue;
                                 } else {
                                     $elastic_surveys['match']["count"]++;
-                                    array_push($elastic_surveys['match']["collaborate"], $data);
+                                    array_push($elastic_surveys['match']["surveys"], $data);
                                 }
                             }
                         }
@@ -1216,6 +1302,57 @@ class ExplorePageController extends Controller
         return $elastic_surveys;
     }
 
+    public function getSearchQuizElastic($profile, $profile_id, $query, $count)
+    {
+        $elastic_quiz = array(
+            "top_result" => array(
+                "quiz" => array(),
+                "count" => 0,
+                "type" => "quiz"
+            ),
+            "match" => array(
+                "quiz" => array(),
+                "count" => 0,
+                "type" => "quiz"
+            )
+        );
+        $elastic_quiz_details = ElasticHelper::suggestedSearch($query,"quiz",0,1);
+        if (isset($elastic_quiz_details['hits']) && isset($elastic_quiz_details['hits']['total']) && $elastic_quiz_details['hits']['total'] > 0) {
+            foreach ($elastic_quiz_details['hits']['hits'] as $key => $hit) {
+                if ($hit["_type"] == "quiz") {
+                    if ($count == $elastic_quiz['top_result']["count"] && $count == $elastic_quiz['match']["count"]) {
+                        break;
+                    } else {
+                        $quiz = Quiz::where('id',$hit["_id"])
+                        ->where('state',2)
+                        ->whereNull('deleted_at')
+                        ->get()
+                        ->first();
+
+                        if (!is_null($quiz)) {
+                            $data = $quiz->toArray();
+                            if ($hit["_score"] > 9) {
+                                if ($count == $elastic_quiz['top_result']["count"]) {
+                                    continue;
+                                } else {
+                                    $elastic_quiz['top_result']["count"]++;
+                                    array_push($elastic_quiz['top_result']["quiz"], $data);
+                                }
+                            } else {
+                                if ($count == $elastic_quiz['match']["count"]) {
+                                    continue;
+                                } else {
+                                    $elastic_quiz['match']["count"]++;
+                                    array_push($elastic_quiz['match']["quiz"], $data);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $elastic_quiz;
+    }
     public function getSearchCollaborationElastic($profile, $profile_id, $query, $count)
     {
         $elastic_collaborate = array(
