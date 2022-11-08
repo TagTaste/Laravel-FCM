@@ -246,7 +246,7 @@ class Quiz extends Model implements Feedable
                 ),
                 array(
                     "name" => "keywords",
-                    "content" => "quiz, quizes, online quiz, food quiz, TagTaste quiz",
+                    "content" => "quiz, quizzes, online quiz, food quiz, TagTaste quiz",
                 )
             ),
             "og" => array(
@@ -280,8 +280,8 @@ class Quiz extends Model implements Feedable
         $images = $this->image_meta != null ? $this->image_meta : null;
         $data['cardType'] = isset($images) ? 'summary_large_image' : 'summary';
         $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/icon_survey.png';
-        $data['ogUrl'] = env('APP_URL') . '/quizes/' . $this->id;
-        $data['redirectUrl'] = env('APP_URL') . '/quizes/' . $this->id;
+        $data['ogUrl'] = env('APP_URL') . '/quizzes/' . $this->id;
+        $data['redirectUrl'] = env('APP_URL') . '/quizzes/' . $this->id;
 
         return $data;
     }

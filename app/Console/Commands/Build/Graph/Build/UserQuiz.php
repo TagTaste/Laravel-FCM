@@ -21,7 +21,7 @@ class UserQuiz extends Command
      *
      * @var string
      */
-    protected $description = 'Rebuilds nodes and edges between profile and quizes';
+    protected $description = 'Rebuilds nodes and edges between profile and quizzes';
 
     /**
      * Create a new command instance.

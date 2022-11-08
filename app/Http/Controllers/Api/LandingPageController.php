@@ -274,7 +274,7 @@ class LandingPageController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->take(10)->pluck('id')->toArray();
 
-            $carousel["title"] = "Quizes";
+            $carousel["title"] = "Quizzes";
         }
         
         elseif ($model == config("constant.LANDING_MODEL.PRODUCT")) {
@@ -315,13 +315,13 @@ class LandingPageController extends Controller
                 $carousel['elements'][] = $data;
             }
             if ($model == config("constant.LANDING_MODEL.QUIZ")) {
-                $data['quizes'] = json_decode(Redis::get("quiz:" . $value), true);
+                $data['quizzes'] = json_decode(Redis::get("quiz:" . $value), true);
                 $quizModel = Quiz::find($value);
                 $data['meta'] = $quizModel->getMetaFor($profileId);
-                if (isset($data['quizes']['company_id']) && !(is_null($data['quizes']['company_id']))) {
-                    $data['company'] = json_decode(Redis::get("company:small:" . $data['quizes']['company_id'] . ":V2"), true);
+                if (isset($data['quizzes']['company_id']) && !(is_null($data['quizzes']['company_id']))) {
+                    $data['company'] = json_decode(Redis::get("company:small:" . $data['quizzes']['company_id'] . ":V2"), true);
                 } else {
-                    $data['profile'] = json_decode(Redis::get("profile:small:" . $data['quizes']['profile_id'] . ":V2"), true);
+                    $data['profile'] = json_decode(Redis::get("profile:small:" . $data['quizzes']['profile_id'] . ":V2"), true);
                 }
                 $data['type'] = $model;
                 $data['placeholder_images_meta'] = $placeHolderImage;

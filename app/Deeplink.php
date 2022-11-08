@@ -182,7 +182,7 @@ class Deeplink
                 case 'reviewCollection':     return env('APP_URL').'/collection/'.$modelId;
                 case 'feedCard':     return env('APP_URL').'/feed/card/'.$modelId;
                 case 'surveys':     return env('APP_URL').'/surveys/'.$modelId;
-                case 'quiz':     return env('APP_URL').'/quizes/'.$modelId;
+                case 'quiz':     return env('APP_URL').'/quizzes/'.$modelId;
 
             }
         }

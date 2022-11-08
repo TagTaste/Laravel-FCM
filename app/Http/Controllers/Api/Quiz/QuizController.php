@@ -379,6 +379,9 @@ class QuizController extends Controller
             }
 
             foreach ($decodeJson as &$values) {
+                if(isset($values["is_mandatory"])){
+                    $values["is_mandatory"] = (int)$values["is_mandatory"];
+                }
                 $diff = array_diff($requiredNode, array_keys($values));
                 // echo (isset($values['id']));
 
@@ -572,7 +575,7 @@ class QuizController extends Controller
 
             if (isset($quiz->profile_id) && $quiz->profile_id == $request->user()->profile->id) {
                 $this->model = ["status" => false];
-                return $this->sendError("Admin Cannot Fill the Quizes");
+                return $this->sendError("Admin Cannot Fill the Quizzes");
             }
 
 
@@ -857,7 +860,7 @@ class QuizController extends Controller
                 'meta' => $quiz->getMetaFor($profileId)
             ];
         }
-        $this->model['quizes'] = $data;
+        $this->model['quizzes'] = $data;
         return $this->sendResponse();
     }
 
@@ -1197,7 +1200,7 @@ class QuizController extends Controller
             $quiz->video_meta = json_decode($quiz->video_meta);
             $quiz->form_json = json_decode($quiz->form_json);
 
-            $this->model[] = ['quizes' => $quiz, 'meta' => $meta];
+            $this->model[] = ['quizzes' => $quiz, 'meta' => $meta];
         }
         return $this->sendResponse();
     }
@@ -1481,8 +1484,8 @@ class QuizController extends Controller
 
         $finalData = array_values($headers);
 
-        $relativePath = "reports/quizesAnsweredExcel";
-        $name = "quizes-" . $id . "-" . uniqid();
+        $relativePath = "reports/quizzesAnsweredExcel";
+        $name = "quizzes-" . $id . "-" . uniqid();
 
         $excel = Excel::create($name, function ($excel) use ($name, $finalData) {
             // Set the title

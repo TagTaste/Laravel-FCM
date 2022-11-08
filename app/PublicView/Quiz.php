@@ -73,8 +73,8 @@ class Quiz extends BaseQuiz
         $images = $this->image_meta != null ? $this->image_meta : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
-        $data['ogUrl'] = env('APP_URL').'/quizes/'.$this->id;
-        $data['redirectUrl'] = env('APP_URL').'/quizes/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/quizzes/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/quizzes/'.$this->id;
 
         return $data;
     }

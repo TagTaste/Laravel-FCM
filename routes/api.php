@@ -953,7 +953,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
     //quiz 
     Route::group(['namespace' => 'Quiz', 'as' => 'quiz.', 'prefix' => 'quiz', 'middleware' => 'api.auth'], function () {
-        Route::post('/{id}/close', 'QuizController@closeQuizes');
+        Route::post('/close/{id}', 'QuizController@closeQuizes');
         Route::post('/{id}/submit', 'QuizController@submitQuiz');
         Route::get('/close-reasons', 'QuizController@quizCloseReason');
         Route::get('/{id}/result', 'QuizController@quizResult');

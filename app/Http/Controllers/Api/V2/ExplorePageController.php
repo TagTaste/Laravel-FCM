@@ -218,7 +218,7 @@ class ExplorePageController extends Controller
                     "position" => 2,
                     "ui_type" => 6,
                     "ui_style_meta" => (object)[],
-                    "title" => "Latest Quizes", 
+                    "title" => "Latest Quizzes", 
                     "subtitle" => null,
                     "description" => null,
                     "images_meta" => null,
@@ -865,7 +865,7 @@ class ExplorePageController extends Controller
 
         //quiz serch filter
         $quizes_search_filter = array(
-            "name" => "quiz",
+            "name" => "Quiz",
             "key" => "type",
             "value" => "quiz",
             "is_selected" => false

@@ -525,7 +525,7 @@ class SearchController extends Controller
                 foreach ($quizes as $quiz) {
                     $quiz->image_meta = json_decode($quiz->image_meta);
                     $quiz->form_json = json_decode($quiz->form_json);
-                    $this->model['quizes'][] = ['quiz' => $quiz, 'meta' => $quiz->getMetaFor($profileId)];
+                    $this->model['quizzes'][] = ['quiz' => $quiz, 'meta' => $quiz->getMetaFor($profileId)];
                 }
             }
 
