@@ -311,7 +311,7 @@ class QuizController extends Controller
             && $request->state == config("constant.QUIZ_STATES.PUBLISHED")
         ) {
             $getQuiz->addToCache();
-             $this->addQuizGraph($getQuiz); //add node and edge to neo4j
+            $this->addQuizGraph($getQuiz); //add node and edge to neo4j
             event(new UpdateFeedable($getQuiz));
         }
 
@@ -382,9 +382,10 @@ class QuizController extends Controller
             foreach ($decodeJson as &$values) {
                 if (isset($values["is_mandatory"])) {
                     $values["is_mandatory"] = (int)$values["is_mandatory"];
+                } else {
+                    $values["is_mandatory"] = 0;
                 }
                 $diff = array_diff($requiredNode, array_keys($values));
-                // echo (isset($values['id']));
 
                 if (!$isUpdation || !isset($values['id']) || empty($values['id'])) {
                     $values['id'] = (int) $maxQueId;
@@ -609,12 +610,12 @@ class QuizController extends Controller
 
             foreach ($questions as $values) {
 
-                if (in_array($values["question_id"],$mandateQuestions) && (!isset($values["options"]) || empty($values["options"]) )) {
+                if (in_array($values["question_id"], $mandateQuestions) && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
                     $this->model = ["status" => false];
                     return $this->sendNewError("Mandatory Questions Cannot Be Blank");
                 }
-  
+
                 $answerArray = [];
                 $answerArray["profile_id"] = $request->user()->profile->id;
                 $answerArray["quiz_id"] = $id;
@@ -1521,15 +1522,21 @@ class QuizController extends Controller
             return $this->sendResponse();
         }
 
+        $applicant = QuizApplicants::where("quiz_id", $id)->where("profile_id", request()->user()->profile->id)->first();
+
         $questions = json_decode($getQuiz["form_json"], true);
         foreach ($questions as &$question) {
 
             $options = QuizAnswers::where("quiz_id", $id)->where("question_id", $question["id"])->where("profile_id", request()->user()->profile->id)->pluck("option_id")->toArray();
-            $question["options"] = $options;
+            $question["answers"] = $options;
         }
         $this->messages = "Request successfull";
         $this->model = [
-            "form_json" => $questions,
+            "id" => $id,
+            "title" => $getQuiz->title,
+            "description" => $getQuiz->description,
+            "state" => $applicant->application_status,
+            "form_json" => $questions
         ];
         return $this->sendResponse();
     }
