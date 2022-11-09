@@ -170,10 +170,10 @@ class SurveyController extends Controller
         }
 
         if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+30 days   "))) {
-            return $this->sendError("Expiry time exceeds a month");
+            return $this->sendNewError("Expiry time exceeds a month");
         }
         if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
-            return $this->sendError("Expiry time invalid");
+            return $this->sendNewError("Expiry time invalid");
         }
 
 
@@ -197,14 +197,14 @@ class SurveyController extends Controller
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
             if (isset($request->is_private) && $request->is_private == 1 && $company->is_premium != 1) {
-                return $this->sendError("Only premium companies can create private surveys");
+                return $this->sendNewError("Only premium companies can create private surveys");
                 // return $next($request);
             }
         } else if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
-            return $this->sendError("Only premium users can create private surveys");
+            return $this->sendNewError("Only premium users can create private surveys");
         }
 
         $prepData["id"] = (string) Uuid::generate(4);
@@ -278,7 +278,7 @@ class SurveyController extends Controller
         $survey = $this->model->where('id', $surveyId)->where('account_deactivated',0)->where("is_active", "=", 1)->first();
         if ($survey == null) {
             $this->model = false;
-            return $this->sendError("Invalid Survey Id");
+            return $this->sendNewError("Invalid Survey Id");
         }
 
         $profileId = $request->user()->profile->id;
@@ -369,21 +369,21 @@ class SurveyController extends Controller
         ) {
             $verifyPermission = $this->statePermissionHandler($getSurvey, $request);
             if ($verifyPermission == false) {
-                return $this->sendError("Permission Denied");
+                return $this->sendNewError("Permission Denied");
             }
         }
 
 
         if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))) {
 
-            return $this->sendError("Survey status cannot be changed");
+            return $this->sendNewError("Survey status cannot be changed");
         }
 
         if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+30 days"))) {
-            return $this->sendError("Expiry time exceeds a month");
+            return $this->sendNewError("Expiry time exceeds a month");
         }
         if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
-            return $this->sendError("Expiry time invalid");
+            return $this->sendNewError("Expiry time invalid");
         }
 
         $final_json = $this->validateSurveyFormJson($request, $id);
@@ -405,7 +405,7 @@ class SurveyController extends Controller
             $prepData->published_at = date("Y-m-d H:i:s");
         }
         //  else if ($getSurvey->i != config("constant.SURVEY_STATES.DRAFT") && $request->state == config("constant.SURVEY_STATES.DRAFT")) {
-        //     return $this->sendError("Cannot update survey back to draft once its published");
+        //     return $this->sendNewError("Cannot update survey back to draft once its published");
         // }
 
         $prepData->state = $request->state;
@@ -572,26 +572,26 @@ class SurveyController extends Controller
             $this->model = [];
             if (empty($id)) {
                 $this->model = ["status" => false];
-                return $this->sendError("Invalid Survey");
+                return $this->sendNewError("Invalid Survey");
             }
             if ($id->state == config("constant.SURVEY_STATES.CLOSED")) {
                 $this->model = ["status" => false];
-                return $this->sendError("Survey is closed. Cannot submit answers");
+                return $this->sendNewError("Survey is closed. Cannot submit answers");
             }
 
             if ($id->state == config("constant.SURVEY_STATES.EXPIRED")) {
                 $this->model = ["status" => false];
-                return $this->sendError("Survey is expired. Cannot submit answers");
+                return $this->sendNewError("Survey is expired. Cannot submit answers");
             }
 
             if ($id->state == config("constant.SURVEY_STATES.DRAFT")) {
                 $this->model = ["status" => false];
-                return $this->sendError("Survey is in draft. Cannot submit answers");
+                return $this->sendNewError("Survey is in draft. Cannot submit answers");
             }
 
             if (isset($id->profile_id) && $id->profile_id == $request->profile_id) {
                 $this->model = ["status" => false];
-                return $this->sendError("Admin Cannot Fill the Surveys");
+                return $this->sendNewError("Admin Cannot Fill the Surveys");
             }
 
 
@@ -604,12 +604,12 @@ class SurveyController extends Controller
                 $this->saveApplicants($id, $request);
             } elseif (empty($checkApplicant)) {
                 $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
-                return $this->sendError("Something went wrong");
+                return $this->sendNewError("Something went wrong");
             }
 
             if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $this->model = ["status" => false];
-                return $this->sendError("Already Answered");
+                return $this->sendNewError("Already Answered");
             }
 
             if (
@@ -618,7 +618,7 @@ class SurveyController extends Controller
             ) {
                 $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
                 $this->model = ["status" => false];
-                return $this->sendError("Something went wrong");
+                return $this->sendNewError("Something went wrong");
             }
             $optionArray = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
 
@@ -654,7 +654,7 @@ class SurveyController extends Controller
 
 
             if (!empty(array_diff($mandateQuestions, $answerQuestionIds))) {
-                return $this->sendError("Mandatory Questions Cannot Be Blank");
+                return $this->sendNewError("Mandatory Questions Cannot Be Blank");
             }
 
             DB::beginTransaction();
@@ -664,7 +664,7 @@ class SurveyController extends Controller
                 if (!isset($values["options"]) || empty($values["options"])) {
                     // DB::rollback();
                     // $this->model = ["status" => false];
-                    // return $this->sendError("Options not found");
+                    // return $this->sendNewError("Options not found");
                     continue;
                 }
                 $answerArray = [];
@@ -763,7 +763,7 @@ class SurveyController extends Controller
         } catch (Exception $ex) {
             DB::rollback();
             $this->model = ["status" => false];
-            return $this->sendError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
+            return $this->sendNewError("Error Saving Answers " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
         }
     }
 
@@ -903,7 +903,7 @@ class SurveyController extends Controller
 
         if (empty($checkIFExists)) {
             $this->model = false;
-            return $this->sendError("Invalid Survey");
+            return $this->sendNewError("Invalid Survey");
         }
         if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
@@ -918,12 +918,12 @@ class SurveyController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = false;
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             //($checkIFExists->profile_id);
             $this->model = false;
-            return $this->sendError("Only Survey Admin can view this report");
+            return $this->sendNewError("Only Survey Admin can view this report");
         }
 
         $applicants = surveyApplicants::where("survey_id", "=", $id)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null);
@@ -1422,7 +1422,7 @@ class SurveyController extends Controller
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
-            return $this->sendError("Invalid Survey");
+            return $this->sendNewError("Invalid Survey");
         }
 
 
@@ -1434,11 +1434,11 @@ class SurveyController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = false;
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
-            return $this->sendError("Only Survey Admin can view this report");
+            return $this->sendNewError("Only Survey Admin can view this report");
         }
 
         if ($request->has('filters') && !empty($request->filters)) {
@@ -1478,7 +1478,7 @@ class SurveyController extends Controller
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
-            return $this->sendError("Invalid Survey");
+            return $this->sendNewError("Invalid Survey");
         }
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
@@ -1489,11 +1489,11 @@ class SurveyController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = false;
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
-            return $this->sendError("Only Survey Admin can view this report");
+            return $this->sendNewError("Only Survey Admin can view this report");
         }
 
         if ($request->has('filters') && !empty($request->filters)) {
@@ -1535,7 +1535,7 @@ class SurveyController extends Controller
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
-            return $this->sendError("Invalid Survey");
+            return $this->sendNewError("Invalid Survey");
         }
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
@@ -1546,11 +1546,11 @@ class SurveyController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = false;
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
-            return $this->sendError("Only Survey Admin can view this report");
+            return $this->sendNewError("Only Survey Admin can view this report");
         }
 
         $colorCodeList = $this->colorCodeList;
@@ -1777,13 +1777,13 @@ class SurveyController extends Controller
 
         if (!in_array($media_type, ["image_meta", "video_meta", "document_meta", "media_url"])) {
             $this->model = false;
-            return $this->sendError("Invalid Media Type");
+            return $this->sendNewError("Invalid Media Type");
         }
 
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
-            return $this->sendError("Invalid Survey");
+            return $this->sendNewError("Invalid Survey");
         }
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
@@ -1794,11 +1794,11 @@ class SurveyController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = false;
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
-            return $this->sendError("Only Survey Admin can view this report");
+            return $this->sendNewError("Only Survey Admin can view this report");
         }
 
 
@@ -1867,7 +1867,7 @@ class SurveyController extends Controller
 
         if (empty($checkIFExists)) {
             $this->model = false;
-            return $this->sendError("Invalid Survey");
+            return $this->sendNewError("Invalid Survey");
         }
 
         if ($request->has('filters') && !empty($request->filters)) {
@@ -1883,10 +1883,10 @@ class SurveyController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = false;
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            // return $this->sendError("Only Survey Admin can view this report");
+            // return $this->sendNewError("Only Survey Admin can view this report");
         }
         $totalApplicants = surveyApplicants::where("survey_id", "=", $id)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null)->get()->count();
 
@@ -2142,20 +2142,20 @@ class SurveyController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = false;
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
         } else if (isset($survey->profile_id) &&  $survey->profile_id != $request->user()->profile->id) {
             $this->model = false;
-            return $this->sendError("Only Admin can close the survey");
+            return $this->sendNewError("Only Admin can close the survey");
         }
 
         if ($survey->state == config("constant.SURVEY_STATES.CLOSED")) {
             $this->model = false;
-            return $this->sendError("Survey Already Closed");
+            return $this->sendNewError("Survey Already Closed");
         }
 
         // if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {
-        //     return $this->sendError("Survey Already Expired");
+        //     return $this->sendNewError("Survey Already Expired");
         // }
 
 
@@ -2177,7 +2177,7 @@ class SurveyController extends Controller
 
             $data = ['survey_id' => $survey->id, 'reason' => $reason, 'other_reason' => $description];
         } else {
-            return $this->sendError("Please select valid reason");
+            return $this->sendNewError("Please select valid reason");
         }
 
         $close = Surveys::where("id", "=", $survey->id);
@@ -2273,7 +2273,7 @@ class SurveyController extends Controller
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->whereNull('deleted_at')->first();
         if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
             $this->model = false;
-            return $this->sendError("Already Applied");
+            return $this->sendNewError("Already Applied");
         }
 
 

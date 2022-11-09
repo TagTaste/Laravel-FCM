@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\UpdateFeedable as UpdateFeedableEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Channel\Payload;
+
 
 class UpdateFeedable
 {
@@ -26,8 +28,10 @@ class UpdateFeedable
      */
     public function handle(UpdateFeedableEvent $event)
     {
-//        if(method_exists($event->model,'payload')){
-//            $event->model->payload->update(['payload'=>$event->model,get_class($event->model),$event->model->id]);
-//        }
+        if (method_exists($event->model, 'payload')) {
+            if(!empty(Payload::withTrashed()->find($event->model->payload_id))){
+            Payload::withTrashed()->find($event->model->payload_id)->restore(); 
+            }           
+        }
     }
 }
