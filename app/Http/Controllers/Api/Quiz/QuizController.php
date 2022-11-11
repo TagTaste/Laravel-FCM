@@ -368,7 +368,7 @@ class QuizController extends Controller
                 $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
                 $listOfQuestionIds = array_keys($oldJsonArray);
             }
-            //required node for questions    
+            //required node for questions
             $requiredNode = ["title", "question_type", "image_meta", "id", "options"];
             //required option nodes
             $optionNodeChecker = ["id", "image_meta", "title"];
@@ -653,18 +653,23 @@ class QuizController extends Controller
                         $data['title'] = $result["title"];
                         $data['subtitle'] = $result["subtitle"];
                         $data['score_text'] = $result["score_text"];
+                        $data["total"] = $result["total"];
                         $data["correctAnswerCount"] = $result["correctAnswerCount"];
-                        $data["score"] = $result["score"];
+                        $data["incorrectAnswerCount"] = $result["incorrectAnswerCount"];
+                        $answer = $this->getAnswers($quiz, $values["question_id"]);
+                        $data["options"] = $answer["options"];
 
                         $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
-                        Redis::set("quiz:application_status:$request->quiz_id:profile:$user->id", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+                        Redis::set("quiz:application_status:$id:profile:$user->id", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
                     } else if ($request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")) {
                         DB::commit();
                         $this->model = true;
                         $responseData = ["status" => true];
                         $this->messages = "Answer Submitted Successfully";
                         $data = $this->getAnswers($quiz, $values["question_id"]);
-                        Redis::set("quiz:application_status:$request->quiz_id:profile:$user->id", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS"));
+                        $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => 0, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")]);
+
+                        Redis::set("quiz:application_status:$id:profile:$user->id", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS"));
                     }
                 } else {
                     $responseData = ["status" => false];
@@ -705,7 +710,7 @@ class QuizController extends Controller
             }
 
             if ($paymnetExist != null) {
-                //check for excluded flag for profiles 
+                //check for excluded flag for profiles
                 $exp = (!empty($paymnetExist->excluded_profiles) ? $paymnetExist->excluded_profiles : null);
                 if ($exp != null) {
                     $separate = explode(",", $exp);
@@ -1103,7 +1108,7 @@ class QuizController extends Controller
             foreach ($questions as $question) {
 
                 $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->pluck("option_id")->toArray();
-                if (!count(array_diff($answerArray, $answerMapping[$question->id]))) {
+                if (!count(array_diff($answerMapping[$question->id], $answerArray))) {
                     $correctAnswersCount++;
                     $score += 1;
                 }
@@ -1138,11 +1143,13 @@ class QuizController extends Controller
             return $this->sendNewError("user has not attempted the quiz");
         }
         $result = $this->calculateScore($id);
-        $data["helper"] = "Congrats";
-        $data["title"] = "Quiz Completed Successfully";
-        $data["subtitle"] = "You attempted {$result["total"]} questions and from that {$result["correctAnswerCount"]} answer is correct";
+        $data["helper"] = "Congratulations";
+        $data["title"] = $quiz->title;
+        $data["subtitle"] = "Quiz Completed Successfully";
         $data["score_text"] = $result["score"] . "% Score";
+        $data["total"] = $result["total"];
         $data["correctAnswerCount"] = $result["correctAnswerCount"];
+        $data["incorrectAnswerCount"] = $result["total"] - $result["correctAnswerCount"];
         $data["score"] = $result["score"];
         if ($feed) {
             return $this->sendResponse($data);
@@ -1524,10 +1531,20 @@ class QuizController extends Controller
 
         $applicant = QuizApplicants::where("quiz_id", $id)->where("profile_id", request()->user()->profile->id)->first();
 
+        if (empty($applicant)) {
+            $current_status = 0;
+        } else {
+            $current_status = $applicant->application_status;
+        }
         $questions = json_decode($getQuiz["form_json"], true);
         foreach ($questions as &$question) {
 
             $options = QuizAnswers::where("quiz_id", $id)->where("question_id", $question["id"])->where("profile_id", request()->user()->profile->id)->pluck("option_id")->toArray();
+            foreach ($question["options"] as &$opt) {
+                if (isset($opt["is_correct"])) {
+                    unset($opt["is_correct"]);
+                }
+            }
             $question["answers"] = $options;
         }
         $this->messages = "Request successfull";
@@ -1535,7 +1552,8 @@ class QuizController extends Controller
             "id" => $id,
             "title" => $getQuiz->title,
             "description" => $getQuiz->description,
-            "state" => $applicant->application_status,
+            "replay" => $getQuiz->replay,
+            "current_status" => $current_status,
             "form_json" => $questions
         ];
         return $this->sendResponse();
