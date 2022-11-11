@@ -601,8 +601,10 @@ class QuizController extends Controller
                 }
             }, $prepareQuestionJson);
 
-
             $mandateQuestions = array_values(array_filter($mandateQuestions));
+
+            $listOfQuestionIds = array_keys($prepareQuestionJson);
+            $quesId = min($listOfQuestionIds);
 
 
             DB::beginTransaction();
@@ -610,6 +612,9 @@ class QuizController extends Controller
 
             foreach ($questions as $values) {
 
+                if ($request->replay && $values["question_id"] == $quesId) {
+                    QuizAnswers::where("quiz_id", $id)->where("profile_id", $request->user()->profile->id)->delete();
+                }
                 if (in_array($values["question_id"], $mandateQuestions) && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
                     $this->model = ["status" => false];
@@ -950,7 +955,7 @@ class QuizController extends Controller
 
         foreach ($getJson as $values) {
 
-            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->get();
+            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->get();
 
             $ans = $answers->pluck("option_id")->toArray();
             $ar = array_values(array_filter($ans));
@@ -1107,7 +1112,7 @@ class QuizController extends Controller
 
             foreach ($questions as $question) {
 
-                $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->pluck("option_id")->toArray();
+                $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
                 if (!count(array_diff($answerMapping[$question->id], $answerArray))) {
                     $correctAnswersCount++;
                     $score += 1;
@@ -1242,7 +1247,7 @@ class QuizController extends Controller
         $optionValues = [];
 
         foreach ($getJson as $values) {
-            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->get();
+            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
 
@@ -1408,7 +1413,7 @@ class QuizController extends Controller
 
         $pluck = $getCount->pluck("profile_id")->toArray();
 
-        $getQuizAnswers = QuizAnswers::where("quiz_id", "=", $id);
+        $getQuizAnswers = QuizAnswers::where("quiz_id", "=", $id)->whereNull("deleted_at");
 
         if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
             $getQuizAnswers = $getQuizAnswers->whereIn("profile_id", $request->profile_ids);
@@ -1539,12 +1544,14 @@ class QuizController extends Controller
         $questions = json_decode($getQuiz["form_json"], true);
         foreach ($questions as &$question) {
 
-            $options = QuizAnswers::where("quiz_id", $id)->where("question_id", $question["id"])->where("profile_id", request()->user()->profile->id)->pluck("option_id")->toArray();
+            $options = QuizAnswers::where("quiz_id", $id)->where("question_id", $question["id"])->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
+            if(empty($options)){
             foreach ($question["options"] as &$opt) {
                 if (isset($opt["is_correct"])) {
                     unset($opt["is_correct"]);
                 }
             }
+        }
             $question["answers"] = $options;
         }
         $this->messages = "Request successfull";
