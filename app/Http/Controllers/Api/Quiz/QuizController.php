@@ -548,8 +548,7 @@ class QuizController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'current_status' => 'required|numeric',
-                'answer_json' => 'required|array',
-                'replay' => 'required'
+                'answer_json' => 'required|array'
             ]);
 
             if ($validator->fails()) {
@@ -613,7 +612,7 @@ class QuizController extends Controller
 
             foreach ($questions as $values) {
 
-                if ($request->replay && $values["question_id"] == $quesId) {
+                if (isset($request->replay) && $request->replay && $values["question_id"] == $quesId) {
                     QuizAnswers::where("quiz_id", $id)->where("profile_id", $request->user()->profile->id)->delete();
                 }
                 if (in_array($values["question_id"], $mandateQuestions) && (!isset($values["options"]) || empty($values["options"]))) {
