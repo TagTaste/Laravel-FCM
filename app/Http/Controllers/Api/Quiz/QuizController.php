@@ -688,7 +688,7 @@ class QuizController extends Controller
                     $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
                 }
                 $responseData = array_merge($responseData, $data);
-                return $this->sendResponse([$responseData]);
+                return $this->sendResponse($responseData);
             }
         } catch (Exception $ex) {
             DB::rollback();
