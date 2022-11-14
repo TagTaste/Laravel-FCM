@@ -548,7 +548,8 @@ class QuizController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'current_status' => 'required|numeric',
-                'answer_json' => 'required|array'
+                'answer_json' => 'required|array',
+                'replay' => 'required'
             ]);
 
             if ($validator->fails()) {
