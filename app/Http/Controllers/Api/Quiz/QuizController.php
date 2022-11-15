@@ -34,7 +34,8 @@ class QuizController extends Controller
 {
     use SendsJsonResponse, FilterTraits;
 
-
+    protected $model;
+  
     public function __construct(Quiz $model)
     {
         $this->model = $model;
@@ -589,10 +590,6 @@ class QuizController extends Controller
             $listOfQuestionIds = array_keys($prepareQuestionJson);
             $quesId = min($listOfQuestionIds);
            
-           
-
-
-
             DB::beginTransaction();
             $commit = true;
 
@@ -606,6 +603,12 @@ class QuizController extends Controller
                     return $this->sendNewError("Already Answered");
                 }   //if replay is not true then already answered error 
 
+                $answerExist = QuizAnswers::where("quiz_id",$id)->where("question_id",$values["question_id"])->where("profile_id",$request->user()->profile->id)->whereNull("deleted_at")->first();
+
+                 if(!empty($answerExist)){
+                    $this->model = ["status" => false];
+                    return $this->sendNewError("Already Answered");
+                 }
                 if (in_array($values["question_id"], $mandateQuestions) && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
                     $this->model = ["status" => false];
@@ -957,6 +960,7 @@ class QuizController extends Controller
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $prepareNode["reports"][$counter]["is_mandatory"] = isset($values["is_mandatory"])?$values["is_mandatory"]:0;
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
 
             $optCounter = 0;
@@ -965,6 +969,8 @@ class QuizController extends Controller
                 $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                 $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
                 $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+                $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? " #C1E2CF" : "#ECE1D8";
+
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = isset($optVal["is_correct"]) ? $optVal["is_correct"] : false;
@@ -1112,7 +1118,7 @@ class QuizController extends Controller
                 }
             }
             $score = ($score / $total) * 100;
-            $result["score"] = $score;
+            $result["score"] = number_format($score,2,".","");
             $result["correctAnswerCount"] = $correctAnswersCount;
         } else {
             $result["score"] = 0;
@@ -1274,6 +1280,7 @@ class QuizController extends Controller
                             $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                             $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
                             $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ?true:false ;
 
 
                             $optCounter++;
