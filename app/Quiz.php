@@ -49,7 +49,6 @@ class Quiz extends Model implements Feedable
             'profile_id' => $this->profile_id,
             'company_id' => $this->company_id,
             'payload_id' => $this->payload_id,
-            'form_json' => $this->form_json,
             'title' => $this->title,
             'description' => $this->description,
             'image_meta' => json_decode($this->image_meta),
@@ -121,6 +120,7 @@ class Quiz extends Model implements Feedable
 
         $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
+        $meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
 
 
         return $meta;
@@ -137,12 +137,11 @@ class Quiz extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
+        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
 
-        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
-        if(!$meta['isAdmin'] && $k == config('constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){ //check if not admin and played te quiz then show score
-            $score = QuizApplicants::where('quiz_id',$this->id)->where('profile_id', request()->user()->profile->id)->pluck('score');
-            $meta['score'] = $score[0];
-        }
+        $k = (!empty($reviewed) ? $reviewed->application_status : null);
+        
+
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
@@ -150,6 +149,7 @@ class Quiz extends Model implements Feedable
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
+        $meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
 
 
         return $meta;
@@ -170,10 +170,7 @@ class Quiz extends Model implements Feedable
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
         ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
-        if(!$meta['isAdmin'] && $k == config('constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){
-            $meta['score'] = QuizApplicants::where('quiz_id',$this->id)->where('profile_id', request()->user()->profile->id)->pluck('score');
-        }
-        
+       
         return $meta;
     }
 

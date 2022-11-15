@@ -415,18 +415,7 @@ class QuizController extends Controller
                             $maxOptionId++;
                         }
                         $opt['id'] = (int)$opt["id"];
-                        if ($optionCount == 0) {               //for checking if all options type are same(image/normal)
-                            if (!empty($opt['image_meta'])) {
-                                $optionType = 1;            //1 for image type
-                            }
-                        } else {
-                            if ($optionType && empty($opt['image_meta'])) {
-                                $this->errors["form_json"] = "All options should be of same type ";
-                            } else if (!$optionType && !empty($opt['image_meta'])) {
-                                $this->errors["form_json"] = "All options should be of same type ";
-                            }
-                        }
-
+                       
 
                         $optionCount++;
 
@@ -663,6 +652,8 @@ class QuizController extends Controller
                         $data["total"] = $result["total"];
                         $data["correctAnswerCount"] = $result["correctAnswerCount"];
                         $data["incorrectAnswerCount"] = $result["incorrectAnswerCount"];
+                        $data["image_url"] = config("constant.QUIZ_RESULT_IMAGE_URL");
+
                         $answer = $this->getAnswers($quiz, $values["question_id"]);
                         $data["options"] = $answer["options"];
 
@@ -1157,6 +1148,7 @@ class QuizController extends Controller
         $data["total"] = $result["total"];
         $data["correctAnswerCount"] = $result["correctAnswerCount"];
         $data["incorrectAnswerCount"] = $result["total"] - $result["correctAnswerCount"];
+        $data["image_url"] = config("constant.QUIZ_RESULT_IMAGE_URL");
         $data["score"] = $result["score"];
         if ($feed) {
             return $this->sendResponse($data);

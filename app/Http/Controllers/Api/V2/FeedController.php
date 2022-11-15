@@ -358,7 +358,12 @@ class FeedController extends Controller
                 $type = $this->getType($payload->model);
                 if ($model == "App\Surveys") {
                     $model = $model::find($data["surveys"]["id"]);
-                } else {
+                } 
+                else if($model == "App\Quiz"){
+                    $model = $model::find($data["quiz"]["id"]);
+
+                }
+                else {
                     $model = $model::find($payload->model_id);
                 }
                 if ($model !== null && method_exists($model, 'getMetaForV2')) {

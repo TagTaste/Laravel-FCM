@@ -32,6 +32,8 @@ return  [
         "COMPLETED" => 2
     ],
 
+    "QUIZ_RESULT_IMAGE_URL" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/platform/61153-trophy-congratulation.gif",
+    
 
     "SURVEY_APPLICANT_STATUS" => [
         "To Be Notified" => 0,
