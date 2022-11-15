@@ -585,12 +585,6 @@ class QuizController extends Controller
                 \DB::table("quiz_applicants")->insert(["quiz_id" => $id, "profile_id" => request()->user()->profile->id, "application_status" => 1]);
             }
 
-            if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                $this->model = ["status" => false];
-                return $this->sendNewError("Already Answered");
-            }
-
-
             $questions = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
             $prepareQuestionJson = $this->prepQuestionJson($quiz->form_json);
 
@@ -605,6 +599,9 @@ class QuizController extends Controller
 
             $listOfQuestionIds = array_keys($prepareQuestionJson);
             $quesId = min($listOfQuestionIds);
+           
+           
+
 
 
             DB::beginTransaction();
@@ -612,9 +609,14 @@ class QuizController extends Controller
 
             foreach ($questions as $values) {
 
-                if (isset($request->replay) && $request->replay && $values["question_id"] == $quesId) {
+                if (isset($request->replay) && $request->replay && ($values["question_id"] == $quesId)) {
                     QuizAnswers::where("quiz_id", $id)->where("profile_id", $request->user()->profile->id)->delete();
                 }
+                else if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                    $this->model = ["status" => false];
+                    return $this->sendNewError("Already Answered");
+                }   //if replay is not true then already answered error 
+
                 if (in_array($values["question_id"], $mandateQuestions) && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
                     $this->model = ["status" => false];
