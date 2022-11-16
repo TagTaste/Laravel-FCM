@@ -35,7 +35,7 @@ class QuizController extends Controller
     use SendsJsonResponse, FilterTraits;
 
     protected $model;
-  
+
     public function __construct(Quiz $model)
     {
         $this->model = $model;
@@ -112,7 +112,7 @@ class QuizController extends Controller
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["profile_id"] = $request->user()->profile->id;
         $prepData["title"] = $request->title;
-        $prepData["description"] = isset($request->description)?$request->description:null;
+        $prepData["description"] = isset($request->description) ? $request->description : null;
         $prepData["replay"] = $request->replay;
         $prepData["privacy_id"] = 1;
         $prepData["state"] = $request->state;
@@ -258,7 +258,7 @@ class QuizController extends Controller
         $prepData->state = isset($request->state) ? $request->state : config("constant.QUIZ_STATES.PUBLISHED");
         $prepData->title = $request->title;
         $prepData->replay = $request->replay;
-        $prepData->description = isset($request->description)?$request->description:null;
+        $prepData->description = isset($request->description) ? $request->description : null;
 
         if ($request->has("image_meta")) {
             $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
@@ -414,7 +414,7 @@ class QuizController extends Controller
                             $maxOptionId++;
                         }
                         $opt['id'] = (int)$opt["id"];
-                       
+
 
                         $optionCount++;
 
@@ -587,7 +587,7 @@ class QuizController extends Controller
 
             $listOfQuestionIds = array_keys($prepareQuestionJson);
             $quesId = min($listOfQuestionIds);
-           
+
             DB::beginTransaction();
             $commit = true;
 
@@ -595,18 +595,17 @@ class QuizController extends Controller
 
                 if (isset($request->replay) && $request->replay && ($values["question_id"] == $quesId)) {
                     QuizAnswers::where("quiz_id", $id)->where("profile_id", $request->user()->profile->id)->delete();
-                }
-                else if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                } else if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $this->model = ["status" => false];
                     return $this->sendNewError("Already Answered");
                 }   //if replay is not true then already answered error 
 
-                $answerExist = QuizAnswers::where("quiz_id",$id)->where("question_id",$values["question_id"])->where("profile_id",$request->user()->profile->id)->whereNull("deleted_at")->first();
+                $answerExist = QuizAnswers::where("quiz_id", $id)->where("question_id", $values["question_id"])->where("profile_id", $request->user()->profile->id)->whereNull("deleted_at")->first();
 
-                 if(!empty($answerExist)){
+                if (!empty($answerExist)) {
                     $this->model = ["status" => false];
                     return $this->sendNewError("Already Answered");
-                 }
+                }
                 if (in_array($values["question_id"], $mandateQuestions) && (!isset($values["options"]) || empty($values["options"]))) {
                     DB::rollback();
                     $this->model = ["status" => false];
@@ -644,8 +643,8 @@ class QuizController extends Controller
 
 
                         $this->messages = "Answer Submitted Successfully";
-                        $title = "<u>".$result["title"]."</u>";
-                         
+                        $title = "<u>" . $result["title"] . "</u>";
+
                         $data = [];
                         $data['helper'] = $result["helper"];
                         $data['title'] = htmlentities($title, ENT_QUOTES, 'utf-8');
@@ -959,7 +958,7 @@ class QuizController extends Controller
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
-            $prepareNode["reports"][$counter]["is_mandatory"] = isset($values["is_mandatory"])?$values["is_mandatory"]:0;
+            $prepareNode["reports"][$counter]["is_mandatory"] = isset($values["is_mandatory"]) ? $values["is_mandatory"] : 0;
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
 
             $optCounter = 0;
@@ -968,7 +967,7 @@ class QuizController extends Controller
                 $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                 $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
                 $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
-                $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? " #C1E2CF" : "#ECE1D8";
+                $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? "#C1E2CF" : "#ECE1D8";
 
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
@@ -1116,8 +1115,9 @@ class QuizController extends Controller
                     $score += 1;
                 }
             }
-            $score = ($score / $total) * 100;
-            $result["score"] = number_format($score,2,".","");
+            $score = ($score* 100)/$total;
+            
+            $result["score"] = (is_float($score))?number_format($score, 2, ".", ""):$score;
             $result["correctAnswerCount"] = $correctAnswersCount;
         } else {
             $result["score"] = 0;
@@ -1149,7 +1149,11 @@ class QuizController extends Controller
         $data["helper"] = "Congratulations";
         $data["title"] = $quiz->title;
         $data["subtitle"] = "Quiz Completed Successfully";
-        $data["score_text"] = $result["score"] . "% Score";
+        if (!$result["score"]) {
+            $data["score_text"] = $result["score"] . "% Score Only";
+        } else {
+            $data["score_text"] = $result["score"] . "% Score";
+        }
         $data["total"] = $result["total"];
         $data["correctAnswerCount"] = $result["correctAnswerCount"];
         $data["incorrectAnswerCount"] = $result["total"] - $result["correctAnswerCount"];
@@ -1279,7 +1283,7 @@ class QuizController extends Controller
                             $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                             $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
                             $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ?true:false ;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? true : false;
 
 
                             $optCounter++;
@@ -1545,14 +1549,18 @@ class QuizController extends Controller
         foreach ($questions as &$question) {
 
             $options = QuizAnswers::where("quiz_id", $id)->where("question_id", $question["id"])->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
-            if(empty($options)){
-            foreach ($question["options"] as &$opt) {
-                if (isset($opt["is_correct"])) {
-                    unset($opt["is_correct"]);
+            if (empty($options) || $current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                foreach ($question["options"] as &$opt) {
+                    if (isset($opt["is_correct"])) {
+                        unset($opt["is_correct"]);
+                    }
                 }
             }
-        }
-            $question["answers"] = $options;
+            if ($current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                $question["answers"] = [];
+            } else {
+                $question["answers"] = $options;
+            }
         }
         $this->messages = "Request successfull";
         $this->model = [
