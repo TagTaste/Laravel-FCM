@@ -71,7 +71,6 @@ class QuizController extends Controller
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
             'title' => 'required',
-            'description' => 'required',
             'image_meta' => 'array|nullable',
             'form_json' => 'required|array',
             'expired_at' => 'date_format:Y-m-d',
@@ -113,7 +112,7 @@ class QuizController extends Controller
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["profile_id"] = $request->user()->profile->id;
         $prepData["title"] = $request->title;
-        $prepData["description"] = $request->description;
+        $prepData["description"] = isset($request->description)?$request->description:null;
         $prepData["replay"] = $request->replay;
         $prepData["privacy_id"] = 1;
         $prepData["state"] = $request->state;
@@ -227,7 +226,6 @@ class QuizController extends Controller
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
             'title' => 'required',
-            'description' => 'required',
             'image_meta' => 'array|nullable',
             'form_json' => 'required|array',
             'expired_at' => 'date_format:Y-m-d',
@@ -260,7 +258,7 @@ class QuizController extends Controller
         $prepData->state = isset($request->state) ? $request->state : config("constant.QUIZ_STATES.PUBLISHED");
         $prepData->title = $request->title;
         $prepData->replay = $request->replay;
-        $prepData->description = $request->description;
+        $prepData->description = isset($request->description)?$request->description:null;
 
         if ($request->has("image_meta")) {
             $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
@@ -646,10 +644,11 @@ class QuizController extends Controller
 
 
                         $this->messages = "Answer Submitted Successfully";
-
+                        $title = "<u>".$result["title"]."</u>";
+                         
                         $data = [];
                         $data['helper'] = $result["helper"];
-                        $data['title'] = $result["title"];
+                        $data['title'] = htmlentities($title, ENT_QUOTES, 'utf-8');
                         $data['subtitle'] = $result["subtitle"];
                         $data['score_text'] = $result["score_text"];
                         $data["total"] = $result["total"];
