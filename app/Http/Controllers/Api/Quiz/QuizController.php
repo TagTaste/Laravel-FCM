@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Quiz;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Quiz;
+use App\Events\Actions\QuizAnswered;
 use Illuminate\Support\Facades\Validator;
 use App\Company;
 use App\QuizLike;
@@ -641,6 +642,11 @@ class QuizController extends Controller
                         $this->model = true;
                         $responseData = ["status" => true];
 
+                        if (is_null($id->company_id)) {
+                            event(new QuizAnswered($id, $user, null, null, null, null));
+                        } else {
+                            event(new QuizAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
+                        }
 
                         $this->messages = "Answer Submitted Successfully";
                         $title = "<u>" . $result["title"] . "</u>";
@@ -1115,9 +1121,9 @@ class QuizController extends Controller
                     $score += 1;
                 }
             }
-            $score = ($score* 100)/$total;
-            
-            $result["score"] = (is_float($score))?number_format($score, 2, ".", ""):$score;
+            $score = ($score * 100) / $total;
+
+            $result["score"] = (is_float($score)) ? number_format($score, 2, ".", "") : $score;
             $result["correctAnswerCount"] = $correctAnswersCount;
         } else {
             $result["score"] = 0;
