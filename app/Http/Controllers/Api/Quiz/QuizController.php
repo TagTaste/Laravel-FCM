@@ -642,10 +642,10 @@ class QuizController extends Controller
                         $this->model = true;
                         $responseData = ["status" => true];
 
-                        if (is_null($id->company_id)) {
-                            event(new QuizAnswered($id, $user, null, null, null, null));
+                        if (is_null($quiz->company_id)) {
+                            event(new QuizAnswered($quiz, $user, null, null, null, null));
                         } else {
-                            event(new QuizAnswered($id, null, null, null, null, Company::where("id", "=", $id->company_id)));
+                            event(new QuizAnswered($quiz, null, null, null, null, Company::where("id", "=", $quiz->company_id)));
                         }
 
                         $this->messages = "Answer Submitted Successfully";
@@ -1155,11 +1155,7 @@ class QuizController extends Controller
         $data["helper"] = "Congratulations";
         $data["title"] = $quiz->title;
         $data["subtitle"] = "Quiz Completed Successfully";
-        if (!$result["score"]) {
-            $data["score_text"] = $result["score"] . "% Score Only";
-        } else {
-            $data["score_text"] = $result["score"] . "% Score";
-        }
+        $data["score_text"] = $result["score"] . "% Score";
         $data["total"] = $result["total"];
         $data["correctAnswerCount"] = $result["correctAnswerCount"];
         $data["incorrectAnswerCount"] = $result["total"] - $result["correctAnswerCount"];
