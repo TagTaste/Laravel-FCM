@@ -579,9 +579,10 @@ class QuizController extends Controller
             }
 
 
+            $profile = $request->user()->profile;
             $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
             if (empty($checkApplicant)) {
-                \DB::table("quiz_applicants")->insert(["quiz_id" => $id, "profile_id" => request()->user()->profile->id, "application_status" => 1]);
+                \DB::table("quiz_applicants")->insert(["quiz_id" => $id, "profile_id" => request()->user()->profile->id, "application_status" => 1, "gender" => $profile->gender, "city" => $profile->city, "hometown" => $profile->hometown]);
             }
 
             $questions = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
@@ -597,7 +598,7 @@ class QuizController extends Controller
             $mandateQuestions = array_values(array_filter($mandateQuestions));
 
             $listOfQuestionIds = array_keys($prepareQuestionJson);
-            $quesId = min($listOfQuestionIds);
+            $quesId = $listOfQuestionIds[0];
 
             DB::beginTransaction();
             $commit = true;
@@ -1126,7 +1127,7 @@ class QuizController extends Controller
             foreach ($questions as $question) {
 
                 $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
-                if (!count(array_diff($answerMapping[$question->id], $answerArray))) {
+                if ($answerMapping[$question->id] == $answerArray) {
                     $correctAnswersCount++;
                     $score += 1;
                 }
