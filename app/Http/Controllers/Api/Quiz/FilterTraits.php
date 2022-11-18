@@ -40,24 +40,13 @@ trait FilterTraits
             });
         }
 
-        if (isset($filters['gender'])) {
-
+        if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['gender'] as $gender) {
-                    $query->orWhere('quiz_applicants.gender', 'LIKE', $gender);
+                foreach ($filters['age'] as $age) {
+                    $age = htmlspecialchars_decode($age);
+                    $query->orWhere('age_group', 'LIKE', $age);
                 }
             });
-        }
-
-
-        if (isset($filters['age'])) {
-            $Ids = $Ids->leftJoin("profiles")
-                ->where(function ($query) use ($filters) {
-                    foreach ($filters['age'] as $age) {
-                        $age = htmlspecialchars_decode($age);
-                        $query->orWhere('profiles.age_group', 'LIKE', $age);
-                    }
-                });
         }
 
 
@@ -72,7 +61,15 @@ trait FilterTraits
             });
         }
 
-        
+        if (isset($filters['gender'])) {
+
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['gender'] as $gender) {
+                    $query->orWhere('quiz_applicants.gender', 'LIKE', $gender);
+                }
+            });
+        }
+
         if (isset($filters['application_status'])) {
 
             $Ids = $Ids->where(function ($query) use ($filters) {
