@@ -652,11 +652,11 @@ class QuizController extends Controller
                         $this->model = true;
                         $responseData = ["status" => true];
 
-                        if (is_null($quiz->company_id)) {
-                            event(new QuizAnswered($quiz, $user, null, null, null, null));
-                        } else {
-                            event(new QuizAnswered($quiz, null, null, null, null, Company::where("id", "=", $quiz->company_id)));
-                        }
+                        // if (is_null($quiz->company_id)) {
+                        //     event(new QuizAnswered($quiz, $user, null, null, null, null));
+                        // } else {
+                        //     event(new QuizAnswered($quiz, null, null, null, null, Company::where("id", "=", $quiz->company_id)));
+                        // }
 
                         $this->messages = "Answer Submitted Successfully";
                         $title = "<u>" . $result["title"] . "</u>";

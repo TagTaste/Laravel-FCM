@@ -10,7 +10,7 @@ use App\CompanyUser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class ExpirePolling extends Command
+class ExpireQuizes extends Command
 {
     /**
      * The name and signature of the console command.
