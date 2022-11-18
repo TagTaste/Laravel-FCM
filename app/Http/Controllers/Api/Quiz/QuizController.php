@@ -179,8 +179,18 @@ class QuizController extends Controller
             $this->errors = ["Quiz Doesn't Exists"];
             return $this->sendResponse();
         }
+        $questions = json_decode($getQuiz["form_json"], true);
 
-        $getQuiz["form_json"] = json_decode($getQuiz["form_json"], true);
+        $isEdit = isset(request()->isEdit) ? request()->isEdit : false;
+        if (!$isEdit) {           //for details api hide is_correct and for edit show is_correct
+            foreach ($questions as &$question) {
+                foreach ($question["options"] as &$option) {
+                    unset($option["is_correct"]);
+                }
+            }
+        }
+
+        $getQuiz["form_json"] = $questions;
         $getQuiz["image_meta"] = json_decode($getQuiz["image_meta"], true);
         $getData = $getQuiz->toArray();
         $getData["closing_reason"] = $getQuiz->getClosingReason();
