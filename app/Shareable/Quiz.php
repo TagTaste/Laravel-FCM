@@ -48,7 +48,7 @@ class Quiz extends Share
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->quiz_id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
-        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
+        $k = Redis::get("quiz:application_status:$this->quiz_id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         return $meta;
     }
@@ -68,7 +68,7 @@ class Quiz extends Share
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->quiz_id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
-        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
+        $k = Redis::get("quiz:application_status:$this->quiz_id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         return $meta;
     }

@@ -110,7 +110,7 @@ class Quiz extends Model implements Feedable
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
 
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
-        $reviewed = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
+        $reviewed = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('profile_id', $profileId)->where("application_status",2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
        
 
@@ -137,16 +137,12 @@ class Quiz extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
-        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
-
-        $k = (!empty($reviewed) ? $reviewed->application_status : null);
-        
+        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', $profileId)->where("application_status",2)->first();
 
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
-
-        $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
+        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
 
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);

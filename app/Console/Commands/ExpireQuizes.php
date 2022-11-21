@@ -53,10 +53,10 @@ class ExpireQuizes extends Command
                         $profiles = CompanyUser::where('company_id', $companyId)->get();
                         foreach ($profiles as $profile) {
                             $model->profile = $profile;
-                            event(new ExpireQuiz($event, null, null, null, 'expireQuiz', $company));
+                            event(new ExpireQuiz($model, null, null, null, 'expireQuiz', $company));
                         }
                     } else {
-                        event(new ExpireQuiz($event, null, null, null, 'expireQuiz', null));
+                        event(new ExpireQuiz($model, null, null, null, 'expireQuiz', null));
                     }
 
                     $model->update(['state' => config("constant.QUIZ_STATES.EXPIRED")]);

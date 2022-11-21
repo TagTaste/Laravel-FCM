@@ -94,7 +94,7 @@ class ReportController extends Controller
             $this->errors['message'] = 'Please provide valid content id to which you want to report.';
             return $this->sendResponse();
         } else {
-            if ($content_type != "product" && $content_type != "surveys") {
+            if ($content_type != "product" && $content_type != "surveys" && $content_type != "quiz") {
                 if (preg_match('/[^0-9]/', $content_id)) {
                   $this->errors['status'] = 1;
                   $this->errors['message'] = 'Please provide valid content id to whom you want to report.';
