@@ -171,6 +171,7 @@ class QuizController extends Controller
      */
     public function show($id)
     {
+        
         $getQuiz = Quiz::where("id", "=", $id)->first();
 
         $this->model = false;
@@ -181,7 +182,7 @@ class QuizController extends Controller
         }
         $questions = json_decode($getQuiz["form_json"], true);
 
-        $isEdit = isset(request()->isEdit) ? request()->isEdit : false;
+        $isEdit = isset(request()->isEdit) ? request()->isEdit : true;
         if (!$isEdit) {           //for details api hide is_correct and for edit show is_correct
             foreach ($questions as &$question) {
                 foreach ($question["options"] as &$option) {
@@ -544,6 +545,7 @@ class QuizController extends Controller
 
     public function submitQuiz($id, Request $request)
     {
+       
         try {
             $validator = Validator::make($request->all(), [
                 'current_status' => 'required|numeric',
@@ -582,7 +584,7 @@ class QuizController extends Controller
             $profile = $request->user()->profile;
             $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
             if (empty($checkApplicant)) {
-                \DB::table("quiz_applicants")->insert(["quiz_id" => $id, "profile_id" => request()->user()->profile->id, "application_status" => 1, "gender" => $profile->gender, "city" => $profile->city, "hometown" => $profile->hometown]);
+                \DB::table("quiz_applicants")->insert(["quiz_id" => $id, "profile_id" => request()->user()->profile->id, "application_status" => 1, "gender" => $profile->gender, "city" => $profile->city, "hometown" => $profile->hometown, "age_group" => $this->calcDobRange(date("Y", strtotime($profile->dob)))]);
             }
 
             $questions = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);
@@ -1585,5 +1587,19 @@ class QuizController extends Controller
             "form_json" => $questions
         ];
         return $this->sendResponse();
+    }
+
+    public function calcDobRange($year)
+    {
+
+        if ($year > 2000) {
+            return "gen-z";
+        } else if ($year >= 1981 && $year <= 2000) {
+            return "millenials";
+        } else if ($year >= 1961 && $year <= 1980) {
+            return "gen-x";
+        } else {
+            return "yold";
+        }
     }
 }
