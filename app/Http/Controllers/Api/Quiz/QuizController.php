@@ -639,7 +639,7 @@ class QuizController extends Controller
                     foreach ($values["options"] as $optVal) {
 
                         $answerArray["option_id"] = $optVal["id"];
-                        $answerArray["option_value"] = $optVal["value"];
+                        $answerArray["option_value"] = isset($optVal["value"])?$optVal["value"]:null;
 
                         $quizAnswer = QuizAnswers::create($answerArray);
                         // dd($quizAnswer);
