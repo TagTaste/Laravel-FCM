@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Quiz;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Quiz;
-use App\Events\Actions\QuizAnswered;
 use Illuminate\Support\Facades\Validator;
 use App\Company;
 use App\QuizLike;
@@ -171,7 +170,7 @@ class QuizController extends Controller
      */
     public function show($id)
     {
-        
+
         $getQuiz = Quiz::where("id", "=", $id)->first();
 
         $this->model = false;
@@ -256,7 +255,9 @@ class QuizController extends Controller
         if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
             return $this->sendNewError("Expiry time invalid");
         }
-
+        $newQuestions = $request->form_json;
+        $newQuestions = array_filter(array_column($newQuestions,'id'));  //ques ids from request
+        QuizAnswers::where("quiz_id",$id)->whereNotIn("question_id",$newQuestions)->update(["deleted_at"=>date("Y-m-d H:i:s")]);
         $final_json = $this->validateQuizFormJson($request, $id);
 
         if (!empty($this->errors)) {
@@ -545,7 +546,7 @@ class QuizController extends Controller
 
     public function submitQuiz($id, Request $request)
     {
-       
+
         try {
             $validator = Validator::make($request->all(), [
                 'current_status' => 'required|numeric',
@@ -607,21 +608,21 @@ class QuizController extends Controller
 
             foreach ($questions as $values) {
 
-                if (isset($request->replay) && $request->replay && ($values["question_id"] == $quesId)) {
+                if (isset($request->replay) && $request->replay && ($values["question_id"] == $quesId)) {    //if replayed and for frst ques delete all responses
                     QuizAnswers::where("quiz_id", $id)->where("profile_id", $request->user()->profile->id)->delete();
                 } else if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $this->model = ["status" => false];
                     return $this->sendNewError("Already Answered");
-                }   //if replay is not true then already answered error 
+                }   //if replay is not true or status is completed then already answered error 
 
                 $answerExist = QuizAnswers::where("quiz_id", $id)->where("question_id", $values["question_id"])->where("profile_id", $request->user()->profile->id)->whereNull("deleted_at")->first();
 
-                if (!empty($answerExist)) {
+                if (!empty($answerExist)) {   //if answer exists for this ques(status=1 or replay not true)
                     $this->model = ["status" => false];
                     return $this->sendNewError("Already Answered");
                 }
                 if (in_array($values["question_id"], $mandateQuestions) && (!isset($values["options"]) || empty($values["options"]))) {
-                    DB::rollback();
+                    DB::rollback();                       //if ques in mandate ques and empty options found
                     $this->model = ["status" => false];
                     return $this->sendNewError("Mandatory Questions Cannot Be Blank");
                 }
@@ -638,6 +639,8 @@ class QuizController extends Controller
                     foreach ($values["options"] as $optVal) {
 
                         $answerArray["option_id"] = $optVal["id"];
+                        $answerArray["option_value"] = $optVal["value"];
+
                         $quizAnswer = QuizAnswers::create($answerArray);
                         // dd($quizAnswer);
                         if (!$quizAnswer) {
@@ -654,19 +657,11 @@ class QuizController extends Controller
                         $result = $this->quizResult($id, false);
                         $this->model = true;
                         $responseData = ["status" => true];
-
-                        // if (is_null($quiz->company_id)) {
-                        //     event(new QuizAnswered($quiz, $user, null, null, null, null));
-                        // } else {
-                        //     event(new QuizAnswered($quiz, null, null, null, null, Company::where("id", "=", $quiz->company_id)));
-                        // }
-
                         $this->messages = "Answer Submitted Successfully";
-                        $title = "<u>" . $result["title"] . "</u>";
 
-                        $data = [];
+                        $data = [];    //only for status completed
                         $data['helper'] = $result["helper"];
-                        $data['title'] = htmlentities($title, ENT_QUOTES, 'utf-8');
+                        $data['title'] = $result["title"];
                         $data['subtitle'] = $result["subtitle"];
                         $data['score_text'] = $result["score_text"];
                         $data["total"] = $result["total"];
@@ -675,10 +670,10 @@ class QuizController extends Controller
                         $data["image_url"] = config("constant.QUIZ_RESULT_IMAGE_URL");
 
                         $answer = $this->getAnswers($quiz, $values["question_id"]);
+                       
                         $data["options"] = $answer["options"];
 
                         $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
-                        Redis::set("quiz:application_status:$id:profile:$user->id", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
                     } else if ($request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")) {
                         DB::commit();
                         $this->model = true;
@@ -686,9 +681,9 @@ class QuizController extends Controller
                         $this->messages = "Answer Submitted Successfully";
                         $data = $this->getAnswers($quiz, $values["question_id"]);
                         $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => 0, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")]);
-
-                        Redis::set("quiz:application_status:$id:profile:$user->id", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS"));
                     }
+                    Redis::set("quiz:application_status:$id:profile:$user->id", $request->current_status);
+
                 } else {
                     $responseData = ["status" => false];
                 }
@@ -700,7 +695,7 @@ class QuizController extends Controller
                     $quiz->addToGraph();
                     $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
                 }
-                $responseData = array_merge($responseData, $data);
+                $responseData = array_merge($responseData, $data);  //merging result data to paid returned data
                 return $this->sendResponse($responseData);
             }
         } catch (Exception $ex) {
@@ -924,8 +919,6 @@ class QuizController extends Controller
 
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
 
-
-
         if (empty($checkIFExists)) {
             $this->model = false;
             return $this->sendNewError("Invalid Quiz");
@@ -1103,15 +1096,13 @@ class QuizController extends Controller
     public function calculateScore($id)
     {
         //calculation of final score of an applicant
-        //  dd("helo");
         $correctAnswersCount = 0;
         $questions =  Quiz::where("id", $id)->whereNull("deleted_at")->first();
         $questions = json_decode($questions->form_json);
-        $answerMapping = [];
+        $answerMapping = []; //original correct options wrt ques
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
 
         $score = 0;
-        // return $answers;
         $total = count($questions);
 
         if (count($answers)) {
@@ -1123,13 +1114,11 @@ class QuizController extends Controller
                     }
                 }
             }
-            // return $answers;
-
 
             foreach ($questions as $question) {
 
                 $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
-                if ($answerMapping[$question->id] == $answerArray) {
+                if ($answerMapping[$question->id] == $answerArray) { //checking if original correct options is matching to users one
                     $correctAnswersCount++;
                     $score += 1;
                 }
@@ -1165,7 +1154,7 @@ class QuizController extends Controller
             return $this->sendNewError("user has not attempted the quiz");
         }
         $result = $this->calculateScore($id);
-        $data["helper"] = "Congratulations";
+        $data["helper"] = "Congratulations!";
         $data["title"] = $quiz->title;
         $data["subtitle"] = "Quiz Completed Successfully";
         $data["score_text"] = $result["score"] . "% Score";
@@ -1181,7 +1170,7 @@ class QuizController extends Controller
     }
 
     public function getAnswers($quiz, $ques_id)
-    {
+    {  //get correct options wrt ques
 
         $data = [];
 
@@ -1543,7 +1532,7 @@ class QuizController extends Controller
     }
 
     public function getStoredAnswers($id)
-    {
+    {   //for resumed quizes returning stored answers
         $getQuiz = Quiz::where("id", "=", $id)->whereNull("deleted_at")->first();
 
         $this->model = false;
