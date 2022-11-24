@@ -748,7 +748,7 @@ class ExplorePageController extends Controller
                     "sub_type" => "quiz",
                     "see_more" => false,
                     "filter_meta" => (object)[],
-                    "elements" => $quiz_details["quiz"]
+                    "elements" => $quiz_details
                 ];
 
                 $model[] = [
@@ -763,7 +763,7 @@ class ExplorePageController extends Controller
                     "sub_type" => "quiz",
                     "see_more" => true,
                     "filter_meta" => (object)[],
-                    "elements" => $quiz_onSearch["quiz"]
+                    "elements" => $quiz_onSearch
                 ];
                 // /* ui type = 6 is end */
             }

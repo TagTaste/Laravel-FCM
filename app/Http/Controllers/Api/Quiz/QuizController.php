@@ -1108,7 +1108,7 @@ class QuizController extends Controller
             foreach ($questions as $question) {
 
                 $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
-                if ($answerMapping[$question->id] == $answerArray) { //checking if original correct options is matching to users one
+                if (sort($answerMapping[$question->id]) == sort($answerArray)) { //checking if original correct options is matching to users one
                     $correctAnswersCount++;
                     $score += 1;
                 }

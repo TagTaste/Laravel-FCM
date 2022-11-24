@@ -32,9 +32,9 @@ class Quiz extends Model implements Feedable
     
     protected $with = ['profile','company'];
     
-    protected $appends = ['owner','meta','totalApplicants'];
+    protected $appends = ['owner','meta','totalApplicants','application_status','score_text'];
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","replay","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants"];
+    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants",'application_status','score_text'];
 
 
     protected $cast = [
@@ -203,10 +203,24 @@ class Quiz extends Model implements Feedable
             }
         }
         if($c || request()->user()->profile->id==$this->profile_id){
-            return \DB::table('quiz_applicants')->where('quiz_id', $this->id)->whereNull('deleted_at')->get()->count();
+            return \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where("application_status",config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->whereNull('deleted_at')->get()->count();
         }
         
         return 0;
+    }
+
+    public function getApplicationStatusAttribute()
+    {
+        $k = Redis::get("quiz:application_status:$this->id:profile:".request()->user()->profile->id);
+        $k = $k !== null ? (int)$k : null;
+        return $k;
+    }
+
+    public function getScoreTextAttribute()
+    {
+        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', request()->user()->profile->id)->where("application_status",2)->first();
+        $score_text = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
+        return $score_text;
     }
 
     public function getSeoTags(): array
