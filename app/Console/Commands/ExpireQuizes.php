@@ -42,7 +42,7 @@ class ExpireQuizes extends Command
     {
 
         Quiz::with([])->where('expired_at', '<', date("Y-m-d"))->where('state', "=", config("constant.QUIZ_STATES.PUBLISHED"))->whereNull('deleted_at')
-            ->orderBy('created_at',"desc")->chunk(100, function ($models) {
+            ->orderBy('created_at')->chunk(100, function ($models) {
 
                 foreach ($models as $model) {
 
@@ -60,7 +60,7 @@ class ExpireQuizes extends Command
                     }
 
                     $model->update(['state' => config("constant.QUIZ_STATES.EXPIRED")]);
-                    //event(new DeleteFeedable($model));
+                    event(new DeleteFeedable($model));
                     $model->removeFromGraph(); //remove this poll from neo4j
                    
                 }

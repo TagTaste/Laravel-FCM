@@ -609,7 +609,7 @@ class QuizController extends Controller
             foreach ($questions as $values) {
 
                 if (isset($request->replay) && $request->replay && ($values["question_id"] == $quesId)) {    //if replayed and for frst ques delete all responses
-                    QuizAnswers::where("quiz_id", $id)->where("profile_id", $request->user()->profile->id)->delete();
+                    QuizAnswers::where("quiz_id", $id)->where("profile_id", $request->user()->profile->id)->update(["deleted_at"=>date("Y-m-d H:i:s")]);
                 } else if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $this->model = ["status" => false];
                     return $this->sendNewError("Already Answered");
@@ -659,27 +659,17 @@ class QuizController extends Controller
                         $responseData = ["status" => true];
                         $this->messages = "Answer Submitted Successfully";
 
-                        $data = [];    //only for status completed
-                        $data['helper'] = $result["helper"];
-                        $data['title'] = $result["title"];
-                        $data['subtitle'] = $result["subtitle"];
-                        $data['score_text'] = $result["score_text"];
-                        $data["total"] = $result["total"];
-                        $data["correctAnswerCount"] = $result["correctAnswerCount"];
-                        $data["incorrectAnswerCount"] = $result["incorrectAnswerCount"];
-                        $data["image_url"] = config("constant.QUIZ_RESULT_IMAGE_URL");
-
                         $answer = $this->getAnswers($quiz, $values["question_id"]);
-                       
-                        $data["options"] = $answer["options"];
+                        $result["options"] = $answer["options"];
 
                         $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
+                        unset($result["score"]);
                     } else if ($request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")) {
                         DB::commit();
                         $this->model = true;
                         $responseData = ["status" => true];
                         $this->messages = "Answer Submitted Successfully";
-                        $data = $this->getAnswers($quiz, $values["question_id"]);
+                        $result = $this->getAnswers($quiz, $values["question_id"]);
                         $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => 0, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")]);
                     }
                     Redis::set("quiz:application_status:$id:profile:$user->id", $request->current_status);
@@ -695,7 +685,7 @@ class QuizController extends Controller
                     $quiz->addToGraph();
                     $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
                 }
-                $responseData = array_merge($responseData, $data);  //merging result data to paid returned data
+                $responseData = array_merge($responseData, $result);  //merging result data to paid returned data
                 return $this->sendResponse($responseData);
             }
         } catch (Exception $ex) {
