@@ -882,9 +882,9 @@ class LandingPageController extends Controller
         if (count($carouselSurvey["elements"]) != 0)
             $this->model[] = $carouselSurvey;
 
-        $carouselQuiz = $this->carousel($profileId, $quizModel, $companyIds);
-        if (count($carouselQuiz["elements"]) != 0)
-            $this->model[] = $carouselQuiz;
+        // $carouselQuiz = $this->carousel($profileId, $quizModel, $companyIds);
+        // if (count($carouselQuiz["elements"]) != 0)
+        //     $this->model[] = $carouselQuiz;
 
         $carouselProduct = $this->carousel($profileId, $productReviewModel, $companyIds);
         if (count($carouselProduct["elements"]) != 0)
@@ -967,9 +967,9 @@ class LandingPageController extends Controller
             $this->model[] = $carouselSurvey;
 
 
-        $carouselQuiz = $this->carousel($profileId, $quizModel, $companyIds);
-        if (count($carouselQuiz["elements"]) != 0)
-            $this->model[] = $carouselQuiz;
+        // $carouselQuiz = $this->carousel($profileId, $quizModel, $companyIds);
+        // if (count($carouselQuiz["elements"]) != 0)
+        //     $this->model[] = $carouselQuiz;
 
         $carouselProduct = $this->carousel($profileId, $productReviewModel, $companyIds);
         if (count($carouselProduct["elements"]) != 0)

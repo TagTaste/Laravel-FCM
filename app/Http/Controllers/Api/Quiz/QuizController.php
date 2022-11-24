@@ -1087,6 +1087,7 @@ class QuizController extends Controller
     {
         //calculation of final score of an applicant
         $correctAnswersCount = 0;
+        $incorrectAnswersCount = 0;
         $questions =  Quiz::where("id", $id)->whereNull("deleted_at")->first();
         $questions = json_decode($questions->form_json);
         $answerMapping = []; //original correct options wrt ques
@@ -1106,20 +1107,31 @@ class QuizController extends Controller
             }
 
             foreach ($questions as $question) {
-
+               
                 $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
-                if (sort($answerMapping[$question->id]) == sort($answerArray)) { //checking if original correct options is matching to users one
+                sort( $answerArray);
+                sort($answerMapping[$question->id]);
+                if(!empty($answerArray)){
+                if ($answerMapping[$question->id] == $answerArray) { //checking if original correct options is matching to users one
                     $correctAnswersCount++;
                     $score += 1;
                 }
+                else{
+                    $incorrectAnswersCount++;
+                }
+            }
             }
             $score = ($score * 100) / $total;
 
             $result["score"] = (is_float($score)) ? number_format($score, 2, ".", "") : $score;
             $result["correctAnswerCount"] = $correctAnswersCount;
+            $result["incorrectAnswerCount"] = $incorrectAnswersCount;
+
         } else {
             $result["score"] = 0;
             $result["correctAnswerCount"] = 0;
+            $result["incorrectAnswerCount"] = 0;
+
         }
         $result["total"] = $total;
 
@@ -1150,7 +1162,7 @@ class QuizController extends Controller
         $data["score_text"] = $result["score"] . "% Score";
         $data["total"] = $result["total"];
         $data["correctAnswerCount"] = $result["correctAnswerCount"];
-        $data["incorrectAnswerCount"] = $result["total"] - $result["correctAnswerCount"];
+        $data["incorrectAnswerCount"] = $result["incorrectAnswerCount"];
         $data["image_url"] = config("constant.QUIZ_RESULT_IMAGE_URL");
         $data["score"] = $result["score"];
         if ($feed) {
