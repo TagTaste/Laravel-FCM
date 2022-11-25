@@ -50,7 +50,7 @@ class ShareController extends Controller
                 return $class::where('id',$id)->where('state',config("constant.SURVEY_STATES.PUBLISHED"))->first();
             }
             else if($modelName == 'quiz'){
-                return $class::where('id',$id)->where('state',config("constant.QUIZ_STATES.PUBLISHED"))->first();
+                return $class::where('id',$id)->whereNotIn("state",[config("constant.QUIZ_STATES.CLOSED"),config("constant.QUIZ_STATES.EXPIRED")])->whereNull("deleted_at")->first();
             }
             return $class::where('id',$id)->whereNull('deleted_at')->first();
         }
@@ -67,6 +67,9 @@ class ShareController extends Controller
         
         if (!$sharedModel) {
             return $this->sendError("Nothing found for given Id.");
+        }
+        else if($sharedModel->state == config("constant.SURVEY_STATES.DRAFT")){
+            return $this->sendNewError("Draft quizzes can't be shared on feed!");  
         }
         
         $loggedInProfileId = $request->user()->profile->id;
