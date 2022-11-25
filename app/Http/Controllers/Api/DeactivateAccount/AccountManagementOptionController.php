@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Payment\PaymentLinks;
 use App\Polling;
 use App\Surveys;
+use App\Quiz;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -116,6 +117,13 @@ class AccountManagementOptionController extends Controller
             $private_collab_obj = ['model_id'=>"$private_collab->id", 'model_name'=>'product-review', 'title'=>$private_collab->title, 'sub_title'=>$private_collab->description];
             $data[] = $private_collab_obj;
         }
+
+         //quizes
+         $quiz_list = Quiz::where('profile_id',$profile_id)->where('state', config('constant.QUIZ_STATES.PUBLISHED'))->whereNull('deleted_at')->get();
+         foreach($quiz_list as $quiz){
+             $quiz_obj = ['model_id'=>"$quiz->id", 'model_name'=>'quiz', 'title'=>$quiz->title, 'sub_title'=>$quiz->description];
+             $data[] = $quiz_obj;
+         }
         
         return $data;
     }
