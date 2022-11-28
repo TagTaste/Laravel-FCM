@@ -608,7 +608,7 @@ class QuizController extends Controller
 
             foreach ($questions as $values) {
 
-                if (isset($request->replay) && $request->replay && ($values["question_id"] == $quesId)) {    //if replayed and for frst ques delete all responses
+                if (isset($request->replay) && $request->replay ) {    //if replayed and delete all responses
                     QuizAnswers::where("quiz_id", $id)->where("profile_id", $request->user()->profile->id)->update(["deleted_at"=>date("Y-m-d H:i:s")]);
                 } else if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $this->model = ["status" => false];
