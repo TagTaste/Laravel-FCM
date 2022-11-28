@@ -89,14 +89,14 @@ class ApplicantController extends Controller
         }
 
 
-        $pId = $applicants
+        $applicants = $applicants
             ->whereIn('profile_id', $profileIds)
             ->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')->orderBy("created_at", "desc");
-
-        $applicants = $pId
+          
+       $pId = $applicants->get()->toArray();
+        $applicants = $applicants
             ->skip($skip)->take($take)->get();
-        $pId = $pId->get()->toArray();
 
         $applicants = $applicants->toArray();
 
