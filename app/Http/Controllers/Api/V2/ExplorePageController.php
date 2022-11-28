@@ -867,23 +867,7 @@ class ExplorePageController extends Controller
             $surveys_search_filter
         );
 
-        //quiz serch filter
-        $quizes_search_filter = array(
-            "name" => "Quiz",
-            "key" => "type",
-            "value" => "quiz",
-            "is_selected" => false
-        );
-
-        if ($filter_type === "quiz") {
-            $quizes_search_filter["is_selected"] = true;
-        }
-
-        array_push(
-            $search_filter_detail['search_filter'],
-            $quizes_search_filter
-        );
-
+       
 
         // company search filter
         $company_search_filter = array(
@@ -901,6 +885,30 @@ class ExplorePageController extends Controller
             $search_filter_detail['search_filter'],
             $company_search_filter
         );
+
+         //quiz serch filter
+         $quizes_search_filter = array(
+            "name" => "Quiz",
+            "key" => "type",
+            "value" => "quiz",
+            "is_selected" => false
+        );
+
+        if ($filter_type === "quiz") {
+            $quizes_search_filter["is_selected"] = true;
+        }
+
+        if ((request()->header('x-version') != null
+                && request()->header('x-version') > 171) ||
+            (request()->header('x-version-ios') != null
+                && version_compare("5.0.14", request()->header('x-version-ios'), "<"))
+        ) {
+            array_push(
+                $search_filter_detail['search_filter'],
+                $quizes_search_filter
+            );
+        }
+
 
         $search_filter_detail['count'] = count($search_filter_detail['search_filter']);
         return $search_filter_detail;
@@ -1355,7 +1363,7 @@ class ExplorePageController extends Controller
     //     }
     //     return $elastic_quiz;
     // }
-    
+
     public function getSearchCollaborationElastic($profile, $profile_id, $query, $count)
     {
         $elastic_collaborate = array(
@@ -1464,7 +1472,7 @@ class ExplorePageController extends Controller
     {
 
         $quiz = Quiz::where('state', 2)
-            ->where('title', 'like', '%'.$query.'%')
+            ->where('title', 'like', '%' . $query . '%')
             ->whereNull('deleted_at')
             ->inRandomOrder()
             ->take($count)

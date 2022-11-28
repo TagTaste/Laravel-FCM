@@ -256,8 +256,18 @@ class QuizController extends Controller
             return $this->sendNewError("Expiry time invalid");
         }
         $newQuestions = $request->form_json;
-        $newQuestions = array_filter(array_column($newQuestions,'id'));  //ques ids from request
-        QuizAnswers::where("quiz_id",$id)->whereNotIn("question_id",$newQuestions)->update(["deleted_at"=>date("Y-m-d H:i:s")]);
+        $newQuestionsIds = array_filter(array_column($newQuestions,'id'));  //ques ids from request
+        QuizAnswers::where("quiz_id",$id)->whereNotIn("question_id",$newQuestionsIds)->update(["deleted_at"=>date("Y-m-d H:i:s")]);
+
+        //for option updation delete option responses which are deleted
+        foreach($newQuestions as $newQues){
+            if(!empty($newQues["id"])){
+            $newOptionIds = array_filter(array_column($newQues["options"],'id'));
+            QuizAnswers::where("quiz_id",$id)->whereNotIn("option_id",$newOptionIds)->where("question_id",$newQues["id"])->update(["deleted_at"=>date("Y-m-d H:i:s")]);
+            }
+
+        }
+
         $final_json = $this->validateQuizFormJson($request, $id);
 
         if (!empty($this->errors)) {
@@ -323,7 +333,7 @@ class QuizController extends Controller
             && $request->state == config("constant.QUIZ_STATES.PUBLISHED")
         ) {
             $getQuiz->addToCache();
-            $this->addQuizGraph($getQuiz); //add node and edge to neo4j
+            //$this->addQuizGraph($getQuiz); //add node and edge to neo4j
             event(new UpdateFeedable($getQuiz));
         }
 
@@ -347,7 +357,7 @@ class QuizController extends Controller
             $this->model = true;
             $this->messages = "Quiz Deleted Successfully";
             event(new DeleteFeedable($quiz));
-            $quiz->removeFromGraph(); //Remove node and edge from neo4j
+            //$quiz->removeFromGraph(); //Remove node and edge from neo4j
             $quiz->removeFromCache();
         }
         return $this->sendResponse();
@@ -529,7 +539,7 @@ class QuizController extends Controller
         if ($quiz) {
             $this->model = \DB::table('quiz_close_reasons')->insert($data);;
             $this->messages = "Quiz Closed Successfully";
-            $get->removeFromGraph(); // remove node and edge from neo4j
+            //$get->removeFromGraph(); // remove node and edge from neo4j
             event(new DeleteFeedable($get));
         }
         return $this->sendResponse();
@@ -601,7 +611,7 @@ class QuizController extends Controller
             $mandateQuestions = array_values(array_filter($mandateQuestions));
 
             $listOfQuestionIds = array_keys($prepareQuestionJson);
-            $quesId = $listOfQuestionIds[0];
+            //$quesId = $listOfQuestionIds[0];
 
             DB::beginTransaction();
             $commit = true;
@@ -655,10 +665,6 @@ class QuizController extends Controller
                     if ($request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                         DB::commit();
                         $result = $this->quizResult($id, false);
-                        $this->model = true;
-                        $responseData = ["status" => true];
-                        $this->messages = "Answer Submitted Successfully";
-
                         $answer = $this->getAnswers($quiz, $values["question_id"]);
                         $result["options"] = $answer["options"];
 
@@ -666,12 +672,12 @@ class QuizController extends Controller
                         unset($result["score"]);
                     } else if ($request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")) {
                         DB::commit();
-                        $this->model = true;
-                        $responseData = ["status" => true];
-                        $this->messages = "Answer Submitted Successfully";
                         $result = $this->getAnswers($quiz, $values["question_id"]);
                         $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => 0, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")]);
                     }
+                    $this->model = true;
+                    $responseData = ["status" => true];
+                    $this->messages = "Answer Submitted Successfully";
                     Redis::set("quiz:application_status:$id:profile:$user->id", $request->current_status);
 
                 } else {
@@ -679,12 +685,12 @@ class QuizController extends Controller
                 }
 
                 //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
-                if ($this->model == true && $request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                    $request->quiz_id = $id;
-                    $responseData = $this->paidProcessing($request);
-                    $quiz->addToGraph();
-                    $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
-                }
+                // if ($this->model == true && $request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                //     $request->quiz_id = $id;
+                //     $responseData = $this->paidProcessing($request);
+                //     $quiz->addToGraph();
+                //     $quiz->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
+                // }
                 $responseData = array_merge($responseData, $result);  //merging result data to paid returned data
                 return $this->sendResponse($responseData);
             }

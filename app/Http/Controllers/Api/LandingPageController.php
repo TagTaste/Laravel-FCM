@@ -46,12 +46,20 @@ class LandingPageController extends Controller
      * @return Response
      */
 
-    public function quickLinks()
+    public function quickLinks(Request $request)
     {
 
         $this->errors['status'] = 0;
+        $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
+        if (($request->header('x-version') != null
+                && $request->header('x-version') <= 171) ||
+            ($request->header('x-version-ios') != null
+                && version_compare("5.0.14", $request->header('x-version-ios'), ">="))
+        ) {
+            $quick_links = $quick_links->where("model_name", "!=", config("constants.LANDING_MODEL.QUIZ"));
+        }
+        $quick_links = $quick_links->get();
 
-        $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
         $data["ui_type"] = config("constant.LANDING_UI_TYPE.QUICK_LINKS");
         $data["elements"] = $quick_links;
         $this->model[] = $data;
