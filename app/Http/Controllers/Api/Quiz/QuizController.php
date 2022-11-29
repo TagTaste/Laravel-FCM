@@ -1437,6 +1437,8 @@ class QuizController extends Controller
             $getQuizAnswers = $getQuizAnswers->whereIn("profile_id", $pluck);
         }
 
+        $pluckFromAnswers = $getQuizAnswers->pluck("profile_id")->toArray();
+        $applicantsWithoutAnswers = array_diff($pluck,$pluckFromAnswers);//applicants profileIds without answers
         $getQuizAnswers = $getQuizAnswers->get();
         $counter = 0;
         foreach ($getQuizAnswers as $answers) {
@@ -1493,6 +1495,19 @@ class QuizController extends Controller
             }
         }
 
+        //for applicants without answers
+        $profiles = Profile::whereIn("id",$applicantsWithoutAnswers)->get();
+        foreach($profiles as $profile){
+            $counter++;
+            $headers[$profile->id]["Sr No"] = $counter;
+            $headers[$profile->id]["Name"] = html_entity_decode($profile->name);
+            $headers[$profile->id]["Email"] = html_entity_decode($profile->email);
+            $headers[$profile->id]["Age"] = floor((time() - strtotime($profile->dob)) / 31556926);
+            $headers[$profile->id]["Phone"] = $profile->phone;
+            $headers[$profile->id]["City"] = html_entity_decode($profile->city);
+            $headers[$profile->id]["Hometown"] = html_entity_decode($profile->hometown);
+            $headers[$profile->id]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($profile->handle);
+        }
         $finalData = array_values($headers);
 
         $relativePath = "reports/quizzesAnsweredExcel";
