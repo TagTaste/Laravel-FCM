@@ -691,7 +691,7 @@ class SurveyController extends Controller
                             foreach ($answerArray["answer_value"] as $value) {
                                 $answerArray["option_id"] = $optVal["id"];
                                 $answerArray["option_type"] = $optVal["option_type"];
-                                $answerArray["answer_value"] = $value;
+                                $answerArray["answer_value"] = trim($value," ");
                                 $answerArray["is_active"] = 1;
                                 $answerArray["image_meta"] = ((isset($optVal["image_meta"])  && is_array($optVal["image_meta"])) ? json_encode($optVal["image_meta"]) : json_encode([]));
                                 $answerArray["video_meta"] = ((isset($optVal["video_meta"])  && is_array($optVal["video_meta"])) ? json_encode($optVal["video_meta"]) : json_encode([]));
@@ -707,7 +707,7 @@ class SurveyController extends Controller
                         } else {
                             $answerArray["option_id"] = $optVal["id"];
                             $answerArray["option_type"] = $optVal["option_type"];
-                            $answerArray["answer_value"] = $optVal["value"];
+                            $answerArray["answer_value"] = trim($optVal["value"]," ");
                             $answerArray["is_active"] = 1;
                             $answerArray["image_meta"] = ((isset($optVal["image_meta"])  && is_array($optVal["image_meta"])) ? json_encode($optVal["image_meta"]) : json_encode([]));
                             $answerArray["video_meta"] = ((isset($optVal["video_meta"])  && is_array($optVal["video_meta"])) ? json_encode($optVal["video_meta"]) : json_encode([]));
@@ -2040,7 +2040,7 @@ class SurveyController extends Controller
 
 
 
-
+                $ans = trim($ans," ");
                 $p = false;
                 if (!empty($image) && is_array($image)) {
                     if (!empty($answers->answer_value) && !empty(array_column($image, "original_photo"))) {
