@@ -901,7 +901,8 @@ class ExplorePageController extends Controller
         if ((request()->header('x-version') != null
                 && request()->header('x-version') > 171) ||
             (request()->header('x-version-ios') != null
-                && version_compare("5.0.14", request()->header('x-version-ios'), "<"))
+                && version_compare("5.0.14", request()->header('x-version-ios'), "<")
+                || (!(request()->header('x-version')) && !(request()->header('x-version-ios'))))
         ) {
             array_push(
                 $search_filter_detail['search_filter'],
