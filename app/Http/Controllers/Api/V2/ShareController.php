@@ -22,7 +22,7 @@ class ShareController extends BaseController
 
     private function setColumn(&$modelName)
     {
-        if($modelName == 'polling')
+        if ($modelName == 'polling')
             $this->column = 'poll_id';
         else
             $this->column = $modelName . $this->column;
@@ -30,20 +30,23 @@ class ShareController extends BaseController
 
     private function getModel(&$modelName, &$id)
     {
-        if(ucfirst($modelName) === 'Photo') {
-            $class = "\\App\\V2\\" . ucfirst ($modelName);
-            $photo = $class::where('id',$id)->whereNull('deleted_at')->first();
+        if (ucfirst($modelName) === 'Photo') {
+            $class = "\\App\\V2\\" . ucfirst($modelName);
+            $photo = $class::where('id', $id)->whereNull('deleted_at')->first();
             $photo->images = json_decode($photo->images);
             return $photo;
-        }   else if (ucfirst($modelName)== 'Product') {
+        } else if (ucfirst($modelName) == 'Product') {
             $class = "\\App\\PublicReviewProduct";
-            return $class::where('id',$id)->whereNull('deleted_at')->first();
-        }   else if(ucfirst($modelName) == 'Collaborate') {
-            $class = "\\App\\V2\\" . ucfirst ($modelName);
-            return $class::where('id',$id)->first();
-        }   else{
-            $class = "\\App\\V2\\" . ucfirst ($modelName);
-            return $class::where('id',$id)->whereNull('deleted_at')->first();
+            return $class::where('id', $id)->whereNull('deleted_at')->first();
+        } else if (ucfirst($modelName) == 'Collaborate') {
+            $class = "\\App\\V2\\" . ucfirst($modelName);
+            return $class::where('id', $id)->first();
+        } else if (ucfirst($modelName) == 'Quiz') {
+            $class = "\\App\\" . ucfirst($modelName);
+            return $class::where('id', $id)->first();
+        } else {
+            $class = "\\App\\V2\\" . ucfirst($modelName);
+            return $class::where('id', $id)->whereNull('deleted_at')->first();
         }
     }
 
@@ -70,7 +73,7 @@ class ShareController extends BaseController
         }
         $seoTags = $sharedModel->getSeoTags();
         $seoTagShared = $exists->getSeoTags();
-        
+
         $sharedModel = $sharedModel->toArray();
         foreach ($sharedModel as $key => $value) {
             if (is_null($value) || $value == '')
@@ -78,17 +81,17 @@ class ShareController extends BaseController
         }
 
         $this->model['shared'] = $exists;
-        $this->model['sharedBy'] = json_decode(Redis::get('profile:small:' . $exists->profile_id.':V2'));
+        $this->model['sharedBy'] = json_decode(Redis::get('profile:small:' . $exists->profile_id . ':V2'));
         $this->model['type'] = $modelName;
-        
+
         if (isset($sharedModel['company_id'])) {
-            $this->model['company'] = json_decode(Redis::get('company:small:' . $sharedModel['company_id'].':V2'));
+            $this->model['company'] = json_decode(Redis::get('company:small:' . $sharedModel['company_id'] . ':V2'));
         } else if (isset($sharedModel['profile_id'])) {
-            $this->model['profile'] = json_decode(Redis::get('profile:small:' . $sharedModel['profile_id'].':V2'));
+            $this->model['profile'] = json_decode(Redis::get('profile:small:' . $sharedModel['profile_id'] . ':V2'));
         }
         $this->model[$modelName] = $sharedModel;
-        $this->model['meta']= $exists->getMetaForV2Shared($loggedInProfileId);
-        $this->model['seoTags']= $seoTagShared;
+        $this->model['meta'] = $exists->getMetaForV2Shared($loggedInProfileId);
+        $this->model['seoTags'] = $seoTagShared;
         return $this->sendResponse();
     }
 }

@@ -28,10 +28,12 @@ return  [
     ],
 
     "QUIZ_APPLICANT_ANSWER_STATUS" => [
-        "INCOMPLETE" => 1,
+        "INPROGRESS" => 1,
         "COMPLETED" => 2
     ],
 
+    "QUIZ_RESULT_IMAGE_URL" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/platform/61153-trophy-congratulation.gif",
+    
 
     "SURVEY_APPLICANT_STATUS" => [
         "To Be Notified" => 0,
@@ -86,10 +88,10 @@ return  [
     "SURVEY_PUBLIC" => 0,
 
     "QUIZ_STATES" => [
-        'ACTIVE' => 1,
-        'CLOSED' => 2,
-        'EXPIRED' => 3,
-        'DELETED' => 4
+        'DRAFT' => 1,
+        'PUBLISHED' => 2,
+        'CLOSED' => 3,
+        'EXPIRED' => 4
     ],
 
     "COLLABORATE_HEADER_SELECTION_TYPE" => [

@@ -170,6 +170,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ExpireonJob::class,
         \App\Console\Commands\ExpireonCollaboration::class,
         \App\Console\Commands\ExpireSurveys::class,
+        \App\Console\Commands\ExpireQuizes::class,
+
         \App\Console\Commands\EmployeeCount::class,
         \App\Console\Commands\Build\CompanyAdmins::class,
         \App\Console\Commands\MandatoryFieldsCollaboration::class,
@@ -309,7 +311,6 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ReviewCalculation::class,
         \App\Console\Commands\CollaborationExpiresOnUpdate::class,
         //quiz expiry
-        \App\Console\Commands\ExpireQuiz::class,
         \App\Console\Commands\Build\Cache\Quiz::class,
         \App\Console\Commands\Build\Search\Quiz::class,
         \App\Console\Commands\Build\Graph\Build\UserQuiz::class,
@@ -349,6 +350,7 @@ class Kernel extends ConsoleKernel
 
         //daily survey expire at 12
         $schedule->command('expires_on:surveys')->dailyAt('12:00');
+        $schedule->command('expires_on:quiz')->dailyAt('12:00');
 
 
         $schedule->command('command:remove-notification')->dailyAt('01:00');

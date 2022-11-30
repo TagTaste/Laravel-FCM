@@ -953,9 +953,21 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
     //quiz 
     Route::group(['namespace' => 'Quiz', 'as' => 'quiz.', 'prefix' => 'quiz', 'middleware' => 'api.auth'], function () {
-        Route::post('/{id}/close', 'QuizController@closeQuizes');
+        Route::post('/close/{id}', 'QuizController@closeQuizes');
         Route::post('/{id}/submit', 'QuizController@submitQuiz');
         Route::get('/close-reasons', 'QuizController@quizCloseReason');
+        Route::get('/{id}/result', 'QuizController@quizResult');
+        Route::get('/my-list', 'QuizController@getMyQuiz');
+        Route::post('/{id}/like', 'QuizController@like');
+        Route::get('/reports/{id}', 'QuizController@reports')->name("reports");
+        Route::get('/user-report/{id}/{profile_id}', 'QuizController@userReport');
+        Route::get('/respondents/{id}', 'QuizController@quizRespondents');
+        Route::get('filters-list/{id}', 'QuizController@getFilters');
+        Route::get('/text-answers/{id}/{question_id}/{option_id}', 'QuizController@inputAnswers');
+        Route::post('/download-reports/{id}', 'QuizController@excelReport');
+        Route::get('/similar/{id}', 'QuizController@similarQuizes');
+        Route::get('/getAnswers/{id}', 'QuizController@getStoredAnswers');
+
     });
     
     Route::resource('quiz', '\App\Http\Controllers\Api\Quiz\QuizController', ['middleware' => ['api.auth']]);

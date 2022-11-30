@@ -14,6 +14,7 @@ class ShareLikeController extends Controller
     
     public function store(request $request,$model,$modelId)
     {
+        // return $modelId;
         $models = [
             'photo' => \App\Photo::class,
             'tagboard' => \App\Ideabook::class,
@@ -21,7 +22,8 @@ class ShareLikeController extends Controller
             'recipe' => \App\Recipe::class,
             'shoutout' =>\App\Shoutout::class,
             'polling' => Polling::class,
-            'surveys' =>\App\Surveys::class
+            'surveys' =>\App\Surveys::class,
+            'quiz'=>\App\Quiz::class
         ];
 
         if((!array_key_exists($model,$models))){
@@ -38,7 +40,7 @@ class ShareLikeController extends Controller
         if(!$shareModel){
             return $this->sendError("Could not find id with provided model");
         }
-
+        // return "hello";
         $sharedLikeModel = \App::make('App\Shareable\Sharelikable\\'.$modelName);
         if($modelName == 'Polling')
             $columnName = 'poll_share_id';
@@ -122,7 +124,8 @@ class ShareLikeController extends Controller
             'tagboard' => \App\Ideabook::class,
             'collaborate'=> \App\Collaborate::class,
             'recipe' => \App\Recipe::class,
-            'shoutout' =>\App\Shoutout::class
+            'shoutout' =>\App\Shoutout::class,
+            'quiz'=>\App\Quiz::class
         ];
     
         if((!array_key_exists($model,$models))){

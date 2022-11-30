@@ -24,19 +24,19 @@ class Quiz extends Share
 
     public function quiz()
     {
-        return $this->belongsTo(\App\quiz::class, 'quiz_id');
+        return $this->belongsTo(\App\Quiz::class, 'quiz_id');
     }
 
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $key = "meta:quizesShare:likes:" . $this->id;
+        $key = "meta:quizShare:likes:" . $this->id;
 
         $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'quizesShare', request()->user()->profile->id);
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'quizShare', request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
 
@@ -48,7 +48,7 @@ class Quiz extends Share
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->quiz_id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
-        $k = Redis::get("quizes:application_status:$this->id:profile:$profileId");
+        $k = Redis::get("quiz:application_status:$this->quiz_id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         return $meta;
     }
@@ -56,7 +56,7 @@ class Quiz extends Share
     public function getMetaForV2($profileId)
     {
         $meta = [];
-        $key = "meta:quizesShare:likes:" . $this->id;
+        $key = "meta:quizShare:likes:" . $this->id;
         $meta['hasLiked'] = Redis::sIsMember($key, $profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
@@ -68,7 +68,7 @@ class Quiz extends Share
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->quiz_id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
-        $k = Redis::get("quizes:application_status:$this->id:profile:$profileId");
+        $k = Redis::get("quiz:application_status:$this->quiz_id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         return $meta;
     }
@@ -81,7 +81,7 @@ class Quiz extends Share
     public function getMetaForPublic()
     {
         $meta = [];
-        $key = "meta:quizesShare:likes:" . $this->id;
+        $key = "meta:quizShare:likes:" . $this->id;
 
         $meta['likeCount'] = Redis::sCard($key);
 
@@ -130,5 +130,54 @@ class Quiz extends Share
         }
 
         return 0;
+    }
+
+    public function getSeoTags(): array
+    {
+        $title = "TagTaste | Share Quiz";
+
+        $description = "";
+        if (!is_null($this->content)) {
+            if (is_array($this->content) && array_key_exists('text', $this->content)) {
+                $description = $this->content['text'];
+            } else {
+                $description = $this->content;
+            }
+        }
+
+        if (!is_null($description) && strlen($description)) {
+            $description = substr($this->getContent($description), 0, 160) . "...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
+
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "post, shoutout, feed, user feed, text update, tagtaste post, survey, photo, video,quiz",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/og_logo.png",
+                )
+            ),
+        ];
+        return $seo_tags;
     }
 }

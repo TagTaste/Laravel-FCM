@@ -4,6 +4,7 @@ namespace App;
 
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
+use App\Channel\Payload;
 use App\Traits\IdentifiesOwner;
 use App\Traits\IdentifiesContentIsReported;
 use App\Traits\HashtagFactory;
@@ -31,7 +32,10 @@ class Quiz extends Model implements Feedable
     
     protected $with = ['profile','company'];
     
-    protected $appends = ['owner','meta','totalApplicants'];
+    protected $appends = ['owner','meta','totalApplicants','application_status','score_text'];
+    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","replay","image_meta","form_json",
+    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants",'application_status','score_text'];
+
 
     protected $cast = [
         "form_json" => 'array',
@@ -55,17 +59,22 @@ class Quiz extends Model implements Feedable
             'replay' => $this->replay,
         ];
 
-        Redis::set("quizes:" . $this->id, json_encode($data));
+        Redis::set("quiz:" . $this->id, json_encode($data));
     }
 
     public function removeFromCache()
     {
-        Redis::del("quizes:" . $this->id);
+        Redis::del("quiz:" . $this->id);
     }
 
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
+    }
+
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class, 'payload_id');
     }
 
     public function privacy()
@@ -101,15 +110,17 @@ class Quiz extends Model implements Feedable
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
 
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
+        $reviewed = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('profile_id', $profileId)->where("application_status",2)->first();
+        $meta['isReviewed'] = (!empty($reviewed) ? true : false);
+       
 
-        // $meta['review_dump'] = $reviewed;
-        // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
 
         $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
+        $meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
 
 
         return $meta;
@@ -126,19 +137,15 @@ class Quiz extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
+        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', $profileId)->where("application_status",2)->first();
 
-        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
-        if(!$meta['isAdmin'] && $k == config('constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){ //check if not admin and played te quiz then show score
-            $score = QuizApplicants::where('quiz_id',$this->id)->where('profile_id', request()->user()->profile->id)->pluck('score');
-            $meta['score'] = $score[0];
-        }
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
-
-        $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
+        $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
 
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
+        $meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
 
 
         return $meta;
@@ -159,10 +166,7 @@ class Quiz extends Model implements Feedable
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
         ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
-        if(!$meta['isAdmin'] && $k == config('constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED')){
-            $meta['score'] = QuizApplicants::where('quiz_id',$this->id)->where('profile_id', request()->user()->profile->id)->pluck('score');
-        }
-        
+       
         return $meta;
     }
 
@@ -199,10 +203,94 @@ class Quiz extends Model implements Feedable
             }
         }
         if($c || request()->user()->profile->id==$this->profile_id){
-            return \DB::table('quiz_applicants')->where('quiz_id', $this->id)->whereNull('deleted_at')->get()->count();
+            return \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where("application_status",config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->whereNull('deleted_at')->get()->count();
         }
         
         return 0;
+    }
+
+    public function getApplicationStatusAttribute()
+    {
+        $k = Redis::get("quiz:application_status:$this->id:profile:".request()->user()->profile->id);
+        $k = $k !== null ? (int)$k : null;
+        return $k;
+    }
+
+    public function getScoreTextAttribute()
+    {
+        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', request()->user()->profile->id)->where("application_status",2)->first();
+        $score_text = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
+        return $score_text;
+    }
+
+    public function getSeoTags(): array
+    {
+        $title = "TagTaste | " . $this->title . " | Quiz";
+        $description = "";
+        if (!is_null($this->description)) {
+            $description = mb_convert_encoding(substr(htmlspecialchars_decode($this->description), 0, 160),'UTF-8', 'UTF-8') . "...";
+        } else {
+            $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
+        }
+        
+        $image = null;
+        if(gettype($this->image_meta) != 'array'){
+            $this->image_meta = json_decode($this->image_meta, true);
+        }
+        
+        if(isset($this->image_meta) && $this->image_meta != null && $this->image_meta != ''){
+            $image = $this->image_meta[0]['original_photo'] ?? null;
+        }
+        
+        
+        
+        $seo_tags = [
+            "title" => $title,
+            "meta" => array(
+                array(
+                    "name" => "description",
+                    "content" => $description,
+                ),
+                array(
+                    "name" => "keywords",
+                    "content" => "quiz, quizzes, online quiz, food quiz, TagTaste quiz",
+                )
+            ),
+            "og" => array(
+                array(
+                    "property" => "og:title",
+                    "content" => $title,
+                ),
+                array(
+                    "property" => "og:description",
+                    "content" => $description,
+                ),
+                array(
+                    "property" => "og:image",
+                    "content" => $image,
+                )
+            ),
+        ];
+        return $seo_tags;
+    }
+
+
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/' . $this->id;
+        $data['title'] = substr($this->title, 0, 65);
+        $data['description'] = "by " . $this->owner->name;
+        $data['ogTitle'] = "Quiz: " . substr($this->title, 0, 65);
+        $data['ogDescription'] = "by " . $this->owner->name;
+        $images = $this->image_meta != null ? $this->image_meta : null;
+        $data['cardType'] = isset($images) ? 'summary_large_image' : 'summary';
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/icon_survey.png';
+        $data['ogUrl'] = env('APP_URL') . '/quiz/' . $this->id;
+        $data['redirectUrl'] = env('APP_URL') . '/quiz/' . $this->id;
+
+        return $data;
     }
 
     public function addToGraph(){        

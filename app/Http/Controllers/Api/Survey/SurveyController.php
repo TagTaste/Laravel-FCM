@@ -2040,6 +2040,7 @@ class SurveyController extends Controller
 
 
 
+
                 $ans = trim($ans," ");
                 $p = false;
                 if (!empty($image) && is_array($image)) {

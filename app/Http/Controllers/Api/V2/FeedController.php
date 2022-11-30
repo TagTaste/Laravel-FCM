@@ -115,6 +115,7 @@ class FeedController extends Controller
         $payloads = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
             ->whereNull('subscribers.deleted_at')
+            ->whereNull('channel_payloads.deleted_at')
             ->where('channel_payloads.account_deactivated',0)
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
             //Query Builder's where clause doesn't work here for some reason.
@@ -342,7 +343,13 @@ class FeedController extends Controller
                 if (!$cachedData) {
                     \Log::warning("could not get from $key");
                 }
-                $data[$name] = json_decode($cachedData, true);
+                $data[$name] = json_decode($cachedData,true);
+                if(isset($data[$name]["image_meta"]) && !is_array($data[$name]["image_meta"])){
+                        $data[$name]["image_meta"] = json_decode($data[$name]["image_meta"],true);
+                }
+                if(isset($data[$name]["form_json"]) && !is_array($data[$name]["form_json"])){
+                        $data[$name]["form_json"] = json_decode($data[$name]["form_json"],true);
+                }
             }
 
             
@@ -351,7 +358,12 @@ class FeedController extends Controller
                 $type = $this->getType($payload->model);
                 if ($model == "App\Surveys") {
                     $model = $model::find($data["surveys"]["id"]);
-                } else {
+                } 
+                else if($model == "App\Quiz"){
+                    $model = $model::find($data["quiz"]["id"]);
+
+                }
+                else {
                     $model = $model::find($payload->model_id);
                 }
                 if ($model !== null && method_exists($model, 'getMetaForV2')) {

@@ -12,6 +12,7 @@ use App\ReportUser;
 use Carbon\Carbon;
 use App\Channel\Payload;
 use App\Surveys;
+use App\Quiz;
 
 class ReportController extends Controller
 {
@@ -78,7 +79,7 @@ class ReportController extends Controller
         }
 
         // category of content
-        $valid_content_type = array("shoutout", "photo", "product", "polling", "collaborate", "surveys");
+        $valid_content_type = array("shoutout", "photo", "product", "polling", "collaborate", "surveys","quiz");
         $content_type = null !== $request->input('content_type') ? $request->input('content_type') : null;
         if (!in_array($content_type, $valid_content_type)) {
             $this->errors['status'] = 1;
@@ -93,7 +94,7 @@ class ReportController extends Controller
             $this->errors['message'] = 'Please provide valid content id to which you want to report.';
             return $this->sendResponse();
         } else {
-            if ($content_type != "product" && $content_type != "surveys") {
+            if ($content_type != "product" && $content_type != "surveys" && $content_type != "quiz") {
                 if (preg_match('/[^0-9]/', $content_id)) {
                   $this->errors['status'] = 1;
                   $this->errors['message'] = 'Please provide valid content id to whom you want to report.';
@@ -165,12 +166,14 @@ class ReportController extends Controller
             "polling"=> array("App\Polling"),
             "collaborate"=> array("App\Collaborate"),
             "surveys"=> array("App\Surveys"),
+            "quiz" => array("App\Quiz"),
             "shareable_photo" => array("App\Shareable\Photo"),
             "shareable_shoutout" => array("App\Shareable\Shoutout"),
             "shareable_polling"=> array("App\Shareable\Polling"),
             "shareable_product"=> array("App\Shareable\Product"),
             "shareable_collaborate"=> array("App\Shareable\Collaborate"),
             "shareable_surveys"=> array("App\Shareable\Surveys"),
+            "shareable_quiz"=> array("App\Shareable\Quiz")
         );
 
         $payload_id = null;
@@ -195,6 +198,10 @@ class ReportController extends Controller
                 $payload_id = $this->getPayloadId($payload_info["shareable_surveys"], $shared_id);
                 $payload_url = env('APP_URL')."/shared/".$shared_id."/surveys/".$content_id;
             }
+            else if ("quiz" == $content_type) {
+                $payload_id = $this->getPayloadId($payload_info["shareable_quiz"], $shared_id);
+                $payload_url = env('APP_URL')."/shared/".$shared_id."/quiz/".$content_id;
+            }
         } else {
             if ("photo" == $content_type) {
                 $payload_id = $this->getPayloadId($payload_info["photo"], $content_id);
@@ -211,6 +218,10 @@ class ReportController extends Controller
             } else if ("surveys" == $content_type) {
                 $payload_id = $this->getSurveyPayloadId($content_id);
                 $payload_url = env('APP_URL')."/surveys/".$content_id;
+            }
+            else if ("quiz" == $content_type) {
+                $payload_id = $this->getQuizPayloadId($content_id);
+                $payload_url = env('APP_URL')."/quiz/".$content_id;
             }
         }
 
@@ -285,6 +296,14 @@ class ReportController extends Controller
         return $payload_detail['payload_id'];
     }
 
+    public function getQuizPayloadId($model_id){
+        $payload_detail = Quiz::where("id", $model_id)
+            ->first();
+        if (is_null($payload_detail)) {
+            return null;
+        }
+        return $payload_detail['payload_id'];
+    }
     public function reportUser(Request $request)
     {
         $this->errors['status'] = 0;
