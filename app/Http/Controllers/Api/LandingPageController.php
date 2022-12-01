@@ -146,7 +146,6 @@ class LandingPageController extends Controller
         $this->removeReportedPayloads($profileId);
         $payloads =  Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
-            ->whereNull('channel_payloads.deleted_at')
             ->whereNull('subscribers.deleted_at')
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
             ->where('channel_payloads.account_deactivated', 0)
