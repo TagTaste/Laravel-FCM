@@ -204,7 +204,8 @@ class SurveyController extends Controller
                 return $this->sendError("Only premium companies can create private surveys");
                 // return $next($request);
             }
-        } else if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
+        }
+         else if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
             return $this->sendError("Only premium users can create private surveys");
         }
 
@@ -2397,4 +2398,79 @@ class SurveyController extends Controller
         $this->model = $form_json;
         return $this->sendResponse();
     }
+
+
+
+    public function copy(Request $request,$id){
+        $survey = Surveys::where("id", "=", $id)->whereNull("deleted_at")->first();             
+
+        $this->model = [];
+        if (empty($survey)) {
+            $this->model = ["status" => false];
+            return $this->sendNewError("Invalid Survey");
+        }
+
+        if($survey->profile_id != $request->user()->profile->id){
+            $this->model = ["status" => false];
+            return $this->sendNewError("Only Admin can Copy survey");
+        }
+
+        // if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {
+        //     $this->model = ["status" => false];
+        //     return $this->sendNewError("Survey is expired. Cannot Copy");
+        // }
+         
+            //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+            if ($request->has('company_id')) {
+                $companyId = $request->input('company_id');
+                $userId = $request->user()->id;
+                $company = Company::find($companyId);
+                $userBelongsToCompany = $company->checkCompanyUser($userId);
+                if (!$userBelongsToCompany) {
+                    return $this->sendError("User does not belong to this company");
+                }
+                if (isset($survey->is_private) && $survey->is_private == 1 && $company->is_premium != 1) {
+                    return $this->sendError("Only premium companies can create private surveys");
+                    // return $next($request);
+                }
+            } 
+
+    
+            $prepData["id"] = (string) Uuid::generate(4);
+            $prepData["is_active"] = $survey->is_active;
+            $prepData["profile_id"] = $request->user()->profile->id;
+            $prepData["state"] = 1;
+            $prepData["title"] = "Copied - ". $survey->title;
+            $prepData["description"] = $survey->description;
+            $prepData["privacy_id"] = 1;
+            $prepData["is_section"] = $survey->is_section;
+            $prepData["is_private"] = $survey->is_private;
+            $prepData["multi_submission"] = $survey->multi_submission;
+            $prepData["video_meta"]=$survey->video_meta;
+            $prepData["image_meta"]=$survey->image_meta;
+            $prepData["form_json"]=$survey->form_json;
+              
+        
+            if ($request->has("company_id")) {
+                $prepData["company_id"] = $request->company_id;
+            }
+    
+            $prepData["expired_at"] = date("Y-m-d", strtotime("+1 month"));
+    
+             $data=[];
+            
+       
+            $create = Surveys::create($prepData);
+            if (isset($create->id)) {
+            $this->model=["status"=>true];
+            $data=[
+                "id"=>$create->id,
+                "message"=>"Your survey has been copied and saved to my survey",
+                "button_text"=>"VIEW"
+            ];
+        }
+       
+        return $this->sendNewResponse($data);
+    }
+
 }
