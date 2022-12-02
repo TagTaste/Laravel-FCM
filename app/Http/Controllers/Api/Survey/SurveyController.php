@@ -1361,7 +1361,7 @@ class SurveyController extends Controller
                         if ($isUpdation) {
                             if (isset($oldJsonArray[$values["id"]]["options"])) {
                                 $allOpts = array_column($oldJsonArray[$values["id"]]["options"], "id");
-                                //$maxOptionId = (is_array($allOpts) && !empty($allOpts) ? max($allOpts) : max(array_column($values["options"], 'id')));
+                                $maxOptionId = (is_array($allOpts) && !empty($allOpts) ? max($allOpts) : max(array_column($values["options"], 'id')));
                             } else {
                                 $maxOptionId = max(array_column($values["options"], 'id'));
                             }
