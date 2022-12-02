@@ -28,14 +28,14 @@ class Surveys extends Model implements Feedable
     public $incrementing = false;
 
 
-    protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","is_private","is_section"];
+    protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","multi_submission","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","is_private","is_section"];
     
     protected $with = ['profile','company'];
     
     protected $appends = ['owner','meta',"closing_reason",'mandatory_fields','totalApplicants'];
 
     protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants","is_section"];
+    "video_meta","state","multi_submission","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants","is_section"];
 
     protected $cast = [
         "form_json" => 'array',
@@ -59,6 +59,7 @@ class Surveys extends Model implements Feedable
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'is_private' => $this->is_private,
+            'multi_submission' => $this->multi_submission,
         ];
 
         Redis::set("surveys:" . $this->id, json_encode($data));
@@ -110,7 +111,7 @@ class Surveys extends Model implements Feedable
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-
+        $meta['multi_submission']=rand(0,9);
 
         return $meta;
     }

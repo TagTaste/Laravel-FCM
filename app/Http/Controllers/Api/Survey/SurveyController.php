@@ -158,7 +158,8 @@ class SurveyController extends Controller
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
             'mandatory_field_ids' => 'array',
-            'is_private' => 'boolean'
+            'is_private' => 'boolean',
+            'multi_submission'=>'required'
         ]);
 
 
@@ -216,6 +217,7 @@ class SurveyController extends Controller
         $prepData["privacy_id"] = 1;
         $prepData["is_section"] = $is_section;
         $prepData["is_private"] = (isset($request->is_private) ? (int)$request->is_private :  null);
+        $prepData["multi_submission"] = $request->multi_submission;
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
@@ -354,7 +356,8 @@ class SurveyController extends Controller
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
             'mandatory_field_ids' => 'array',
-            'is_private' => 'boolean'
+            'is_private' => 'boolean',
+            'multi_submission'=>'required',
         ]);
 
         if ($validator->fails()) {
@@ -412,6 +415,7 @@ class SurveyController extends Controller
         $prepData->title = $request->title;
         $prepData->description = $request->description;
         $prepData->is_section = $is_section;
+        $prepData->multi_submission=$request->multi_submission;
 
 
         if ($request->has("image_meta")) {
@@ -1357,7 +1361,7 @@ class SurveyController extends Controller
                         if ($isUpdation) {
                             if (isset($oldJsonArray[$values["id"]]["options"])) {
                                 $allOpts = array_column($oldJsonArray[$values["id"]]["options"], "id");
-                                $maxOptionId = (is_array($allOpts) && !empty($allOpts) ? max($allOpts) : max(array_column($values["options"], 'id')));
+                                //$maxOptionId = (is_array($allOpts) && !empty($allOpts) ? max($allOpts) : max(array_column($values["options"], 'id')));
                             } else {
                                 $maxOptionId = max(array_column($values["options"], 'id'));
                             }
