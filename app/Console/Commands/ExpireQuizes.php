@@ -61,7 +61,7 @@ class ExpireQuizes extends Command
 
                     $model->update(['state' => config("constant.QUIZ_STATES.EXPIRED")]);
                     event(new DeleteFeedable($model));
-                   // $model->removeFromGraph(); //remove this poll from neo4j
+                    //$model->removeFromGraph(); //remove this poll from neo4j
                    
                 }
             });
