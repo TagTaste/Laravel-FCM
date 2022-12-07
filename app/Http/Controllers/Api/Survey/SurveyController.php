@@ -1452,7 +1452,7 @@ class SurveyController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $count = surveyApplicants::where("survey_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
+        $count = surveyApplicants::where("survey_id", "=", $id)->where("deleted_at", "=", null)->whereNotNull("completion_date")->orderBy('completion_date', 'desc');
         $profileId = $request->user()->profile->id;
 
         if ($request->has('filters') && !empty($request->filters)) {
@@ -1465,9 +1465,13 @@ class SurveyController extends Controller
 
         $respondent = $count->skip($skip)->take($take)
             ->get();
-
         foreach ($respondent as $profile) {
-            $data['report'][] = $profile->profile;
+            $submission = SurveyAnswers::where("profile_id",$profile->profile->id)->where("survey_id",$id)->where("current_status",2)
+            ->orderBy("updated_at","desc")->first();
+            $profileCopy = $profile->profile->toArray();
+            $profileCopy["submission_count"] = $submission->attempt;
+            $profileCopy["last_submission"] = $profile->completion_date;
+            $data['report'][] = $profileCopy;
         }
 
         $this->model = $data;
@@ -1566,7 +1570,7 @@ class SurveyController extends Controller
         $sectionQuesCount = [];
         $sectionKeys = [];
         $sectionKey = 0;
-        $attempt = $request->submission;
+        $attempt = isset($request->submission)?$request->submission:1;
 
         if ($checkIFExists["is_section"]) {         //for section type form_json
 
@@ -1586,7 +1590,7 @@ class SurveyController extends Controller
 
         foreach ($getJsonQues as $values) {
             shuffle($colorCodeList);
-            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->get();
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->where("attempt",$attempt)->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
 
@@ -1642,10 +1646,10 @@ class SurveyController extends Controller
                     foreach ($values["multiOptions"]["row"] as $row) {
                         $columnCounter = 0;
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
-                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("answer_value", $row["id"])->where("profile_id", "=", $profile_id)->get();
+                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("answer_value", $row["id"])->where("profile_id", "=", $profile_id)->where("attempt",$attempt)->get();
                             $answerValues = $answerValue->pluck("option_id")->toArray();
                         } else {
-                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("option_id", $row["id"])->where("profile_id", "=", $profile_id)->get();
+                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("option_id", $row["id"])->where("profile_id", "=", $profile_id)->where("attempt",$attempt)->get();
                             $answerValues = $answerValue->pluck("answer_value")->toArray();
                         }
                         $flip = array_flip($answerValues);
