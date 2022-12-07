@@ -616,10 +616,11 @@ class SurveyController extends Controller
                 $this->model = ["status" => false];
                 return $this->sendError("Already Answered");
             }
-            
 
-            if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED")
-               
+
+            if (
+                !empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED")
+
             ) {
                 $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
                 $this->model = ["status" => false];
@@ -1567,6 +1568,7 @@ class SurveyController extends Controller
         $sectionQuesCount = [];
         $sectionKeys = [];
         $sectionKey = 0;
+        $attempt = $request->submission;
 
         if ($checkIFExists["is_section"]) {         //for section type form_json
 
@@ -1763,12 +1765,34 @@ class SurveyController extends Controller
             $counter++;
         }
 
+        //multi submission new attributes added
+        $survey = [];
+        $survey["id"] = $id;
+        $survey["title"] = $checkIFExists->title;
+        $completion_date = NULL;
+        $submission_count = 0;
+        $prepareNode["survey"] = $survey;
+        $submission = SurveyAnswers::where("survey_id", $id)->where("profile_id", $profile_id)->orderBy("updated_at", "desc")->where("current_status", 2);
+        $exists = $submission->first();
+        if (!empty($exists)) {
+            $submission_count = $exists->attempt;
+            $completion_date = $submission->where("attempt", $attempt)->first();
+            if (!empty($completion_date)) {
+                $completion_date = date('Y-m-d  H:i:s', strtotime($completion_date->updated_at));
+            }
+        }
+
+
+        $result = [];
+        $result["survey"] = $survey;   
+        $result["submission_count"] = $submission_count;
+        $result["completion_date"] = $completion_date;
         if (!$checkIFExists["is_section"]) {  //for normal survey
-            $this->model = $prepareNode;
+            $result["reports"] = $prepareNode["reports"];
+            $this->model = $result;
         } else {
-            $finalRespnse = [];
-            $finalRespnse["reports"] = $getJson;
-            $this->model = $finalRespnse;
+            $result["reports"] = $getJson;
+            $this->model = $result;
         }
 
         $this->messages = "Report Successful";

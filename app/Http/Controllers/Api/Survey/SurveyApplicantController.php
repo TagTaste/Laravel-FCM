@@ -7,6 +7,7 @@ use App\Deeplink;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Recipe\Profile;
+use App\SurveyAnswers;
 use App\surveyApplicants;
 use App\Surveys;
 use Illuminate\Support\Arr;
@@ -23,7 +24,7 @@ class SurveyApplicantController extends Controller
 
     use SendsJsonResponse, FilterTraits;
 
-    private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed", 3 => "In Progress" ];
+    private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed", 3 => "In Progress"];
     public function __construct(Surveys $model)
     {
         $this->model = $model;
@@ -863,6 +864,94 @@ class SurveyApplicantController extends Controller
 
         $this->model['invitedApplicantsCount'] = $list->count();
         $this->model['invitedApplicants'] = $list->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
+    }
+
+    function secondsToTime($seconds) {
+        $s = $seconds%60;
+        $m = floor(($seconds%3600)/60);
+        $h = floor(($seconds%86400)/3600);
+        $d = floor(($seconds%2592000)/86400);
+        $M = floor($seconds/2592000);
+        $durationStr = "";
+        if($M > 0){
+            $durationStr .= "$M month ";
+        }
+        
+        if($d > 0){
+            $durationStr .= "$d day ";
+        }
+
+        if($h > 0){
+            $durationStr .= "$h hr ";
+        }
+
+        if($m > 0){
+            $durationStr .= "$m min ";
+        }
+        
+        if($s > 0){
+            $durationStr .= "$s sec";
+        }
+        
+        return $durationStr;
+    }
+
+    public function getSubmissionStatus($id, $profile_id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendError("Invalid Survey");
+        }
+
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendError("Only Admin can view applicant list");
+        }
+        //paginate
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
+        //filters data
+
+        $applicant = surveyApplicants::where("survey_id", "=", $id)->where("profile_id", $profile_id)->whereNull("deleted_at")->first();
+
+        $submissions = SurveyAnswers::where("survey_id", $id)->where("profile_id", $profile_id)->orderBy("updated_at")->where("current_status", 2)->skip($skip)->take($take)->get()->toArray();
+        $profile = [];
+        $profile["id"] = $applicant->id;
+        $profile["profile_id"] = $profile_id;
+        $profile["company_id"] = $applicant->company_id;
+        $profile["survey_id"] = $id;
+        $profile["inprogress_count"] = $applicant->inprogress_count;
+        $profile["submission_count"] = $applicant->submission_count;
+
+        $submission_status = [];
+        foreach ($submissions as $submission) {
+            $duration = $this->secondsToTime(strtotime($submission["updated_at"]) - strtotime($applicant->created_at));
+            $submission_status[] = ["title" => "Date", "value" => date("d M Y", strtotime($submission["updated_at"]))];
+            $submission_status[] = ["title" => "Time", "value" => date("h:i:s A", strtotime($submission["updated_at"]))];
+            $submission_status[] = ["title" => "Duration", "value" => $duration];
+
+          
+                $profile["submission_status"][] = $submission_status;
+                $profile["profile"] = $applicant->profile;
+
+        }
+
+
+
+        $this->model = $profile;
+
 
         return $this->sendResponse();
     }
