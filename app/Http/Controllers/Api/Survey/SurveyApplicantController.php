@@ -903,7 +903,7 @@ class SurveyApplicantController extends Controller
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
         if (empty($checkIFExists)) {
             $this->model = false;
-            return $this->sendError("Invalid Survey");
+            return $this->sendNewError("Invalid Survey");
         }
 
 
@@ -913,10 +913,10 @@ class SurveyApplicantController extends Controller
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            return $this->sendError("Only Admin can view applicant list");
+            return $this->sendNewError("Only Admin can view applicant list");
         }
         //paginate
         $page = $request->input('page');
@@ -926,7 +926,13 @@ class SurveyApplicantController extends Controller
 
         $applicant = surveyApplicants::where("survey_id", "=", $id)->where("profile_id", $profile_id)->whereNull("deleted_at")->first();
 
+        if(empty($applicant)){
+            return $this->sendNewError("User has not participated in survey");
+        }
         $submissions = SurveyAnswers::where("survey_id", $id)->where("profile_id", $profile_id)->orderBy("updated_at")->where("current_status", 2)->skip($skip)->take($take)->get()->toArray();
+        if(empty($submissions)){
+            return $this->sendNewError("User has not completed the survey");
+        }
         $profile = [];
         $profile["id"] = $applicant->id;
         $profile["profile_id"] = $profile_id;

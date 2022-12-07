@@ -158,8 +158,7 @@ class SurveyController extends Controller
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
             'mandatory_field_ids' => 'array',
-            'is_private' => 'boolean',
-            'multi_submission' => 'required'
+            'is_private' => 'boolean'
         ]);
 
 
@@ -217,7 +216,7 @@ class SurveyController extends Controller
         $prepData["privacy_id"] = 1;
         $prepData["is_section"] = $is_section;
         $prepData["is_private"] = (isset($request->is_private) ? (int)$request->is_private :  null);
-        $prepData["multi_submission"] = $request->multi_submission;
+        $prepData["multi_submission"] = isset($request->multi_submission)?$request->multi_submission:0;
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
@@ -356,8 +355,7 @@ class SurveyController extends Controller
             'expired_at' => 'date_format:Y-m-d',
             'state' => 'required|in:1,2',
             'mandatory_field_ids' => 'array',
-            'is_private' => 'boolean',
-            'multi_submission' => 'required',
+            'is_private' => 'boolean'
         ]);
 
         if ($validator->fails()) {
@@ -415,7 +413,7 @@ class SurveyController extends Controller
         $prepData->title = $request->title;
         $prepData->description = $request->description;
         $prepData->is_section = $is_section;
-        $prepData->multi_submission = $request->multi_submission;
+        $prepData->multi_submission = isset($request->multi_submission)?$request->multi_submission:0;
 
 
         if ($request->has("image_meta")) {

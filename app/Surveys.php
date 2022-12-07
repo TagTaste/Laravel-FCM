@@ -114,7 +114,7 @@ class Surveys extends Model implements Feedable
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $submission = SurveyAnswers::where("survey_id", $this->id)->where('profile_id', $profileId)->orderBy('updated_at', "desc")->where("current_status", 2)->first();
-        $meta['submission_count'] = $submission->attempt;
+        $meta['submission_count'] = !empty($submission)?$submission->attempt:0;
         return $meta;
     }
 
