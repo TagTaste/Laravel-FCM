@@ -929,7 +929,7 @@ class SurveyApplicantController extends Controller
         if(empty($applicant)){
             return $this->sendNewError("User has not participated in survey");
         }
-        $submissions = SurveyAnswers::selectRaw('max(updated_at) as max_updated_at,attempt')->where("survey_id", $id)->where("profile_id", $profile_id)->where("current_status", 2)->groupBy("attempt")->orderBy("updated_at")->skip($skip)->take($take)->get()->toArray();
+        $submissions = SurveyAnswers::selectRaw('max(updated_at) as max_updated_at,attempt')->where("survey_id", $id)->where("profile_id", $profile_id)->where("current_status", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->groupBy("attempt")->orderBy("updated_at")->skip($skip)->take($take)->get()->toArray();
         if(empty($submissions)){
             return $this->sendNewError("User has not completed the survey");
         }
@@ -945,13 +945,13 @@ class SurveyApplicantController extends Controller
         foreach ($submissions as $submission) {
             $submission_status = [];
             $duration = "0 sec";
-            $strttime = SurveyAnswers::where("survey_id",$id)->where("profile_id", $profile_id)->whereNull("deleted_at")->where("current_status",3)
+            $strttime = SurveyAnswers::where("survey_id",$id)->where("profile_id", $profile_id)->whereNull("deleted_at")->where("current_status",config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE"))
             ->where("attempt",$submission["attempt"])->orderBy("updated_at")->first();
             if($checkIFExists->is_section && !empty($strttime)){
                 $duration = $this->secondsToTime(strtotime($submission["max_updated_at"]) - strtotime($strttime->updated_at));
             }
             $submission_status[] = ["title" => "Date", "value" => date("d M Y", strtotime($submission["max_updated_at"]))];
-            $submission_status[] = ["title" => "Time", "value" => date("h:i:s A", strtotime($submission["upmax_updated_atdated_at"]))];
+            $submission_status[] = ["title" => "Time", "value" => date("h:i:s A", strtotime($submission["max_updated_at"]))];
             $submission_status[] = ["title" => "Duration", "value" => $duration];
 
           

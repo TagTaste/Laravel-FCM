@@ -59,7 +59,7 @@ class surveyApplicants extends Model
     public function getSubmissionCountAttribute()
     {
 
-        $submission =  SurveyAnswers::where("survey_id", $this->survey_id)->where("profile_id", $this->profile_id)->orderBy("updated_at", "desc")->where("current_status", 2)->first();
+        $submission =  SurveyAnswers::where("survey_id", $this->survey_id)->where("profile_id", $this->profile_id)->orderBy("updated_at", "desc")->where("current_status", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->whereNull("deleted_at")->first();
         if (!empty($submission)) {
             return $submission->attempt;
         } else {

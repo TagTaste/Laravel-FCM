@@ -1315,6 +1315,12 @@ class SurveyController extends Controller
             $sectionKey = 0;  //key value of section
             foreach ($decodeJson as $key => &$values) {
                 $values["id"] = (int)$values["id"];
+                if (isset($values["is_mandatory"])) {
+                    $values["is_mandatory"] = (int)$values["is_mandatory"];
+                } else {
+                    $values["is_mandatory"] = 0;
+                }
+
                 if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
                     $diff = array_diff($requiredNode, array_keys($values));
                     // echo (isset($values['id']));
@@ -1466,7 +1472,7 @@ class SurveyController extends Controller
         $respondent = $count->skip($skip)->take($take)
             ->get();
         foreach ($respondent as $profile) {
-            $submission = SurveyAnswers::where("profile_id",$profile->profile->id)->where("survey_id",$id)->where("current_status",2)
+            $submission = SurveyAnswers::where("profile_id",$profile->profile->id)->where("survey_id",$id)->where("current_status",config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))
             ->orderBy("updated_at","desc")->first();
             $profileCopy = $profile->profile->toArray();
             $profileCopy["submission_count"] = $submission->attempt;
