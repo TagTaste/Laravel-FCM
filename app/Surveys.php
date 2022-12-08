@@ -99,10 +99,10 @@ class Surveys extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
 
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('application_status', 2)->get()->count();
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->whereNotNull('completion_date')->get()->count();
         $meta['isReported'] =  $this->isSurveyReported();
 
-        $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
+        $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->whereNotNull('completion_date')->first();
         // $meta['review_dump'] = $reviewed;
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
@@ -113,8 +113,7 @@ class Surveys extends Model implements Feedable
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-        $submission = SurveyAnswers::where("survey_id", $this->id)->where('profile_id', $profileId)->orderBy('updated_at', "desc")->where("current_status", 2)->first();
-        $meta['submission_count'] = !empty($submission)?$submission->attempt:0;
+        $meta['submissionCount'] = (!empty($reviewed) ? $reviewed->submission_count : 0);
         return $meta;
     }
 
@@ -128,11 +127,11 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('application_status', 2)->get()->count();
+        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->whereNotNull('completion_date')->get()->count();
         $meta['isReported'] =  $this->isSurveyReported();
 
 
-        $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
+        $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->whereNotNull('completion_date')->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
 
@@ -143,7 +142,7 @@ class Surveys extends Model implements Feedable
 
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-
+        $meta['submissionCount'] = (!empty($reviewed) ? $reviewed->submission_count : 0);
 
         return $meta;
     }

@@ -940,7 +940,7 @@ class SurveyApplicantController extends Controller
         $profile["survey_id"] = $id;
         $profile["inprogress_count"] = $applicant->inprogress_count;
         $profile["submission_count"] = $applicant->submission_count;
-
+ 
         $submission_status = [];
         foreach ($submissions as $submission) {
             $submission_status = [];

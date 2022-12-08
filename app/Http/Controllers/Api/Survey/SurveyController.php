@@ -216,7 +216,7 @@ class SurveyController extends Controller
         $prepData["privacy_id"] = 1;
         $prepData["is_section"] = $is_section;
         $prepData["is_private"] = (isset($request->is_private) ? (int)$request->is_private :  null);
-        $prepData["multi_submission"] = isset($request->multi_submission)?$request->multi_submission:0;
+        $prepData["multi_submission"] = isset($request->multi_submission) ? $request->multi_submission : 0;
 
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
@@ -413,7 +413,7 @@ class SurveyController extends Controller
         $prepData->title = $request->title;
         $prepData->description = $request->description;
         $prepData->is_section = $is_section;
-        $prepData->multi_submission = isset($request->multi_submission)?$request->multi_submission:0;
+        $prepData->multi_submission = isset($request->multi_submission) ? $request->multi_submission : 0;
 
 
         if ($request->has("image_meta")) {
@@ -741,13 +741,17 @@ class SurveyController extends Controller
             }
             $user = $request->user()->profile;
             $responseData = [];
+            $submission_count = $checkApplicant->submission_count;
             if ($commit) {
                 DB::commit();
 
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
-                $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => date("Y-m-d H:i:s")]);
+                if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                    $submission_count += 1;
+                }
+                $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => date("Y-m-d H:i:s"), "submission_count" => $submission_count]);
                 $user = $request->user()->profile->id;
                 Redis::set("surveys:application_status:$request->survey_id:profile:$user", $request->current_status);
             } else {
@@ -1472,10 +1476,9 @@ class SurveyController extends Controller
         $respondent = $count->skip($skip)->take($take)
             ->get();
         foreach ($respondent as $profile) {
-            $submission = SurveyAnswers::where("profile_id",$profile->profile->id)->where("survey_id",$id)->where("current_status",config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))
-            ->orderBy("updated_at","desc")->first();
+           
             $profileCopy = $profile->profile->toArray();
-            $profileCopy["submission_count"] = $submission->attempt;
+            $profileCopy["submission_count"] = $profile->submission_count;
             $profileCopy["last_submission"] = $profile->completion_date;
             $data['report'][] = $profileCopy;
         }
@@ -1560,10 +1563,11 @@ class SurveyController extends Controller
                 $this->model = false;
                 return $this->sendError("User does not belong to this company");
             }
-        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            $this->model = false;
-            return $this->sendError("Only Survey Admin can view this report");
         }
+        // else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+        //     $this->model = false;
+        //     return $this->sendError("Only Survey Admin can view this report");
+        // }
 
         $colorCodeList = $this->colorCodeList;
 
@@ -1576,7 +1580,7 @@ class SurveyController extends Controller
         $sectionQuesCount = [];
         $sectionKeys = [];
         $sectionKey = 0;
-        $attempt = isset($request->submission)?$request->submission:1;
+        $attempt = isset($request->submission) ? $request->submission : 1;
 
         if ($checkIFExists["is_section"]) {         //for section type form_json
 
@@ -1596,7 +1600,7 @@ class SurveyController extends Controller
 
         foreach ($getJsonQues as $values) {
             shuffle($colorCodeList);
-            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->where("attempt",$attempt)->get();
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->where("attempt", $attempt)->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
 
@@ -1652,10 +1656,10 @@ class SurveyController extends Controller
                     foreach ($values["multiOptions"]["row"] as $row) {
                         $columnCounter = 0;
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
-                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("answer_value", $row["id"])->where("profile_id", "=", $profile_id)->where("attempt",$attempt)->get();
+                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("answer_value", $row["id"])->where("profile_id", "=", $profile_id)->where("attempt", $attempt)->get();
                             $answerValues = $answerValue->pluck("option_id")->toArray();
                         } else {
-                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("option_id", $row["id"])->where("profile_id", "=", $profile_id)->where("attempt",$attempt)->get();
+                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("option_id", $row["id"])->where("profile_id", "=", $profile_id)->where("attempt", $attempt)->get();
                             $answerValues = $answerValue->pluck("answer_value")->toArray();
                         }
                         $flip = array_flip($answerValues);
@@ -1777,22 +1781,15 @@ class SurveyController extends Controller
         $survey = [];
         $survey["id"] = $id;
         $survey["title"] = $checkIFExists->title;
-        $completion_date = NULL;
-        $submission_count = 0;
+        $completion_date =  SurveyAnswers::where("survey_id", $id)->where("profile_id", $profile_id)->orderBy("updated_at", "desc")->where("current_status", 2)->where("attempt", $attempt)->first();
+        $completion_date = !empty($completion_date)?date('Y-m-d  H:i:s', strtotime($completion_date->updated_at)):NULL;
+        $submission = surveyApplicants::where("survey_id", $id)->where("profile_id", $profile_id)->whereNull("deleted_at")->first();
+        $submission_count = !empty($submission)?$submission->submission_count:0;
+       
         $prepareNode["survey"] = $survey;
-        $submission = SurveyAnswers::where("survey_id", $id)->where("profile_id", $profile_id)->orderBy("updated_at", "desc")->where("current_status", 2);
-        $exists = $submission->first();
-        if (!empty($exists)) {
-            $submission_count = $exists->attempt;
-            $completion_date = $submission->where("attempt", $attempt)->first();
-            if (!empty($completion_date)) {
-                $completion_date = date('Y-m-d  H:i:s', strtotime($completion_date->updated_at));
-            }
-        }
-
-
+      
         $result = [];
-        $result["survey"] = $survey;   
+        $result["survey"] = $survey;
         $result["submission_count"] = $submission_count;
         $result["completion_date"] = $completion_date;
         if (!$checkIFExists["is_section"]) {  //for normal survey
@@ -2396,15 +2393,18 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
+        $inProgress = surveyApplicants::where("survey_id", $surveyId)->where("profile_id", request()->user()->profile->id)->where("application_status", 3)->whereNull("deleted_at")->first();
+
         $survey =  Surveys::where("id", $surveyId)->select("form_json", "is_section")->first();
         $form_json = json_decode($survey->form_json);
-        if ($survey->is_section) {
+        if ($survey->is_section && !empty($inProgress)) {
             foreach ($form_json as &$section) {
                 if (isset($section->questions)) {
                     foreach ($section->questions as &$question) {
                         $answers =  SurveyAnswers::select("option_id", "document_meta", "media_url", "image_meta", "video_meta", "option_type", "answer_value as value")
                             ->where("survey_id", $surveyId)
                             ->where("question_id", $question->id)
+                            ->where("attempt",($inProgress->submission_count)+1)  //in progress attempt is total submission till now + 1
                             ->where("profile_id", request()->user()->profile->id)->get()->toArray();
 
 
@@ -2486,7 +2486,7 @@ class SurveyController extends Controller
             $prepData["company_id"] = $request->company_id;
         }
 
-        $prepData["expired_at"] = date("Y-m-d", strtotime("+1 month"));
+        $prepData["expired_at"] = date("Y-m-d", strtotime("+30 days"));
 
         $data = [];
 
