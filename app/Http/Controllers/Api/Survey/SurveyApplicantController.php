@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Recipe\Profile;
 use App\SurveyAnswers;
 use App\surveyApplicants;
+use App\SurveyAttemptMapping;
 use App\Surveys;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
@@ -868,33 +869,34 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
 
-    function secondsToTime($seconds) {
-        $s = $seconds%60;
-        $m = floor(($seconds%3600)/60);
-        $h = floor(($seconds%86400)/3600);
-        $d = floor(($seconds%2592000)/86400);
-        $M = floor($seconds/2592000);
+    function secondsToTime($seconds)
+    {
+        $s = $seconds % 60;
+        $m = floor(($seconds % 3600) / 60);
+        $h = floor(($seconds % 86400) / 3600);
+        $d = floor(($seconds % 2592000) / 86400);
+        $M = floor($seconds / 2592000);
         $durationStr = "";
-        if($M > 0){
+        if ($M > 0) {
             $durationStr .= "$M month ";
         }
-        
-        if($d > 0){
+
+        if ($d > 0) {
             $durationStr .= "$d day ";
         }
 
-        if($h > 0){
+        if ($h > 0) {
             $durationStr .= "$h hr ";
         }
 
-        if($m > 0){
+        if ($m > 0) {
             $durationStr .= "$m min ";
         }
-        
-        if($s > 0){
+
+        if ($s > 0) {
             $durationStr .= "$s sec";
         }
-        
+
         return $durationStr;
     }
 
@@ -926,11 +928,11 @@ class SurveyApplicantController extends Controller
 
         $applicant = surveyApplicants::where("survey_id", "=", $id)->where("profile_id", $profile_id)->whereNull("deleted_at")->first();
 
-        if(empty($applicant)){
+        if (empty($applicant)) {
             return $this->sendNewError("User has not participated in survey");
         }
-        $submissions = SurveyAnswers::selectRaw('max(updated_at) as max_updated_at,attempt')->where("survey_id", $id)->where("profile_id", $profile_id)->where("current_status", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->groupBy("attempt")->orderBy("updated_at")->skip($skip)->take($take)->get()->toArray();
-        if(empty($submissions)){
+        $submissions = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $profile_id)->whereNotNull("completion_date")->skip($skip)->take($take)->get()->toArray();
+        if (empty($submissions)) {
             return $this->sendNewError("User has not completed the survey");
         }
         $profile = [];
@@ -940,24 +942,21 @@ class SurveyApplicantController extends Controller
         $profile["survey_id"] = $id;
         $profile["inprogress_count"] = $applicant->inprogress_count;
         $profile["submission_count"] = $applicant->submission_count;
- 
+
         $submission_status = [];
         foreach ($submissions as $submission) {
             $submission_status = [];
             $duration = "0 sec";
-            $strttime = SurveyAnswers::where("survey_id",$id)->where("profile_id", $profile_id)->whereNull("deleted_at")->where("current_status",config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE"))
-            ->where("attempt",$submission["attempt"])->orderBy("updated_at")->first();
-            if($checkIFExists->is_section && !empty($strttime)){
-                $duration = $this->secondsToTime(strtotime($submission["max_updated_at"]) - strtotime($strttime->updated_at));
+            if ($checkIFExists->is_section) {
+                $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
             }
-            $submission_status[] = ["title" => "Date", "value" => date("d M Y", strtotime($submission["max_updated_at"]))];
-            $submission_status[] = ["title" => "Time", "value" => date("h:i:s A", strtotime($submission["max_updated_at"]))];
+            $submission_status[] = ["title" => "Date", "value" => date("d M Y", strtotime($submission["completion_date"]))];
+            $submission_status[] = ["title" => "Time", "value" => date("h:i:s A", strtotime($submission["completion_date"]))];
             $submission_status[] = ["title" => "Duration", "value" => $duration];
 
-          
-                $profile["submission_status"][] = $submission_status;
-                $profile["profile"] = $applicant->profile;
 
+            $profile["submission_status"][] = $submission_status;
+            $profile["profile"] = $applicant->profile;
         }
 
 

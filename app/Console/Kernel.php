@@ -314,6 +314,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Cache\Quiz::class,
         \App\Console\Commands\Build\Search\Quiz::class,
         \App\Console\Commands\Build\Graph\Build\UserQuiz::class,
+        \App\Console\Commands\InsertApplicantsAttempt::class,
 
 
 

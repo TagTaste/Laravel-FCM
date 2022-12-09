@@ -37,6 +37,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
 use App\PaymentHelper;
+use App\SurveyAttemptMapping;
 
 class SurveyController extends Controller
 {
@@ -661,14 +662,24 @@ class SurveyController extends Controller
                 return $this->sendError("Mandatory Questions Cannot Be Blank");
             }
 
-            $last_attempt = SurveyAnswers::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
+
+            $last_attempt = SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
                 ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
+            $answerAttempt = [];
+            $answerAttempt["profile_id"] = $request->user()->profile->id;
+            $answerAttempt["survey_id"] = $request->survey_id;
+
+
             if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
                 $last_attempt = 1;
-            } else {
+                $answerAttempt["attempt"] = $last_attempt;
+                SurveyAttemptMapping::create($answerAttempt);
+            } else {    //when its not first attempt
                 $last_attempt = $last_attempt->attempt;
                 if ($id->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $last_attempt += 1;
+                    $answerAttempt["attempt"] = $last_attempt;
+                    SurveyAttemptMapping::create($answerAttempt);    //when new attempt first entry
                 }
             }
 
@@ -748,10 +759,16 @@ class SurveyController extends Controller
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
+                $completion_date =  !empty($checkApplicant->completion_date)?$checkApplicant->completion_date:NULL;
+                //when completed update completion_date in mapping table
                 if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $submission_count += 1;
+                    $completion_date = date("Y-m-d H:i:s");
+                    SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
+                        ->where("attempt", $last_attempt)->update(["completion_date" => $completion_date]);
                 }
-                $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => date("Y-m-d H:i:s"), "submission_count" => $submission_count]);
+
+                $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => $completion_date, "submission_count" => $submission_count]);
                 $user = $request->user()->profile->id;
                 Redis::set("surveys:application_status:$request->survey_id:profile:$user", $request->current_status);
             } else {
@@ -1462,8 +1479,7 @@ class SurveyController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $count = surveyApplicants::where("survey_id", "=", $id)->where("deleted_at", "=", null)->whereNotNull("completion_date")->orderBy('completion_date', 'desc');
-        $profileId = $request->user()->profile->id;
+        $count = SurveyAttemptMapping::selectRaw('max(attempt) as max_attempt,max(completion_date) as max_submission,profile_id')->where("survey_id", "=", $id)->where("deleted_at", "=", null)->groupBy("profile_id")->whereNotNull("completion_date")->orderBy('completion_date', 'desc');
 
         if ($request->has('filters') && !empty($request->filters)) {
             $count->whereIn('profile_id', $profileIds, 'and', $type);
@@ -1476,10 +1492,10 @@ class SurveyController extends Controller
         $respondent = $count->skip($skip)->take($take)
             ->get();
         foreach ($respondent as $profile) {
-           
+
             $profileCopy = $profile->profile->toArray();
-            $profileCopy["submission_count"] = $profile->submission_count;
-            $profileCopy["last_submission"] = $profile->completion_date;
+            $profileCopy["submission_count"] = $profile->max_attempt;
+            $profileCopy["last_submission"] = $profile->max_submission;
             $data['report'][] = $profileCopy;
         }
 
@@ -1781,13 +1797,14 @@ class SurveyController extends Controller
         $survey = [];
         $survey["id"] = $id;
         $survey["title"] = $checkIFExists->title;
-        $completion_date =  SurveyAnswers::where("survey_id", $id)->where("profile_id", $profile_id)->orderBy("updated_at", "desc")->where("current_status", 2)->where("attempt", $attempt)->first();
-        $completion_date = !empty($completion_date)?date('Y-m-d  H:i:s', strtotime($completion_date->updated_at)):NULL;
-        $submission = surveyApplicants::where("survey_id", $id)->where("profile_id", $profile_id)->whereNull("deleted_at")->first();
-        $submission_count = !empty($submission)?$submission->submission_count:0;
-       
+        $applicantInfo = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $profile_id)->whereNotNull("completion_date");
+        if (!empty($applicantInfo->first())) {
+            $submission_count =  $applicantInfo->orderBy("completion_date", "desc")->first()->attempt;
+            $completion_date = $applicantInfo->where("attempt", $attempt)->first()->completion_date;
+        }
+
         $prepareNode["survey"] = $survey;
-      
+
         $result = [];
         $result["survey"] = $survey;
         $result["submission_count"] = $submission_count;
@@ -2398,13 +2415,14 @@ class SurveyController extends Controller
         $survey =  Surveys::where("id", $surveyId)->select("form_json", "is_section")->first();
         $form_json = json_decode($survey->form_json);
         if ($survey->is_section && !empty($inProgress)) {
+            $attempt = SurveyAttemptMapping::where("survey_id", $surveyId)->where("profile_id", request()->user()->profile->id)->whereNull("completion_date")->whereNull("deleted_at")->first();
             foreach ($form_json as &$section) {
                 if (isset($section->questions)) {
                     foreach ($section->questions as &$question) {
                         $answers =  SurveyAnswers::select("option_id", "document_meta", "media_url", "image_meta", "video_meta", "option_type", "answer_value as value")
                             ->where("survey_id", $surveyId)
                             ->where("question_id", $question->id)
-                            ->where("attempt",($inProgress->submission_count)+1)  //in progress attempt is total submission till now + 1
+                            ->where("attempt",$attempt )  //in progress attempt is total submission till now + 1
                             ->where("profile_id", request()->user()->profile->id)->get()->toArray();
 
 
