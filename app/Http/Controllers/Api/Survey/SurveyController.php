@@ -752,18 +752,18 @@ class SurveyController extends Controller
             }
             $user = $request->user()->profile;
             $responseData = [];
-            $submission_count = $checkApplicant->submission_count;
+            
+            $submission_count = !empty($checkApplicant)?$checkApplicant->submission_count:0;
             if ($commit) {
                 DB::commit();
 
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
-                $completion_date =  !empty($checkApplicant->completion_date)?$checkApplicant->completion_date:NULL;
+                $completion_date = date("Y-m-d H:i:s");
                 //when completed update completion_date in mapping table
                 if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $submission_count += 1;
-                    $completion_date = date("Y-m-d H:i:s");
                     SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
                         ->where("attempt", $last_attempt)->update(["completion_date" => $completion_date]);
                 }
@@ -990,7 +990,7 @@ class SurveyController extends Controller
 
             $ans = $answers->pluck("option_id")->toArray();
             $ar = array_values(array_filter($ans));
-            $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+            $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
@@ -1016,7 +1016,7 @@ class SurveyController extends Controller
                 $ar = array_values(array_filter($ans, function ($value) {
                     return ($value !== null && $value !== false && $value !== '');
                 }));
-                $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+                $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                 $count = 0;
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
@@ -1037,7 +1037,7 @@ class SurveyController extends Controller
                     }
 
                     $ar = array_values(array_filter($ans));
-                    $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+                    $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                     $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["id"] = $row['id'];
                     $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["value"] = $row["title"];
                     foreach ($values["multiOptions"]['column'] as $column) {
@@ -1069,7 +1069,7 @@ class SurveyController extends Controller
                         $ans = $answers->pluck("option_id")->toArray();
 
                         $ar = array_values(array_filter($ans));
-                        $getAvg = (count($ar) ? $this->array_avg($ar, $getCount->count()) : 0);
+                        $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                         $countOptions = count($ar);
 
                         for ($min = 1; $min <= $values['max']; $min++) {
@@ -1079,12 +1079,12 @@ class SurveyController extends Controller
                                 $countOfApplicants += $getAvg[$min]["count"];
                             }
                         }
-                        $sum += (($getCount->count()) - $countOfApplicants) * (count($values["options"]));
+                        $sum += ((count($ar)) - $countOfApplicants) * (count($values["options"]));
                     }
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = count($ar) ? ($sum / $getCount->count()) : 0;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = count($ar) ? ($sum / count($ar)) : 0;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
                         } else {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
@@ -1797,6 +1797,8 @@ class SurveyController extends Controller
         $survey = [];
         $survey["id"] = $id;
         $survey["title"] = $checkIFExists->title;
+        $submission_count=0;
+        $completion_date = NULL;
         $applicantInfo = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $profile_id)->whereNotNull("completion_date");
         if (!empty($applicantInfo->first())) {
             $submission_count =  $applicantInfo->orderBy("completion_date", "desc")->first()->attempt;
@@ -2422,7 +2424,7 @@ class SurveyController extends Controller
                         $answers =  SurveyAnswers::select("option_id", "document_meta", "media_url", "image_meta", "video_meta", "option_type", "answer_value as value")
                             ->where("survey_id", $surveyId)
                             ->where("question_id", $question->id)
-                            ->where("attempt",$attempt )  //in progress attempt is total submission till now + 1
+                            ->where("attempt",$attempt->attempt )  //in progress attempt is total submission till now + 1
                             ->where("profile_id", request()->user()->profile->id)->get()->toArray();
 
 

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Application\Profile;
+use App\Recipe\Profile;
 use App\SurveyAnswers;
 use Illuminate\Console\Command;
 use App\surveyApplicants;
