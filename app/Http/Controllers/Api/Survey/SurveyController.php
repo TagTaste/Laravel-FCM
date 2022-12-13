@@ -949,7 +949,7 @@ class SurveyController extends Controller
             return $this->sendError("Only Survey Admin can view this report");
         }
 
-        $applicants = surveyApplicants::where("survey_id", "=", $id)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null);
+        $applicants =  SurveyAttemptMapping::where("survey_id", "=", $id)->whereNotNull("completion_date")->where("deleted_at", "=", null);
 
         if ($request->has('filters') && !empty($request->filters)) {
             $applicants->whereIn('profile_id', $profileIds, 'and', $type);
@@ -1336,11 +1336,11 @@ class SurveyController extends Controller
             $sectionKey = 0;  //key value of section
             foreach ($decodeJson as $key => &$values) {
                 $values["id"] = (int)$values["id"];
-                if (isset($values["is_mandatory"])) {
-                    $values["is_mandatory"] = (int)$values["is_mandatory"];
-                } else {
-                    $values["is_mandatory"] = 0;
-                }
+                // if (isset($values["is_mandatory"])) {
+                //     $values["is_mandatory"] = (int)$values["is_mandatory"];
+                // } else {
+                //     $values["is_mandatory"] = 0;
+                // }
 
                 if (isset($values["question_type"]) && in_array($values["question_type"], $getListOfFormQuestions)) {
                     $diff = array_diff($requiredNode, array_keys($values));
@@ -1486,7 +1486,8 @@ class SurveyController extends Controller
         }
 
         $this->model = [];
-        $countInt = $count->count();
+        $countInt = count($count->get());
+       
         $data = ["answer_count" => $countInt];
 
         $respondent = $count->skip($skip)->take($take)
@@ -1537,6 +1538,11 @@ class SurveyController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $idsAttemptMapping = [];
+        $resumeArray = SurveyAttemptMapping::select("profile_id","attempt")->where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("completion_date")->get();
+        foreach($resumeArray as $resume){
+            $idsAttemptMapping[$resume->profile_id][] = $resume->attempt;
+        }
         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
 
         if ($request->has('filters') && !empty($request->filters)) {
@@ -1553,7 +1559,11 @@ class SurveyController extends Controller
             ->get();
 
         foreach ($respondent as $profile) {
+            if(isset($idsAttemptMapping[$profile->profile_id]) && in_array($profile->attempt,$idsAttemptMapping[$profile->profile_id])){
+                continue;
+            }
             $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
+
         }
 
         $this->model = $data;
@@ -2459,11 +2469,6 @@ class SurveyController extends Controller
         if (empty($survey)) {
             $this->model = ["status" => false];
             return $this->sendNewError("Invalid Survey");
-        }
-
-        if ($survey->profile_id != $request->user()->profile->id) {
-            $this->model = ["status" => false];
-            return $this->sendNewError("Only Admin can Copy survey");
         }
 
         // if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {

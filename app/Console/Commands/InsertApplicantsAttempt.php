@@ -46,8 +46,8 @@ class InsertApplicantsAttempt extends Command
         $attemptMapping = [];
         $applicants = surveyApplicants::whereNull("deleted_at")->whereIn("application_status", [2, 3])->get()->toArray();
         foreach ($applicants as $applicant) {
-          $profile =  Profile::where("id",$applicant["profile_id"])->first();
-           $survey = Surveys::where("id",$applicant["survey_id"])->first();
+          $profile =  Profile::where("id",$applicant["profile_id"])->whereNull("deleted_at")->first();
+           $survey = Surveys::where("id",$applicant["survey_id"])->whereNull("deleted_at")->first();
            if(!empty($profile) && !empty($survey)){
             $attemptMapping["survey_id"] = $applicant["survey_id"];
             $attemptMapping["profile_id"] = $applicant["profile_id"];

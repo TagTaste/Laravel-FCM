@@ -168,7 +168,7 @@ class SurveyApplicantController extends Controller
         $data = [
             'profile_id' => $request->user()->profile->id, 'survey_id' => $id,
             'message' => ($request->message ?? null),
-            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INVITED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"),
+            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"),
         ];
 
         $create = surveyApplicants::create($data);
@@ -234,7 +234,7 @@ class SurveyApplicantController extends Controller
         foreach ($profileIds as $profileId) {
 
             if ($bgnAll == false) {
-                $checkIFInvited = surveyApplicants::where("survey_id", "=", $id)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INVITED"))->where("profile_id", $profileId)->first();
+                $checkIFInvited = surveyApplicants::where("survey_id", "=", $id)->where("application_status", "=", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED"))->where("profile_id", $profileId)->first();
 
                 if (empty($checkIFInvited)) {
                     $this->model = false;

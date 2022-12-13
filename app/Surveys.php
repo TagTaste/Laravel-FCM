@@ -99,7 +99,7 @@ class Surveys extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
 
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->whereNotNull('completion_date')->get()->count();
+        $meta['answerCount'] = SurveyAttemptMapping::where("survey_id",$this->id)->whereNotNull("completion_date")->whereNull("deleted_at")->get()->count();
         $meta['isReported'] =  $this->isSurveyReported();
 
         $reviewed = SurveyAttemptMapping::where("survey_id",$this->id)->where("profile_id",$profileId)->whereNotNull("completion_date")->orderBy("completion_date","desc")->first();
@@ -127,7 +127,7 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->whereNotNull('completion_date')->get()->count();
+        $meta['answerCount'] =  SurveyAttemptMapping::where("survey_id",$this->id)->whereNotNull("completion_date")->whereNull("deleted_at")->get()->count();
         $meta['isReported'] =  $this->isSurveyReported();
 
 
