@@ -752,8 +752,8 @@ class SurveyController extends Controller
             }
             $user = $request->user()->profile;
             $responseData = [];
-            
-            $submission_count = !empty($checkApplicant)?$checkApplicant->submission_count:0;
+
+            $submission_count = !empty($checkApplicant) ? $checkApplicant->submission_count : 0;
             if ($commit) {
                 DB::commit();
 
@@ -951,9 +951,18 @@ class SurveyController extends Controller
 
         $applicants =  SurveyAttemptMapping::where("survey_id", "=", $id)->whereNotNull("completion_date")->where("deleted_at", "=", null);
 
+        $resumeArray = SurveyAttemptMapping::select("profile_id", "attempt")->where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("completion_date")->get();
+        $idsAttemptMapping = [];
+
+        foreach ($resumeArray as $resume) {
+            $idsAttemptMapping[$resume->profile_id][] = $resume->attempt;
+        }
+
         if ($request->has('filters') && !empty($request->filters)) {
             $applicants->whereIn('profile_id', $profileIds, 'and', $type);
         }
+
+
 
         $getCount = $applicants->get();
 
@@ -986,7 +995,10 @@ class SurveyController extends Controller
         foreach ($getJsonQues as $values) {
             shuffle($colorCodeList);
 
-            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->get();
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
+
+                return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
+            });
 
             $ans = $answers->pluck("option_id")->toArray();
             $ar = array_values(array_filter($ans));
@@ -1029,10 +1041,18 @@ class SurveyController extends Controller
             } elseif (isset($values["multiOptions"])) {
                 foreach ($values["multiOptions"]['row'] as $row) {
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $row['id'])->whereIn("profile_id", $pluck)->get();
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $row['id'])->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
+
+                            return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
+                        });
+
                         $ans = $answers->pluck("option_id")->toArray();
                     } else {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id', $row['id'])->whereIn("profile_id", $pluck)->get();
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id', $row['id'])->whereIn("profile_id", $pluck)->filter(function ($ans) use ($idsAttemptMapping) {
+
+                            return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
+                        });
+
                         $ans = $answers->pluck("answer_value")->toArray();
                     }
 
@@ -1064,7 +1084,11 @@ class SurveyController extends Controller
                     $countOfApplicants = 0;
 
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereIn("profile_id", $pluck)->get();
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereIn("profile_id", $pluck)->filter(function ($ans) use ($idsAttemptMapping) {
+
+                            return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
+                        });
+
 
                         $ans = $answers->pluck("option_id")->toArray();
 
@@ -1487,7 +1511,7 @@ class SurveyController extends Controller
 
         $this->model = [];
         $countInt = count($count->get());
-       
+
         $data = ["answer_count" => $countInt];
 
         $respondent = $count->skip($skip)->take($take)
@@ -1539,8 +1563,8 @@ class SurveyController extends Controller
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $idsAttemptMapping = [];
-        $resumeArray = SurveyAttemptMapping::select("profile_id","attempt")->where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("completion_date")->get();
-        foreach($resumeArray as $resume){
+        $resumeArray = SurveyAttemptMapping::select("profile_id", "attempt")->where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("completion_date")->get();
+        foreach ($resumeArray as $resume) {
             $idsAttemptMapping[$resume->profile_id][] = $resume->attempt;
         }
         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
@@ -1559,11 +1583,10 @@ class SurveyController extends Controller
             ->get();
 
         foreach ($respondent as $profile) {
-            if(isset($idsAttemptMapping[$profile->profile_id]) && in_array($profile->attempt,$idsAttemptMapping[$profile->profile_id])){
+            if (isset($idsAttemptMapping[$profile->profile_id]) && in_array($profile->attempt, $idsAttemptMapping[$profile->profile_id])) {
                 continue;
             }
             $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
-
         }
 
         $this->model = $data;
@@ -1807,7 +1830,7 @@ class SurveyController extends Controller
         $survey = [];
         $survey["id"] = $id;
         $survey["title"] = $checkIFExists->title;
-        $submission_count=0;
+        $submission_count = 0;
         $completion_date = NULL;
         $applicantInfo = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $profile_id)->whereNotNull("completion_date");
         if (!empty($applicantInfo->first())) {
@@ -2434,7 +2457,7 @@ class SurveyController extends Controller
                         $answers =  SurveyAnswers::select("option_id", "document_meta", "media_url", "image_meta", "video_meta", "option_type", "answer_value as value")
                             ->where("survey_id", $surveyId)
                             ->where("question_id", $question->id)
-                            ->where("attempt",$attempt->attempt )  //in progress attempt is total submission till now + 1
+                            ->where("attempt", $attempt->attempt)  //in progress attempt is total submission till now + 1
                             ->where("profile_id", request()->user()->profile->id)->get()->toArray();
 
 
