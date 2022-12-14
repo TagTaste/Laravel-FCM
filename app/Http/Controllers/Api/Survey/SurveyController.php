@@ -2373,7 +2373,7 @@ class SurveyController extends Controller
 
         $loggedInprofileId = $request->user()->profile->id;
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->whereNull('deleted_at')->first();
-        if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+        if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && !($id->multi_submission)) {
             $this->model = false;
             return $this->sendError("Already Applied");
         }
@@ -2523,10 +2523,10 @@ class SurveyController extends Controller
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
-                return $this->sendError("User does not belong to this company");
+                return $this->sendNewError("User does not belong to this company");
             }
             if (isset($survey->is_private) && $survey->is_private == 1 && $company->is_premium != 1) {
-                return $this->sendError("Only premium companies can create private surveys");
+                return $this->sendNewError("Only premium companies can create private surveys");
                 // return $next($request);
             }
         }
