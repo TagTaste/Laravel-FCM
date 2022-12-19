@@ -946,9 +946,10 @@ class SurveyApplicantController extends Controller
         $submission_status = [];
         foreach ($submissions as $submission) {
             $submission_status = [];
-            $duration = "0 sec";
-            if ($checkIFExists->is_section) {
-                $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
+            $duration = "-";
+            $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
+            if ($checkIFExists->is_section && !empty($durationForSection)) {
+                $duration = $durationForSection;
             }
             $submission_status[] = ["title" => "Date", "value" => date("d M Y", strtotime($submission["completion_date"]))];
             $submission_status[] = ["title" => "Time", "value" => date("h:i:s A", strtotime($submission["completion_date"]))];
