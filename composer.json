@@ -13,7 +13,7 @@
         "elasticsearch/elasticsearch": "~5.0",
         "tymon/jwt-auth": "0.5.*",
         "guzzlehttp/guzzle": "^6.2",
-        "tagtaste/api-response": "1.2.1",
+        "tagtaste/api-response": "1.2.2",
         "laravel/socialite": "^3.0",
         "stevebauman/purify": "^1.1",
         "league/flysystem-aws-s3-v3": "~1.0",
@@ -48,7 +48,7 @@
         {
           "type": "vcs",
           "url":  "https://github.com/TagTaste/api-response.git",
-          "version": "v1.2.1"
+          "version": "v1.2.2"
         },
         {
             "type": "vcs",
