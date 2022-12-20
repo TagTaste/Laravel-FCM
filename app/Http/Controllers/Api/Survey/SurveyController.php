@@ -1048,7 +1048,7 @@ class SurveyController extends Controller
 
                         $ans = $answers->pluck("option_id")->toArray();
                     } else {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id', $row['id'])->whereIn("profile_id", $pluck)->filter(function ($ans) use ($idsAttemptMapping) {
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id', $row['id'])->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
 
                             return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
                         });
@@ -1084,7 +1084,7 @@ class SurveyController extends Controller
                     $countOfApplicants = 0;
 
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereIn("profile_id", $pluck)->filter(function ($ans) use ($idsAttemptMapping) {
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
 
                             return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
                         });
