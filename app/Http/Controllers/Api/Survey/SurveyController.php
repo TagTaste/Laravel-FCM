@@ -2511,10 +2511,7 @@ class SurveyController extends Controller
             return $this->sendNewError("Invalid Survey");
         }
 
-        // if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {
-        //     $this->model = ["status" => false];
-        //     return $this->sendError("Survey is expired. Cannot Copy");
-        // }
+
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if ($request->has('company_id')) {
@@ -2525,12 +2522,8 @@ class SurveyController extends Controller
             if (!$userBelongsToCompany) {
                 return $this->sendNewError("User does not belong to this company");
             }
-            if (isset($survey->is_private) && $survey->is_private == 1 && $company->is_premium != 1) {
-                return $this->sendNewError("Only premium companies can create private surveys");
-                // return $next($request);
-            }
+            
         }
-
 
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = $survey->is_active;
@@ -2540,7 +2533,6 @@ class SurveyController extends Controller
         $prepData["description"] = $survey->description;
         $prepData["privacy_id"] = 1;
         $prepData["is_section"] = $survey->is_section;
-        $prepData["is_private"] = $survey->is_private;
         $prepData["multi_submission"] = $survey->multi_submission;
         $prepData["video_meta"] = $survey->video_meta;
         $prepData["image_meta"] = $survey->image_meta;
