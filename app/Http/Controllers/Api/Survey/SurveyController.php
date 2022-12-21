@@ -2529,7 +2529,7 @@ class SurveyController extends Controller
         $prepData["is_active"] = $survey->is_active;
         $prepData["profile_id"] = $request->user()->profile->id;
         $prepData["state"] = 1;
-        $prepData["title"] = "Copied - " . $survey->title;
+        $prepData["title"] = mb_substr("Copied - " . $survey->title,0,150);
         $prepData["description"] = $survey->description;
         $prepData["privacy_id"] = 1;
         $prepData["is_section"] = $survey->is_section;
