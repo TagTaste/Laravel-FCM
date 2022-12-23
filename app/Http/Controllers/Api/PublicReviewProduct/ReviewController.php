@@ -542,7 +542,17 @@ class ReviewController extends Controller
                     dispatch(new AddUserInfoWithReview($productId, $loggedInProfileId));
                 } else {
                     $this->model = false;
-                    $responseData = ["status" => false];
+                    $currentStatus == 1;
+                    
+                    \DB::table('public_review_user_timings')->where('profile_id', $loggedInProfileId)->where('product_id', $productId)->update(['updated_at' => $this->now]);
+
+                    Review::where('profile_id', $loggedInProfileId)->where('product_id', $productId)
+                        ->update(['current_status' => $currentStatus]);
+
+                    $headerList = $this->getMissingHeaders($product, $loggedInProfileId);
+                    $this->model = ["status" => false];
+                    return $this->sendError("Mandatory questions missing in ".$headerList);
+                    // $responseData = ["status" => false];
                 }
             }
         }
@@ -558,6 +568,34 @@ class ReviewController extends Controller
 
         return $this->sendResponse($responseData);
     }
+
+    protected function getMissingHeaders($product, $profileId){
+
+        $filledQuestionIds = \DB::table('public_product_user_review')->where('product_id', $product->id)->where('profile_id', $profileId)->distinct('question_id')->get();
+        
+
+        $missingHeaderIds = \DB::table('public_review_questions')
+        ->where('is_mandatory',1)
+        ->where('global_question_id', $product->global_question_id)
+        ->whereNotIn('id', $filledQuestionIds->pluck('question_id'))->get();
+
+        $headerList =  \DB::table('public_review_question_headers')
+        ->where('global_question_id', $product->global_question_id)
+        ->whereIn('id', $missingHeaderIds->pluck('header_id'))->get()->pluck('title')->toArray();
+
+        $missingHeaders = '';
+        foreach ($headerList as $header) {
+            $missingHeaders = $missingHeaders.$header['title'].',';
+        }
+
+        if (strlen($missingHeaders) > 0){
+            $missingHeaders = substr($missingHeaders, 0, strlen($missingHeaders)-1);
+        }
+
+        return $missingHeaders;
+        
+    }
+
     public function paidProcessing($productId, Request $request)
     {
         $responseData = $flag = [];

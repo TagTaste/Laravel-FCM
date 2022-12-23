@@ -160,7 +160,17 @@ class ReviewController extends Controller
                         ->where('batch_id', $batchId)->where('profile_id', $loggedInProfileId)->update(['current_status' => 3]);
                 } else {
                     $currentStatus = 2;
-                    $responseData["status"] = true;
+
+                    \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)
+                        ->where('batch_id', $batchId)->where('profile_id', $loggedInProfileId)->update(['current_status' => 2]);
+
+                    \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId", $currentStatus);
+
+                    $missingHeaders = $this->getMissingHeaders($collaborateId, $batchId, $loggedInProfileId);
+
+                    $this->model = ["status" => false];
+                    return $this->sendError("Mandatory questions missing in ".$missingHeaders);
+
                 }
             }
             if ($latestCurrentStatus == 1) {
@@ -177,6 +187,35 @@ class ReviewController extends Controller
         }
         return $this->sendResponse($responseData);
     }
+
+    protected function getMissingHeaders($collaborateId, $batchId, $profileId){
+        $filledQuestionIds = \DB::table('collaborate_tasting_user_review')
+        ->where('collaborate_id', $collaborateId)
+        ->where('batch_id', $batchId)
+        ->where('profile_id', $profileId)->get('question_id');
+
+        $missingHeaderIds = \DB::table('collaborate_tasting_questions')
+        ->where('collaborate_id', $collaborateId)
+        ->where('is_mandatory',1)
+        ->whereNotIn('id', $filledQuestionIds->pluck('question_id'))->get();
+
+        $headerList = \DB::table('questionnaire_headers')
+        ->where('collaborate_id', $collaborateId)
+        ->whereIn('id', $missingHeaderIds->pluck('header_id'))->get()->pluck('title')->toArray();
+
+        $missingHeaders = '';
+        foreach ($headerList as $header) {
+            $missingHeaders = $missingHeaders.$header['title'].',';
+        }
+
+        if (strlen($missingHeaders) > 0){
+            $missingHeaders = substr($missingHeaders, 0, strlen($missingHeaders)-1);
+        }
+
+        return $missingHeaders;
+
+    }
+    
 
     public function paidProcessing($collaborateId, $batchId, Request $request)
     {
