@@ -482,7 +482,17 @@ class SurveyController extends Controller
             $this->addSurveyGraph($getSurvey); //add node and edge to neo4j
         }
 
+        $this->checkAndRemovePayment($getSurvey);
+
         return $this->sendResponse();
+    }
+
+    protected function checkAndRemovePayment($surveyObj){
+        if($surveyObj->multi_submission == 1){
+            PaymentDetails::where('model_id', $surveyObj->id)
+            ->where('model_type', 'Surveys')
+            ->update(['is_active' => 0]);
+        }
     }
 
     protected function addSurveyGraph($survey)
