@@ -542,8 +542,8 @@ class ReviewController extends Controller
                     dispatch(new AddUserInfoWithReview($productId, $loggedInProfileId));
                 } else {
                     $this->model = false;
-                    $currentStatus == 1;
-                    
+                    $currentStatus = 1;
+
                     \DB::table('public_review_user_timings')->where('profile_id', $loggedInProfileId)->where('product_id', $productId)->update(['updated_at' => $this->now]);
 
                     Review::where('profile_id', $loggedInProfileId)->where('product_id', $productId)
@@ -572,7 +572,6 @@ class ReviewController extends Controller
     protected function getMissingHeaders($product, $profileId){
 
         $filledQuestionIds = \DB::table('public_product_user_review')->where('product_id', $product->id)->where('profile_id', $profileId)->distinct('question_id')->get();
-        
 
         $missingHeaderIds = \DB::table('public_review_questions')
         ->where('is_mandatory',1)
@@ -581,19 +580,19 @@ class ReviewController extends Controller
 
         $headerList =  \DB::table('public_review_question_headers')
         ->where('global_question_id', $product->global_question_id)
-        ->whereIn('id', $missingHeaderIds->pluck('header_id'))->get()->pluck('title')->toArray();
+        ->whereIn('id', $missingHeaderIds->pluck('header_id'))->get()->toArray();
 
         $missingHeaders = '';
         foreach ($headerList as $header) {
-            $missingHeaders = $missingHeaders.$header['title'].',';
+            $missingHeaders = $missingHeaders.$header->header_type.', ';
         }
-
         if (strlen($missingHeaders) > 0){
-            $missingHeaders = substr($missingHeaders, 0, strlen($missingHeaders)-1);
+            $missingHeaders = substr($missingHeaders, 0, strlen($missingHeaders)-2);
         }
+        
+        $missingHeaders = substr_replace($missingHeaders, ' and', strrpos($missingHeaders, ','), 1);
 
         return $missingHeaders;
-        
     }
 
     public function paidProcessing($productId, Request $request)
