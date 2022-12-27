@@ -437,7 +437,7 @@ class ReviewController extends Controller
 
     public function reviewAnswers(Request $request, $productId, $headerId)
     {
-        
+
         $this->now = Carbon::now()->toDateTimeString();
         $data = [];
         $answers = $request->input('answer');
@@ -452,7 +452,7 @@ class ReviewController extends Controller
             $this->model = ["status" => false];
             return $this->sendError("We are not accepting reviews for this product.");
         }
-        
+
         $userReview = Review::where('profile_id', $loggedInProfileId)->where('product_id', $productId)->orderBy('id', 'desc')->first();
         if (isset($userReview) && $userReview->current_status == 2) {
             $this->model = ["status" => false];
@@ -546,7 +546,7 @@ class ReviewController extends Controller
                 }
             }
         }
-        
+
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
         if ($currentStatus == 2 && $this->model) {
             $responseData = $this->paidProcessing($productId, $request);
@@ -566,8 +566,8 @@ class ReviewController extends Controller
         if ($paymnetExist != null || $requestPaid) {
             $responseData["status"] = true;
             $responseData["is_paid"] = true;
-            if($requestPaid){
-                $flag = ["status"=>false,"reason"=>"paid"];
+            if ($requestPaid) {
+                $flag = ["status" => false, "reason" => "paid"];
             }
             //check for paid user
             // if (empty($request->user()->profile->phone)) {
@@ -578,14 +578,14 @@ class ReviewController extends Controller
             // } else
 
             $exp = (($paymnetExist != null && !empty($paymnetExist->excluded_profiles)) ? $paymnetExist->excluded_profiles : null);
-            
+
             if ($exp != null) {
-                    $separate = explode(",", $exp);
-                    if (in_array($request->user()->profile->id, $separate)) {
-                        //excluded profile error to be updated
-                        $responseData["is_paid"] = false;
-                        return $responseData;
-                    }
+                $separate = explode(",", $exp);
+                if (in_array($request->user()->profile->id, $separate)) {
+                    //excluded profile error to be updated
+                    $responseData["is_paid"] = false;
+                    return $responseData;
+                }
             }
 
             if ($request->user()->profile->is_paid_taster) {
@@ -638,7 +638,7 @@ class ReviewController extends Controller
             } else if ($flag["status"] == false && isset($flag["reason"]) && $flag["reason"] == "not_paid") {
                 $responseData["status"] = true;
                 $responseData["is_paid"] = false;
-            }else {
+            } else {
                 $responseData["get_paid"] = false;
                 $responseData["title"] = "Uh Oh!";
                 $responseData["subTitle"] = "You have successfully completed the review.";
@@ -651,7 +651,7 @@ class ReviewController extends Controller
         }
         return $responseData;
     }
-    
+
     public function verifyPayment($paymentDetails, Request $request)
     {
         $count = PaymentLinks::where("payment_id", $paymentDetails->id)->where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->get();
@@ -675,17 +675,17 @@ class ReviewController extends Controller
 
                 if ($getCount[$key] >= $getAmount["current"][$key][0]["user_count"]) {
                     //error message for different user type counts exceeded
-                    return ["status" => false , "reason"=>"not_paid"];
+                    return ["status" => false, "reason" => "not_paid"];
                 }
 
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
             $data = ["amount" => $amount, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "payment_id" => $paymentDetails->id];
 
-            if(isset($paymentDetails->comment) && !empty($paymentDetails->comment)){
+            if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;
             }
-            
+
             $createPaymentTxn = event(new TransactionInit($data));
             $paymentcount = (int)$count->count();
             if ((int)$paymentDetails->user_count == ++$paymentcount) {
@@ -726,5 +726,34 @@ class ReviewController extends Controller
         return $this->sendResponse();
     }
 
-    
+    public function getReviews($profileId)
+    {
+        $page = request()->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $productUserReviewed = Review::join("public_review_products","public_review_products.id","public_product_user_review.product_id")->where("public_product_user_review.profile_id", $profileId)->where("current_status", 2)->groupBy("product_id")->orderBy("public_product_user_review.updated_at", "desc")->skip($skip)->take($take)
+        ->get();
+
+        if (empty($productUserReviewed)) {
+            $this->sendNewError("User Has not participated in any product revies");
+        }
+
+       
+        $data["products"] = [];
+        $count = 0;
+        foreach ($productUserReviewed as $reviewedProduct) {
+            $count++;
+            $reviewedProduct->images_meta = json_decode($reviewedProduct->images_meta);
+            $product["id"]=$reviewedProduct->product_id;
+            $product["title"]=$reviewedProduct->title;
+            $product["images_meta"]=$reviewedProduct->images_meta;
+
+            $item["product"] = $product;
+            $item["meta"]["overall_rating"] = $reviewedProduct->getReviewMetaAttribute();
+            $item["meta"]["review_comment"] = $reviewedProduct->getReviewCommentAttribute();
+            $item["meta"]["completion_date"] = date("Y M d", strtotime($reviewedProduct->updated_at));
+            $data["products"][] = $item;
+        }
+        $data["total_count"] = $count;
+        return $this->sendNewResponse($data);
+    }
 }

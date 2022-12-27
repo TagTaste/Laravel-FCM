@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\Collaborate;
 
+use App\Collaborate;
+use App\Collaborate\Applicant;
 use App\Collaborate\Review;
 use App\Collaborate\ReviewHeader;
+use App\Company;
 use App\Events\TransactionInit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -326,5 +329,40 @@ class ReviewController extends Controller
         }
 
         return ["status" => false];
+    }
+
+    public function getReviews($profileId)
+    {
+
+        $page = request()->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $productUserReviewed = Review::join("collaborates", "collaborates.id", "collaborate_tasting_user_review.collaborate_id")->selectRaw('count(DISTINCT batch_id) as count,collaborate_id,title,images_meta,collaborates.profile_id,company_id')->where("collaborate_tasting_user_review.profile_id", $profileId)->where("current_status", 3)->where("collaborate_type", "product-review")->groupBy("collaborate_id")->orderBy("collaborate_tasting_user_review.updated_at", "desc")->skip($skip)->take($take)
+        ->get();
+
+        if (empty($productUserReviewed)) {
+            $this->sendNewError("User Has not participated in any product reviews");
+        }
+
+        $data["collaborates"] = [];
+        $count = 0;
+        foreach ($productUserReviewed as $reviewedProduct) {
+            $count++;
+            $reviewedProduct->images_meta = json_decode($reviewedProduct->images_meta);
+            $collaborate["id"] = $reviewedProduct->collaborate_id;
+            $collaborate["title"] = $reviewedProduct->title;
+            $collaborate["images_meta"] = $reviewedProduct->images_meta;
+            $collaborate["profile"] = $reviewedProduct->profile;
+            if (!isset($company[$reviewedProduct->company_id])) {
+                $company[$reviewedProduct->company_id] = !is_null($reviewedProduct->company_id) ? \DB::table("companies")->where("id", $reviewedProduct->company_id)->whereNull("deleted_at")->first()->name : null;
+            }
+            $collaborate["company"] =  $company[$reviewedProduct->company_id];
+
+            $item["collaboration"] = $collaborate;
+            $item["meta"]["total_product_reviewed"] = $reviewedProduct->count;
+            $data["collaborates"][] = $item;
+        }
+        $data["total_count"] = $count;
+
+        return $this->sendNewResponse($data);
     }
 }

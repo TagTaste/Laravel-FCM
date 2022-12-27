@@ -969,7 +969,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/getAnswers/{id}', 'QuizController@getStoredAnswers');
 
     });
-    
+       
     Route::resource('quiz', '\App\Http\Controllers\Api\Quiz\QuizController', ['middleware' => ['api.auth']]);
     Route::group(['namespace' => 'DeactivateAccount', 'prefix' => 'account_management', 'as' => 'account_management.', 'middleware' => 'api.auth'], function () {
         Route::get("/list", "AccountManagementOptionController@index");
@@ -979,4 +979,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/{account_mgmt_id}/send_otp", "AccountDeactivateRequestController@send_otp");
         Route::post("/{account_mgmt_id}/verify_otp", "AccountDeactivateRequestController@verify_otp");
     });
+
+    //profile review apis
+    Route::get('profile/{id}/public/reviews', "\App\Http\Controllers\Api\PublicReviewProduct\ReviewController@getReviews");
+    Route::get('profile/{id}/private/reviews', "\App\Http\Controllers\Api\Collaborate\ReviewController@getReviews");
+    Route::get('profile/{id}/meta', "\App\Http\Controllers\Api\ProfileController@getMeta");
 });
