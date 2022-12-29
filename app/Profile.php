@@ -1293,7 +1293,11 @@ class Profile extends Model
 
     public function getReviewCountAttribute()
     {
-        return \DB::table('public_product_user_review')->where('profile_id', $this->id)->where('current_status', 2)->get()->unique('product_id')->count();
+       $productCount=\DB::table('public_product_user_review')->where('profile_id', $this->id)->where('current_status', 2)->get()->unique('product_id')->count();
+       $collabProductCount = \DB::table('collaborate_tasting_user_review')->where('profile_id', $this->id)->where('current_status', 3)->groupBy("collaborate_id")->get()->count();
+       $total=($productCount + $collabProductCount);
+       return $total;
+      
     }
 
     public function getPrivateReviewCountAttribute()
