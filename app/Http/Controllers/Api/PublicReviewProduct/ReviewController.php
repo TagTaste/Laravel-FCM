@@ -730,7 +730,9 @@ class ReviewController extends Controller
     {
         $page = request()->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $productUserReviewed = Review::join("public_review_products","public_review_products.id","public_product_user_review.product_id")->where("public_product_user_review.profile_id", $profileId)->where("current_status", 2)->groupBy("product_id")->orderBy("public_product_user_review.updated_at", "desc")->skip($skip)->take($take)
+        $query = Review::join("public_review_products","public_review_products.id","public_product_user_review.product_id")->where("public_product_user_review.profile_id", $profileId)->where("current_status", 2)->groupBy("product_id")->orderBy("public_product_user_review.updated_at", "desc");
+        $count = $query->get()->count();
+        $productUserReviewed = $query->skip($skip)->take($take)
         ->get();
 
         if (empty($productUserReviewed)) {
@@ -739,12 +741,13 @@ class ReviewController extends Controller
 
        
         $data["products"] = [];
-        $count = 0;
+       
         foreach ($productUserReviewed as $reviewedProduct) {
-            $count++;
+           
             $reviewedProduct->images_meta = json_decode($reviewedProduct->images_meta);
             $product["id"]=$reviewedProduct->product_id;
-            $product["title"]=$reviewedProduct->title;
+            $product["name"]=$reviewedProduct->name;
+            $product["brand_name"]=$reviewedProduct->brand_name;
             $product["images_meta"]=$reviewedProduct->images_meta;
 
             $item["product"] = $product;
