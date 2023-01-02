@@ -734,7 +734,8 @@ class ReviewController extends Controller
         $count = $query->get()->count();
         $productUserReviewed = $query->skip($skip)->take($take)
         ->get();
-
+        // return $productUserReviewed;
+         
         if (empty($productUserReviewed)) {
             $this->sendNewError("User Has not participated in any product revies");
         }
@@ -753,7 +754,7 @@ class ReviewController extends Controller
             $item["product"] = $product;
             $item["meta"]["overall_rating"] = $reviewedProduct->getReviewMetaAttribute();
             $item["meta"]["review_comment"] = $reviewedProduct->getReviewCommentAttribute();
-            $item["meta"]["completion_date"] = date("Y M d", strtotime($reviewedProduct->updated_at));
+            $item["meta"]["completion_date"] = date("d M Y", strtotime($reviewedProduct->updated_at));
             $data["products"][] = $item;
         }
         $data["total_count"] = $count;

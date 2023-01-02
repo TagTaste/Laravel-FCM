@@ -27,13 +27,19 @@ class Review extends Model
     public function getReviewMetaAttribute()
     {
         $meta = [];
-        $question = \DB::table('public_review_questions')->where('header_id',$this->header_id)->where('questions->select_type',5)->first();
+        $header = ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
+        if(!is_null($header))
+        {
+        $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();
         $question = isset($question->questions) ? json_decode($question->questions) : null;
         $option = isset($question->option) ? $question->option : [];
         $meta['max_rating'] = count($option);
         $meta['user_rating'] = isset($this->leaf_id) ? $this->leaf_id : null;
-        $meta['color_code'] = $this->getColorCode(floor($meta['user_rating']));
+         $meta['color_code'] = $this->getColorCode(floor($meta['user_rating']));
         return $meta;
+       }
+       return null;
+
     }
 
     public function getCommentCountAttribute()

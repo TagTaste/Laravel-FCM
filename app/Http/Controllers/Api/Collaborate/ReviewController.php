@@ -357,7 +357,7 @@ class ReviewController extends Controller
             if (!isset($company[$reviewedProduct->company_id])) {
                 $company[$reviewedProduct->company_id] = !is_null($reviewedProduct->company_id) ? \DB::table("companies")->where("id", $reviewedProduct->company_id)->whereNull("deleted_at")->first()->name : null;
             }
-            $collaborate["company"] =  $company[$reviewedProduct->company_id];
+            $collaborate["company"] =  $reviewedProduct->company;
 
             $item["collaboration"] = $collaborate;
             $item["meta"]["total_product_reviewed"] = $reviewedProduct->count;
