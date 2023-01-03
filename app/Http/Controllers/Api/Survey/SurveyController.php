@@ -716,7 +716,7 @@ class SurveyController extends Controller
                     ->first();
                 if (!empty($answerExists)) {
                     SurveyAnswers::where('survey_id', $request->survey_id)
-                        ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])->where("attempt", $last_attempt)->update(["deleted_at" => date("Y-m-d H:i:s")]);
+                        ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])->where("attempt", $last_attempt)->update(["deleted_at" => date("Y-m-d H:i:s"),"is_active" => 0]);
                 }
 
                 if (isset($values["options"]) && !empty($values["options"])) {
@@ -1577,7 +1577,7 @@ class SurveyController extends Controller
         foreach ($resumeArray as $resume) {
             $idsAttemptMapping[$resume->profile_id][] = $resume->attempt;
         }
-        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
+        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
 
         if ($request->has('filters') && !empty($request->filters)) {
             $answers->whereIn('profile_id', $profileIds, 'and', $type);
