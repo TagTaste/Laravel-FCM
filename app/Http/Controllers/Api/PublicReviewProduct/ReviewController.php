@@ -752,7 +752,10 @@ class ReviewController extends Controller
             $product["images_meta"]=$reviewedProduct->images_meta;
 
             $item["product"] = $product;
-            $item["meta"]["overall_rating"] = $reviewedProduct->getReviewMetaAttribute();
+            $header = ReviewHeader::where('global_question_id', $reviewedProduct->global_question_id)->where('header_selection_type', 2)->first();
+            $headerProduct = $this->model->where('product_id', $reviewedProduct->product_id)->where('header_id', $header->id)
+                ->where('select_type', 5)->first();
+            $item["meta"]["overall_rating"] = $headerProduct->getReviewMetaAttribute();
             $item["meta"]["review_comment"] = $reviewedProduct->getReviewCommentAttribute();
             $item["meta"]["completion_date"] = date("d M Y", strtotime($reviewedProduct->updated_at));
             $data["products"][] = $item;
