@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api\BlockAccount;
 
 use App\BlockAccount\BlockAccount;
 use App\V2\CompanyUser;
+use App\Profile;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Company;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +15,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Tagtaste\Api\SendsJsonResponse;
 use Carbon\Carbon;
+use App\Subscriber;
+use Illuminate\Support\Facades\Redis;
 
 
 class BlockAccountController  extends Controller
@@ -47,6 +53,7 @@ class BlockAccountController  extends Controller
             $success_msg = 'Unblocked successfully.';
             if($block_profile){
                 //Unfollow user from here
+                $this->unfollowProfile($request, $profile_id);
                 $success_msg = 'Blocked successfully.';
             }
             return $this->sendNewResponse(['title'=>$success_msg, 'sub_title'=>'','description'=>'']);
@@ -54,7 +61,7 @@ class BlockAccountController  extends Controller
             return $this->sendNewError("Something went wrong. Please try again.");
         }
     }
-
+    
     public function blockCompany(Request $request, $company_id){
         $req_profile_id = $request->user()->profile->id;
         $block_company = $request->block_company ?? true;
@@ -87,6 +94,7 @@ class BlockAccountController  extends Controller
             $success_msg = 'Unblocked successfully.';
             if($block_company){
                 //Unfollow company from here
+                $this->unfollowCompany($request, $company_id);
                 $success_msg = 'Blocked successfully.';
             }
             return $this->sendNewResponse(['title'=>$success_msg, 'sub_title'=>'','description'=>'']);
@@ -94,7 +102,59 @@ class BlockAccountController  extends Controller
             return $this->sendNewError("Something went wrong. Please try again.");
         }
     }
+
+
+    private function unfollowProfile(Request $request, $profile_id){
+        $channel_owner_profile_id = $profile_id;
+        $channel_owner = Profile::find($channel_owner_profile_id);
+        if (!$channel_owner) {
+            throw new ModelNotFoundException();
+        }
+
+        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channel_owner);
+
+        if (!$this->model) {
+            $this->sendError("You are not following this profile.");
+        }
+
+        $profile_id = $request->user()->profile->id;
+
+        // remove profiles the logged in user is following
+        Redis::sRem("following:profile:" . $profile_id, $channel_owner_profile_id);
+
+        // remove profiles that are following $channel_owner in redis
+        Redis::sRem("followers:profile:" . $channel_owner_profile_id, $profile_id);
+
+        $subscriber = new Subscriber();
+        $subscriber->unfollowProfileSuggestion((int)$profile_id, (int)$channel_owner_profile_id);
+
+        return $this->sendResponse();
+    }
+
+    private function unfollowCompany(Request $request, $company_id){
+        $channel_owner = Company::find($company_id);
+        if(!$channel_owner){
+            throw new ModelNotFoundException("Company not found.");
+        }
+
+        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channel_owner);
+        if (!$this->model) {
+            return $this->sendError("You are not following this company.");
+        }
+
+        $profile_id = $request->user()->profile->id;
+        
+        // remove companies the logged in user is following
+        Redis::sRem("following:profile:".$profile_id, "company.$company_id");
     
+        // remove profiles that are following $channelOwner
+        Redis::sRem("followers:company:".$company_id, $profile_id);
+
+        $subscriber = new Subscriber();
+        $subscriber->unfollowCompanySuggestion((int)$profile_id, (int)$company_id);
+
+        return $this->sendResponse();
+    }
 }
 
 ?>
