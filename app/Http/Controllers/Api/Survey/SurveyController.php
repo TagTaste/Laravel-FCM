@@ -677,6 +677,7 @@ class SurveyController extends Controller
                 //checking if answer exists for this ques ,then delete and save new ones
                 $answerExists = SurveyAnswers::where('survey_id', $request->survey_id)
                     ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])
+                    ->whereNull('deleted_at')
                     ->first();
                 if (!empty($answerExists)) {
                     SurveyAnswers::where('survey_id', $request->survey_id)
@@ -963,7 +964,7 @@ class SurveyController extends Controller
         foreach ($getJsonQues as $values) {
             shuffle($colorCodeList);
 
-            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("profile_id", $pluck)->get();
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull('deleted_at')->whereIn("profile_id", $pluck)->get();
 
             $ans = $answers->pluck("option_id")->toArray();
             $ar = array_values(array_filter($ans));
@@ -1006,10 +1007,10 @@ class SurveyController extends Controller
             } elseif (isset($values["multiOptions"])) {
                 foreach ($values["multiOptions"]['row'] as $row) {
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $row['id'])->whereIn("profile_id", $pluck)->get();
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $row['id'])->whereIn("profile_id", $pluck)->whereNull('deleted_at')->get();
                         $ans = $answers->pluck("option_id")->toArray();
                     } else {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id', $row['id'])->whereIn("profile_id", $pluck)->get();
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('option_id', $row['id'])->whereIn("profile_id", $pluck)->whereNull('deleted_at')->get();
                         $ans = $answers->pluck("answer_value")->toArray();
                     }
 
@@ -1041,7 +1042,7 @@ class SurveyController extends Controller
                     $countOfApplicants = 0;
 
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereIn("profile_id", $pluck)->get();
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereIn("profile_id", $pluck)->whereNull('deleted_at')->get();
 
                         $ans = $answers->pluck("option_id")->toArray();
 
@@ -1506,7 +1507,7 @@ class SurveyController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->orderBy('created_at', 'desc');
+        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->where("is_active", "=", 1)->whereNull('deleted_at')->orderBy('created_at', 'desc');
 
         if ($request->has('filters') && !empty($request->filters)) {
             $answers->whereIn('profile_id', $profileIds, 'and', $type);
@@ -1583,7 +1584,7 @@ class SurveyController extends Controller
 
         foreach ($getJsonQues as $values) {
             shuffle($colorCodeList);
-            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->get();
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull('deleted_at')->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
 
@@ -1639,10 +1640,10 @@ class SurveyController extends Controller
                     foreach ($values["multiOptions"]["row"] as $row) {
                         $columnCounter = 0;
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
-                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("answer_value", $row["id"])->where("profile_id", "=", $profile_id)->get();
+                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("answer_value", $row["id"])->where("profile_id", "=", $profile_id)->whereNull('deleted_at')->get();
                             $answerValues = $answerValue->pluck("option_id")->toArray();
                         } else {
-                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("option_id", $row["id"])->where("profile_id", "=", $profile_id)->get();
+                            $answerValue = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("option_id", $row["id"])->where("profile_id", "=", $profile_id)->whereNull('deleted_at')->get();
                             $answerValues = $answerValue->pluck("answer_value")->toArray();
                         }
                         $flip = array_flip($answerValues);
@@ -1809,7 +1810,7 @@ class SurveyController extends Controller
         }
 
 
-        $retrieveMediaAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id);
+        $retrieveMediaAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id)->whereNull('deleted_at');
 
         if ($request->has('filters') && !empty($request->filters)) {
             $retrieveMediaAnswers->whereIn('profile_id', $profileIds, 'and', $type);
@@ -1956,7 +1957,7 @@ class SurveyController extends Controller
 
         $pluck = $getCount->pluck("profile_id")->toArray();
 
-        $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id);
+        $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id)->whereNull('deleted_at');
 
         if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
             $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids);
@@ -2370,7 +2371,7 @@ class SurveyController extends Controller
                         $answers =  SurveyAnswers::select("option_id", "document_meta","media_url","image_meta", "video_meta", "option_type", "answer_value as value")
                             ->where("survey_id", $surveyId)
                             ->where("question_id", $question->id)
-                            ->where("profile_id", request()->user()->profile->id)->get()->toArray();
+                            ->where("profile_id", request()->user()->profile->id)->whereNull('deleted_at')->get()->toArray();
 
 
                         if (!count($answers) && $question->is_mandatory) {
