@@ -730,11 +730,13 @@ class ReviewController extends Controller
     {
         $page = request()->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $query = Review::join("public_review_products","public_review_products.id","public_product_user_review.product_id")->where("public_product_user_review.profile_id", $profileId)->where("current_status", 2)->groupBy("product_id")->orderBy("public_product_user_review.updated_at", "desc");
+        $query = Review::select("public_product_user_review.product_id","public_product_user_review.profile_id",
+        "public_review_products.name","public_review_products.brand_name","public_review_products.images_meta",
+        "public_review_products.global_question_id","public_product_user_review.updated_at"
+        )->join("public_review_products","public_review_products.id","public_product_user_review.product_id")->where("public_product_user_review.profile_id", $profileId)->where("current_status", 2)->groupBy("product_id")->orderBy("public_product_user_review.updated_at", "desc");
         $count = $query->get()->count();
         $productUserReviewed = $query->skip($skip)->take($take)
         ->get();
-        // return $productUserReviewed;
          
         if (empty($productUserReviewed)) {
             $this->sendNewError("User Has not participated in any product revies");
@@ -754,7 +756,7 @@ class ReviewController extends Controller
             $item["product"] = $product;
             $header = ReviewHeader::where('global_question_id', $reviewedProduct->global_question_id)->where('header_selection_type', 2)->first();
             $headerProduct = $this->model->where('product_id', $reviewedProduct->product_id)->where('header_id', $header->id)
-                ->where('select_type', 5)->first();
+                ->where('select_type', 5)->where("profile_id",$profileId)->first();
             $item["meta"]["overall_rating"] = isset($headerProduct)?$headerProduct->getReviewMetaAttribute():null;
             $item["meta"]["review_comment"] = $reviewedProduct->getReviewCommentAttribute();
             $item["meta"]["completion_date"] = date("d M Y", strtotime($reviewedProduct->updated_at));
