@@ -769,7 +769,7 @@ class SurveyController extends Controller
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
-                $completion_date = $checkApplicant->completion_date;
+                $completion_date = isset($checkApplicant)?$checkApplicant->completion_date:null;
                 //when completed update completion_date in mapping table
                 if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $submission_count += 1;
