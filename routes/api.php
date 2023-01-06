@@ -979,4 +979,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("/{account_mgmt_id}/send_otp", "AccountDeactivateRequestController@send_otp");
         Route::post("/{account_mgmt_id}/verify_otp", "AccountDeactivateRequestController@verify_otp");
     });
+
+    Route::group(['namespace' => 'BlockAccount', 'prefix' => 'block_account', 'as' => 'block_account.', 'middleware' => 'api.auth'], function () {
+        Route::post("/profile/{profile_id}", "BlockAccountController@blockProfile");
+        Route::post("/company/{company_id}", "BlockAccountController@blockCompany");
+    });
 });

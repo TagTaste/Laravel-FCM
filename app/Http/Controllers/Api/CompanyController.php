@@ -11,6 +11,7 @@ use App\V2\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\BlockAccount\BlockAccount;
 
 class CompanyController extends Controller {
 
@@ -84,6 +85,12 @@ class CompanyController extends Controller {
             return $this->sendError("Company not found.");
         }
         
+        $this->model['is_blocked'] = false;
+        if(BlockAccount::where('profile_id', $profileId)
+        ->where('blocked_company_id', $id)->whereNull('deleted_at')->exists()){
+            $this->model['is_blocked'] = true;
+        }
+
         return $this->sendResponse();
     }
     
