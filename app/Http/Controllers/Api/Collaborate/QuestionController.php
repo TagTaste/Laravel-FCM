@@ -288,7 +288,8 @@ class QuestionController extends Controller
         }
         $parent_value = htmlspecialchars_decode($request->input('parent_value'));
 
-        $term = $request->input('term');
+        $value = $request->input('term');
+        $term=explode(" ",$value);
 
         if (!$request->has('batch_id')) {
             return $this->sendError("No product id found");
@@ -299,7 +300,12 @@ class QuestionController extends Controller
             ->where('collaborate_id',$collaborateId)
             ->where('is_active',1)
             ->where('path',$parent_value)
-            ->where('value','like',"%$term%")
+            ->where(function ($query) use ($term){
+                foreach($term as $val)
+                {
+                    $query->orwhere('value','like',"%$val%");
+                }
+            })
             ->get();
         return $this->sendResponse();
     }

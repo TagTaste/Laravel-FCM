@@ -252,35 +252,20 @@ class PaymentController extends Controller
     public function getTasterProgram(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        
-
-        $expertRequestCount = \DB::table("sensory_workshop_request")
-        ->where('profile_id', '=' , $profileId)->where('expert_request', '=' , true)
-        ->whereNull('deleted_at')->count();
 
         $sensoryRequestCount = \DB::table("sensory_workshop_request")
         ->where('profile_id', '=' , $profileId)->where('workshop_request', '=' , true)
         ->whereNull('deleted_at')->count();
 
-        $expertRequest = $expertRequestCount > 0 ? true : false ;
         $sensoryRequest = $sensoryRequestCount > 0 ? true : false ;
-
-        $expertBtnTitle = "Enrol as an expert";
         $sensoryBtnTitle = "Enrol for sensory workshop";
-        
-        if($expertRequest){
-            $expertBtnTitle = "Your enrolment has been successful. Our team will reach out to you with further details.";
-        }
+       
 
         if($sensoryRequest){
             $sensoryBtnTitle = "Your enrolment has been successful. Our team will reach out to you with further details.";
         }
         
-        $expertButton = [
-            "title" => $expertBtnTitle, "color_code" => "#efb920", "text_color" => "#000000",
-            "url" => "payment/expert/enroll", "method" => "POST","status"=>$expertRequest
-        ];
-
+        
         $sensoryButton = [
             "title" => $sensoryBtnTitle, "color_code" => "#4990e2", "text_color" => "#ffffff",
             "url" => "payment/sensory/enroll", "method" => "POST","status"=>$sensoryRequest
@@ -308,10 +293,6 @@ class PaymentController extends Controller
                 "title" => "NOTE",
                 "list_type" => 1, // With bullet
                 "child" => [
-                    [
-                        "title" => "Expert tasters: Trained food professionals such as chefs, nutritionists, food technologists, etc. are eligible for product improvement and related assignments beyond product reviews. Click on the following button to initiate the process of registering yourself as an expert.",
-                        "button_assets" => $expertButton
-                    ],
                     [
                         "title" => "Sensory workshop: We conduct online and offline workshops for our community members from time to time. We've trained over 7000 tasters from 91 cities across India. Sensory workshop is mandatory for anyone (including experts) who wishes to become a paid taster. Click on the following button to register for upcoming workshops.",
                         "button_assets" => $sensoryButton
@@ -470,38 +451,7 @@ class PaymentController extends Controller
         return $this->sendResponse($data);
     }
 
-    public function enrollExpertProgram(Request $request)
-    {
-
-        //Send email to payment@tagtaste.com
-        //Keep user email in copy 
-        //Take mail template from tanvi or arun sir
-        $data = ["status" => true, "title" => "Success", "sub_title" => "Your enrolment has been successful. Our team will reach out to you with further details."];
-        $userData = Profile::where("profiles.id", $request->user()->profile->id)->leftJoin("profile_occupations", "profile_occupations.profile_id", "=", 'profiles.id')->leftJoin("occupations", "profile_occupations.occupation_id", "=", "occupations.id")
-            ->leftJoin("profile_specializations", "profile_specializations.profile_id", "=", 'profiles.id')->leftJoin("specializations", "profile_specializations.specialization_id", "=", "specializations.id")->select(["specializations.name as specialization", "occupations.name as job"])->first();
-        $str = [
-            "Name" => $request->user()->name,
-            "Email Address" => $request->user()->email,
-            "Contact No" => $request->user()->profile->phone,
-            "Job Profile" => ($userData->job ?? "N.A"),
-            "Specialisations" => ($userData->specialization ?? "N.A")
-        ];
-        $d = ["subject" => "You’ve received a new registration for enrolment as an Expert", "content" => $str];
-
-        $currentTime = Carbon::now()->toDateTimeString();        
-        //insert into db
-        \DB::table('sensory_workshop_request')->updateOrInsert(['profile_id'=>$request->user()->profile->id,'expert_request'=>1],['updated_at'=>$currentTime]);
-        
-        Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-            $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
-        });
-
-        $links = Profile::where("id", $request->user()->profile->id)->first();
-        event(new TasterEnroll($links, null, ["name" => $request->user()->name]));
-
-        return $this->sendResponse($data);
-    }
-
+   
     public function paymentCallback(Request $request)
     {
         return $this->callback($request);

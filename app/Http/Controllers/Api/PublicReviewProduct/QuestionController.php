@@ -204,7 +204,9 @@ class QuestionController extends Controller
         }
         $parent_value = htmlspecialchars_decode($request->input('parent_value'));
 
-        $term = $request->input('term');
+        $value = $request->input('term');
+        $term=explode(" ",$value);
+
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
@@ -214,7 +216,12 @@ class QuestionController extends Controller
             ->where('global_question_id',$product->global_question_id)
             ->where('is_active',1)
             ->where('path',$parent_value)
-            ->where('value','like',"%$term%")
+            ->where(function ($query) use ($term)
+            {
+                foreach($term as $val){
+                    $query->orwhere("value",'like',"%$val%");
+                }
+            })
             ->get();
         return $this->sendResponse();
     }
