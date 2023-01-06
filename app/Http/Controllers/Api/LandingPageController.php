@@ -39,7 +39,7 @@ class LandingPageController extends Controller
     protected $feed_card_count = 0;
     protected $modelNotIncluded = [];
     protected $placeholderimage = [];
-
+    
     /**
      * Display a listing of the quick links.
      *

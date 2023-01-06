@@ -31,6 +31,7 @@ class BlockAccountController  extends Controller
     public function blockProfile(Request $request, $profile_id){
         $req_profile_id = $request->user()->profile->id;
         $block_profile = $request->block_profile ?? true;
+        
 
         if($block_profile){
             $already_blocked = BlockAccount::where('profile_id', $req_profile_id)
@@ -50,11 +51,12 @@ class BlockAccountController  extends Controller
         }
 
         if($data){
-            $success_msg = 'Unblocked successfully.';
+            $smallProfile = \App\V2\Profile::find($profile_id);
+            $success_msg = $smallProfile->name.' profile is unblocked';
             if($block_profile){
                 //Unfollow user from here
                 $this->unfollowProfile($request, $profile_id);
-                $success_msg = 'Blocked successfully.';
+                $success_msg = 'Successfully blocked';
             }
             return $this->sendNewResponse(['title'=>$success_msg, 'sub_title'=>'','description'=>'']);
         }else{
@@ -91,11 +93,14 @@ class BlockAccountController  extends Controller
         }
         
         if($data){
+            $company = Company::find($company_id);
+            $success_msg = $company->name.' profile is unblocked';
+
             $success_msg = 'Unblocked successfully.';
             if($block_company){
                 //Unfollow company from here
                 $this->unfollowCompany($request, $company_id);
-                $success_msg = 'Blocked successfully.';
+                $success_msg = 'Successfully blocked';
             }
             return $this->sendNewResponse(['title'=>$success_msg, 'sub_title'=>'','description'=>'']);
         }else{
