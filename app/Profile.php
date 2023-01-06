@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Redis;
+use App\BlockAccount\BlockAccount;
 
 class Profile extends Model
 {
@@ -39,7 +40,7 @@ class Profile extends Model
         'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training',
         'profile_occupations', 'profile_specializations'
     ];
-
+    
     protected $visible = [
         'id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
         'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',
@@ -499,6 +500,15 @@ class Profile extends Model
     
     public function getAccountDeactivatedAttribute(){
         return $this->user->account_deactivated ?? 1;
+    }
+
+    public function getIsBlockedAttribute(){
+        $is_blocked = false;
+        if(BlockAccount::where('profile_id', request()->user()->profile->id)
+        ->where('blocked_profile_id', $this->id)->whereNull('deleted_at')->exists()){
+           $is_blocked = true;
+        }
+        return $is_blocked;
     }
 
     public function getNameAttribute()
