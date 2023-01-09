@@ -289,7 +289,7 @@ class QuestionController extends Controller
         $parent_value = htmlspecialchars_decode($request->input('parent_value'));
 
         $value = $request->input('term');
-        $term=explode(" ",$value);
+        $term = explode(" ",$value);
 
         if (!$request->has('batch_id')) {
             return $this->sendError("No product id found");

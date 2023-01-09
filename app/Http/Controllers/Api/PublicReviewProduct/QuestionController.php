@@ -205,7 +205,7 @@ class QuestionController extends Controller
         $parent_value = htmlspecialchars_decode($request->input('parent_value'));
 
         $value = $request->input('term');
-        $term=explode(" ",$value);
+        $term = explode(" ",$value);
 
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
