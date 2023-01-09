@@ -212,10 +212,7 @@ class PollingController extends Controller
 
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
 
-        if ($checkVote) {
-            $this->model = [];
-            return $this->sendError("Poll can not be editable");
-        }
+       
 
         $data = $request->input(['title']) != null ? $request->input(['title']) : null;
         $options = $request->input(['options']);
@@ -347,10 +344,7 @@ class PollingController extends Controller
         }
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
 
-        if ($checkVote) {
-            $this->model = [];
-            return $this->sendError("Poll can not be editable");
-        }
+       
         $this->model = $poll->options()->where('id',$optionId)->update(['text'=>$request->input('text')]);
         $poll = Polling::find($pollId);
         $poll->addToCache();
@@ -383,10 +377,6 @@ class PollingController extends Controller
         }
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
 
-        if ($checkVote) {
-            $this->model = [];
-            return $this->sendError("Poll can not be editable");
-        }
 
         $options = $request->input('options');
 
