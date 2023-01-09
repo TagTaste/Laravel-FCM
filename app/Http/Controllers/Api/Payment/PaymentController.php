@@ -451,6 +451,39 @@ class PaymentController extends Controller
         return $this->sendResponse($data);
     }
 
+
+    public function enrollExpertProgram(Request $request)
+    {
+
+        //Send email to payment@tagtaste.com
+        //Keep user email in copy 
+        //Take mail template from tanvi or arun sir
+        $data = ["status" => true, "title" => "Success", "sub_title" => "Your enrolment has been successful. Our team will reach out to you with further details."];
+        $userData = Profile::where("profiles.id", $request->user()->profile->id)->leftJoin("profile_occupations", "profile_occupations.profile_id", "=", 'profiles.id')->leftJoin("occupations", "profile_occupations.occupation_id", "=", "occupations.id")
+            ->leftJoin("profile_specializations", "profile_specializations.profile_id", "=", 'profiles.id')->leftJoin("specializations", "profile_specializations.specialization_id", "=", "specializations.id")->select(["specializations.name as specialization", "occupations.name as job"])->first();
+        $str = [
+            "Name" => $request->user()->name,
+            "Email Address" => $request->user()->email,
+            "Contact No" => $request->user()->profile->phone,
+            "Job Profile" => ($userData->job ?? "N.A"),
+            "Specialisations" => ($userData->specialization ?? "N.A")
+        ];
+        $d = ["subject" => "You’ve received a new registration for enrolment as an Expert", "content" => $str];
+
+        $currentTime = Carbon::now()->toDateTimeString();        
+        //insert into db
+        \DB::table('sensory_workshop_request')->updateOrInsert(['profile_id'=>$request->user()->profile->id,'expert_request'=>1],['updated_at'=>$currentTime]);
+        
+        Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
+            $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Expert');
+        });
+
+        $links = Profile::where("id", $request->user()->profile->id)->first();
+        event(new TasterEnroll($links, null, ["name" => $request->user()->name]));
+
+        return $this->sendResponse($data);
+    }
+
    
     public function paymentCallback(Request $request)
     {
