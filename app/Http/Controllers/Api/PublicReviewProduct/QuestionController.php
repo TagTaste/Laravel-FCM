@@ -183,8 +183,15 @@ class QuestionController extends Controller
         if($product === null){
             return $this->sendError("Product not found.");
         }
+        $term = explode(" ",$term);
         $this->model['option'] = \DB::table('public_review_nested_options')->where('question_id',$questionId)
-            ->where('global_question_id',$product->global_question_id)->where('is_active',1)->where('value','like',"%$term%")->get();
+            ->where('global_question_id',$product->global_question_id)
+            ->where(function ($query) use ($term){
+                foreach($term as $val)
+                {
+                    $query->orWhere('value','like','%'.$val.'%');
+                }
+            })->get();
         return $this->sendResponse();
     }
 
@@ -219,7 +226,7 @@ class QuestionController extends Controller
             ->where(function ($query) use ($term)
             {
                 foreach($term as $val){
-                    $query->orwhere("value",'like',"%$val%");
+                    $query->orWhere("value",'like','%'.$val.'%');
                 }
             })
             ->get();
