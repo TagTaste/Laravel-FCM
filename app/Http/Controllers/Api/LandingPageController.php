@@ -39,7 +39,7 @@ class LandingPageController extends Controller
     protected $feed_card_count = 0;
     protected $modelNotIncluded = [];
     protected $placeholderimage = [];
-
+    
     /**
      * Display a listing of the quick links.
      *
@@ -48,7 +48,7 @@ class LandingPageController extends Controller
 
     public function quickLinks(Request $request)
     {
-
+        
         $this->errors['status'] = 0;
         $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
         if (($request->header('x-version') != null
@@ -146,7 +146,6 @@ class LandingPageController extends Controller
         $this->removeReportedPayloads($profileId);
         $payloads =  Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
-            ->whereNull('channel_payloads.deleted_at')
             ->whereNull('subscribers.deleted_at')
             ->whereNotIn('channel_payloads.id', $this->modelNotIncluded)
             ->where('channel_payloads.account_deactivated', 0)
@@ -845,7 +844,17 @@ class LandingPageController extends Controller
 
         if ($platform == 'mobile') {
             $links["ui_type"] = config("constant.LANDING_UI_TYPE.QUICK_LINKS");
-            $links["elements"] = DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->get();
+
+            $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
+            
+            if (($request->header('x-version') != null && $request->header('x-version') <= 171) ||
+                ($request->header('x-version-ios') != null && version_compare("5.0.14", $request->header('x-version-ios'), ">="))
+            ) {
+                $quick_links = $quick_links->where("model_name", "!=", config("constants.LANDING_MODEL.QUIZ"));
+            }
+            $quick_links = $quick_links->get();    
+            $links["elements"] = $quick_links;
+
             $this->model[] = $links;
         }
 
