@@ -1584,24 +1584,27 @@ class SurveyController extends Controller
             $idsAttemptMapping[$resume->profile_id][] = $resume->attempt;
         }
         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
-
+        
         if ($request->has('filters') && !empty($request->filters)) {
             $answers->whereIn('profile_id', $profileIds, 'and', $type);
         }
 
 
         $this->model = [];
-        $data = ["answer_count" => $answers->get()->count(), "report" => []];
+        $answersCompleted = $answers->get()->filter(function ($ans) use ($idsAttemptMapping) {
 
-        $this->model['count'] = $answers->count();
+            return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
+        });
+        $data = ["answer_count" => $answersCompleted->count(), "report" => []];
 
         $respondent = $answers->skip($skip)->take($take)
-            ->get();
+            ->get()->filter(function ($ans) use ($idsAttemptMapping) {
+
+                return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
+            });
 
         foreach ($respondent as $profile) {
-            if (isset($idsAttemptMapping[$profile->profile_id]) && in_array($profile->attempt, $idsAttemptMapping[$profile->profile_id])) {
-                continue;
-            }
+          
             $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
         }
 
@@ -2141,7 +2144,7 @@ class SurveyController extends Controller
                 } elseif ($answers->question_type <= config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
 
                     if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
-                        $ans .= $headers[$answers->profile_id][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
+                        $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
                     }
                     $ans .= html_entity_decode($answers->answer_value);
                 }
