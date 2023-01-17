@@ -22,9 +22,9 @@ class Polling extends Model implements Feedable
 
     protected $with = ['profile','company'];
 
-    protected $appends = ['options','owner','meta'];
+    protected $appends = ['options','owner','meta','poll_meta'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image_meta','type','preview'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image_meta','type','preview','poll_meta'];
 
     public static function boot()
     {
