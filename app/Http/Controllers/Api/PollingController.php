@@ -173,7 +173,7 @@ class PollingController extends Controller
             $this->model = PollingVote::insert($data);
             if($this->model)
             {
-                PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1]);
+                PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1,'updated_at' => \DB::raw('updated_at')]);
             }
         }
         $poll = Polling::find($pollId);
