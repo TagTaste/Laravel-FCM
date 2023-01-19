@@ -642,19 +642,39 @@ class SurveyController extends Controller
             }, $optionArray);
 
             $prepareQuestionJson = [];
+            $last_attempt = SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
+                ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
+
             if ($id->is_section) {    //check if section and make preparequestionjson accdng to that
+                $questionsWithoutLast = [];
                 $sectionJson = json_decode($id->form_json);
-               
+
+                if ($request->current_status ==  config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) { //check if last section ,all mandate questions to be filled
+                    $sectionWithoutLast =  array_pop($sectionJson);   //remove last section ques
+                    $questionsWithoutLast = array_column($sectionWithoutLast, "questions"); //storing questions except last section ques
+                    $questionsWithoutLast = $this->prepQuestionJson($questionsWithoutLast);
+
+                    $mandateQuestions =  array_map(function ($v) {
+                        if (isset($v["is_mandatory"]) && $v["is_mandatory"] == true) {
+                            return  $v["id"];
+                        }
+                    }, $questionsWithoutLast);
+                    $questionsAnswered =  SurveyAnswers::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)->where("attempt", $last_attempt)->whereNull("deleted_at")->pluck("question_id")->toArray();
+                    if (!empty(array_diff($mandateQuestions, $questionsAnswered))) {
+                        return $this->sendNewError("Please fill previous section mandatory questions!");
+                    }
+                }
+              
+
                 foreach ($sectionJson as $section) {
-                    $quesFromSection = array_column($section->questions,"id");
-                    
-                    if (isset($section->questions) && !empty($answerQuestionIds) && in_array($answerQuestionIds[0],$quesFromSection)) {
-                       
+                    $quesFromSection = array_column($section->questions, "id");
+
+                    if (isset($section->questions) && !empty($answerQuestionIds) && in_array($answerQuestionIds[0], $quesFromSection)) {
+
                         $prepareQuestionJson = $this->prepQuestionJson(json_encode($section->questions));
                         break;
                     }
                 }
-
             } else {
                 $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
             }
@@ -677,9 +697,6 @@ class SurveyController extends Controller
                 return $this->sendNewError("Mandatory Questions Cannot Be Blank");
             }
 
-
-            $last_attempt = SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
-                ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
             $answerAttempt = [];
             $answerAttempt["profile_id"] = $request->user()->profile->id;
             $answerAttempt["survey_id"] = $request->survey_id;
