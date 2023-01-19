@@ -647,24 +647,27 @@ class SurveyController extends Controller
 
             if ($id->is_section) {    //check if section and make preparequestionjson accdng to that
                 $questionsWithoutLast = [];
-                $sectionJson = json_decode($id->form_json);
+                $sectionWithoutLast = $sectionJson = json_decode($id->form_json);
 
                 if ($request->current_status ==  config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) { //check if last section ,all mandate questions to be filled
-                    $sectionWithoutLast =  array_pop($sectionJson);   //remove last section ques
-                    $questionsWithoutLast = array_column($sectionWithoutLast, "questions"); //storing questions except last section ques
-                    $questionsWithoutLast = $this->prepQuestionJson($questionsWithoutLast);
+                    array_pop($sectionWithoutLast);   //remove last section ques
+                    foreach ($sectionWithoutLast as $section) {
+                        $questionsWithoutLast = array_merge($questionsWithoutLast, $section->questions);
+                    }
+                    $questionsWithoutLast = $this->prepQuestionJson(json_encode($questionsWithoutLast));
 
                     $mandateQuestions =  array_map(function ($v) {
                         if (isset($v["is_mandatory"]) && $v["is_mandatory"] == true) {
                             return  $v["id"];
                         }
                     }, $questionsWithoutLast);
-                    $questionsAnswered =  SurveyAnswers::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)->where("attempt", $last_attempt)->whereNull("deleted_at")->pluck("question_id")->toArray();
+
+                    $questionsAnswered =  SurveyAnswers::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)->where("attempt", $last_attempt->attempt)->whereNull("deleted_at")->pluck("question_id")->toArray();
+                    $mandateQuestions = array_values(array_filter($mandateQuestions));
                     if (!empty(array_diff($mandateQuestions, $questionsAnswered))) {
                         return $this->sendNewError("Please fill previous section mandatory questions!");
                     }
                 }
-              
 
                 foreach ($sectionJson as $section) {
                     $quesFromSection = array_column($section->questions, "id");
@@ -678,11 +681,11 @@ class SurveyController extends Controller
             } else {
                 $prepareQuestionJson = $this->prepQuestionJson($id->form_json);
             }
-            
+
             $answerQuestionIds =  array_map(function ($vi) {  //question ids from answer json where answer option id exists
-                return  (isset($vi["options"]) && !empty($vi["options"]))?$vi["question_id"]:null;
+                return (isset($vi["options"]) && !empty($vi["options"])) ? $vi["question_id"] : null;
             }, $optionArray);
-            $answerQuestionIds = array_filter($answerQuestionIds);
+            $answerQuestionIds = array_values(array_filter($answerQuestionIds));
 
             $mandateQuestions = [];
             $mandateQuestions =  array_map(function ($v) {
@@ -690,9 +693,9 @@ class SurveyController extends Controller
                     return  $v["id"];
                 }
             }, $prepareQuestionJson);
-           
+
             $mandateQuestions = array_values(array_filter($mandateQuestions));
-            
+
             if (!empty(array_diff($mandateQuestions, $answerQuestionIds))) {
                 return $this->sendNewError("Mandatory Questions Cannot Be Blank");
             }
@@ -739,7 +742,7 @@ class SurveyController extends Controller
                     ->first();
                 if (!empty($answerExists)) {
                     SurveyAnswers::where('survey_id', $request->survey_id)
-                        ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])->where("attempt", $last_attempt)->update(["deleted_at" => date("Y-m-d H:i:s"),"is_active" => 0]);
+                        ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])->where("attempt", $last_attempt)->update(["deleted_at" => date("Y-m-d H:i:s"), "is_active" => 0]);
                 }
 
                 if (isset($values["options"]) && !empty($values["options"])) {
@@ -791,7 +794,7 @@ class SurveyController extends Controller
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
-                $completion_date = isset($checkApplicant)?$checkApplicant->completion_date:null;
+                $completion_date = isset($checkApplicant) ? $checkApplicant->completion_date : null;
                 //when completed update completion_date in mapping table
                 if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $completion_date = date("Y-m-d H:i:s");
@@ -808,8 +811,8 @@ class SurveyController extends Controller
 
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true && $request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                if(!($id->multi_submission)){
-                $responseData = $this->paidProcessing($request);
+                if (!($id->multi_submission)) {
+                    $responseData = $this->paidProcessing($request);
                 }
                 $id->addToGraph();
                 $id->addParticipationEdge($request->user()->profile->id); //Add edge to neo4j
@@ -1601,7 +1604,7 @@ class SurveyController extends Controller
             $idsAttemptMapping[$resume->profile_id][] = $resume->attempt;
         }
         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
-        
+
         if ($request->has('filters') && !empty($request->filters)) {
             $answers->whereIn('profile_id', $profileIds, 'and', $type);
         }
@@ -1621,7 +1624,7 @@ class SurveyController extends Controller
             });
 
         foreach ($respondent as $profile) {
-          
+
             $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
         }
 
@@ -1972,6 +1975,7 @@ class SurveyController extends Controller
         if (is_array($decode)) {
 
             $Ar = [];
+
             foreach ($decode as $values) {
                 $Ar[$values["id"]] = $values;
             }
