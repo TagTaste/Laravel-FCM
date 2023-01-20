@@ -646,27 +646,11 @@ class SurveyController extends Controller
                 ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
 
             if ($id->is_section) {    //check if section and make preparequestionjson accdng to that
-                $questionsWithoutLast = [];
-                $sectionWithoutLast = $sectionJson = json_decode($id->form_json);
+                 $sectionJson = json_decode($id->form_json);
 
-                if ($request->current_status ==  config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) { //check if last section ,all mandate questions to be filled
-                    array_pop($sectionWithoutLast);   //remove last section ques
-                    foreach ($sectionWithoutLast as $section) {
-                        $questionsWithoutLast = array_merge($questionsWithoutLast, $section->questions);
-                    }
-                    $questionsWithoutLast = $this->prepQuestionJson(json_encode($questionsWithoutLast));
-
-                    $mandateQuestions =  array_map(function ($v) {
-                        if (isset($v["is_mandatory"]) && $v["is_mandatory"] == true) {
-                            return  $v["id"];
-                        }
-                    }, $questionsWithoutLast);
-
-                    $questionsAnswered =  SurveyAnswers::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)->where("attempt", $last_attempt->attempt)->whereNull("deleted_at")->pluck("question_id")->toArray();
-                    $mandateQuestions = array_values(array_filter($mandateQuestions));
-                    if (!empty(array_diff($mandateQuestions, $questionsAnswered))) {
-                        return $this->sendNewError("Please fill previous section mandatory questions!");
-                    }
+                if ($request->current_status ==  config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) { //check if last section ,all mandate questions to be filled
+                     return $this->sendNewError("Please fill previous section mandatory questions!");
+       
                 }
 
                 foreach ($sectionJson as $section) {
