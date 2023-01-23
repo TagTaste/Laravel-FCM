@@ -270,6 +270,7 @@ class PollingController extends Controller
 
         $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion, 'preview'=>$preview]);
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
