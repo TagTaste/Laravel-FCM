@@ -646,13 +646,35 @@ class SurveyController extends Controller
                 ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
 
             if ($id->is_section) {    //check if section and make preparequestionjson accdng to that
-                 $sectionJson = json_decode($id->form_json);
+                $questionsWithoutLast = [];
+                $sectionJson = json_decode($id->form_json);
+                $sectionCount = count($sectionJson);
 
-                if ($request->current_status ==  config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) { //check if last section ,all mandate questions to be filled
-                     return $this->sendNewError("Please fill previous section mandatory questions!");
-       
+                if ($request->current_status ==  config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) { //check if last section ,all mandate questions to be filled
+
+                    if ($checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && $sectionCount != 1) {     //1 CASE-WHEN APPLICANT COMPLETED ALREAY AND SECTION COUNT NOT 1
+                        return $this->sendNewError("Plaese fill ALL mandatory questions!");
+                    } elseif ($checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"))       //2 CASE-WHEN APPLICANT IN PROGRESS,CHECK DB ANSWERS
+                        array_pop($sectionWithoutLast);   //remove last section ques
+                    foreach ($sectionWithoutLast as $section) {
+                        $questionsWithoutLast = array_merge($questionsWithoutLast, $section->questions);
+                    }
+                    $questionsWithoutLast = $this->prepQuestionJson(json_encode($questionsWithoutLast));
+
+                    $mandateQuestions =  array_map(function ($v) {
+                        if (isset($v["is_mandatory"]) && $v["is_mandatory"] == true) {
+                            return  $v["id"];
+                        }
+                    }, $questionsWithoutLast);
+
+                    $questionsAnswered =  SurveyAnswers::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)->where("attempt", $last_attempt->attempt)->whereNull("deleted_at")->pluck("question_id")->toArray();
+                    $mandateQuestions = array_values(array_filter($mandateQuestions));
+                    if (!empty(array_diff($mandateQuestions, $questionsAnswered))) {
+                        return $this->sendNewError("Please fill ALL mandatory questions!");
+                    }
                 }
 
+                //CHECK FOR EVERY SECTION,MANADTORY QUESTIONS ANSWERED OR NOT
                 foreach ($sectionJson as $section) {
                     $quesFromSection = array_column($section->questions, "id");
 
@@ -1357,7 +1379,7 @@ class SurveyController extends Controller
                     $getOldJson = $this->prepQuestionJson($getOldJson["form_json"]); //old section array
                     foreach ($getOldJson as $value) {
                         if (isset($value["questions"])) {
-                           // $maxQueId += count($value["questions"]);
+                            // $maxQueId += count($value["questions"]);
                             $oldJsonArray = array_merge($oldJsonArray, $value["questions"]);
                         }
                     }
