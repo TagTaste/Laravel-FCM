@@ -1357,7 +1357,7 @@ class SurveyController extends Controller
                     $getOldJson = $this->prepQuestionJson($getOldJson["form_json"]); //old section array
                     foreach ($getOldJson as $value) {
                         if (isset($value["questions"])) {
-                            $maxQueId += count($value["questions"]);
+                           // $maxQueId += count($value["questions"]);
                             $oldJsonArray = array_merge($oldJsonArray, $value["questions"]);
                         }
                     }
@@ -1365,11 +1365,10 @@ class SurveyController extends Controller
 
                 } else {
                     $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
-                    $listOfQuestionIds = array_keys($oldJsonArray);
-
-                    $maxQueId = max($listOfQuestionIds);
-                    $maxQueId++;
                 }
+                $listOfQuestionIds = array_keys($oldJsonArray);
+                $maxQueId = max($listOfQuestionIds);
+                $maxQueId++;
             }
 
             if ($section) {
