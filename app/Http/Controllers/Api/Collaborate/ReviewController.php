@@ -337,7 +337,6 @@ class ReviewController extends Controller
         $page = request()->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $query = Review::join("collaborates", "collaborates.id", "collaborate_tasting_user_review.collaborate_id")->selectRaw('count(DISTINCT batch_id) as count,collaborate_id,title,images_meta,collaborates.profile_id,company_id')->where("collaborate_tasting_user_review.profile_id", $profileId)->where("current_status", 3)->where("collaborate_type", "product-review")->groupBy("collaborate_id")->orderBy("collaborate_tasting_user_review.updated_at", "desc");
-        $count = $query->get()->count();
         $productUserReviewed = $query->skip($skip)->take($take)
         ->get();
 
@@ -346,7 +345,6 @@ class ReviewController extends Controller
         }
 
         $data["collaborates"] = [];
-       
         foreach ($productUserReviewed as $reviewedProduct) {
             
             $reviewedProduct->images_meta = json_decode($reviewedProduct->images_meta);
@@ -360,7 +358,6 @@ class ReviewController extends Controller
             $item["meta"]["total_product_reviewed"] = $reviewedProduct->count;
             $data["collaborates"][] = $item;
         }
-        $data["total_count"] = $count;
 
         return $this->sendNewResponse($data);
     }

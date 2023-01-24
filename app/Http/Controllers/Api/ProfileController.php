@@ -1223,8 +1223,11 @@ class ProfileController extends Controller
     {
 
         $productCount =  \DB::table('public_product_user_review')->where('profile_id', $profileId)->where('current_status', 2)->groupBy("product_id")->get()->count();
-        $collabProductCount = \DB::table('collaborate_tasting_user_review')->where('profile_id', $profileId)->where('current_status', 3)->groupBy("collaborate_id")->get()->count();
+        $collabProductCount = \DB::table('collaborate_tasting_user_review')->where('profile_id', $profileId)->where('current_status', 3)->groupBy("batch_id")->get()->count();
         $total["total_review_count"] = ($productCount + $collabProductCount);
+        $total["public_review"] = $productCount;
+        $total["private_review"] = $collabProductCount;
+
         return $this->sendNewResponse($total);
     }
 }
