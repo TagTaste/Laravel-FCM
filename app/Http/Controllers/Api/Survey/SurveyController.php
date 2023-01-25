@@ -653,7 +653,7 @@ class SurveyController extends Controller
                 if ($request->current_status ==  config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && isset($checkApplicant)) { //check if last section ,all mandate questions to be filled
 
                     if ($checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && $sectionCount != 1) {     //1 CASE-WHEN APPLICANT COMPLETED ALREAY AND SECTION COUNT NOT 1
-                        return $this->sendNewError("You missed some of the previou sections to fill. Please take a look back.");
+                        return $this->sendNewError("You missed some of the previous sections to fill. Please take a look back.");
                     } elseif ($checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"))       //2 CASE-WHEN APPLICANT IN PROGRESS,CHECK DB ANSWERS
                     {
                         array_pop($sectionWithoutLast);   //remove last section ques
