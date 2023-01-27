@@ -1083,6 +1083,7 @@ class SurveyController extends Controller
                     $count++;
                 }
             } elseif (isset($values["multiOptions"])) {
+                $rowIndex = 0;
                 foreach ($values["multiOptions"]['row'] as $row) {
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")) {
                         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $row['id'])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
@@ -1102,16 +1103,19 @@ class SurveyController extends Controller
 
                     $ar = array_values(array_filter($ans));
                     $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
-                    $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["id"] = $row['id'];
-                    $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["value"] = $row["title"];
+                    $prepareNode["reports"][$counter]["options"][$rowIndex]["id"] = $row['id'];
+                    $prepareNode["reports"][$counter]["options"][$rowIndex]["value"] = $row["title"];
+                    $colIndex = 0;
                     foreach ($values["multiOptions"]['column'] as $column) {
-                        $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["column"][$column['id'] - 1]["id"] = $column['id'];
-                        $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["column"][$column['id'] - 1]["value"] = $column['title'];
-                        $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["column"][$column['id'] - 1]["option_type"] = 0;
-                        $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["column"][$column['id'] - 1]["color_code"] = (isset($colorCodeList[$row["id"]]) ? $colorCodeList[$row["id"]] : "#fcda02");;
-                        $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["column"][$column['id'] - 1]["answer_count"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["count"] : 0);
-                        $prepareNode["reports"][$counter]["options"][$row['id'] - 1]["column"][$column['id'] - 1]["answer_percentage"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["avg"] : 0);
+                        $prepareNode["reports"][$counter]["options"][$rowIndex]["column"][$colIndex]["id"] = $column['id'];
+                        $prepareNode["reports"][$counter]["options"][$rowIndex]["column"][$colIndex]["value"] = $column['title'];
+                        $prepareNode["reports"][$counter]["options"][$rowIndex]["column"][$colIndex]["option_type"] = 0;
+                        $prepareNode["reports"][$counter]["options"][$rowIndex]["column"][$colIndex]["color_code"] = (isset($colorCodeList[$row["id"]]) ? $colorCodeList[$row["id"]] : "#fcda02");;
+                        $prepareNode["reports"][$counter]["options"][$rowIndex]["column"][$colIndex]["answer_count"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["count"] : 0);
+                        $prepareNode["reports"][$counter]["options"][$rowIndex]["column"][$colIndex]["answer_percentage"] = (isset($getAvg[$column['id']]) ? $getAvg[$column['id']]["avg"] : 0);
+                        $colIndex++;
                     }
+                    $rowIndex++;
                 }
             } else {
                 $optCounter = 0;
