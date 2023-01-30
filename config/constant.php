@@ -21,7 +21,7 @@ return  [
         "yold"
     ],
     "SURVEY_APPLICANT_ANSWER_STATUS" => [
-        "INVITED" => 0,
+        "TO_BE_NOTIFIED" => 0,
         "INCOMPLETE" => 1,
         "COMPLETED" => 2,
         "INPROGRESS" => 3

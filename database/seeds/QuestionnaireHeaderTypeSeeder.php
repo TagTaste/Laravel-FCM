@@ -17,6 +17,10 @@ class QuestionnaireHeaderTypeSeeder extends Seeder
         
         $data[] = ['title'=>'Normal Header','header_selection_type'=>1,'header_slug'=>'normal_header','is_active'=>1, 'sort_order'=>2, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
         
+        $data[] = ['title'=>'Product Experience Header','header_selection_type'=>2,'header_slug'=>'product_experience','is_active'=>1, 'sort_order'=>3, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
+        
+        $data[] = ['title'=>'Food Shot Header','header_selection_type'=>3,'header_slug'=>'bill_shot','is_active'=>1, 'sort_order'=>2, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
+
         \DB::table('questionnaire_header_types')->insert($data);
     }
 }

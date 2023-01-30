@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Twilio\Rest\Client as TwilioClient;
 use Twilio\Jwt\ClientToken;
+use App\BlockAccount\BlockAccount;
 
 class ProfileController extends Controller
 {
@@ -54,7 +55,6 @@ class ProfileController extends Controller
         // $profile = \App\Profile\User::where('account_deactivated', false)->whereHas("profile", function ($query) use ($id) {
         //     $query->where('id', $id);
         // })->first();
-
         $profile = \App\Profile\User::where('account_deactivated', false)->whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
@@ -76,6 +76,12 @@ class ProfileController extends Controller
 
         $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($loggedInProfileId, $id);
 
+        $this->model['profile']['is_blocked'] = false;
+        if(BlockAccount::where('profile_id', $loggedInProfileId)
+        ->where('blocked_profile_id', $id)->whereNull('deleted_at')->exists()){
+            $this->model['profile']['is_blocked'] = true;
+        }
+        
         return $this->sendResponse();
     }
 

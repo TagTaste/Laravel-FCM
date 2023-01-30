@@ -13,32 +13,15 @@ class QuestionnaireIntensityListSeeder extends Seeder
     public function run()
     {
         //
-        $intensityList = [['title'=>'5 Point Scale', 'sort_order'=>1,'intensity_value'=>[
-            ['title'=>'Dislike Moderately','color'=>'#C92E41','sort_order'=>1],
-            ['title'=>'Dislike Slightly','color'=>'#C92E41','sort_order'=>2],
-            ['title'=>"Can't Say",'color'=>"#E27616",'sort_order'=>3],
-            ['title'=>'Like Slightly','color'=>'#C92E41','sort_order'=>4],
-            ['title'=>'Like Moderately','color'=>'#7E9B42','sort_order'=>5],
-        ]],
+        $intensityList = [
         ['title'=>'7 Point Scale', 'sort_order'=>1,'intensity_value'=>[
-            ['title'=>'Dislike Extremely','color'=>'#8C0008','sort_order'=>1],
-            ['title'=>'Dislike Moderately','color'=>'#C92E41','sort_order'=>2],
-            ['title'=>'Dislike Slightly','color'=>'#C92E41','sort_order'=>3],
-            ['title'=>"Can't Say",'color'=>"#E27616",'sort_order'=>4],
-            ['title'=>'Like Slightly','color'=>'#C92E41','sort_order'=>5],
-            ['title'=>'Like Moderately','color'=>'#7E9B42','sort_order'=>6],
-            ['title'=>'Like Extremely','color'=>'#305D03','sort_order'=>7]
-        ]],
-        ['title'=>'9 Point Scale', 'sort_order'=>1,'intensity_value'=>[
-            ['title'=>'Best','color'=>'#305F04','sort_order'=>1],
-            ['title'=>'Dislike Extremely','color'=>'#8C0008','sort_order'=>2],
-            ['title'=>'Dislike Moderately','color'=>'#C92E41','sort_order'=>3],
-            ['title'=>'Dislike Slightly','color'=>'#C92E41','sort_order'=>4],
-            ['title'=>"Can't Say",'color'=>"#E27616",'sort_order'=>5],
-            ['title'=>'Like Slightly','color'=>'#C92E41','sort_order'=>6],
-            ['title'=>'Like Moderately','color'=>'#7E9B42','sort_order'=>7],
-            ['title'=>'Like Extremely','color'=>'#305D03','sort_order'=>8],
-            ['title'=>'Worst','color'=>'#305E06','sort_order'=>9]
+            ['title'=>'Barely Detectable','color'=>'#FCEFCC','sort_order'=>1],
+            ['title'=>'Weak','color'=>'#FAE7B2','sort_order'=>2],
+            ['title'=>'Mild','color'=>'#F9DF99','sort_order'=>3],
+            ['title'=>"Moderate",'color'=>"#F7D77F",'sort_order'=>4],
+            ['title'=>'Intense','color'=>'#F4C74C','sort_order'=>5],
+            ['title'=>'Very Intense','color'=>'#F2BC26','sort_order'=>6],
+            ['title'=>'Extremely Intense','color'=>'#EDAE00','sort_order'=>7]
         ]]];
 
         foreach($intensityList as $intensity){
