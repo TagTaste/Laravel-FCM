@@ -58,7 +58,7 @@ class ProfileController extends Controller
         $profile = \App\Profile\User::where('account_deactivated', false)->whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
-        
+
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }
@@ -500,11 +500,11 @@ class ProfileController extends Controller
     public function followers(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        
+
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:" . $id);
 
-        $deac_profiles = User::join('profiles','users.id','=','profiles.user_id')->whereNull('users.deleted_at')->where('users.account_deactivated',1)->pluck('profiles.id')->toArray();
+        $deac_profiles = User::join('profiles', 'users.id', '=', 'profiles.user_id')->whereNull('users.deleted_at')->where('users.account_deactivated', 1)->pluck('profiles.id')->toArray();
 
         $profileIds = array_diff($profileIds, $deac_profiles);
 
@@ -517,7 +517,7 @@ class ProfileController extends Controller
 
         $page = $request->has('page') ? $request->input('page') : 1;
         $profileIds = array_slice($profileIds, ($page - 1) * 20, 20);
-        
+
         foreach ($profileIds as $key => $value) {
             if ($id == $value) {
                 unset($profileIds[$key]);
@@ -692,7 +692,7 @@ class ProfileController extends Controller
         $this->model['profile'] = $data;
         return $this->sendResponse();
     }
-    
+
     public function tagging(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
@@ -701,7 +701,7 @@ class ProfileController extends Controller
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \App\Recipe\Profile::select('profiles.*')->join('users', 'profiles.user_id', '=', 'users.id')
-        ->where('users.account_deactivated',0)->where('users.name', 'like', "%$query%")
+            ->where('users.account_deactivated', 0)->where('users.name', 'like', "%$query%")
             ->whereIn('profiles.id', $profileIds)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
@@ -839,7 +839,7 @@ class ProfileController extends Controller
 
             $mail = (new \App\Jobs\EmailVerification($alreadyVerified))->onQueue('emails');
             \Log::info('Queueing Verified Email...');
-            
+
             dispatch($mail);
             $this->model = true;
             return $this->sendResponse();
@@ -870,9 +870,9 @@ class ProfileController extends Controller
                     $number = substr($number, 3);
                 }
                 $otp = \DB::table('profiles')->where('id', $request->user()->profile->id)->first();
-                
+
                 $otpNo = mt_rand(100000, 999999);
-                
+
                 // $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
                 $text = $otpNo . " is your OTP to verify your number with TagTaste.";
 
@@ -1223,5 +1223,17 @@ class ProfileController extends Controller
 
         // $data['companies'] = $this->getCompany($request);
         return response()->json($data);
+    }
+
+    public function getMeta($profileId)
+    {
+
+        $productCount =  \DB::table('public_product_user_review')->where('profile_id', $profileId)->where('current_status', 2)->groupBy("product_id")->get()->count();
+        $collabProductCount = \DB::table('collaborate_tasting_user_review')->where('profile_id', $profileId)->where('current_status', 3)->groupBy("batch_id")->get()->count();
+        $total["total_review_count"] = ($productCount + $collabProductCount);
+        $total["public_review"] = $productCount;
+        $total["private_review"] = $collabProductCount;
+
+        return $this->sendNewResponse($total);
     }
 }

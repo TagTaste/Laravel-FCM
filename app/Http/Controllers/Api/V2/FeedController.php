@@ -108,6 +108,8 @@ class FeedController extends Controller
         }
         
         
+       
+        
         $payloads = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
             ->whereNull('subscribers.deleted_at')

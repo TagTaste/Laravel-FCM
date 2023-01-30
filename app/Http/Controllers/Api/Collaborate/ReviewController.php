@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\Collaborate;
 
+use App\Collaborate;
+use App\Collaborate\Applicant;
 use App\Collaborate\Review;
 use App\Collaborate\ReviewHeader;
+use App\Company;
 use App\Events\TransactionInit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -365,5 +368,36 @@ class ReviewController extends Controller
         }
 
         return ["status" => false];
+    }
+
+    public function getReviews($profileId)
+    {
+
+        $page = request()->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $query = Review::join("collaborates", "collaborates.id", "collaborate_tasting_user_review.collaborate_id")->selectRaw('count(DISTINCT batch_id) as count,collaborate_id,title,images_meta,collaborates.profile_id,company_id')->where("collaborate_tasting_user_review.profile_id", $profileId)->where("current_status", 3)->where("collaborate_type", "product-review")->groupBy("collaborate_id")->orderBy("collaborate_tasting_user_review.updated_at", "desc");
+        $productUserReviewed = $query->skip($skip)->take($take)
+        ->get();
+
+        if (empty($productUserReviewed)) {
+            $this->sendNewError("User Has not participated in any product reviews");
+        }
+
+        $data["collaborates"] = [];
+        foreach ($productUserReviewed as $reviewedProduct) {
+            
+            $reviewedProduct->images_meta = json_decode($reviewedProduct->images_meta);
+            $collaborate["id"] = $reviewedProduct->collaborate_id;
+            $collaborate["title"] = $reviewedProduct->title;
+            $collaborate["images_meta"] = $reviewedProduct->images_meta;
+            $collaborate["profile"] = $reviewedProduct->profile;
+            $collaborate["company"] =  isset($reviewedProduct->company)?$reviewedProduct->company:null;
+
+            $item["collaboration"] = $collaborate;
+            $item["meta"]["total_product_reviewed"] = $reviewedProduct->count;
+            $data["collaborates"][] = $item;
+        }
+
+        return $this->sendNewResponse($data);
     }
 }
