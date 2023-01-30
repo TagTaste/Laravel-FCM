@@ -28,14 +28,16 @@ class Surveys extends Model implements Feedable
     public $incrementing = false;
 
 
-    protected $fillable = ["id","profile_id","company_id","privacy_id","title","description","image_meta","video_meta","form_json","profile_updated_by","invited_profile_ids","expired_at","is_active","state","deleted_at","published_at","is_private","is_section"];
-    
-    protected $with = ['profile','company'];
-    
-    protected $appends = ['owner','meta',"closing_reason",'mandatory_fields','totalApplicants'];
+    protected $fillable = ["id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "video_meta", "form_json", "multi_submission", "profile_updated_by", "invited_profile_ids", "expired_at", "is_active", "state", "deleted_at", "published_at", "is_private", "is_section"];
 
-    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants","is_section"];
+    protected $with = ['profile', 'company'];
+
+    protected $appends = ['owner', 'meta', "closing_reason", 'mandatory_fields', 'totalApplicants'];
+
+    protected $visible = [
+        "id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "form_json",
+        "video_meta", "state", "multi_submission", "expired_at", "published_at", "profile", "company", "created_at", "updated_at", "is_private", "totalApplicants", "is_section"
+    ];
 
     protected $cast = [
         "form_json" => 'array',
@@ -59,6 +61,7 @@ class Surveys extends Model implements Feedable
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'is_private' => $this->is_private,
+            'multi_submission' => $this->multi_submission,
         ];
 
         Redis::set("surveys:" . $this->id, json_encode($data));
@@ -96,10 +99,10 @@ class Surveys extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
 
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('application_status', 2)->get()->count();
+        $meta['answerCount'] = SurveyAttemptMapping::where("survey_id",$this->id)->whereNotNull("completion_date")->whereNull("deleted_at")->get()->count();
         $meta['isReported'] =  $this->isSurveyReported();
 
-        $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
+        $reviewed = SurveyAttemptMapping::where("survey_id",$this->id)->where("profile_id",$profileId)->whereNotNull("completion_date")->orderBy("completion_date","desc")->first();
         // $meta['review_dump'] = $reviewed;
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
@@ -110,8 +113,7 @@ class Surveys extends Model implements Feedable
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-
-
+        $meta['submissionCount'] = (!empty($reviewed) ? $reviewed->attempt : 0);
         return $meta;
     }
 
@@ -125,11 +127,11 @@ class Surveys extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
-        $meta['answerCount'] = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('application_status', 2)->get()->count();
+        $meta['answerCount'] =  SurveyAttemptMapping::where("survey_id",$this->id)->whereNotNull("completion_date")->whereNull("deleted_at")->get()->count();
         $meta['isReported'] =  $this->isSurveyReported();
 
 
-        $reviewed = \DB::table('survey_applicants')->where('survey_id', $this->id)->where('profile_id', $profileId)->where('application_status', 2)->first();
+        $reviewed = SurveyAttemptMapping::where("survey_id",$this->id)->where("profile_id",$profileId)->whereNotNull("completion_date")->orderBy("completion_date","desc")->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
 
@@ -140,7 +142,7 @@ class Surveys extends Model implements Feedable
 
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-
+        $meta['submissionCount'] = (!empty($reviewed) ? $reviewed->attempt : 0);
 
         return $meta;
     }
@@ -226,22 +228,22 @@ class Surveys extends Model implements Feedable
         $title = "TagTaste | " . $this->title . " | Survey";
         $description = "";
         if (!is_null($this->description)) {
-            $description = mb_convert_encoding(substr(htmlspecialchars_decode($this->description), 0, 160),'UTF-8', 'UTF-8') . "...";
+            $description = mb_convert_encoding(substr(htmlspecialchars_decode($this->description), 0, 160), 'UTF-8', 'UTF-8') . "...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
-        
+
         $image = null;
-        if(gettype($this->image_meta) != 'array'){
+        if (gettype($this->image_meta) != 'array') {
             $this->image_meta = json_decode($this->image_meta, true);
         }
-        
-        if(isset($this->image_meta) && $this->image_meta != null && $this->image_meta != ''){
+
+        if (isset($this->image_meta) && $this->image_meta != null && $this->image_meta != '') {
             $image = $this->image_meta[0]['original_photo'] ?? null;
         }
-        
-        
-        
+
+
+
         $seo_tags = [
             "title" => $title,
             "meta" => array(
@@ -299,7 +301,7 @@ class Surveys extends Model implements Feedable
             ->where('surveys_mandatory_fields_mapping.survey_id', $this->id)
             ->get()->toArray();
     }
-  
+
 
     public function getTotalApplicantsAttribute()
     {
@@ -313,23 +315,26 @@ class Surveys extends Model implements Feedable
                 $c = true;
             }
         }
-        if($this->is_private == 1 && ($c || request()->user()->profile->id==$this->profile_id)){
+        if ($this->is_private == 1 && ($c || request()->user()->profile->id == $this->profile_id)) {
             return \DB::table('survey_applicants')->where('survey_id', $this->id)->whereNull('deleted_at')->get()->count();
         }
-        
+
         return 0;
     }
 
-    public function addToGraph(){        
-        $data = ['id'=>$this->id, 
-        'survey_id'=>$this->id,
-        'title'=>substr($this->title, 0, 150), 
-        'state'=>$this->state,
-        'profile_id'=>$this->profile_id,
-        'company_id'=>$this->company_id,
-        'payload_id'=>$this->payload_id,
-        'created_at'=>$this->created_at];
-        
+    public function addToGraph()
+    {
+        $data = [
+            'id' => $this->id,
+            'survey_id' => $this->id,
+            'title' => substr($this->title, 0, 150),
+            'state' => $this->state,
+            'profile_id' => $this->profile_id,
+            'company_id' => $this->company_id,
+            'payload_id' => $this->payload_id,
+            'created_at' => $this->created_at
+        ];
+
         $survey = \App\Neo4j\Surveys::where('survey_id', $data['id'])->first();
         if (!$survey) {
             \App\Neo4j\Surveys::create($data);
@@ -339,11 +344,12 @@ class Surveys extends Model implements Feedable
         }
     }
 
-    public function addParticipationEdge($profileId){
+    public function addParticipationEdge($profileId)
+    {
         $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
         $survey = \App\Neo4j\Surveys::where('survey_id', $this->id)->first();
         if ($userProfile && $survey) {
-            $isUserParticipated = $userProfile->survey_participated->where('survey_id',$this->id)->first();
+            $isUserParticipated = $userProfile->survey_participated->where('survey_id', $this->id)->first();
             if (!$isUserParticipated) {
                 $relation = $userProfile->survey_participated()->attach($survey);
                 $relation->save();
@@ -354,11 +360,12 @@ class Surveys extends Model implements Feedable
         }
     }
 
-    public function removeFromGraph(){        
+    public function removeFromGraph()
+    {
         $surveyCount = \App\Neo4j\Surveys::where('survey_id', $this->id)->count();
         if ($surveyCount > 0) {
             $client = config('database.neo4j_uri_client');
-             $query = "MATCH (p:Surveys{survey_id:'$this->id'})
+            $query = "MATCH (p:Surveys{survey_id:'$this->id'})
                         DETACH DELETE p;";
             $result = $client->run($query);
         }
