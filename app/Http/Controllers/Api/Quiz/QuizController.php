@@ -1162,18 +1162,19 @@ class QuizController extends Controller
             return $this->sendNewError("user has not attempted the quiz");
         }
         $result = $this->calculateScore($id);
+        $data["title"] = $quiz->title;
         if ($result['score'] < 33) {
-            $data['title'] = "Better luck next time";
-            $data['sub_title'] = "Keep striving for improvement";
+            $data['helper'] = "Better luck next time";
+            $data['subtitle'] = "Keep striving for improvement";
         } else if ($result['score']>= 33 && $result['score'] < 66) {
-            $data['title'] = "You're on the right track";
-            $data['sub_title'] = "Good effort, but you can do better";
+            $data['helper'] = "You're on the right track";
+            $data['subtitle'] = "Good effort, but you can do better";
         } else if ($result['score'] >= 66 && $result['score'] < 100) {
-            $data['title'] = "Well done";
-            $data['sub_title'] = "You are on the right path to mastery";
+            $data['helper'] = "Well done";
+            $data['subtitle'] = "You are on the right path to mastery";
         } else {
-            $data['title'] = "Congratulations";
-            $data['sub_title'] = "Amazing, you got every answer right";
+            $data['helper'] = "Congratulations";
+            $data['subtitle'] = "Amazing, you got every answer right";
         }
         $data["score_text"] = $result["score"] . "% Score";
         $data["total"] = $result["total"];
