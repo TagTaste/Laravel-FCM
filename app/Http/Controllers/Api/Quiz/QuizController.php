@@ -1163,15 +1163,19 @@ class QuizController extends Controller
         }
         $result = $this->calculateScore($id);
         if ($result['score'] < 33) {
+            $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.0");
             $data['title'] = "Better luck next time";
             $data['sub_title'] = "Keep striving for improvement";
         } else if ($result['score']>= 33 && $result['score'] < 66) {
+            $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.1");
             $data['title'] = "You're on the right track";
             $data['sub_title'] = "Good effort, but you can do better";
         } else if ($result['score'] >= 66 && $result['score'] < 100) {
+            $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.2");
             $data['title'] = "Well done";
             $data['sub_title'] = "You are on the right path to mastery";
         } else {
+            $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.3");
             $data['title'] = "Congratulations";
             $data['sub_title'] = "Amazing, you got every answer right";
         }
@@ -1179,7 +1183,6 @@ class QuizController extends Controller
         $data["total"] = $result["total"];
         $data["correctAnswerCount"] = $result["correctAnswerCount"];
         $data["incorrectAnswerCount"] = $result["incorrectAnswerCount"];
-        $data["image_url"] = config("constant.QUIZ_RESULT_IMAGE_URL");
         $data["score"] = $result["score"];
         if ($feed) {
             return $this->sendResponse($data);
