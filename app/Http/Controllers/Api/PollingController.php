@@ -173,7 +173,7 @@ class PollingController extends Controller
             $this->model = PollingVote::insert($data);
             if($this->model)
             {
-                PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1]);
+                PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1,'updated_at' => \DB::raw('updated_at')]);
             }
         }
         $poll = Polling::find($pollId);
@@ -267,6 +267,7 @@ class PollingController extends Controller
 
         $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion, 'preview'=>$preview]);
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -347,6 +348,7 @@ class PollingController extends Controller
        
         $this->model = $poll->options()->where('id',$optionId)->update(['text'=>$request->input('text')]);
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -389,6 +391,7 @@ class PollingController extends Controller
         }
         PollingOption::insert($data);
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -434,6 +437,7 @@ class PollingController extends Controller
         }
         $this->model = $poll->options()->where('poll_id', $pollId)->whereIn('id',$options)->delete();
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
