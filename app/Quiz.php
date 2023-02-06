@@ -274,6 +274,13 @@ class Quiz extends Model implements Feedable
         return $seo_tags;
     }
 
+    public function getRelatedKey(): array
+    {
+        if (empty($this->relatedKey) && $this->company_id === null) {
+            return ['profile' => 'profile:small:' . $this->profile_id];
+        }
+        return ['company' => 'company:small:' . $this->company_id];
+    }
 
     public function getPreviewContent()
     {
