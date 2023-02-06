@@ -32,8 +32,12 @@ return  [
         "COMPLETED" => 2
     ],
 
-    "QUIZ_RESULT_IMAGE_URL" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/platform/61153-trophy-congratulation.gif",
-    
+    "QUIZ_RESULT_IMAGE_URL" =>[
+         "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/0_score.gif",
+        "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/33_score.gif",
+        "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/66_score.gif",
+         "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/100_score.gif",
+    ],
 
     "SURVEY_APPLICANT_STATUS" => [
         "To Be Notified" => 0,

@@ -1162,14 +1162,28 @@ class QuizController extends Controller
             return $this->sendNewError("user has not attempted the quiz");
         }
         $result = $this->calculateScore($id);
-        $data["helper"] = "Congratulations!";
         $data["title"] = $quiz->title;
-        $data["subtitle"] = "Quiz Completed Successfully";
+        if ($result['score'] < 33) {
+            $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.0");
+            $data['helper'] = "Better luck next time";
+            $data['subtitle'] = "Keep striving for improvement";
+        } else if ($result['score']>= 33 && $result['score'] < 66) {
+            $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.1");
+            $data['helper'] = "You're on the right track";
+            $data['subtitle'] = "Good effort, but you can do better";
+        } else if ($result['score'] >= 66 && $result['score'] < 100) {
+            $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.2");
+            $data['helper'] = "Well done";
+            $data['subtitle'] = "You are on the right path to mastery";
+        } else {
+            $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.3");
+            $data['helper'] = "Congratulations";
+            $data['subtitle'] = "Amazing, you got every answer right";
+        }
         $data["score_text"] = $result["score"] . "% Score";
         $data["total"] = $result["total"];
         $data["correctAnswerCount"] = $result["correctAnswerCount"];
         $data["incorrectAnswerCount"] = $result["incorrectAnswerCount"];
-        $data["image_url"] = config("constant.QUIZ_RESULT_IMAGE_URL");
         $data["score"] = $result["score"];
         if ($feed) {
             return $this->sendResponse($data);
