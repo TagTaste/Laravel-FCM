@@ -405,6 +405,7 @@ class BatchController extends Controller
 
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id', $batchId)->whereIn('profile_id', $profileIds)
             ->update(['begin_tasting' => 1]);
+            $who = null;
         if ($this->model) {
             $company = Company::where('id', $collaborate->company_id)->first();
             foreach ($profileIds as $profileId) {
@@ -412,8 +413,8 @@ class BatchController extends Controller
                 if ($currentStatus == 0) {
                     Redis::set("current_status:batch:$batchId:profile:$profileId", 1);
                 }
-                $who = null;
-                if (empty($company)) {
+                
+                if (empty($company) && empty($who)) {
                     $who = Profile::where("id", "=", $collaborate->profile_id)->first();
                 }
                 $collaborate->profile_id = $profileId;
