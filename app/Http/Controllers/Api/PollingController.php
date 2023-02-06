@@ -56,7 +56,7 @@ class PollingController extends Controller
             $company = Company::find($companyId);
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if(!$userBelongsToCompany){
-                return $this->sendError("User does not belong to this company");
+                return $this->sendError("User does not belong to this company.");
             }
             $data['company_id'] = $request->input('company_id');
         }
@@ -70,7 +70,7 @@ class PollingController extends Controller
         $optionImages = $request->option_images != null ? $request->option_images : null;
         $this->type = $optionImages != null ? 2 : ($image != null ? 1 : 3);
         if (!$request->has('options') || count($options) < 2 || count($options) > 4 || (isset($optionImages) && (count($options) != count($optionImages)))) {
-            return $this->sendError("Please enter valid options");
+            return $this->sendError("Please enter valid options.");
         }
         $data['title'] = $request->input('title');
         $data['image_meta'] = $image;
@@ -117,7 +117,7 @@ class PollingController extends Controller
                     'image_meta'=> $opImg
                 ];
             } else {
-                return $this->sendError("Please enter valid options");
+                return $this->sendError("Please enter valid options.");
             }
         }
 
@@ -149,7 +149,7 @@ class PollingController extends Controller
 
         if ($poll == null || $poll->profile->id == $loggedInProfileId) {
             $this->model = [];
-            return $this->sendError('Poll is not available');
+            return $this->sendError('Poll is not available.');
         }
 
         $pollOptionId = $request->input('poll_option_id');
@@ -157,7 +157,7 @@ class PollingController extends Controller
 
         if($pollOptionCheck == null) {
             $this->model = [];
-            return $this->sendError('Please select poll option');
+            return $this->sendError('Poll option not found or has been deleted. Please refresh the poll.');
         }
 
         $checkVote = PollingVote::where('poll_id',$pollId)->where('profile_id',$loggedInProfileId)->exists();
@@ -173,7 +173,7 @@ class PollingController extends Controller
             $this->model = PollingVote::insert($data);
             if($this->model)
             {
-                PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1]);
+                PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1,'updated_at' => \DB::raw('updated_at')]);
             }
         }
         $poll = Polling::find($pollId);
@@ -193,7 +193,7 @@ class PollingController extends Controller
         if($poll == null)
         {
             $this->model = [];
-            return $this->sendError('Poll is not available');
+            return $this->sendError('Poll is not available.');
         }
         if(isset($poll->company_id) && !is_null($poll->company_id))
         {
@@ -203,19 +203,16 @@ class PollingController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if(!$userBelongsToCompany){
                 $this->model = [];
-                return $this->sendError("User does not belong to this company");
+                return $this->sendError("User does not belong to this company.");
             }
         } else if($poll->profile_id != $loggedInProfileId) {
             $this->model = [];
-            return $this->sendError("Poll is not related to login user");
+            return $this->sendError("Poll is not related to login user.");
         }
 
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
 
-        if ($checkVote) {
-            $this->model = [];
-            return $this->sendError("Poll can not be editable");
-        }
+       
 
         $data = $request->input(['title']) != null ? $request->input(['title']) : null;
         $options = $request->input(['options']);
@@ -270,6 +267,7 @@ class PollingController extends Controller
 
         $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion, 'preview'=>$preview]);
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -297,7 +295,7 @@ class PollingController extends Controller
         $poll = $this->model->where('id',$pollId)->whereNull('deleted_at')->first();
         if ($poll == null) {
             $this->model = [];
-            return $this->sendError('Poll is not available');
+            return $this->sendError('Poll is not available.');
         }
         if (isset($poll->company_id) && !is_null($poll->company_id)) {
             $companyId = $poll->company_id;
@@ -307,11 +305,11 @@ class PollingController extends Controller
 
             if (!$userBelongsToCompany) {
                 $this->model = [];
-                return $this->sendError("User does not belong to this company");
+                return $this->sendError("User does not belong to this company.");
             }
         } else if ($poll->profile_id != $loggedInProfileId) {
             $this->model = [];
-            return $this->sendError("Poll is not related to login user");
+            return $this->sendError("Poll is not related to login user.");
         }
         
         event(new DeleteFeedable($poll));
@@ -329,7 +327,7 @@ class PollingController extends Controller
         $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
         if ($poll == null) {
             $this->model = [];
-            return $this->sendError('Poll is not available');
+            return $this->sendError('Poll is not available.');
         }
         if (isset($poll->company_id) && !is_null($poll->company_id)) {
             $companyId = $poll->company_id;
@@ -339,20 +337,18 @@ class PollingController extends Controller
 
             if (!$userBelongsToCompany) {
                 $this->model = [];
-                return $this->sendError("User does not belong to this company");
+                return $this->sendError("User does not belong to this company.");
             }
         } else if ($poll->profile_id != $loggedInProfileId) {
             $this->model = [];
-            return $this->sendError("Poll is not related to login user");
+            return $this->sendError("Poll is not related to login user.");
         }
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
 
-        if ($checkVote) {
-            $this->model = [];
-            return $this->sendError("Poll can not be editable");
-        }
+       
         $this->model = $poll->options()->where('id',$optionId)->update(['text'=>$request->input('text')]);
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -366,7 +362,7 @@ class PollingController extends Controller
         $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
         if ($poll == null) {
             $this->model = [];
-            return $this->sendError('Poll is not available');
+            return $this->sendError('Poll is not available.');
         }
         if (isset($poll->company_id) && !is_null($poll->company_id)) {
             $companyId = $poll->company_id;
@@ -375,23 +371,19 @@ class PollingController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = [];
-                return $this->sendError("User does not belong to this company");
+                return $this->sendError("User does not belong to this company.");
             }
         } else if ($poll->profile_id != $loggedInProfileId) {
             $this->model = [];
-            return $this->sendError("Poll is not related to login user");
+            return $this->sendError("Poll is not related to login user.");
         }
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
 
-        if ($checkVote) {
-            $this->model = [];
-            return $this->sendError("Poll can not be editable");
-        }
 
         $options = $request->input('options');
 
         if (!$request->has('options') || count($options) < 2 || count($options) > 4) {
-            return $this->sendError("Please enter valid options");
+            return $this->sendError("Please enter valid options.");
         }
 
         foreach ($options as $option) {
@@ -399,6 +391,7 @@ class PollingController extends Controller
         }
         PollingOption::insert($data);
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -421,7 +414,7 @@ class PollingController extends Controller
 
         if ($poll == null || $count - count($options) < 2) {
             $this->model = [];
-            return $this->sendError('Poll is not available');
+            return $this->sendError('Poll is not available.');
         }
 
         if (isset($poll->company_id) && !is_null($poll->company_id)) {
@@ -431,19 +424,20 @@ class PollingController extends Controller
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 $this->model = [];
-                return $this->sendError("User does not belong to this company");
+                return $this->sendError("User does not belong to this company.");
             }
         } else if($poll->profile_id != $loggedInProfileId) {
             $this->model = [];
-            return $this->sendError("Poll is not related to login user");
+            return $this->sendError("Poll is not related to login user.");
         }
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
         if ($checkVote) {
             $this->model = [];
-            return $this->sendError("Poll can not be editable");
+            return $this->sendError("Poll can not be editable.");
         }
         $this->model = $poll->options()->where('poll_id', $pollId)->whereIn('id',$options)->delete();
         $poll = Polling::find($pollId);
+        $poll->updated_at = Carbon::now();
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -487,7 +481,7 @@ class PollingController extends Controller
         //return $poll;
         if ($poll == null) {
             $this->model = [];
-            return $this->sendError('Poll is not available');
+            return $this->sendError('Poll is not available.');
         }
 
         if(isset($poll->company_id) && !is_null($poll->company_id)) {
@@ -498,12 +492,12 @@ class PollingController extends Controller
 
             if (!$userBelongsToCompany) {
                 $this->model = [];
-                return $this->sendError("User does not belong to this company");
+                return $this->sendError("User does not belong to this company.");
             }
 
         } else if ($poll->profile_id != $loggedInProfileId) {
             $this->model = [];
-            return $this->sendError("Poll is not related to login user");
+            return $this->sendError("Poll is not related to login user.");
         }
 
         $this->model = $poll->update(['is_expired'=>0,'expired_time'=>null]);
