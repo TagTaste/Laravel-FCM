@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\Collaborate\Review;
-
+use App\Traits\FilterFactory;
 
 class BatchController extends Controller
 {
-
+    use FilterFactory;
     protected $model;
 
 
@@ -170,6 +170,10 @@ class BatchController extends Controller
      */
     public function show(Request $request, $collaborateId, $id)
     {
+        //paginate
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+
         //filters data
         $filters = $request->input('filters');
         $resp = $this->getFilterProfileIds($filters, $collaborateId, $id);
@@ -178,8 +182,20 @@ class BatchController extends Controller
         $boolean = 'and';
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id', $id)->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('created_at', 'desc')->get()->pluck('profile_id');
         $profiles = Collaborate\Applicant::where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds)->whereNotNull('shortlisted_at')
-        ->whereNull('rejected_at')->orderBy('created_at', 'desc')->get();
-        $profiles = $profiles->toArray();
+            ->whereNull('rejected_at');
+        
+        //sort applicants
+        if (isset($filters))
+            $type = false;
+
+        if ($request->sortBy != null) {
+            $profiles = $this->sortApplicants($request->sortBy, $profiles, $collaborateId);
+        } 
+        else{
+           $profiles=$profiles->orderBy('created_at', 'desc');
+        }
+
+        $profiles = $profiles->skip($skip)->take($take)->get()->toArray();
         $this->model = [];
         foreach ($profiles as &$profile) {
             if (Collaborate::where('id', $collaborateId)->first()->track_consistency) {
@@ -203,26 +219,26 @@ class BatchController extends Controller
                 $profile['address_id'] = $batch->address_id;
             }
             $currentStatus = Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
-            if($currentStatus == 3){
+            if ($currentStatus == 3) {
                 $profileId = $profile['profile']['id'];
                 $reviewCompletionData = \DB::select("SELECT MIN(created_at) as start_time,
                             MAX(updated_at) as completion_timestamp, TIMEDIFF(MAX(updated_at),MIN(created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
                             where current_status=3 AND profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$id");
-                
+
                 $profile["review_completion"] = null;
-                if(count($reviewCompletionData) > 0){
+                if (count($reviewCompletionData) > 0) {
                     $data = [];
 
                     $timestamp = strtotime($reviewCompletionData[0]->completion_timestamp);
                     $date = date('d M Y', $timestamp);
                     $time = date('h:i:s A', $timestamp);
-                    $durationInSec= strtotime($reviewCompletionData[0]->review_time_taken) - strtotime('00:00:00');
+                    $durationInSec = strtotime($reviewCompletionData[0]->review_time_taken) - strtotime('00:00:00');
                     $duration = $this->secondsToTime($durationInSec);
 
-                    $data[] = ["title"=>"Date", "value"=>$date];
-                    $data[] = ["title"=>"Time", "value"=>$time];
-                    $data[] = ["title"=>"Duration", "value"=>$duration];
-                        
+                    $data[] = ["title" => "Date", "value" => $date];
+                    $data[] = ["title" => "Time", "value" => $time];
+                    $data[] = ["title" => "Duration", "value" => $duration];
+
                     $profile["review_completion"] = $data;
                 }
             }
@@ -262,33 +278,34 @@ class BatchController extends Controller
     }
 
 
-    function secondsToTime($seconds) {
-        $s = $seconds%60;
-        $m = floor(($seconds%3600)/60);
-        $h = floor(($seconds%86400)/3600);
-        $d = floor(($seconds%2592000)/86400);
-        $M = floor($seconds/2592000);
+    function secondsToTime($seconds)
+    {
+        $s = $seconds % 60;
+        $m = floor(($seconds % 3600) / 60);
+        $h = floor(($seconds % 86400) / 3600);
+        $d = floor(($seconds % 2592000) / 86400);
+        $M = floor($seconds / 2592000);
         $durationStr = "";
-        if($M > 0){
+        if ($M > 0) {
             $durationStr .= "$M month ";
         }
-        
-        if($d > 0){
+
+        if ($d > 0) {
             $durationStr .= "$d day ";
         }
 
-        if($h > 0){
+        if ($h > 0) {
             $durationStr .= "$h hr ";
         }
 
-        if($m > 0){
+        if ($m > 0) {
             $durationStr .= "$m min ";
         }
-        
-        if($s > 0){
+
+        if ($s > 0) {
             $durationStr .= "$s sec";
         }
-        
+
         return $durationStr;
     }
 
@@ -899,7 +916,7 @@ class BatchController extends Controller
         $headerRatingSum = 0;
         $meta = [];
         $meta['color_code'] = '#7E9B42'; //Default colour for background
-        
+
         $question = Collaborate\Questions::where('header_type_id', $headerId)->whereRaw("JSON_CONTAINS(questions, '5', '$.select_type')")->first();
         if (!empty($question)) {
             $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->where('question_id', $question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
@@ -1856,7 +1873,7 @@ class BatchController extends Controller
             ->orderBy('tasting_header_id', 'ASC')->orderBy('batch_id', 'ASC')->orderBy('leaf_id', 'ASC')->groupBy('tasting_header_id', 'question_id', 'leaf_id', 'value', 'batch_id')->get();
 
         $batches = Collaborate\Batches::where('collaborate_id', $collaborateId)->orderBy('id')->get();
-        
+
         $model = [];
         $headers = Collaborate\ReviewHeader::where('collaborate_id', $collaborateId)->whereNotIn('header_selection_type', [0, 3])->get();
         foreach ($headers as $header) {
