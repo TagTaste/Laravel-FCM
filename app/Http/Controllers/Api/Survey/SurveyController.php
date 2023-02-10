@@ -1160,22 +1160,23 @@ class SurveyController extends Controller
                                 $sum = $sum + (($getAvg[$min]["count"]) * ($values["max"] - $min + 1));
                             }
                         }
-                        ##updated calculation for rank questions
-                        $rankedByPercantage = (float)bcdiv(count($ar) / $totalApplicantsofRankques, 1, 2);
-                        $ranks[] = (float)bcdiv(($sum / count($ar)) * ($rankedByPercantage), 1, 2);
                     }
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
+                            ##updated calculation for rank questions
+                            $rankedByPercantage = count($ar)?((float)bcdiv(count($ar) / $totalApplicantsofRankques, 1, 2)):0;
+                            $ranks[] = count($ar)?((float)bcdiv(($sum / count($ar)) * ($rankedByPercantage), 1, 2)):0;
+                           
                             if (max($ranks) > $highestValue) {
                                 $highestValue = max($ranks);
                                 for ($i = 0; $i < sizeof($ranks); $i++) {
                                     $indexedValue = 100 / $highestValue * ($ranks[$i]);
-                                    $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = count($ar) ? $indexedValue : 0;
+                                    $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = $indexedValue;
                                 }
                             } else {
-                                $indexedValue = 100 / $highestValue * ($ranks[$optCounter]);
-                                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = count($ar) ? $indexedValue : 0;
+                                $indexedValue = count($ar)?(100 / $highestValue * ($ranks[$optCounter])):0;
+                                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = $indexedValue;
                             }
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
                         } else {
