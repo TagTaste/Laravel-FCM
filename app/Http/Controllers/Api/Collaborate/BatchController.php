@@ -170,9 +170,6 @@ class BatchController extends Controller
      */
     public function show(Request $request, $collaborateId, $id)
     {
-        //paginate
-        $page = $request->input('page');
-        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
 
         //filters data
         $filters = $request->input('filters');
@@ -195,7 +192,7 @@ class BatchController extends Controller
            $profiles=$profiles->orderBy('created_at', 'desc');
         }
 
-        $profiles = $profiles->skip($skip)->take($take)->get()->toArray();
+        $profiles = $profiles->get()->toArray();
         $this->model = [];
         foreach ($profiles as &$profile) {
             if (Collaborate::where('id', $collaborateId)->first()->track_consistency) {
