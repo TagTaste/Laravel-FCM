@@ -1044,6 +1044,16 @@ class SurveyController extends Controller
                 return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
             });
 
+            ##total count of applicants who have attempted rank question
+            if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
+                $totalApplicantsofRankques = SurveyAnswers::selectRaw('max(attempt) as attempt')->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->groupBy("profile_id")->get()->filter(function ($ans) use ($idsAttemptMapping) {
+
+                    return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
+                });
+                ##sum of attempts of each user
+                $totalApplicantsofRankques = array_sum($totalApplicantsofRankques->pluck("attempt")->toArray());
+            }
+
             $ans = $answers->pluck("option_id")->toArray();
             $ar = array_values(array_filter($ans));
             $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
@@ -1119,7 +1129,7 @@ class SurveyController extends Controller
                 }
             } else {
                 $optCounter = 0;
-
+                $highestValue = 0;
                 foreach ($values["options"] as $optVal) {
                     $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                     $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
@@ -1129,7 +1139,6 @@ class SurveyController extends Controller
                     $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($colorCodeList[$optCounter]) ? $colorCodeList[$optCounter] : "#fcda02");
                     $countOptions = 0;
                     $sum = 0;
-                    $countOfApplicants = 0;
 
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
@@ -1143,20 +1152,31 @@ class SurveyController extends Controller
                         $ar = array_values(array_filter($ans));
                         $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                         $countOptions = count($ar);
+                        $rankedByPercantage = 0;
+                        $ranks = [];
 
                         for ($min = 1; $min <= $values['max']; $min++) {
                             if (isset($getAvg[$min])) {
-
-                                $sum = $sum + (($getAvg[$min]["count"]) * $min);
-                                $countOfApplicants += $getAvg[$min]["count"];
+                                $sum = $sum + (($getAvg[$min]["count"]) * ($values["max"] - $min + 1));
                             }
                         }
-                        $sum += ((count($ar)) - $countOfApplicants) * (count($values["options"]));
+                        ##updated calculation for rank questions
+                        $rankedByPercantage = (float)bcdiv(count($ar) / $totalApplicantsofRankques, 1, 2);
+                        $ranks[] = (float)bcdiv(($sum / count($ar)) * ($rankedByPercantage), 1, 2);
                     }
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = count($ar) ? ($sum / count($ar)) : 0;
+                            if (max($ranks) > $highestValue) {
+                                $highestValue = max($ranks);
+                                for ($i = 0; $i < sizeof($ranks); $i++) {
+                                    $indexedValue = 100 / $highestValue * ($ranks[$i]);
+                                    $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = count($ar) ? $indexedValue : 0;
+                                }
+                            } else {
+                                $indexedValue = 100 / $highestValue * ($ranks[$optCounter]);
+                                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = count($ar) ? $indexedValue : 0;
+                            }
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
                         } else {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
@@ -1377,7 +1397,7 @@ class SurveyController extends Controller
 
             //max ques id calculation
             $getOldJson = Surveys::where("id", "=", $isUpdation)->select("form_json", "is_section")->first()->toArray();
-            
+
             $maxQueId = 1;
             if ($isUpdation) {
                 if (isset($getOldJson["is_section"]) && $getOldJson["is_section"]) {
