@@ -1130,6 +1130,7 @@ class SurveyController extends Controller
             } else {
                 $optCounter = 0;
                 $highestValue = 0;
+                $ranks = [];
                 foreach ($values["options"] as $optVal) {
                     $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
                     $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
@@ -1153,7 +1154,6 @@ class SurveyController extends Controller
                         $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                         $countOptions = count($ar);
                         $rankedByPercantage = 0;
-                        $ranks = [];
 
                         for ($min = 1; $min <= $values['max']; $min++) {
                             if (isset($getAvg[$min])) {
