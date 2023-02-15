@@ -1142,10 +1142,12 @@ class SurveyController extends Controller
                     $sum = 0;
 
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
-                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
+                        $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])
+                            ->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereNull("deleted_at")
+                            ->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
 
-                            return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
-                        });
+                                return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
+                            });
 
 
                         $ans = $answers->pluck("option_id")->toArray();
@@ -1165,9 +1167,9 @@ class SurveyController extends Controller
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
                             ##updated calculation for rank questions
-                            $rankedByPercantage = count($ar)?((float)bcdiv(count($ar) / $totalApplicantsofRankques, 1, 2)):0;
-                            $ranks[] = count($ar)?((float)bcdiv(($sum / count($ar)) * ($rankedByPercantage), 1, 2)):0;
-                           
+                            $rankedByPercantage = count($ar) ? sprintf("%0.2f", (intval(count($ar) / $totalApplicantsofRankques * 100)) / 100) : 0;
+                            $ranks[] = count($ar) ? sprintf("%0.2f", (intval(($sum / count($ar)) * $rankedByPercantage * 100)) / 100) : 0;
+                            
                             if (max($ranks) > $highestValue) {
                                 $highestValue = max($ranks);
                                 for ($i = 0; $i < sizeof($ranks); $i++) {
@@ -1175,7 +1177,7 @@ class SurveyController extends Controller
                                     $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = $indexedValue;
                                 }
                             } else {
-                                $indexedValue = count($ar)?(100 / $highestValue * ($ranks[$optCounter])):0;
+                                $indexedValue = count($ar) ? (100 / $highestValue * ($ranks[$optCounter])) : 0;
                                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = $indexedValue;
                             }
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
@@ -1273,7 +1275,7 @@ class SurveyController extends Controller
                     if ($a['answer_percentage'] == $b['answer_percentage']) {
                         return 0;
                     }
-                    return ($a['answer_percentage'] < $b['answer_percentage']) ? -1 : 1;
+                    return ($a['answer_percentage'] > $b['answer_percentage']) ? -1 : 1;
                 });
                 foreach ($prepareNode["reports"][$counter]["options"] as $key => $option) {
                     if ($option["answer_percentage"] == 0)
