@@ -1043,11 +1043,11 @@ class SurveyController extends Controller
 
                 return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
             });
-
+            
             ##total count of applicants who have attempted rank question
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 $totalApplicantsofRankques = SurveyAnswers::selectRaw('max(attempt) as attempt')->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->groupBy("profile_id")->get()->filter(function ($ans) use ($idsAttemptMapping) {
-
+                    
                     return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
                 });
                 ##sum of attempts of each user
@@ -1148,13 +1148,17 @@ class SurveyController extends Controller
 
                                 return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
                             });
-
-
+                        
+                        
+                            
                         $ans = $answers->pluck("option_id")->toArray();
-
+                        
                         $ar = array_values(array_filter($ans));
+                        
                         $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
+                       
                         $countOptions = count($ar);
+                        
                         $rankedByPercantage = 0;
 
                         for ($min = 1; $min <= $values['max']; $min++) {
@@ -1167,18 +1171,19 @@ class SurveyController extends Controller
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
                             ##updated calculation for rank questions
-                            $rankedByPercantage = count($ar) ? sprintf("%0.2f", (intval(count($ar) / $totalApplicantsofRankques * 100)) / 100) : 0;
-                            $ranks[] = count($ar) ? sprintf("%0.2f", (intval(($sum / count($ar)) * $rankedByPercantage * 100)) / 100) : 0;
+                            $rankedByPercantage = count($ar) ? (count($ar) / $totalApplicantsofRankques) : 0;
+                            
+                            $ranks[] = count($ar) ?(($sum / count($ar)) * $rankedByPercantage) : 0;
                             
                             if (max($ranks) > $highestValue) {
                                 $highestValue = max($ranks);
                                 for ($i = 0; $i < sizeof($ranks); $i++) {
                                     $indexedValue = 100 / $highestValue * ($ranks[$i]);
-                                    $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = $indexedValue;
+                                    $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = round($indexedValue,2);
                                 }
                             } else {
                                 $indexedValue = count($ar) ? (100 / $highestValue * ($ranks[$optCounter])) : 0;
-                                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = $indexedValue;
+                                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = round($indexedValue,2);
                             }
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
                         } else {
