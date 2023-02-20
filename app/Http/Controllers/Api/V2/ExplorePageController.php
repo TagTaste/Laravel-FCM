@@ -941,13 +941,14 @@ class ExplorePageController extends Controller
     public function getHashtagSuggestions($key)
     {
         $hashtags = $this->hashtagSuggestions($key);
+        $hashtags = array_slice($hashtags, 0, 20);
         return array(
             "hashtag" => $hashtags,
             "count" => count($hashtags),
             "type" => "hashtag"
         );
     }
-
+    
     public function getRecentReviewedProductsUserCanReview($profile, $profile_id)
     {
         $client = config('database.neo4j_uri_client');
