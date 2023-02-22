@@ -109,7 +109,7 @@ class CommentController extends Controller {
         
         $model->comments()->attach($comment->id);
         //known issue for surveys (notification model_id datatype is wrong in modoel subscriber so need to fix it )
-        if($models!="surveys" || $models!="quiz"){ //stopped for surveys fir now
+        if(($models!="surveys") && ($models!="quiz")){ //stopped for surveys fir now
         event(new \App\Events\Actions\Comment($model,$request->user()->profile, $comment->content, null, null, null, $comment));
         
             if ($comment->has_tags) {
