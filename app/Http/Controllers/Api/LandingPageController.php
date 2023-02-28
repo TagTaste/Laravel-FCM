@@ -77,8 +77,8 @@ class LandingPageController extends Controller
         $this->errors['status'] = 0;
 
         //passbook
-        $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
-        $this->model[] = $passbook;
+        // $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
+        // $this->model[] = $passbook;
 
         //products available
         $reviewCard = $this->getProductAvailableForReview($profileId);
