@@ -267,8 +267,15 @@ class QuestionController extends Controller
         {
             return $this->sendError("No product id found");
         }
+        $term = explode(" ",$term);
         $this->model['option'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
-            ->where('collaborate_id',$collaborateId)->where('is_active',1)->where('value','like',"%$term%")->get();
+            ->where('collaborate_id',$collaborateId)->where('is_active',1)
+            ->where(function ($query) use ($term){
+                foreach($term as $val)
+                {
+                    $query->orWhere('value','like','%'.$val.'%');
+                }
+            })->get();
         return $this->sendResponse();
     }
 
@@ -288,7 +295,8 @@ class QuestionController extends Controller
         }
         $parent_value = htmlspecialchars_decode($request->input('parent_value'));
 
-        $term = $request->input('term');
+        $value = $request->input('term');
+        $term = explode(" ",$value);
 
         if (!$request->has('batch_id')) {
             return $this->sendError("No product id found");
@@ -299,7 +307,12 @@ class QuestionController extends Controller
             ->where('collaborate_id',$collaborateId)
             ->where('is_active',1)
             ->where('path',$parent_value)
-            ->where('value','like',"%$term%")
+            ->where(function ($query) use ($term){
+                foreach($term as $val)
+                {
+                    $query->orWhere('value','like','%'.$val.'%');
+                }
+            })
             ->get();
         return $this->sendResponse();
     }
