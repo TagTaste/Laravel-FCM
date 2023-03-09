@@ -863,8 +863,8 @@ class LandingPageController extends Controller
             $this->model[] = $bigBanner;
 
         if ($platform == 'mobile') {
-            $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
-            $this->model[] = $passbook;
+            // $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
+            // $this->model[] = $passbook;
 
             $reviewCard = $this->getProductAvailableForReview($profileId);
             if (count($reviewCard) != 0)
