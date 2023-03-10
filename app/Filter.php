@@ -170,18 +170,19 @@ class Filter extends Model
             foreach($order as $key){
                 
                 $count = 0;
-                $allFilters = $filterClass::select('value',\DB::raw('count(`key`) as count'))
+                $allFilters = $filterClass::select((\DB::raw('TRIM(`value`) as trimValue')),\DB::raw('count(`key`) as count'))
                 ->where('key',$key)
-                ->groupBy('value')
+                ->groupBy('trimValue')
+                ->orderBy('count','desc')
                 ->get();
-                
+
                 if(!$allFilters)
                 {
                     continue;
                 }
                 foreach($allFilters as &$filter)
                 {
-                    $filters[$key][] = ['value' => trim($filter->value)];
+                    $filters[$key][] = ['value' => $filter->trimValue,'count'=>$filter->count];
                     $count++;
                     if($count >= static::$maxFilters){
                         break;
