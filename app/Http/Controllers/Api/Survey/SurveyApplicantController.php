@@ -476,6 +476,18 @@ class SurveyApplicantController extends Controller
                     }
                 }
             }
+
+            $duration = '-';
+            if($applicant->application_status == 2){
+                $submission = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $applicant->profile->id)->whereNotNull("completion_date")->first();
+
+                $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
+            
+                if ($survey->is_section && !empty($durationForSection)) {
+                    $duration = $durationForSection;
+                }
+            }
+
             $temp = array(
                 "S. No" => $key + 1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
@@ -487,7 +499,8 @@ class SurveyApplicantController extends Controller
                 "Specialization" => $specialization,
                 "Hometown" => $applicant->hometown,
                 "Current City" => $applicant->current_city,
-                "Application Status" => $this->frontEndApplicationStatus[$applicant->application_status] ?? ""
+                "Application Status" => $this->frontEndApplicationStatus[$applicant->application_status] ?? "",
+                "Duration" => $duration
             );
             array_push($finalData, $temp);
         }
