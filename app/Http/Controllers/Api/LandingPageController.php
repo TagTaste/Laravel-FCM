@@ -39,7 +39,7 @@ class LandingPageController extends Controller
     protected $feed_card_count = 0;
     protected $modelNotIncluded = [];
     protected $placeholderimage = [];
-    
+
     /**
      * Display a listing of the quick links.
      *
@@ -48,7 +48,7 @@ class LandingPageController extends Controller
 
     public function quickLinks(Request $request)
     {
-        
+
         $this->errors['status'] = 0;
         $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
         if (($request->header('x-version') != null
@@ -846,13 +846,13 @@ class LandingPageController extends Controller
             $links["ui_type"] = config("constant.LANDING_UI_TYPE.QUICK_LINKS");
 
             $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
-            
+
             if (($request->header('x-version') != null && $request->header('x-version') <= 171) ||
                 ($request->header('x-version-ios') != null && version_compare("5.0.14", $request->header('x-version-ios'), ">="))
             ) {
                 $quick_links = $quick_links->where("model_name", "!=", config("constants.LANDING_MODEL.QUIZ"));
             }
-            $quick_links = $quick_links->get();    
+            $quick_links = $quick_links->get();
             $links["elements"] = $quick_links;
 
             $this->model[] = $links;
@@ -1145,4 +1145,84 @@ class LandingPageController extends Controller
         ];
         return $banner;
     }
+
+
+    public function topData(Request $request, $type)
+    {
+        $data = [];
+        // $type=$request->input('type');
+        $unread=false;
+        if ($type == 'notification') {
+            $count = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
+            // return $count;
+             $unread=true;
+            $data["top_bar"][] = [
+                "unread_icon" => "",
+                "read_icon" => "",
+                "type" => $type,
+                "unread" => $unread,
+                "count" => $count
+            ];
+        } else if ($type == 'chat') {
+            $count = \DB::table('message_recepients')->whereNull('read_on')->where('recepient_id', $request->user()->profile->id)->get()->count();
+           
+            // return $count;
+            $unread=true;
+            $data["top_bar"][] = [
+                "unread_icon" => "",
+                "read_icon" => "",
+                "type" => $type,
+                "unread" => $unread,
+                "count" => $count
+            ];
+        } else {
+            $count = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
+            
+            $unread=true;
+            $data["top_bar"][] = [
+                "unread_icon" => "",
+                "read_icon" => "",
+                "type" => $type,
+                "unread" => $unread,
+                "count" => $count
+            ];
+        }
+        return $this->sendResponse($data);
+    }
+   
+    public function topData1(Request $request)
+    {
+        $data = [];
+        // $type=$request->input('type');
+        $noficationCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
+        $chatCount = \DB::table('message_recepients')->whereNull('read_on')->where('recepient_id', $request->user()->profile->id)->get()->count();
+        $passbookCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
+            
+            $data["top_bar"][] = [
+                "unread_icon" => "",
+                "read_icon" => "",
+                "type" => "notification",
+                "unread" => true,
+                "count" => $noficationCount
+            ];
+    
+            $data["top_bar"][] = [
+                "unread_icon" => "",
+                "read_icon" => "",
+                "type" => "chat",
+                "unread" => true,
+                "count" => $chatCount
+            ];
+       
+            $data["top_bar"][] = [
+                "unread_icon" => "",
+                "read_icon" => "",
+                "type" => "passbook",
+                "unread" => true,
+                "count" => $passbookCount
+            ];
+        
+        return $this->sendResponse($data);
+    }
+
 }

@@ -840,6 +840,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("landing/side_data", "LandingPageController@sideData");
         Route::get("landing/feed", "LandingPageController@feed");
         Route::get("landing", "LandingPageController@landingPage");
+        Route::get("landing/top_data/{type}", "LandingPageController@topData");
+        Route::get("landing/top_data", "LandingPageController@topData1");
         Route::get("test-landing", "LandingPageController@testLandingPage");
     }); // end of authenticated routes. Add routes before this line to be able to
     // get current logged in user.
