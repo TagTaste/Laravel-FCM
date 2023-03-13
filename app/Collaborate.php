@@ -608,13 +608,13 @@ class Collaborate extends Model implements Feedable
         $data = [];
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/' . $this->id;
-        $data['owner'] = $profile['id'];
+        $data['owner'] = isset($profile->id) ? $profile->id : null;;
         $data['title'] = substr($this->title, 0, 65);
-        $data['description'] = $profile['name'];
-        $data['title'] = $profile['name'] . ' is looking for ' . substr($this->title, 0, 65);
+        $data['description'] = isset($profile->name) ? $profile->name : null;
+        $data['title'] = isset($profile->name) ? $profile->name : null . ' is looking for ' . substr($this->title, 0, 65);
         $data['description'] = substr($this->description, 0, 155);
         $data['ogTitle'] = substr($this->title, 0, 65);
-        $data['ogDescription'] = $profile['name'];
+        $data['ogDescription'] = isset($profile->name) ? $profile->name : null;
         $images = $this->getImagesAttribute($this->images);
         $data['cardType'] = isset($images[0]) ? 'summary_large_image' : 'summary';
         $data['ogImage'] = isset($images[0]) ? $images[0] : (isset($profile->logo) ? $profile->logo : (isset($profile->image) ? $profile->image :
