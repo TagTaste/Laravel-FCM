@@ -132,10 +132,12 @@ class ProfileController extends Controller
         //delete heroimage or image
         if ($request->has("remove_image") && $request->input('remove_image') == 1) {
             $data['profile']['image'] = null;
+            $data['profile']['image_meta'] = null;
         }
 
         if ($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1) {
             $data['profile']['hero_image'] = null;
+            $data['profile']['hero_image_meta'] = null;
         }
 
         //update user name
