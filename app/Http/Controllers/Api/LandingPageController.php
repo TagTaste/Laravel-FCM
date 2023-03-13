@@ -1151,11 +1151,11 @@ class LandingPageController extends Controller
     {
         $data = [];
         // $type=$request->input('type');
-        $unread=false;
+        $unread = false;
         if ($type == 'notification') {
             $count = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
             // return $count;
-             $unread=true;
+            $unread = true;
             $data["top_bar"][] = [
                 "unread_icon" => "",
                 "read_icon" => "",
@@ -1165,9 +1165,9 @@ class LandingPageController extends Controller
             ];
         } else if ($type == 'chat') {
             $count = \DB::table('message_recepients')->whereNull('read_on')->where('recepient_id', $request->user()->profile->id)->get()->count();
-           
+
             // return $count;
-            $unread=true;
+            $unread = true;
             $data["top_bar"][] = [
                 "unread_icon" => "",
                 "read_icon" => "",
@@ -1177,8 +1177,8 @@ class LandingPageController extends Controller
             ];
         } else {
             $count = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
-            
-            $unread=true;
+
+            $unread = true;
             $data["top_bar"][] = [
                 "unread_icon" => "",
                 "read_icon" => "",
@@ -1189,7 +1189,7 @@ class LandingPageController extends Controller
         }
         return $this->sendResponse($data);
     }
-   
+
     public function topData1(Request $request)
     {
         $data = [];
@@ -1197,32 +1197,32 @@ class LandingPageController extends Controller
         $noficationCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
         $chatCount = \DB::table('message_recepients')->whereNull('read_on')->where('recepient_id', $request->user()->profile->id)->get()->count();
         $passbookCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
-            
-            $data["top_bar"][] = [
+
+        $data["top_bar"] = [
+            [
                 "unread_icon" => "",
                 "read_icon" => "",
                 "type" => "notification",
                 "unread" => true,
-                "count" => $noficationCount
-            ];
-    
-            $data["top_bar"][] = [
+                "count" => $noficationCount,
+
+            ],
+            [
                 "unread_icon" => "",
                 "read_icon" => "",
                 "type" => "chat",
                 "unread" => true,
                 "count" => $chatCount
-            ];
-       
-            $data["top_bar"][] = [
+            ],
+            [
                 "unread_icon" => "",
                 "read_icon" => "",
                 "type" => "passbook",
                 "unread" => true,
                 "count" => $passbookCount
-            ];
-        
+            ]
+        ];
+
         return $this->sendResponse($data);
     }
-
 }
