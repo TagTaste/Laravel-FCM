@@ -1150,36 +1150,38 @@ class LandingPageController extends Controller
     public function topData(Request $request)
     {
         $data = [];
-        $type = $request->input('type');
+        
+        //For Passbook
         $unread = false;
-        $count = 0;
-        $readIcon = [];
-        $unreadIcon = [];
-        if ($type == 'notification') {
+        $passbook=\App\Passbook::where('profile_id', $request->user()->profile->id)->first();
+        $count=$passbook->unreadPassbookCount;        
+        if($count > 0){
             $unread = true;
-            $notification = Profile::where('id', $request->user()->profile->id)->first();
-            $count = $notification->unreadNotificationCount;
-        } else if ($type == 'chat') {
-            $unread = true;
-            $chat = \App\Chat::where('profile_id', $request->user()->profile->id)->first();
-            $count = $chat->unreadMessageCount;
-        } else if ($type == 'passbook') {
-            $unread = true;
-            $passbook=\App\Passbook::where('profile_id', $request->user()->profile->id)->first();
-            $count=$passbook->unreadPassbookCount;
         }
-        if ($unread == false || $count > 0) {
-            $unreadIcon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/' . ucfirst($type) . '_unread_icon.png';
-        } else
-            $readIcon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/' . ucfirst($type) . '_read_icon.png';
+        
+        $data[] = ["read_icon"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/passbook_unread_icon.png","unread_icon"=>"hlo","type"=>"passbook","unread"=>$unread];
 
-        $data["top_bar"][] = [
-            "unread_icon" => $unreadIcon,
-            "read_icon" => $readIcon,
-            "type" => $type,
-            "unread" => $unread,
-            "count" => $count
-        ];
+        //For Chat
+        $unread = false;
+        $chat = \App\Chat::where('profile_id', $request->user()->profile->id)->first();
+        $count = $chat->unreadMessageCount;
+        if($count > 0){
+            $unread = true;
+        }
+        
+        $data[] = ["read_icon"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/passbook_unread_icon.png","unread_icon"=>"hlo","type"=>"chat","unread"=>$unread, "count"=>$count];
+
+        //For notification
+        $unread = false;
+        $notification = Profile::where('id', $request->user()->profile->id)->first();
+        $count = $notification->unreadNotificationCount;
+        if($count > 0){
+            $unread = true;
+        }
+        
+        $data[] = ["read_icon"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/passbook_unread_icon.png","unread_icon"=>"hlo","type"=>"chat","unread"=>$unread, "count"=>$count];
+
+        $data["top_bar"][] = $data;
         return $this->sendResponse($data);
     }
 }
