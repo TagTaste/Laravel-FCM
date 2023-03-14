@@ -1147,82 +1147,39 @@ class LandingPageController extends Controller
     }
 
 
-    public function topData(Request $request, $type)
+    public function topData(Request $request)
     {
         $data = [];
-        // $type=$request->input('type');
+        $type = $request->input('type');
         $unread = false;
+        $count = 0;
+        $readIcon = [];
+        $unreadIcon = [];
         if ($type == 'notification') {
-            $count = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
-            // return $count;
             $unread = true;
-            $data["top_bar"][] = [
-                "unread_icon" => "",
-                "read_icon" => "",
-                "type" => $type,
-                "unread" => $unread,
-                "count" => $count
-            ];
+            $notification = Profile::where('id', $request->user()->profile->id)->first();
+            $count = $notification->unreadNotificationCount;
         } else if ($type == 'chat') {
-            $count = \DB::table('message_recepients')->whereNull('read_on')->where('recepient_id', $request->user()->profile->id)->get()->count();
-
-            // return $count;
             $unread = true;
-            $data["top_bar"][] = [
-                "unread_icon" => "",
-                "read_icon" => "",
-                "type" => $type,
-                "unread" => $unread,
-                "count" => $count
-            ];
-        } else {
-            $count = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
-
+            $chat = \App\Chat::where('profile_id', $request->user()->profile->id)->first();
+            $count = $chat->unreadMessageCount;
+        } else if ($type == 'passbook') {
             $unread = true;
-            $data["top_bar"][] = [
-                "unread_icon" => "",
-                "read_icon" => "",
-                "type" => $type,
-                "unread" => $unread,
-                "count" => $count
-            ];
+            $passbook=\App\Passbook::where('profile_id', $request->user()->profile->id)->first();
+            $count=$passbook->unreadPassbookCount;
         }
-        return $this->sendResponse($data);
-    }
+        if ($unread == false || $count > 0) {
+            $unreadIcon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/' . ucfirst($type) . '_unread_icon.png';
+        } else
+            $readIcon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/' . ucfirst($type) . '_read_icon.png';
 
-    public function topData1(Request $request)
-    {
-        $data = [];
-        // $type=$request->input('type');
-        $noficationCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
-        $chatCount = \DB::table('message_recepients')->whereNull('read_on')->where('recepient_id', $request->user()->profile->id)->get()->count();
-        $passbookCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id', $request->user()->profile->id)->get()->count();
-
-        $data["top_bar"] = [
-            [
-                "unread_icon" => "",
-                "read_icon" => "",
-                "type" => "notification",
-                "unread" => true,
-                "count" => $noficationCount,
-
-            ],
-            [
-                "unread_icon" => "",
-                "read_icon" => "",
-                "type" => "chat",
-                "unread" => true,
-                "count" => $chatCount
-            ],
-            [
-                "unread_icon" => "",
-                "read_icon" => "",
-                "type" => "passbook",
-                "unread" => true,
-                "count" => $passbookCount
-            ]
+        $data["top_bar"][] = [
+            "unread_icon" => $unreadIcon,
+            "read_icon" => $readIcon,
+            "type" => $type,
+            "unread" => $unread,
+            "count" => $count
         ];
-
         return $this->sendResponse($data);
     }
 }
