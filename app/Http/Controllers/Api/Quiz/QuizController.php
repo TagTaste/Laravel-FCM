@@ -1037,11 +1037,13 @@ class QuizController extends Controller
             $type = $getFiteredProfileIds['type'];
         }
 
+       
 
+        $allProfile = QuizApplicants::where("quiz_id", "=", $id)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->where("deleted_at", "=", null)->pluck('profile_id');    
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
+        $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereIn("profile_id",$allProfile)->whereNull("deleted_at")->orderBy('created_at', 'desc');
 
         $getJson = json_decode($checkIFExists["form_json"], true);
         $title = "";
