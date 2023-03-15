@@ -38,7 +38,7 @@ class Profile extends Model
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
         'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training',
-        'profile_occupations', 'profile_specializations'
+        'profile_occupations', 'profile_specializations', 'profile_badges'
     ];
     
     protected $visible = [
@@ -51,7 +51,7 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy', 'profileCompletion', 'batchesCount', 'gender', 'user_id', 'newBatchesCount', 'shippingaddress',
         'profile_occupations', 'profile_specializations', 'is_veteran', 'is_expert', 'foodie_type_id', 'foodie_type', 'establishment_types', 'cuisines', 'interested_collections',
-        'onboarding_complete', "image_meta", "hero_image_meta", 'fb_info', 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'reviewCount', 'allergens', 'totalPostCount', 'imagePostCount', 'document_meta', 'is_ttfb_user', 'palate_sensitivity', 'palate_visibility', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_paid_taster', 'is_sensory_trained', 'payment'
+        'onboarding_complete', "image_meta", "hero_image_meta", 'fb_info', 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'reviewCount', 'allergens', 'totalPostCount', 'imagePostCount', 'document_meta', 'is_ttfb_user', 'palate_sensitivity', 'palate_visibility', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_paid_taster', 'is_sensory_trained', 'payment','profile_badges'
     ];
 
 
@@ -1330,6 +1330,11 @@ class Profile extends Model
             return \App\Profile\ShippingAddress::where('profile_id', $this->id)->get();
         else
             return null;
+    }
+    
+    public function profile_badges()
+    {
+        return $this->hasMany('App\Profile\Badge');
     }
 
     public function profile_specializations()
