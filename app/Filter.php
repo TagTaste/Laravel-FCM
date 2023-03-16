@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Filter extends Model
 {
-    private static $maxFilters = 8;
+    private static $maxFilters = 10;
     protected $primaryKey = null;
     public $separator = ',';
     public static $cacheKey = null;
@@ -161,56 +161,28 @@ class Filter extends Model
             $filterClass = "\\App\\Filter\\" . ucfirst($model);
         }
         
-        if ("\App\Filter\PublicReviewProduct" === $filterClass) {
-            // $allFilters = $filterClass::where('key','!=','is_newly_launched')
-            //     ->select('key','value',\DB::raw('count(`key`) as count'))
-            //     ->groupBy('key','value')
-            //     ->orderBy('count','desc')
-            //     ->get()
-            //     ->groupBy('key');
-
-            $allFilters = $filterClass::where('key','!=','is_newly_launched')
-                ->select('key','value')
-                ->groupBy('key','value')
-                ->get()
-                ->groupBy('key');
-        } else {
-            // $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'))
-            //     ->groupBy('key','value')
-            //     ->orderBy('count','desc')
-            //     ->get()
-            //     ->groupBy('key');
-            $allFilters = $filterClass::select('key','value')
-                ->groupBy('key','value')
-                ->get()
-                ->groupBy('key');
-        }
-        
         
         $filters = [];
-        //$allFilters = $allFilters->keyBy('key');
         $order = $filterClass::$filterOrder;
 
         if(count($order))
         {
             foreach($order as $key){
+                
                 $count = 0;
-                $singleFilter = $allFilters->get($key);
-                if(!$singleFilter)
+                $allFilters = $filterClass::select((\DB::raw('TRIM(`value`) as trimValue')),\DB::raw('count(`key`) as count'))
+                ->where('key',$key)
+                ->groupBy('trimValue')
+                ->orderBy('count','desc')
+                ->get();
+
+                if(!$allFilters)
                 {
                     continue;
                 }
-                foreach($singleFilter as &$filter)
+                foreach($allFilters as &$filter)
                 {
-                    if(!array_key_exists($key,$filters)){
-                        $filters[$key] = [];
-                    }
-                    if(!array_key_exists($key,$filters)){
-                        $filters[$key] = [];
-                    }
-                    
-                    // $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
-                    $filters[$key][] = ['value' => $filter->value];
+                    $filters[$key][] = ['value' => $filter->trimValue,'count'=>$filter->count];
                     $count++;
                     if($count >= static::$maxFilters){
                         break;
@@ -219,21 +191,7 @@ class Filter extends Model
             }
 
         }
-        else
-        {
-            foreach($allFilters as $key=>&$sub){
-                $count = 0;
-                foreach($sub as &$filter){
-                    // $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
-                    $filters[$key][] = ['value' => $filter->value];
-                    $count++;
-                    if($count >= static::$maxFilters){
-                        break;
-                    }
-                }
-            }
-        }
-
+        
         return $filters;
     }
     
