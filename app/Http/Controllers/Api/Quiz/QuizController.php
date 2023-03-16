@@ -1167,7 +1167,7 @@ class QuizController extends Controller
         $data["title"] = $quiz->title;
         if ($result['score'] < 33) {
             $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.0");
-            $data['helper'] = "Better luck next time";
+            $data['helper'] = "Better Luck Next Time..";
             $data['subtitle'] = "Keep striving for improvement";
         } else if ($result['score']>= 33 && $result['score'] < 66) {
             $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.1");
