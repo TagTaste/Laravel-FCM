@@ -606,7 +606,7 @@ class CollaborateController extends Controller
                                             ->where('is_active',1)
                                             ->first();
                     $batchInfo->isPaid =  PaymentHelper::getisPaidMetaFlag($paymentOnBacth);
-                    if($currentStatus != 0)
+                    if($currentStatus != 3 && $currentStatus !=0)
                     {
                         $batches[] = $batchInfo;
                     }
