@@ -1150,11 +1150,11 @@ class LandingPageController extends Controller
     public function topData(Request $request)
     {
         $data = [];
-       
+
         //For Passbook
         $unread = false;
         $passbook = \App\Passbook::where('profile_id', $request->user()->profile->id)->first();
-        $count = $passbook->unreadPassbookCount;
+        $count = isset($passbook->unreadPassbookCount) ? $passbook->unreadPassbookCount : 0;
         if ($count > 0) {
             $unread = true;
         }
@@ -1164,13 +1164,13 @@ class LandingPageController extends Controller
             "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_read_icon.png",
             "type" => "passbook",
             "unread" => $unread,
-            "count"=>$count
+            "count" => $count
         ];
 
         //For Chat
         $unread = false;
         $chat = \App\Chat::where('profile_id', $request->user()->profile->id)->first();
-        $count = $chat->unreadMessageCount;
+        $count = isset($chat->unreadMessageCount) ? $chat->unreadMessageCount : 0;
         if ($count > 0) {
             $unread = true;
         }
@@ -1179,12 +1179,12 @@ class LandingPageController extends Controller
             "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Chat_read_icon.png",
             "type" => "chat",
             "unread" => $unread,
-            "count"=>$count
+            "count" => $count
         ];
         //For notification
         $unread = false;
         $notification = Profile::where('id', $request->user()->profile->id)->first();
-        $count = $notification->unreadNotificationCount;
+        $count = isset($notification->unreadNotificationCount) ? $notification->unreadNotificationCount : 0;
         if ($count > 0) {
             $unread = true;
         }
@@ -1194,7 +1194,7 @@ class LandingPageController extends Controller
             "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/notification_read_icon.png",
             "type" => "notification",
             "unread" => $unread,
-            "count"=>$count
+            "count" => $count
         ];
 
         $finalData["top_bar"] = $data;
