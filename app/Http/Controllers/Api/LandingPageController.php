@@ -1150,27 +1150,26 @@ class LandingPageController extends Controller
     public function topData(Request $request)
     {
         $data = [];
-
+        
         //For Passbook
         $unread = false;
-        $passbook = \App\Passbook::where('profile_id', $request->user()->profile->id)->first();
-        $count = isset($passbook->unreadPassbookCount) ? $passbook->unreadPassbookCount : 0;
-        if ($count > 0) {
+        $latest_read_time = \App\Passbook::where('profile_id', $request->user()->profile->id)->first();
+        $last_read_time = \App\Payment\PaymentLinks::selectRaw('max(created_at) as created_at')->where('profile_id', $request->user()->profile->id)->where('is_active', 1)->whereNull('deleted_at')->first();
+        if ($last_read_time > $latest_read_time) {
             $unread = true;
         }
-
         $data[] = [
             "unread_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_unread_icon.png",
             "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_read_icon.png",
             "type" => "passbook",
             "unread" => $unread,
-            "count" => $count
+            "count" =>0
         ];
 
         //For Chat
         $unread = false;
-        $chat = \App\Chat::where('profile_id', $request->user()->profile->id)->first();
-        $count = isset($chat->unreadMessageCount) ? $chat->unreadMessageCount : 0;
+        $chat=Profile::where('id', $request->user()->profile->id)->first();
+        $count = isset($chat->messageCount) ? $chat->messageCount : 0;
         if ($count > 0) {
             $unread = true;
         }
@@ -1181,14 +1180,14 @@ class LandingPageController extends Controller
             "unread" => $unread,
             "count" => $count
         ];
+    
         //For notification
         $unread = false;
-        $notification = Profile::where('id', $request->user()->profile->id)->first();
-        $count = isset($notification->unreadNotificationCount) ? $notification->unreadNotificationCount : 0;
+        $notification=Profile::where('id', $request->user()->profile->id)->first();
+        $count = isset($notification->notificationCount) ? $notification->notificationCount : 0;
         if ($count > 0) {
             $unread = true;
         }
-
         $data[] = [
             "unread_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/notification_unread_icon.png",
             "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/notification_read_icon.png",

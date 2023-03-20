@@ -19,13 +19,12 @@ class Passbook extends Model
 
     public function getUnreadPassbookCountAttribute()
     {
-        $count = 0;
         $last_read_time = PaymentLinks::selectRaw('max(created_at) as created_at')->where('profile_id', $this->id)->where('is_active', 1)->whereNull('deleted_at')->first();
         $latest_read_time = Passbook::select('passbook_read_at')->where('profile_id', $this->id)->first();
 
         if ($last_read_time > $latest_read_time) {
-            $count=$count+1;
+            return true;
         }
-        return $count;
+        return false;
     }
 }
