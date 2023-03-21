@@ -1153,11 +1153,16 @@ class LandingPageController extends Controller
         
         //For Passbook
         $unread = false;
-        $latest_read_time = \App\Passbook::where('profile_id', $request->user()->profile->id)->first();
-        $last_read_time = \App\Payment\PaymentLinks::selectRaw('max(created_at) as created_at')->where('profile_id', $request->user()->profile->id)->where('is_active', 1)->whereNull('deleted_at')->first();
+        $latest_read_time = \App\Passbook::where('profile_id', $request->user()->profile->id)->count();
+        $last_read_time = \App\Payment\PaymentLinks::selectRaw('max(created_at)')->where('profile_id', $request->user()->profile->id)->where('is_active', 1)->whereNull('deleted_at')->count();
         if ($last_read_time > $latest_read_time) {
             $unread = true;
+        }else{
+            $unread = false;  
         }
+    
+        
+        
         $data[] = [
             "unread_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_unread_icon.png",
             "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_read_icon.png",
