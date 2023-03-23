@@ -1281,12 +1281,16 @@ class QuizController extends Controller
             $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
+            foreach($answers as $ans){
+                $date = $ans->created_at;
+            }
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
             $prepareNode["reports"][$counter]["is_answered"] = false;
+            $prepareNode["reports"][$counter]["submit_date"] = date('d M,Y', strtotime($date));
 
             if ($answers->count()) {
                 $optCounter = 0;
@@ -1381,7 +1385,9 @@ class QuizController extends Controller
             ->get();
 
         foreach ($respondent as $profile) {
-            $data['report'][] = $profile->profile;
+            $profileArray = $profile->profile->toArray();
+            $profileArray['submit_date'] = date('d M,Y', strtotime($profile->created_at));
+            $data['report'][] = $profileArray;
         }
 
         $this->model = $data;
