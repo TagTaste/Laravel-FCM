@@ -970,6 +970,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/download-reports/{id}', 'QuizController@excelReport');
         Route::get('/similar/{id}', 'QuizController@similarQuizes');
         Route::get('/getAnswers/{id}', 'QuizController@getStoredAnswers');
+        Route::get('/options/{id}/{profile_id}', 'QuizController@getOptions');
 
     });
        
