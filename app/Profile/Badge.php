@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Badge extends Model {
 
     protected $table = 'profile_badges';
-
+    
     protected $fillable = ['profile_id','badge_id'];
 
     protected $visible = ['id','title','description', 'image'];
@@ -19,7 +19,7 @@ class Badge extends Model {
 
     public function getIdAttribute()
     {
-        $this->badge = \DB::table('badges')->where('id',$this->badge_id)->first();
+        $this->badge = \DB::table('badges')->where('id',$this->badge_id)->where('is_active',1)->whereNull('deleted_at')->first();
         return isset($this->badge->id) ? $this->badge->id : null;
     }
 
