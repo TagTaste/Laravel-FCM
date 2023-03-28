@@ -570,7 +570,7 @@ class CollaborateController extends Controller
 //            ->get()->pluck('collaborate_id');
         $collaborates = \App\Recipe\Collaborate::join('collaborate_batches_assign','collaborate_batches_assign.collaborate_id','=','collaborates.id')
             ->where('collaborate_batches_assign.profile_id',$loggedInProfileId)->where('collaborate_batches_assign.begin_tasting',1)
-            ->where('collaborates.state', 1)
+            ->where('collaborates.state', 1)->where('collaborates.account_deactivated',0)
             ->orderBy('collaborate_batches_assign.created_at','desc')->get()->toArray();
         $collaborateIds = [];
         $data = [];
@@ -615,7 +615,9 @@ class CollaborateController extends Controller
             }
             $collaborateIds[] = $collaborate['id'];
             $collaborate['batches'] = $count > 0 ? $batches : [];
+            if( sizeof($collaborate['batches']) !=0 ){
             $data[] = $collaborate;
+            }
         }
         $this->model = $data;
 
