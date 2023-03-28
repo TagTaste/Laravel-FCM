@@ -14,17 +14,17 @@ class Passbook extends Model
 
     protected $visible = ['id', 'profile_id', 'unreadPassbookCount','passbook_read_at'];
 
-    protected $appends = ['unreadPassbookCount'];
+    //protected $appends = ['unreadPassbookCount'];
 
 
-    public function getUnreadPassbookCountAttribute()
-    {
-        $last_read_time = PaymentLinks::selectRaw('max(created_at) as created_at')->where('profile_id', $this->id)->where('is_active', 1)->whereNull('deleted_at')->first();
-        $latest_read_time = Passbook::select('passbook_read_at')->where('profile_id', $this->id)->first();
+    // public function getUnreadPassbookCountAttribute()
+    // {
+    //     $last_read_time = PaymentLinks::selectRaw('max(created_at) as created_at')->where('profile_id', $this->id)->where('is_active', 1)->whereNull('deleted_at')->first();
+    //     $latest_read_time = Passbook::select('passbook_read_at')->where('profile_id', $this->id)->first();
 
-        if ($last_read_time > $latest_read_time) {
-            return true;
-        }
-        return false;
-    }
+    //     if ($last_read_time > $latest_read_time) {
+    //         return true;
+    //     }
+    //     return false;
+    // }
 }
