@@ -1638,13 +1638,28 @@ class QuizController extends Controller
     }
 
 
-    public function getOptions($id, $profile_id)
+    public function getOptions($id, $profile_id,Request $request)
     {
 
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
         if (empty($checkIFExists)) {
             $this->model = false;
             return $this->sendNewError("Invalid Quiz");
+        }
+
+          //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+          if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendNewError("Only Quiz Admin can view this report");
         }
 
         $prepareNode = ["reports" => []];
