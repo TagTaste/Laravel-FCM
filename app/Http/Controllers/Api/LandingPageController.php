@@ -1158,7 +1158,7 @@ class LandingPageController extends Controller
         $latest_txn_creation = \App\Payment\PaymentLinks::selectRaw('max(created_at) as created_at')
         ->where('profile_id', $request->user()->profile->id)
         ->where('is_active', 1)->whereNull('deleted_at')->first();
-        if ($last_read_time >= $latest_txn_creation) {
+        if ($last_read_time['passbook_read_at'] >= $latest_txn_creation['created_at']) {
             $unread = false;
         }else{
             $unread = true;  
@@ -1170,8 +1170,7 @@ class LandingPageController extends Controller
             "unread_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_unread_icon.png",
             "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_read_icon.png",
             "type" => "passbook",
-            "unread" => $unread,
-            "count" =>0
+            "unread" => $unread
         ];
 
         //For Chat
