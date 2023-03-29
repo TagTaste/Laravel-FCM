@@ -1385,9 +1385,9 @@ class QuizController extends Controller
             ->get();
 
         foreach ($respondent as $profile) {
-            $profileArray = $profile->profile->toArray();
-            $profileArray['submit_date'] = date('d M,Y', strtotime($profile->created_at));
-            $data['report'][] = $profileArray;
+            $profileCopy = $profile->profile->toArray();
+            $profileCopy['submit_date'] = date('d M,Y', strtotime($profile->created_at));
+            $data['report'][] = $profileCopy;
         }
 
         $this->model = $data;
@@ -1638,7 +1638,7 @@ class QuizController extends Controller
     }
 
 
-    public function getOptions($id, $profile_id,Request $request)
+    public function userResponses($id, $profile_id, Request $request)
     {
 
         $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
@@ -1647,8 +1647,8 @@ class QuizController extends Controller
             return $this->sendNewError("Invalid Quiz");
         }
 
-          //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
-          if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
             $companyId = $checkIFExists->company_id;
             $userId = $request->user()->id;
             $company = Company::find($companyId);
@@ -1662,6 +1662,26 @@ class QuizController extends Controller
             return $this->sendNewError("Only Quiz Admin can view this report");
         }
 
+        $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+        $checkApplicant = $applicant->get();
+       
+
+        $profileIds = $checkApplicant->pluck('profile_id')->toArray();
+        if(!in_array($profile_id,$profileIds))
+        {
+            $this->model = false;
+            return $this->sendNewError("Profile doesn't exist");
+        }
+
+        $applicants = $applicant->orderBy("completion_date", "desc")->get()->toArray();
+        $posToValue = [];
+        $valueToPos = [];
+
+        foreach ($applicants as $key => $applicant) {
+            $posToValue[$key] = $applicant["profile_id"];
+            $valueToPos[$applicant["profile_id"]] = $key;
+        }
+
         $prepareNode = ["reports" => []];
 
         $getJson = json_decode($checkIFExists["form_json"], true);
@@ -1671,11 +1691,15 @@ class QuizController extends Controller
             $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
+            foreach($answers as $ans){
+                $date = $ans->created_at;
+            }
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
+            $prepareNode["reports"][$counter]["submit_date"] = date('d M,Y', strtotime($date));
 
             if (isset($values["options"])) {
                 $optCounter = 0;
@@ -1685,8 +1709,8 @@ class QuizController extends Controller
                     $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
                     $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? true : false;
                     $prepareNode["reports"][$counter]["options"][$optCounter]["is_answered"] = false;
-                  
-                    if (in_array($optVal["id"],$pluckOpId)) {
+
+                    if (in_array($optVal["id"], $pluckOpId)) {
                         $prepareNode["reports"][$counter]["options"][$optCounter]["is_answered"] = true;
                     }
                     $optCounter++;
@@ -1695,6 +1719,9 @@ class QuizController extends Controller
 
             $counter++;
         }
+
+        $prepareNode["previous"] = isset($applicants[($valueToPos[$profile_id] - 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] - 1)]) : null;
+        $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id] + 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] + 1)]) : null;
         $this->messages = "Report Successful";
         $this->model = $prepareNode;
         return $this->sendResponse();
