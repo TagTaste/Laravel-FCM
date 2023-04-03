@@ -1100,10 +1100,10 @@ class QuizController extends Controller
         $questions = json_decode($questions->form_json);
         $answerMapping = []; //original correct options wrt ques
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
-
+         
         $score = 0;
         $total = count($questions);
-
+        
         if (count($answers)) {
             foreach ($questions as $value) {
                 foreach ($value->options as $option) {
@@ -1353,10 +1353,11 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendNewError("User does not belong to this company");
             }
-        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-            $this->model = false;
-            return $this->sendNewError("Only Quiz Admin can view this report");
         }
+        //  else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+        //     $this->model = false;
+        //     return $this->sendNewError("Only Quiz Admin can view this report");
+        // }
 
         if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
@@ -1381,7 +1382,9 @@ class QuizController extends Controller
             ->get();
 
         foreach ($respondent as $profile) {
+            $result=$this->calculateUserScore($id,$profile->profile->id);
             $profileCopy = $profile->profile->toArray();
+            $profileCopy["score_text"] = $result['score']."% score";
             $profileCopy["submission_date"] = $profile->max_submission;
             $data['report'][] = $profileCopy;
         }
@@ -1657,11 +1660,11 @@ class QuizController extends Controller
             $this->model = false;
             return $this->sendNewError("Only Quiz Admin can view this report");
         }
-
-        $applicant = QuizApplicants::selectRaw('max(completion_date) as completion_date,profile_id')->where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+      
+        $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
         $checkApplicant = $applicant->get();
        
-
+        //  return $checkApplicant;
         $profileIds = $checkApplicant->pluck('profile_id')->toArray();
         if(!in_array($profile_id,$profileIds))
         {
@@ -1678,8 +1681,18 @@ class QuizController extends Controller
             $valueToPos[$applicant["profile_id"]] = $key;
             $completion_date = $applicant['completion_date'];
         }
-        
+
         $prepareNode = ["reports" => []];
+
+        $result=$this->calculateUserScore($id,$profile_id);
+        $data["score_block"]=[
+            "score_text"=>$result['score']."% Score",
+            "total"=>$result['total'],
+            "correctAnswerCount"=>$result['correctAnswerCount'],
+            "incorrectAnswerCount"=>$result['incorrectAnswerCount']
+
+        ];
+       
 
         $getJson = json_decode($checkIFExists["form_json"], true);
         $counter = 0;
@@ -1718,7 +1731,62 @@ class QuizController extends Controller
         $prepareNode["previous"] = isset($applicants[($valueToPos[$profile_id] - 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] - 1)]) : null;
         $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id] + 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] + 1)]) : null;
         $this->messages = "Report Successful";
-        $this->model = $prepareNode;
+        $this->model = array_merge($data,$prepareNode);
         return $this->sendResponse();
+    }
+
+
+    public function calculateUserScore($id,$profileId)
+    {
+        //calculation of final score of an applicant
+        $correctAnswersCount = 0;
+        $incorrectAnswersCount = 0;
+        $questions =  Quiz::where("id", $id)->whereNull("deleted_at")->first();
+        $questions = json_decode($questions->form_json);
+        $answerMapping = []; //original correct options wrt ques
+        $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', $profileId)->whereNull('deleted_at')->get();
+    
+        $score = 0;
+        $total = count($questions);
+        if (count($answers)) {
+            foreach ($questions as $value) {
+                foreach ($value->options as $option) {
+                    if (isset($option->is_correct) && $option->is_correct) {
+
+                        $answerMapping[$value->id][] = $option->id;
+                    }
+                }
+            }
+
+            foreach ($questions as $question) {
+               
+                $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", $profileId)->whereNull("deleted_at")->pluck("option_id")->toArray();
+                sort( $answerArray);
+                sort($answerMapping[$question->id]);
+                if(!empty($answerArray)){
+                if ($answerMapping[$question->id] == $answerArray) { //checking if original correct options is matching to users one
+                    $correctAnswersCount++;
+                    $score += 1;
+                }
+                else{
+                    $incorrectAnswersCount++;
+                }
+            }
+            }
+            $score = ($score * 100) / $total;
+
+            $result["score"] = (is_float($score)) ? number_format($score, 2, ".", "") : $score;
+            $result["correctAnswerCount"] = $correctAnswersCount;
+            $result["incorrectAnswerCount"] = $incorrectAnswersCount;
+
+        } else {
+            $result["score"] = 0;
+            $result["correctAnswerCount"] = 0;
+            $result["incorrectAnswerCount"] = 0;
+
+        }
+        $result["total"] = $total;
+
+        return $result;
     }
 }
