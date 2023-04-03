@@ -1281,17 +1281,13 @@ class QuizController extends Controller
             $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
-            foreach($answers as $ans){
-                $date = $ans->created_at;
-            }
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
             $prepareNode["reports"][$counter]["is_answered"] = false;
-            $prepareNode["reports"][$counter]["submit_date"] = date('d M,Y', strtotime($date));
-
+            
             if ($answers->count()) {
                 $optCounter = 0;
                 $answers = $answers->toArray();
@@ -1371,7 +1367,7 @@ class QuizController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $count = QuizApplicants::where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
+        $count = QuizApplicants::selectRaw('max(completion_date) as max_submission,profile_id')->where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->groupBy("profile_id")->orderBy('completion_date', 'desc');
 
         if ($request->has('filters') && !empty($request->filters)) {
             $count->whereIn('profile_id', $profileIds, 'and', $type);
@@ -1386,7 +1382,7 @@ class QuizController extends Controller
 
         foreach ($respondent as $profile) {
             $profileCopy = $profile->profile->toArray();
-            $profileCopy['submit_date'] = date('d M,Y', strtotime($profile->created_at));
+            $profileCopy["submission_date"] = $profile->max_submission;
             $data['report'][] = $profileCopy;
         }
 
@@ -1662,7 +1658,7 @@ class QuizController extends Controller
             return $this->sendNewError("Only Quiz Admin can view this report");
         }
 
-        $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+        $applicant = QuizApplicants::selectRaw('max(completion_date) as completion_date,profile_id')->where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
         $checkApplicant = $applicant->get();
        
 
@@ -1680,8 +1676,9 @@ class QuizController extends Controller
         foreach ($applicants as $key => $applicant) {
             $posToValue[$key] = $applicant["profile_id"];
             $valueToPos[$applicant["profile_id"]] = $key;
+            $completion_date = $applicant['completion_date'];
         }
-
+        
         $prepareNode = ["reports" => []];
 
         $getJson = json_decode($checkIFExists["form_json"], true);
@@ -1691,16 +1688,14 @@ class QuizController extends Controller
             $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
-            foreach($answers as $ans){
-                $date = $ans->created_at;
-            }
-
+            
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $prepareNode["reports"][$counter]["submission_date"] = $completion_date;
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
-            $prepareNode["reports"][$counter]["submit_date"] = date('d M,Y', strtotime($date));
-
+            
+            
             if (isset($values["options"])) {
                 $optCounter = 0;
                 foreach ($values["options"] as $optVal) {
