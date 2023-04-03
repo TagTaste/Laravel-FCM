@@ -1091,7 +1091,7 @@ class QuizController extends Controller
         return false;
     }
 
-    public function calculateScore($id)
+    public function calculateScore($id,$profileId=null)
     {
         //calculation of final score of an applicant
         $correctAnswersCount = 0;
@@ -1099,8 +1099,11 @@ class QuizController extends Controller
         $questions =  Quiz::where("id", $id)->whereNull("deleted_at")->first();
         $questions = json_decode($questions->form_json);
         $answerMapping = []; //original correct options wrt ques
+        if($profileId == null){
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
-         
+        }else{
+            $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', $profileId)->whereNull('deleted_at')->get();   
+        } 
         $score = 0;
         $total = count($questions);
         
@@ -1115,8 +1118,12 @@ class QuizController extends Controller
             }
 
             foreach ($questions as $question) {
-               
+                if($profileId == null){
                 $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
+                }
+                else{
+                    $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", $profileId)->whereNull("deleted_at")->pluck("option_id")->toArray();    
+                }
                 sort( $answerArray);
                 sort($answerMapping[$question->id]);
                 if(!empty($answerArray)){
@@ -1163,7 +1170,8 @@ class QuizController extends Controller
         if (empty($applicant)) {
             return $this->sendNewError("user has not attempted the quiz");
         }
-        $result = $this->calculateScore($id);
+        $profileId = null;
+        $result = $this->calculateScore($id,$profileId);
         $data["title"] = $quiz->title;
         if ($result['score'] < 33) {
             $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.0");
@@ -1384,7 +1392,7 @@ class QuizController extends Controller
         foreach ($respondent as $profile) {
             $result=$this->calculateUserScore($id,$profile->profile->id);
             $profileCopy = $profile->profile->toArray();
-            $profileCopy["score_text"] = $result['score']."% score";
+            $profileCopy["score_text"] = $result['score']."% Scored";
             $profileCopy["submission_date"] = $profile->max_submission;
             $data['report'][] = $profileCopy;
         }
@@ -1662,29 +1670,31 @@ class QuizController extends Controller
         }
       
         $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
-        $checkApplicant = $applicant->get();
+        $completionDate = $applicant->where('profile_id',$profile_id)->first();
+        //$checkApplicant = $applicant->get();
+        
        
         //  return $checkApplicant;
-        $profileIds = $checkApplicant->pluck('profile_id')->toArray();
-        if(!in_array($profile_id,$profileIds))
-        {
-            $this->model = false;
-            return $this->sendNewError("Profile doesn't exist");
-        }
+        // $profileIds = $checkApplicant->pluck('profile_id')->toArray();
+        // if(!in_array($profile_id,$profileIds))
+        // {
+        //     $this->model = false;
+        //     return $this->sendNewError("Profile doesn't exist");
+        // }
 
-        $applicants = $applicant->orderBy("completion_date", "desc")->get()->toArray();
+        $applicants = $applicant->get()->toArray();
         $posToValue = [];
         $valueToPos = [];
 
         foreach ($applicants as $key => $applicant) {
             $posToValue[$key] = $applicant["profile_id"];
             $valueToPos[$applicant["profile_id"]] = $key;
-            $completion_date = $applicant['completion_date'];
+            //$completion_date = $applicant['completion_date'];
         }
 
         $prepareNode = ["reports" => []];
 
-        $result=$this->calculateUserScore($id,$profile_id);
+        $result = $this->calculateScore($id,$profile_id);
         $data["score_block"]=[
             "score_text"=>$result['score']."% Score",
             "total"=>$result['total'],
@@ -1705,7 +1715,7 @@ class QuizController extends Controller
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
-            $prepareNode["reports"][$counter]["submission_date"] = $completion_date;
+            $prepareNode["reports"][$counter]["submission_date"] = $completionDate->completion_date;
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
             
             
@@ -1735,58 +1745,4 @@ class QuizController extends Controller
         return $this->sendResponse();
     }
 
-
-    public function calculateUserScore($id,$profileId)
-    {
-        //calculation of final score of an applicant
-        $correctAnswersCount = 0;
-        $incorrectAnswersCount = 0;
-        $questions =  Quiz::where("id", $id)->whereNull("deleted_at")->first();
-        $questions = json_decode($questions->form_json);
-        $answerMapping = []; //original correct options wrt ques
-        $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', $profileId)->whereNull('deleted_at')->get();
-    
-        $score = 0;
-        $total = count($questions);
-        if (count($answers)) {
-            foreach ($questions as $value) {
-                foreach ($value->options as $option) {
-                    if (isset($option->is_correct) && $option->is_correct) {
-
-                        $answerMapping[$value->id][] = $option->id;
-                    }
-                }
-            }
-
-            foreach ($questions as $question) {
-               
-                $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", $profileId)->whereNull("deleted_at")->pluck("option_id")->toArray();
-                sort( $answerArray);
-                sort($answerMapping[$question->id]);
-                if(!empty($answerArray)){
-                if ($answerMapping[$question->id] == $answerArray) { //checking if original correct options is matching to users one
-                    $correctAnswersCount++;
-                    $score += 1;
-                }
-                else{
-                    $incorrectAnswersCount++;
-                }
-            }
-            }
-            $score = ($score * 100) / $total;
-
-            $result["score"] = (is_float($score)) ? number_format($score, 2, ".", "") : $score;
-            $result["correctAnswerCount"] = $correctAnswersCount;
-            $result["incorrectAnswerCount"] = $incorrectAnswersCount;
-
-        } else {
-            $result["score"] = 0;
-            $result["correctAnswerCount"] = 0;
-            $result["incorrectAnswerCount"] = 0;
-
-        }
-        $result["total"] = $total;
-
-        return $result;
-    }
 }
