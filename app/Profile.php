@@ -38,7 +38,7 @@ class Profile extends Model
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
         'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training',
-        'profile_occupations', 'profile_specializations', 'profile_badges'
+        'profile_occupations', 'profile_specializations'
     ];
     
     protected $visible = [
@@ -59,7 +59,7 @@ class Profile extends Model
         'imageUrl', 'shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name',
         'resumeUrl', 'experience', 'education', 'mutualFollowers', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount',
         'remainingMessages', 'isFollowedBy', 'isMessageAble', 'profileCompletion', 'batchesCount', 'newBatchesCount', 'foodie_type', 'establishment_types',
-        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment'
+        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment','profile_badges'
     ];
 
     /**
@@ -1331,11 +1331,6 @@ class Profile extends Model
         else
             return null;
     }
-    
-    public function profile_badges()
-    {
-        return $this->hasMany('App\Profile\Badge');
-    }
 
     public function profile_specializations()
     {
@@ -1619,4 +1614,15 @@ class Profile extends Model
         return ["earning" => $sum,"formatted_earning" => utf8_encode("&#8377;") . number_format($sum,2)];
     }
 
+    public function getProfileBadgesAttribute(){
+        $cuisineIds =  \DB::table('profile_badges')->where('profile_id', $this->id)->get()->pluck('badge_id');
+        $badgeList = \DB::table('badges')->select('id','title','description','image_meta')->whereIn('id', $cuisineIds)->whereNull('deleted_at')->where('is_active',1)->get();
+
+        foreach ($badgeList as $badge) {
+            if(isset($badge->image_meta)){
+                $badge->image_meta = json_decode($badge->image_meta,true);
+            }
+        }
+        return $badgeList;
+    }
 }
