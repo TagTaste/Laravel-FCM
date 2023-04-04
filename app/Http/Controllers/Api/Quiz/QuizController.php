@@ -1390,7 +1390,7 @@ class QuizController extends Controller
             ->get();
 
         foreach ($respondent as $profile) {
-            $result=$this->calculateUserScore($id,$profile->profile->id);
+            $result=$this->calculateScore($id,$profile->profile->id);
             $profileCopy = $profile->profile->toArray();
             $profileCopy["score_text"] = $result['score']."% Scored";
             $profileCopy["submission_date"] = $profile->max_submission;
