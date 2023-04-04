@@ -39,7 +39,7 @@ class LandingPageController extends Controller
     protected $feed_card_count = 0;
     protected $modelNotIncluded = [];
     protected $placeholderimage = [];
-    
+
     /**
      * Display a listing of the quick links.
      *
@@ -48,7 +48,7 @@ class LandingPageController extends Controller
 
     public function quickLinks(Request $request)
     {
-        
+
         $this->errors['status'] = 0;
         $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
         if (($request->header('x-version') != null
@@ -77,8 +77,8 @@ class LandingPageController extends Controller
         $this->errors['status'] = 0;
 
         //passbook
-        $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
-        $this->model[] = $passbook;
+        // $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
+        // $this->model[] = $passbook;
 
         //products available
         $reviewCard = $this->getProductAvailableForReview($profileId);
@@ -846,13 +846,13 @@ class LandingPageController extends Controller
             $links["ui_type"] = config("constant.LANDING_UI_TYPE.QUICK_LINKS");
 
             $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
-            
+
             if (($request->header('x-version') != null && $request->header('x-version') <= 171) ||
                 ($request->header('x-version-ios') != null && version_compare("5.0.14", $request->header('x-version-ios'), ">="))
             ) {
                 $quick_links = $quick_links->where("model_name", "!=", config("constants.LANDING_MODEL.QUIZ"));
             }
-            $quick_links = $quick_links->get();    
+            $quick_links = $quick_links->get();
             $links["elements"] = $quick_links;
 
             $this->model[] = $links;
@@ -863,8 +863,8 @@ class LandingPageController extends Controller
             $this->model[] = $bigBanner;
 
         if ($platform == 'mobile') {
-            $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
-            $this->model[] = $passbook;
+            // $passbook["ui_type"] = config("constant.LANDING_UI_TYPE.PASSBOOK");
+            // $this->model[] = $passbook;
 
             $reviewCard = $this->getProductAvailableForReview($profileId);
             if (count($reviewCard) != 0)
@@ -1144,5 +1144,66 @@ class LandingPageController extends Controller
             "model_id" => null
         ];
         return $banner;
+    }
+
+
+    public function topData(Request $request)
+    {
+        $data = [];
+        
+        //For Passbook
+        $unread = false;
+        $last_read_time = \App\Passbook::select('passbook_read_at')
+        ->where('profile_id', $request->user()->profile->id)->first();
+        $latest_txn_creation = \App\Payment\PaymentLinks::selectRaw('max(created_at) as created_at')
+        ->where('profile_id', $request->user()->profile->id)
+        ->where('is_active', 1)->whereNull('deleted_at')->first();
+        if ($last_read_time['passbook_read_at'] >= $latest_txn_creation['created_at']) {
+            $unread = false;
+        }else{
+            $unread = true;  
+        }
+    
+        
+        
+        $data[] = [
+            "unread_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_unread_icon.png",
+            "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Passbook_read_icon.png",
+            "type" => "passbook",
+            "unread" => $unread
+        ];
+
+        //For Chat
+        $unread = false;
+        $chat=Profile::where('id', $request->user()->profile->id)->first();
+        $count = isset($chat->messageCount) ? $chat->messageCount : 0;
+        if ($count > 0) {
+            $unread = true;
+        }
+        $data[] = [
+            "unread_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/chat_unread_icon.png",
+            "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/Chat_read_icon.png",
+            "type" => "chat",
+            "unread" => $unread,
+            "count" => $count
+        ];
+    
+        //For notification
+        $unread = false;
+        $notification=Profile::where('id', $request->user()->profile->id)->first();
+        $count = isset($notification->notificationCount) ? $notification->notificationCount : 0;
+        if ($count > 0) {
+            $unread = true;
+        }
+        $data[] = [
+            "unread_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/notification_unread_icon.png",
+            "read_icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/top_bar/notification_read_icon.png",
+            "type" => "notification",
+            "unread" => $unread,
+            "count" => $count
+        ];
+
+        $finalData["top_bar"] = $data;
+        return $this->sendResponse($finalData);
     }
 }

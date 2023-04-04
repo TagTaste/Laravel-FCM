@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Tagtaste\Api\SendsJsonResponse;
 use Carbon\Carbon;
+use App\Passbook;
 
 
 
@@ -43,7 +44,7 @@ class PaymentController extends Controller
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
 
-        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("payment_links.deleted_at","=",null);
+        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("payment_links.deleted_at", "=", null);
 
         if ($request->has("transaction_id") && !empty($request->transaction_id)) {
             $getData->where("transaction_id", $request->transaction_id);
@@ -81,16 +82,23 @@ class PaymentController extends Controller
         }
         // print_r
         $this->model["payments"] = $details;
+        //for passbook read mapping data entry
+        $passbookReadAt_exist = Passbook::where('profile_id', $request->user()->profile->id)->first();
+        if (empty($passbookReadAt_exist)) {
+            Passbook::insert(['profile_id' => $request->user()->profile->id, 'passbook_read_at' => Carbon::now()]);
+        }
+        Passbook::where('profile_id', $request->user()->profile->id)->update(['passbook_read_at'=> Carbon::now()]);
+
 
         return $this->sendResponse();
     }
 
     public function getTxnsById($txn_id, Request $request)
     {
-        
+
         $this->model = [];
         $this->getStatus($txn_id);
-        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->where("payment_links.deleted_at","=",null)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,link,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
+        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->where("payment_links.deleted_at", "=", null)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,link,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
         (
           'id', payment_status.id, 
           'value', payment_status.value,
@@ -186,13 +194,13 @@ class PaymentController extends Controller
     {
         //total - All - cancelled
         //to be redeemed = total - (cancelled + success)
-        $totalEarning = PaymentLinks::where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at","=",null)->first();
-        $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at","=",null)->first();
-        $pending = PaymentLinks::where("status_id", config("constant.PAYMENT_PENDING_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at","=",null)->first();
-        $cancelled = PaymentLinks::where("status_id", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at","=",null)->first();
-        $failure = PaymentLinks::where("status_id", config("constant.PAYMENT_FAILURE_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at","=",null)->first();
-        $expired = PaymentLinks::where("status_id", config("constant.PAYMENT_EXPIRED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at","=",null)->first();
-        $initiated = PaymentLinks::where("status_id", config("constant.PAYMENT_INITIATED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at","=",null)->first();
+        $totalEarning = PaymentLinks::where("status_id", "<>", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
+        $redeemed = PaymentLinks::where("status_id", config("constant.PAYMENT_SUCCESS_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
+        $pending = PaymentLinks::where("status_id", config("constant.PAYMENT_PENDING_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
+        $cancelled = PaymentLinks::where("status_id", config("constant.PAYMENT_CANCELLED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
+        $failure = PaymentLinks::where("status_id", config("constant.PAYMENT_FAILURE_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
+        $expired = PaymentLinks::where("status_id", config("constant.PAYMENT_EXPIRED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
+        $initiated = PaymentLinks::where("status_id", config("constant.PAYMENT_INITIATED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
 
         $totalEarning = number_format(($totalEarning->amount ?? 0), 2, '.', "");
         $toBeRedeemed = number_format((($pending->amount ?? 0) + ($initiated->amount ?? 0)), 2, '.', "");
@@ -253,22 +261,25 @@ class PaymentController extends Controller
     {
         $profileId = $request->user()->profile->id;
 
+
         $sensoryRequestCount = \DB::table("sensory_workshop_request")
-        ->where('profile_id', '=' , $profileId)->where('workshop_request', '=' , true)
-        ->whereNull('deleted_at')->count();
+            ->where('profile_id', '=', $profileId)->where('workshop_request', '=', true)
+            ->whereNull('deleted_at')->count();
+
 
         $sensoryRequest = $sensoryRequestCount > 0 ? true : false ;
         $sensoryBtnTitle = "Enrol for sensory workshop";
        
 
-        if($sensoryRequest){
+        if ($sensoryRequest) {
             $sensoryBtnTitle = "Your enrolment has been successful. Our team will reach out to you with further details.";
         }
+
         
         
         $sensoryButton = [
             "title" => $sensoryBtnTitle, "color_code" => "#4990e2", "text_color" => "#ffffff",
-            "url" => "payment/sensory/enroll", "method" => "POST","status"=>$sensoryRequest
+            "url" => "payment/sensory/enroll", "method" => "POST", "status" => $sensoryRequest
         ];
 
         $headers = [
@@ -331,7 +342,7 @@ class PaymentController extends Controller
                 ->where("sub_model_id", $subModelId)
                 ->where("is_active", 1)
                 ->get();
-                $text = "review";
+            $text = "review";
         } else if ($model == "survey") {
             $pop_up = ["title" => "Paid survey", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/survey.png"];
             $title = "Read the questions carefully before answering. Remember, there are no right or wrong answers.";
@@ -339,7 +350,7 @@ class PaymentController extends Controller
                 ->where("model_id", $modelId)
                 ->where("is_active", 1)
                 ->get();
-                $text = "survey";
+            $text = "survey";
         } else if ($model == "product") {
             $pop_up = ["title" => "Paid Public Review", "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Payment-Rules/public-review.png"];
             $title = "Read the questions carefully before answering. Remember, there are no right or wrong answers.";
@@ -347,7 +358,7 @@ class PaymentController extends Controller
                 ->where("model_id", $modelId)
                 ->where("is_active", 1)
                 ->get();
-                $text = "review";
+            $text = "review";
         } else {
             return $this->sendError("Invalid request. Please check your request.");
         }
@@ -363,7 +374,7 @@ class PaymentController extends Controller
         //     ]
         // ];
 
-        $pop_up["sub_title"] = "You will get paid once you complete the ".$text;
+        $pop_up["sub_title"] = "You will get paid once you complete the " . $text;
         $data = ["title" => $title, "pop_up" => $pop_up];
         $this->model = $data;
         return $this->sendResponse();
@@ -382,7 +393,7 @@ class PaymentController extends Controller
         // {
         //     $message->to($request->user()->email, $request->user()->name)->subject('Transaction Complaint regarding '.$txn_id);
         // }    );
-        $links = PaymentLinks::where("transaction_id", $txn_id)->where("payment_links.deleted_at","=",null)->first();
+        $links = PaymentLinks::where("transaction_id", $txn_id)->where("payment_links.deleted_at", "=", null)->first();
 
 
         $getOldComplaintId = PaymentReport::where("complaint_id", "LIKE", '%' . date('dmy') . "%")->orderBy("id", "desc")->select("complaint_id")->first();
@@ -397,7 +408,7 @@ class PaymentController extends Controller
         $buildComplaintId = date('dmy') . "_" . ++$number;
 
         PaymentReport::insert(['transaction_id' => $txn_id, 'profile_id' => $profileId, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId]);
-        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId,"name" => $request->user()->name]));
+        event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId, "name" => $request->user()->name]));
 
         $link = "";
         if ($links->model_type == "Public Review") {
@@ -418,7 +429,7 @@ class PaymentController extends Controller
         ];
         $d = ["subject" => "You’ve received a new complaint regarding " . $links->model_type . " Payments", "content" => $str];
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-            $message->to('payment@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Complain regarding Payments');
+            $message->to('payment@tagtaste.com', 'TagTaste')->subject(((config("app.env") != "production") ? 'TEST - ' : '') . 'New Complain regarding Payments');
         });
 
         $this->model = true;
@@ -439,17 +450,18 @@ class PaymentController extends Controller
 
         $currentTime = Carbon::now()->toDateTimeString();
         //insert into db
-        \DB::table('sensory_workshop_request')->updateOrInsert(['profile_id'=>$request->user()->profile->id,'workshop_request'=>1],['updated_at'=>$currentTime]);
-        
+        \DB::table('sensory_workshop_request')->updateOrInsert(['profile_id' => $request->user()->profile->id, 'workshop_request' => 1], ['updated_at' => $currentTime]);
+
 
         Mail::send("emails.payment-staff-common", ["data" => $d], function ($message) {
-            $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env")!= "production") ? 'TEST - ' : '').'New Registration for Sensory Workshop');
+            $message->to('workshop@tagtaste.com', 'TagTaste')->subject(((config("app.env") != "production") ? 'TEST - ' : '') . 'New Registration for Sensory Workshop');
         });
         $links = Profile::where("id", $request->user()->profile->id)->first();
         event(new SensoryEnroll($links, null, ["name" => $request->user()->name]));
 
         return $this->sendResponse($data);
     }
+
 
 
     // public function enrollExpertProgram(Request $request)
