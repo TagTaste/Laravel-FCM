@@ -1619,8 +1619,9 @@ class Profile extends Model
         $badgeList = \DB::table('badges')->select('id','title','description','image_meta')->whereIn('id', $cuisineIds)->whereNull('deleted_at')->where('is_active',1)->get();
 
         foreach ($badgeList as $badge) {
+            $badge->image = null;
             if(isset($badge->image_meta)){
-                $badge->image_meta = json_decode($badge->image_meta,true);
+                $badge->image = json_decode($badge->image_meta,true);
             }
         }
         return $badgeList;
