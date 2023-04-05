@@ -1361,11 +1361,10 @@ class QuizController extends Controller
                 $this->model = false;
                 return $this->sendNewError("User does not belong to this company");
             }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendNewError("Only Quiz Admin can view this report");
         }
-        //  else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
-        //     $this->model = false;
-        //     return $this->sendNewError("Only Quiz Admin can view this report");
-        // }
 
         if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
@@ -1376,19 +1375,19 @@ class QuizController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $count = QuizApplicants::selectRaw('max(completion_date) as max_submission,profile_id')->where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->groupBy("profile_id")->orderBy('completion_date', 'desc');
+        $count = QuizApplicants::where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->groupBy("profile_id")->orderBy('completion_date', 'desc');
 
         if ($request->has('filters') && !empty($request->filters)) {
             $count->whereIn('profile_id', $profileIds, 'and', $type);
         }
 
         $this->model = [];
-        $countInt = $count->count();
+        $countInt = $count->get()->count();
         $data = ["answer_count" => $countInt];
 
         $respondent = $count->skip($skip)->take($take)
             ->get();
-
+         
         foreach ($respondent as $profile) {
             $result=$this->calculateScore($id,$profile->profile->id);
             $profileCopy = $profile->profile->toArray();
@@ -1799,7 +1798,6 @@ class QuizController extends Controller
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
-            $prepareNode["reports"][$counter]["submission_date"] = isset($checkApplicant->completion_date) ? $checkApplicant->completion_date : null;
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
 
 
@@ -1821,6 +1819,9 @@ class QuizController extends Controller
 
             $counter++;
         }
+
+        $prepareNode["reports"][$counter]["submission_date"] = isset($checkApplicant->completion_date) ? $checkApplicant->completion_date : null;
+            
 
         $prepareNode["previous"] = isset($applicants[($valueToPos[$profile_id] - 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] - 1)]) : null;
         $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id] + 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] + 1)]) : null;
