@@ -1700,8 +1700,8 @@ class QuizController extends Controller
             
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
-            $prepareNode["reports"][$counter]["submission_date"] = $completionDate->completion_date;
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
             
             if (isset($values["options"])) {
@@ -1722,6 +1722,8 @@ class QuizController extends Controller
 
             $counter++;
         }
+
+        $prepareNode["submission_date"] = $completionDate->completion_date;
 
         $prepareNode["previous"] = isset($applicants[($valueToPos[$profile_id] - 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] - 1)]) : null;
         $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id] + 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] + 1)]) : null;
@@ -1796,6 +1798,7 @@ class QuizController extends Controller
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
 
