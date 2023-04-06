@@ -1375,7 +1375,7 @@ class QuizController extends Controller
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $count = QuizApplicants::where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->groupBy("profile_id")->orderBy('completion_date', 'desc');
+        $count = QuizApplicants::where("quiz_id", "=", $id)->where("deleted_at", "=", null)->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->orderBy('completion_date', 'desc');
 
         if ($request->has('filters') && !empty($request->filters)) {
             $count->whereIn('profile_id', $profileIds, 'and', $type);
@@ -1387,12 +1387,11 @@ class QuizController extends Controller
 
         $respondent = $count->skip($skip)->take($take)
             ->get();
-         
         foreach ($respondent as $profile) {
             $result=$this->calculateScore($id,$profile->profile->id);
             $profileCopy = $profile->profile->toArray();
             $profileCopy["score_text"] = $result['score']."% Scored";
-            $profileCopy["submission_date"] = $profile->max_submission;
+            $profileCopy["submission_date"] = $profile->completion_date;
             $data['report'][] = $profileCopy;
         }
 
@@ -1753,7 +1752,7 @@ class QuizController extends Controller
 
         $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
         $checkApplicant = $applicant->where('profile_id', $profile_id)->first();
-
+        
         if(empty($checkApplicant))
         {
             $this->model = false;
@@ -1820,7 +1819,7 @@ class QuizController extends Controller
             $counter++;
         }
 
-        $prepareNode["reports"][$counter]["submission_date"] = isset($checkApplicant->completion_date) ? $checkApplicant->completion_date : null;
+        $prepareNode["submission_date"] = isset($checkApplicant->completion_date) ? $checkApplicant->completion_date : null;
             
 
         $prepareNode["previous"] = isset($applicants[($valueToPos[$profile_id] - 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] - 1)]) : null;
