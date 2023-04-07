@@ -1653,17 +1653,16 @@ class QuizController extends Controller
         }
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
-        // if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-        //     $companyId = $checkIFExists->company_id;
-        //     $userId = $request->user()->id;
-        //     $company = Company::find($companyId);
-        //     $userBelongsToCompany = $company->checkCompanyUser($userId);
-        //     if (!$userBelongsToCompany) {
-        //         $this->model = false;
-        //         return $this->sendNewError("User does not belong to this company");
-        //     }
-        // } else 
-        if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             $this->model = false;
             return $this->sendNewError("Only Quiz Admin can view this report");
         }
@@ -1724,7 +1723,7 @@ class QuizController extends Controller
             $counter++;
         }
 
-        $prepareNode["submission_date"] = $completionDate->completion_date;
+        $prepareNode["submission_date"] = isset($completionDate->completion_date) ? $completionDate->completion_date : null;
 
         $prepareNode["previous"] = isset($applicants[($valueToPos[$profile_id] - 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] - 1)]) : null;
         $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id] + 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] + 1)]) : null;
@@ -1740,18 +1739,6 @@ class QuizController extends Controller
             $this->model = false;
             return $this->sendNewError("Invalid Quiz");
         }
-
-        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
-        // if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-        //     $companyId = $checkIFExists->company_id;
-        //     $userId = $request->user()->id;
-        //     $company = Company::find($companyId);
-        //     $userBelongsToCompany = $company->checkCompanyUser($userId);
-        //     if (!$userBelongsToCompany) {
-        //         $this->model = false;
-        //         return $this->sendNewError("User does not belong to this company");
-        //     }
-        // }
 
         $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
         $checkApplicant = $applicant->where('profile_id', $profile_id)->first();
