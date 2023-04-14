@@ -978,6 +978,7 @@ class QuizController extends Controller
                 $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? "#C1E2CF" : "#ECE1D8";
 
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+                // $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? number_format($getAvg[$optVal["id"]]["avg"],2) : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = isset($optVal["is_correct"]) ? $optVal["is_correct"] : false;
 
@@ -1388,9 +1389,8 @@ class QuizController extends Controller
         $respondent = $count->skip($skip)->take($take)
             ->get();
         foreach ($respondent as $profile) {
-            $result=$this->calculateScore($id,$profile->profile->id);
             $profileCopy = $profile->profile->toArray();
-            $profileCopy["score_text"] = $result['score']."% Scored";
+            $profileCopy["score_text"] = $profile->score;
             $profileCopy["submission_date"] = $profile->completion_date;
             $data['report'][] = $profileCopy;
         }
@@ -1683,8 +1683,9 @@ class QuizController extends Controller
         
         //Score Block
         $result = $this->calculateScore($id,$profile_id);
+        $score_text = (!empty($completionDate) ? $completionDate->score."% Scored" : null);
         $data["score_block"]=[
-            "score_text"=>$result['score']."% Score",
+            "score_text"=>$score_text,
             "total"=>$result['total'],
             "correctAnswerCount"=>$result['correctAnswerCount'],
             "incorrectAnswerCount"=>$result['incorrectAnswerCount']
@@ -1768,8 +1769,9 @@ class QuizController extends Controller
         $prepareNode = ["reports" => []];
 
         $result = $this->calculateScore($id, $profile_id);
+        $score_text = (!empty($checkApplicant) ? $checkApplicant->score."% Scored" : null);
         $data["score_block"] = [
-            "score_text" => $result['score'] . "% Score",
+            "score_text" => $score_text,
             "total" => $result['total'],
             "correctAnswerCount" => $result['correctAnswerCount'],
             "incorrectAnswerCount" => $result['incorrectAnswerCount']
