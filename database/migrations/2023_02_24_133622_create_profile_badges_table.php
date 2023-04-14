@@ -19,7 +19,6 @@ class CreateProfileBadgesTable extends Migration
             $table->integer('profile_id')->unsigned()->nullable();
             $table->integer('badge_id')->unsigned()->nullable();
             $table->timestamps();
-            $table->softDeletes();
 
             $table->foreign("profile_id")->references("id")->on("profiles");
             $table->foreign("badge_id")->references("id")->on("badges");
