@@ -51,7 +51,7 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy', 'profileCompletion', 'batchesCount', 'gender', 'user_id', 'newBatchesCount', 'shippingaddress',
         'profile_occupations', 'profile_specializations', 'is_veteran', 'is_expert', 'foodie_type_id', 'foodie_type', 'establishment_types', 'cuisines', 'interested_collections',
-        'onboarding_complete', "image_meta", "hero_image_meta", 'fb_info', 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'reviewCount', 'allergens', 'totalPostCount', 'imagePostCount', 'document_meta', 'is_ttfb_user', 'palate_sensitivity', 'palate_visibility', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_paid_taster', 'is_sensory_trained', 'payment'
+        'onboarding_complete', "image_meta", "hero_image_meta", 'fb_info', 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'reviewCount', 'allergens', 'totalPostCount', 'imagePostCount', 'document_meta', 'is_ttfb_user', 'palate_sensitivity', 'palate_visibility', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_paid_taster', 'is_sensory_trained', 'payment','profile_badges'
     ];
 
 
@@ -59,7 +59,7 @@ class Profile extends Model
         'imageUrl', 'shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name',
         'resumeUrl', 'experience', 'education', 'mutualFollowers', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount',
         'remainingMessages', 'isFollowedBy', 'isMessageAble', 'profileCompletion', 'batchesCount', 'newBatchesCount', 'foodie_type', 'establishment_types',
-        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment'
+        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment','profile_badges'
     ];
 
     /**
@@ -1614,4 +1614,16 @@ class Profile extends Model
         return ["earning" => $sum,"formatted_earning" => utf8_encode("&#8377;") . number_format($sum,2)];
     }
 
+    public function getProfileBadgesAttribute(){
+        $cuisineIds =  \DB::table('profile_badges')->where('profile_id', $this->id)->get()->pluck('badge_id');
+        $badgeList = \DB::table('badges')->select('id','title','description','image_meta')->whereIn('id', $cuisineIds)->whereNull('deleted_at')->where('is_active',1)->get();
+
+        foreach ($badgeList as $badge) {
+            $badge->image = null;
+            if(isset($badge->image_meta)){
+                $badge->image = json_decode($badge->image_meta,true);
+            }
+        }
+        return $badgeList;
+    }
 }
