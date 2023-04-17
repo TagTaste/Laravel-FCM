@@ -667,8 +667,15 @@ class QuizController extends Controller
                         $result = $this->quizResult($id, false);
                         $answer = $this->getAnswers($quiz, $values["question_id"]);
                         $result["options"] = $answer["options"];
+                        $score_block[] = array(
+                            'score_text' => $result['score'],
+                            'total' => $result['total'], 
+                            'correct_answer' => $result['correctAnswerCount'],
+                            'incorrect_answer' => $result['incorrectAnswerCount'], 
+                        );
+                        $applicant_score = json_encode($score_block);
 
-                        $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
+                        $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'],"applicant_score" => $applicant_score, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                         unset($result["score"]);
                     } else if ($request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")) {
                         DB::commit();
@@ -978,7 +985,7 @@ class QuizController extends Controller
                 $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? "#C1E2CF" : "#ECE1D8";
 
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
-                // $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? number_format($getAvg[$optVal["id"]]["avg"],2) : 0);
+              //$prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? number_format($getAvg[$optVal["id"]]["avg"],2) : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = isset($optVal["is_correct"]) ? $optVal["is_correct"] : false;
 
@@ -1390,7 +1397,7 @@ class QuizController extends Controller
             ->get();
         foreach ($respondent as $profile) {
             $profileCopy = $profile->profile->toArray();
-            $profileCopy["score_text"] = $profile->score;
+            $profileCopy["score_text"] = $profile->score. "% Scored";
             $profileCopy["submission_date"] = $profile->completion_date;
             $data['report'][] = $profileCopy;
         }
@@ -1683,7 +1690,7 @@ class QuizController extends Controller
         
         //Score Block
         $result = $this->calculateScore($id,$profile_id);
-        $score_text = (!empty($completionDate) ? $completionDate->score."% Scored" : null);
+        $score_text = (!empty($completionDate) ? $completionDate->score."% Score" : null);
         $data["score_block"]=[
             "score_text"=>$score_text,
             "total"=>$result['total'],
@@ -1769,7 +1776,7 @@ class QuizController extends Controller
         $prepareNode = ["reports" => []];
 
         $result = $this->calculateScore($id, $profile_id);
-        $score_text = (!empty($checkApplicant) ? $checkApplicant->score."% Scored" : null);
+        $score_text = (!empty($checkApplicant) ? $checkApplicant->score."% Score" : null);
         $data["score_block"] = [
             "score_text" => $score_text,
             "total" => $result['total'],
