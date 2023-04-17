@@ -1397,7 +1397,16 @@ class QuizController extends Controller
             ->get();
         foreach ($respondent as $profile) {
             $profileCopy = $profile->profile->toArray();
-            $profileCopy["score_text"] = $profile->score. "% Scored";
+            
+            if($profile->applicant_score != null){
+            $getJsonScore = json_decode($profile->applicant_score, true);
+                foreach ($getJsonScore as $scoreVal) {
+                    $profileCopy["score_text"] = $scoreVal['score_text']. "% Scored";
+                }
+            }else{
+                $profileCopy["score_text"] = '';
+            }    
+            
             $profileCopy["submission_date"] = $profile->completion_date;
             $data['report'][] = $profileCopy;
         }
@@ -1673,7 +1682,7 @@ class QuizController extends Controller
             $this->model = false;
             return $this->sendNewError("Only Quiz Admin can view this report");
         }
-      
+        
         $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
         $completionDate = $applicant->where('profile_id',$profile_id)->first();
 
@@ -1689,14 +1698,26 @@ class QuizController extends Controller
         $prepareNode = ["reports" => []];
         
         //Score Block
-        $result = $this->calculateScore($id,$profile_id);
-        $score_text = (!empty($completionDate) ? $completionDate->score."% Score" : null);
-        $data["score_block"]=[
-            "score_text"=>$score_text,
-            "total"=>$result['total'],
-            "correctAnswerCount"=>$result['correctAnswerCount'],
-            "incorrectAnswerCount"=>$result['incorrectAnswerCount']
+        if($completionDate->applicant_score != null ){
+        $getJsonScore = json_decode($completionDate->applicant_score, true);
+        foreach ($getJsonScore as $scoreVal) {
+             $data["score_block"] = [
+            "score_text" => $scoreVal['score_text'] ."% Score",
+            "total" => $scoreVal['total'],
+            "correctAnswerCount" => $scoreVal['correct_answer'],
+            "incorrectAnswerCount" => $scoreVal['incorrect_answer']
+
         ];
+        }
+        }else{
+            $data["score_block"] = [
+                "score_text" => '',
+                "total" => '',
+                "correctAnswerCount" => '',
+                "incorrectAnswerCount" => ''
+    
+            ];
+        }
        
         $getJson = json_decode($checkIFExists["form_json"], true);
         $counter = 0;
@@ -1775,16 +1796,28 @@ class QuizController extends Controller
 
         $prepareNode = ["reports" => []];
 
-        $result = $this->calculateScore($id, $profile_id);
-        $score_text = (!empty($checkApplicant) ? $checkApplicant->score."% Score" : null);
-        $data["score_block"] = [
-            "score_text" => $score_text,
-            "total" => $result['total'],
-            "correctAnswerCount" => $result['correctAnswerCount'],
-            "incorrectAnswerCount" => $result['incorrectAnswerCount']
+        // Score Block
+        if($checkApplicant->applicant_score != null){
+        $getJsonScore = json_decode($checkApplicant->applicant_score, true);
+        foreach ($getJsonScore as $scoreVal) {
+             $data["score_block"] = [
+            "score_text" => $scoreVal['score_text']. "% Score",
+            "total" => $scoreVal['total'],
+            "correctAnswerCount" => $scoreVal['correct_answer'],
+            "incorrectAnswerCount" => $scoreVal['incorrect_answer']
 
         ];
+        }
+       }else{
+        $data["score_block"] = [
+            "score_text" => '',
+            "total" => '',
+            "correctAnswerCount" => '',
+            "incorrectAnswerCount" => ''
 
+        ];
+       }
+       
         $getJson = json_decode($checkIFExists["form_json"], true);
         $counter = 0;
 

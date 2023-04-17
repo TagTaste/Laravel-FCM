@@ -120,9 +120,18 @@ class Quiz extends Model implements Feedable
 
         $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-        $meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
+        //$meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
 
-
+        if($reviewed->applicant_score != null) {
+        $applicantScore = json_decode($reviewed->applicant_score);
+        $meta['score_text']='';
+        foreach($applicantScore as $score){
+            $meta['score_text'] = $score->score_text."% Scored";
+        }
+        }else{
+            $meta['score_text'] = '';  
+        }
+        
         return $meta;
     }
 
@@ -145,7 +154,16 @@ class Quiz extends Model implements Feedable
         $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
 
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-        $meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
+        //$meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
+        if($reviewed->applicant_score != null) {
+            $applicantScore = json_decode($reviewed->applicant_score);
+            $meta['score_text']='';
+            foreach($applicantScore as $score){
+                $meta['score_text'] = $score->score_text."% Scored";
+            }
+            }else{
+                $meta['score_text'] = '';  
+            }
 
 
         return $meta;
