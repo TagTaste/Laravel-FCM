@@ -28,13 +28,15 @@ class Quiz extends Model implements Feedable
     public $incrementing = false;
 
 
-    protected $fillable = ["id","profile_id","company_id","title","description","image_meta","form_json","payload_id","updated_by","expired_at","state","deleted_at","replay","privacy_id"];
-    
-    protected $with = ['profile','company'];
-    
-    protected $appends = ['owner','meta','totalApplicants','application_status','score_text'];
-    protected $visible = ["id","profile_id","company_id","privacy_id","title","description","replay","image_meta","form_json",
-    "video_meta","state","expired_at","published_at","profile","company","created_at","updated_at","is_private","totalApplicants",'application_status','score_text'];
+    protected $fillable = ["id", "profile_id", "company_id", "title", "description", "image_meta", "form_json", "payload_id", "updated_by", "expired_at", "state", "deleted_at", "replay", "privacy_id"];
+
+    protected $with = ['profile', 'company'];
+
+    protected $appends = ['owner', 'meta', 'totalApplicants', 'application_status', 'score_text'];
+    protected $visible = [
+        "id", "profile_id", "company_id", "privacy_id", "title", "description", "replay", "image_meta", "form_json",
+        "video_meta", "state", "expired_at", "published_at", "profile", "company", "created_at", "updated_at", "is_private", "totalApplicants", 'application_status', 'score_text'
+    ];
 
 
     protected $cast = [
@@ -110,9 +112,9 @@ class Quiz extends Model implements Feedable
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
 
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
-        $reviewed = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('profile_id', $profileId)->where("application_status",2)->first();
+        $reviewed = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('profile_id', $profileId)->where("application_status", 2)->first();
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
-       
+
 
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
@@ -120,18 +122,8 @@ class Quiz extends Model implements Feedable
 
         $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-        //$meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
+        $meta['score_text']=$this->getScoreTextAttribute();
 
-        if($reviewed->applicant_score != null) {
-        $applicantScore = json_decode($reviewed->applicant_score);
-        $meta['score_text']='';
-        foreach($applicantScore as $score){
-            $meta['score_text'] = $score->score_text."% Scored";
-        }
-        }else{
-            $meta['score_text'] = '';  
-        }
-        
         return $meta;
     }
 
@@ -146,7 +138,7 @@ class Quiz extends Model implements Feedable
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
         $meta['answerCount'] = \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where('application_status', 2)->get()->count();
-        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', $profileId)->where("application_status",2)->first();
+        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', $profileId)->where("application_status", 2)->first();
 
         $payment = PaymentDetails::where("model_type", "quiz")->where("model_id", $this->id)->where("is_active", 1)->first();
 
@@ -154,17 +146,7 @@ class Quiz extends Model implements Feedable
         $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
 
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
-        //$meta['score_text'] = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
-        if($reviewed->applicant_score != null) {
-            $applicantScore = json_decode($reviewed->applicant_score);
-            $meta['score_text']='';
-            foreach($applicantScore as $score){
-                $meta['score_text'] = $score->score_text."% Scored";
-            }
-            }else{
-                $meta['score_text'] = '';  
-            }
-
+        $meta['score_text']=$this->getScoreTextAttribute();
 
         return $meta;
     }
@@ -180,11 +162,11 @@ class Quiz extends Model implements Feedable
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         //NOTE NIKHIL : Add answer count in here like poll count 
         // $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
-        $k = Redis::get("quiz:application_status:$this->id:profile:".request()->user()->profile->id);
+        $k = Redis::get("quiz:application_status:$this->id:profile:" . request()->user()->profile->id);
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-        ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
-       
+            ->where('company_id', $this->company_id)->where('user_id', request()->user()->id)->exists() : false;
+
         return $meta;
     }
 
@@ -220,24 +202,30 @@ class Quiz extends Model implements Feedable
                 $c = true;
             }
         }
-        if($c || request()->user()->profile->id==$this->profile_id){
-            return \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where("application_status",config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->whereNull('deleted_at')->get()->count();
+        if ($c || request()->user()->profile->id == $this->profile_id) {
+            return \DB::table('quiz_applicants')->where('quiz_id', $this->id)->where("application_status", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))->whereNull('deleted_at')->get()->count();
         }
-        
+
         return 0;
     }
 
     public function getApplicationStatusAttribute()
     {
-        $k = Redis::get("quiz:application_status:$this->id:profile:".request()->user()->profile->id);
+        $k = Redis::get("quiz:application_status:$this->id:profile:" . request()->user()->profile->id);
         $k = $k !== null ? (int)$k : null;
         return $k;
     }
 
     public function getScoreTextAttribute()
     {
-        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', request()->user()->profile->id)->where("application_status",2)->first();
-        $score_text = (!empty($reviewed) ? $reviewed->score."% Scored" : null);
+        $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', request()->user()->profile->id)->where("application_status", 2)->first();
+        $applicantScore = isset($reviewed->applicant_score) ? json_decode($reviewed->applicant_score ): null;
+        $score_text =0;
+        if (!empty($applicantScore)) {
+            foreach ($applicantScore as $applicant) {
+                $score_text = $applicant->score_text . "% Scored";
+            }
+        }
         return $score_text;
     }
 
@@ -246,22 +234,22 @@ class Quiz extends Model implements Feedable
         $title = "TagTaste | " . $this->title . " | Quiz";
         $description = "";
         if (!is_null($this->description)) {
-            $description = mb_convert_encoding(substr(strip_tags($this->description), 0, 160),'UTF-8', 'UTF-8') . "...";
+            $description = mb_convert_encoding(substr(strip_tags($this->description), 0, 160), 'UTF-8', 'UTF-8') . "...";
         } else {
             $description = "World's first online community for food professionals to discover, network and collaborate with each other.";
         }
-        
+
         $image = null;
-        if(gettype($this->image_meta) != 'array'){
+        if (gettype($this->image_meta) != 'array') {
             $this->image_meta = json_decode($this->image_meta, true);
         }
-        
-        if(isset($this->image_meta) && $this->image_meta != null && $this->image_meta != ''){
+
+        if (isset($this->image_meta) && $this->image_meta != null && $this->image_meta != '') {
             $image = $this->image_meta[0]['original_photo'] ?? null;
         }
-        
-        
-        
+
+
+
         $seo_tags = [
             "title" => $title,
             "meta" => array(
@@ -318,16 +306,19 @@ class Quiz extends Model implements Feedable
         return $data;
     }
 
-    public function addToGraph(){        
-        $data = ['id'=>$this->id, 
-        'quiz_id'=>$this->id,
-        'title'=>substr($this->title, 0, 150), 
-        'state'=>$this->state,
-        'profile_id'=>$this->profile_id,
-        'company_id'=>$this->company_id,
-        'payload_id'=>$this->payload_id,
-        'created_at'=>$this->created_at];
-        
+    public function addToGraph()
+    {
+        $data = [
+            'id' => $this->id,
+            'quiz_id' => $this->id,
+            'title' => substr($this->title, 0, 150),
+            'state' => $this->state,
+            'profile_id' => $this->profile_id,
+            'company_id' => $this->company_id,
+            'payload_id' => $this->payload_id,
+            'created_at' => $this->created_at
+        ];
+
         $quiz = \App\Neo4j\Quiz::where('quiz_id', $data['id'])->first();
         if (!$quiz) {
             \App\Neo4j\Quiz::create($data);
@@ -337,11 +328,12 @@ class Quiz extends Model implements Feedable
         }
     }
 
-    public function addParticipationEdge($profileId){
+    public function addParticipationEdge($profileId)
+    {
         $userProfile = \App\Neo4j\User::where('profile_id', $profileId)->first();
         $quiz = \App\Neo4j\Quiz::where('quiz_id', $this->id)->first();
         if ($userProfile && $quiz) {
-            $isUserParticipated = $userProfile->quiz_participated->where('quiz_id',$this->id)->first();
+            $isUserParticipated = $userProfile->quiz_participated->where('quiz_id', $this->id)->first();
             if (!$isUserParticipated) {
                 $relation = $userProfile->quiz_participated()->attach($quiz);
                 $relation->save();
@@ -352,14 +344,14 @@ class Quiz extends Model implements Feedable
         }
     }
 
-    public function removeFromGraph(){        
+    public function removeFromGraph()
+    {
         $quizCount = \App\Neo4j\Quiz::where('quiz_id', $this->id)->count();
         if ($quizCount > 0) {
             $client = config('database.neo4j_uri_client');
-             $query = "MATCH (p:Quizes{quiz_id:'$this->id'})
+            $query = "MATCH (p:Quizes{quiz_id:'$this->id'})
                         DETACH DELETE p;";
             $result = $client->run($query);
         }
     }
-  
 }
