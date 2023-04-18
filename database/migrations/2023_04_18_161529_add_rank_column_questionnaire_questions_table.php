@@ -18,7 +18,7 @@ class AddRankColumnQuestionnaireQuestionsTable extends Migration
             $table->integer('max_rank')->nullable();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
