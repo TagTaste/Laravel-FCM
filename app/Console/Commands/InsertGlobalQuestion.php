@@ -130,7 +130,7 @@ class InsertGlobalQuestion extends Command
                 {
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -155,7 +155,7 @@ class InsertGlobalQuestion extends Command
             },{
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -180,7 +180,7 @@ class InsertGlobalQuestion extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -771,7 +771,7 @@ class InsertGlobalQuestion extends Command
             {
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -796,7 +796,7 @@ class InsertGlobalQuestion extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -1135,7 +1135,7 @@ class InsertGlobalQuestion extends Command
               {
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -1160,7 +1160,7 @@ class InsertGlobalQuestion extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -1435,7 +1435,7 @@ class InsertGlobalQuestion extends Command
          {
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -1460,7 +1460,7 @@ class InsertGlobalQuestion extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -1891,7 +1891,7 @@ class InsertGlobalQuestion extends Command
           {
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -1916,7 +1916,7 @@ class InsertGlobalQuestion extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -2138,7 +2138,7 @@ class InsertGlobalQuestion extends Command
                 },
              {
                     "title": "While chewing, how does the product feel inside the mouth? ",
-                "subtitle": "Please select a maximum of 3 options.",
+                "subtitle": "Please select a maximum of 3 option.",
                     "select_type": 2,
                     "is_intensity": 0,
                     "is_mandatory": 1,
@@ -2414,7 +2414,7 @@ class InsertGlobalQuestion extends Command
          {
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -2439,7 +2439,7 @@ class InsertGlobalQuestion extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"

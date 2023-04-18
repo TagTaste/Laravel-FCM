@@ -81,7 +81,7 @@ class InsertPublicReviewQuestionair extends Command
 			{
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -106,7 +106,7 @@ class InsertPublicReviewQuestionair extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -1644,7 +1644,7 @@ class InsertPublicReviewQuestionair extends Command
 	{
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -1669,7 +1669,7 @@ class InsertPublicReviewQuestionair extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -2296,7 +2296,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -2321,7 +2321,7 @@ class InsertPublicReviewQuestionair extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -3019,7 +3019,7 @@ class InsertPublicReviewQuestionair extends Command
 	{
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -3044,7 +3044,7 @@ class InsertPublicReviewQuestionair extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -4073,7 +4073,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -4098,7 +4098,7 @@ class InsertPublicReviewQuestionair extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -4496,7 +4496,7 @@ class InsertPublicReviewQuestionair extends Command
 		
 				
 		
-					"subtitle": "Please select a maximum of 4 options.",
+					"subtitle": "Please select a maximum of 4 option.",
 		
 		
 					"select_type": 2,
@@ -5790,7 +5790,7 @@ class InsertPublicReviewQuestionair extends Command
 	"PRODUCT EXPERIENCE": [{
                 "title": "Rank question - Fav fruit",
                 "max_rank": 3,
-                "options": [
+                "option": [
                     {
                         "value": "Apple",
                         "color_code": "#F1E6C7"
@@ -5815,7 +5815,7 @@ class InsertPublicReviewQuestionair extends Command
             },
             {
                 "title": "Range question - How much you like the chai",
-                "options": [
+                "option": [
                     {
                         "value": "-2",
                         "label": "Chee"
@@ -6522,7 +6522,7 @@ class InsertPublicReviewQuestionair extends Command
                         }
                         $questions = \DB::table('public_review_nested_options')->where('question_id',$x->id)->where('global_question_id',
                             $globalQuestion->id)->get();
-
+						
                         foreach ($questions as $question)
                         {
                             $checknestedIds = \DB::table('public_review_nested_options')->where('question_id',$x->id)

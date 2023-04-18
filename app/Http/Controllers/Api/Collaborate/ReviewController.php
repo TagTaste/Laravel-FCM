@@ -89,6 +89,7 @@ class ReviewController extends Controller
             foreach ($answers as $answer) {
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
+                $selectType = isset($answer['select_type']) ? $answer['select_type'] : null;
                 if (isset($answer["option"])) {
                     $optionVal = \DB::table('collaborate_tasting_questions')->where('id', $questionId)->get();
                     if (!isset(json_decode($optionVal[0]->questions)->nested_option_list))
@@ -109,14 +110,32 @@ class ReviewController extends Controller
 
                     //Added by nikhil to decode &amp to & or anyother other encoding issue
                     $intensity = html_entity_decode($intensity);
+                    if($selectType == config("constant.SELECT_TYPES.RANGE_TYPE")){
+                        $data[] = [
+                            'key' => null,'value_id' => $option['value'],'value' => $option['label'], 'leaf_id' => $leafId,
+                            'question_id' => $questionId, 'tasting_header_id' => $headerId,
+                            'profile_id' => $loggedInProfileId, 'batch_id' => $batchId,
+                            'collaborate_id' => $collaborateId, 'intensity' => $intensity, 'current_status' => $currentStatus,
+                            'created_at' => $this->now, 'updated_at' => $this->now, 'option_type' => $optionType, 'meta' => null, 'address_map_id' => $address_id
+                        ];    
+                    }else if($selectType == config("constant.SELECT_TYPES.RANK_TYPE")){
+                        $data[] = [
+                            'key' => null, 'value' => $option['value'],'value_id'=>$option['rank'], 'leaf_id' => $leafId,
+                            'question_id' => $questionId, 'tasting_header_id' => $headerId,
+                            'profile_id' => $loggedInProfileId, 'batch_id' => $batchId,
+                            'collaborate_id' => $collaborateId, 'intensity' => $intensity, 'current_status' => $currentStatus,
+                            'created_at' => $this->now, 'updated_at' => $this->now, 'option_type' => $optionType, 'meta' => null, 'address_map_id' => $address_id
+                        ];
+                    }else{
+                        $data[] = [
+                            'key' => null, 'value' => $option['value'], 'leaf_id' => $leafId,
+                            'question_id' => $questionId, 'tasting_header_id' => $headerId,
+                            'profile_id' => $loggedInProfileId, 'batch_id' => $batchId,
+                            'collaborate_id' => $collaborateId, 'intensity' => $intensity, 'current_status' => $currentStatus, 'value_id' => $valueId,
+                            'created_at' => $this->now, 'updated_at' => $this->now, 'option_type' => $optionType, 'meta' => null, 'address_map_id' => $address_id
+                        ];    
+                    }
 
-                    $data[] = [
-                        'key' => null, 'value' => $option['value'], 'leaf_id' => $leafId,
-                        'question_id' => $questionId, 'tasting_header_id' => $headerId,
-                        'profile_id' => $loggedInProfileId, 'batch_id' => $batchId,
-                        'collaborate_id' => $collaborateId, 'intensity' => $intensity, 'current_status' => $currentStatus, 'value_id' => $valueId,
-                        'created_at' => $this->now, 'updated_at' => $this->now, 'option_type' => $optionType, 'meta' => null, 'address_map_id' => $address_id
-                    ];
                 }
                 if (isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta'])) {
                     if (isset($answer['track_consistency']) && $answer['track_consistency']) {
