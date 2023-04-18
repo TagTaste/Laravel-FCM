@@ -115,6 +115,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v['value'],
+                                'label' => isset($v['label']) ? $v['label'] : null,
                                 'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
                                 'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,

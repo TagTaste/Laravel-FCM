@@ -108,27 +108,27 @@ class InsertPublicReviewQuestionair extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -1671,27 +1671,27 @@ class InsertPublicReviewQuestionair extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -2323,27 +2323,27 @@ class InsertPublicReviewQuestionair extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -3046,27 +3046,27 @@ class InsertPublicReviewQuestionair extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -4100,27 +4100,27 @@ class InsertPublicReviewQuestionair extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -5817,27 +5817,27 @@ class InsertPublicReviewQuestionair extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -6353,7 +6353,7 @@ class InsertPublicReviewQuestionair extends Command
                 ';
 
 
-        $data = ['name'=>'rank_range_questionnaire','keywords'=>"rank_range_questionnaire",'description'=>null,
+        $data = ['name'=>'updated_rank_range_questionnaire','keywords'=>"rank_range_questionnaire",'description'=>null,
 
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
@@ -6522,7 +6522,7 @@ class InsertPublicReviewQuestionair extends Command
                         }
                         $questions = \DB::table('public_review_nested_options')->where('question_id',$x->id)->where('global_question_id',
                             $globalQuestion->id)->get();
-						
+
                         foreach ($questions as $question)
                         {
                             $checknestedIds = \DB::table('public_review_nested_options')->where('question_id',$x->id)

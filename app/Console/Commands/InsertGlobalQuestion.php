@@ -40,7 +40,7 @@ class InsertGlobalQuestion extends Command
         $track_consistency = 0;
         $headerInfo2 = [
           
-   ['header_name' => "Instructions",'header_selection_type'=>"0"],
+   ['header_name' => "Instructions",'header_selection_type'=>0],
    ['header_name' => "Your Food Shot",'header_selection_type' => "3"],
 
    ['header_name' => "Appearance", "header_info" => ["text" => "Observe the Loaf of Bread and the Bread slice served on the plate and answer the questions.\nPlease <b>do not eat</b> in this entire appearance section.","images" => ["https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/dashboard/images/xv83ui7t8cbkrvygpg3uk.jpeg"]],'header_selection_type'=>"1"],
@@ -182,27 +182,27 @@ class InsertGlobalQuestion extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -798,27 +798,27 @@ class InsertGlobalQuestion extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -1162,27 +1162,27 @@ class InsertGlobalQuestion extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -1462,27 +1462,27 @@ class InsertGlobalQuestion extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -1918,27 +1918,27 @@ class InsertGlobalQuestion extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -2441,27 +2441,27 @@ class InsertGlobalQuestion extends Command
                 "title": "Range question - How much you like the chai",
                 "option": [
                     {
-                        "value": "-2",
+                        "value": -2,
                         "label": "Chee"
                     },
                     {
-                        "value": "-1",
+                        "value": -1,
                         "label": "Yaak"
                     },
                     {
-                        "value": "0",
+                        "value": 0,
                         "label": "Bakwaas"
                     },
                     {
-                        "value" : "1",
+                        "value" : 1,
                         "label": "A fan"
                     },
                     {
-                        "value": "2",
+                        "value": 2,
                         "label": "A lover"
                     },
                     {
-                        "value": "3",
+                        "value": 3,
                         "label": "Life"
                     }
                 ],
@@ -2635,7 +2635,7 @@ class InsertGlobalQuestion extends Command
         ';
 
         $data = [
-            'name' => 'RANK_range_questionnaire', 'keywords' => "RANK_range_questionnaire", 'description' => null,
+            'name' => 'updated_rank_range_questionnaire', 'keywords' => "RANK_range_questionnaire", 'description' => null,
             'question_json' => $questions2, 'header_info' => json_encode($headerInfo2, true), 'track_consistency' => $track_consistency
         ];
         \DB::table('global_questions')->insert($data);
