@@ -43,24 +43,33 @@ class QuizApplicantScore extends Command
     {
         $applicants = \DB::table("quiz_applicants")
         ->where("application_status", "=", config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"))
-        ->where("deleted_at", "=", null)->groupBy('quiz_id')->get();
-
+        ->whereNull("deleted_at")->get();
+        
         foreach ($applicants as $profile) {
             $id = $profile->quiz_id;
             $profileUserId = $profile->profile_id;
                
                $result = $this->calculateScore($id,$profileUserId);
-               $score_block[] = array(
-                'score_text' => $result['score'],
-                'total' => $result['total'], 
-                'correct_answer' => $result['correctAnswerCount'],
-                'incorrect_answer' => $result['incorrectAnswerCount'], 
-                );
-               $applicant_score = json_encode($score_block);
-               \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $profileUserId)
-               ->update(["applicant_score" => $applicant_score]);
-              unset($score_block);
-              unset($applicant_score);
+               if ($result != null){
+                $score_block[] = array(
+                    'score_text' => $result['score'],
+                    'total' => $result['total'], 
+                    'correct_answer' => $result['correctAnswerCount'],
+                    'incorrect_answer' => $result['incorrectAnswerCount'], 
+                    );
+                }else{
+                    $score_block[] = array(
+                        'score_text' => 0,
+                        'total' => 0, 
+                        'correct_answer' => 0,
+                        'incorrect_answer' => 0, 
+                        );
+                }
+                $applicant_score = json_encode($score_block);
+                \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $profileUserId)
+                ->update(["applicant_score" => $applicant_score]);
+               unset($score_block);
+               unset($applicant_score);    
         }  
     }
 
@@ -70,62 +79,71 @@ class QuizApplicantScore extends Command
         $correctAnswersCount = 0;
         $incorrectAnswersCount = 0;
         
-        $questions =  Quiz::where("id", $id)->whereNull("deleted_at")->first();
+        $questions =  Quiz::where("id", $id)->withTrashed()->first();
 
         if(!empty($questions->form_json)){
-        $questions = json_decode($questions->form_json);
-        } 
+            $questions = json_decode($questions->form_json);
+            $answerMapping = []; //original correct options wrt ques
         
-        $answerMapping = []; //original correct options wrt ques
-        
-        $answers = QuizAnswers::where("quiz_id", $id)
-        ->where('profile_id', $profileId)->whereNull('deleted_at')->get();   
-        
-        $score = 0;
-        if(!empty($questions)){
-        $total = count($questions);
-        }
-        
-        if (count($answers) > 0) {
+            $answers = QuizAnswers::where("quiz_id", $id)
+            ->where('profile_id', $profileId)->whereNull('deleted_at')->get();   
+            
+            $score = 0;
+            $total = 0;
             if(!empty($questions)){
-            foreach ($questions as $value) {
-                foreach ($value->options as $option) {
-                    if (isset($option->is_correct) && $option->is_correct) {
+                $total = count($questions);
+            }
 
-                        $answerMapping[$value->id][] = $option->id;
+            if (count($answers)) {
+                foreach ($questions as $value) {
+                    foreach ($value->options as $option) {
+                        if (isset($option->is_correct) && $option->is_correct) {
+    
+                            $answerMapping[$value->id][] = $option->id;
+                        }
                     }
                 }
-            }
-           }
-
-
-           if(!empty($questions)){
-            foreach ($questions as $question) {
-                
-                $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", $profileId)->whereNull("deleted_at")->pluck("option_id")->toArray();    
-                
-                sort( $answerArray);
-                sort($answerMapping[$question->id]);
-                if(!empty($answerArray)){
-                if ($answerMapping[$question->id] == $answerArray) { //checking if original correct options is matching to users one
-                    $correctAnswersCount++;
-                    $score += 1;
+    
+                foreach ($questions as $question) {
+                    if($profileId == null){
+                    $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
+                    }
+                    else{
+                        $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", $profileId)->whereNull("deleted_at")->pluck("option_id")->toArray();    
+                    }
+                    sort( $answerArray);
+                    sort($answerMapping[$question->id]);
+                    if(!empty($answerArray)){
+                    if ($answerMapping[$question->id] == $answerArray) { //checking if original correct options is matching to users one
+                        $correctAnswersCount++;
+                        $score += 1;
+                    }
+                    else{
+                        $incorrectAnswersCount++;
+                    }
                 }
-                else{
-                    $incorrectAnswersCount++;
                 }
+                $score = ($score * 100) / $total;
+    
+                $result["score"] = (is_float($score)) ? number_format($score, 2, ".", "") : $score;
+                $result["correctAnswerCount"] = $correctAnswersCount;
+                $result["incorrectAnswerCount"] = $incorrectAnswersCount;
+    
+            } else {
+                $result["score"] = 0;
+                $result["correctAnswerCount"] = 0;
+                $result["incorrectAnswerCount"] = 0;
             }
-            }
-            }
-            $score = ($score * 100) / $total;
+            $result["total"] = $total;
+    
+            return $result;
+        }else{
+            echo $id;
+            echo PHP_EOL;
+            return null;
+        }
 
-            $result["score"] = (is_float($score)) ? number_format($score, 2, ".", "") : $score;
-            $result["correctAnswerCount"] = $correctAnswersCount;
-            $result["incorrectAnswerCount"] = $incorrectAnswersCount;
-
-        } 
-        $result["total"] = $total;
-
-        return $result;
-    }
+    } 
+        
+        
 }
