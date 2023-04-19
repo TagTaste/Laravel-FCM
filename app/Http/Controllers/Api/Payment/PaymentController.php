@@ -411,9 +411,9 @@ class PaymentController extends Controller
         event(new PaymentComplain($links, null, ['transaction_id' => $txn_id, 'title' => $title, 'description' => $description, "complaint_id" => $buildComplaintId, "name" => $request->user()->name]));
 
         $link = "";
-        if ($links->model_type == "Public Review") {
+        if ($links->model_type == "Private Review") {
             $link = config("app.url") . "/collaborations/" . $links->model_id . "/product-review";
-        } else if ($links->model_type == "Private Review") {
+        } else if ($links->model_type == "Public Review") {
             $link = config("app.url") . "/reviews/products/" . $links->model_id;
         } else if ($links->model_type == "Survey") {
             $link = config("app.url") . "/surveys/" . $links->model_id;
