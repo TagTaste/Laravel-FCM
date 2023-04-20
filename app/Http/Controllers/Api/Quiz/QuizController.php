@@ -1099,7 +1099,7 @@ class QuizController extends Controller
         return false;
     }
 
-    public function calculateScore($id,$profileId=null)
+    public function calculateScore($id)
     {
         //calculation of final score of an applicant
         $correctAnswersCount = 0;
@@ -1107,14 +1107,11 @@ class QuizController extends Controller
         $questions =  Quiz::where("id", $id)->whereNull("deleted_at")->first();
         $questions = json_decode($questions->form_json);
         $answerMapping = []; //original correct options wrt ques
-        if($profileId == null){
         $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', request()->user()->profile->id)->whereNull('deleted_at')->get();
-        }else{
-            $answers = QuizAnswers::where("quiz_id", $id)->where('profile_id', $profileId)->whereNull('deleted_at')->get();   
-        } 
+
         $score = 0;
         $total = count($questions);
-        
+
         if (count($answers)) {
             foreach ($questions as $value) {
                 foreach ($value->options as $option) {
@@ -1126,12 +1123,8 @@ class QuizController extends Controller
             }
 
             foreach ($questions as $question) {
-                if($profileId == null){
+               
                 $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", request()->user()->profile->id)->whereNull("deleted_at")->pluck("option_id")->toArray();
-                }
-                else{
-                    $answerArray = QuizAnswers::where("quiz_id", $id)->where("question_id", $question->id)->where("profile_id", $profileId)->whereNull("deleted_at")->pluck("option_id")->toArray();    
-                }
                 sort( $answerArray);
                 sort($answerMapping[$question->id]);
                 if(!empty($answerArray)){
@@ -1178,8 +1171,7 @@ class QuizController extends Controller
         if (empty($applicant)) {
             return $this->sendNewError("user has not attempted the quiz");
         }
-        $profileId = null;
-        $result = $this->calculateScore($id,$profileId);
+        $result = $this->calculateScore($id);
         $data["title"] = $quiz->title;
         if ($result['score'] < 33) {
             $data['image_url']=config("constant.QUIZ_RESULT_IMAGE_URL.0");
