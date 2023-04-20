@@ -220,7 +220,7 @@ class Quiz extends Model implements Feedable
     {
         $reviewed = QuizApplicants::where('quiz_id', $this->id)->where('profile_id', request()->user()->profile->id)->where("application_status", 2)->first();
         $applicantScore = isset($reviewed->applicant_score) ? json_decode($reviewed->applicant_score ): null;
-        $score_text =0;
+        $score_text = null;
         if (!empty($applicantScore)) {
             foreach ($applicantScore as $applicant) {
                 $score_text = $applicant->score_text . "% Scored";
