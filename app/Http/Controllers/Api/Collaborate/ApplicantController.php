@@ -1044,7 +1044,7 @@ class ApplicantController extends Controller
                     }
                 }
             }
-
+            $dob = isset($applicant->profile->dob) ? $applicant->profile->dob : "";
             $temp = array(
                 "S. No" => $key + 1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
@@ -1056,7 +1056,9 @@ class ApplicantController extends Controller
                 "Specialization" => $specialization,
                 "Allergens" => $allergens,
                 "Hometown" => $applicant->hometown,
-                "Current City" => $applicant->current_city
+                "Current City" => $applicant->current_city,
+                "Age group" => $applicant->age_group,
+                "DOB" => $dob
             );
 
             if ($collaborate->collaborate_type == 'collaborate') {
