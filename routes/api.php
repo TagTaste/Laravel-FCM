@@ -971,7 +971,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/download-reports/{id}', 'QuizController@excelReport');
         Route::get('/similar/{id}', 'QuizController@similarQuizes');
         Route::get('/getAnswers/{id}', 'QuizController@getStoredAnswers');
-
+        Route::get('/user-responses/{id}/{profile_id}', 'QuizController@userResponses');
+        Route::get('/self-quiz-response/{id}/{profile_id}', 'QuizController@userSelfResponses');
     });
        
     Route::resource('quiz', '\App\Http\Controllers\Api\Quiz\QuizController', ['middleware' => ['api.auth']]);

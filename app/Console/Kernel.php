@@ -81,6 +81,7 @@ use App\Console\Commands\makePaidTasters;
 use App\Console\Commands\TTFBQuestionUpload;
 use App\Console\Commands\removeNotifications;
 use App\Console\Commands\syncPollElasticSearch;
+use App\Console\Commands\QuizApplicantScore;
 
 class Kernel extends ConsoleKernel
 {
@@ -278,6 +279,7 @@ class Kernel extends ConsoleKernel
         //\App\Console\Commands\DeleteUsers::class,
         \App\Console\Commands\MailUnverifiedUserVerificationEmail::class,
         SurveyAnswerSync::class,
+        QuizApplicantScore::class,
 
         RemoveDuplicateFromReviewTable::class,
 

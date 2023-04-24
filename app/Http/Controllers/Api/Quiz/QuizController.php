@@ -667,8 +667,15 @@ class QuizController extends Controller
                         $result = $this->quizResult($id, false);
                         $answer = $this->getAnswers($quiz, $values["question_id"]);
                         $result["options"] = $answer["options"];
+                        $score_block[] = array(
+                            'score_text' => $result['score'],
+                            'total' => $result['total'], 
+                            'correct_answer' => $result['correctAnswerCount'],
+                            'incorrect_answer' => $result['incorrectAnswerCount'], 
+                        );
+                        $applicant_score = json_encode($score_block);
 
-                        $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'], "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
+                        $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->update(["score" => $result['score'],"applicant_score" => $applicant_score, "application_status" => config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"), "completion_date" => date("Y-m-d H:i:s")]);
                         unset($result["score"]);
                     } else if ($request->current_status == config("constant.QUIZ_APPLICANT_ANSWER_STATUS.INPROGRESS")) {
                         DB::commit();
@@ -978,6 +985,7 @@ class QuizController extends Controller
                 $prepareNode["reports"][$counter]["options"][$optCounter]["color_code"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? "#C1E2CF" : "#ECE1D8";
 
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
+              //$prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? number_format($getAvg[$optVal["id"]]["avg"],2) : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["avg"] : 0);
                 $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = isset($optVal["is_correct"]) ? $optVal["is_correct"] : false;
 
@@ -1287,7 +1295,7 @@ class QuizController extends Controller
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
             $prepareNode["reports"][$counter]["is_answered"] = false;
-
+            
             if ($answers->count()) {
                 $optCounter = 0;
                 $answers = $answers->toArray();
@@ -1374,14 +1382,25 @@ class QuizController extends Controller
         }
 
         $this->model = [];
-        $countInt = $count->count();
+        $countInt = $count->get()->count();
         $data = ["answer_count" => $countInt];
 
         $respondent = $count->skip($skip)->take($take)
             ->get();
-
         foreach ($respondent as $profile) {
-            $data['report'][] = $profile->profile;
+            $profileCopy = $profile->profile->toArray();
+            
+            if($profile->applicant_score != null){
+            $getJsonScore = json_decode($profile->applicant_score, true);
+                foreach ($getJsonScore as $scoreVal) {
+                    $profileCopy["score_text"] = $scoreVal['score_text']. "% Scored";
+                }
+            }else{
+                $profileCopy["score_text"] = '';
+            }    
+            
+            $profileCopy["submission_date"] = $profile->completion_date;
+            $data['report'][] = $profileCopy;
         }
 
         $this->model = $data;
@@ -1630,4 +1649,209 @@ class QuizController extends Controller
             return "yold";
         }
     }
+
+
+    public function userResponses($id, $profile_id, Request $request)
+    {
+
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Quiz");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendNewError("Only Quiz Admin can view this report");
+        }
+        
+        $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+        $completionDate = $applicant->where('profile_id',$profile_id)->first();
+
+        $applicants = $applicant->get()->toArray();
+        $posToValue = [];
+        $valueToPos = [];
+
+        foreach ($applicants as $key => $applicant) {
+            $posToValue[$key] = $applicant["profile_id"];
+            $valueToPos[$applicant["profile_id"]] = $key;
+        }
+
+        $prepareNode = ["reports" => []];
+        
+        //Score Block
+        if($completionDate->applicant_score != null ){
+        $getJsonScore = json_decode($completionDate->applicant_score, true);
+        foreach ($getJsonScore as $scoreVal) {
+             $data["score_block"] = [
+            "score_text" => $scoreVal['score_text'] ."% Score",
+            "total" => $scoreVal['total'],
+            "correctAnswerCount" => $scoreVal['correct_answer'],
+            "incorrectAnswerCount" => $scoreVal['incorrect_answer']
+
+        ];
+        }
+        }else{
+            $data["score_block"] = [
+                "score_text" => '',
+                "total" => '',
+                "correctAnswerCount" => '',
+                "incorrectAnswerCount" => ''
+    
+            ];
+        }
+       
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $counter = 0;
+
+        foreach ($getJson as $values) {
+            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->get();
+
+            $pluckOpId = $answers->pluck("option_id")->toArray();
+            
+            $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
+            $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
+            
+            if (isset($values["options"])) {
+                $optCounter = 0;
+                foreach ($values["options"] as $optVal) {
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? true : false;
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["is_answered"] = false;
+
+                    if (in_array($optVal["id"], $pluckOpId)) {
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["is_answered"] = true;
+                    }
+                    $optCounter++;
+                }
+            }
+
+            $counter++;
+        }
+
+        $prepareNode["submission_date"] = isset($completionDate->completion_date) ? $completionDate->completion_date : null;
+
+        $prepareNode["previous"] = isset($applicants[($valueToPos[$profile_id] - 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] - 1)]) : null;
+        $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id] + 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] + 1)]) : null;
+        $this->messages = "Report Successful";
+        $this->model = array_merge($data,$prepareNode);
+        return $this->sendResponse();
+    }
+
+    public function userSelfResponses($id, $profile_id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Quiz");
+        }
+
+        $applicant = QuizApplicants::where('quiz_id', $id)->where('application_status', config("constant.QUIZ_APPLICANT_ANSWER_STATUS.COMPLETED"));
+        $checkApplicant = $applicant->where('profile_id', $profile_id)->first();
+        
+        if(empty($checkApplicant))
+        {
+            $this->model = false;
+            return $this->sendNewError("User has not participated");
+        
+        }
+      
+        $profileId = $checkApplicant->profile_id ;
+        if ( $request->user()->profile->id != $profileId) {
+            $this->model = false;
+            return $this->sendNewError("Only User can view this report");
+        } 
+            
+        $applicants = $applicant->get()->toArray();
+        $posToValue = [];
+        $valueToPos = [];
+
+        foreach ($applicants as $key => $applicant) {
+            $posToValue[$key] = $applicant["profile_id"];
+            $valueToPos[$applicant["profile_id"]] = $key;
+        }
+
+        $prepareNode = ["reports" => []];
+
+        // Score Block
+        if($checkApplicant->applicant_score != null){
+        $getJsonScore = json_decode($checkApplicant->applicant_score, true);
+        foreach ($getJsonScore as $scoreVal) {
+             $data["score_block"] = [
+            "score_text" => $scoreVal['score_text']. "% Score",
+            "total" => $scoreVal['total'],
+            "correctAnswerCount" => $scoreVal['correct_answer'],
+            "incorrectAnswerCount" => $scoreVal['incorrect_answer']
+
+        ];
+        }
+       }else{
+        $data["score_block"] = [
+            "score_text" => '',
+            "total" => '',
+            "correctAnswerCount" => '',
+            "incorrectAnswerCount" => ''
+
+        ];
+       }
+       
+        $getJson = json_decode($checkIFExists["form_json"], true);
+        $counter = 0;
+
+        foreach ($getJson as $values) {
+            $answers = QuizAnswers::where("quiz_id", "=", $id)->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->get();
+
+            $pluckOpId = $answers->pluck("option_id")->toArray();
+
+            $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["title"] = $values["title"];
+            $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
+            $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
+            $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
+
+
+            if (isset($values["options"])) {
+                $optCounter = 0;
+                foreach ($values["options"] as $optVal) {
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["id"] = $optVal["id"];
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["value"] = $optVal["title"];
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["image_meta"] = (!is_array($optVal["image_meta"]) ? json_decode($optVal["image_meta"], true) : $optVal["image_meta"]);
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["is_correct"] = (isset($optVal["is_correct"]) && $optVal["is_correct"]) ? true : false;
+                    $prepareNode["reports"][$counter]["options"][$optCounter]["is_answered"] = false;
+
+                    if (in_array($optVal["id"], $pluckOpId)) {
+                        $prepareNode["reports"][$counter]["options"][$optCounter]["is_answered"] = true;
+                    }
+                    $optCounter++;
+                }
+            }
+
+            $counter++;
+        }
+
+        $prepareNode["submission_date"] = isset($checkApplicant->completion_date) ? $checkApplicant->completion_date : null;
+            
+
+        $prepareNode["previous"] = isset($applicants[($valueToPos[$profile_id] - 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] - 1)]) : null;
+        $prepareNode["next"] = isset($applicants[($valueToPos[$profile_id] + 1)]) ? Profile::find($posToValue[($valueToPos[$profile_id] + 1)]) : null;
+        $this->messages = "Report Successful";
+        $this->model = array_merge($data, $prepareNode);
+        return $this->sendResponse();
+    }
+
 }
