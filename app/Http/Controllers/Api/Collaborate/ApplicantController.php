@@ -207,7 +207,7 @@ class ApplicantController extends Controller
             $inputs = [
                 'is_invite' => $isInvited, 'profile_id' => $loggedInprofileId, 'collaborate_id' => $collaborateId,
                 'message' => $request->input('message'), 'applier_address' => $applierAddress, 'hut' => $hut,
-                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city
+                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => $profile->dob
             ];
         }
 
