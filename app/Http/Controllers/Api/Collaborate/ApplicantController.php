@@ -208,9 +208,8 @@ class ApplicantController extends Controller
             $inputs = [
                 'is_invite' => $isInvited, 'profile_id' => $loggedInprofileId, 'collaborate_id' => $collaborateId,
                 'message' => $request->input('message'), 'applier_address' => $applierAddress, 'hut' => $hut,
-                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => date("Y-m-d", strtotime($profile->dob)), 'generation' => Helper::getGeneration(date("Y", strtotime($profile->dob)))
+                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => $profile->dob, 'generation' => Helper::getGeneration($profile->dob)
             ];
-            
         }
 
         if ($collaborate->document_required) {
@@ -619,7 +618,7 @@ class ApplicantController extends Controller
                 'documents_verified' => $documents_verified,
                 'share_number' => $share_number,
                 'dob' => $profile->dob,
-                'generation' => Helper::getGeneration(date("Y", strtotime($profile->dob)))
+                'generation' => Helper::getGeneration($profile->dob)
             ]);
 
 

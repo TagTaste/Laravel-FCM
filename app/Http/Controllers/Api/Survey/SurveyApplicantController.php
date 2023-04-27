@@ -169,7 +169,7 @@ class SurveyApplicantController extends Controller
         $data = [
             'profile_id' => $request->user()->profile->id, 'survey_id' => $id,
             'message' => ($request->message ?? null),
-            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"), "dob" => date("Y-m-d", strtotime($profile->dob)), "generation" => Helper::getGeneration(date("Y", strtotime($profile->dob)))
+            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"), "dob" => $profile->dob, "generation" => Helper::getGeneration($profile->dob)
         ];
 
         $create = surveyApplicants::create($data);

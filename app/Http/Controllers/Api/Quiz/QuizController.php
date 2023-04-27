@@ -596,7 +596,7 @@ class QuizController extends Controller
             $profile = $request->user()->profile;
             $checkApplicant = \DB::table("quiz_applicants")->where('quiz_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
             if (empty($checkApplicant)) {
-                \DB::table("quiz_applicants")->insert(["quiz_id" => $id, "profile_id" => request()->user()->profile->id, "application_status" => 1, "gender" => $profile->gender, "city" => $profile->city, "hometown" => $profile->hometown, "age_group" => $this->calcDobRange(date("Y", strtotime($profile->dob))) ,"dob" => date("Y-m-d", strtotime($profile->dob)), "generation" => Helper::getGeneration(date("Y", strtotime($profile->dob)))]);
+                \DB::table("quiz_applicants")->insert(["quiz_id" => $id, "profile_id" => request()->user()->profile->id, "application_status" => 1, "gender" => $profile->gender, "city" => $profile->city, "hometown" => $profile->hometown, "age_group" => $this->calcDobRange(date("Y", strtotime($profile->dob))) ,"dob" => $profile->dob, "generation" => Helper::getGeneration($profile->dob)]);
             }
 
             $questions = (!is_array($request->answer_json) ? json_decode($request->answer_json, true) : $request->answer_json);

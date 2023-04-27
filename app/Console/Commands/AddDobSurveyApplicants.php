@@ -44,7 +44,7 @@ class AddDobSurveyApplicants extends Command
             $id = $profile->id;
             $dob = $profile->dob;
             if(isset($dob)){
-                $generation = Helper::getGeneration(date("Y", strtotime($dob)));
+                $generation = Helper::getGeneration($profile->dob);
                 \DB::table("survey_applicants")->where('profile_id', $id)->update(["dob" => $dob, "generation"=>$generation]);    
             }
         }  

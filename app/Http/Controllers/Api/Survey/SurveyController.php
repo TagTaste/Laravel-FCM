@@ -2472,7 +2472,7 @@ class SurveyController extends Controller
             $inputs = [
                 'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
                 'message' => $request->input('message'), 'address' => $applierAddress,
-                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => date("Y-m-d", strtotime($profile->dob)), "generation" => Helper::getGeneration(date("Y", strtotime($profile->dob)))
+                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $profile->dob, "generation" => Helper::getGeneration($profile->dob)
             ];
 
 
@@ -2489,7 +2489,7 @@ class SurveyController extends Controller
             
             if (empty($checkApplicant->age_group)) {
                 $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
-                $update['generation'] = Helper::getGeneration(date("Y", strtotime($profile->dob)));
+                $update['generation'] = Helper::getGeneration($profile->dob);
             }
             
             if ($checkApplicant->is_invited) {
