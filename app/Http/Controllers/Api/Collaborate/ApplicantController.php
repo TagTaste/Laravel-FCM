@@ -1045,6 +1045,10 @@ class ApplicantController extends Controller
                 }
             }
             $dob = isset($applicant->profile->dob) ? $applicant->profile->dob : "";
+            $age = "";
+            if(isset($dob)){
+                $age = Carbon::parse($dob)->diff(Carbon::now())->format('%y years');
+            }
             $temp = array(
                 "S. No" => $key + 1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
@@ -1058,9 +1062,10 @@ class ApplicantController extends Controller
                 "Hometown" => $applicant->hometown,
                 "Current City" => $applicant->current_city,
                 "Age group" => $applicant->age_group,
-                "DOB" => $dob
+                "DOB" => $dob,
+                "Age" => $age
             );
-
+            
             if ($collaborate->collaborate_type == 'collaborate') {
                 if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
                     $temp['Delivery Address'] = '';
