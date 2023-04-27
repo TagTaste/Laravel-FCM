@@ -97,5 +97,20 @@ class Helper
         }
     }
     
+    public static function getGeneration($year){
+        if($year >= 2011){
+            return "Gen A";
+        }else if($year >= 1995){
+            return "Gen Z";
+        }else if($year >= 1980){
+            return "Millennials";
+        }else if($year >= 1960){
+            return "Gen X";
+        }else if ($year < 1960){
+            return "Gen S";
+        }else{
+            return "";
+        }
+    }   
 
 }

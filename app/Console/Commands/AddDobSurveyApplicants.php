@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
+use App\Helper;
 
 class AddDobSurveyApplicants extends Command
 {
@@ -43,10 +43,10 @@ class AddDobSurveyApplicants extends Command
         foreach ($profiles as $profile) {
             $id = $profile->id;
             $dob = $profile->dob;
-            \DB::table("survey_applicants")->where('profile_id', $id)->update(["dob" => $dob]);    
+            if(isset($dob)){
+                $generation = Helper::getGeneration(date("Y", strtotime($dob)));
+                \DB::table("survey_applicants")->where('profile_id', $id)->update(["dob" => $dob, "generation"=>$generation]);    
+            }
         }  
-    }
- 
-        
-        
+    }         
 }

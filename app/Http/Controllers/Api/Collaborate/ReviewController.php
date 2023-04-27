@@ -109,7 +109,7 @@ class ReviewController extends Controller
 
                     //Added by nikhil to decode &amp to & or anyother other encoding issue
                     $intensity = html_entity_decode($intensity);
-
+                    
                     $data[] = [
                         'key' => null, 'value' => $option['value'], 'leaf_id' => $leafId,
                         'question_id' => $questionId, 'tasting_header_id' => $headerId,
