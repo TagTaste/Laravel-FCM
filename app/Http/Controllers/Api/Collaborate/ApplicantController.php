@@ -210,6 +210,7 @@ class ApplicantController extends Controller
                 'message' => $request->input('message'), 'applier_address' => $applierAddress, 'hut' => $hut,
                 'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => date("Y-m-d", strtotime($profile->dob)), 'generation' => Helper::getGeneration(date("Y", strtotime($profile->dob)))
             ];
+            
         }
 
         if ($collaborate->document_required) {
