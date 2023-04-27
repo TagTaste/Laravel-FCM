@@ -722,6 +722,16 @@ class BatchController extends Controller
                         $reports['answer'][] = $dataset;
                     }
                     //  dd($reports['answer']);
+                }else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.RANK_TYPE")){
+                    $reports['answer'][] = 'rank que';
+                    
+
+                } else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.RANGE_TYPE")){
+                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value', 'value_id')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
+                        ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id', 'ASC')->orderBy('total', 'DESC')->groupBy('question_id', 'leaf_id', 'option_type', 'value')->where('option_type', '!=', 1)->get();
+                    $reports['answer'][] = $answers;
+
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
                         ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
