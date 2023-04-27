@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
 use App\Traits\FilterFactory;
+use App\Helper;
 
 class ApplicantController extends Controller
 {
@@ -207,7 +208,7 @@ class ApplicantController extends Controller
             $inputs = [
                 'is_invite' => $isInvited, 'profile_id' => $loggedInprofileId, 'collaborate_id' => $collaborateId,
                 'message' => $request->input('message'), 'applier_address' => $applierAddress, 'hut' => $hut,
-                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => date("Y-m-d", strtotime($profile->dob))
+                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => date("Y-m-d", strtotime($profile->dob)), 'generation' => Helper::getGeneration(date("Y", strtotime($profile->dob)))
             ];
         }
 
@@ -615,7 +616,9 @@ class ApplicantController extends Controller
                 'document_meta' => $document_meta,
                 'terms_verified' => $terms_verified,
                 'documents_verified' => $documents_verified,
-                'share_number' => $share_number
+                'share_number' => $share_number,
+                'dob' => $profile->dob,
+                'generation' => Helper::getGeneration(date("Y", strtotime($profile->dob)))
             ]);
 
 
