@@ -205,10 +205,12 @@ class ApplicantController extends Controller
             //     $this->model = null;
             //     return $this->sendError("Please fill mandatory feild.");
             // }
+            $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
+
             $inputs = [
                 'is_invite' => $isInvited, 'profile_id' => $loggedInprofileId, 'collaborate_id' => $collaborateId,
                 'message' => $request->input('message'), 'applier_address' => $applierAddress, 'hut' => $hut,
-                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => $profile->dob, 'generation' => Helper::getGeneration($profile->dob)
+                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => $dob, 'generation' => Helper::getGeneration($profile->dob)
             ];
         }
 
@@ -599,6 +601,8 @@ class ApplicantController extends Controller
                 $documents_verified = $doc->is_verified;
             }
         }
+        $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
+
         $share_number = $request->has('share_number') ? $request->share_number : 0;
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')
@@ -617,7 +621,7 @@ class ApplicantController extends Controller
                 'terms_verified' => $terms_verified,
                 'documents_verified' => $documents_verified,
                 'share_number' => $share_number,
-                'dob' => $profile->dob,
+                'dob' => $dob,
                 'generation' => Helper::getGeneration($profile->dob)
             ]);
 

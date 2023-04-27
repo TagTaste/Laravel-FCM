@@ -100,7 +100,7 @@ class Helper
     public static function getGeneration($dob){
 
         if(isset($dob) && !empty($dob)){
-            $year = date("Y", strtotime($profile->dob));
+            $year = date("Y", strtotime($dob));
             if($year >= 2011){
                 return "Gen A";
             }else if($year >= 1995){

@@ -2468,11 +2468,13 @@ class SurveyController extends Controller
 
 
         $profile = $request->user()->profile;
+        $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
+
         if (empty($checkApplicant)) {
             $inputs = [
                 'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
                 'message' => $request->input('message'), 'address' => $applierAddress,
-                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $profile->dob, "generation" => Helper::getGeneration($profile->dob)
+                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
             ];
 
 
