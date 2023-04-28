@@ -45,7 +45,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['age'] as $age) {
                     $age = htmlspecialchars_decode($age);
-                    $query->orWhere('age_group', 'LIKE', $age);
+                    $query->orWhere('generation', 'LIKE', $age);
                 }
             });
         }

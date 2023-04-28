@@ -1456,12 +1456,12 @@ class BatchController extends Controller
                 }
             });
         }
-
+        
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['age'] as $age) {
                     $age = htmlspecialchars_decode($age);
-                    $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);
+                    $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
                 }
             });
         }

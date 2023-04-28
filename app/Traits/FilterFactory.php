@@ -140,7 +140,7 @@ trait FilterFactory
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['age'] as $age) {
-                    $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);
+                    $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
                 }
             });
         }
