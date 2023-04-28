@@ -26,7 +26,7 @@ class Profile extends BaseProfile
     {
        return $this->professional !== null ? $this->professional->designation : null;
     }
-
+    
     public function getAgeRangeAttribute()
     {
         $age = $this->getDobAttribute($this->dob);

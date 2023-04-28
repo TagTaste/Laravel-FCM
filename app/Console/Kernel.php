@@ -82,6 +82,9 @@ use App\Console\Commands\TTFBQuestionUpload;
 use App\Console\Commands\removeNotifications;
 use App\Console\Commands\syncPollElasticSearch;
 use App\Console\Commands\QuizApplicantScore;
+use App\Console\Commands\AddDobQuizApplicants;
+use App\Console\Commands\AddDobSurveyApplicants;
+use App\Console\Commands\AddDobCollaborateApplicants;
 
 class Kernel extends ConsoleKernel
 {
@@ -280,6 +283,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\MailUnverifiedUserVerificationEmail::class,
         SurveyAnswerSync::class,
         QuizApplicantScore::class,
+        AddDobQuizApplicants::class,
+        AddDobSurveyApplicants::class,
+        AddDobCollaborateApplicants::class,
 
         RemoveDuplicateFromReviewTable::class,
 
