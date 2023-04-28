@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Quiz;
 
 use App\QuizApplicants;
 use Illuminate\Http\Request;
+use App\Helper;
 
 trait FilterTraits
 {
@@ -160,7 +161,8 @@ trait FilterTraits
         $filters = $request->input('filter');
 
         $gender = [['key' => 'Male', 'value' => 'Male'], ['key' => 'Female', 'value' => 'Female'], ['key' => 'Others', 'value' => 'Others']];
-        $age = [['key' => 'gen-z', 'value' => 'Gen-Z'], ['key' => 'gen-x', 'value' => 'Gen-X'], ['key' => 'millenials', 'value' => 'Millenials'], ['key' => 'yold', 'value' => 'YOld']];
+        $age = Helper::getGenerationFilter();
+        // $age = [['key' => 'gen-z', 'value' => 'Gen-Z'], ['key' => 'gen-x', 'value' => 'Gen-X'], ['key' => 'millenials', 'value' => 'Millenials'], ['key' => 'yold', 'value' => 'YOld']];
 
         $application_status = [["key" => 0, "value" => 'invited'], ["key" => 1, "value" => 'incomplete'], ['key' => 2, 'value' => "completed"]];
         $userType = ['Expert', 'Consumer'];

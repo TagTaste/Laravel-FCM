@@ -19,6 +19,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\Collaborate\Review;
 use App\Traits\FilterFactory;
+use App\Helper;
 
 class BatchController extends Controller
 {
@@ -1069,7 +1070,8 @@ class BatchController extends Controller
         $filters = $request->input('filter');
 
         $gender = ['Male', 'Female', 'Other'];
-        $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+        $age = Helper::getGenerationFilter('string');
+        // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
         $currentStatus = [0, 1, 2, 3];
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];

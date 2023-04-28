@@ -355,7 +355,8 @@ class SurveyApplicantController extends Controller
     public function applicantFilters($id, Request $request)
     {
         $gender = ['Male', 'Female', 'Other'];
-        $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+        $age = Helper::getGenerationFilter('string');
+        // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
 
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
@@ -376,7 +377,7 @@ class SurveyApplicantController extends Controller
                 if (!in_array($applicant->city, $city))
                     $city[] = $applicant->city;
             }
-
+            
             $specializations = \DB::table('profiles')
                 ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
                 ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')
