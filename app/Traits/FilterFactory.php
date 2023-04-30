@@ -4,13 +4,14 @@
 namespace App\Traits;
 
 use Illuminate\Support\Collection;
+use App\Helper;
 
 trait FilterFactory
 {
     public function getFilters($filters, $collaborateId)
     {
         $gender = ['Male', 'Female', 'Other'];
-        $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+        $age = Helper::getGenerationFilter('string');
         $currentStatus = [0, 1, 2, 3];
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
@@ -139,7 +140,7 @@ trait FilterFactory
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['age'] as $age) {
-                    $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);
+                    $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
                 }
             });
         }
@@ -271,4 +272,7 @@ trait FilterFactory
             ->select('users.name as name', 'collaborate_applicants.id')
             ->get();
     }
+
+
+   
 }

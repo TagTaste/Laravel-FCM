@@ -118,4 +118,14 @@ class Helper
             return null;
         }
     }   
+
+    public static function getGenerationFilter($type = 'object'){
+        if($type == 'string'){
+            $data = ["Gen S", "Gen X", "Millennials", "Gen Z", "Gen A"];
+            return $data;
+        }else{
+            $data = [["key"=>"Gen S","value"=>"Gen S"],["key"=>"Gen X","value"=>"Gen X"],["key"=>"Millennials","value"=>"Millennials"],["key"=>"Gen Z","value"=>"Gen Z"],["key"=>"Gen A","value"=>"Gen A"]];
+            return $data;
+        }
+    }
 }

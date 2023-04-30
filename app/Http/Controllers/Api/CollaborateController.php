@@ -16,6 +16,7 @@ use App\PaymentHelper;
 use App\Traits\FilterFactory;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
+use App\Helper;
 
 class CollaborateController extends Controller
 {
@@ -219,6 +220,8 @@ class CollaborateController extends Controller
                     $documents_verified = $doc->is_verified;
                 }
             }
+
+            $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
             $this->model = $collaborate->profiles()->attach($profileId);
             $this->model = $collaborate->profiles()
                 ->updateExistingPivot($profileId,
@@ -235,7 +238,9 @@ class CollaborateController extends Controller
                         'current_city'=>$profile->city,
                         'terms_verified'=>$terms_verified,
                         'document_meta'=>$document_meta,
-                        'documents_verified'=>$documents_verified
+                        'documents_verified'=>$documents_verified,
+                        'dob' => $dob,
+                        'generation' => Helper::getGeneration($profile->dob)
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
