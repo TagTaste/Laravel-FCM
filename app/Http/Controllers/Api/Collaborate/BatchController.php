@@ -690,8 +690,9 @@ class BatchController extends Controller
                 } else
                     unset($reports['nestedAnswers']);
                 $reports['total_applicants'] = $totalApplicants;
-                $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status', 3)->where('collaborate_id', $collaborateId)
+                $totalQueResponse = \DB::table('collaborate_tasting_user_review')->where('current_status', 3)->where('collaborate_id', $collaborateId)
                     ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id', $batchId)->where('question_id', $data->id)->distinct()->get(['profile_id'])->count();
+                $reports['total_answers'] = $totalQueResponse;
                 if (isset($data->questions->select_type) && $data->questions->select_type == 3) {
                     $reports['answer'] = Collaborate\Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status', 3)->where('tasting_header_id', $headerId)->skip(0)->take(3)->get();
@@ -723,15 +724,57 @@ class BatchController extends Controller
                     }
                     //  dd($reports['answer']);
                 }else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.RANK_TYPE")){
-                    $reports['answer'][] = 'rank que';
+                    // $reports['answer'][] = 'rank que';
+                    $optionList = $data->questions->option;
+                    $maxRank = $data->questions->max_rank;
+                    $highestValue = 0;
+                    foreach($optionList as $option){
+                        $optionResponse = \DB::table('collaborate_tasting_user_review')->select('leaf_id', 'value_id','value',\DB::raw('count(*) as total'))->where('current_status',3)->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)->where('leaf_id',$option->id)->whereIn('profile_id', $profileIds, $boolean, $type)->groupBy('question_id', 'leaf_id', 'value_id', 'value')->get();
+
+                        $sum = 0;
+                        $totalOptionResponse = 0;
+                        foreach($optionResponse as $optionAns){
+                            $sum = $sum + ($optionAns->total*($maxRank-$optionAns->value_id + 1));     
+                            $totalOptionResponse += $optionAns->total;
+                        }
+                        $option->total = 
+                        $option->reverse_avg = $sum/$totalOptionResponse;
+                        $option->ranked_by_percentage = $totalOptionResponse/$totalQueResponse;
+                        $option->multiply = $option->reverse_avg*$option->ranked_by_percentage;
+                        $option->total = $totalOptionResponse;
+                        if($highestValue < $option->multiply){
+                            $highestValue = $option->multiply;
+                        }
+                    }
                     
+                    $finalOptionList = [];
+                    foreach($optionList as $option){
+                        $indexedValue = ($option->multiply*100)/$highestValue;
+                        $option->percentage = round($indexedValue,2);
+                        $option->high = $highestValue;
+                        
+                        $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage];                    
+                    }
+
+                    $reports['answer'] = $finalOptioList; 
 
                 } else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.RANGE_TYPE")){
-                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value', 'value_id')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
-                        ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id', 'ASC')->orderBy('total', 'DESC')->groupBy('question_id', 'leaf_id', 'option_type', 'value')->where('option_type', '!=', 1)->get();
-                    $reports['answer'][] = $answers;
+                    $finalOptionList = [];
+                    $optionList = $data->questions->option;
+                    $totalSum = 0;
+                    $totalResponse = 0;
+                    foreach($optionList as $option){
+                        $optionResponseCount = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)->where('leaf_id',$option->id)
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->count();
 
+                        $totalResponse += $optionResponseCount;
+                        $totalSum += $optionResponseCount*$option->value;
+
+                        $finalOptionList[] = ["id"=>$option->id, "value"=>$option->value, "label"=>$option->label, "count"=>$optionResponseCount];
+                    }
+                    
+                    $average = round($totalSum/$totalResponse,2);
+                    $reports['answer'] = ["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList];
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
                         ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
