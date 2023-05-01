@@ -286,11 +286,11 @@ class BatchController extends Controller
         $this->model['applicants'] = $profiles;
         $this->model['batch'] = Collaborate\Batches::where('id', $id)->first();
         //tabs
-        $this->model['assignedCount'] = BatchAssign::where('batch_id', $id)->distinct()->get(['profile_id'])->count();
-        $this->model['inProgressUserCount'] = Review::where('collaborate_id', $collaborateId)->where("current_status",2)->where('batch_id', $id)->distinct()->get(['profile_id'])->count();
-        $this->model['reviewedCount'] = Review::where('collaborate_id', $collaborateId)->where("current_status",3)->where('batch_id', $id)->distinct()->get(['profile_id'])->count();
-        $this->model['beginTastingCount'] = $this->model['assignedCount'] - $this->model['reviewedCount'];
-        $userCountWithbegintasting = BatchAssign::where('batch_id', $id)->where("begin_tasting",1)->distinct()->get(['profile_id'])->count();
+        $this->model['assignedCount'] = BatchAssign::where('batch_id', $id)->whereIn('profile_id', array_column($pId, "profile_id"))->distinct()->get(['profile_id'])->count();
+        $this->model['inProgressUserCount'] = Review::where('collaborate_id', $collaborateId)->where("current_status",2)->where('batch_id', $id)->whereIn('profile_id', array_column($pId, "profile_id"))->distinct()->get(['profile_id'])->count();
+        $this->model['reviewedCount'] = Review::where('collaborate_id', $collaborateId)->where("current_status",3)->where('batch_id', $id)->whereIn('profile_id', array_column($pId, "profile_id"))->distinct()->get(['profile_id'])->count();
+        $userCountWithbegintasting = BatchAssign::where('batch_id', $id)->where("begin_tasting",1)->whereIn('profile_id', array_column($pId, "profile_id"))->distinct()->get(['profile_id'])->count(); 
+        $this->model['beginTastingCount'] = $this->model['assignedCount'] - $userCountWithbegintasting;
         $this->model['notifiedUserCount'] = $userCountWithbegintasting - ($this->model['reviewedCount'] + $this->model['inProgressUserCount']);
         return $this->sendResponse();
     }
