@@ -737,9 +737,9 @@ class BatchController extends Controller
                             $sum = $sum + ($optionAns->total*($maxRank-$optionAns->value_id + 1));     
                             $totalOptionResponse += $optionAns->total;
                         }
-                        $option->total = 
-                        $option->reverse_avg = $sum/$totalOptionResponse;
-                        $option->ranked_by_percentage = $totalOptionResponse/$totalQueResponse;
+                        $option->total = $totalOptionResponse;
+                        $option->reverse_avg = $totalOptionResponse == 0 ? 0 : $sum/$totalOptionResponse;
+                        $option->ranked_by_percentage = $totalQueResponse == 0 ? 0 : $totalOptionResponse/$totalQueResponse;
                         $option->multiply = $option->reverse_avg*$option->ranked_by_percentage;
                         $option->total = $totalOptionResponse;
                         if($highestValue < $option->multiply){
@@ -749,7 +749,7 @@ class BatchController extends Controller
                     
                     $finalOptionList = [];
                     foreach($optionList as $option){
-                        $indexedValue = ($option->multiply*100)/$highestValue;
+                        $indexedValue = $highestValue == 0 ? 0 : ($option->multiply*100)/$highestValue;
                         $option->percentage = round($indexedValue,2);
                         $option->high = $highestValue;
                         
@@ -772,8 +772,7 @@ class BatchController extends Controller
 
                         $finalOptionList[] = ["id"=>$option->id, "value"=>$option->value, "label"=>$option->label, "count"=>$optionResponseCount];
                     }
-                    
-                    $average = round($totalSum/$totalResponse,2);
+                    $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
                     $reports['answer'] = ["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList];
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
