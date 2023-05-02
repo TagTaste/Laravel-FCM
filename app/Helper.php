@@ -97,5 +97,17 @@ class Helper
         }
     }
     
+    public static function getOptionForValue($value, $optionList){
+        $number = round($value);   
 
+        $filteredArray = array_values(array_filter($optionList, function ($obj) use ($number) {
+            return $obj->value == $number;
+        }));
+                
+        if (count($filteredArray) == 0){
+            return (object)["label"=>""];    
+        }else{
+            return $filteredArray[0];    
+        }
+    }
 }

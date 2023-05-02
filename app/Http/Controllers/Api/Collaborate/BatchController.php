@@ -19,6 +19,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\Collaborate\Review;
 use App\Traits\FilterFactory;
+use App\Helper;
 
 class BatchController extends Controller
 {
@@ -769,11 +770,16 @@ class BatchController extends Controller
 
                         $totalResponse += $optionResponseCount;
                         $totalSum += $optionResponseCount*$option->value;
-                        
+
                         $finalOptionList[] = ["id"=>$option->id, "value"=>$option->value, "label"=>$option->label, "count"=>$optionResponseCount];
                     }
 
                     $average = $totalResponse == 0 ? 0 : number_format((float)($totalSum/$totalResponse), 2, '.', '');
+
+                    $roundedAvgOption = Helper::getOptionForValue($average, $optionList);
+                    $average = $average." (".$roundedAvgOption->label.")";
+
+                    // $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
                     $reports['answer'] = ["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList];
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)

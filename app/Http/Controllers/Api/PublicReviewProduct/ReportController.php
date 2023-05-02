@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\File;
-
+use App\Helper;
 
 class ReportController extends Controller
 {
@@ -352,7 +352,7 @@ class ReportController extends Controller
                     $highestValue = 0;
                     foreach($optionList as $option){
                         $optionResponse = \DB::table('public_product_user_review')->select('leaf_id', 'value_id','value',\DB::raw('count(*) as total'))->where('current_status',2)->where('product_id', $productId)->where('question_id', $data->id)->where('leaf_id',$option->id)->groupBy('question_id', 'leaf_id', 'value_id', 'value')->get();
-                        
+
                         $sum = 0;
                         $totalOptionResponse = 0;
                         foreach($optionResponse as $optionAns){
@@ -397,6 +397,10 @@ class ReportController extends Controller
                     }
 
                     $average = $totalResponse == 0 ? 0 : number_format((float)($totalSum/$totalResponse), 2, '.', '');
+                    $roundedAvgOption = Helper::getOptionForValue($average, $optionList);
+
+                    $average = $average." (".$roundedAvgOption->label.")";
+                    // $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
                     $reports['answer'] = ["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList];
 
                 }
