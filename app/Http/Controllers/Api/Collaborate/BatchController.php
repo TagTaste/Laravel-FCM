@@ -52,7 +52,6 @@ class BatchController extends Controller
     {
         $batches = $this->model->where('collaborate_id', $collaborateId)
             ->orderBy("created_at", "desc")->get()->toArray();
-
         foreach ($batches as &$batch) {
             //$batch['beginTastingCount'] = \DB::table('collaborate_batches_assign')->where('begin_tasting',1)->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
             $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
@@ -1434,39 +1433,8 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
-
-
-        if (isset($filters['current_status']) && !is_null($batchId)) {
-            $currentStatusIds = new Collection([]);
-            foreach ($filters['current_status'] as $currentStatus) {
-                if ($currentStatus == 0 || $currentStatus == 1) {
-                    if ($isFilterAble) {
-                        $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->whereIn('profile_id', $profileIds)->where('begin_tasting', $currentStatus)->get()->pluck('profile_id');
-                        $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->get()->pluck('profile_id');
-                    } else {
-                        $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->where('begin_tasting', $currentStatus)->get()->pluck('profile_id');
-                        $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->get()->pluck('profile_id');
-                    }
-                    $ids = $ids->diff($ids2);
-                } else {
-                    if ($isFilterAble)
-                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->whereIn('profile_id', $profileIds)->where('current_status', $currentStatus)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)
-                            ->where('current_status', $currentStatus)->get()->pluck('profile_id');
-                }
-                $currentStatusIds = $currentStatusIds->merge($ids);
-            }
-            $isFilterAble = true;
-            $profileIds = $profileIds->merge($currentStatusIds);
-        }
-
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
+        
+        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status'])) {
             $Ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId);
         }
 
@@ -1525,7 +1493,6 @@ class BatchController extends Controller
         }
 
         if (isset($filters['user_type'])) {
-
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['user_type'] as $userType) {
                     if ($userType == 'Expert')
@@ -1537,7 +1504,21 @@ class BatchController extends Controller
             });
         }
 
-
+        if (isset($filters['current_status']) && !is_null($batchId)) {
+            $currentStatusIds = new Collection([]);
+            foreach ($filters['current_status'] as $currentStatus) {
+                if ($currentStatus == 0 || $currentStatus == 1) {
+                    $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('begin_tasting', $currentStatus)->get()->pluck('profile_id')->unique();
+                    $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->get()->pluck('profile_id')->unique();                   
+                    $ids = $ids->diff($ids2);
+                } else {
+                    $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', $currentStatus)->get()->pluck('profile_id')->unique();
+                }
+                $currentStatusIds = $currentStatusIds->merge($ids);
+            }
+            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $currentStatusIds);
+        }
+        
         if ($profileIds->count() > 0 && isset($Ids)) {
             $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
         }
