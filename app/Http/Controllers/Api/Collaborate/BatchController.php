@@ -19,6 +19,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\Collaborate\Review;
 use App\Traits\FilterFactory;
+use App\Collaborate\BatchAssign;
 use App\Helper;
 
 class BatchController extends Controller
@@ -171,8 +172,13 @@ class BatchController extends Controller
      */
     public function show(Request $request, $collaborateId, $id)
     {
+        //paginate
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
 
         //filters data
+        $q = $request->input('q');
         $filters = $request->input('filters');
         $resp = $this->getFilterProfileIds($filters, $collaborateId, $id);
         $profileIds = $resp['profile_id'];
@@ -185,6 +191,10 @@ class BatchController extends Controller
         //sort applicants
         if (isset($filters))
             $type = false;
+            if (isset($q) && $q != null) {
+                $searchedProfiles = $this->getSearchedProfile($q, $collaborateId);
+                $profiles = $profiles->whereIn('id', $searchedProfiles);
+            } 
 
         if ($request->sortBy != null) {
             $profiles = $this->sortApplicants($request->sortBy, $profiles, $collaborateId);
@@ -193,8 +203,12 @@ class BatchController extends Controller
            $profiles=$profiles->orderBy('created_at', 'desc');
         }
 
-        $profiles = $profiles->get()->toArray();
-        $this->model = [];
+        $pId = $profiles->get()->toArray();
+        $profiles = $profiles
+            ->skip($skip)->take($take)->get();
+
+        $profiles = $profiles->toArray();
+
         foreach ($profiles as &$profile) {
             if (Collaborate::where('id', $collaborateId)->first()->track_consistency) {
                 $this->model['track_consistency'] = 1;
@@ -250,20 +264,20 @@ class BatchController extends Controller
         $countSensory = \DB::table('profiles')
             ->select('profiles.id')
             ->where('profiles.is_sensory_trained', 1)
-            ->whereIn('id', array_column($profiles, "profile_id"))
+            ->whereIn('id', array_column($pId, "profile_id"))
             ->get();
 
         //count of experts
         $countExpert = \DB::table('profiles')
             ->select('profiles.id')
             ->where('profiles.is_expert', 1)
-            ->whereIn('id', array_column($profiles, "profile_id"))
+            ->whereIn('id', array_column($pId, "profile_id"))
             ->get();
         //count of super tasters
         $countSuperTaste = \DB::table('profiles')
             ->select('profiles.id')
             ->where('profiles.is_tasting_expert', 1)
-            ->whereIn('id', array_column($profiles, "profile_id"))
+            ->whereIn('id', array_column($pId, "profile_id"))
             ->get();
         // dd($countSuperTaste);
 
@@ -272,6 +286,13 @@ class BatchController extends Controller
         $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
         $this->model['applicants'] = $profiles;
         $this->model['batch'] = Collaborate\Batches::where('id', $id)->first();
+        //tabs
+        $this->model['assignedCount'] = BatchAssign::where('batch_id', $id)->whereIn('profile_id', array_column($pId, "profile_id"))->distinct()->get(['profile_id'])->count();
+        $this->model['inProgressUserCount'] = Review::where('collaborate_id', $collaborateId)->where("current_status",2)->where('batch_id', $id)->whereIn('profile_id', array_column($pId, "profile_id"))->distinct()->get(['profile_id'])->count();
+        $this->model['reviewedCount'] = Review::where('collaborate_id', $collaborateId)->where("current_status",3)->where('batch_id', $id)->whereIn('profile_id', array_column($pId, "profile_id"))->distinct()->get(['profile_id'])->count();
+        $userCountWithbegintasting = BatchAssign::where('batch_id', $id)->where("begin_tasting",1)->whereIn('profile_id', array_column($pId, "profile_id"))->distinct()->get(['profile_id'])->count(); 
+        $this->model['beginTastingCount'] = $this->model['assignedCount'] - $userCountWithbegintasting;
+        $this->model['notifiedUserCount'] = $userCountWithbegintasting - ($this->model['reviewedCount'] + $this->model['inProgressUserCount']);
         return $this->sendResponse();
     }
 
