@@ -754,7 +754,7 @@ class BatchController extends Controller
                         $option->percentage = round($indexedValue,2);
                         $option->high = $highestValue;
                         
-                        $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage];                    
+                        $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage, "color_code"=>"#ffc0cb"];                    
                     }
 
                     $reports['answer'] = $finalOptioList; 
