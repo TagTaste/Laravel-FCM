@@ -401,7 +401,7 @@ class ReportController extends Controller
 
                     $average = $average." (".$roundedAvgOption->label.")";
                     // $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
-                    $reports['answer'] = ["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList];
+                    $reports['answer'] = array(["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList]);
 
                 }
                 else

@@ -780,7 +780,7 @@ class BatchController extends Controller
                     $average = $average." (".$roundedAvgOption->label.")";
 
                     // $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
-                    $reports['answer'] = ["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList];
+                    $reports['answer'] = array(["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList]);
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
                         ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
