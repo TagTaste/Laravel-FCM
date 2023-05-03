@@ -97,5 +97,35 @@ class Helper
         }
     }
     
+    public static function getGeneration($dob){
 
+        if(isset($dob) && !empty($dob)){
+            $year = date("Y", strtotime($dob));
+            if($year >= 2011){
+                return "Gen A";
+            }else if($year >= 1995){
+                return "Gen Z";
+            }else if($year >= 1980){
+                return "Millennials";
+            }else if($year >= 1960){
+                return "Gen X";
+            }else if ($year < 1960){
+                return "Gen S";
+            }else{
+                return null;
+            }
+        }else{
+            return null;
+        }
+    }   
+
+    public static function getGenerationFilter($type = 'object'){
+        if($type == 'string'){
+            $data = ["Gen S", "Gen X", "Millennials", "Gen Z", "Gen A"];
+            return $data;
+        }else{
+            $data = [["key"=>"Gen S","value"=>"Gen S"],["key"=>"Gen X","value"=>"Gen X"],["key"=>"Millennials","value"=>"Millennials"],["key"=>"Gen Z","value"=>"Gen Z"],["key"=>"Gen A","value"=>"Gen A"]];
+            return $data;
+        }
+    }
 }

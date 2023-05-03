@@ -267,7 +267,7 @@ class QuestionController extends Controller
         {
             return $this->sendError("No product id found");
         }
-        $term = explode(" ",$term);
+        $term = array_filter(explode(" ",$term), 'strlen');
         $this->model['option'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
             ->where('collaborate_id',$collaborateId)->where('is_active',1)
             ->where(function ($query) use ($term){
@@ -294,9 +294,9 @@ class QuestionController extends Controller
             return $this->sendError("Please provide parent value to search");
         }
         $parent_value = htmlspecialchars_decode($request->input('parent_value'));
-
+        
         $value = $request->input('term');
-        $term = explode(" ",$value);
+        $term = array_filter(explode(" ",$value), 'strlen');
 
         if (!$request->has('batch_id')) {
             return $this->sendError("No product id found");

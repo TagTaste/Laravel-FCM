@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Redis;
 use App\Collaborate\Review;
 use App\Traits\FilterFactory;
 use App\Collaborate\BatchAssign;
+use App\Helper;
 
 class BatchController extends Controller
 {
@@ -1090,7 +1091,8 @@ class BatchController extends Controller
         $filters = $request->input('filter');
 
         $gender = ['Male', 'Female', 'Other'];
-        $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+        $age = Helper::getGenerationFilter('string');
+        // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
         $currentStatus = [0, 1, 2, 3];
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
@@ -1475,12 +1477,12 @@ class BatchController extends Controller
                 }
             });
         }
-
+        
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['age'] as $age) {
                     $age = htmlspecialchars_decode($age);
-                    $query->orWhere('collaborate_applicants.age_group', 'LIKE', $age);
+                    $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
                 }
             });
         }

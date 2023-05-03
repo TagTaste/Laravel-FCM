@@ -183,7 +183,8 @@ class QuestionController extends Controller
         if($product === null){
             return $this->sendError("Product not found.");
         }
-        $term = explode(" ",$term);
+        $term = array_filter(explode(" ",$term), 'strlen');
+
         $this->model['option'] = \DB::table('public_review_nested_options')->where('question_id',$questionId)
             ->where('global_question_id',$product->global_question_id)->where('is_active',1)
             ->where(function ($query) use ($term){
@@ -212,7 +213,8 @@ class QuestionController extends Controller
         $parent_value = htmlspecialchars_decode($request->input('parent_value'));
 
         $value = $request->input('term');
-        $term = explode(" ",$value);
+
+        $term = array_filter(explode(" ",$value), 'strlen');
 
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){

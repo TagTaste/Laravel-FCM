@@ -38,6 +38,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
 use App\PaymentHelper;
 use App\SurveyAttemptMapping;
+use App\Helper;
 
 class SurveyController extends Controller
 {
@@ -2467,11 +2468,13 @@ class SurveyController extends Controller
 
 
         $profile = $request->user()->profile;
+        $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
+
         if (empty($checkApplicant)) {
             $inputs = [
                 'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
                 'message' => $request->input('message'), 'address' => $applierAddress,
-                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s")
+                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
             ];
 
 
@@ -2485,11 +2488,12 @@ class SurveyController extends Controller
                 $update['city'] = $city;
             }
 
-
+            
             if (empty($checkApplicant->age_group)) {
                 $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
+                $update['generation'] = Helper::getGeneration($profile->dob);
             }
-
+            
             if ($checkApplicant->is_invited) {
                 $hometown = $request->input('hometown');
                 $current_city = $request->input('current_city');

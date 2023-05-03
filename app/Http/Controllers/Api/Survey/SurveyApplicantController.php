@@ -19,6 +19,7 @@ use Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Helper;
 
 class SurveyApplicantController extends Controller
 {
@@ -164,11 +165,12 @@ class SurveyApplicantController extends Controller
 
         $profile = Profile::where('id', $request->user()->profile->id)->first();
 
+        $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
 
         $data = [
             'profile_id' => $request->user()->profile->id, 'survey_id' => $id,
             'message' => ($request->message ?? null),
-            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"),
+            'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
         ];
 
         $create = surveyApplicants::create($data);
@@ -353,7 +355,8 @@ class SurveyApplicantController extends Controller
     public function applicantFilters($id, Request $request)
     {
         $gender = ['Male', 'Female', 'Other'];
-        $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+        $age = Helper::getGenerationFilter('string');
+        // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
 
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
@@ -374,7 +377,7 @@ class SurveyApplicantController extends Controller
                 if (!in_array($applicant->city, $city))
                     $city[] = $applicant->city;
             }
-
+            
             $specializations = \DB::table('profiles')
                 ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
                 ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')

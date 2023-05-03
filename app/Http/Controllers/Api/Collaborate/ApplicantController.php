@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\File;
 use App\Traits\FilterFactory;
+use App\Helper;
 
 class ApplicantController extends Controller
 {
@@ -204,10 +205,12 @@ class ApplicantController extends Controller
             //     $this->model = null;
             //     return $this->sendError("Please fill mandatory feild.");
             // }
+            $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
+
             $inputs = [
                 'is_invite' => $isInvited, 'profile_id' => $loggedInprofileId, 'collaborate_id' => $collaborateId,
                 'message' => $request->input('message'), 'applier_address' => $applierAddress, 'hut' => $hut,
-                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city
+                'shortlisted_at' => $now, 'city' => $city, 'age_group' => $profile->ageRange, 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, 'dob' => $dob, 'generation' => Helper::getGeneration($profile->dob)
             ];
         }
 
@@ -598,6 +601,8 @@ class ApplicantController extends Controller
                 $documents_verified = $doc->is_verified;
             }
         }
+        $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
+
         $share_number = $request->has('share_number') ? $request->share_number : 0;
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')
@@ -615,7 +620,9 @@ class ApplicantController extends Controller
                 'document_meta' => $document_meta,
                 'terms_verified' => $terms_verified,
                 'documents_verified' => $documents_verified,
-                'share_number' => $share_number
+                'share_number' => $share_number,
+                'dob' => $dob,
+                'generation' => Helper::getGeneration($profile->dob)
             ]);
 
 
@@ -1044,7 +1051,11 @@ class ApplicantController extends Controller
                     }
                 }
             }
-
+            $dob = isset($applicant->profile->dob) ? $applicant->profile->dob : "";
+            $age = "";
+            if(isset($dob)){
+                $age = Carbon::parse($dob)->diff(Carbon::now())->format('%y years');
+            }
             $temp = array(
                 "S. No" => $key + 1,
                 "Name" => htmlspecialchars_decode($applicant->profile->name),
@@ -1056,9 +1067,12 @@ class ApplicantController extends Controller
                 "Specialization" => $specialization,
                 "Allergens" => $allergens,
                 "Hometown" => $applicant->hometown,
-                "Current City" => $applicant->current_city
+                "Current City" => $applicant->current_city,
+                "Age group" => $applicant->age_group,
+                "DOB" => $dob,
+                "Age" => $age
             );
-
+            
             if ($collaborate->collaborate_type == 'collaborate') {
                 if ($collaborate->is_taster_residence && !$collaborate->is_contest) {
                     $temp['Delivery Address'] = '';
