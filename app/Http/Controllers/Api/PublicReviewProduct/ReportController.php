@@ -378,7 +378,8 @@ class ReportController extends Controller
                         $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage, "color_code"=>"#ffc0cb"];                    
                     }
 
-                    $reports['answer'] = $finalOptioList;                     
+                    $reports['answer'] = $finalOptioList;  
+                    unset($finalOptioList);                   
 
                 }else if(isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.RANGE_TYPE"))
                 {
@@ -402,7 +403,7 @@ class ReportController extends Controller
                     $average = $average." (".$roundedAvgOption->label.")";
                     // $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
                     $reports['answer'] = array(["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList]);
-
+                    unset($finalOptioList);
                 }
                 else
                 {

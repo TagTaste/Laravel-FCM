@@ -758,7 +758,7 @@ class BatchController extends Controller
                     }
 
                     $reports['answer'] = $finalOptioList; 
-
+                    unset($finalOptioList);
                 } else  if (isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.RANGE_TYPE")){
                     $finalOptionList = [];
                     $optionList = $data->questions->option;
@@ -781,6 +781,7 @@ class BatchController extends Controller
 
                     // $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
                     $reports['answer'] = array(["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList]);
+                    unset($finalOptioList);
                 } else {
                     $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type', 'value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
                         ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
