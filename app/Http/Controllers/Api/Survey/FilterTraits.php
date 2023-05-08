@@ -6,6 +6,7 @@ use App\surveyApplicants;
 use Illuminate\Http\Request;
 use App\Helper;
 use Carbon\Carbon;
+use App\Surveys;
 
 trait FilterTraits
 {
@@ -76,7 +77,7 @@ trait FilterTraits
             
         }
 
-        
+
         if (isset($filters['application_status'])) {
 
             $Ids = $Ids->where(function ($query) use ($filters) {
@@ -213,16 +214,45 @@ trait FilterTraits
         }
 
         if (isset($version_num) && $version_num == 'v1'){
-            $question_filter = [['key'=>'question', 'value'=>'+ Add Question','count'=>0]];
+            $count = $this->getFilteredQuestionCount($survey_id);
+            if($count == 0){
+                $question_filter = [['key'=>'question', 'value'=>'+ Add Question','count'=>$count]];
+            }else{
+                $question_filter = [['key'=>'question', 'value'=>'Question Filter','count'=>$count]];
+            }
             $data['question_filter'] = $question_filter;    
         }
-
-        // $applicants = \DB::table('surveys_filter')->where('id', $survey_id)->first();
-        // $applicants = \DB::table('survey_applicants')->where('survey_id', $survey_id)->get();
-
         $this->model = $data;
 
         return $this->sendResponse();
+    }
+
+    function getFilteredQuestionCount($survey_id){
+        $surveyDetail = Surveys::where("id", "=", $survey_id)->first();
+        if (empty($surveyDetail)) {
+            return 0;
+        }
+        $formJson = json_decode($surveyDetail['form_json'], true);
+
+        $savedFilter = \DB::table('survey_filters')->where('surveys_id', $survey_id)->first(); 
+        if(empty($savedFilter)){
+            return 0;
+        }
+
+        $savedFormJson = json_decode($savedFilter->value, true);
+        if(empty($savedFormJson)){
+            return 0;
+        }
+
+        $count = 0;
+        foreach($savedFormJson as $form){
+            if($form['element_type'] == 'section'){
+                $count += count($form['questions']);
+            }else{
+                $count += 1;
+            }
+        }
+        return $count;
     }
 
     public function sortApplicants($sortBy, $applications, $surveyId)

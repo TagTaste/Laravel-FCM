@@ -969,8 +969,26 @@ class SurveyController extends Controller
             return $this->sendNewError("Invalid Survey");
         }
         $formJson = json_decode($surveyDetail['form_json'], true);
+
+        $finalFormJson = [];
+        foreach($formJson as $form){
+            if($form['element_type'] == 'section'){
+                $questions = $form['questions'];
+                $finalQuestions = [];
+                foreach($questions as $question){
+                    if($question['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTIPLE_CHOICE") || $question['question_type'] == config("constant.SURVEY_QUESTION_TYPES.SINGLE_CHOICE")){
+                        $finalQuestions[] = $question;
+                    }
+                }      
+                $finalFormJson[] = ["id"=>$form['id'], "title"=> $form['title'], "element_type"=>$form['element_type'], "questions"=> $finalQuestions];  
+            }else{
+                if($form['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTIPLE_CHOICE") || $form['question_type'] == config("constant.SURVEY_QUESTION_TYPES.SINGLE_CHOICE")){
+                    $finalFormJson[] = $form;
+                }  
+            }
+        }
         
-        return $this->sendNewResponse($formJson);
+        return $this->sendNewResponse($finalFormJson);
     }
 
     public function reports($id, Request $request)
@@ -1571,6 +1589,11 @@ class SurveyController extends Controller
 
     public function surveyRespondents($id, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1593,7 +1616,13 @@ class SurveyController extends Controller
             return $this->sendNewError("Only Survey Admin can view this report");
         }
 
-        if ($request->has('filters') && !empty($request->filters)) {
+         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            // $request->filters = '';
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+
+        }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
@@ -2050,6 +2079,11 @@ class SurveyController extends Controller
 
     public function excelReport($id, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
         if (empty($checkIFExists)) {
@@ -2057,7 +2091,11 @@ class SurveyController extends Controller
             return $this->sendNewError("Invalid Survey");
         }
 
-        if ($request->has('filters') && !empty($request->filters)) {
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
