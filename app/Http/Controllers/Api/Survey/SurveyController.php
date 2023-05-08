@@ -972,7 +972,7 @@ class SurveyController extends Controller
         
         return $this->sendNewResponse($formJson);
     }
-    
+
     public function reports($id, Request $request)
     {
         $version_num = '';
@@ -991,7 +991,11 @@ class SurveyController extends Controller
         }
 
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
-            $request->filters = '';
+            // $request->filters = '';
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+
         }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];

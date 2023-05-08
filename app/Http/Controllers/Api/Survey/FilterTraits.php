@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Api\Survey;
 use App\surveyApplicants;
 use Illuminate\Http\Request;
 use App\Helper;
+use Carbon\Carbon;
 
 trait FilterTraits
 {
 
 
-    public function getProfileIdOfFilter($surveyDetails, Request $request)
+    public function getProfileIdOfFilter($surveyDetails, Request $request, $version_num = '')
     {
-
         $filters = $request->filters;
         $profileIds = collect([]);
 
@@ -24,9 +24,6 @@ trait FilterTraits
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
-
-
-
 
         if (!empty($filters)) {
             $Ids = surveyApplicants::where('survey_id', $surveyDetails->id)
@@ -44,7 +41,7 @@ trait FilterTraits
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['age'] as $age) {
-                    $age = htmlspecialchars_decode($age);
+                    // $age = htmlspecialchars_decode($age);
                     $query->orWhere('generation', 'LIKE', $age);
                 }
             });
@@ -71,6 +68,15 @@ trait FilterTraits
             });
         }
 
+        //apply filter on question's options
+        if (isset($filters['question_filter'])) {
+            $ques_filter = ['profile_id'=>$request->user()->profile->id, 'surveys_id'=> $surveyDetails['id'], 'value'=> json_encode($filters['question_filter']), 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
+
+            \DB::table('survey_filters')->where('surveys_id', $surveyDetails['id'])->updateOrInsert(['surveys_id'=> $surveyDetails['id']], $ques_filter);
+            
+        }
+
+        
         if (isset($filters['application_status'])) {
 
             $Ids = $Ids->where(function ($query) use ($filters) {
