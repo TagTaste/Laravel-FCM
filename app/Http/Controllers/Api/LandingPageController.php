@@ -50,7 +50,7 @@ class LandingPageController extends Controller
     {
 
         $this->errors['status'] = 0;
-        $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
+        $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->orderBy('sort_order', 'asc');
         if (($request->header('x-version') != null
                 && $request->header('x-version') <= 171) ||
             ($request->header('x-version-ios') != null
@@ -845,7 +845,7 @@ class LandingPageController extends Controller
         if ($platform == 'mobile') {
             $links["ui_type"] = config("constant.LANDING_UI_TYPE.QUICK_LINKS");
 
-            $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1);
+            $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->orderBy('sort_order', 'asc');
 
             if (($request->header('x-version') != null && $request->header('x-version') <= 171) ||
                 ($request->header('x-version-ios') != null && version_compare("5.0.14", $request->header('x-version-ios'), ">="))
