@@ -969,7 +969,13 @@ class SurveyController extends Controller
             return $this->sendNewError("Invalid Survey");
         }
         $formJson = json_decode($surveyDetail['form_json'], true);
-
+        
+        $savedFilter = \DB::table('survey_filters')->where('surveys_id', $id)->first(); 
+        $filterForm = [];
+        if(!empty($savedFilter)){
+            $filterForm = json_decode($savedFilter->value, true);            
+        }
+        
         $finalFormJson = [];
         foreach($formJson as $form){
             if($form['element_type'] == 'section'){
@@ -977,18 +983,41 @@ class SurveyController extends Controller
                 $finalQuestions = [];
                 foreach($questions as $question){
                     if($question['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTIPLE_CHOICE") || $question['question_type'] == config("constant.SURVEY_QUESTION_TYPES.SINGLE_CHOICE")){
+                        $question['is_selected'] = $this->checkIfQuestionSelected($question['id'], $filterForm);
                         $finalQuestions[] = $question;
                     }
                 }      
                 $finalFormJson[] = ["id"=>$form['id'], "title"=> $form['title'], "element_type"=>$form['element_type'], "questions"=> $finalQuestions];  
             }else{
                 if($form['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTIPLE_CHOICE") || $form['question_type'] == config("constant.SURVEY_QUESTION_TYPES.SINGLE_CHOICE")){
+                    $form['is_selected'] = $this->checkIfQuestionSelected($form['id'], $filterForm);
                     $finalFormJson[] = $form;
                 }  
             }
         }
         
         return $this->sendNewResponse($finalFormJson);
+    }
+
+
+    function checkIfQuestionSelected($queId, $filterForm){
+        $found = false;
+        foreach($filterForm as $form){
+            if($form['element_type'] == 'section'){
+                $questions = $form['questions'];
+                foreach($questions as $question){
+                    if($question['id'] == $queId){
+                        $found = true;
+                    }
+                }      
+            }else{
+                if($form['id'] == $queId){
+                    $found = true;
+                }
+            }
+        }
+
+        return $found;
     }
 
     public function reports($id, Request $request)
