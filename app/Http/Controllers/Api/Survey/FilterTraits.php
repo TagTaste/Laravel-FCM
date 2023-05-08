@@ -155,7 +155,7 @@ trait FilterTraits
             return ['profile_id' => $profileIds, 'type' => true];
     }
 
-    public function getFilterParameters($survey_id, Request $request)
+    public function getFilterParameters($version_num = null, $survey_id, Request $request)
     {
         
         $filters = $request->input('filter');
@@ -205,6 +205,15 @@ trait FilterTraits
                 // ,'application_status'=>$currentStatus
             ];
         }
+
+        if (isset($version_num) && $version_num == 'v1'){
+            $question_filter = [['key'=>'question', 'value'=>'+ Add Question','count'=>0]];
+            $data['question_filter'] = $question_filter;    
+        }
+
+        // $applicants = \DB::table('surveys_filter')->where('id', $survey_id)->first();
+        // $applicants = \DB::table('survey_applicants')->where('survey_id', $survey_id)->get();
+
         $this->model = $data;
 
         return $this->sendResponse();

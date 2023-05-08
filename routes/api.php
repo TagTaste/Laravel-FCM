@@ -889,7 +889,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         return response($str, 200, $headers);
     });
 
-
+   
     Route::group(['namespace' => 'Survey', 'prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
         Route::get('filters-list/{id}', 'SurveyController@getFilters');
         Route::get('/mandatory-fields', 'SurveyController@dynamicMandatoryFields');
@@ -929,8 +929,16 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/applicants/{profile_id}/submission_status', 'SurveyApplicantController@getSubmissionStatus');
 
         Route::post('/{id}/copy','SurveyController@copy');
-
     });
+    
+    Route::group(['namespace' => '','prefix' => 'v1', 'as' => ''], function () {
+        Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+            Route::get('filters-list/{id}', 'SurveyController@getFilters');
+            Route::post('/reports/{id}', 'SurveyController@reports')->name("reports");
+            Route::get('filters-list/{id}/questions', 'SurveyController@getFilterQuestions');
+        });
+    });
+
 
     Route::get('/uploadQuestion/{id}/{question_id}', function ($id, $question_id) {
         return Artisan::call("TTFB:Question", ['id' => $id, 'question_id' => $question_id]);

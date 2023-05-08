@@ -190,7 +190,7 @@ class SurveyController extends Controller
             $is_section = true;
         }
 
-
+        
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if ($request->has('company_id')) {
@@ -961,8 +961,24 @@ class SurveyController extends Controller
 
         return ["status" => false];
     }
+
+    public function getFilterQuestions($id, Request $request){        
+        $surveyDetail = Surveys::where("id", "=", $id)->first();
+        if (empty($surveyDetail)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Survey");
+        }
+        $formJson = json_decode($surveyDetail['form_json'], true);
+        
+        return $this->sendNewResponse($formJson);
+    }
+    
     public function reports($id, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
 
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
@@ -973,7 +989,10 @@ class SurveyController extends Controller
             $this->model = false;
             return $this->sendNewError("Invalid Survey");
         }
-        if ($request->has('filters') && !empty($request->filters)) {
+
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            $request->filters = '';
+        }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
@@ -2526,10 +2545,14 @@ class SurveyController extends Controller
             return "yold";
         }
     }
-
+    
     public function getFilters($surveyId, Request $request)
     {
-        return $this->getFilterParameters($surveyId, $request);
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+        return $this->getFilterParameters($version_num, $surveyId, $request);
     }
 
     public function getAnswers($surveyId)
