@@ -749,13 +749,15 @@ class BatchController extends Controller
                     }
                     
                     $finalOptionList = [];
-                    foreach($optionList as $option){
+                    foreach($optionList as $key => $option){
                         $indexedValue = $highestValue == 0 ? 0 : ($option->multiply*100)/$highestValue;
                         $option->percentage = round($indexedValue,2);
                         $option->high = $highestValue;
-                        
-                        $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage, "color_code"=>"#ffc0cb"];                    
+
+                        $colorCode = Helper::getIndexedColor($key);
+                        $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage, "color_code"=>$colorCode];                    
                     }
+                    usort($finalOptioList, function($a, $b) {return $a['percentage'] < $b['percentage'];});
 
                     $reports['answer'] = $finalOptioList; 
                     unset($finalOptioList);
