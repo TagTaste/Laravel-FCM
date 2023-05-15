@@ -75,7 +75,7 @@ trait FilterTraits
             $ques_filter = ['profile_id'=>$request->user()->profile->id, 'surveys_id'=> $surveyDetails['id'], 'value'=> json_encode($filters['question_filter']), 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
 
             \DB::table('survey_filters')->where('surveys_id', $surveyDetails['id'])->updateOrInsert(['surveys_id'=> $surveyDetails['id']], $ques_filter);
-
+            
             $queProfileIds = $this->getProfileOfQuestions($filters['question_filter'], $surveyDetails['id']);
             $Ids = $Ids->whereIn('profile_id', $queProfileIds);
         }
@@ -176,7 +176,7 @@ trait FilterTraits
                 $questions = $form['questions'];
 
                 foreach($questions as $question){
-                    $options = $question['options'];
+                    $options = $question['options'] ?? [];
                     $optionIds = [];
                     foreach($options as $option){
                         $optionIds[] = $option['id'];
@@ -186,7 +186,7 @@ trait FilterTraits
 
                 }      
             }else{
-                $options = $form['options'];
+                $options = $form['options'] ?? [];
                 $optionIds = [];
                 foreach($options as $option){
                     $optionIds[] = $option['id'];
@@ -252,9 +252,11 @@ trait FilterTraits
             $count = $this->getFilteredQuestionCount($survey_id);
             if($count == 0){
                 $question_filter = [['key'=>'question', 'value'=>'+ Add Question','count'=>$count]];
+            }else if($count == 1){
+                $question_filter = [['key'=>'question', 'value'=>'Question','count'=>$count]];
             }else{
-                $question_filter = [['key'=>'question', 'value'=>'Question Filter','count'=>$count]];
-            }
+                $question_filter = [['key'=>'question', 'value'=>'Questions','count'=>$count]];
+
             $data['question_filter'] = $question_filter;    
         }
         $this->model = $data;

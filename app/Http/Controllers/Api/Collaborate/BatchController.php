@@ -751,7 +751,7 @@ class BatchController extends Controller
                     $answersAnyOther = \DB::table('collaborate_tasting_user_review')->select('leaf_id', \DB::raw('count(*) as total'), 'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status', 3)
                         ->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('question_id', $data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id', 'ASC')->orderBy('total', 'DESC')->groupBy('question_id', 'leaf_id', 'option_type')->where('option_type', '=', 1)->get();
-
+                    
                     $answers = $answers->merge($answersAnyOther);
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer) {
