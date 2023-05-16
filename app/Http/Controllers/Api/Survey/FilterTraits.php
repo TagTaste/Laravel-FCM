@@ -161,7 +161,7 @@ trait FilterTraits
             }
             $profileIds = $profileIds->merge($filterNotProfileIds);
         }
-
+        
         if (isset($isFilterAble) && $isFilterAble)
             return ['profile_id' => $profileIds, 'type' => false];
         else

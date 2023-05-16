@@ -978,7 +978,8 @@ class SurveyController extends Controller
         
         $finalFormJson = [];
         foreach($formJson as $form){
-            if($form['element_type'] == 'section'){
+            $elementType = $form['element_type'] ?? 'question';
+            if($elementType == 'section'){
                 $questions = $form['questions'];
                 $finalQuestions = [];
                 foreach($questions as $question){
