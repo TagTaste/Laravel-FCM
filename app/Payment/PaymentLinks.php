@@ -21,7 +21,7 @@ class PaymentLinks extends Model
     protected $appends = ['owner'];
 
 
-    protected $visible = ["id", "transaction_id", "amount", "payout_link_id", "link", "is_active", "status_id", "expired_at", "comments", "phone", "profile_id", "model_id", "sub_model_id", "model_type", "created_at", "updated_at","payment_id","is_expert"];
+    protected $visible = ["id", "transaction_id", "amount", "payout_link_id", "link", "is_active", "status_id", "expired_at", "comments", "phone", "profile_id", "model_id", "sub_model_id", "model_type", "created_at", "updated_at","payment_id","is_expert","payment_reconciliation_date"];
  
     public function profile()
     {
