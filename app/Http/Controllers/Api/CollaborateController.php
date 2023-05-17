@@ -672,7 +672,7 @@ class CollaborateController extends Controller
         }
 
         if (!is_null($keywords)) {
-            $questionaire = $questionaire->where('keywords','like','%'.$keywords.'%');
+            $questionaire = $questionaire->where('name','like','%'.$keywords.'%');
         }
 
 
