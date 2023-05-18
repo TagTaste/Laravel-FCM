@@ -86,8 +86,8 @@ class QuizController extends Controller
             return $this->sendResponse();
         }
 
-        if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+30 days   "))) {
-            return $this->sendNewError("Expiry time exceeds a month");
+        if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+1 year   "))) {
+            return $this->sendNewError("Expiry time exceeds a year");
         }
         if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
             return $this->sendNewError("Expiry time invalid");
@@ -134,7 +134,7 @@ class QuizController extends Controller
         if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData["expired_at"] = date("Y-m-d", strtotime($request->expired_at));
         } else {
-            $prepData["expired_at"] = date("Y-m-d", strtotime("+1 month"));
+            $prepData["expired_at"] = date("Y-m-d", strtotime("+1 year"));
         }
 
         $create = Quiz::create($prepData);
@@ -250,8 +250,8 @@ class QuizController extends Controller
         }
 
 
-        if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+30 days"))) {
-            return $this->sendNewError("Expiry time exceeds a month");
+        if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+1 year"))) {
+            return $this->sendNewError("Expiry time exceeds a year");
         }
         if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
             return $this->sendNewError("Expiry time invalid");
