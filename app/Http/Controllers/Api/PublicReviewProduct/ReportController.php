@@ -376,7 +376,7 @@ class ReportController extends Controller
                         $option->high = $highestValue;
                         
                         $colorCode = Helper::getIndexedColor($key);
-                        $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage, "color_code"=>"#ffc0cb"];                    
+                        $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage, "color_code"=>$colorCode];                    
                     }
 
                     usort($finalOptioList, function($a, $b) {return $a['percentage'] < $b['percentage'];});
