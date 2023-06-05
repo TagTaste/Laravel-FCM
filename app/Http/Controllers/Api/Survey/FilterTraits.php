@@ -247,11 +247,11 @@ trait FilterTraits
                 // ,'application_status'=>$currentStatus
             ];
         }
-
+        
         if (isset($version_num) && $version_num == 'v1'){
             $count = $this->getFilteredQuestionCount($survey_id);
             if($count == 0){
-                $question_filter = [['key'=>'question', 'value'=>'+ Add Question','count'=>$count]];
+                $question_filter = [['key'=>'question', 'value'=>'+ Add Questions','count'=>$count]];
             }else if($count == 1){
                 $question_filter = [['key'=>'question', 'value'=>'Question','count'=>$count]];
             }else{
