@@ -75,6 +75,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 $option = isset($item['option']) ? $item['option'] : null;
                 $trackConsistency = isset($item['track_consistency']) ? $item['track_consistency'] : 0;
                 $info = isset($item['info']) ? $item['info'] : null;
+                $maxRank = isset($item['max_rank']) ? $item['max_rank'] : null;
+                
                 if(isset($item['select_type']) && !is_null($option))
                 {
                     $value = $item['option'];
@@ -113,6 +115,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v['value'],
+                                'label' => isset($v['label']) ? $v['label'] : null,
                                 'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
                                 'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
@@ -158,7 +161,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 }
                 unset($item['question']);
                 $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested_question'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>null,
-                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId,'track_consistency'=>$trackConsistency];
+                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId,'track_consistency'=>$trackConsistency, 'max_rank'=>$maxRank];
                 \Log::info("question ");
                 \Log::info($data);
                 $x = Collaborate\Questions::create($data);

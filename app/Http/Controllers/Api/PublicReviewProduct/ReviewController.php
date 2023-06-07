@@ -496,13 +496,31 @@ class ReviewController extends Controller
                     //Added by nikhil to decode &amp to & or anyother other encoding issue
                     $intensity = html_entity_decode($intensity);
 
-                    $data[] = [
-                        'key' => null, 'value' => $option['value'], 'leaf_id' => $leafId,
-                        'question_id' => $questionId, 'header_id' => $headerId,
-                        'profile_id' => $loggedInProfileId, 'product_id' => $productId, 'intensity' => $intensity,
-                        'current_status' => $currentStatus, 'value_id' => $valueId,
-                        'created_at' => $this->now, 'updated_at' => $this->now, 'select_type' => $selectType, 'meta' => null, 'option_type' => $option_type
-                    ];
+                    if($selectType == config("constant.SELECT_TYPES.RANGE_TYPE")){
+                        $data[] = [
+                            'key' => null,'value_id'=>$option['value'], 'value' => $option['label'], 'leaf_id' => $leafId,
+                            'question_id' => $questionId, 'header_id' => $headerId,
+                            'profile_id' => $loggedInProfileId, 'product_id' => $productId, 'intensity' => $intensity,
+                            'current_status' => $currentStatus,
+                            'created_at' => $this->now, 'updated_at' => $this->now, 'select_type' => $selectType, 'meta' => null, 'option_type' => $option_type
+                        ];    
+                    }else if($selectType == config("constant.SELECT_TYPES.RANK_TYPE")){
+                        $data[] = [
+                            'key' => null, 'value_id'=>$option['rank'],'value' => $option['value'], 'leaf_id' => $leafId,
+                            'question_id' => $questionId, 'header_id' => $headerId,
+                            'profile_id' => $loggedInProfileId, 'product_id' => $productId, 'intensity' => $intensity,
+                            'current_status' => $currentStatus,
+                            'created_at' => $this->now, 'updated_at' => $this->now, 'select_type' => $selectType, 'meta' => null, 'option_type' => $option_type
+                        ];    
+                    }else{
+                        $data[] = [
+                            'key' => null, 'value' => $option['value'], 'leaf_id' => $leafId,
+                            'question_id' => $questionId, 'header_id' => $headerId,
+                            'profile_id' => $loggedInProfileId, 'product_id' => $productId, 'intensity' => $intensity,
+                            'current_status' => $currentStatus, 'value_id' => $valueId,
+                            'created_at' => $this->now, 'updated_at' => $this->now, 'select_type' => $selectType, 'meta' => null, 'option_type' => $option_type
+                        ];    
+                    }
                 }
                 if (isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta'])) {
                     $data[] = [

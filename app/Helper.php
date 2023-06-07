@@ -128,4 +128,25 @@ class Helper
             return $data;
         }
     }
+    public static function getOptionForValue($value, $optionList){
+        $number = round($value);   
+
+        $filteredArray = array_values(array_filter($optionList, function ($obj) use ($number) {
+            return $obj->value == $number;
+        }));
+                
+        if (count($filteredArray) == 0){
+            return (object)["label"=>""];    
+        }else{
+            return $filteredArray[0];    
+        }
+    }
+
+    public static function getIndexedColor($index){
+
+        $colors = ["#F2C4CD","#F1E6C7","#D0DEEE","#C1E1CF","#C1E4E5","#F2D9C5","#C5EBF2","#C5CEF2","#DEC5F2","#F2C5E2","#C9D0D8","#D8C9D8","#D8C9CB","#E2D4C4","#CACBDD","#DCDDCA","#E8D4E6","#D7D4D5","#ECE1D8","#CBC3CD","#D4DFDD","#E7DCDA","#F3D9D5","#F0D9F2","#CCCCCD"];
+
+        $indexedColor = $colors[$index];
+        return $indexedColor;
+    }
 }

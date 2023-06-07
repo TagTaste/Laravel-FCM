@@ -347,7 +347,9 @@ class QuestionController extends Controller
                     $meta = $item->meta;
                     $track_consistency = $question->track_consistency;
                 }
-                
+                $question->select_type = isset(json_decode($question->questions)->select_type) ? json_decode($question->questions)->select_type : null;
+
+                // echo $question->select_type;
                 if (isset(json_decode($question->questions)->is_nested_option) 
                         && json_decode($question->questions)->is_nested_option == 1) {
                     $aroma = \DB::table('collaborate_tasting_nested_options')
@@ -362,7 +364,11 @@ class QuestionController extends Controller
                         $is_intensity = $aroma->is_intensity;
                     }
                     $data[] = ['value'=>$item->value,'is_intensity'=>$is_intensity,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type,'parent_sequence_id'=>$aroma->parent_sequence_id, 'sequence_id'=>$aroma->sequence_id,'is_nested_option'=>(int)$is_nested,'parent_id'=>$aroma->parent_id];
-                } else {
+                }else if($question->select_type == config("constant.SELECT_TYPES.RANGE_TYPE")){
+                    $data[] = ['value'=>$item->value_id,'label'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                }else if($question->select_type == config("constant.SELECT_TYPES.RANK_TYPE")){
+                    $data[] = ['value'=>$item->value,'rank'=>$item->value_id,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
+                }else {
                     $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
                 }
             }

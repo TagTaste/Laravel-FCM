@@ -105,7 +105,9 @@ return  [
         "bill_shot" => 3
     ],
     'SELECT_TYPES' => [
-        'SELFIE_TYPE' => 6
+        'SELFIE_TYPE' => 6,
+        'RANK_TYPE'=>7,
+        'RANGE_TYPE'=>8
     ],
     "DEFAULT_SIZE" => 8,
 

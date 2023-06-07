@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\File;
-
+use App\Helper;
 
 class ReportController extends Controller
 {
@@ -336,13 +336,77 @@ class ReportController extends Controller
                 else
                     unset($reports['nestedAnswers']);
                 $reports['total_applicants'] = $totalApplicants;
-                $reports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)
-                    ->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
-                $reports['select_type'] = isset($data->questions->select_type) ? $data->questions->select_type : null;
+                $totalQueResponse = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)
+                ->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
+            $reports['select_type'] = isset($data->questions->select_type) ? $data->questions->select_type : null;
+                $reports['total_answers'] = $totalQueResponse;
                 if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
                     $reports['answer'] = Review::where('product_id',$productId)->where('question_id',$data->id)
                         ->where('current_status',2)->where('header_id',$headerId)->skip(0)->take(3)->get();
+                }
+                else if(isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.RANK_TYPE"))
+                {
+                    $optionList = $data->questions->option;
+                    $maxRank = $data->questions->max_rank;
+                    $highestValue = 0;
+                    foreach($optionList as $option){
+                        $optionResponse = \DB::table('public_product_user_review')->select('leaf_id', 'value_id','value',\DB::raw('count(*) as total'))->where('current_status',2)->where('product_id', $productId)->where('question_id', $data->id)->where('leaf_id',$option->id)->groupBy('question_id', 'leaf_id', 'value_id', 'value')->get();
+
+                        $sum = 0;
+                        $totalOptionResponse = 0;
+                        foreach($optionResponse as $optionAns){
+                            $sum = $sum + ($optionAns->total*($maxRank-$optionAns->value_id + 1));     
+                            $totalOptionResponse += $optionAns->total;
+                        }
+                        $option->total = $totalOptionResponse;
+                        $option->reverse_avg = $totalOptionResponse == 0 ? 0 : $sum/$totalOptionResponse;
+                        $option->ranked_by_percentage = $totalQueResponse == 0 ? 0 : $totalOptionResponse/$totalQueResponse;
+                        $option->multiply = $option->reverse_avg*$option->ranked_by_percentage;
+                        $option->total = $totalOptionResponse;
+                        if($highestValue < $option->multiply){
+                            $highestValue = $option->multiply;
+                        }
+                    }
+                    
+                    $finalOptionList = [];
+                    foreach($optionList as $key => $option){
+                        $indexedValue = $highestValue == 0 ? 0 : ($option->multiply*100)/$highestValue;
+                        $option->percentage = round($indexedValue,2);
+                        $option->high = $highestValue;
+                        
+                        $colorCode = Helper::getIndexedColor($key);
+                        $finalOptioList[] = ["leaf_id"=>$option->id,"total"=>$option->total, "option_type"=>$option->option_type, "value"=>$option->value,"percentage"=>$option->percentage, "color_code"=>$colorCode];                    
+                    }
+
+                    usort($finalOptioList, function($a, $b) {return $a['percentage'] < $b['percentage'];});
+
+                    $reports['answer'] = $finalOptioList;  
+                    unset($finalOptioList);                   
+
+                }else if(isset($data->questions->select_type) && $data->questions->select_type == config("constant.SELECT_TYPES.RANGE_TYPE"))
+                {
+                    $finalOptionList = [];
+                    $optionList = $data->questions->option;
+                    $totalSum = 0;
+                    $totalResponse = 0;
+                    foreach($optionList as $option){
+                        $optionResponseCount = \DB::table('public_product_user_review')->where('current_status',2)
+                        ->where('product_id',$productId)->where('question_id',$data->id)->where('leaf_id', $option->id)->count();
+                        
+                        $totalResponse += $optionResponseCount;
+                        $totalSum += $optionResponseCount*$option->value;
+
+                        $finalOptionList[] = ["id"=>$option->id, "value"=>$option->value, "label"=>$option->label, "count"=>$optionResponseCount];
+                    }
+
+                    $average = $totalResponse == 0 ? 0 : number_format((float)($totalSum/$totalResponse), 2, '.', '');
+                    $roundedAvgOption = Helper::getOptionForValue($average, $optionList);
+
+                    $average = $average." (".$roundedAvgOption->label.")";
+                    // $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
+                    $reports['answer'] = array(["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList]);
+                    unset($finalOptioList);
                 }
                 else
                 {
