@@ -182,8 +182,9 @@ trait FilterTraits
                         $optionIds[] = $option['id'];
                     }
 
-                    $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $question['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
-
+                    if (count($optionIds) > 0){
+                        $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $question['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
+                    }
                 }      
             }else{
                 $options = $form['options'] ?? [];
@@ -191,7 +192,10 @@ trait FilterTraits
                 foreach($options as $option){
                     $optionIds[] = $option['id'];
                 }
-                $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $form['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
+
+                if (count($optionIds) > 0){
+                    $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $form['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
+                }
             }
         }
         return $profileIds;
@@ -247,16 +251,16 @@ trait FilterTraits
                 // ,'application_status'=>$currentStatus
             ];
         }
-        
+
         if (isset($version_num) && $version_num == 'v1'){
             $count = $this->getFilteredQuestionCount($survey_id);
             if($count == 0){
-                $question_filter = [['key'=>'question', 'value'=>'+ Add Questions','count'=>$count]];
+                $question_filter = [['key'=>'question', 'value'=>'+ Add Question','count'=>$count]];
             }else if($count == 1){
                 $question_filter = [['key'=>'question', 'value'=>'Question','count'=>$count]];
             }else{
                 $question_filter = [['key'=>'question', 'value'=>'Questions','count'=>$count]];
-
+            }
             $data['question_filter'] = $question_filter;    
         }
         $this->model = $data;
