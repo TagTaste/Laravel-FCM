@@ -938,6 +938,15 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/reports/{id}', 'SurveyController@reports')->name("reports");
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
+
+            //get long answer
+            //get short answer
+            //get media urls
+            //get image meta
+            //get document meta
+            
+            Route::post('/text-answers/{id}/{question_id}/{option_id}', 'SurveyController@inputAnswers');
+            Route::post('/media-list/{id}/{question_id}/{media_type}', 'SurveyController@mediaList');
         });
     });
 

@@ -1688,7 +1688,11 @@ class SurveyController extends Controller
 
     public function inputAnswers($id, $question_id, $option_id, Request $request)
     {
-
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+        
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1710,13 +1714,17 @@ class SurveyController extends Controller
             return $this->sendNewError("Only Survey Admin can view this report");
         }
 
-        if ($request->has('filters') && !empty($request->filters)) {
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            // $request->filters = '';
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+
+        }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
-
-
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
@@ -2019,6 +2027,10 @@ class SurveyController extends Controller
 
     public function mediaList($id, $question_id, $media_type, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
 
         if (!in_array($media_type, ["image_meta", "video_meta", "document_meta", "media_url"])) {
             $this->model = false;
@@ -2046,8 +2058,16 @@ class SurveyController extends Controller
             return $this->sendNewError("Only Survey Admin can view this report");
         }
 
-
-        if ($request->has('filters') && !empty($request->filters)) {
+         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
