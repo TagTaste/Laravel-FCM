@@ -1354,10 +1354,10 @@ class SurveyController extends Controller
                     }
                     return ($a['answer_percentage'] > $b['answer_percentage']) ? -1 : 1;
                 });
-                foreach ($prepareNode["reports"][$counter]["options"] as $key => $option) {
-                    if ($option["answer_percentage"] == 0)
-                        unset($prepareNode["reports"][$counter]["options"][$key]);
-                }
+                // foreach ($prepareNode["reports"][$counter]["options"] as $key => $option) {
+                //     if ($option["answer_percentage"] == 0)
+                //         unset($prepareNode["reports"][$counter]["options"][$key]);
+                // }
             }
 
 
