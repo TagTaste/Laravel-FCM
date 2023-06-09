@@ -43,12 +43,16 @@ trait FilterTraits
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['age'] as $age) {
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('generation', 'LIKE', $age['value']);
+                    }else{
                     // $age = htmlspecialchars_decode($age);
-                    $query->orWhere('generation', 'LIKE', $age);
+                        $query->orWhere('generation', 'LIKE', $age);
+                    }
                 }
             });
         }
-
+        
 
         if (isset($filters['profile'])) {
             $Ids =   $Ids->leftJoin('profile_specializations', 'survey_applicants.profile_id', '=', 'profile_specializations.profile_id')
@@ -62,14 +66,17 @@ trait FilterTraits
         }
 
         if (isset($filters['gender'])) {
-
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['gender'] as $gender) {
-                    $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender['value']);
+                    }else{
+                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    }
                 }
             });
         }
-
+        
         //apply filter on question's options
         if (isset($filters['question_filter'])) {
             $ques_filter = ['profile_id'=>$request->user()->profile->id, 'surveys_id'=> $surveyDetails['id'], 'value'=> json_encode($filters['question_filter']), 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
