@@ -190,7 +190,7 @@ class SurveyController extends Controller
             $is_section = true;
         }
 
-
+        
 
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if ($request->has('company_id')) {
@@ -961,8 +961,72 @@ class SurveyController extends Controller
 
         return ["status" => false];
     }
+
+    public function getFilterQuestions($id, Request $request){        
+        $surveyDetail = Surveys::where("id", "=", $id)->first();
+        if (empty($surveyDetail)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Survey");
+        }
+        $formJson = json_decode($surveyDetail['form_json'], true);
+        
+        $savedFilter = \DB::table('survey_filters')->where('surveys_id', $id)->first(); 
+        $filterForm = [];
+        if(!empty($savedFilter)){
+            $filterForm = json_decode($savedFilter->value, true);            
+        }
+        
+        $finalFormJson = [];
+        foreach($formJson as $form){
+            $elementType = $form['element_type'] ?? 'question';
+            if($elementType == 'section'){
+                $questions = $form['questions'];
+                $finalQuestions = [];
+                foreach($questions as $question){
+                    if($question['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTIPLE_CHOICE") || $question['question_type'] == config("constant.SURVEY_QUESTION_TYPES.SINGLE_CHOICE")){
+                        $question['is_selected'] = $this->checkIfQuestionSelected($question['id'], $filterForm);
+                        $finalQuestions[] = $question;
+                    }
+                }      
+                $finalFormJson[] = ["id"=>$form['id'], "title"=> $form['title'], "element_type"=>$form['element_type'], "questions"=> $finalQuestions];  
+            }else{
+                if($form['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTIPLE_CHOICE") || $form['question_type'] == config("constant.SURVEY_QUESTION_TYPES.SINGLE_CHOICE")){
+                    $form['is_selected'] = $this->checkIfQuestionSelected($form['id'], $filterForm);
+                    $finalFormJson[] = $form;
+                }  
+            }
+        }
+        
+        return $this->sendNewResponse($finalFormJson);
+    }
+
+
+    function checkIfQuestionSelected($queId, $filterForm){
+        $found = false;
+        foreach($filterForm as $form){
+            if($form['element_type'] == 'section'){
+                $questions = $form['questions'];
+                foreach($questions as $question){
+                    if($question['id'] == $queId){
+                        $found = true;
+                    }
+                }      
+            }else{
+                if($form['id'] == $queId){
+                    $found = true;
+                }
+            }
+        }
+
+        return $found;
+    }
+
     public function reports($id, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
 
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
@@ -973,7 +1037,14 @@ class SurveyController extends Controller
             $this->model = false;
             return $this->sendNewError("Invalid Survey");
         }
-        if ($request->has('filters') && !empty($request->filters)) {
+
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            // $request->filters = '';
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+
+        }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
@@ -1283,10 +1354,10 @@ class SurveyController extends Controller
                     }
                     return ($a['answer_percentage'] > $b['answer_percentage']) ? -1 : 1;
                 });
-                foreach ($prepareNode["reports"][$counter]["options"] as $key => $option) {
-                    if ($option["answer_percentage"] == 0)
-                        unset($prepareNode["reports"][$counter]["options"][$key]);
-                }
+                // foreach ($prepareNode["reports"][$counter]["options"] as $key => $option) {
+                //     if ($option["answer_percentage"] == 0)
+                //         unset($prepareNode["reports"][$counter]["options"][$key]);
+                // }
             }
 
 
@@ -1548,6 +1619,11 @@ class SurveyController extends Controller
 
     public function surveyRespondents($id, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1570,7 +1646,13 @@ class SurveyController extends Controller
             return $this->sendNewError("Only Survey Admin can view this report");
         }
 
-        if ($request->has('filters') && !empty($request->filters)) {
+         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            // $request->filters = '';
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+
+        }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
@@ -1606,7 +1688,11 @@ class SurveyController extends Controller
 
     public function inputAnswers($id, $question_id, $option_id, Request $request)
     {
-
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+        
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1628,13 +1714,17 @@ class SurveyController extends Controller
             return $this->sendNewError("Only Survey Admin can view this report");
         }
 
-        if ($request->has('filters') && !empty($request->filters)) {
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            // $request->filters = '';
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+
+        }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
-
-
 
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
@@ -1937,6 +2027,10 @@ class SurveyController extends Controller
 
     public function mediaList($id, $question_id, $media_type, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
 
         if (!in_array($media_type, ["image_meta", "video_meta", "document_meta", "media_url"])) {
             $this->model = false;
@@ -1964,8 +2058,16 @@ class SurveyController extends Controller
             return $this->sendNewError("Only Survey Admin can view this report");
         }
 
-
-        if ($request->has('filters') && !empty($request->filters)) {
+         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
@@ -2027,6 +2129,11 @@ class SurveyController extends Controller
 
     public function excelReport($id, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
         if (empty($checkIFExists)) {
@@ -2034,7 +2141,11 @@ class SurveyController extends Controller
             return $this->sendNewError("Invalid Survey");
         }
 
-        if ($request->has('filters') && !empty($request->filters)) {
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
@@ -2526,10 +2637,14 @@ class SurveyController extends Controller
             return "yold";
         }
     }
-
+    
     public function getFilters($surveyId, Request $request)
     {
-        return $this->getFilterParameters($surveyId, $request);
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+        return $this->getFilterParameters($version_num, $surveyId, $request);
     }
 
     public function getAnswers($surveyId)

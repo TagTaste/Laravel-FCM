@@ -889,7 +889,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         return response($str, 200, $headers);
     });
 
-
+   
     Route::group(['namespace' => 'Survey', 'prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
         Route::get('filters-list/{id}', 'SurveyController@getFilters');
         Route::get('/mandatory-fields', 'SurveyController@dynamicMandatoryFields');
@@ -929,8 +929,27 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/applicants/{profile_id}/submission_status', 'SurveyApplicantController@getSubmissionStatus');
 
         Route::post('/{id}/copy','SurveyController@copy');
-
     });
+    
+    Route::group(['namespace' => '','prefix' => 'v1', 'as' => ''], function () {
+        Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+            Route::get('filters-list/{id}/questions', 'SurveyController@getFilterQuestions');
+            Route::get('filters-list/{id}', 'SurveyController@getFilters');
+            Route::post('/reports/{id}', 'SurveyController@reports')->name("reports");
+            Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
+            Route::post('/download-reports/{id}', 'SurveyController@excelReport');
+
+            //get long answer
+            //get short answer
+            //get media urls
+            //get image meta
+            //get document meta
+            
+            Route::post('/text-answers/{id}/{question_id}/{option_id}', 'SurveyController@inputAnswers');
+            Route::post('/media-list/{id}/{question_id}/{media_type}', 'SurveyController@mediaList');
+        });
+    });
+
 
     Route::get('/uploadQuestion/{id}/{question_id}', function ($id, $question_id) {
         return Artisan::call("TTFB:Question", ['id' => $id, 'question_id' => $question_id]);

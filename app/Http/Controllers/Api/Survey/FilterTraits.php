@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Api\Survey;
 use App\surveyApplicants;
 use Illuminate\Http\Request;
 use App\Helper;
+use Carbon\Carbon;
+use App\Surveys;
+use App\SurveyAnswers;
 
 trait FilterTraits
 {
 
 
-    public function getProfileIdOfFilter($surveyDetails, Request $request)
+    public function getProfileIdOfFilter($surveyDetails, Request $request, $version_num = '')
     {
-
         $filters = $request->filters;
         $profileIds = collect([]);
 
@@ -24,9 +26,6 @@ trait FilterTraits
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
-
-
-
 
         if (!empty($filters)) {
             $Ids = surveyApplicants::where('survey_id', $surveyDetails->id)
@@ -42,14 +41,18 @@ trait FilterTraits
         }
 
         if (isset($filters['age'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
-                    $age = htmlspecialchars_decode($age);
-                    $query->orWhere('generation', 'LIKE', $age);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('generation', 'LIKE', $age['key']);
+                    }else{
+                    // $age = htmlspecialchars_decode($age);
+                        $query->orWhere('generation', 'LIKE', $age);
+                    }
                 }
             });
         }
-
+        
 
         if (isset($filters['profile'])) {
             $Ids =   $Ids->leftJoin('profile_specializations', 'survey_applicants.profile_id', '=', 'profile_specializations.profile_id')
@@ -61,16 +64,31 @@ trait FilterTraits
                 }
             });
         }
-
+        
         if (isset($filters['gender'])) {
-
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
-                    $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
+                    }else{
+                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    }
                 }
             });
         }
 
+        //apply filter on question's options
+        
+        if (isset($filters['question_filter'])) {
+            $ques_filter = ['profile_id'=>$request->user()->profile->id, 'surveys_id'=> $surveyDetails['id'], 'value'=> json_encode($filters['question_filter']), 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
+
+            \DB::table('survey_filters')->where('surveys_id', $surveyDetails['id'])->updateOrInsert(['surveys_id'=> $surveyDetails['id']], $ques_filter);
+            
+            $queProfileIds = $this->getProfileOfQuestions($filters['question_filter'], $surveyDetails['id']);
+            $Ids = $Ids->whereIn('profile_id', $queProfileIds);
+        }
+        
+        
         if (isset($filters['application_status'])) {
 
             $Ids = $Ids->where(function ($query) use ($filters) {
@@ -119,10 +137,10 @@ trait FilterTraits
                 }
             });
         }
-
-
+       
         if ($profileIds->count() > 0 && isset($Ids)) {
             $Ids = $Ids->whereIn('profile_id', $profileIds);
+            
         }
 
         if (isset($Ids)) {
@@ -130,6 +148,7 @@ trait FilterTraits
             $Ids = $Ids->get()->pluck('profile_id');
             $profileIds = $profileIds->merge($Ids);
         }
+
         if ($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter) {
@@ -138,6 +157,7 @@ trait FilterTraits
             }
             $profileIds = $profileIds->diff($filterNotProfileIds);
         }
+
         if ($profileIds->count() == 0 && isset($filters['exclude_profile_id'])) {
             $isFilterAble = false;
             $excludeAble = false;
@@ -149,13 +169,47 @@ trait FilterTraits
             }
             $profileIds = $profileIds->merge($filterNotProfileIds);
         }
+        
         if (isset($isFilterAble) && $isFilterAble)
             return ['profile_id' => $profileIds, 'type' => false];
         else
             return ['profile_id' => $profileIds, 'type' => true];
     }
+    
+    function getProfileOfQuestions($filterForm, $survey_id){
+        $profileIds = surveyApplicants::where('survey_id', $survey_id)->where('application_status', config("constant.SURVEY_APPLICANT_STATUS.Completed"))->whereNull('deleted_at')->get()->pluck('profile_id')->unique();
+        
+        foreach($filterForm as $form){
+            if($form['element_type'] == 'section'){
+                $questions = $form['questions'];
 
-    public function getFilterParameters($survey_id, Request $request)
+                foreach($questions as $question){
+                    $options = $question['options'] ?? [];
+                    $optionIds = [];
+                    foreach($options as $option){
+                        $optionIds[] = $option['id'];
+                    }
+
+                    if (count($optionIds) > 0){
+                        $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $question['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
+                    }
+                }      
+            }else{
+                $options = $form['options'] ?? [];
+                $optionIds = [];
+                foreach($options as $option){
+                    $optionIds[] = $option['id'];
+                }
+
+                if (count($optionIds) > 0){
+                    $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $form['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
+                }
+            }
+        }
+        return $profileIds;
+    }
+
+    public function getFilterParameters($version_num = null, $survey_id, Request $request)
     {
         
         $filters = $request->input('filter');
@@ -205,9 +259,49 @@ trait FilterTraits
                 // ,'application_status'=>$currentStatus
             ];
         }
+
+        if (isset($version_num) && $version_num == 'v1'){
+            $count = $this->getFilteredQuestionCount($survey_id);
+            if($count == 0){
+                $question_filter = [['key'=>'question', 'value'=>'+ Add Questions','count'=>$count]];
+            }else if($count == 1){
+                $question_filter = [['key'=>'question', 'value'=>'Question','count'=>$count]];
+            }else{
+                $question_filter = [['key'=>'question', 'value'=>'Questions','count'=>$count]];
+            }
+            $data['question_filter'] = $question_filter;    
+        }
         $this->model = $data;
 
         return $this->sendResponse();
+    }
+
+    function getFilteredQuestionCount($survey_id){
+        $surveyDetail = Surveys::where("id", "=", $survey_id)->first();
+        if (empty($surveyDetail)) {
+            return 0;
+        }
+        $formJson = json_decode($surveyDetail['form_json'], true);
+
+        $savedFilter = \DB::table('survey_filters')->where('surveys_id', $survey_id)->first(); 
+        if(empty($savedFilter)){
+            return 0;
+        }
+
+        $savedFormJson = json_decode($savedFilter->value, true);
+        if(empty($savedFormJson)){
+            return 0;
+        }
+
+        $count = 0;
+        foreach($savedFormJson as $form){
+            if($form['element_type'] == 'section'){
+                $count += count($form['questions']);
+            }else{
+                $count += 1;
+            }
+        }
+        return $count;
     }
 
     public function sortApplicants($sortBy, $applications, $surveyId)
