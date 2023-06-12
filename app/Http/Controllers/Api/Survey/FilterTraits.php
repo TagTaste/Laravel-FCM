@@ -8,10 +8,10 @@ use App\Helper;
 use Carbon\Carbon;
 use App\Surveys;
 use App\SurveyAnswers;
+use App\SurveyAttemptMapping;
 
 trait FilterTraits
 {
-
 
     public function getProfileIdOfFilter($surveyDetails, Request $request, $version_num = '')
     {
@@ -88,6 +88,30 @@ trait FilterTraits
             $Ids = $Ids->whereIn('profile_id', $queProfileIds);
         }
         
+        if(isset($filters['date'])){
+            $start_date = '';
+            $end_date = '';
+            foreach ($filters['date'] as $date) {
+                if($date['key'] == 'start_date' && !empty($date['value'])){
+                    $start_date = $date['value'];
+                    $start_date = Carbon::parse($start_date)->startOfDay();
+                }else if($date['key'] == 'end_date' && !empty($date['value'])){
+                    $end_date = $date['value'];
+                    $end_date = Carbon::parse($end_date)->endOfDay();                   
+                }
+            }
+            
+            if($start_date != '' && $end_date != ''){
+                $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->whereBetween('completion_date',[$start_date, $end_date])->get()->pluck('profile_id')->unique();
+                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+            }else if($start_date != ''){
+                $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','>=',$start_date)->get()->pluck('profile_id')->unique();
+                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+            }else if($end_date != ''){
+                $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','<=',$end_date)->get()->pluck('profile_id')->unique();
+                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+            }           
+        }
         
         if (isset($filters['application_status'])) {
 
@@ -148,7 +172,7 @@ trait FilterTraits
             $Ids = $Ids->get()->pluck('profile_id');
             $profileIds = $profileIds->merge($Ids);
         }
-
+        
         if ($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter) {
