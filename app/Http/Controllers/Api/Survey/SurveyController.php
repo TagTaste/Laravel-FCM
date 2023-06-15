@@ -1624,7 +1624,7 @@ class SurveyController extends Controller
                             }else{
                                 $rankedByPercantage = count($ar) ? (count($ar) / $totalApplicantsofRankques) : 0;
                             }
-                            
+
                             // $rankedByPercantage = count($ar) ? (count($ar) / $totalApplicantsofRankques) : 0;
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["option_count"] = count($ar); 
 
@@ -1636,7 +1636,7 @@ class SurveyController extends Controller
                                     if($highestValue == 0){
                                         $indexedValue = 0;
                                     }else{
-                                        $indexedValue = $prepareNode["reports"][$counter]["options"][$i]["option_count"] ? ((100*$ranks[$i])/ $highestValue) : 0;
+                                        $indexedValue = $prepareNode["reports"][$counter]["options"][$i]["answer_count"] ? ((100*$ranks[$i])/ $highestValue) : 0;
                                     }
                                     $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = round($indexedValue,2);
                                     
