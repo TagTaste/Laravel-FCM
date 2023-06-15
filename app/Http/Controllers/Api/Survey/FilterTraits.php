@@ -8,10 +8,138 @@ use App\Helper;
 use Carbon\Carbon;
 use App\Surveys;
 use App\SurveyAnswers;
+use App\SurveyAttemptMapping;
 
 trait FilterTraits
 {
 
+    public function getProfileIdOfReportFilter($surveyDetails, Request $request, $version_num = '')
+    {
+        $filters = $request->filters;
+        $profileIds = collect([]);
+
+        if ($profileIds->count() == 0 && isset($filters['profile_ids'])) {
+            $filterProfile = [];
+            foreach ($filters['profile_ids'] as $filter) {
+                //$isFilterAble = true;
+                $filterProfile[] = (int)$filter;
+            }
+            $profileIds = $profileIds->merge($filterProfile);
+        }
+
+        if (!empty($filters)) {
+            $Ids = surveyApplicants::where('survey_id', $surveyDetails->id)
+                ->whereNull('survey_applicants.deleted_at');
+        }
+        
+        if (isset($filters['age'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['age'] as $age) {
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('generation', 'LIKE', $age['key']);
+                    }else{
+                    // $age = htmlspecialchars_decode($age);
+                        $query->orWhere('generation', 'LIKE', $age);
+                    }
+                }
+            });
+        }
+        
+        
+        if (isset($filters['gender'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['gender'] as $gender) {
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
+                    }else{
+                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    }
+                }
+            });
+        }
+        
+        if ($profileIds->count() > 0 && isset($Ids)) {
+            $Ids = $Ids->whereIn('profile_id', $profileIds);
+            
+        }
+
+        if (isset($Ids)) {
+            $isFilterAble = true;
+            $Ids = $Ids->get()->pluck('profile_id');
+            $profileIds = $profileIds->merge($Ids);
+        }
+
+        
+        $profileCompleteAttempt = SurveyAttemptMapping::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $surveyDetails->id)->whereNull("deleted_at")->whereNotNull("completion_date")->whereIn('profile_id',$profileIds)->get();
+
+
+        $idsAttemptMapping = [];
+        foreach ($profileCompleteAttempt as $pattempt) {
+            $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
+        }
+
+        //apply filter on question's options
+        if (isset($filters['question_filter'])) {
+            $ques_filter = ['profile_id'=>$request->user()->profile->id, 'surveys_id'=> $surveyDetails['id'], 'value'=> json_encode($filters['question_filter']), 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
+
+            \DB::table('survey_filters')->where('surveys_id', $surveyDetails['id'])->updateOrInsert(['surveys_id'=> $surveyDetails['id']], $ques_filter);
+            
+            $idsAttemptMapping = $this->getProfileOfQuestions($filters['question_filter'], $surveyDetails['id'], $idsAttemptMapping);
+        }
+        
+        if(isset($filters['date'])){
+            $start_date = '';
+            $end_date = '';
+            foreach ($filters['date'] as $date) {
+                if($date['key'] == 'start_date' && !empty($date['value'])){
+                    $start_date = $date['value'];
+                    $start_date = Carbon::parse($start_date)->startOfDay();
+                }else if($date['key'] == 'end_date' && !empty($date['value'])){
+                    $end_date = $date['value'];
+                    $end_date = Carbon::parse($end_date)->endOfDay();                   
+                }
+            }
+            
+            if($start_date != '' && $end_date != ''){
+                $profileCompleteAttempt = SurveyAttemptMapping::select('profile_id','attempt')->distinct()->where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->whereBetween('completion_date',[$start_date, $end_date])->get()->filter(function ($ans) use ($idsAttemptMapping) {
+                    return isset($idsAttemptMapping[$ans->profile_id]) ? in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : false;
+                });
+
+                $idsAttemptMapping = [];
+                foreach ($profileCompleteAttempt as $pattempt) {
+                    $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
+                };
+
+            }else if($start_date != ''){
+                $profileCompleteAttempt = SurveyAttemptMapping::select('profile_id','attempt')->distinct()->where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','>=',$start_date)->get()->filter(function ($ans) use ($idsAttemptMapping) {
+                    return isset($idsAttemptMapping[$ans->profile_id]) ? in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : false;
+                });
+
+                $idsAttemptMapping = [];
+                foreach ($profileCompleteAttempt as $pattempt) {
+                    $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
+                };
+
+            }else if($end_date != ''){
+                $profileCompleteAttempt = SurveyAttemptMapping::select('profile_id','attempt')->distinct()->where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','<=',$end_date)->get()->filter(function ($ans) use ($idsAttemptMapping) {
+                    return isset($idsAttemptMapping[$ans->profile_id]) ? in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : false;
+                });
+
+                $idsAttemptMapping = [];
+                foreach ($profileCompleteAttempt as $pattempt) {
+                    $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
+                };
+                
+            }           
+        }
+        
+        return $idsAttemptMapping;
+        
+        // if (isset($isFilterAble) && $isFilterAble)
+        //     return ['profile_id' => $profileIds, 'type' => false];
+        // else
+        //     return ['profile_id' => $profileIds, 'type' => true];
+    }
 
     public function getProfileIdOfFilter($surveyDetails, Request $request, $version_num = '')
     {
@@ -88,6 +216,30 @@ trait FilterTraits
             $Ids = $Ids->whereIn('profile_id', $queProfileIds);
         }
         
+        if(isset($filters['date'])){
+            $start_date = '';
+            $end_date = '';
+            foreach ($filters['date'] as $date) {
+                if($date['key'] == 'start_date' && !empty($date['value'])){
+                    $start_date = $date['value'];
+                    $start_date = Carbon::parse($start_date)->startOfDay();
+                }else if($date['key'] == 'end_date' && !empty($date['value'])){
+                    $end_date = $date['value'];
+                    $end_date = Carbon::parse($end_date)->endOfDay();                   
+                }
+            }
+            
+            if($start_date != '' && $end_date != ''){
+                $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->whereBetween('completion_date',[$start_date, $end_date])->get()->pluck('profile_id')->unique();
+                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+            }else if($start_date != ''){
+                $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','>=',$start_date)->get()->pluck('profile_id')->unique();
+                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+            }else if($end_date != ''){
+                $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','<=',$end_date)->get()->pluck('profile_id')->unique();
+                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+            }           
+        }
         
         if (isset($filters['application_status'])) {
 
@@ -148,7 +300,7 @@ trait FilterTraits
             $Ids = $Ids->get()->pluck('profile_id');
             $profileIds = $profileIds->merge($Ids);
         }
-
+        
         if ($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter) {
@@ -176,9 +328,23 @@ trait FilterTraits
             return ['profile_id' => $profileIds, 'type' => true];
     }
     
-    function getProfileOfQuestions($filterForm, $survey_id){
-        $profileIds = surveyApplicants::where('survey_id', $survey_id)->where('application_status', config("constant.SURVEY_APPLICANT_STATUS.Completed"))->whereNull('deleted_at')->get()->pluck('profile_id')->unique();
+    function getProfileOfQuestions($filterForm, $survey_id, $idsAttemptMapping){
+
+        // $profileCompleteAttempt = SurveyAttemptMapping::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $survey_id)->whereNull("deleted_at")->whereNotNull("completion_date")->get();
+
+        // $idsAttemptMapping = [];
+        // foreach ($profileCompleteAttempt as $pattempt) {
+        //     $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
+        // }
+
+
+        // echo count($profileCompleteAttempt);
+
+        // print_r($idsAttemptMapping);
+        // $profileIds = SurveyAttemptMapping::select("profile_id", "attempt")->where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("completion_date")->get()
         
+        // $profileIds = surveyApplicants::where('survey_id', $survey_id)->where('application_status', config("constant.SURVEY_APPLICANT_STATUS.Completed"))->whereNull('deleted_at')->get()->pluck('profile_id')->unique();
+       
         foreach($filterForm as $form){
             if($form['element_type'] == 'section'){
                 $questions = $form['questions'];
@@ -189,9 +355,18 @@ trait FilterTraits
                     foreach($options as $option){
                         $optionIds[] = $option['id'];
                     }
-
+                    
                     if (count($optionIds) > 0){
-                        $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $question['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
+                        $profileCompleteAttempt = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where('survey_id', $survey_id)->where('question_id', $question['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->get()->filter(function ($ans) use ($idsAttemptMapping) {
+                            return isset($idsAttemptMapping[$ans->profile_id]) ? in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : false;
+                        });
+
+                        $idsAttemptMapping = [];
+                        foreach ($profileCompleteAttempt as $pattempt) {
+                            $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
+                        }
+
+                        // $profileCompleteAttempt = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $question['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id','attempt')->unique();
                     }
                 }      
             }else{
@@ -202,11 +377,20 @@ trait FilterTraits
                 }
 
                 if (count($optionIds) > 0){
-                    $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $form['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
+                    // $profileIds = SurveyAnswers::where('survey_id', $survey_id)->where('question_id', $form['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->whereIn('profile_id', $profileIds)->get()->pluck('profile_id')->unique();
+
+                    $profileCompleteAttempt = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where('survey_id', $survey_id)->where('question_id', $form['id'])->whereIn('option_id',$optionIds)->whereNull('deleted_at')->get()->filter(function ($ans) use ($idsAttemptMapping) {
+                        return isset($idsAttemptMapping[$ans->profile_id]) ? in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : false;
+                    });
+
+                    $idsAttemptMapping = [];
+                    foreach ($profileCompleteAttempt as $pattempt) {
+                        $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
+                    }
                 }
             }
         }
-        return $profileIds;
+        return $idsAttemptMapping;
     }
 
     public function getFilterParameters($version_num = null, $survey_id, Request $request)
@@ -261,6 +445,8 @@ trait FilterTraits
         }
 
         if (isset($version_num) && $version_num == 'v1'){
+            $data['date'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
+
             $count = $this->getFilteredQuestionCount($survey_id);
             if($count == 0){
                 $question_filter = [['key'=>'question', 'value'=>'+ Add Questions','count'=>$count]];
@@ -269,6 +455,7 @@ trait FilterTraits
             }else{
                 $question_filter = [['key'=>'question', 'value'=>'Questions','count'=>$count]];
             }
+            
             $data['question_filter'] = $question_filter;    
         }
         $this->model = $data;
