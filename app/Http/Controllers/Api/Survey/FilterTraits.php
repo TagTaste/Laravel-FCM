@@ -72,7 +72,7 @@ trait FilterTraits
         
         $profileCompleteAttempt = SurveyAttemptMapping::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $surveyDetails->id)->whereNull("deleted_at")->whereNotNull("completion_date")->whereIn('profile_id',$profileIds)->get();
 
-
+        
         $idsAttemptMapping = [];
         foreach ($profileCompleteAttempt as $pattempt) {
             $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;

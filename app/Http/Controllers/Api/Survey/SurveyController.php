@@ -1498,12 +1498,13 @@ class SurveyController extends Controller
             
             ##total count of applicants who have attempted rank question
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
-                $totalApplicantsofRankques = SurveyAnswers::selectRaw('max(attempt) as attempt')->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->groupBy("profile_id")->get()->filter(function ($ans) use ($finalAttempMapping) {
-                    
+                $totalApplicantsofRankques = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                     return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
                 });
+
+                $totalApplicantsofRankques = count($totalApplicantsofRankques);
                 ##sum of attempts of each user
-                $totalApplicantsofRankques = array_sum($totalApplicantsofRankques->pluck("attempt")->toArray());
+                // $totalApplicantsofRankques = array_sum($totalApplicantsofRankques->pluck("attempt")->toArray());
             }
 
             $ans = $answers->pluck("option_id")->toArray();
@@ -1596,11 +1597,8 @@ class SurveyController extends Controller
                     if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])
                             ->where("question_id", "=", $values["id"])->where('answer_value', $optVal['id'])->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
-
-                                return isset($finalAttempMapping[$ans->profile_id]) ? !in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
+                                return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
                             });
-                        
-                        
                             
                         $ans = $answers->pluck("option_id")->toArray();
                         
@@ -1622,18 +1620,35 @@ class SurveyController extends Controller
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
                             ##updated calculation for rank questions
-                            $rankedByPercantage = count($ar) ? (count($ar) / $totalApplicantsofRankques) : 0;
+                            if($totalApplicantsofRankques == 0){
+                                $rankedByPercantage = 0;
+                            }else{
+                                $rankedByPercantage = count($ar) ? (count($ar) / $totalApplicantsofRankques) : 0;
+                            }
+
+                            // $rankedByPercantage = count($ar) ? (count($ar) / $totalApplicantsofRankques) : 0;
                             
                             $ranks[] = count($ar) ?(($sum / count($ar)) * $rankedByPercantage) : 0;
                             
                             if (max($ranks) > $highestValue) {
                                 $highestValue = max($ranks);
                                 for ($i = 0; $i < sizeof($ranks); $i++) {
-                                    $indexedValue = 100 / $highestValue * ($ranks[$i]);
+
+                                    if($highestValue == 0){
+                                        $indexedValue = 0;
+                                    }else{
+                                            $indexedValue = count($ar) ? (100 / $highestValue * ($ranks[$optCounter])) : 0;
+                                    }
+                                    // $indexedValue = 100 / $highestValue * ($ranks[$i]);
                                     $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = round($indexedValue,2);
                                 }
                             } else {
-                                $indexedValue = count($ar) ? (100 / $highestValue * ($ranks[$optCounter])) : 0;
+                                if($highestValue == 0){
+                                    $indexedValue = 0;
+                                }else{
+                                    $indexedValue = count($ar) ? (100 / $highestValue * ($ranks[$optCounter])) : 0;
+                                }
+
                                 $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = round($indexedValue,2);
                             }
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
@@ -2052,16 +2067,21 @@ class SurveyController extends Controller
 
             $countInt = count($countFilter);
 
-            $respondent = $count->skip($skip)->take($take)->get()->filter(function ($ans) use ($idAttemptFilterMapped) {
-                return isset($idAttemptFilterMapped[$ans->profile_id]) ? in_array($ans->attempt, $idAttemptFilterMapped[$ans->profile_id]) : false;
-            })->groupBy('profile_id');
+            $respondent = [];
+            if($page == 1){
+                $respondent = $count->get()->filter(function ($ans) use ($idAttemptFilterMapped) {
+                    return isset($idAttemptFilterMapped[$ans->profile_id]) ? in_array($ans->attempt, $idAttemptFilterMapped[$ans->profile_id]) : false;
+                })->groupBy('profile_id');    
+            }
             // $count->whereIn('profile_id', $profileIds, 'and', $type);
         }else{
             $countInt = count($count->get());
-            $respondent = $count->skip($skip)->take($take)
-            ->get()->groupBy('profile_id');
+            $respondent = [];
+            if($page == 1){
+                $respondent = $count->get()->groupBy('profile_id');    
+            }
         }
-
+        
         $this->model = [];
         $data = ["answer_count" => $countInt];
 
@@ -2255,27 +2275,24 @@ class SurveyController extends Controller
             $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
             // $profileIds = $getFiteredProfileIds['profile_id'];
             // $type = $getFiteredProfileIds['type'];
-
+        
         }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
-
+        
         $page = $request->input('page');
+        
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $idsAttemptMapping = [];
-
 
         $resumeArray = SurveyAttemptMapping::select("profile_id", "attempt")->where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("completion_date")->get();
         foreach ($resumeArray as $resume) {
             $idsAttemptMapping[$resume->profile_id][] = $resume->attempt;
         }
-
         
-
         $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_id", "=", $question_id)->where("option_id", "=", $option_id)->whereNull("deleted_at")->orderBy('created_at', 'desc');
-
 
 
         if ($request->has('filters') && !empty($request->filters)) {           
@@ -2285,16 +2302,16 @@ class SurveyController extends Controller
                 return isset($idAttemptFilterMapped[$ans->profile_id]) ? in_array($ans->attempt, $idAttemptFilterMapped[$ans->profile_id]) : false;
             });
             $data = ["answer_count" => $answersCompleted->count(), "report" => []];
-    
-            $respondent = $answers->skip($skip)->take($take)
-                ->get()->filter(function ($ans) use ($idAttemptFilterMapped) {
-    
+            
+            if($page == 1){
+                $respondent = $answers->get()->filter(function ($ans) use ($idAttemptFilterMapped) {
                     return isset($idAttemptFilterMapped[$ans->profile_id]) ? in_array($ans->attempt, $idAttemptFilterMapped[$ans->profile_id]) : false;
                 });
     
-            foreach ($respondent as $profile) {
-    
-                $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
+                foreach ($respondent as $profile) {
+        
+                    $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
+                }
             }
     
             $this->model = $data;
@@ -2307,17 +2324,18 @@ class SurveyController extends Controller
             });
             $data = ["answer_count" => $answersCompleted->count(), "report" => []];
     
-            $respondent = $answers->skip($skip)->take($take)
+            if($page == 1){
+                $respondent = $answers->skip($skip)->take($take)
                 ->get()->filter(function ($ans) use ($idsAttemptMapping) {
     
                     return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
                 });
     
-            foreach ($respondent as $profile) {
-    
-                $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
+                foreach ($respondent as $profile) {
+                    $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
+                }
             }
-    
+            
             $this->model = $data;
             return $this->sendResponse();
         }
@@ -2817,8 +2835,6 @@ class SurveyController extends Controller
 
         if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
             $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids)->get();
-
-            echo "m here";
 
 
         // } else if ($request->has('filters') && !empty($request->filters)) {
