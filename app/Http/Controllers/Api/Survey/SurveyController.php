@@ -1461,8 +1461,6 @@ class SurveyController extends Controller
             $finalAttempMapping[$pattempt->profile_id][] = $pattempt->attempt;
         }
 
-    
-
         $prepareNode = ["answer_count" => $getCount->count(), "reports" => []];
 
         // $pluck = $getCount->pluck("profile_id")->toArray();
@@ -1616,6 +1614,7 @@ class SurveyController extends Controller
                             }
                         }
                     }
+
                     if ($values["question_type"] != config("constant.MEDIA_SURVEY_QUESTION_TYPE")) {
                         if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = $countOptions;
@@ -1625,32 +1624,35 @@ class SurveyController extends Controller
                             }else{
                                 $rankedByPercantage = count($ar) ? (count($ar) / $totalApplicantsofRankques) : 0;
                             }
-
+                            
                             // $rankedByPercantage = count($ar) ? (count($ar) / $totalApplicantsofRankques) : 0;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["option_count"] = count($ar); 
+
+                            $ranks[] = count($ar) ? (($sum / count($ar)) * $rankedByPercantage) : 0;
                             
-                            $ranks[] = count($ar) ?(($sum / count($ar)) * $rankedByPercantage) : 0;
-                            
-                            if (max($ranks) > $highestValue) {
+                            // if (max($ranks) > $highestValue) {
                                 $highestValue = max($ranks);
                                 for ($i = 0; $i < sizeof($ranks); $i++) {
-
                                     if($highestValue == 0){
                                         $indexedValue = 0;
                                     }else{
-                                            $indexedValue = count($ar) ? (100 / $highestValue * ($ranks[$optCounter])) : 0;
+                                        $indexedValue = $prepareNode["reports"][$counter]["options"][$i]["option_count"] ? ((100*$ranks[$i])/ $highestValue) : 0;
                                     }
-                                    // $indexedValue = 100 / $highestValue * ($ranks[$i]);
                                     $prepareNode["reports"][$counter]["options"][$i]["answer_percentage"] = round($indexedValue,2);
+                                    
                                 }
-                            } else {
-                                if($highestValue == 0){
-                                    $indexedValue = 0;
-                                }else{
-                                    $indexedValue = count($ar) ? (100 / $highestValue * ($ranks[$optCounter])) : 0;
-                                }
+                            // } else {
+                            //     if($highestValue == 0){
+                            //         $indexedValue = 0;
+                            //     }else{
+                            //         $indexedValue = count($ar) ? ((100*$ranks[$optCounter])/ $highestValue) : 0;
+                            //     }
 
-                                $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = round($indexedValue,2);
-                            }
+                            //     $prepareNode["reports"][$counter]["options"][$optCounter]["val"] = 2; 
+                            //     $prepareNode["reports"][$counter]["options"][$optCounter]["indexed_value"] = $indexedValue; 
+                            //     $prepareNode["reports"][$counter]["options"][$optCounter]["highest"] = $highestValue; 
+                            //     $prepareNode["reports"][$counter]["options"][$optCounter]["answer_percentage"] = round($indexedValue,2);
+                            // }
                             $prepareNode["reports"][$counter]["options"][$optCounter]["option_type"] = 0;
                         } else {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = (isset($getAvg[$optVal["id"]]) ? $getAvg[$optVal["id"]]["count"] : 0);
@@ -2081,12 +2083,12 @@ class SurveyController extends Controller
                 $respondent = $count->get()->groupBy('profile_id');    
             }
         }
-        
+            
         $this->model = [];
         $data = ["answer_count" => $countInt];
 
         foreach ($respondent as $profile) {
-
+            
             $profileCopy = $profile[0]->profile->toArray();
             $profileCopy["submission_count"] = count($profile);
             $profileCopy["last_submission"] = isset($profile[0]['completion_date']) ? $profile[0]['completion_date'] : '';
@@ -2722,7 +2724,7 @@ class SurveyController extends Controller
             $this->model = false;
             return $this->sendNewError("Invalid Survey");
         }
-
+        
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
             $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
             // print_r($idAttemptFilterMapped);
