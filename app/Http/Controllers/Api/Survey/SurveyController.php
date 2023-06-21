@@ -2077,8 +2077,8 @@ class SurveyController extends Controller
             }
             // $count->whereIn('profile_id', $profileIds, 'and', $type);
         }else{
-            $countInt = count($count->get());
             $respondent = [];
+            $countInt = count($count->get()->groupBy('profile_id'));
             if($page == 1){
                 $respondent = $count->get()->groupBy('profile_id');    
             }
