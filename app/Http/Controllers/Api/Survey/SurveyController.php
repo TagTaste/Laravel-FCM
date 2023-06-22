@@ -2083,7 +2083,7 @@ class SurveyController extends Controller
                 $respondent = $count->get()->groupBy('profile_id');    
             }
         }
-            
+        
         $this->model = [];
         $data = ["answer_count" => $countInt];
 
@@ -2246,6 +2246,7 @@ class SurveyController extends Controller
 
     public function inputAnswers($id, $question_id, $option_id, Request $request)
     {
+
         $version_num = '';
         if($request->is('*/v1/*')){
             $version_num = 'v1';
@@ -2325,14 +2326,14 @@ class SurveyController extends Controller
                 return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
             });
             $data = ["answer_count" => $answersCompleted->count(), "report" => []];
-    
+            
             if($page == 1){
-                $respondent = $answers->skip($skip)->take($take)
+                $respondent = $answers
                 ->get()->filter(function ($ans) use ($idsAttemptMapping) {
     
                     return isset($idsAttemptMapping[$ans->profile_id]) ? !in_array($ans->attempt, $idsAttemptMapping[$ans->profile_id]) : true;
                 });
-    
+                
                 foreach ($respondent as $profile) {
                     $data["report"][] = ["profile" => $profile->profile, "answer" => $profile->answer_value];
                 }
