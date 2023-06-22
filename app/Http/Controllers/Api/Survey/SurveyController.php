@@ -2339,7 +2339,6 @@ class SurveyController extends Controller
                 }
             }
             
-            $data["report"] = count($data["report"]);
             $this->model = $data;
             return $this->sendResponse();
         }
