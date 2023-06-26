@@ -181,12 +181,14 @@ class BatchController extends Controller
         $filters = $request->input('filters');
         $resp = $this->getFilterProfileIds($filters, $collaborateId, $id);
         $profileIds = $resp['profile_id'];
+        
         $type = $resp['type'];
         $boolean = 'and';
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id', $id)->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('created_at', 'desc')->get()->pluck('profile_id');
+
         $profiles = Collaborate\Applicant::where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds)->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at');
-        
+
         //sort applicants
         if (isset($filters))
             $type = false;
@@ -203,6 +205,26 @@ class BatchController extends Controller
         }
 
         $pId = $profiles->get()->toArray();
+        
+        $queryCurrentStatus = $request->input('current_status');
+        $queryCurrentStatus = isset($queryCurrentStatus) ? $request->input('current_status') : null;
+
+        if($queryCurrentStatus != null){
+            $profileIds = $profiles->get()->pluck('profile_id');
+            if($queryCurrentStatus == 2 || $queryCurrentStatus == 3){
+                $profileIds = \DB::table('collaborate_tasting_user_review')->where('current_status', $queryCurrentStatus)->where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds)->where('batch_id', $id)->get()->pluck('profile_id')->unique();
+            }else if ($queryCurrentStatus == 1 || $queryCurrentStatus == 0){
+                $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $id)->where('begin_tasting', $queryCurrentStatus)->get()->pluck('profile_id')->unique();
+                   
+                $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $id)->get()->pluck('profile_id')->unique();                   
+                
+                $profileIds = $ids->diff($ids2);
+            }
+
+            $profiles = $profiles->whereIn('profile_id', $profileIds);
+        }
+
+        
         $profiles = $profiles
             ->skip($skip)->take($take)->get();
 
@@ -253,7 +275,7 @@ class BatchController extends Controller
                     $profile["review_completion"] = $data;
                 }
             }
-
+            
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
 
