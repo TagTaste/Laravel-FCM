@@ -114,7 +114,7 @@ class PhotoController extends Controller
     }
 
     public function globalVideoUpload(Request $request){
-        $profileId = $request->user()->profile;
+        $profileId = $request->user()->profile->id;
         $path = "global/video/$profileId";
         $status = Storage::makeDirectory($path,0644,true);
 
