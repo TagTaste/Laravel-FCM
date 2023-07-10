@@ -47,7 +47,9 @@ class LandingPageController extends Controller
      */
 
     public function quickLinks(Request $request)
-    {
+    {   
+        
+        // \JWTAuth::manager()->invalidate(new \Tymon\JWTAuth\Token($etoken), $forceForever = false);
 
         $this->errors['status'] = 0;
         $quick_links =   DB::table('landing_quick_links')->select('id', 'title', 'image', 'model_name')->whereNull('deleted_at')->where('is_active', 1)->orderBy('sort_order', 'asc');
@@ -141,7 +143,7 @@ class LandingPageController extends Controller
             $limit = 20;
         }
         $profileId = $request->user()->profile->id;
-
+        
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $payloads =  Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
