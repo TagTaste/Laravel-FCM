@@ -692,11 +692,12 @@ class Collaborate extends Model implements Feedable
             $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id', $this->id)
                 ->where('profile_id', request()->user()->profile->id)->get()->pluck('batch_id')->toArray();
 
-                $notifiedBatchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id', $this->id)
-                ->where('profile_id', request()->user()->profile->id)->where('begin_tasting', 1)->get()->pluck('batch_id')->toArray();
+            $notifiedBatchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id', $this->id)
+            ->where('profile_id', request()->user()->profile->id)->where('begin_tasting', 1)->get()->pluck('batch_id')->toArray();
 
-                $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id', request()->user()->profile->id)
-                ->where('collaborate_id', $this->id)->where('current_status', 3)->get()->pluck('batch_id')->distinct()->toArray();
+            $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id', request()->user()->profile->id)
+            ->where('collaborate_id', $this->id)->where('current_status', 3)->get()->pluck('batch_id')->unique()->toArray();
+            
             sort($batchIds);
             sort($completedBatchIds);
 
