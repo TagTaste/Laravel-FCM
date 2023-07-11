@@ -348,8 +348,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         //global image upload function
         Route::post("globalImageUpload", "PhotoController@globalImageUpload");
         Route::post("globalFileUpload", "PhotoController@globalFileUpload");
+        Route::post("globalVideoUpload", "PhotoController@globalVideoUpload");
 
-
+        
 
 
         //invites

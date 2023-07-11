@@ -122,7 +122,7 @@ If you log in to TagTaste within the next 15 days, your deletion request will au
             $service = '';
             if($country_code == '+91' || $country_code == '91'){
                 if(!empty($phone)){
-                    $service = 'gupshup';
+                    $service = 'twilio';
                     $getResp = SMS::sendSMS($country_code . $phone, $text, $service);    
                 }
             }else if(!empty($phone) && !empty($country_code)){

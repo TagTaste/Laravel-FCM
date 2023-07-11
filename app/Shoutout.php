@@ -314,7 +314,7 @@ class Shoutout extends Model implements Feedable
         ];
         return $seo_tags;
     }
-
+    
     public static function getProfileMediaPath($profileId, $filename = null)
     {
         $relativePath = "shoutout/media/$profileId/p";

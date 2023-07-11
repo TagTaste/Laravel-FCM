@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Photo;
 use Illuminate\Http\Request;
+use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
 {
@@ -111,4 +113,51 @@ class PhotoController extends Controller
         return $this->sendResponse();
     }
 
+    public function globalVideoUpload(Request $request){
+        $profileId = $request->user()->profile->id;
+        $path = "global/video/$profileId";
+        $status = Storage::makeDirectory($path,0644,true);
+
+        // $path = Shoutout::getProfileMediaPath($profile->id);
+        $filename = $request->file('media_file')->getClientOriginalName();
+        $filename = str_random(15).".".\File::extension($filename);
+        $inputs['media_url'] = $request->file("media_file")->storeAs($path, $filename,['visibility'=>'public']);
+        $mediaJson =  $this->videoTranscodingNew($inputs['media_url']);
+        $mediaJson = json_decode($mediaJson,true);
+        $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
+        $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
+
+        $this->model = $inputs;
+        return $this->sendResponse();
+    }
+
+    private function videoTranscodingNew($url)
+    {
+        $profileId = request()->user()->profile->id;
+        $curl = curl_init();
+        $data = [
+            'profile_id' => $profileId,
+            'file_path' => $url
+        ];
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('TRANSCODING_APIGATEWAY_URL'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30000,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => array(
+                // Set here requred headers
+                "accept: */*",
+                "accept-language: en-US,en;q=0.8",
+                "content-type: application/json",
+            ),
+        ));
+        $response = curl_exec($curl);
+        $response = json_decode($response);
+        $body = $response->body;
+        return json_encode($body,true);
+    }
 }
