@@ -260,7 +260,7 @@ class LoginController extends Controller
             $text =  "Use OTP ".$otpNo." to login to your TagTaste account. DO NOT share OTP with anyone.";
 
             if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
-                $service = "gupshup";
+                $service = "twilio";
                 $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
             } else {
                 $service = "twilio";

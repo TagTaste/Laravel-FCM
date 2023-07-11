@@ -879,7 +879,7 @@ class ProfileController extends Controller
                 $text = $otpNo . " is your OTP to verify your number with TagTaste.";
 
                 if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
-                    $service = "gupshup";
+                    $service = "twilio";
                     $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
                 } else {
                     $service = "twilio";
