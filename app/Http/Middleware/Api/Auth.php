@@ -88,7 +88,7 @@ class Auth extends GetUserFromToken
         if ($user) {
             $versionKey = $this->versionKey;
         $versionKeyIos = $this->versionKeyIos;
-
+            
         //To platform info
         if ($request->hasHeader($versionKey)) {
             $platform = "Android";
