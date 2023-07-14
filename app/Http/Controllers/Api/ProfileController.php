@@ -21,9 +21,17 @@ use Illuminate\Support\Facades\Redis;
 use Twilio\Rest\Client as TwilioClient;
 use Twilio\Jwt\ClientToken;
 use App\BlockAccount\BlockAccount;
+use App\Services\UserService;
 
 class ProfileController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -35,6 +43,11 @@ class ProfileController extends Controller
         //DO NOT USE $this->model HERE
         //LIVES DEPEND ON THIS RESPONSE
         $userId = $request->user()->id;
+
+        // Store jwt tokens for force-logout
+        $token = $request->bearerToken();
+        $this->userService->storeUserLoginInfo($userId, $request, $token);
+
         $response = \App\Profile\User::find($userId)->toArray();
         $response['profile']['isFollowing'] = false;
         $response['profile']['self'] = true;

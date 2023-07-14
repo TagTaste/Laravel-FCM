@@ -7,18 +7,27 @@ use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Profile;
 use App\SocialAccount;
 use App\User;
+use App\UserLoginInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Actions\JoinFriend;
 use App\Jobs\RemoveDuplicateFromAppInfo;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
 
     public function register(Request $request)
     {
-        if(!$request->has('user')){
+        if(!$request->has('user'))
+        {
            return $this->sendError("Missing user data.");
         }
         
@@ -28,17 +37,22 @@ class UserController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        if($validator->fails()){
+        if($validator->fails())
+        {
             return ['status'=>'failed','errors'=>$validator->messages(),'result'=>[]];
         }
 
         $alreadyVerified = false;
         $result = ['status'=>'success','newRegistered' =>true];
-        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),
-            false,null,null,null,$alreadyVerified,null,null,null);
-        $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
-            ['email'=>$request->input('user.email')
-                ,'password'=>$request->input('user.password')])];
+        
+        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),false,null,null,null,$alreadyVerified,null,null,null);
+        
+        $token = \JWTAuth::attempt(['email' => $request->input('user.email'),'password' => $request->input('user.password')]);
+        $result['result'] = ['user'=>$user,'token'=> $token];
+        
+        // Store jwt tokens for force-logout
+        $this->userService->storeUserLoginInfo($user->id, $request, $token);
+        
         $companies = \App\Company::whereIn('id',[111,137,322])->get();
         foreach ($companies as $company) {
             $model = $user->completeProfile->subscribeNetworkOf($company);
@@ -66,7 +80,6 @@ class UserController extends Controller
             $user->verified_at = \Carbon\Carbon::now()->toDateTimeString();
             $this->model = $user->save();
             return $this->sendResponse();
-
         }
     }
 
@@ -135,7 +148,8 @@ class UserController extends Controller
                 ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info, 'updated_at'=>date("Y-m-d H:i:s")]);
             $this->model = 1;
             return $this->sendResponse();
-        }else if($user)
+        }
+        else if($user)
         {
             $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info, 'created_at'=>date("Y-m-d H:i:s"), 'updated_at'=>date("Y-m-d H:i:s")]);
             return $this->sendResponse();
@@ -171,12 +185,17 @@ class UserController extends Controller
         // $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
         //     ->where('profile_id',$request->user()->profile->id)->delete();
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->delete();
+
+        // remove jwt token from the website for the specific profile
+        $token = $request->bearerToken();
+        UserLoginInfo::remove($token);    
+
         return $this->sendResponse();
     }
     
     public function verifyInviteCode(Request $request)
     {
-//        $this->model = \DB::table("users")->where('invite_code',$request->input("invite_code"))->exists() ? true : false;
+        // $this->model = \DB::table("users")->where('invite_code',$request->input("invite_code"))->exists() ? true : false;
         $this->model = true;
 
         return $this->sendResponse();
@@ -237,8 +256,6 @@ class UserController extends Controller
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$device_info]);          
 
         return $this->sendResponse();
-
     }
-
 
 }

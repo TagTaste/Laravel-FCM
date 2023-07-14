@@ -331,6 +331,9 @@ class Kernel extends ConsoleKernel
         //delete user
         \App\Console\Commands\DeleteUser::class,
 
+        // user forceful logout
+        \App\Console\Commands\ForceLogout::class,
+
         //deacitveted user push
         \App\Console\Commands\Build\Cache\DeactivatedUsers::class
 
