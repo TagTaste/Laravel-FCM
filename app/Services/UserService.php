@@ -77,7 +77,9 @@ class UserService
     public function forceLogoutUser($condition)
     {
         // remove null values to check for the specific condition
-        $condition = array_filter($condition, fn ($condition) => !is_null($condition));
+        $condition = array_filter($condition, function($condition) {
+            return !is_null($condition);
+        });
 
         // If array is null that means no conditionds are there, so all tokens will be fetched here.
         if (!$condition) 
