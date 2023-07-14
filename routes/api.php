@@ -53,7 +53,8 @@ Route::post('login', function (Request $request) {
     }
 
     // Store jwt tokens for force-logout
-    app('App\Services\UserService')->storeUserLoginInfo(null, $request, $token);
+    $user_id = App\User::where('email',$request->email)->first()->id;
+    app('App\Services\UserService')->storeUserLoginInfo($user_id, $request, $token);
 
     app('App\Http\Controllers\Auth\LoginController')->checkForDeactivation($request);
     return response()->json(compact('token'));

@@ -30,7 +30,7 @@ class UserService
      * @param text $token
      * @return \Illuminate\Http\Response
     */
-    public function storeUserLoginInfo($user_id = null, $request, $token)
+    public function storeUserLoginInfo($user_id, $request, $token)
     {
         $token_exists = $this->userLoginInfo->where('jwt_token',$token)->exists();
         if($token_exists == true)
@@ -38,10 +38,6 @@ class UserService
             return false;
         }
 
-        if(is_null($user_id))
-        {
-            $user_id = \JWTAuth::parseToken()->authenticate()->id;
-        }
         $profile_id = Profile::where('user_id',$user_id)->first()->id;
         $userAgent = $request->header('User-Agent');
 
