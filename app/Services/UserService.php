@@ -39,14 +39,15 @@ class UserService
         }
 
         $profile_id = Profile::where('user_id',$user_id)->first()->id;
-        $userAgent = $request->header('User-Agent');
+        $versionKey = 'X-VERSION';
+        $versionKeyIos = 'X-VERSION-IOS';
 
         // platform info
-        if (strpos($userAgent, 'Android') !== false) 
+        if ($request->hasHeader($versionKey)) 
         {
             $platform = "android";
         } 
-        elseif (strpos($userAgent, 'iPhone') !== false || strpos($userAgent, 'iPad') !== false || strpos($userAgent, 'iPod')) 
+        else if ($request->hasHeader($versionKeyIos))
         {
             $platform = "ios";
         } 
