@@ -93,11 +93,15 @@ class UserService
             $token = new Token($user_jwt_token['jwt_token']);
 
             // Forceful invalidation of token
-            $token_invalidation = JWTAuth::invalidate($token, true); 
-            if(!$token_invalidation)
+            try
             {
-                return false;
+                $token_invalidation = JWTAuth::invalidate($token, true);
+            } 
+            catch(\Exception $e)
+            {
+                $errors = $e->getMessage();
             }
+        
         }
 
         // remove tokens from user_login_info table which are invalidated.

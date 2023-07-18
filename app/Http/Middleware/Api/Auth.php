@@ -49,7 +49,7 @@ class Auth extends GetUserFromToken
         } catch (TokenExpiredException $e) {
             return response()->json(['error' => 'token_expired'], 401);
         } catch (TokenInvalidException $e) {
-            return response()->json(['error' => 'token_invalid'], 401);
+            return response()->json(['error' => 'token_expired'], 401);
         } catch (JWTException $e) {
             return response()->json(['error' => 'token_absent'], 401);
         }
