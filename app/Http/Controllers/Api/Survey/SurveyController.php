@@ -1393,7 +1393,6 @@ class SurveyController extends Controller
 
     public function reports($id, Request $request)
     {
-
         $version_num = '';
         if($request->is('*/v1/*')){
             $version_num = 'v1';
@@ -1789,9 +1788,8 @@ class SurveyController extends Controller
     }
 
 
-    public function sectionReports($id, $sectionId, Request $request)
+    public function sectionReports($id, $sectionId = null, Request $request)
     {
-
         $version_num = '';
         if($request->is('*/v1/*')){
             $version_num = 'v1';
@@ -1862,7 +1860,7 @@ class SurveyController extends Controller
 
         // $prepareNode = ["answer_count" => $getCount->count(), "reports" => []];
 
-        $prepareNode = ["response_count" => $getCount->count(), "respondent_count" => $getCount->pluck('profile_id')->unique()->count() ,"reports" => []];
+        $prepareNode = ["response_count" => $getCount->count(), "respondent_count" => $getCount->pluck('profile_id')->unique()->count() , "answer_count" => $getCount->count(),"reports" => []];
 
         // $pluck = $getCount->pluck("profile_id")->toArray();
 
@@ -2205,6 +2203,7 @@ class SurveyController extends Controller
             $finalRespnse["reports"] = $getJson;
             $finalRespnse["response_count"] = $prepareNode["response_count"];
             $finalRespnse["respondent_count"] = $prepareNode["respondent_count"];
+            $finalRespnse["answer_count"] = $prepareNode["answer_count"];
 
             $this->model = $finalRespnse;
         }

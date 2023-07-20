@@ -936,7 +936,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
             Route::get('filters-list/{id}/questions', 'SurveyController@getFilterQuestions');
             Route::get('filters-list/{id}', 'SurveyController@getFilters');
-            Route::post('/reports/{id}', 'SurveyController@reports')->name("reports");
+            // Route::post('/reports/{id}', 'SurveyController@reports')->name("reports");
+            Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
             Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
 
             
