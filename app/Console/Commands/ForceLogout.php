@@ -48,10 +48,5 @@ class ForceLogout extends Command
         // Force log out users based on specific condition
         $force_logout = $this->userService->forceLogoutUser($condition);
         $this->info("Logged-out successfully!");
-
-        if($force_logout == false)
-        {
-            $this->info("Something went wrong!");
-        }
     }
 }

@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Events\Actions\JoinFriend;
 use App\Jobs\RemoveDuplicateFromAppInfo;
 use App\Services\UserService;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Token;
 
 class UserController extends Controller
 {
@@ -184,11 +186,20 @@ class UserController extends Controller
         //updated by nikhil
         // $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
         //     ->where('profile_id',$request->user()->profile->id)->delete();
-        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->delete();
 
-        // remove jwt token from the website for the specific profile
-        $token = $request->bearerToken();
-        UserLoginInfo::remove($token);    
+        // Invalidate jwt token and remove jwt token from the table
+        $jwt_token = $request->bearerToken();
+        $token = new Token($jwt_token);
+
+        // Forceful invalidation of token
+        $token_invalidation = JWTAuth::invalidate($token, true);
+        $token_removal = UserLoginInfo::remove($jwt_token);
+        $this->model = isset($token_removal) ? 1 : 0;
+
+        if($request->input('fcm_token') && $token_removal)
+        {
+            $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->delete();
+        }
 
         return $this->sendResponse();
     }
