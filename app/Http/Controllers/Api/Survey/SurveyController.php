@@ -2779,7 +2779,7 @@ class SurveyController extends Controller
         
     }
 
-    public function sectionUserReport($id, $sectionId, $profile_id, Request $request)
+    public function sectionUserReport($id, $profile_id, $sectionId = null, Request $request)
     {
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
@@ -2817,7 +2817,7 @@ class SurveyController extends Controller
         $attemptId = isset($request->submission_id) ? $request->submission_id : null;
         
         $surveyAttempt = SurveyAttemptMapping::select('attempt')->where("id", "=", $attemptId)->where("deleted_at", "=", null)->whereNotNull("completion_date")->first();
-
+            
         $attempt = $surveyAttempt->attempt;
         // $attempt = isset($surveyAttempt->attempt) ? $request->submission : 15;
 
