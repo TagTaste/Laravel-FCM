@@ -1897,13 +1897,17 @@ class SurveyController extends Controller
         foreach ($getJsonQues as $values) {
             shuffle($colorCodeList);
 
-            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
+            $quesOptions = isset($values['options']) ? $values['options'] : [];
+            $queOptionIds = array_pluck($quesOptions, 'id');
+
+            $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
             });
             
             ##total count of applicants who have attempted rank question
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
-                $totalApplicantsofRankques = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
+                
+                $totalApplicantsofRankques = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                     return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
                 });
 
@@ -1914,10 +1918,9 @@ class SurveyController extends Controller
             
             $ans = $answers->pluck("option_id")->toArray();
             $ar = array_values(array_filter($ans));
-            $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
+            $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);            
 
-
-            $count2 = count(SurveyAnswers::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
+            $count2 = count(SurveyAnswers::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
             }));
 
@@ -1950,6 +1953,7 @@ class SurveyController extends Controller
             }
 
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
+                
                 $ans = $answers->pluck("answer_value")->toArray();
                 $ar = array_values(array_filter($ans, function ($value) {
                     return ($value !== null && $value !== false && $value !== '');
@@ -2000,6 +2004,7 @@ class SurveyController extends Controller
                     $rowIndex++;
                 }
             } else {
+                
                 $optCounter = 0;
                 $highestValue = 0;
                 $ranks = [];
@@ -2083,9 +2088,11 @@ class SurveyController extends Controller
                     }
                     //doubt
                     else {
+
                         $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                         if ($answers->count() == 0) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = 0;
+
                         } else {
                             $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
                             foreach ($answers as $ansVal) {
@@ -2817,7 +2824,7 @@ class SurveyController extends Controller
         $attemptId = isset($request->submission_id) ? $request->submission_id : null;
         
         $surveyAttempt = SurveyAttemptMapping::select('attempt')->where("id", "=", $attemptId)->where("deleted_at", "=", null)->whereNotNull("completion_date")->first();
-            
+
         $attempt = $surveyAttempt->attempt;
         // $attempt = isset($surveyAttempt->attempt) ? $request->submission : 15;
 
