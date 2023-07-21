@@ -294,6 +294,14 @@ class Surveys extends Model implements Feedable
         return $reason;
     }
 
+    public function getSubmissionList()
+    {
+        $profileId = request()->user()->profile->id;
+        $surveyAttempt = SurveyAttemptMapping::select('id','profile_id','attempt','completion_date')->where("survey_id", "=", $this->id)->where("profile_id","=",$profileId)->where("deleted_at", "=", null)->whereNotNull("completion_date")->orderBy('completion_date', 'desc')->get();
+
+        return $surveyAttempt;
+    }
+
     public function getMandatoryFields()
     {
         return \DB::table('surveys_mandatory_fields')
