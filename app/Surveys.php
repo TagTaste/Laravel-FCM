@@ -297,7 +297,9 @@ class Surveys extends Model implements Feedable
     public function getSubmissionList()
     {
         $profileId = request()->user()->profile->id;
-        $surveyAttempt = SurveyAttemptMapping::select('id','profile_id','attempt','completion_date')->where("survey_id", "=", $this->id)->where("profile_id","=",$profileId)->where("deleted_at", "=", null)->whereNotNull("completion_date")->orderBy('completion_date', 'desc')->get();
+        $surveyAttempt = SurveyAttemptMapping::select('id','profile_id','attempt','completion_date')->where("survey_id", "=", $this->id)->where("profile_id","=",$profileId)->where("deleted_at", "=", null)->whereNotNull("completion_date")->orderBy('completion_date', 'desc')->get()->toArray();
+
+        sort($surveyAttempt);
 
         return $surveyAttempt;
     }

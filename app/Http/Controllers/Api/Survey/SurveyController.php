@@ -80,7 +80,6 @@ class SurveyController extends Controller
         $getData["mandatory_fields"] = $getSurvey->getMandatoryFields();
         $getData["closing_reason"] = $getSurvey->getClosingReason();
         $getData["submission_list"] = $getSurvey->getSubmissionList();
-
         // $count = \DB::table('survey_applicants')->where('survey_id', $id)->get()->count();
         $this->messages = "Request successfull";
         $this->model = [
