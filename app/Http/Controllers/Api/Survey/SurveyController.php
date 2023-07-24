@@ -2857,7 +2857,7 @@ class SurveyController extends Controller
         foreach ($getSurveyAnswers as $answers) {
             if (!isset($headers[$answers->profile_id][$answers->attempt])) {
                 $counter++;
-                $headers[$answers->profile_id][$answers->attempt] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
+                $headers[$answers->profile_id][$answers->attempt] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null,"generation"=>null,"gender"=>null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
                 foreach ($questionIdMapping as $key => $value) {
 
                     if (isset($rankMapping[$key])) {
@@ -2887,12 +2887,18 @@ class SurveyController extends Controller
                 //     ;
                 // }
                 // $headers[$answers->profile_id]["Sr no"] = $counter;
+
+                $surveyApplicant = surveyApplicants::where("survey_id", $id)->where("profile_id", $answers->profile_id)->whereNull("deleted_at")->first();
+
                 $headers[$answers->profile_id][$answers->attempt]["Name"] = html_entity_decode($answers->profile->name);
                 $headers[$answers->profile_id][$answers->attempt]["Email"] = html_entity_decode($answers->profile->email);
-                $headers[$answers->profile_id][$answers->attempt]["Age"] = floor((time() - strtotime($answers->profile->dob)) / 31556926);
+                $headers[$answers->profile_id][$answers->attempt]["Age"] = floor((time() - strtotime($surveyApplicant->dob)) / 31556926);
+                $headers[$answers->profile_id][$answers->attempt]["generation"] = html_entity_decode($surveyApplicant->generation);
+                $headers[$answers->profile_id][$answers->attempt]["gender"] = html_entity_decode($surveyApplicant->gender);
+
                 $headers[$answers->profile_id][$answers->attempt]["Phone"] = \DB::Table("profiles")->where("id", "=", $answers->profile->id)->first()->phone;
                 $headers[$answers->profile_id][$answers->attempt]["City"] = html_entity_decode($answers->profile->city);
-                $headers[$answers->profile_id][$answers->attempt]["Hometown"] = html_entity_decode($answers->profile->hometown);
+                $headers[$answers->profile_id][$answers->attempt]["Hometown"] = html_entity_decode($surveyApplicant->hometown);
                 $headers[$answers->profile_id][$answers->attempt]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($answers->profile->handle);
                 $headers[$answers->profile_id][$answers->attempt]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
 
