@@ -2897,7 +2897,7 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id][$answers->attempt]["gender"] = html_entity_decode($surveyApplicant->gender);
 
                 $headers[$answers->profile_id][$answers->attempt]["Phone"] = \DB::Table("profiles")->where("id", "=", $answers->profile->id)->first()->phone;
-                $headers[$answers->profile_id][$answers->attempt]["City"] = html_entity_decode($surveyApplicant->city);
+                $headers[$answers->profile_id][$answers->attempt]["City"] = html_entity_decode($answers->profile->city);
                 $headers[$answers->profile_id][$answers->attempt]["Hometown"] = html_entity_decode($surveyApplicant->hometown);
                 $headers[$answers->profile_id][$answers->attempt]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($answers->profile->handle);
                 $headers[$answers->profile_id][$answers->attempt]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
