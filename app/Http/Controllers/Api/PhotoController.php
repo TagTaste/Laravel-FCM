@@ -113,11 +113,11 @@ class PhotoController extends Controller
         return $this->sendResponse();
     }
 
-    public function globalVideoUpload(Request $request){
+    public function globalVideoUpload($modelName, Request $request){
         $profileId = $request->user()->profile->id;
-        $path = "global/video/$profileId";
+        $path = "global/video/$modelName/$profileId";
         $status = Storage::makeDirectory($path,0644,true);
-
+        
         // $path = Shoutout::getProfileMediaPath($profile->id);
         $filename = $request->file('media_file')->getClientOriginalName();
         $filename = str_random(15).".".\File::extension($filename);
