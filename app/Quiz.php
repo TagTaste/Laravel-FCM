@@ -28,13 +28,13 @@ class Quiz extends Model implements Feedable
     public $incrementing = false;
 
 
-    protected $fillable = ["id", "profile_id", "company_id", "title", "description", "image_meta", "form_json", "payload_id", "updated_by", "expired_at", "state", "deleted_at", "replay", "privacy_id"];
+    protected $fillable = ["id", "profile_id", "company_id", "title", "description", "image_meta","videos_meta","form_json", "payload_id", "updated_by", "expired_at", "state", "deleted_at", "replay", "privacy_id"];
 
     protected $with = ['profile', 'company'];
 
     protected $appends = ['owner', 'meta', 'totalApplicants', 'application_status', 'score_text'];
     protected $visible = [
-        "id", "profile_id", "company_id", "privacy_id", "title", "description", "replay", "image_meta", "form_json",
+        "id", "profile_id", "company_id", "privacy_id", "title", "description", "replay", "image_meta", "videos_meta", "form_json",
         "video_meta", "state", "expired_at", "published_at", "profile", "company", "created_at", "updated_at", "is_private", "totalApplicants", 'application_status', 'score_text'
     ];
 
@@ -54,6 +54,7 @@ class Quiz extends Model implements Feedable
             'title' => $this->title,
             'description' => $this->description,
             'image_meta' => json_decode($this->image_meta),
+            'videos_meta' => json_decode($this->image_meta),
             'state' => $this->state,
             'expired_at' => $this->expired_at,
             'created_at' => $this->created_at->toDateTimeString(),

@@ -136,7 +136,7 @@ class PollingController extends Controller
         }
 
         PollingOption::insert($data);
-        $poll = Polling::find(2697);
+        $poll = Polling::find($poll->id);
         $poll['videos_meta'] = json_decode($poll['videos_meta'], true);
         $poll->addToCache();
 

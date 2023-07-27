@@ -73,11 +73,11 @@ class QuizController extends Controller
             'company_id' => 'nullable|exists:companies,id',
             'title' => 'required',
             'image_meta' => 'array|nullable',
+            'videos_meta' => 'array|nullable',
             'form_json' => 'required|array',
             'expired_at' => 'date_format:Y-m-d',
             'replay' => 'required'
         ]);
-
 
         $this->model = false;
         $this->messages = "Quiz Creation Failed";
@@ -125,6 +125,9 @@ class QuizController extends Controller
         if ($request->has("image_meta")) {
             $prepData["image_meta"] =  json_encode($request->image_meta);
         }
+        if ($request->has("videos_meta")) {
+            $prepData["videos_meta"] =  json_encode($request->videos_meta);
+        }
 
         if ($request->has("form_json")) {
             $prepData["form_json"] = json_encode($final_json);
@@ -140,10 +143,10 @@ class QuizController extends Controller
         $create = Quiz::create($prepData);
         $create->form_json = $final_json;
         $create->image_meta = json_decode($create->image_meta);
+        $create->videos_meta = json_decode($create->videos_meta);
 
-        if (isset($create->id)) {
-
-
+        if (isset($create->id)) 
+        {
             $quiz = Quiz::find($create->id);
             $this->model = $create;
             $this->messages = "Quiz Created Successfully";

@@ -65,7 +65,7 @@ class Polling extends Model implements Feedable
             'profile_id'=>$this->profile_id,
             'company_id'=>$this->company_id,
             'image_meta'=>$this->image_meta,
-            'videos_meta'=>$this->videos_meta,
+            'videos_meta'=> json_decode($this->videos_meta),
             'preview'=>$this->preview,
             'type'=>$this->type,
         ];
