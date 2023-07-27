@@ -54,7 +54,7 @@ class Quiz extends Model implements Feedable
             'title' => $this->title,
             'description' => $this->description,
             'image_meta' => json_decode($this->image_meta),
-            'videos_meta' => json_decode($this->image_meta),
+            'videos_meta' => json_decode($this->videos_meta),
             'state' => $this->state,
             'expired_at' => $this->expired_at,
             'created_at' => $this->created_at->toDateTimeString(),
