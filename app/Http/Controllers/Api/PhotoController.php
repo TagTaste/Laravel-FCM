@@ -114,6 +114,11 @@ class PhotoController extends Controller
     }
 
     public function globalVideoUpload($modelName, Request $request){
+        
+        if(!in_array($modelName, ['polling','surveys','quiz','collaborate'])){
+            return $this->sendNewError("This model is not supported.");
+        }
+
         $profileId = $request->user()->profile->id;
         $path = "global/video/$modelName/$profileId";
         $status = Storage::makeDirectory($path,0644,true);
@@ -128,7 +133,7 @@ class PhotoController extends Controller
         $inputs['media_json'] = $mediaJson;
 
         $this->model = $inputs;
-        return $this->sendResponse();
+        return $this->sendNewResponse();
     }
 
     private function videoTranscodingNew($url)

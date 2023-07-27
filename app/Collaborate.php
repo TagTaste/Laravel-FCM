@@ -680,7 +680,7 @@ class Collaborate extends Model implements Feedable
         }
         return $mod;
     }
-
+    
     public function getProductReviewMetaAttribute()
     {
         $meta = [];

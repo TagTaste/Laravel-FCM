@@ -231,7 +231,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                 Route::resource("messages", "MessageController");
                 Route::resource("members", "MemberController");
             });
-
+            
             Route::get("feed", 'FeedController@feed');
             //search apis new
             Route::get("public-review/explore", "SearchController@exploreForReview");
