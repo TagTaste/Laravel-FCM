@@ -66,14 +66,28 @@ class PollingController extends Controller
         // if (!$request->has('title') ) {
         //     return $this->sendError("Please enter poll title");
         // }
+
+        // check if question has video or not
+        $videos = $request->videos_meta != null ? $request->videos_meta : null;
+
+        $videosArray = [];
+        foreach ($videos as $video)
+        {
+            $videosArray[] = $video;
+        }
+
         $image = $request->question_image != null ? $request->question_image : null;
         $optionImages = $request->option_images != null ? $request->option_images : null;
-        $this->type = $optionImages != null ? 2 : ($image != null ? 1 : 3);
-        if (!$request->has('options') || count($options) < 2 || count($options) > 4 || (isset($optionImages) && (count($options) != count($optionImages)))) {
+        $this->type = $optionImages != null ? 2 : ($image != null || $videos != null ? 1 : 3);
+
+        if (!$request->has('options') || count($options) < 2 || count($options) > 4 || (isset($optionImages) && (count($options) != count($optionImages)))) 
+        {
             return $this->sendError("Please enter valid options.");
         }
+        
         $data['title'] = $request->input('title');
         $data['image_meta'] = $image;
+        $data['videos_meta'] = json_encode($videosArray, true);
         $data['type'] = $this->type;
 
         // compute preview
@@ -122,7 +136,8 @@ class PollingController extends Controller
         }
 
         PollingOption::insert($data);
-        $poll = Polling::find($poll->id);
+        $poll = Polling::find(2697);
+        $poll['videos_meta'] = json_decode($poll['videos_meta'], true);
         $poll->addToCache();
 
         $this->model = [
