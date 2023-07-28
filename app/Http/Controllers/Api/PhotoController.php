@@ -130,7 +130,7 @@ class PhotoController extends Controller
         $mediaJson =  $this->videoTranscodingNew($inputs['media_url']);
         $mediaJson = json_decode($mediaJson,true);
         $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
-        $inputs['media_json'] = $mediaJson;
+        $inputs = $mediaJson;
 
         $this->model = $inputs;
         return $this->sendNewResponse();
