@@ -70,10 +70,13 @@ class PollingController extends Controller
         // check if question has video or not
         $videos = $request->videos_meta != null ? $request->videos_meta : null;
 
-        $videosArray = [];
-        foreach ($videos as $video)
+        if (!empty($videos)) 
         {
-            $videosArray[] = $video;
+            $videosArray = [];
+            foreach ($videos as $video)
+            {
+                $videosArray[] = $video;
+            }
         }
 
         $image = $request->question_image != null ? $request->question_image : null;
@@ -227,17 +230,16 @@ class PollingController extends Controller
 
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
 
-       
-
         $data = $request->input(['title']) != null ? $request->input(['title']) : null;
         $options = $request->input(['options']);
 
         if (!is_array($options))
             $options = [$options];
-        if (count($options)>0) {
+        if (count($options)>0) 
+        {
             $count = PollingOption::where('poll_id',$pollId)->count();
-            foreach ($options as $value) {
-
+            foreach ($options as $value) 
+            {
                 if (isset($value['id'])) {
                    $pollOptions = PollingOption::where('poll_id',$pollId)->where('id',$value['id']);
                     if ($pollOptions->exists()) {
@@ -251,11 +253,23 @@ class PollingController extends Controller
                 }
             }
         }
+
         $imageQuestion = $request->image_meta != null ? $request->image_meta : null;
+
+        $videos = $request->videos_meta != null ? $request->videos_meta : null;
+        if (!empty($videos)) 
+        {
+            $videosArray = [];
+            foreach ($videos as $video)
+            {
+                $videosArray[] = $video;
+            }
+        }
 
         // compute preview
         $inputs = $request->all();
-        if (isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])) {
+        if (isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])) 
+        {
             $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
             $s3 = \Storage::disk('s3');
             $filePath = 'p/' . $loggedInProfileId . "/si";
@@ -280,9 +294,10 @@ class PollingController extends Controller
             $preview = null;
         }
 
-        $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion, 'preview'=>$preview]);
+        $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion,'videos_meta' => json_encode($videosArray, true) ,'preview'=>$preview]);
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
+        $poll->videos_meta = json_decode($poll['videos_meta'], true);
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));

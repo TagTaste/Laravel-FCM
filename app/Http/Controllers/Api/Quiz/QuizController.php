@@ -122,9 +122,11 @@ class QuizController extends Controller
         if ($request->has("company_id")) {
             $prepData["company_id"] = $request->company_id;
         }
+
         if ($request->has("image_meta")) {
             $prepData["image_meta"] =  json_encode($request->image_meta);
         }
+
         if ($request->has("videos_meta")) {
             $prepData["videos_meta"] =  json_encode($request->videos_meta);
         }
@@ -132,7 +134,6 @@ class QuizController extends Controller
         if ($request->has("form_json")) {
             $prepData["form_json"] = json_encode($final_json);
         }
-
 
         if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData["expired_at"] = date("Y-m-d", strtotime($request->expired_at));
@@ -242,6 +243,7 @@ class QuizController extends Controller
             'company_id' => 'nullable|exists:companies,id',
             'title' => 'required',
             'image_meta' => 'array|nullable',
+            'videos_meta' => 'array|nullable',
             'form_json' => 'required|array',
             'expired_at' => 'date_format:Y-m-d',
             'replay' => 'required'
@@ -278,9 +280,7 @@ class QuizController extends Controller
             return $this->sendResponse();
         }
 
-
         $prepData = (object)[];
-
 
         $prepData->state = isset($request->state) ? $request->state : config("constant.QUIZ_STATES.PUBLISHED");
         $prepData->title = $request->title;
@@ -291,6 +291,9 @@ class QuizController extends Controller
             $prepData->image_meta = (is_array($request->image_meta) ? json_encode($request->image_meta) : $request->image_meta);
         }
 
+        if ($request->has("videos_meta")) {
+            $prepData->videos_meta = (is_array($request->videos_meta) ? json_encode($request->videos_meta) : $request->videos_meta);
+        }
 
         if ($request->has("form_json")) {
             $prepData->form_json = json_encode($final_json);
@@ -299,7 +302,6 @@ class QuizController extends Controller
         if ($request->has("updated_by")) {
             $prepData->updated_by = $request->user()->profile->id;
         }
-
 
         if ($request->has("expired_at") && !empty($request->expired_at)) {
             $prepData->expired_at = date("Y-m-d", strtotime($request->expired_at));
@@ -388,14 +390,16 @@ class QuizController extends Controller
     {
         //FORM JSON Validation;
         $decodeJson = (is_array($request->form_json) ? $request->form_json : json_decode($request->form_json, true));
-        if (!empty($decodeJson)) {
-            if ($isUpdation) {
+        if (!empty($decodeJson)) 
+        {
+            if ($isUpdation) 
+            {
                 $getOldJson = Quiz::where("id", "=", $isUpdation)->select("form_json")->first()->toArray();
                 $oldJsonArray = $this->prepQuestionJson($getOldJson["form_json"]);
                 $listOfQuestionIds = array_keys($oldJsonArray);
             }
             //required node for questions
-            $requiredNode = ["title", "question_type", "image_meta", "id", "options"];
+            $requiredNode = ["title", "question_type", "image_meta", "videos_meta", "id", "options"];
             //required option nodes
             $optionNodeChecker = ["id", "image_meta", "title"];
 
@@ -405,7 +409,8 @@ class QuizController extends Controller
                 $maxQueId++;
             }
 
-            foreach ($decodeJson as &$values) {
+            foreach ($decodeJson as &$values) 
+            {
                 if (isset($values["is_mandatory"])) {
                     $values["is_mandatory"] = (int)$values["is_mandatory"];
                 } else {
@@ -419,7 +424,8 @@ class QuizController extends Controller
                 }
 
                 $values['id'] = (int) $values["id"];
-                if (empty($diff) && isset($values["options"])) {
+                if (empty($diff) && isset($values["options"])) 
+                {
                     $maxOptionId = 1;
                     if ($isUpdation) {
                         if (isset($oldJsonArray[$values["id"]]["options"])) {
@@ -434,14 +440,14 @@ class QuizController extends Controller
                     $correctOptionChecker = false;
                     $optionCount = 0;
                     $optionType = 0;
-                    foreach ($values["options"] as &$opt) {
+                    foreach ($values["options"] as &$opt) 
+                    {
                         if (!$isUpdation || !isset($opt['id']) || empty($opt['id'])) {
                             $opt['id'] = (int)$maxOptionId;
 
                             $maxOptionId++;
                         }
                         $opt['id'] = (int)$opt["id"];
-
 
                         $optionCount++;
 
@@ -471,6 +477,9 @@ class QuizController extends Controller
         }
         if (!is_array($request->image_meta)) {
             $this->errors["image_meta"] = "The image meta must be an object.";
+        }
+        if (!is_array($request->videos_meta)) {
+            $this->errors["videos_meta"] = "The videos meta must be an object.";
         }
 
         return $decodeJson;
