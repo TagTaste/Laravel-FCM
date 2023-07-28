@@ -66,18 +66,8 @@ class PollingController extends Controller
         // if (!$request->has('title') ) {
         //     return $this->sendError("Please enter poll title");
         // }
-
-        // check if question has video or not
-        $videos = $request->videos_meta != null ? $request->videos_meta : null;
-
-        if (!empty($videos)) 
-        {
-            $videosArray = [];
-            foreach ($videos as $video)
-            {
-                $videosArray[] = $video;
-            }
-        }
+        
+        $videos = $request->videos_meta;
 
         $image = $request->question_image != null ? $request->question_image : null;
         $optionImages = $request->option_images != null ? $request->option_images : null;
@@ -90,7 +80,7 @@ class PollingController extends Controller
         
         $data['title'] = $request->input('title');
         $data['image_meta'] = $image;
-        $data['videos_meta'] = json_encode($videosArray, true);
+        $data['videos_meta'] = json_encode($videos);
         $data['type'] = $this->type;
 
         // compute preview
@@ -140,8 +130,8 @@ class PollingController extends Controller
 
         PollingOption::insert($data);
         $poll = Polling::find($poll->id);
-        $poll['videos_meta'] = json_decode($poll['videos_meta'], true);
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
 
         $this->model = [
             'polling'=>$poll,
@@ -255,16 +245,7 @@ class PollingController extends Controller
         }
 
         $imageQuestion = $request->image_meta != null ? $request->image_meta : null;
-
-        $videos = $request->videos_meta != null ? $request->videos_meta : null;
-        if (!empty($videos)) 
-        {
-            $videosArray = [];
-            foreach ($videos as $video)
-            {
-                $videosArray[] = $video;
-            }
-        }
+        $videos = $request->videos_meta;
 
         // compute preview
         $inputs = $request->all();
@@ -294,11 +275,11 @@ class PollingController extends Controller
             $preview = null;
         }
 
-        $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion,'videos_meta' => json_encode($videosArray, true) ,'preview'=>$preview]);
+        $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion,'videos_meta' => json_encode($videos) ,'preview'=>$preview]);
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
-        $poll->videos_meta = json_decode($poll['videos_meta'], true);
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
