@@ -756,7 +756,6 @@ class SurveyController extends Controller
                 }
 
                 if (isset($values["options"]) && !empty($values["options"])) {
-
                     foreach ($values["options"] as $optVal) {
                         $answerArray["answer_value"] = $optVal["value"];
                         if (is_array($answerArray["answer_value"])) {
@@ -1942,6 +1941,7 @@ class SurveyController extends Controller
             
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
@@ -2858,7 +2858,7 @@ class SurveyController extends Controller
         }
 
         $counter = 0;
-
+        
         foreach ($getJsonQues as $values) {
             shuffle($colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->where("attempt", $attempt)->get();
@@ -2866,6 +2866,7 @@ class SurveyController extends Controller
             $pluckOpId = $answers->pluck("option_id")->toArray();
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
+            $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["description"] = $values["description"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
