@@ -175,7 +175,6 @@ class QuizController extends Controller
      */
     public function show($id)
     {
-
         $getQuiz = Quiz::where("id", "=", $id)->first();
 
         $this->model = false;
@@ -197,6 +196,7 @@ class QuizController extends Controller
 
         $getQuiz["form_json"] = $questions;
         $getQuiz["image_meta"] = json_decode($getQuiz["image_meta"], true);
+        $getQuiz["videos_meta"] = json_decode($getQuiz["videos_meta"], true);
         $getData = $getQuiz->toArray();
         $getData["closing_reason"] = $getQuiz->getClosingReason();
         $this->messages = "Request successfull";
@@ -889,6 +889,7 @@ class QuizController extends Controller
         foreach ($quizes as $quiz) {
 
             $quiz->image_meta = json_decode($quiz->image_meta);
+            $quiz->videos_meta = json_decode($quiz->videos_meta);
             $quiz->video_meta = json_decode($quiz->video_meta);
             $quiz->form_json = json_decode($quiz->form_json);
             $data[] = [

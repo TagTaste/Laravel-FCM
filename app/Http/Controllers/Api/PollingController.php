@@ -291,6 +291,7 @@ class PollingController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = $this->model->where('id',$pollId)->whereNull('deleted_at')->first();
+        $this->model->videos_meta = json_decode($this->model->videos_meta);
         if ($this->model)
             $this->model = [
                 'polling'=>$this->model,

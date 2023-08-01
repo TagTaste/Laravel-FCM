@@ -51,6 +51,7 @@ class PollingController extends BaseController
         $owner = $poll->getOwnerAttribute();
         $meta = $poll->getMetaForV2($loggedInProfileId);
         $seoTags = $poll->getSeoTags();
+        $poll->videos_meta = json_decode($poll->videos_meta);
         $poll = $poll->toArray();
         
         $this->model = [

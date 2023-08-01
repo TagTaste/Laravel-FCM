@@ -1745,11 +1745,9 @@ class SearchController extends Controller
             }
         }
 
-        if (!empty($this->model)) {
-
+        if (!empty($this->model)) 
+        {
             $this->model = $this->commonResponseHandler($profileId);
-
-
             return $this->sendResponse();
         }
 
@@ -1782,6 +1780,7 @@ class SearchController extends Controller
             $polls = $this->model['polls'];
             $this->model = [];
             foreach ($polls as $poll) {
+                $poll->videos_meta = json_decode($poll['videos_meta']);
                 $this->model[] = ['polling' => $poll, 'meta' => $poll->getMetaFor($profileId)];
             }
         }
