@@ -93,7 +93,6 @@ class QuizController extends Controller
             return $this->sendNewError("Expiry time invalid");
         }
 
-
         $final_json = $this->validateQuizFormJson($request);
 
         if (!empty($this->errors)) {
