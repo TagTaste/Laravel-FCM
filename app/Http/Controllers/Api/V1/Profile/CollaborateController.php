@@ -87,7 +87,9 @@ class CollaborateController extends Controller
 
         $collaborations = $collaborations->skip($skip)->take($take)
         ->get();
-        foreach ($collaborations as $collaboration) {
+        foreach ($collaborations as $collaboration) 
+        {
+            $collaboration->videos_meta = json_decode($collaboration->videos_meta);
             $data[] = [
                 'collaboration' => $collaboration,
                 'meta' => $collaboration->getMetaFor($profileId)
@@ -179,15 +181,7 @@ class CollaborateController extends Controller
         }
 
         // videos meta
-        if ($request->has("videos_meta")) 
-        {
-            if (!is_array($request->videos_meta)) 
-            {
-                $this->errors["videos_meta"] = "The videos meta must be an array.";
-                return $this->sendResponse();
-            }
-            $inputs["videos_meta"] = (is_array($request->videos_meta) ? json_encode($request->videos_meta) : $request->videos_meta);
-        }
+        $inputs["videos_meta"] = ($request->has('videos_meta') && !is_null($request->input('videos_meta'))) ? $request->videos_meta : null;
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
         
@@ -315,15 +309,7 @@ class CollaborateController extends Controller
         unset($inputs['images']);
 
         // videos meta
-        if ($request->has("videos_meta")) 
-        {
-            if (!is_array($request->videos_meta)) 
-            {
-                $this->errors["videos_meta"] = "The videos meta must be an array.";
-                return $this->sendResponse();
-            }
-            $inputs["videos_meta"] = (is_array($request->videos_meta) ? json_encode($request->videos_meta) : $request->videos_meta);
-        }
+        $inputs["videos_meta"] = ($request->has('videos_meta') && !is_null($request->input('videos_meta'))) ? $request->videos_meta : null;
 
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";

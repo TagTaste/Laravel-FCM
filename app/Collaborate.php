@@ -82,20 +82,20 @@ class Collaborate extends Model implements Feedable
             }
         });
 
-        self::updated(function ($model) {
-            $model->addToCache();
-            $model->addToCacheV2();
-            //update the search
-            \App\Documents\Collaborate::create($model);
-            $matches = $model->hasHashtags($model);
-            $model->deleteExistingHashtag('App\Collaborate', $model->id);
-            if (count($matches)) {
-                $model->createHashtag($matches, 'App\Collaborate', $model->id);
-            }
-            static::deleting(function ($model) {
-                $model->deleteExistingHashtag('App\Collaborate', $model->id);
-            });
-        });
+        // self::updated(function ($model) {
+        //     $model->addToCache();
+        //     $model->addToCacheV2();
+        //     //update the search
+        //     \App\Documents\Collaborate::create($model);
+        //     $matches = $model->hasHashtags($model);
+        //     $model->deleteExistingHashtag('App\Collaborate', $model->id);
+        //     if (count($matches)) {
+        //         $model->createHashtag($matches, 'App\Collaborate', $model->id);
+        //     }
+        //     static::deleting(function ($model) {
+        //         $model->deleteExistingHashtag('App\Collaborate', $model->id);
+        //     });
+        // });
     }
 
     public function addToCache()
