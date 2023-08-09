@@ -1132,7 +1132,7 @@ class SurveyController extends Controller
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
             $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ?  json_decode($values["video_meta"], true) : $values["video_meta"]);
-            $prepareNode["reports"][$counter]["videos_meta"] = (!is_array($values["videos_meta"]) ?  json_decode($values["videos_meta"], true) : $values["videos_meta"]);
+            $prepareNode["reports"][$counter]["videos_meta"] = isset($values["videos_meta"]) ? (!is_array($values["videos_meta"]) ? json_decode($values["videos_meta"]) : $values["videos_meta"]) : [];
 
             if (isset($values["max"])) {
                 $prepareNode["reports"][$counter]["max"] = $values["max"];
@@ -1512,7 +1512,7 @@ class SurveyController extends Controller
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
             $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ?  json_decode($values["video_meta"], true) : $values["video_meta"]);
-            $prepareNode["reports"][$counter]["videos_meta"] = (!is_array($values["videos_meta"]) ?  json_decode($values["videos_meta"], true) : $values["videos_meta"]);
+            $prepareNode["reports"][$counter]["videos_meta"] = isset($values["videos_meta"]) ? (!is_array($values["videos_meta"]) ? json_decode($values["videos_meta"]) : $values["videos_meta"]) : [];
 
             if (isset($values["max"])) {
                 $prepareNode["reports"][$counter]["max"] = $values["max"];
@@ -1938,13 +1938,13 @@ class SurveyController extends Controller
             $prepareNode["reports"][$counter]["respondent_count"] = $respondentCount;
             $prepareNode["reports"][$counter]["response_count"] = $count2;
             
-
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ?  json_decode($values["image_meta"], true) : $values["image_meta"]);
             $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ?  json_decode($values["video_meta"], true) : $values["video_meta"]);
+            $prepareNode["reports"][$counter]["videos_meta"] = isset($values["videos_meta"]) ? (!is_array($values["videos_meta"]) ? json_decode($values["videos_meta"]) : $values["videos_meta"]) : [];
 
             if (isset($values["max"])) {
                 $prepareNode["reports"][$counter]["max"] = $values["max"];
@@ -3134,7 +3134,7 @@ class SurveyController extends Controller
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
             $prepareNode["reports"][$counter]["video_meta"] = (!is_array($values["video_meta"]) ? json_decode($values["video_meta"]) : $values["video_meta"]);
-            $prepareNode["reports"][$counter]["videos_meta"] = (!is_array($values["videos_meta"]) ? json_decode($values["videos_meta"]) : $values["videos_meta"]);
+            $prepareNode["reports"][$counter]["videos_meta"] = isset($values["videos_meta"]) ? (!is_array($values["videos_meta"]) ? json_decode($values["videos_meta"]) : $values["videos_meta"]) : [];
             $prepareNode["reports"][$counter]["is_answered"] = false;
 
             if (isset($values["max"])) {
