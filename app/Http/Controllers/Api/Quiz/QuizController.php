@@ -1838,6 +1838,7 @@ class QuizController extends Controller
             $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
             $prepareNode["reports"][$counter]["question_type"] = $values["question_type"];
             $prepareNode["reports"][$counter]["image_meta"] = (!is_array($values["image_meta"]) ? json_decode($values["image_meta"]) : $values["image_meta"]);
+            $prepareNode["reports"][$counter]["videos_meta"] = isset($values["videos_meta"]) ? (!is_array($values["videos_meta"]) ? json_decode($values["videos_meta"]) : $values["videos_meta"]) : [];
 
 
             if (isset($values["options"])) {
