@@ -691,10 +691,19 @@ class Collaborate extends Model implements Feedable
                 ->where('profile_id', request()->user()->profile->id)->where('begin_tasting', 1)->exists();
             $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id', $this->id)
                 ->where('profile_id', request()->user()->profile->id)->get()->pluck('batch_id')->toArray();
+
+            $notifiedBatchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id', $this->id)
+            ->where('profile_id', request()->user()->profile->id)->where('begin_tasting', 1)->get()->pluck('batch_id')->toArray();
+
             $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id', request()->user()->profile->id)
-                ->where('collaborate_id', $this->id)->where('current_status', 3)->get()->pluck('batch_id')->toArray();
+            ->where('collaborate_id', $this->id)->where('current_status', 3)->get()->pluck('batch_id')->unique()->toArray();
+            
             sort($batchIds);
             sort($completedBatchIds);
+
+            $meta['notified_batch_count'] = count($notifiedBatchIds);
+            $meta['completed_batch_count'] = count($completedBatchIds);
+
             $meta['is_completed_product_review'] = count($completedBatchIds) > 0 ? ($batchIds == $completedBatchIds) : false;
             $meta['is_interested'] = \DB::table('collaborate_applicants')->where('collaborate_id', $this->id)->where('profile_id', request()->user()->profile->id)
                 ->where('is_invited', 0)->exists();

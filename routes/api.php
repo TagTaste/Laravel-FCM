@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Crypt;
 
-
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -33,21 +31,31 @@ Route::post('mail/foodComposition', 'GeneralMailController@foodCompositionMail')
 
 Route::post('login', function (Request $request) {
     $credentials = $request->only('email', 'password');
+
     //    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
     //    if($userVerified)
     //    {
     //        return response()->json(['error' => 'Please verify your email address'], 401);
     //    }
-    try {
+
+    try 
+    {
         // attempt to verify the credentials and create a token for the user
-        if (!$token = \JWTAuth::attempt($credentials)) {
+        if (!$token = \JWTAuth::attempt($credentials)) 
+        {
             return response()->json(['error' => 'invalid_credentials', 'message' => 'The username or password is incorrect.'], 401);
         }
-    } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+    } 
+    catch (Tymon\JWTAuth\Exceptions\JWTException $e) 
+    {
         // something went wrong whilst attempting to encode the token
         return response()->json(['error' => 'could_not_create_token'], 500);
     }
-    
+
+    // Store jwt tokens for force-logout
+    $user_id = App\User::where('email',$request->email)->first()->id;
+    app('App\Services\UserService')->storeUserLoginInfo($user_id, $request, $token);
+
     app('App\Http\Controllers\Auth\LoginController')->checkForDeactivation($request);
     return response()->json(compact('token'));
 });
@@ -890,8 +898,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
         return response($str, 200, $headers);
     });
-
-   
+        
+    
     Route::group(['namespace' => 'Survey', 'prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
         Route::get('filters-list/{id}', 'SurveyController@getFilters');
         Route::get('/mandatory-fields', 'SurveyController@dynamicMandatoryFields');
@@ -902,7 +910,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/reports/{id}', 'SurveyController@reports')->name("reports");
         Route::get('/respondents/{id}', 'SurveyController@surveyRespondents');
         Route::get('/text-answers/{id}/{question_id}/{option_id}', 'SurveyController@inputAnswers');
-        Route::get('/user-report/{id}/{profile_id}', 'SurveyController@userReport');
+        Route::get('/user-report/{id}/{profile_id}', 'SurveyController@sectionUserReport');
+        Route::get('/user-report/{id}/{profile_id}/section/{sectionId}', 'SurveyController@sectionUserReport');
         Route::get('/media-list/{id}/{question_id}/{media_type}', 'SurveyController@mediaList');
         Route::get('/questions-list', 'SurveyController@question_list')->name("questions.list");
         Route::post('/save-survey', 'SurveyController@saveAnswers');
@@ -937,7 +946,12 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
             Route::get('filters-list/{id}/questions', 'SurveyController@getFilterQuestions');
             Route::get('filters-list/{id}', 'SurveyController@getFilters');
-            Route::post('/reports/{id}', 'SurveyController@reports')->name("reports");
+            // Route::post('/reports/{id}', 'SurveyController@reports')->name("reports");
+            Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
+            Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
+
+            
+
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
 

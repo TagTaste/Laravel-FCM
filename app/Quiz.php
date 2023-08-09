@@ -124,7 +124,7 @@ class Quiz extends Model implements Feedable
         $k = Redis::get("quiz:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $meta['score_text']=$this->getScoreTextAttribute();
-
+        $meta['score_percentage']=isset($this->score_percentage) ? $this->score_percentage : null ;
         return $meta;
     }
 
@@ -224,6 +224,7 @@ class Quiz extends Model implements Feedable
         $score_text = null;
         if (!empty($applicantScore)) {
             foreach ($applicantScore as $applicant) {
+                $this->score_percentage = $applicant->score_text . "%";
                 $score_text = $applicant->score_text . "% Scored";
             }
         }

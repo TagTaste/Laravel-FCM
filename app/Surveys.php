@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 use App\Payment\PaymentDetails;
 use App\Payment\PaymentLinks;
+use App\surveyApplicants;
 
 class Surveys extends Model implements Feedable
 {
@@ -108,10 +109,19 @@ class Surveys extends Model implements Feedable
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
 
+
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+
+        $isReviewed = surveyApplicants::where("survey_id",$this->id)->where("profile_id",$profileId)->whereNull('deleted_at')->first();
+        
+        $meta['isInterested'] = false;
+        if($isReviewed != null){
+            $meta['isInterested'] = true;
+        }
+        
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $meta['submissionCount'] = (!empty($reviewed) ? $reviewed->attempt : 0);
@@ -139,6 +149,14 @@ class Surveys extends Model implements Feedable
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
 
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+
+        $isReviewed = surveyApplicants::where("survey_id",$this->id)->where("profile_id",$profileId)->whereNull('deleted_at')->first();
+
+        $meta['isInterested'] = false;
+        if($isReviewed != null){
+            $meta['isInterested'] = true;
+        }
+
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
 
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
@@ -293,6 +311,16 @@ class Surveys extends Model implements Feedable
             return null;
         }
         return $reason;
+    }
+
+    public function getSubmissionList()
+    {
+        $profileId = request()->user()->profile->id;
+        $surveyAttempt = SurveyAttemptMapping::select('id','profile_id','attempt','completion_date')->where("survey_id", "=", $this->id)->where("profile_id","=",$profileId)->where("deleted_at", "=", null)->whereNotNull("completion_date")->orderBy('completion_date', 'desc')->get()->toArray();
+
+        sort($surveyAttempt);
+
+        return $surveyAttempt;
     }
 
     public function getMandatoryFields()
