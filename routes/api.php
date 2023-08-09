@@ -280,6 +280,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             });
 
             Route::get("filterSearch/{type?}", 'SearchController@filterSearch');
+
         });
 
         /**
@@ -457,7 +458,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("getCities", "CollaborateController@getCities");
         Route::post("addCities", "CollaborateController@addCities");
         Route::get("collaborateCloseReason", "CollaborateController@collaborateCloseReason");
-        
+
+        // private product review reports post api
+        Route::post("v1/collaborate/{collaborateId}/batches/{id}/headers/{headerId}/reports", "Collaborate\BatchController@reports");
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {

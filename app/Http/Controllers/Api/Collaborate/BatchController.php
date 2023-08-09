@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
+use App\Collaborate\ReviewHeader;
+use App\Collaborate\Questions;
 use App\CompanyUser;
 use App\Recipe\Company;
 use App\Recipe\Profile;
@@ -67,8 +69,6 @@ class BatchController extends Controller
             $userCountWithbegintasting = \DB::table('collaborate_batches_assign')->where('begin_tasting', 1)->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
             $batch['notifiedUserCount'] = $userCountWithbegintasting - ($batch['reviewedCount'] + $batch['inProgressUserCount']);
         }
-
-
 
         $this->model = $batches;
         return $this->sendResponse();
@@ -316,7 +316,6 @@ class BatchController extends Controller
         $this->model['notifiedUserCount'] = $userCountWithbegintasting - ($this->model['reviewedCount'] + $this->model['inProgressUserCount']);
         return $this->sendResponse();
     }
-
 
     function secondsToTime($seconds)
     {
@@ -614,6 +613,10 @@ class BatchController extends Controller
 
         //filters data
         $filters = $request->input('filters');
+        if($request->is('*/v1/*'))
+        {
+            $resp = $this->getFilterProfileIds($filters, $collaborateId, $batchId);
+        }
         $resp = $this->getFilterProfileIds($filters, $collaborateId);
         $profileIds = $resp['profile_id'];
         $type = $resp['type'];
@@ -1256,6 +1259,53 @@ class BatchController extends Controller
         return $this->sendResponse();
     }
 
+    public function questionFilters(Request $request, $collaborateId, $batchId)
+    {
+        $headers = ReviewHeader::where('is_active',1)->where('collaborate_id',$collaborateId)->orderBy('id')->get();
+        $headers_array = [];
+
+        foreach($headers as $key => $header)
+        {
+            $headers_array[$key] = $header->toArray();
+            $headers_questions[$key] = Questions::select('id','is_mandatory', 'is_active','track_consistency', 'max_rank')->where('collaborate_id', $collaborateId)->where('header_type_id', $header->id)->whereNull('parent_question_id')->orderBy('id')->get()->toArray();
+
+            $questions_json[$key] = Questions::where('collaborate_id', $collaborateId)->where('header_type_id', $header->id)->whereNull('parent_question_id')->pluck('questions')->toArray();
+
+            //merging question json data and other question fileds into single question array
+            foreach($questions_json[$key] as $index => $question_json)
+            {
+                $question_json_data = json_decode($question_json, true);
+
+                if($question_json_data["select_type"] == 1 || $question_json_data["select_type"] == 5)
+                {
+                    $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
+                } 
+                else if($question_json_data["select_type"] == 2)
+                {
+                    $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
+
+                    if(isset($question_json_data["is_nested_option"]) && $question_json_data["is_nested_option"] == 1)
+                    {
+                        $global_question_options_info =  Review::select('value','option_type')->where('collaborate_id',$collaborateId)->where('question_id', $headers_array[$key]["questions"][$index]["id"])->where('current_status', 3)->get()->toArray();
+                        
+                        // Add id to options
+                        $global_question_options_info = array_map(function ($option_array, $index) {
+                            $option_array['id'] = $index + 1;
+                            return $option_array;
+                        }, $global_question_options_info, array_keys($global_question_options_info));
+
+                        $headers_array[$key]["questions"][$index]["option"] = $global_question_options_info;
+                    }
+                }
+            }
+
+        }
+
+        $this->model = $headers_array;
+
+        return $this->sendResponse(); 
+    }
+
     public function comments(Request $request, $collaborateId, $batchId, $headerId, $questionId)
     {
         //paginate
@@ -1585,6 +1635,16 @@ class BatchController extends Controller
                     $query->orWhere('profiles.is_expert', $userType);
                 }
             });
+        }
+
+        //apply filter on question's options
+        if (request()->is('*/v1/*') && isset($filters['question_filter'])) 
+        {
+            $ques_filter = ['profile_id' => $request->user()->profile->id, 'collaborate_id'=> $collaborateId, 'batch_id' => $batchId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
+
+            \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->updateOrInsert(['collaborate_id'=> $collaborateId], $ques_filter);
+            
+            // $idsAttemptMapping = $this->getProfileOfQuestions($filters['question_filter'], $surveyDetails['id'], $idsAttemptMapping);
         }
 
         if (isset($filters['current_status']) && !is_null($batchId)) {
