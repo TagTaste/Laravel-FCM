@@ -187,8 +187,8 @@ trait FilterTraits
                     $data['gender'] = $gender;
                 if ($filter == 'age')
                     $data['age'] = $age;
-                if ($filter == 'city')
-                    $data['city'] = $city;
+                // if ($filter == 'city')
+                //     $data['city'] = $city;
                 if ($filter == 'super_taster')
                     $data['super_taster'] = $superTaster;
                 if ($filter == 'user_type')
@@ -200,7 +200,8 @@ trait FilterTraits
             }
         } else {
             $data = [
-                'gender' => $gender, 'age' => $age, 'city' => $city
+                'gender' => $gender, 'age' => $age
+                //, 'city' => $city
                 // ,'application_status'=>$currentStatus
             ];
         }
