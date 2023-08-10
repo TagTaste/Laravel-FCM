@@ -14,8 +14,8 @@ class AddAssetsOrderVideosMetaToQuestionnaireQuestionHelpersTable extends Migrat
     public function up()
     {
         Schema::table('questionnaire_question_helpers', function (Blueprint $table) {
-            $table->json('videos_meta')->after('image_meta')->nullable()->comment('JSON object for videos metadata'); 
-            $table->json('assets_order')->default(json_encode(['videos', 'images']))->comment('Order of helper content');
+            $table->json('videos_meta')->after('images')->nullable(); 
+            $table->json('assets_order')->after('videos_meta')->nullable();
         });
     }
 
