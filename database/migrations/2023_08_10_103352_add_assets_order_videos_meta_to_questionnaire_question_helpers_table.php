@@ -15,7 +15,7 @@ class AddAssetsOrderVideosMetaToQuestionnaireQuestionHelpersTable extends Migrat
     {
         Schema::table('questionnaire_question_helpers', function (Blueprint $table) {
             $table->json('videos_meta')->after('images')->nullable(); 
-            $table->json('assets_order')->after('videos_meta')->nullable();
+            $table->string('assets_order')->default(json_encode(['videos', 'images']))->after('videos_meta');
         });
     }
 
@@ -26,6 +26,8 @@ class AddAssetsOrderVideosMetaToQuestionnaireQuestionHelpersTable extends Migrat
      */
     public function down()
     {
-        $table->dropColumn(['videos_meta', 'assets_order']);
+        Schema::table('questionnaire_question_helpers', function(Blueprint $table){
+            $table->dropColumn(['videos_meta', 'assets_order']);
+        });
     }
 }
