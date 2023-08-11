@@ -613,11 +613,7 @@ class BatchController extends Controller
 
         //filters data
         $filters = $request->input('filters');
-        if($request->is('*/v1/*'))
-        {
-            $resp = $this->getFilterProfileIds($filters, $collaborateId, $batchId);
-        }
-        $resp = $this->getFilterProfileIds($filters, $collaborateId);
+        $resp = ($request->is('*/v1/*')) ? $this->getFilterProfileIds($filters, $collaborateId, $batchId, $headerId) : $this->getFilterProfileIds($filters, $collaborateId);
         $profileIds = $resp['profile_id'];
         $type = $resp['type'];
         $boolean = 'and';
@@ -1172,7 +1168,6 @@ class BatchController extends Controller
 
     public function filters(Request $request, $collaborateId)
     {
-
         $filters = $request->input('filter');
 
         $gender = ['Male', 'Female', 'Other'];
@@ -1211,6 +1206,32 @@ class BatchController extends Controller
         } else {
             $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
         }
+
+        if($request->is('*/v1/*'))
+        {
+            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->first()->value;
+            $savedFilter = json_decode($savedFilter, true);
+            $questions_count = 0;
+            foreach($savedFilter as $header)
+            {
+                $questions_count += count($header['questions']);
+            }
+
+            switch ($questions_count) {
+                case 0:
+                    $question_filter = ['value' => '+ Add Questions', 'count' => $questions_count];
+                    break;
+                case 1:
+                    $question_filter = ['value' => 'Question', 'count' => $questions_count];
+                    break;
+                default:
+                    $question_filter = ['value' => 'Questions', 'count' => $questions_count];
+                    break;
+            }
+
+            $data['question_filter'] = $question_filter;
+        }
+        
         $this->model = $data;
 
         return $this->sendResponse();
@@ -1554,7 +1575,7 @@ class BatchController extends Controller
         return $this->sendResponse();
     }
 
-    public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
+    public function getFilterProfileIds($filters, $collaborateId, $batchId = null, $headerId = null)
     {
         $profileIds = new Collection([]);
         $isFilterAble = false;
@@ -1567,8 +1588,8 @@ class BatchController extends Controller
             $profileIds = $profileIds->merge($filterProfile);
         }
         
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status'])) {
-            $Ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId);
+        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter'])) {
+            $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
         }
 
         if (isset($filters['city'])) {
@@ -1613,7 +1634,6 @@ class BatchController extends Controller
         }
 
         if (isset($filters['super_taster'])) {
-
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['super_taster'] as $superTaster) {
                     if ($superTaster == 'SuperTaster')
@@ -1640,11 +1660,23 @@ class BatchController extends Controller
         //apply filter on question's options
         if (request()->is('*/v1/*') && isset($filters['question_filter'])) 
         {
-            $ques_filter = ['profile_id' => $request->user()->profile->id, 'collaborate_id'=> $collaborateId, 'batch_id' => $batchId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
+            $ques_filter = ['profile_id' => request()->user()->profile->id, 'collaborate_id'=> $collaborateId, 'batch_id' => $batchId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
 
-            \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->updateOrInsert(['collaborate_id'=> $collaborateId], $ques_filter);
-            
-            // $idsAttemptMapping = $this->getProfileOfQuestions($filters['question_filter'], $surveyDetails['id'], $idsAttemptMapping);
+            \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->updateOrInsert(['collaborate_id'=> $collaborateId], $ques_filter); 
+
+            $Ids = $Ids->leftJoin('collaborate_tasting_user_review', 'collaborate_applicants.profile_id', '=', 'collaborate_tasting_user_review.profile_id')->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.collaborate_id', $collaborateId);
+
+            $header_ids = collect($filters['question_filter'])->pluck('id')->toArray();
+            $header_index = array_search($headerId, $header_ids);
+
+            foreach($filters['question_filter'][$header_index]['questions'] as $question)
+            {
+                if(!empty($question["option"]))
+                {
+                    $option_ids = collect($question["option"])->pluck('id');
+                    $Ids = $Ids->where('collaborate_tasting_user_review.question_id',$question["id"])->whereIn('collaborate_tasting_user_review.leaf_id',$option_ids);
+                }
+            }
         }
 
         if (isset($filters['current_status']) && !is_null($batchId)) {
