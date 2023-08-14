@@ -1082,6 +1082,7 @@ class ExplorePageController extends Controller
             if (!is_null($cached_data)) {
                 $cached_data->image_meta = json_decode($cached_data->image_meta);
                 $cached_data->video_meta = json_decode($cached_data->video_meta);
+                $cached_data->videos_meta = json_decode($cached_data->videos_meta);
 
                 array_push($survey_detail["surveys"], $cached_data);
                 $survey_detail["count"] += 1;
@@ -1112,6 +1113,7 @@ class ExplorePageController extends Controller
             if (!is_null($cached_data)) {
                 $cached_data->image_meta = json_decode($cached_data->image_meta);
                 $cached_data->video_meta = json_decode($cached_data->video_meta);
+                $cached_data->videos_meta = json_decode($cached_data->videos_meta);
                 $cached_data->form_json = json_decode($cached_data->form_json);
 
                 array_push($quiz_detail["quiz"], $cached_data);
