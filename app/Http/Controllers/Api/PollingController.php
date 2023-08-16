@@ -188,6 +188,7 @@ class PollingController extends Controller
         $poll->addToCache();
         $poll->addToGraph(); //add node to neo4j
         $poll->addParticipationEdge($loggedInProfileId); //add edge in neo4j
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
@@ -362,6 +363,7 @@ class PollingController extends Controller
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
@@ -405,6 +407,7 @@ class PollingController extends Controller
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
         $this->model = [
@@ -451,6 +454,7 @@ class PollingController extends Controller
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
         $this->model = [
@@ -517,6 +521,7 @@ class PollingController extends Controller
         \DB::table('poll_options')->where('poll_id',$pollId)->update(['deleted_at'=>null]);
         $poll = Polling::find($pollId);
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->addRenewedPollToNeo4j($poll); //add to neo4j
         $this->model = $poll;
         //add to feed

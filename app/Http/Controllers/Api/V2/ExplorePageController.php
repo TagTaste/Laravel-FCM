@@ -1292,6 +1292,7 @@ class ExplorePageController extends Controller
                             ->first();
 
                         if (!is_null($survey)) {
+                            $survey->videos_meta = json_decode($survey->videos_meta);
                             $data = $survey->toArray();
                             if ($hit["_score"] > 9) {
                                 if ($count == $elastic_surveys['top_result']["count"]) {
@@ -1395,6 +1396,7 @@ class ExplorePageController extends Controller
                             ->first();
 
                         if (!is_null($collaborate)) {
+                            $collaborate->videos_meta = json_decode($collaborate->videos_meta);
                             $data = $collaborate->toArray();
                             if ($hit["_score"] > 9) {
                                 if ($count == $elastic_collaborate['top_result']["count"]) {
@@ -1495,6 +1497,7 @@ class ExplorePageController extends Controller
             if (!is_null($cached_data)) {
                 $cached_data->image_meta = json_decode($cached_data->image_meta);
                 $cached_data->video_meta = json_decode($cached_data->video_meta);
+                $cached_data->videos_meta = json_decode($cached_data->videos_meta);
                 $cached_data->form_json = json_decode($cached_data->form_json);
 
                 array_push($quiz_detail["quiz"], $cached_data);
