@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
+use App\Collaborate\Batches;
 use App\Collaborate\ReviewHeader;
 use App\Collaborate\Questions;
 use App\CompanyUser;
@@ -565,11 +566,20 @@ class BatchController extends Controller
     public function reports(Request $request, $collaborateId, $batchId, $headerId)
     {
         $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
+        $collaborate_batch = Batches::where('id', $batchId)->where('collaborate_id', $collaborateId)->exists();
+        $profileId = $request->user()->profile->id;
 
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        $profileId = $request->user()->profile->id;
+        elseif($collaborate->profile_id != $profileId)
+        {
+            return $this->sendError("Only Collaboration Admin can view this report");
+        }
+        elseif(!$collaborate_batch)
+        {
+            return $this->sendError("Product doesn't belongs to this collaboration");
+        }
 
         // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         // {
@@ -1209,12 +1219,15 @@ class BatchController extends Controller
 
         if($request->is('*/v1/*'))
         {
-            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->first()->value;
-            $savedFilter = json_decode($savedFilter, true);
+            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->first();
             $questions_count = 0;
-            foreach($savedFilter as $header)
-            {
-                $questions_count += count($header['questions']);
+            if(!is_null($savedFilter))
+            {   
+                $headers = json_decode($savedFilter->value, true);
+                foreach($headers as $header)
+                {
+                    $questions_count += count($header['questions']);
+                }
             }
 
             switch ($questions_count) {
