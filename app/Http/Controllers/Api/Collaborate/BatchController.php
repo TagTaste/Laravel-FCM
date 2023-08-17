@@ -1196,6 +1196,34 @@ class BatchController extends Controller
             }
         }
         $data = [];
+        if($request->is('*/v1/*'))
+        {
+            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
+            $questions_count = 0;
+            if(!is_null($savedFilter))
+            {   
+                $headers = json_decode($savedFilter->value, true);
+                foreach($headers as $header)
+                {
+                    $questions_count += count($header['questions']);
+                }
+            }
+
+            switch ($questions_count) {
+                case 0:
+                    $question_filter = [['value' => '+ Add Questions', 'count' => $questions_count]];
+                    break;
+                case 1:
+                    $question_filter = [['value' => 'Question', 'count' => $questions_count]];
+                    break;
+                default:
+                    $question_filter = [['value' => 'Questions', 'count' => $questions_count]];
+                    break;
+            }
+
+            $data['question_filter'] = $question_filter;
+        }
+        
         if (count($filters)) {
             foreach ($filters as $filter) {
                 if ($filter == 'gender')
@@ -1217,34 +1245,6 @@ class BatchController extends Controller
             $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
         }
 
-        if($request->is('*/v1/*'))
-        {
-            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->first();
-            $questions_count = 0;
-            if(!is_null($savedFilter))
-            {   
-                $headers = json_decode($savedFilter->value, true);
-                foreach($headers as $header)
-                {
-                    $questions_count += count($header['questions']);
-                }
-            }
-
-            switch ($questions_count) {
-                case 0:
-                    $question_filter = ['value' => '+ Add Questions', 'count' => $questions_count];
-                    break;
-                case 1:
-                    $question_filter = ['value' => 'Question', 'count' => $questions_count];
-                    break;
-                default:
-                    $question_filter = ['value' => 'Questions', 'count' => $questions_count];
-                    break;
-            }
-
-            $data['question_filter'] = $question_filter;
-        }
-        
         $this->model = $data;
 
         return $this->sendResponse();
@@ -1295,6 +1295,23 @@ class BatchController extends Controller
 
     public function questionFilters(Request $request, $collaborateId, $batchId)
     {
+        $profileId = $request->user()->profile->id;
+
+        $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
+        $collaborate_batch = Batches::where('id', $batchId)->where('collaborate_id', $collaborateId)->exists();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        elseif($collaborate->profile_id != $profileId)
+        {
+            return $this->sendError("Only Collaboration Admin can view this report");
+        }
+        elseif(!$collaborate_batch)
+        {
+            return $this->sendError("Product doesn't belongs to this collaboration");
+        }
+        
         $headers = ReviewHeader::where('is_active',1)->where('collaborate_id',$collaborateId)->orderBy('id')->get();
         $headers_array = [];
 
@@ -1305,6 +1322,10 @@ class BatchController extends Controller
 
             $questions_json[$key] = Questions::where('collaborate_id', $collaborateId)->where('header_type_id', $header->id)->whereNull('parent_question_id')->pluck('questions')->toArray();
 
+            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
+            
+            $filterForm = (!is_null($savedFilter)) ? json_decode($savedFilter->value, true) : $savedFilter;
+
             //merging question json data and other question fileds into single question array
             foreach($questions_json[$key] as $index => $question_json)
             {
@@ -1312,10 +1333,14 @@ class BatchController extends Controller
 
                 if($question_json_data["select_type"] == 1 || $question_json_data["select_type"] == 5)
                 {
+                    $question_id = $headers_questions[$key][$index]["id"];
+                    $question_json_data["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
                     $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
                 } 
                 else if($question_json_data["select_type"] == 2)
                 {
+                    $question_id = $headers_questions[$key][$index]["id"];
+                    $question_json_data["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
                     $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
 
                     if(isset($question_json_data["is_nested_option"]) && $question_json_data["is_nested_option"] == 1)
@@ -1338,6 +1363,23 @@ class BatchController extends Controller
         $this->model = $headers_array;
 
         return $this->sendResponse(); 
+    }
+
+    public function checkIfQuestionSelected($queId, $filterForm){
+        $found = false;
+        if(!is_null($filterForm))
+        {
+            foreach($filterForm as $form){
+                $questions = $form['questions'];
+                foreach($questions as $question){
+                    if($question['id'] == $queId){
+                        $found = true;
+                    }
+                }      
+            }
+        }
+
+        return $found;
     }
 
     public function comments(Request $request, $collaborateId, $batchId, $headerId, $questionId)
