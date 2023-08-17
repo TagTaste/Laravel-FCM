@@ -107,7 +107,10 @@ class Collaborate extends Model implements Feedable
     {
         $data = \App\V2\Collaborate::find($this->id)->toArray();
         foreach ($data as $key => $value) {
-            if (is_null($value) || $value == '')
+            if($key == "videos_meta"){
+                $data[$key] == isset($value) ? json_decode($value, true) : null;
+            }
+            else if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
         Redis::connection('V2')->set("collaborate:" . $this->id . ":V2", json_encode($data));

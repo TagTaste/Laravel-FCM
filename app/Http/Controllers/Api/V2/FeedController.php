@@ -105,10 +105,7 @@ class FeedController extends Controller
         } else {
             $skip = $skip - $this->feed_card_count;
             $this->feed_card_count = 0;
-        }
-        
-        
-       
+        }  
         
         $payloads = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
@@ -341,11 +338,14 @@ class FeedController extends Controller
                     \Log::warning("could not get from $key");
                 }
                 $data[$name] = json_decode($cachedData,true);
+                if (isset($data[$name]["videos_meta"]) && !is_array($data[$name]["videos_meta"])) {
+                    $data[$name]['videos_meta'] = json_decode($data[$name]['videos_meta'], true);
+                }
                 if(isset($data[$name]["image_meta"]) && !is_array($data[$name]["image_meta"])){
-                        $data[$name]["image_meta"] = json_decode($data[$name]["image_meta"],true);
+                    $data[$name]["image_meta"] = json_decode($data[$name]["image_meta"],true);
                 }
                 if(isset($data[$name]["form_json"]) && !is_array($data[$name]["form_json"])){
-                        $data[$name]["form_json"] = json_decode($data[$name]["form_json"],true);
+                    $data[$name]["form_json"] = json_decode($data[$name]["form_json"],true);
                 }
             }
 
