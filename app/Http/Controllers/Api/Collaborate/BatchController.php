@@ -1178,6 +1178,18 @@ class BatchController extends Controller
 
     public function filters(Request $request, $collaborateId)
     {
+        $profileId = $request->user()->profile->id;
+
+        $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        elseif($collaborate->profile_id != $profileId)
+        {
+            return $this->sendError("Only Collaboration Admin can view this report");
+        }
+
         $filters = $request->input('filter');
 
         $gender = ['Male', 'Female', 'Other'];
@@ -1224,7 +1236,7 @@ class BatchController extends Controller
             $data['question_filter'] = $question_filter;
         }
         
-        if (count($filters)) {
+        if (!is_null($filters) && count($filters)) {
             foreach ($filters as $filter) {
                 if ($filter == 'gender')
                     $data['gender'] = $gender;
@@ -1242,7 +1254,9 @@ class BatchController extends Controller
                     $data['sensory_trained'] = $sensoryTrained;
             }
         } else {
-            $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+            $filters_array = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+
+            $data = ($request->is('*/v1/*')) ? array_merge(array('question_filter' =>  $question_filter), $filters_array) : $filters_array;
         }
 
         $this->model = $data;
