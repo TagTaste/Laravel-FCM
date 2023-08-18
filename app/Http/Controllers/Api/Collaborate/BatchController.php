@@ -1722,7 +1722,7 @@ class BatchController extends Controller
         }
 
         //apply filter on question's options
-        if (request()->is('*/v1/*') && isset($filters['question_filter'])) 
+        if (request()->is('*/v1/*') && isset($filters['question_filter']) && !empty($filters['question_filter']))
         {
             $ques_filter = ['profile_id' => request()->user()->profile->id, 'collaborate_id'=> $collaborateId, 'batch_id' => $batchId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
 
