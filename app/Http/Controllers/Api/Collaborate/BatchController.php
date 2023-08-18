@@ -1336,37 +1336,40 @@ class BatchController extends Controller
             $filterForm = (!is_null($savedFilter)) ? json_decode($savedFilter->value, true) : $savedFilter;
 
             //merging question json data and other question fileds into single question array
-            foreach($questions_json[$key] as $index => $question_json)
+            if(!empty($headers_questions[$key]))
             {
-                $question_json_data = json_decode($question_json, true);
-
-                if($question_json_data["select_type"] == 1 || $question_json_data["select_type"] == 5)
+                foreach($questions_json[$key] as $index => $question_json)
                 {
-                    $question_id = $headers_questions[$key][$index]["id"];
-                    $question_json_data["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
-                    $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
-                } 
-                else if($question_json_data["select_type"] == 2)
-                {
-                    $question_id = $headers_questions[$key][$index]["id"];
-                    $question_json_data["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
-                    $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
+                    $question_json_data = json_decode($question_json, true);
 
-                    if(isset($question_json_data["is_nested_option"]) && $question_json_data["is_nested_option"] == 1)
+                    if($question_json_data["select_type"] == 1 || $question_json_data["select_type"] == 5)
                     {
-                        $global_question_options_info =  Review::select('value','option_type')->where('collaborate_id',$collaborateId)->where('question_id', $headers_array[$key]["questions"][$index]["id"])->where('current_status', 3)->get()->toArray();
-                        
-                        // Add id to options
-                        $global_question_options_info = array_map(function ($option_array, $index) {
-                            $option_array['id'] = $index + 1;
-                            return $option_array;
-                        }, $global_question_options_info, array_keys($global_question_options_info));
+                        $question_id = $headers_questions[$key][$index]["id"];
+                        $question_json_data["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
+                        $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
+                    } 
+                    else if($question_json_data["select_type"] == 2)
+                    {
+                        $question_id = $headers_questions[$key][$index]["id"];
+                        $question_json_data["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
+                        $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
 
-                        $headers_array[$key]["questions"][$index]["option"] = $global_question_options_info;
+                        if(isset($question_json_data["is_nested_option"]) && $question_json_data["is_nested_option"] == 1)
+                        {
+                            $global_question_options_info =  Review::select('value','option_type')->where('collaborate_id',$collaborateId)->where('question_id', $headers_array[$key]["questions"][$index]["id"])->where('current_status', 3)->get()->toArray();
+                            
+                            // Add id to options
+                            $global_question_options_info = array_map(function ($option_array, $index) {
+                                $option_array['id'] = $index + 1;
+                                return $option_array;
+                            }, $global_question_options_info, array_keys($global_question_options_info));
+
+                            $headers_array[$key]["questions"][$index]["option"] = $global_question_options_info;
+                        }
                     }
                 }
             }
-
+            $headers_array[$key]["questions"] = (!isset($headers_array[$key]["questions"]) || empty($headers_array[$key]["questions"])) ? [] : $headers_array[$key]["questions"];
         }
 
         $this->model = $headers_array;
