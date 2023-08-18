@@ -1307,12 +1307,11 @@ class BatchController extends Controller
         return $this->sendResponse();
     }
 
-    public function questionFilters(Request $request, $collaborateId, $batchId)
+    public function questionFilters(Request $request, $collaborateId)
     {
         $profileId = $request->user()->profile->id;
 
         $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
-        $collaborate_batch = Batches::where('id', $batchId)->where('collaborate_id', $collaborateId)->exists();
 
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
@@ -1320,10 +1319,6 @@ class BatchController extends Controller
         elseif($collaborate->profile_id != $profileId)
         {
             return $this->sendError("Only Collaboration Admin can view this report");
-        }
-        elseif(!$collaborate_batch)
-        {
-            return $this->sendError("Product doesn't belongs to this collaboration");
         }
         
         $headers = ReviewHeader::where('is_active',1)->where('collaborate_id',$collaborateId)->orderBy('id')->get();
