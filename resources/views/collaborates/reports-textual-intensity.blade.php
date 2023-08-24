@@ -13,7 +13,7 @@
             }
         }
         $avgIntensity = number_format((float)($totalIntensity/$finalTotal), 2, '.', '');
-        $roundedIntensity = round($avgIntensity) - $initialIntensity;
+        $roundedIntensity = (round($avgIntensity) == 0) ? 0 : round($avgIntensity) - $initialIntensity;
         $classNameOfPillText = isset($path) ? 'pr-report-pill-text--small' : 'pr-report-pill-text';
     @endphp
     <div class="pr-answer-row">

@@ -623,7 +623,7 @@ class BatchController extends Controller
 
         //filters data
         $filters = $request->input('filters');
-        $resp = ($request->is('*/v1/*')) ? $this->getFilterProfileIds($filters, $collaborateId, $batchId, $headerId) : $this->getFilterProfileIds($filters, $collaborateId);
+        $resp = $this->getFilterProfileIds($filters, $collaborateId);
         $profileIds = $resp['profile_id'];
         $type = $resp['type'];
         $boolean = 'and';
@@ -1321,59 +1321,62 @@ class BatchController extends Controller
             return $this->sendError("Only Collaboration Admin can view this report");
         }
         
-        $headers = ReviewHeader::where('is_active',1)->where('collaborate_id',$collaborateId)->orderBy('id')->get();
+        $headers = ReviewHeader::where('is_active',1)->where('collaborate_id',$collaborateId)->whereNotIn('header_selection_type',[0, 3])->orderBy('id')->get();
         $headers_array = [];
+
+        // check for already saved filters
+        $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
+            
+        $filterForm = (!is_null($savedFilter)) ? json_decode($savedFilter->value, true) : $savedFilter;
 
         foreach($headers as $key => $header)
         {
             $headers_array[$key] = $header->toArray();
-            $headers_questions[$key] = Questions::select('id','is_mandatory', 'is_active','track_consistency', 'max_rank')->where('collaborate_id', $collaborateId)->where('header_type_id', $header->id)->whereNull('parent_question_id')->orderBy('id')->get()->toArray();
+            $headers_questions[$key] = Questions::select('id','is_mandatory', 'is_active','track_consistency', 'max_rank', 'questions')->where('collaborate_id', $collaborateId)->where('header_type_id', $header->id)->whereNull('parent_question_id')->orderBy('id')->get()->toArray();
 
-            $questions_json[$key] = Questions::where('collaborate_id', $collaborateId)->where('header_type_id', $header->id)->whereNull('parent_question_id')->pluck('questions')->toArray();
+            if(!empty($headers_questions[$key])) {
+                foreach($headers_questions[$key] as $index => $value) {
+                    $question_json_data = json_decode($value['questions'], true);
+                    foreach($question_json_data as $k => $question_json){
+                        $headers_questions[$key][$index][$k] = $question_json;
+                        unset($headers_questions[$key][$index]['questions']);
+                    }
 
-            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
-            
-            $filterForm = (!is_null($savedFilter)) ? json_decode($savedFilter->value, true) : $savedFilter;
-
-            //merging question json data and other question fileds into single question array
-            if(!empty($headers_questions[$key]))
-            {
-                foreach($questions_json[$key] as $index => $question_json)
-                {
-                    $question_json_data = json_decode($question_json, true);
-
-                    if($question_json_data["select_type"] == 1 || $question_json_data["select_type"] == 5)
+                    if($headers_questions[$key][$index]["select_type"] == 1 || $headers_questions[$key][$index]["select_type"] == 5)
                     {
                         $question_id = $headers_questions[$key][$index]["id"];
-                        $question_json_data["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
-                        $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
+                        $headers_questions[$key][$index]["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
+                        $headers_array[$key]["questions"][] = $headers_questions[$key][$index];
                     } 
-                    else if($question_json_data["select_type"] == 2)
+                    else if($headers_questions[$key][$index]["select_type"] == 2)
                     {
                         $question_id = $headers_questions[$key][$index]["id"];
-                        $question_json_data["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
-                        $headers_array[$key]["questions"][] = array_merge($headers_questions[$key][$index], $question_json_data);
+                        $headers_questions[$key][$index]["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
+                        $headers_array[$key]["questions"][] = $headers_questions[$key][$index];
 
-                        if(isset($question_json_data["is_nested_option"]) && $question_json_data["is_nested_option"] == 1)
+                        if(isset($headers_questions[$key][$index]["is_nested_option"]) && $headers_questions[$key][$index]["is_nested_option"] == 1)
                         {
-                            $global_question_options_info =  Review::select('value','option_type')->where('collaborate_id',$collaborateId)->where('question_id', $headers_array[$key]["questions"][$index]["id"])->where('current_status', 3)->get()->toArray();
-                            
-                            // Add id to options
-                            $global_question_options_info = array_map(function ($option_array, $index) {
-                                $option_array['id'] = $index + 1;
-                                return $option_array;
-                            }, $global_question_options_info, array_keys($global_question_options_info));
+                            $global_question_options_info =  Review::select('value','option_type')->where('collaborate_id',$collaborateId)->where('question_id', $headers_questions[$key][$index]["id"])->where('current_status', 3)->get()->toArray();
 
-                            $headers_array[$key]["questions"][$index]["option"] = $global_question_options_info;
+                            // Add id to options
+                            if(!empty($global_question_options_info))
+                            {
+                                $global_question_options_info = array_map(function ($option_array, $index) {
+                                    $option_array['id'] = $index + 1;
+                                    return $option_array;
+                                }, $global_question_options_info, array_keys($global_question_options_info));
+                            }
+
+                            $headers_array[$key]["questions"][$index]["option"] = $global_question_options_info; 
                         }
                     }
                 }
             }
+
             $headers_array[$key]["questions"] = (!isset($headers_array[$key]["questions"]) || empty($headers_array[$key]["questions"])) ? [] : $headers_array[$key]["questions"];
         }
 
         $this->model = $headers_array;
-
         return $this->sendResponse(); 
     }
 
@@ -1642,7 +1645,7 @@ class BatchController extends Controller
         return $this->sendResponse();
     }
 
-    public function getFilterProfileIds($filters, $collaborateId, $batchId = null, $headerId = null)
+    public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
     {
         $profileIds = new Collection([]);
         $isFilterAble = false;
@@ -1725,24 +1728,40 @@ class BatchController extends Controller
         }
 
         //apply filter on question's options
-        if (request()->is('*/v1/*') && isset($filters['question_filter']) && !empty($filters['question_filter']))
+        if (request()->is('*/v1/*') && isset($filters['question_filter']))
         {
-            $ques_filter = ['profile_id' => request()->user()->profile->id, 'collaborate_id'=> $collaborateId, 'batch_id' => $batchId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
+            $ques_filter = ['profile_id' => request()->user()->profile->id, 'collaborate_id'=> $collaborateId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
 
             \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->updateOrInsert(['collaborate_id'=> $collaborateId], $ques_filter); 
 
-            $Ids = $Ids->leftJoin('collaborate_tasting_user_review', 'collaborate_applicants.profile_id', '=', 'collaborate_tasting_user_review.profile_id')->where('collaborate_tasting_user_review.batch_id', $batchId)->where('collaborate_tasting_user_review.collaborate_id', $collaborateId);
-
-            $header_ids = collect($filters['question_filter'])->pluck('id')->toArray();
-            $header_index = array_search($headerId, $header_ids);
-
-            foreach($filters['question_filter'][$header_index]['questions'] as $question)
+            if(!empty($filters['question_filter']))
             {
-                if(!empty($question["option"]))
+                $header_ids = collect($filters['question_filter'])->pluck('id')->toArray();
+                $entered_count = 0;
+    
+                foreach($header_ids as $key => $header)
                 {
-                    $option_ids = collect($question["option"])->pluck('id');
-                    $Ids = $Ids->where('collaborate_tasting_user_review.question_id',$question["id"])->whereIn('collaborate_tasting_user_review.leaf_id',$option_ids);
+                    foreach($filters['question_filter'][$key]['questions'] as $question)
+                    {
+                        if(!empty($question["option"]))
+                        {
+                            $option_ids = collect($question["option"])->pluck('id');
+                            $question_filtered_data = Review::whereIn('tasting_header_id',$header_ids)->where('collaborate_id',$collaborateId)->whereIn('profile_id', $Ids->distinct()->pluck('collaborate_applicants.profile_id')->toArray())->where('question_id',$question["id"])->whereIn('collaborate_tasting_user_review.leaf_id',$option_ids);
+                           
+                            if($entered_count == 0)
+                            {   
+                                $profile_ids = $question_filtered_data->pluck('profile_id')->toArray();
+                            }
+                            else
+                            {
+                                $profile_ids = array_intersect($question_filtered_data->pluck('profile_id')->toArray(), $profile_ids);
+                            }  
+                            $entered_count++;
+                        }
+                    }
                 }
+
+                $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profile_ids);
             }
         }
 
@@ -1759,7 +1778,7 @@ class BatchController extends Controller
                 $currentStatusIds = $currentStatusIds->merge($ids);
             }
             $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $currentStatusIds);
-        }
+        }    
         
         if ($profileIds->count() > 0 && isset($Ids)) {
             $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
@@ -1799,15 +1818,19 @@ class BatchController extends Controller
 
     public function reportPdf(Request $request, $collaborateId, $batchId)
     {
+        $profileId = $request->user()->profile->id;
         $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
+        }
+        elseif($collaborate->profile_id != $profileId)
+        {
+            return $this->sendError("Only Collaboration Admin can view this report");
         }
         $batchData = $this->model->where('id', $batchId)->where('collaborate_id', $collaborateId)->first();
         if ($batchData === null) {
             return $this->sendError("Invalid batch.");
         }
-        $profileId = $request->user()->profile->id;
 
         // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         // {
@@ -2087,12 +2110,12 @@ class BatchController extends Controller
 
     public function getHeaderWeight(Request $request, $collaborateId)
     {
-        $profileId = $request->user()->profile->id;
-        $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
+        // $profileId = $request->user()->profile->id;
+        // $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
 
-        if ($collaborate === null) {
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // if ($collaborate === null) {
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
 
         // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         // {
@@ -2114,24 +2137,25 @@ class BatchController extends Controller
         $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id', 'question_id', 'leaf_id', 'batch_id', 'value', \DB::raw('count(*) as total'))->where('current_status', 3)
             ->where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereIn('question_id', $questionIds)
             ->orderBy('tasting_header_id', 'ASC')->orderBy('batch_id', 'ASC')->orderBy('leaf_id', 'ASC')->groupBy('tasting_header_id', 'question_id', 'leaf_id', 'value', 'batch_id')->get();
-
+    
         $batches = Collaborate\Batches::where('collaborate_id', $collaborateId)->orderBy('id')->get();
 
         $model = [];
         $headers = Collaborate\ReviewHeader::where('collaborate_id', $collaborateId)->whereNotIn('header_selection_type', [0, 3])->get();
+        
         foreach ($headers as $header) {
             $data = [];
             if ($header->header_type == 'INSTRUCTIONS')
                 continue;
             $data['header_type'] = $header->header_type;
             $data['id'] = $header->id;
+            
             foreach ($batches as $batch) {
                 $item  = [];
                 $item['batch_info'] = $batch;
                 $totalValue = 0;
                 $totalReview = 0;
                 foreach ($overAllPreferences as $overAllPreference) {
-
                     if ($header->id == $overAllPreference->tasting_header_id && $batch->id == $overAllPreference->batch_id) {
                         $totalReview = $totalReview + $overAllPreference->total;
                         $totalValue = $totalValue + $overAllPreference->leaf_id * $overAllPreference->total;

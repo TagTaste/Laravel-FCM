@@ -20,7 +20,12 @@ class collaborateRoles
         //     return $next($request);
         // }
         $loggedInProfileId = $request->user()->profile->id;
-        $path = $request->getPathInfo();
+        $path = $request->getPathInfo();   
+        if($request->is('*/v1/*'))
+        {
+            $pattern = '/\/api\/v1\//';
+            $path = preg_replace($pattern, '/', $path, 1);
+        }
        $ids = preg_split('#([/a-zA-Z]+)#', $path);
        $ids = array_reverse($ids);
        $collabId = null;
@@ -34,6 +39,10 @@ class collaborateRoles
             // ->where('state',1)
             ->where('id',$collabId)
             ->first();
+        if(is_null($collab))
+        {
+            return response()->json(['data'=>null,'errors'=>'Invalid Collaboration Project.','messages'=>null], 200);
+        }
         if($collab->collaborate_type != 'product-review' || (isset($collab->profile_id) && $collab->profile_id == $loggedInProfileId)) {
             return $next($request);
         }

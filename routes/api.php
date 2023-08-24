@@ -953,6 +953,13 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             // get filters for dashboard of product review
             Route::get("dashboard/filters", "BatchController@filters");
+
+            // private product review summary post api
+            Route::post("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
+
+            // download report post api
+            Route::post("batches/{id}/reportPdf", "BatchController@reportPdf");
+
         });
     });
 
