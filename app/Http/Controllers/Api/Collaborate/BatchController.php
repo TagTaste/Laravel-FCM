@@ -1352,7 +1352,6 @@ class BatchController extends Controller
                     {
                         $question_id = $headers_questions[$key][$index]["id"];
                         $headers_questions[$key][$index]["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
-                        $headers_array[$key]["questions"][] = $headers_questions[$key][$index];
 
                         if(isset($headers_questions[$key][$index]["is_nested_option"]) && $headers_questions[$key][$index]["is_nested_option"] == 1)
                         {
@@ -1367,8 +1366,10 @@ class BatchController extends Controller
                                 }, $global_question_options_info, array_keys($global_question_options_info));
                             }
 
-                            $headers_array[$key]["questions"][$index]["option"] = $global_question_options_info; 
+                            $headers_questions[$key][$index]["option"] = $global_question_options_info;
                         }
+
+                        $headers_array[$key]["questions"][] = $headers_questions[$key][$index];
                     }
                 }
             }
