@@ -358,7 +358,6 @@ class FeedController extends Controller
                 } 
                 else if($model == "App\Quiz"){
                     $model = $model::find($data["quiz"]["id"]);
-
                 }
                 else {
                     $model = $model::find($payload->model_id);
