@@ -572,14 +572,14 @@ class BatchController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        elseif($collaborate->profile_id != $profileId)
-        {
-            return $this->sendError("Only Collaboration Admin can view this report");
-        }
-        elseif(!$collaborate_batch)
-        {
-            return $this->sendError("Product doesn't belongs to this collaboration");
-        }
+        // elseif($collaborate->profile_id != $profileId)
+        // {
+        //     return $this->sendError("Only Collaboration Admin can view this report");
+        // }
+        // elseif(!$collaborate_batch)
+        // {
+        //     return $this->sendError("Product doesn't belongs to this collaboration");
+        // }
 
         // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         // {
@@ -1744,21 +1744,22 @@ class BatchController extends Controller
                 {
                     foreach($filters['question_filter'][$key]['questions'] as $question)
                     {
+                        $question_filtered_data = Review::whereIn('tasting_header_id',$header_ids)->where('collaborate_id',$collaborateId)->whereIn('profile_id', $Ids->distinct()->pluck('collaborate_applicants.profile_id')->toArray())->where('question_id',$question["id"]);
+
                         if(!empty($question["option"]))
                         {
                             $option_ids = collect($question["option"])->pluck('id');
-                            $question_filtered_data = Review::whereIn('tasting_header_id',$header_ids)->where('collaborate_id',$collaborateId)->whereIn('profile_id', $Ids->distinct()->pluck('collaborate_applicants.profile_id')->toArray())->where('question_id',$question["id"])->whereIn('collaborate_tasting_user_review.leaf_id',$option_ids);
-                           
-                            if($entered_count == 0)
-                            {   
-                                $profile_ids = $question_filtered_data->pluck('profile_id')->toArray();
-                            }
-                            else
-                            {
-                                $profile_ids = array_intersect($question_filtered_data->pluck('profile_id')->toArray(), $profile_ids);
-                            }  
-                            $entered_count++;
+                            $question_filtered_data = $question_filtered_data->whereIn('collaborate_tasting_user_review.leaf_id',$option_ids);
                         }
+                        if($entered_count == 0)
+                        {   
+                            $profile_ids = $question_filtered_data->pluck('profile_id')->toArray();
+                        }
+                        else
+                        {
+                            $profile_ids = array_intersect($question_filtered_data->pluck('profile_id')->toArray(), $profile_ids);
+                        }  
+                        $entered_count++;
                     }
                 }
 
