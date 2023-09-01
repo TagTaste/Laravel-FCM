@@ -447,6 +447,8 @@ class SearchController extends Controller
                 $products = $this->model['product'];
                 $this->model['product'] = [];
                 foreach ($products as &$product) {
+                    $product->videos_meta = json_decode($product->videos_meta);
+                    $product->assets_order = json_decode($product->assets_order);
                     $meta = $product->getMetaFor($profileId);
                     $this->model['product'][] = ['product' => $product, 'meta' => $meta];
                 }

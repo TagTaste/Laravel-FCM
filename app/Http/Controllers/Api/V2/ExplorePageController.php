@@ -919,6 +919,8 @@ class ExplorePageController extends Controller
     {
         $client = config('database.neo4j_uri_client');
         $products_suggestion = FeedController::suggestionProducts($client, $profile, $profile_id);
+        $products_suggestion["suggestion"]["videos_meta"] = json_decode($products_suggestion["suggestion"]["videos_meta"]);
+        $products_suggestion["suggestion"]["assets_order"] = json_decode($products_suggestion["suggestion"]["assets_order"]);
 
         $products_suggestion_detail = array(
             "product" => $products_suggestion["suggestion"],
