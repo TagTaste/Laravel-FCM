@@ -1237,6 +1237,8 @@ class ExplorePageController extends Controller
                             ->get()
                             ->first();
                         if (!is_null($public_review_product)) {
+                            $public_review_product->videos_meta = json_decode($public_review_product->videos_meta);
+                            $public_review_product->assets_order = json_decode($public_review_product->assets_order);
                             $data = array();
                             $data['product'] = $public_review_product->toArray();
                             $data['meta'] = $public_review_product->getMetaFor((int)$profile_id);
