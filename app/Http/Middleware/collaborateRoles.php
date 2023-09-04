@@ -23,8 +23,7 @@ class collaborateRoles
         $path = $request->getPathInfo();   
         if($request->is('*/v1/*'))
         {
-            $pattern = '/\/api\/v1\//';
-            $path = preg_replace($pattern, '/', $path, 1);
+            $path = preg_replace('/v1/', 'v', $path);
         }
        $ids = preg_split('#([/a-zA-Z]+)#', $path);
        $ids = array_reverse($ids);
@@ -48,7 +47,6 @@ class collaborateRoles
         }
         $companyId = $collab->company_id;
         
-        
         $path = preg_replace('#([0-9]+)#','id',$path); 
         $checkPermissionExist = \DB::table('collaborate_permissions')->where('route',$path)->where('method',$request->method())->count();
         // if(!$checkPermissionExist) {
@@ -58,6 +56,10 @@ class collaborateRoles
         $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
         if($checkAdmin) {
             return $next($request);
+        }
+        if($request->is('*/v1/*'))
+        {
+            $path = preg_replace('/v/', 'v1', $path);
         }
         $permission  = \DB::table('collaborate_user_roles')
             ->where('profile_id',$loggedInProfileId)

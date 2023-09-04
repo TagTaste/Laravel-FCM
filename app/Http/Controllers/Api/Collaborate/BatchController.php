@@ -1753,11 +1753,11 @@ class BatchController extends Controller
                         }
                         if($entered_count == 0)
                         {   
-                            $profile_ids = $question_filtered_data->pluck('profile_id')->toArray();
+                            $profile_ids = $question_filtered_data->distinct()->pluck('profile_id')->toArray();
                         }
                         else
                         {
-                            $profile_ids = array_intersect($question_filtered_data->pluck('profile_id')->toArray(), $profile_ids);
+                            $profile_ids = array_intersect($question_filtered_data->distinct()->pluck('profile_id')->toArray(), $profile_ids);
                         }  
                         $entered_count++;
                     }
