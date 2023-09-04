@@ -880,8 +880,8 @@ class FeedController extends Controller
         if (count($collaborations)) {
             foreach ($collaborations as $key => $id) {
                 $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
-                $cached_data->videos_meta = json_decode($cached_data->videos_meta);
                 if (!is_null($cached_data)) {
+                    $cached_data->videos_meta = json_decode($cached_data->videos_meta);
                     $data = $cached_data->toArray();
                     $suggestion["meta"]["count"]++;
                     array_push($suggestion["suggestion"], $data);
@@ -971,6 +971,8 @@ class FeedController extends Controller
             foreach ($public_review_product as $key => $product) {
                 $data_fetched = PublicReviewProduct::where('id', $product->id)->first();
                 if (!is_null($data_fetched)) {
+                    $data_fetched->videos_meta = json_decode($data_fetched->videos_meta);
+                    $data_fetched->assets_order = json_decode($data_fetched->assets_order);
                     $data = array();
                     $data['product'] = $data_fetched->toArray();
                     $data['meta'] = $data_fetched->getMetaFor($profileId);
