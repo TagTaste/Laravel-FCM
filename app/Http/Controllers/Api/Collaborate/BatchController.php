@@ -572,14 +572,14 @@ class BatchController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        // elseif($collaborate->profile_id != $profileId)
-        // {
-        //     return $this->sendError("Only Collaboration Admin can view this report");
-        // }
-        // elseif(!$collaborate_batch)
-        // {
-        //     return $this->sendError("Product doesn't belongs to this collaboration");
-        // }
+        elseif($collaborate->profile_id != $profileId)
+        {
+            return $this->sendError("Only Collaboration Admin can view this report");
+        }
+        elseif(!$collaborate_batch)
+        {
+            return $this->sendError("Product doesn't belongs to this collaboration");
+        }
 
         // if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         // {
@@ -1318,7 +1318,7 @@ class BatchController extends Controller
         }
         elseif($collaborate->profile_id != $profileId)
         {
-            return $this->sendError("Only Collaboration Admin can view this report");
+            return $this->sendError("Only Collaboration Admin can view this list");
         }
         
         $headers = ReviewHeader::where('is_active',1)->where('collaborate_id',$collaborateId)->whereNotIn('header_selection_type',[0, 3])->orderBy('id')->get();
@@ -1355,13 +1355,14 @@ class BatchController extends Controller
 
                         if(isset($headers_questions[$key][$index]["is_nested_option"]) && $headers_questions[$key][$index]["is_nested_option"] == 1)
                         {
-                            $global_question_options_info =  Review::select('value','option_type')->where('collaborate_id',$collaborateId)->where('question_id', $headers_questions[$key][$index]["id"])->where('current_status', 3)->get()->toArray();
+                            $global_question_options_info =  Review::select('value','option_type','leaf_id')->where('collaborate_id',$collaborateId)->where('question_id', $headers_questions[$key][$index]["id"])->where('current_status', 3)->distinct()->get()->toArray();
 
                             // Add id to options
                             if(!empty($global_question_options_info))
                             {
                                 $global_question_options_info = array_map(function ($option_array, $index) {
-                                    $option_array['id'] = $index + 1;
+                                    $option_array['id'] = $option_array['leaf_id'];
+                                    unset($option_array['leaf_id']);
                                     return $option_array;
                                 }, $global_question_options_info, array_keys($global_question_options_info));
                             }
