@@ -1192,6 +1192,11 @@ class BatchController extends Controller
 
         $filters = $request->input('filter');
 
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         $gender = ['Male', 'Female', 'Other'];
         $age = Helper::getGenerationFilter('string');
         // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
@@ -1208,7 +1213,7 @@ class BatchController extends Controller
             }
         }
         $data = [];
-        if($request->is('*/v1/*'))
+        if (isset($version_num) && $version_num == 'v1')
         {
             $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
             $questions_count = 0;
@@ -1232,8 +1237,10 @@ class BatchController extends Controller
                     $question_filter = [['value' => 'Questions', 'count' => $questions_count]];
                     break;
             }
-
-            $data['question_filter'] = $question_filter;
+            if(!is_null($filters) && count($filters) && in_array('question_filter', $filters))
+            {
+                $data['question_filter'] = $question_filter;
+            }
         }
         
         if (!is_null($filters) && count($filters)) {
@@ -1254,9 +1261,23 @@ class BatchController extends Controller
                     $data['sensory_trained'] = $sensoryTrained;
             }
         } else {
-            $filters_array = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+            if (isset($version_num) && $version_num == 'v1')
+            {
+                $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+            }
+            else
+            {
+                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+            }
 
-            $data = ($request->is('*/v1/*')) ? array_merge(array('question_filter' =>  $question_filter), $filters_array) : $filters_array;
+            // $data = ($request->is('*/v1/*')) ? array_merge(array('question_filter' =>  $question_filter), $filters_array) : $filters_array;
+
+            // $order = ($request->is('*/v1/*')) ? ['question_filter', 'gender', 'age', 'city', 'current_status', 'user_type', 'sensory_trained', 'super_taster'] : ['gender', 'age', 'city', 'current_status', 'user_type', 'sensory_trained', 'super_taster'];
+            
+            // $sortedArray = [];
+            // foreach ($order as $key) {
+            //     $sortedArray[$key] = $data[$key];
+            // }
         }
 
         $this->model = $data;
