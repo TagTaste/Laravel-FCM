@@ -1401,10 +1401,17 @@ class BatchController extends Controller
 
     public function comments(Request $request, $collaborateId, $batchId, $headerId, $questionId)
     {
+        //filters data
+        $filters = $request->input('filters');
+        $resp = $this->getFilterProfileIds($filters, $collaborateId);
+        $profileIds = $resp['profile_id'];
+        $type = $resp['type'];
+        $boolean = 'and';
+
         //paginate
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = Collaborate\Review::where('collaborate_id', $collaborateId)->where('question_id', $questionId)->where('batch_id', $batchId)
+        $this->model = Collaborate\Review::where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id', $questionId)->where('batch_id', $batchId)
             ->where('tasting_header_id', $headerId)->where('current_status', 3)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
@@ -1663,7 +1670,7 @@ class BatchController extends Controller
         if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter'])) {
             $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
         }
-
+        
         if (isset($filters['city'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['city'] as $city) {
@@ -2287,13 +2294,22 @@ class BatchController extends Controller
         // }
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+
+        //filters data
+        $filters = $request->input('filters');
+        $resp = $this->getFilterProfileIds($filters, $collaborateId);
+        $profileIds = $resp['profile_id'];
+        $type = $resp['type'];
+        $boolean = 'and';
+        
         $this->model = \DB::table('collaborate_tasting_user_review')
             ->select('value', 'intensity')
             ->where('batch_id', $id)
             ->where('collaborate_id', $collaborateId)
             ->where('question_id', $questionId)
             ->where('option_type', 1)
-            ->where('current_status', 3);
+            ->where('current_status', 3)
+            ->whereIn('profile_id', $profileIds, $boolean, $type);
         //->groupBy('intensity','value');
         $data["values"] = $this->model
             ->skip($skip)
@@ -2312,6 +2328,14 @@ class BatchController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
         $profileId = $request->user()->profile->id;
+        
+        //filters data
+        $filters = $request->input('filters');
+        $resp = $this->getFilterProfileIds($filters, $collaborateId);
+        $profileIds = $resp['profile_id'];
+        $type = $resp['type'];
+        $boolean = 'and';
+
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \DB::table('collaborate_tasting_user_review')
@@ -2321,7 +2345,8 @@ class BatchController extends Controller
             ->where('question_id', $questionId)
             ->where('option_type', 1)
             ->where('current_status', 3)
-            ->where('leaf_id', $optionId);
+            ->where('leaf_id', $optionId)
+            ->whereIn('profile_id', $profileIds, $boolean, $type);
         //->groupBy('intensity','value');
         $data["values"] = $this->model
             ->skip($skip)

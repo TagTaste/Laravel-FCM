@@ -957,8 +957,20 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             // private product review summary post api
             Route::post("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
 
+            // get all food shots for private product review post api
+            Route::post("batches/{id}/headers/{headerId}/question/{questionId}/reports", "BatchController@getList");
+
             // download report post api
             Route::post("batches/{id}/reportPdf", "BatchController@reportPdf");
+
+            // get all comments for private PR post api
+            Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/comments", "BatchController@comments");
+
+            // get all any-other nested options for private PR post api
+            Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options/{optionId}", "BatchController@optionIdReports");
+
+            // get all any-other options for private PR post api
+            Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
 
         });
     });
