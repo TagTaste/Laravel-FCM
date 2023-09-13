@@ -1269,15 +1269,6 @@ class BatchController extends Controller
             {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
-
-            // $data = ($request->is('*/v1/*')) ? array_merge(array('question_filter' =>  $question_filter), $filters_array) : $filters_array;
-
-            // $order = ($request->is('*/v1/*')) ? ['question_filter', 'gender', 'age', 'city', 'current_status', 'user_type', 'sensory_trained', 'super_taster'] : ['gender', 'age', 'city', 'current_status', 'user_type', 'sensory_trained', 'super_taster'];
-            
-            // $sortedArray = [];
-            // foreach ($order as $key) {
-            //     $sortedArray[$key] = $data[$key];
-            // }
         }
 
         $this->model = $data;
