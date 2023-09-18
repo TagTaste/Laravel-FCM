@@ -1931,14 +1931,12 @@ class SurveyController extends Controller
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
             }));
 
-
             $respondentCount = count($answers->pluck("profile_id")->unique()->toArray());
             // $responseCount = array_unique(array_column($answers->toArray(), 'profile_id','batch_id'));
             // $responseCount = $answers->pluck('profile_id')->toArray();
 
             $prepareNode["reports"][$counter]["respondent_count"] = $respondentCount;
-            $prepareNode["reports"][$counter]["response_count"] = $count2;
-            
+            $prepareNode["reports"][$counter]["response_count"] = $count2;    
 
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
@@ -1968,7 +1966,20 @@ class SurveyController extends Controller
                 }));
                 $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                 $count = 0;
+
+                if (isset($values["version"]))
+                {
+                    $last_index = count($values["options"]) - 1;
+                    $values["min"] = $values["options"][0]["title"];
+                    $values["max"] = $values["options"][$last_index]["title"];
+                }
+                $totalAnsSum = 0;
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                    if (isset($values["version"]))
+                        $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
+                        $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
+                        $totalAnsSum +=  isset($getAvg[$min]) ? ($min)*($getAvg[$min]["count"]) : 0;
+                    
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$min]) ? $getAvg[$min]["count"] : 0);
                     $prepareNode["reports"][$counter]["options"][$count]["answer_percentage"] = (isset($getAvg[$min]) ? $getAvg[$min]["avg"] : 0);
@@ -1976,6 +1987,15 @@ class SurveyController extends Controller
                     $prepareNode["reports"][$counter]["options"][$count]["option_type"] = 0;
                     $count++;
                 }
+
+                if (isset($values["version"]))
+                {
+                    // average of answers and percentage value at question level
+                    $totalRespondents = count(SurveyAttemptMapping::whereNotNull("completion_date")->whereNull("deleted_at")->where("survey_id", "=", $id)->where('attempt', 1)->get());
+                    $prepareNode["reports"][$counter]["percentage"] = ($respondentCount*100) / $totalRespondents; 
+                    $prepareNode["reports"][$counter]["average_value"] = ($count2 == 0) ? 0 : number_format((float)($totalAnsSum/$count2), 2, '.', ''); 
+                }
+
             } elseif (isset($values["multiOptions"])) {
                 $rowIndex = 0;
                 foreach ($values["multiOptions"]['row'] as $row) {
@@ -2890,8 +2910,18 @@ class SurveyController extends Controller
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
                 $count = 0;
                 $pluckOpId = $answers->pluck("answer_value")->toArray();
+
+                if (isset($values["version"]))
+                {
+                    $last_index = count($values["options"]) - 1;
+                    $values["min"] = $values["options"][0]["title"];
+                    $values["max"] = $values["options"][$last_index]["title"];
+                }
                 
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                    if (isset($values["version"]))
+                        $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
+                        $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     if (in_array($min, $pluckOpId))
                         $prepareNode["reports"][$counter]["options"][$count]["is_answered"] = true;
@@ -3070,7 +3100,7 @@ class SurveyController extends Controller
 
     public function userReport($id, $profile_id, Request $request)
     {
-
+        
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -3152,7 +3182,7 @@ class SurveyController extends Controller
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
                 $count = 0;
                 $pluckOpId = $answers->pluck("answer_value")->toArray();
-
+              
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     if (in_array($min, $pluckOpId))
@@ -3164,6 +3194,7 @@ class SurveyController extends Controller
                     $count++;
                 }
             }
+
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 $optionValues = $answers->pluck("answer_value")->toArray();
 
