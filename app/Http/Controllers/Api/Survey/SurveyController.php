@@ -1976,9 +1976,11 @@ class SurveyController extends Controller
                 $totalAnsSum = 0;
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
                     if (isset($values["version"]))
+                    {
                         $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
                         $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
                         $totalAnsSum +=  isset($getAvg[$min]) ? ($min)*($getAvg[$min]["count"]) : 0;
+                    }
                     
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$min]) ? $getAvg[$min]["count"] : 0);
@@ -2920,8 +2922,10 @@ class SurveyController extends Controller
                 
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
                     if (isset($values["version"]))
+                    {
                         $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
                         $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
+                    }
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     if (in_array($min, $pluckOpId))
                         $prepareNode["reports"][$counter]["options"][$count]["is_answered"] = true;
