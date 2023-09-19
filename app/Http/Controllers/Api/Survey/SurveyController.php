@@ -1969,6 +1969,9 @@ class SurveyController extends Controller
 
                 if (isset($values["version"]))
                 {
+                    // Add version key for new range type
+                    $prepareNode["reports"][$counter]["version"] = $values["version"];
+                    
                     $last_index = count($values["options"]) - 1;
                     $values["min"] = $values["options"][0]["title"];
                     $values["max"] = $values["options"][$last_index]["title"];
@@ -1994,7 +1997,7 @@ class SurveyController extends Controller
                 {
                     // average of answers and percentage value at question level
                     $totalRespondents = count(SurveyAttemptMapping::whereNotNull("completion_date")->whereNull("deleted_at")->where("survey_id", "=", $id)->where('attempt', 1)->get());
-                    $prepareNode["reports"][$counter]["percentage"] = ($respondentCount*100) / $totalRespondents; 
+                    $prepareNode["reports"][$counter]["percentage"] = ($totalRespondents == 0) ? 0 : ($respondentCount*100) / $totalRespondents; 
                     $prepareNode["reports"][$counter]["average_value"] = ($count2 == 0) ? 0 : number_format((float)($totalAnsSum/$count2), 2, '.', ''); 
                 }
 
@@ -2915,6 +2918,8 @@ class SurveyController extends Controller
 
                 if (isset($values["version"]))
                 {
+                    // Add version key for new range type
+                    $prepareNode["reports"][$counter]["version"] = $values["version"];
                     $last_index = count($values["options"]) - 1;
                     $values["min"] = $values["options"][0]["title"];
                     $values["max"] = $values["options"][$last_index]["title"];
