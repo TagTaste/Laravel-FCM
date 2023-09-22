@@ -254,17 +254,29 @@ class LoginController extends Controller
             ->first();
         
         if ($check == null) {
-            //Send OTP     
-            $otpNo = mt_rand(100000, 999999);
-            // $text =   $otpNo . " is your OTP to verify your number with TagTaste.";
-            $text =  "Use OTP ".$otpNo." to login to your TagTaste account. DO NOT share OTP with anyone.";
+            
+            // check for server
+            $environment = env('APP_URL');
+            if($environment == "https://dev.tagtaste.com")
+            {
+                $otpNo = 123456;
+                $service = "testing";
+                $getResp = "test response";
+            }
+            else
+            {
+                //Send OTP     
+                $otpNo = mt_rand(100000, 999999);
+                // $text =   $otpNo . " is your OTP to verify your number with TagTaste.";
+                $text =  "Use OTP ".$otpNo." to login to your TagTaste account. DO NOT share OTP with anyone.";
 
-            if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
-                $service = "twilio";
-                $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
-            } else {
-                $service = "twilio";
-                $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
+                if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
+                    $service = "twilio";
+                    $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
+                } else {
+                    $service = "twilio";
+                    $getResp = SMS::sendSMS($request->profile["country_code"] . $request->profile["mobile"], $text, $service);
+                }
             }
             
             $insert = OTPMaster::create(["profile_id" => $id->id, "otp" => $otpNo, "mobile" => $request->profile["mobile"], "service" => $service, "source" => $source, "platform" => $request->profile["platform"] ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);

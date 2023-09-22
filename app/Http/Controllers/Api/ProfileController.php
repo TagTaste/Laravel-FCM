@@ -886,18 +886,28 @@ class ProfileController extends Controller
                 }
                 $otp = \DB::table('profiles')->where('id', $request->user()->profile->id)->first();
 
-                $otpNo = mt_rand(100000, 999999);
-
-                // $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
-                $text = $otpNo . " is your OTP to verify your number with TagTaste.";
-
-                if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
-                    $service = "twilio";
-                    $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
-                } else {
-                    $service = "twilio";
-                    $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                // check for server
+                $environment = env('APP_URL');
+                if($environment == "https://dev.tagtaste.com")
+                {
+                    $otpNo = 123456;
                 }
+                else
+                {
+                    $otpNo = mt_rand(100000, 999999);
+
+                    // $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
+                    $text = $otpNo . " is your OTP to verify your number with TagTaste.";
+
+                    if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
+                        $service = "twilio";
+                        $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                    } else {
+                        $service = "twilio";
+                        $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                    }
+                }
+
                 $this->model = $profile->update(['otp' => $otpNo]);
                 $job = ((new PhoneVerify($number, $request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
                 dispatch($job);
