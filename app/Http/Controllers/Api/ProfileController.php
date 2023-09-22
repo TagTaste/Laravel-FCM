@@ -887,8 +887,8 @@ class ProfileController extends Controller
                 $otp = \DB::table('profiles')->where('id', $request->user()->profile->id)->first();
 
                 // check for server
-                $environment = env('APP_URL');
-                if($environment == "https://dev.tagtaste.com")
+                $environment = env('APP_ENV');
+                if($environment == "test")
                 {
                     $otpNo = 123456;
                 }

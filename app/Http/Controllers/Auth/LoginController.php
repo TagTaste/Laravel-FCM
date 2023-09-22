@@ -256,8 +256,8 @@ class LoginController extends Controller
         if ($check == null) {
             
             // check for server
-            $environment = env('APP_URL');
-            if($environment == "https://dev.tagtaste.com")
+            $environment = env('APP_ENV');
+            if($environment == "test")
             {
                 $otpNo = 123456;
                 $service = "testing";
