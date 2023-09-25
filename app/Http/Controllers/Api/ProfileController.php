@@ -12,6 +12,7 @@ use App\Subscriber;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use App\User;
+use App\OTPMaster;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Jobs\PhoneVerify;
@@ -860,6 +861,70 @@ class ProfileController extends Controller
             return $this->sendResponse();
         } else {
             return $this->sendError("Already verified");
+        }
+    }
+
+    public function sendVerifyEmail(Request $request)
+    {
+        $source = config("constant.EMAIL_VERIFICATION");
+        $email = $request->email;
+        $platform = $request->platform;
+
+        // Service called to send verification email
+        $result = $this->userService->sendVerificationEmail($email, $source, $platform);
+        if($result['result'] == false)
+        {
+            return $this->sendError($result['error']);
+        }
+        else
+        {
+            $this->model = true;
+            return $this->sendResponse();
+        }
+    }
+
+    public function verifyEmailOtp(Request $request)
+    {
+        $source = config("constant.EMAIL_VERIFICATION");
+        $email = $request->email;
+        $otp = $request->otp;
+
+        $otpVerification = OTPMaster::where('email', "=", $email)
+            ->where("source", $source)
+            ->orderBy("id", "desc")
+            ->where("deleted_at", null)
+            ->first();
+
+        if(empty($otpVerification))
+        {
+            return $this->sendError('We could not find any account associated with this email. Please regenerate OTP');
+        }
+
+        // check for otp attempts
+        if ($otpVerification && $otpVerification->attempts >= config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
+            $otpVerification->update(["deleted_at" => date("Y-m-d H:i:s")]);
+            return $this->sendError("OTP attempts exhausted. Please regenerate OTP or try other login methods.");
+        }
+
+        if ($otpVerification && $otpVerification->otp == $otp) 
+        {
+            // check for otp expiration 
+            if($otpVerification->expired_at < date("Y-m-d H:i:s"))
+            {
+                return $this->sendError("OTP has expired. Please try again!");
+            }
+
+            $user_id = Profile::find($otpVerification->profile_id)->user_id;
+            
+            $this->model = User::where('id', $user_id)->whereNull('verified_at')->where('email', $email)->update(['verified_at' => date("Y-m-d H:i:s")]);
+
+            return $this->sendResponse();
+
+        }
+        else
+        {
+            $otpVerification->update(["attempts" => $otpVerification->attempts + 1]);
+            return $this->sendError("Incorrect OTP entered. Please try again.");
         }
     }
 

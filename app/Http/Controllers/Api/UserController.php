@@ -52,8 +52,32 @@ class UserController extends Controller
         $token = \JWTAuth::attempt(['email' => $request->input('user.email'),'password' => $request->input('user.password')]);
         $result['result'] = ['user'=>$user,'token'=> $token];
         
-        // Store jwt tokens for force-logout
-        $this->userService->storeUserLoginInfo($user->id, $request, $token);
+        if(isset($user))
+        {
+            // Store jwt tokens for force-logout
+            $this->userService->storeUserLoginInfo($user->id, $request, $token);
+
+            // Send verification email
+            $source = config("constant.EMAIL_VERIFICATION");
+            $versionKey = 'X-VERSION';
+            $versionKeyIos = 'X-VERSION-IOS';
+
+            if ($request->hasHeader($versionKey)) {
+                $platform = "android";
+            } 
+            else if ($request->hasHeader($versionKeyIos)){
+                $platform = "ios";
+            } 
+            else {
+                $platform = "web";
+            }
+
+            $result = $this->userService->sendVerificationEmail($user->email, $source, $platform);
+            if($result['result'] == false)
+            {
+                return $this->sendError($result['error']);
+            }
+        }
         
         $companies = \App\Company::whereIn('id',[111,137,322])->get();
         foreach ($companies as $company) {
@@ -66,10 +90,12 @@ class UserController extends Controller
                 \Redis::sAdd("followers:company:" . $company->id, $user->profile->id);
             }
         }
-        $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
-        \Log::info('Queueing Verified Email...');
 
-        dispatch($mail);
+
+        // $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
+        // \Log::info('Queueing Verified Email...');
+
+        // dispatch($mail);
 
         return response()->json($result);
     }

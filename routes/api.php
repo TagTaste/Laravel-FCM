@@ -655,6 +655,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('profile/phoneVerify', 'ProfileController@phoneVerify');
         Route::post('profile/requestOtp', 'ProfileController@requestOtp');
         Route::post('profile/verify/email', 'ProfileController@sendVerifyMail');
+
+        // Email verification via otp
+        Route::post('profile/verification/email', 'ProfileController@sendVerifyEmail');
+        Route::post('profile/verification/email/otp', 'ProfileController@verifyEmailOtp');
+
         //remove when profile/tagging api run proper on website and app
         //website all followers
         Route::get("profile/allFollowerslist", ['uses' => 'ProfileController@oldtagging']);

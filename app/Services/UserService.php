@@ -3,6 +3,8 @@ namespace App\Services;
 
 use App\UserLoginInfo;
 use App\Profile;
+use App\User;
+use App\OTPMaster;
 use Illuminate\Support\Arr;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Token;
@@ -109,6 +111,68 @@ class UserService
         $tokens = Arr::flatten($tokens); //convert into a single array
         $this->userLoginInfo->removeMultiple($tokens);
 
+        return true;
+    }
+
+    /**
+     * Send verifcation email
+     * 
+     * @param string $email
+    */
+    public function sendVerificationEmail($email, $source, $platform)
+    {
+        $verifyEmail = User::where("email", $email)->whereNull('deleted_at')->where('account_deactivated', 0);
+       
+        if(empty($verifyEmail->first()))
+        {
+            $error = "We could not find any account associated with this email ID. Please Try Again!";
+            return ["result" => false, "error" => $error];
+        }
+        else if (!empty($verifyEmail->whereNotNull('verified_at')->first()))
+        {
+            $error = "This email is already verified. Please try with another email or contact tagtaste for any query.";
+            return ["result" => false, "error" => $error];
+        }
+
+        $profile_id = $verifyEmail->first()->profile->id;
+
+        $otpCheck = OTPMaster::where("profile_id", $profile_id)->where('email', "=", $email)
+            ->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
+            ->where("source", $source)->orderBy("id", "desc")
+            ->where("deleted_at", null)
+            ->first();
+
+        if ($otpCheck == null) 
+        {
+            // check for server
+            $environment = env('APP_ENV');
+            if($environment == "test")
+            {
+                $otpNo = 123456;
+            }
+            else
+            {
+                //Send OTP     
+                $otpNo = mt_rand(100000, 999999);
+                $mail = (new \App\Jobs\EmailOtpVerification($otpNo))->onQueue('otp_emails');
+                \Log::info('Queueing Verified Email...');
+
+                dispatch($mail);
+
+                $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
+
+                if(!$insertOtp)
+                {
+                    $error = "Something went wrong!";
+                    return ["result" => false, "error" => $error];
+                }
+            }
+        }
+        else {
+            $error = "OTP sent already. Please try again in 1 minute.";
+            return ["result" => false, "error" => $error];
+        }
+        
         return true;
     }
 }

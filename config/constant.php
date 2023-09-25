@@ -88,6 +88,8 @@ return  [
     "LINKEDIN_CLIENTID" => env("LINKEDIN_ID"),
     "LINKEDIN_SECRET" => env("LINKEDIN_LOGIN_SECRET"),
 
+    'EMAIL_VERIFICATION' => "verify_email_otp",
+
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
 
