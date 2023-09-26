@@ -121,21 +121,21 @@ class UserService
     */
     public function sendVerificationEmail($email, $source, $platform)
     {
-        $verifyEmail = User::where("email", $email)->whereNull('deleted_at')->where('account_deactivated', 0);
+        $verifyEmail = User::where("email", $email)->whereNull('deleted_at')->where('account_deactivated', 0)->first();
        
-        if(empty($verifyEmail->first()))
+        if(empty($verifyEmail))
         {
             $error = "We could not find any account associated with this email ID. Please Try Again!";
             return ["result" => false, "error" => $error];
         }
-        else if (!empty($verifyEmail->whereNotNull('verified_at')->first()))
+        else if (!empty($verifyEmail->verified_at))
         {
             $error = "This email is already verified. Please try with another email or contact tagtaste for any query.";
             return ["result" => false, "error" => $error];
         }
 
-        $profile_id = $verifyEmail->first()->profile->id;
-
+        $profile_id = $verifyEmail->profile->id;
+       
         $otpCheck = OTPMaster::where("profile_id", $profile_id)->where('email', "=", $email)
             ->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
             ->where("source", $source)->orderBy("id", "desc")
@@ -158,14 +158,14 @@ class UserService
                 \Log::info('Queueing Verified Email...');
 
                 dispatch($mail);
+            }
 
-                $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
+            $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
 
-                if(!$insertOtp)
-                {
-                    $error = "Something went wrong!";
-                    return ["result" => false, "error" => $error];
-                }
+            if(!$insertOtp)
+            {
+                $error = "Something went wrong!";
+                return ["result" => false, "error" => $error];
             }
         }
         else {
@@ -173,6 +173,6 @@ class UserService
             return ["result" => false, "error" => $error];
         }
         
-        return true;
+        return ["result" => true, "error" => ""];
     }
 }

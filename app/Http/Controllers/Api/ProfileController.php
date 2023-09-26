@@ -878,7 +878,7 @@ class ProfileController extends Controller
         }
         else
         {
-            $this->model = true;
+            $this->model = $result['result'];
             return $this->sendResponse();
         }
     }
@@ -897,7 +897,7 @@ class ProfileController extends Controller
 
         if(empty($otpVerification))
         {
-            return $this->sendError('We could not find any account associated with this email. Please regenerate OTP');
+            return $this->sendError("Something went wrong! Please regenerate OTP or try other login methods.");
         }
 
         // check for otp attempts
@@ -914,9 +914,13 @@ class ProfileController extends Controller
                 return $this->sendError("OTP has expired. Please try again!");
             }
 
+            // Update attempts
+            $otpVerification->update(["attempts" => $otpVerification->attempts + 1]);
+
             $user_id = Profile::find($otpVerification->profile_id)->user_id;
             
             $this->model = User::where('id', $user_id)->whereNull('verified_at')->where('email', $email)->update(['verified_at' => date("Y-m-d H:i:s")]);
+            
 
             return $this->sendResponse();
 
