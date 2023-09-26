@@ -453,6 +453,16 @@ class SearchController extends Controller
                     $this->model['product'][] = ['product' => $product, 'meta' => $meta];
                 }
             }
+            if (isset($this->model['surveys'])) {
+                $surveys = $this->model['surveys']->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"));
+                $this->model['surveys'] = [];
+                foreach ($surveys as $survey) {
+                    $survey->image_meta = json_decode($survey->image_meta);
+                    $survey->video_meta = json_decode($survey->video_meta);
+                    $survey->videos_meta = json_decode($survey->videos_meta);
+                    $this->model['surveys'][] = ['survey' => $survey, 'meta' => $survey->getMetaFor($profileId)];
+                }
+            }
 
             return $this->sendResponse();
         }
