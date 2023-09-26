@@ -1997,8 +1997,15 @@ class SurveyController extends Controller
                 {
                     // average of answers and percentage value at question level
                     $totalRespondents = count(SurveyAttemptMapping::whereNotNull("completion_date")->whereNull("deleted_at")->where("survey_id", "=", $id)->where('attempt', 1)->get());
-                    $prepareNode["reports"][$counter]["percentage"] = ($totalRespondents == 0) ? 0 : ($respondentCount*100) / $totalRespondents; 
-                    $prepareNode["reports"][$counter]["average_value"] = ($count2 == 0) ? 0 : number_format((float)($totalAnsSum/$count2), 2, '.', ''); 
+                    $prepareNode["reports"][$counter]["percentage"] = ($totalRespondents == 0) ? 0 : (int)round(($respondentCount*100) / $totalRespondents); 
+                    $average = ($count2 == 0) ? 0 : number_format((float)($totalAnsSum/$count2), 2, '.', '');
+                    $optionList = $prepareNode["reports"][$counter]["options"];
+                    $filteredArray = array_values(array_filter($optionList, function ($arr) use ($average) {
+                        return $arr["value"] == $average;
+                    }));
+                    $roundedAvgOption = count($filteredArray) == 0 ? ["label"=>""] : $filteredArray[0];
+                    $prepareNode["reports"][$counter]["average_value"] = $average." (".$roundedAvgOption["label"].")"; 
+                    $prepareNode["reports"][$counter]["answer_color"] = $roundedAvgOption["color_code"];
                 }
 
             } elseif (isset($values["multiOptions"])) {
