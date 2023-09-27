@@ -840,6 +840,7 @@ class CollaborateController extends Controller
 
         $collaborate->update(['step'=>$step,'global_question_id'=>$globalQuestionId]);
         $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
+        $collaborate->videos_meta = json_decode($collaborate->videos_meta);
         $this->model = $collaborate;
         return $this->sendResponse();
     }
