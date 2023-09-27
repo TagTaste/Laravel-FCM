@@ -646,7 +646,7 @@ class CollaborateController extends Controller
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
-
+        
         if(isset($collaborate->global_question_id) && !is_null($collaborate->global_question_id))
         {
             $this->model = false;
@@ -669,6 +669,7 @@ class CollaborateController extends Controller
 
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
             $collaborate = Collaborate::where('profile_id',$profileId)->where('id',$id)->first();
+            $collaborate->videos_meta = json_decode($collaborate->videos_meta);
             $this->model = $collaborate;
             return $this->sendResponse();
 
