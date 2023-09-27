@@ -567,14 +567,9 @@ class BatchController extends Controller
     {
         $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
         $collaborate_batch = Batches::where('id', $batchId)->where('collaborate_id', $collaborateId)->exists();
-        $profileId = $request->user()->profile->id;
 
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
-        }
-        elseif($collaborate->profile_id != $profileId)
-        {
-            return $this->sendError("Only Collaboration Admin can view this report");
         }
         elseif(!$collaborate_batch)
         {
@@ -1178,16 +1173,10 @@ class BatchController extends Controller
 
     public function filters(Request $request, $collaborateId)
     {
-        $profileId = $request->user()->profile->id;
-
         $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
 
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
-        }
-        elseif($collaborate->profile_id != $profileId)
-        {
-            return $this->sendError("Only Collaboration Admin can view this report");
         }
 
         $filters = $request->input('filter');
@@ -1321,16 +1310,10 @@ class BatchController extends Controller
 
     public function questionFilters(Request $request, $collaborateId)
     {
-        $profileId = $request->user()->profile->id;
-
         $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
 
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
-        }
-        elseif($collaborate->profile_id != $profileId)
-        {
-            return $this->sendError("Only Collaboration Admin can view this list");
         }
         
         $headers = ReviewHeader::where('is_active',1)->where('collaborate_id',$collaborateId)->whereNotIn('header_selection_type',[0, 3])->orderBy('id')->get();
@@ -1840,15 +1823,11 @@ class BatchController extends Controller
 
     public function reportPdf(Request $request, $collaborateId, $batchId)
     {
-        $profileId = $request->user()->profile->id;
         $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        elseif($collaborate->profile_id != $profileId)
-        {
-            return $this->sendError("Only Collaboration Admin can view this report");
-        }
+        
         $batchData = $this->model->where('id', $batchId)->where('collaborate_id', $collaborateId)->first();
         if ($batchData === null) {
             return $this->sendError("Invalid batch.");
