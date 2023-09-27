@@ -72,10 +72,10 @@ class UserController extends Controller
                 $platform = "web";
             }
 
-            $result = $this->userService->sendVerificationEmail($user->email, $source, $platform);
-            if($result['result'] == false)
+            $verificationResult = $this->userService->sendVerificationEmail($user->email, $source, $platform);
+            if($verificationResult['result'] == false)
             {
-                return $this->sendError($result['error']);
+                return $this->sendError($verificationResult['error']);
             }
         }
         
