@@ -2005,7 +2005,7 @@ class SurveyController extends Controller
                     }));
                     $roundedAvgOption = count($filteredArray) == 0 ? ["label"=>""] : $filteredArray[0];
                     $prepareNode["reports"][$counter]["average_value"] = $average." (".$roundedAvgOption["label"].")"; 
-                    $prepareNode["reports"][$counter]["answer_color"] = $roundedAvgOption["color_code"];
+                    $prepareNode["reports"][$counter]["color_code"] = $roundedAvgOption["color_code"];
                 }
 
             } elseif (isset($values["multiOptions"])) {
