@@ -59,7 +59,7 @@ class Profile extends Model
         'imageUrl', 'shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name',
         'resumeUrl', 'experience', 'education', 'mutualFollowers', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount',
         'remainingMessages', 'isFollowedBy', 'isMessageAble', 'profileCompletion', 'batchesCount', 'newBatchesCount', 'foodie_type', 'establishment_types',
-        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment','profile_badges'
+        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'quizAnswerCount','pollAnswerCount','totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment','profile_badges'
     ];
 
     /**
@@ -1314,6 +1314,19 @@ class Profile extends Model
     public function getSurveyCountAttribute()
     {
         return \DB::table('survey_answers')->where('profile_id', $this->id)->where('current_status', 2)->whereNull('deleted_at')->get()->unique('survey_id')->count();
+    }
+
+    public function getQuizAnswerCountAttribute()
+    {
+        $quizIds = \DB::table('quizes')->whereNull('deleted_at')->get()->pluck('id');
+
+        return \DB::table('quiz_applicants')->where('profile_id', $this->id)->where('application_status', 2)->whereNull('deleted_at')->get()->unique('quiz_id')->count();
+    }
+
+    public function getPollAnswerCountAttribute()
+    {
+        $pollQueIds = \DB::table('poll_questions')->whereNull('deleted_at')->get()->pluck('id');
+        return \DB::table('poll_votes')->where('profile_id', $this->id)->whereNull('deleted_at')->whereIn('poll_id',$pollQuesId)->get()->unique('poll_id')->count();
     }
 
     public function getAmountAttribute()
