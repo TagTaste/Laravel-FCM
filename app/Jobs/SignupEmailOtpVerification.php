@@ -8,7 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class EmailOtpVerification implements ShouldQueue
+class SignupEmailOtpVerification implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -32,8 +32,8 @@ class EmailOtpVerification implements ShouldQueue
      */
     public function handle()
     {
-        $data = ["otp" => $this->mailDetails->otp, "name" => $this->mailDetails->username];
-        \Mail::send('emails.verify-email', $data, function($message)
+        $data = ["otp" => $this->mailDetails->otp];
+        \Mail::send('emails.signup-verify-email.blade', $data, function($message)
         {
             $message->to($this->mailDetails->email, $this->mailDetails->username)->subject('Verify your email');
         });

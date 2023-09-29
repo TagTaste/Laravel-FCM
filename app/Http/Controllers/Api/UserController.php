@@ -35,7 +35,7 @@ class UserController extends Controller
         
         $validator = Validator::make($request->input('user'), [
             'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
+            'email' => 'required|email|max:255',
             'password' => 'required|min:6|confirmed',
         ]);
 
@@ -48,6 +48,11 @@ class UserController extends Controller
         $result = ['status'=>'success','newRegistered' =>true];
         
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),false,null,null,null,$alreadyVerified,null,null,null);
+
+        if(is_array($user) && isset($user["error"]))
+        {
+            return ['status'=>'failed','errors'=>$user["error"],'result'=>[]];
+        }
         
         $token = \JWTAuth::attempt(['email' => $request->input('user.email'),'password' => $request->input('user.password')]);
         $result['result'] = ['user'=>$user,'token'=> $token];
@@ -58,7 +63,7 @@ class UserController extends Controller
             $this->userService->storeUserLoginInfo($user->id, $request, $token);
 
             // Send verification email
-            $source = config("constant.EMAIL_VERIFICATION");
+            $source = config("constant.SIGNUP_EMAIL_VERIFICATION");
             $versionKey = 'X-VERSION';
             $versionKeyIos = 'X-VERSION-IOS';
 
@@ -72,10 +77,10 @@ class UserController extends Controller
                 $platform = "web";
             }
 
-            $verificationResult = $this->userService->sendVerificationEmail($user->email, $source, $platform);
+            $verificationResult = $this->userService->sendVerificationEmail($user->email, $source, $platform, 'sign-up');
             if($verificationResult['result'] == false)
             {
-                return $this->sendError($verificationResult['error']);
+                return ['status'=>'failed','errors'=>$verificationResult['error'],'result'=>[]];
             }
         }
         

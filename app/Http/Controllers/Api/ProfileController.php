@@ -885,12 +885,14 @@ class ProfileController extends Controller
 
     public function verifyEmailOtp(Request $request)
     {
-        $source = config("constant.EMAIL_VERIFICATION");
+        $source = config("constant.SIGNUP_EMAIL_VERIFICATION");
+        $another_source = config("constant.EMAIL_VERIFICATION");
         $email = $request->email;
         $otp = $request->otp;
 
         $otpVerification = OTPMaster::where('email', "=", $email)
             ->where("source", $source)
+            ->orWhere("source", $another_source)
             ->orderBy("id", "desc")
             ->where("deleted_at", null)
             ->first();

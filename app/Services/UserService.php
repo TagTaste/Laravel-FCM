@@ -119,7 +119,7 @@ class UserService
      * 
      * @param string $email
     */
-    public function sendVerificationEmail($email, $source, $platform)
+    public function sendVerificationEmail($email, $source, $platform, $mailType = null)
     {
         $verifyEmail = User::where("email", $email)->whereNull('deleted_at')->where('account_deactivated', 0)->first();
        
@@ -154,13 +154,14 @@ class UserService
             {
                 //Send OTP     
                 $otpNo = mt_rand(100000, 999999);
-                $mail = (new \App\Jobs\EmailOtpVerification($otpNo))->onQueue('otp_emails');
+                $mailDetails = ["username" => $verifyEmail->name, "email" => $email, "otp" => $otpNo];
+                $mail = ($mailType == 'sign-up') ? (new \App\Jobs\SignupEmailOtpVerification($mailDetails))->onQueue('otp_emails') : (new \App\Jobs\EmailOtpVerification($mailDetails))->onQueue('otp_emails');
                 \Log::info('Queueing Verified Email...');
 
                 dispatch($mail);
             }
 
-            $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
+            $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+10 minutes"))]);
 
             if(!$insertOtp)
             {

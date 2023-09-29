@@ -45,6 +45,31 @@ Route::post('login', function (Request $request) {
         {
             return response()->json(['error' => 'invalid_credentials', 'message' => 'The username or password is incorrect.'], 401);
         }
+
+        $userVerified = \App\Profile\User::where('email',$credentials['email'])->first();
+        if(empty($userVerified->verified_at) )
+        {
+            // Send verification email
+            $source = config("constant.SIGNUP_EMAIL_VERIFICATION");
+            $versionKey = 'X-VERSION';
+            $versionKeyIos = 'X-VERSION-IOS';
+
+            if ($request->hasHeader($versionKey)) {
+                $platform = "android";
+            } 
+            else if ($request->hasHeader($versionKeyIos)){
+                $platform = "ios";
+            } 
+            else {
+                $platform = "web";
+            }
+
+            $verificationResult =  app('App\Services\UserService')->sendVerificationEmail($credentials['email'], $source, $platform, 'sign-up');
+            if($verificationResult['result'] == false)
+            {
+                return response()->json(['error' => 'email_verification', 'message' => $verificationResult['error']], 401);
+            }
+        }
     } 
     catch (Tymon\JWTAuth\Exceptions\JWTException $e) 
     {
@@ -53,8 +78,7 @@ Route::post('login', function (Request $request) {
     }
 
     // Store jwt tokens for force-logout
-    $user_id = App\User::where('email',$request->email)->first()->id;
-    app('App\Services\UserService')->storeUserLoginInfo($user_id, $request, $token);
+    app('App\Services\UserService')->storeUserLoginInfo($userVerified->id, $request, $token);
 
     app('App\Http\Controllers\Auth\LoginController')->checkForDeactivation($request);
     return response()->json(compact('token'));
