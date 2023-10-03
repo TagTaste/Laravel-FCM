@@ -47,7 +47,7 @@ Route::post('login', function (Request $request) {
         }
 
         $userVerified = \App\Profile\User::where('email',$credentials['email'])->first();
-        if(empty($userVerified->verified_at) )
+        if(empty($userVerified->verified_at) && $userVerified->profile->onboarding_complete == 0)
         {
             // Send verification email
             $source = config("constant.SIGNUP_EMAIL_VERIFICATION");
@@ -82,6 +82,7 @@ Route::post('login', function (Request $request) {
 
     app('App\Http\Controllers\Auth\LoginController')->checkForDeactivation($request);
     return response()->json(compact('token'));
+
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
