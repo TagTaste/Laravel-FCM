@@ -403,7 +403,7 @@ class ReportController extends Controller
                     $average = $totalResponse == 0 ? 0 : number_format((float)($totalSum/$totalResponse), 2, '.', '');
                     $roundedAvgOption = Helper::getOptionForValue($average, $optionList);
 
-                    $average = $average." (".$roundedAvgOption->label.")";
+                    $average = empty($roundedAvgOption->label) ? $average : $average." (".$roundedAvgOption->label.")";
                     // $average = $totalResponse == 0 ? 0 : round($totalSum/$totalResponse,2);
                     $reports['answer'] = array(["total"=>$totalResponse,"value"=>$average,"option"=>$finalOptionList]);
                     unset($finalOptioList);

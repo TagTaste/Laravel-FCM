@@ -2004,7 +2004,7 @@ class SurveyController extends Controller
                         return $arr["value"] == round($average);
                     }));
                     $roundedAvgOption = count($filteredArray) == 0 ? ["label"=>"", "color_code" => "#fcda02"] : $filteredArray[0];
-                    $prepareNode["reports"][$counter]["average_value"] = $average." (".$roundedAvgOption["label"].")"; 
+                    $prepareNode["reports"][$counter]["average_value"] = empty($roundedAvgOption["label"]) ? $average : $average." (".$roundedAvgOption["label"].")"; 
                     $prepareNode["reports"][$counter]["color_code"] = $roundedAvgOption["color_code"];
                 }
 
@@ -3569,6 +3569,13 @@ class SurveyController extends Controller
                     $multiChoiceCheckColumn[$values["id"]]["column"][$column["id"]] = html_entity_decode($column['title']);
                 }
             }
+            elseif($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE") && isset($values['version']))
+            {
+                foreach ($values["options"] as $option) {
+                    $option_labels[$values["id"]][$option["id"]] = $option['label'];
+                }
+                
+            }
         }
         // dd($questionIdMapping);
         // $applicants = SurveyAttemptMapping::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->groupBy("profile_id")->where("deleted_at", "=", null);
@@ -3692,7 +3699,6 @@ class SurveyController extends Controller
                     }
                     $ans .= html_entity_decode($multiChoiceCheckColumn[$answers->question_id]["column"][$answers->answer_value]);
                 } elseif ($answers->question_type <= config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
-
                     if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
                     }
@@ -3738,7 +3744,10 @@ class SurveyController extends Controller
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] = $ans;
                 } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
-                } else {
+                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE") && isset($option_labels[$answers->question_id][$answers->option_id])) {
+                    $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = empty($option_labels[$answers->question_id][$answers->option_id]) ? $ans : $ans." (".$option_labels[$answers->question_id][$answers->option_id].")";
+                }
+                else {
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = $ans;
                 }
             }
