@@ -239,7 +239,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                 Route::resource("messages", "MessageController");
                 Route::resource("members", "MemberController");
             });
-
+            
             Route::get("feed", 'FeedController@feed');
             //search apis new
             Route::get("public-review/explore", "SearchController@exploreForReview");
@@ -356,7 +356,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         //global image upload function
         Route::post("globalImageUpload", "PhotoController@globalImageUpload");
         Route::post("globalFileUpload", "PhotoController@globalFileUpload");
-        Route::post("globalVideoUpload", "PhotoController@globalVideoUpload");
+        Route::post("{modelName}/globalVideoUpload", "PhotoController@globalVideoUpload");
 
         
 
