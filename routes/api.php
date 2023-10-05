@@ -69,6 +69,10 @@ Route::post('login', function (Request $request) {
             {
                 return response()->json(['error' => 'email_verification', 'message' => $verificationResult['error']], 401);
             }
+
+            $email_verified = false;
+        } else {
+            $email_verified = true;
         }
     } 
     catch (Tymon\JWTAuth\Exceptions\JWTException $e) 
@@ -81,7 +85,7 @@ Route::post('login', function (Request $request) {
     app('App\Services\UserService')->storeUserLoginInfo($userVerified->id, $request, $token);
 
     app('App\Http\Controllers\Auth\LoginController')->checkForDeactivation($request);
-    return response()->json(compact('token'));
+    return response()->json(compact('token','email_verified'));
 
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
