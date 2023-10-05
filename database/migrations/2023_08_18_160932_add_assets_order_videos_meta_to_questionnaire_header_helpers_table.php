@@ -14,11 +14,11 @@ class AddAssetsOrderVideosMetaToQuestionnaireHeaderHelpersTable extends Migratio
     public function up()
     {
         Schema::table('questionnaire_header_helpers', function (Blueprint $table) {
-            $table->json('videos_meta')->after('images')->nullable(); 
-            $table->string('assets_order')->after('videos_meta')->nullable();
+            // $table->json('videos_meta')->after('images')->nullable(); 
+            // $table->string('assets_order')->after('videos_meta')->nullable();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
@@ -27,7 +27,7 @@ class AddAssetsOrderVideosMetaToQuestionnaireHeaderHelpersTable extends Migratio
     public function down()
     {
         Schema::table('questionnaire_header_helpers', function(Blueprint $table){
-            $table->dropColumn(['videos_meta', 'assets_order']);
+            // $table->dropColumn(['videos_meta', 'assets_order']);
         });
     }
 }
