@@ -34,6 +34,6 @@ class CollaborateQuestionFilters extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('collaborate_question_filters');
     }
 }
