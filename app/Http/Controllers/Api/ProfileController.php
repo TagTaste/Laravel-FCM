@@ -922,8 +922,12 @@ class ProfileController extends Controller
             $user_id = Profile::find($otpVerification->profile_id)->user_id;
             
             $this->model = User::where('id', $user_id)->whereNull('verified_at')->where('email', $email)->update(['verified_at' => date("Y-m-d H:i:s")]);
+            if($this->model == 1)
+            {
+                $otpVerification->update(["deleted_at" => date("Y-m-d H:i:s")]);
+                $this->messages = "Your email is verified!";
+            }
             
-
             return $this->sendResponse();
 
         }
