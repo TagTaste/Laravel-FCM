@@ -298,7 +298,7 @@ class SurveyApplicantController extends Controller
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
 
         if (empty($checkApplicant) && (is_null($survey->is_private) || !$survey->is_private)) {
-            // $this->saveApplicants($id, $request);
+            $this->saveApplicants($id, $request);
         } elseif (empty($checkApplicant)) {
             $this->messages = $survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
             return $this->sendNewError("Something went wrong");
@@ -338,6 +338,74 @@ class SurveyApplicantController extends Controller
                 SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
             }
         }
+    }
+
+    public function saveApplicants(Surveys $id, Request $request)
+    {
+
+        $loggedInprofileId = $request->user()->profile->id;
+
+        $isInvited = 0;
+        
+        $loggedInprofileId = $request->user()->profile->id;
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->whereNull('deleted_at')->first();
+        if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && !($id->multi_submission)) {
+            $this->model = false;
+            return $this->sendNewError("Already Applied");
+        }
+        
+        if ($request->has('applier_address')) {
+            $applierAddress = $request->input('applier_address');
+            $address = json_decode($applierAddress, true);
+            $city = (isset($address['survey_city'])) ? $address['survey_city'] : null;
+        } else {
+            $city = null;
+            $applierAddress = null;
+        }
+
+        $profile = $request->user()->profile;
+        $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
+
+        if (empty($checkApplicant)) {
+            $inputs = [
+                'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
+                'message' => $request->input('message'), 'address' => $applierAddress,
+                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
+            ];
+
+
+            $ins = \DB::table('survey_applicants')->insert($inputs);
+        } else {
+            $update = [];
+            if (empty($checkApplicant->address)) {
+                $update['address'] = $applierAddress;
+            }
+            if (empty($checkApplicant->city)) {
+                $update['city'] = $city;
+            }
+
+            if (empty($checkApplicant->age_group)) {
+                $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
+                $update['generation'] = Helper::getGeneration($profile->dob);
+            }
+            
+            if ($checkApplicant->is_invited) {
+                $hometown = $request->input('hometown');
+                $current_city = $request->input('current_city');
+                if (empty($checkApplicant->hometown)) {
+                    $update['hometown'] = $hometown;
+                }
+                if (empty($checkApplicant->current_city)) {
+                    $update['current_city'] = $current_city;
+                }
+            }
+
+            if (!empty($update)) {
+                $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
+            }
+        }
+        $this->model = true;
+        return $this->sendResponse();
     }
 
     public function userList($id, Request $request)
