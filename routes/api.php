@@ -358,8 +358,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("globalFileUpload", "PhotoController@globalFileUpload");
         Route::post("{modelName}/globalVideoUpload", "PhotoController@globalVideoUpload");
 
-        
-
 
         //invites
         Route::post("invites", "InviteController@invite");
@@ -491,6 +489,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
             Route::post("storeHeaderWeight", "BatchController@storeHeaderWeight"); //->middleware('permissionCollaborate');
             Route::get("batches/{id}/headers/{headerId}/question/{questionId}/reports", "BatchController@getList");
+
+            //question-level filters on private product review reports
+            Route::get("batches/{id}/question-filters", "BatchController@questionFilters");
 
             //filter for dashboard of product review
             Route::get("dashboard/filters", "BatchController@filters"); //->middleware('permissionCollaborate');

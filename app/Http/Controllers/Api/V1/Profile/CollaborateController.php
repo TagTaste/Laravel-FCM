@@ -87,7 +87,9 @@ class CollaborateController extends Controller
 
         $collaborations = $collaborations->skip($skip)->take($take)
         ->get();
-        foreach ($collaborations as $collaboration) {
+        foreach ($collaborations as $collaboration) 
+        {
+            $collaboration->videos_meta = json_decode($collaboration->videos_meta);
             $data[] = [
                 'collaboration' => $collaboration,
                 'meta' => $collaboration->getMetaFor($profileId)
@@ -113,7 +115,6 @@ class CollaborateController extends Controller
     public function store(Request $request, $profileId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-
 
         $profile = $request->user()->profile;
 
@@ -174,18 +175,20 @@ class CollaborateController extends Controller
             unset($inputs['mandatory_field_ids']);
         }
 
-        
         $inputs['is_taster_residence'] = 0;
         if ($request->has('is_taster_residence')) {
             $inputs['is_taster_residence'] = (int)$request->input('is_taster_residence');
         }
 
+        // videos meta
+        $inputs["videos_meta"] = ($request->has('videos_meta') && !is_null($request->input('videos_meta'))) ? $request->videos_meta : null;
+
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
         
         $this->model = $this->model->create($inputs);
-//        $categories = $request->input('categories');
-//        $this->model->categories()->sync($categories);
-//        $this->model->syncFields($fields);
+        // $categories = $request->input('categories');
+        // $this->model->categories()->sync($categories);
+        // $this->model->syncFields($fields);
 
         $profile = Profile::find($profileId);
         $this->model = $this->model->fresh();
@@ -215,6 +218,7 @@ class CollaborateController extends Controller
         }
 
         $this->model = $this->model->fresh();
+        $this->model->videos_meta = json_decode($this->model->videos_meta);
         
         //storing mandatory fields
         if(isset($mandatory_field_ids) && $mandatory_field_ids != null && count($mandatory_field_ids)>0)
@@ -224,7 +228,6 @@ class CollaborateController extends Controller
         {
             //push to feed
             event(new NewFeedable($this->model,$profile));
-
 
             //add to filters
             \App\Filter\Collaborate::addModel($this->model);
@@ -304,6 +307,10 @@ class CollaborateController extends Controller
             }
         }
         unset($inputs['images']);
+
+        // videos meta
+        $inputs["videos_meta"] = ($request->has('videos_meta') && !is_null($request->input('videos_meta'))) ? $request->videos_meta : null;
+
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
@@ -317,6 +324,7 @@ class CollaborateController extends Controller
             else
                 $inputs['file1'] = null;
         }
+
         if($request->has('allergens_id'))
         {
             $allergensIds = $request->input('allergens_id');
@@ -381,6 +389,7 @@ class CollaborateController extends Controller
         }
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
+        $this->model->videos_meta = json_decode($this->model->videos_meta);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();
@@ -637,7 +646,7 @@ class CollaborateController extends Controller
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
-
+        
         if(isset($collaborate->global_question_id) && !is_null($collaborate->global_question_id))
         {
             $this->model = false;
@@ -660,6 +669,7 @@ class CollaborateController extends Controller
 
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
             $collaborate = Collaborate::where('profile_id',$profileId)->where('id',$id)->first();
+            $collaborate->videos_meta = json_decode($collaborate->videos_meta);
             $this->model = $collaborate;
             return $this->sendResponse();
 
@@ -673,14 +683,12 @@ class CollaborateController extends Controller
         $collaborateId = $id;
 
         $inputs = $request->only(['methodology_id','age_group','expires_on',
-
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
         $this->checkInputForScopeReview($inputs);
         if(!isset($inputs['is_product_endorsement']) || is_null($inputs['is_product_endorsement']))
             $inputs['is_product_endorsement'] = 0;
 
         $loggedInProfileId = $request->user()->profile->id;
-
 
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         if($collaborate === null){
@@ -689,9 +697,7 @@ class CollaborateController extends Controller
 
         if($inputs['no_of_veterans'] > 0 || $inputs['no_of_expert'] > 0)
         {
-
             //$inputs['is_taster_residence'] = 1;
-
         }
         if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
         {
@@ -699,12 +705,10 @@ class CollaborateController extends Controller
             return $this->sendError("json is not valid.");
         }
 
-
         $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
                     ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
-
 
         if(isset($inputs['step']))
         {
@@ -714,7 +718,6 @@ class CollaborateController extends Controller
         {
             $inputs['state'] = Collaborate::$state[0];
         }
-
 
         // if($request->has('city'))
         // {
@@ -775,7 +778,6 @@ class CollaborateController extends Controller
         $this->model = $collaborate->update($inputs);
         if($request->has('batches'))
         {
-
             if (!is_null($collaborate->global_question_id)) {
                 $batches = $request->input('batches');
                 $batchList = [];
@@ -844,10 +846,10 @@ class CollaborateController extends Controller
                 }
             } else {
                 return $this->sendError("You can not update your products as questionaire is not attached.");
-
             }
         }
         $this->model = Collaborate::where('id',$id)->first();
+        $this->model->videos_meta = json_decode($this->model->videos_meta);
         if(isset($inputs['step']) && !is_null($inputs['step']))
         {
             if($inputs['step'] == 3 && $collaborate->state == 'Active')

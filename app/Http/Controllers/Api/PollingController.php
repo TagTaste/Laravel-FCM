@@ -66,14 +66,21 @@ class PollingController extends Controller
         // if (!$request->has('title') ) {
         //     return $this->sendError("Please enter poll title");
         // }
+        
+        $videos = $request->videos_meta;
+
         $image = $request->question_image != null ? $request->question_image : null;
         $optionImages = $request->option_images != null ? $request->option_images : null;
-        $this->type = $optionImages != null ? 2 : ($image != null ? 1 : 3);
-        if (!$request->has('options') || count($options) < 2 || count($options) > 4 || (isset($optionImages) && (count($options) != count($optionImages)))) {
+        $this->type = $optionImages != null ? 2 : ($image != null || $videos != null ? 1 : 3);
+
+        if (!$request->has('options') || count($options) < 2 || count($options) > 4 || (isset($optionImages) && (count($options) != count($optionImages)))) 
+        {
             return $this->sendError("Please enter valid options.");
         }
+        
         $data['title'] = $request->input('title');
         $data['image_meta'] = $image;
+        $data['videos_meta'] = json_encode($videos);
         $data['type'] = $this->type;
 
         // compute preview
@@ -124,6 +131,7 @@ class PollingController extends Controller
         PollingOption::insert($data);
         $poll = Polling::find($poll->id);
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
 
         $this->model = [
             'polling'=>$poll,
@@ -180,6 +188,7 @@ class PollingController extends Controller
         $poll->addToCache();
         $poll->addToGraph(); //add node to neo4j
         $poll->addParticipationEdge($loggedInProfileId); //add edge in neo4j
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
@@ -212,17 +221,16 @@ class PollingController extends Controller
 
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
 
-       
-
         $data = $request->input(['title']) != null ? $request->input(['title']) : null;
         $options = $request->input(['options']);
 
         if (!is_array($options))
             $options = [$options];
-        if (count($options)>0) {
+        if (count($options)>0) 
+        {
             $count = PollingOption::where('poll_id',$pollId)->count();
-            foreach ($options as $value) {
-
+            foreach ($options as $value) 
+            {
                 if (isset($value['id'])) {
                    $pollOptions = PollingOption::where('poll_id',$pollId)->where('id',$value['id']);
                     if ($pollOptions->exists()) {
@@ -236,11 +244,14 @@ class PollingController extends Controller
                 }
             }
         }
+
         $imageQuestion = $request->image_meta != null ? $request->image_meta : null;
+        $videos = $request->videos_meta;
 
         // compute preview
         $inputs = $request->all();
-        if (isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])) {
+        if (isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])) 
+        {
             $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
             $s3 = \Storage::disk('s3');
             $filePath = 'p/' . $loggedInProfileId . "/si";
@@ -265,10 +276,11 @@ class PollingController extends Controller
             $preview = null;
         }
 
-        $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion, 'preview'=>$preview]);
+        $this->model = $poll->update(['title'=>$data, 'image_meta'=>$imageQuestion,'videos_meta' => json_encode($videos) ,'preview'=>$preview]);
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
@@ -280,6 +292,7 @@ class PollingController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = $this->model->where('id',$pollId)->whereNull('deleted_at')->first();
+        $this->model->videos_meta = json_decode($this->model->videos_meta);
         if ($this->model)
             $this->model = [
                 'polling'=>$this->model,
@@ -350,6 +363,7 @@ class PollingController extends Controller
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
@@ -393,6 +407,7 @@ class PollingController extends Controller
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
         $this->model = [
@@ -439,6 +454,7 @@ class PollingController extends Controller
         $poll = Polling::find($pollId);
         $poll->updated_at = Carbon::now();
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
         $this->model = [
@@ -505,6 +521,7 @@ class PollingController extends Controller
         \DB::table('poll_options')->where('poll_id',$pollId)->update(['deleted_at'=>null]);
         $poll = Polling::find($pollId);
         $poll->addToCache();
+        $poll->videos_meta = json_decode($poll['videos_meta']);
         $this->addRenewedPollToNeo4j($poll); //add to neo4j
         $this->model = $poll;
         //add to feed

@@ -133,6 +133,14 @@ class FeedController extends Controller
                     \Log::warning("could not get from $key");
                 }
                 $data[$name] = json_decode($cachedData,true);
+
+                if (isset($data[$name]["videos_meta"]) && !is_array($data[$name]["videos_meta"])) {
+                    $data[$name]['videos_meta'] = json_decode($data[$name]['videos_meta'], true);
+                }
+
+                if (isset($data[$name]["form_json"]) && !is_array($data[$name]["form_json"])) {
+                    $data[$name]['form_json'] = json_decode($data[$name]['form_json'], true);
+                }
             }
             
             if($payload->model !== null){
@@ -175,7 +183,6 @@ class FeedController extends Controller
     //things that is displayed on company's public feed
     public function company(Request $request, $companyId)
     {
-
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;

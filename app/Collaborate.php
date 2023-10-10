@@ -22,7 +22,7 @@ class Collaborate extends Model implements Feedable
     use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported, HashtagFactory;
 
     protected $fillable = [
-        'title', 'i_am', 'looking_for', 'expires_on', 'video', 'location',
+        'title', 'i_am', 'looking_for', 'expires_on', 'video', 'videos_meta','location',
         'description', 'project_commences', 'image1', 'image2', 'image3', 'image4', 'image5',
         'duration', 'financials', 'eligibility_criteria', 'occassion',
         'profile_id', 'company_id', 'template_fields', 'template_id',
@@ -44,7 +44,7 @@ class Collaborate extends Model implements Feedable
 
     protected $visible = [
         'id', 'title', 'i_am', 'looking_for',
-        'expires_on', 'video', 'location', 'categories',
+        'expires_on', 'video', 'videos_meta', 'location', 'categories',
         'description', 'project_commences',
         'duration', 'financials', 'eligibility_criteria', 'occassion',
         'profile_id', 'company_id', 'template_fields', 'template_id', 'notify', 'privacy_id',
@@ -107,7 +107,10 @@ class Collaborate extends Model implements Feedable
     {
         $data = \App\V2\Collaborate::find($this->id)->toArray();
         foreach ($data as $key => $value) {
-            if (is_null($value) || $value == '')
+            if($key == "videos_meta"){
+                $data[$key] == isset($value) ? json_decode($value, true) : null;
+            }
+            else if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
         Redis::connection('V2')->set("collaborate:" . $this->id . ":V2", json_encode($data));

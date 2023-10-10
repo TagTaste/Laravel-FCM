@@ -204,6 +204,10 @@ class ShareController extends Controller
         } elseif($sharedModel->profile_id){
             $this->model['profile'] = json_decode(Redis::get('profile:small:' . $sharedModel->profile_id));
         }
+        if(isset($sharedModel['videos_meta']))
+        {
+            $sharedModel['videos_meta'] = json_decode($sharedModel['videos_meta']);
+        }
         $this->model[$modelName] = $sharedModel;
         $this->model['meta']= $exists->getMetaFor($loggedInProfileId);
         return $this->sendResponse();
