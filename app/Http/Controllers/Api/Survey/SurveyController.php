@@ -610,9 +610,12 @@ class SurveyController extends Controller
                 return $this->sendNewError("Admin Cannot Fill the Surveys");
             }
 
+
+
             $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
 
             if (empty($checkApplicant) && (is_null($id->is_private) || !$id->is_private)) {
+
                 $this->saveApplicants($id, $request);
             } elseif (empty($checkApplicant)) {
                 $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
@@ -4183,7 +4186,7 @@ class SurveyController extends Controller
             $this->model = false;
             return $this->sendNewError("Already Applied");
         }
-        
+
         if ($request->has('applier_address')) {
             $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress, true);
