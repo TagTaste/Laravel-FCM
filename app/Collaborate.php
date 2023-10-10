@@ -22,7 +22,7 @@ class Collaborate extends Model implements Feedable
     use IdentifiesOwner, CachedPayload, SoftDeletes, IdentifiesContentIsReported, HashtagFactory;
 
     protected $fillable = [
-        'title', 'i_am', 'looking_for', 'expires_on', 'video', 'location',
+        'title', 'i_am', 'looking_for', 'expires_on', 'video', 'videos_meta','location',
         'description', 'project_commences', 'image1', 'image2', 'image3', 'image4', 'image5',
         'duration', 'financials', 'eligibility_criteria', 'occassion',
         'profile_id', 'company_id', 'template_fields', 'template_id',
@@ -44,7 +44,7 @@ class Collaborate extends Model implements Feedable
 
     protected $visible = [
         'id', 'title', 'i_am', 'looking_for',
-        'expires_on', 'video', 'location', 'categories',
+        'expires_on', 'video', 'videos_meta', 'location', 'categories',
         'description', 'project_commences',
         'duration', 'financials', 'eligibility_criteria', 'occassion',
         'profile_id', 'company_id', 'template_fields', 'template_id', 'notify', 'privacy_id',
@@ -107,7 +107,10 @@ class Collaborate extends Model implements Feedable
     {
         $data = \App\V2\Collaborate::find($this->id)->toArray();
         foreach ($data as $key => $value) {
-            if (is_null($value) || $value == '')
+            if($key == "videos_meta"){
+                $data[$key] == isset($value) ? json_decode($value, true) : null;
+            }
+            else if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
         Redis::connection('V2')->set("collaborate:" . $this->id . ":V2", json_encode($data));
@@ -680,7 +683,7 @@ class Collaborate extends Model implements Feedable
         }
         return $mod;
     }
-
+    
     public function getProductReviewMetaAttribute()
     {
         $meta = [];
@@ -691,10 +694,19 @@ class Collaborate extends Model implements Feedable
                 ->where('profile_id', request()->user()->profile->id)->where('begin_tasting', 1)->exists();
             $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id', $this->id)
                 ->where('profile_id', request()->user()->profile->id)->get()->pluck('batch_id')->toArray();
+
+            $notifiedBatchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id', $this->id)
+            ->where('profile_id', request()->user()->profile->id)->where('begin_tasting', 1)->get()->pluck('batch_id')->toArray();
+
             $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id', request()->user()->profile->id)
-                ->where('collaborate_id', $this->id)->where('current_status', 3)->get()->pluck('batch_id')->toArray();
+            ->where('collaborate_id', $this->id)->where('current_status', 3)->get()->pluck('batch_id')->unique()->toArray();
+            
             sort($batchIds);
             sort($completedBatchIds);
+
+            $meta['notified_batch_count'] = count($notifiedBatchIds);
+            $meta['completed_batch_count'] = count($completedBatchIds);
+
             $meta['is_completed_product_review'] = count($completedBatchIds) > 0 ? ($batchIds == $completedBatchIds) : false;
             $meta['is_interested'] = \DB::table('collaborate_applicants')->where('collaborate_id', $this->id)->where('profile_id', request()->user()->profile->id)
                 ->where('is_invited', 0)->exists();

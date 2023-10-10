@@ -18,13 +18,13 @@ class Polling extends Model implements Feedable
 
     protected $table = 'poll_questions';
     
-    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image_meta','type','preview'];
+    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id','image_meta','videos_meta','type','preview'];
 
     protected $with = ['profile','company'];
 
     protected $appends = ['options','owner','meta','poll_meta'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image_meta','type','preview','poll_meta'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','image_meta','videos_meta','type','preview','poll_meta'];
 
     public static function boot()
     {
@@ -65,6 +65,7 @@ class Polling extends Model implements Feedable
             'profile_id'=>$this->profile_id,
             'company_id'=>$this->company_id,
             'image_meta'=>$this->image_meta,
+            'videos_meta'=> json_decode($this->videos_meta),
             'preview'=>$this->preview,
             'type'=>$this->type,
         ];

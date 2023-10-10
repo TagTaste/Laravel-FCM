@@ -447,8 +447,20 @@ class SearchController extends Controller
                 $products = $this->model['product'];
                 $this->model['product'] = [];
                 foreach ($products as &$product) {
+                    $product->videos_meta = json_decode($product->videos_meta);
+                    $product->assets_order = json_decode($product->assets_order);
                     $meta = $product->getMetaFor($profileId);
                     $this->model['product'][] = ['product' => $product, 'meta' => $meta];
+                }
+            }
+            if (isset($this->model['surveys'])) {
+                $surveys = $this->model['surveys']->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"));
+                $this->model['surveys'] = [];
+                foreach ($surveys as $survey) {
+                    $survey->image_meta = json_decode($survey->image_meta);
+                    $survey->video_meta = json_decode($survey->video_meta);
+                    $survey->videos_meta = json_decode($survey->videos_meta);
+                    $this->model['surveys'][] = ['survey' => $survey, 'meta' => $survey->getMetaFor($profileId)];
                 }
             }
 
@@ -507,6 +519,7 @@ class SearchController extends Controller
                 foreach ($surveys as $survey) {
                     $survey->image_meta = json_decode($survey->image_meta);
                     $survey->video_meta = json_decode($survey->video_meta);
+                    $survey->videos_meta = json_decode($survey->videos_meta);
                     $this->model['surveys'][] = ['survey' => $survey, 'meta' => $survey->getMetaFor($profileId)];
                 }
             }
@@ -514,6 +527,8 @@ class SearchController extends Controller
                 $products = $this->model['product'];
                 $this->model['product'] = [];
                 foreach ($products as &$product) {
+                    $product->videos_meta = json_decode($product->videos_meta);
+                    $product->assets_order = json_decode($product->assets_order);
                     $meta = $product->getMetaFor($profileId);
                     $this->model['product'][] = ['product' => $product, 'meta' => $meta];
                 }
@@ -524,6 +539,7 @@ class SearchController extends Controller
                 unset($this->model['quiz']);
                 foreach ($quizes as $quiz) {
                     $quiz->image_meta = json_decode($quiz->image_meta);
+                    $quiz->videos_meta = json_decode($quiz->videos_meta);
                     $quiz->form_json = json_decode($quiz->form_json);
                     $this->model['quizzes'][] = ['quiz' => $quiz, 'meta' => $quiz->getMetaFor($profileId)];
                 }

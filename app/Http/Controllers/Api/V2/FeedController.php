@@ -105,10 +105,7 @@ class FeedController extends Controller
         } else {
             $skip = $skip - $this->feed_card_count;
             $this->feed_card_count = 0;
-        }
-        
-        
-       
+        }  
         
         $payloads = Payload::join('subscribers', 'subscribers.channel_name', '=', 'channel_payloads.channel_name')
             ->where('subscribers.profile_id', $profileId)
@@ -341,11 +338,14 @@ class FeedController extends Controller
                     \Log::warning("could not get from $key");
                 }
                 $data[$name] = json_decode($cachedData,true);
+                if (isset($data[$name]["videos_meta"]) && !is_array($data[$name]["videos_meta"])) {
+                    $data[$name]['videos_meta'] = json_decode($data[$name]['videos_meta'], true);
+                }
                 if(isset($data[$name]["image_meta"]) && !is_array($data[$name]["image_meta"])){
-                        $data[$name]["image_meta"] = json_decode($data[$name]["image_meta"],true);
+                    $data[$name]["image_meta"] = json_decode($data[$name]["image_meta"],true);
                 }
                 if(isset($data[$name]["form_json"]) && !is_array($data[$name]["form_json"])){
-                        $data[$name]["form_json"] = json_decode($data[$name]["form_json"],true);
+                    $data[$name]["form_json"] = json_decode($data[$name]["form_json"],true);
                 }
             }
 
@@ -358,7 +358,6 @@ class FeedController extends Controller
                 } 
                 else if($model == "App\Quiz"){
                     $model = $model::find($data["quiz"]["id"]);
-
                 }
                 else {
                     $model = $model::find($payload->model_id);
@@ -882,6 +881,7 @@ class FeedController extends Controller
             foreach ($collaborations as $key => $id) {
                 $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
                 if (!is_null($cached_data)) {
+                    $cached_data->videos_meta = json_decode($cached_data->videos_meta);
                     $data = $cached_data->toArray();
                     $suggestion["meta"]["count"]++;
                     array_push($suggestion["suggestion"], $data);
@@ -971,6 +971,8 @@ class FeedController extends Controller
             foreach ($public_review_product as $key => $product) {
                 $data_fetched = PublicReviewProduct::where('id', $product->id)->first();
                 if (!is_null($data_fetched)) {
+                    $data_fetched->videos_meta = json_decode($data_fetched->videos_meta);
+                    $data_fetched->assets_order = json_decode($data_fetched->assets_order);
                     $data = array();
                     $data['product'] = $data_fetched->toArray();
                     $data['meta'] = $data_fetched->getMetaFor($profileId);

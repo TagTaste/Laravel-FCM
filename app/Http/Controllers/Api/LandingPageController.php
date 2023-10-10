@@ -199,6 +199,9 @@ class LandingPageController extends Controller
                     \Log::warning("could not get from $key");
                 }
                 $data[$name] = json_decode($cachedData, true);
+                if (isset($data[$name]["videos_meta"]) && !is_array($data[$name]["videos_meta"])) {
+                    $data[$name]['videos_meta'] = json_decode($data[$name]['videos_meta'], true);
+                }
                 if (isset($data[$name]["image_meta"]) && !is_array($data[$name]["image_meta"])) {
                     $data[$name]["image_meta"] = json_decode($data[$name]["image_meta"], true);
                 }
@@ -344,6 +347,11 @@ class LandingPageController extends Controller
                 $carousel['elements'][] = $data;
             } else if ($model == config("constant.LANDING_MODEL.COLLABORATE") || $model == config("constant.LANDING_MODEL.PRODUCT-REVIEW")) {
                 $data['collaborate'] = json_decode(Redis::get("collaborate:" . $value . ":V2"), true);
+                if(isset($data['collaborate']['videos_meta']))
+                {
+                    $data['collaborate']['videos_meta'] = (!is_array($data['collaborate']['videos_meta'])) ? json_decode($data['collaborate']['videos_meta'], true) : $data['collaborate']['videos_meta'];
+                }
+                
                 $collabModel = Collaborate::find($value);
                 $data['meta'] = $collabModel->getMetaForV2($profileId);
                 if (isset($data['collaborate']['company_id']) && !(is_null($data['collaborate']['company_id']))) {
@@ -414,6 +422,7 @@ class LandingPageController extends Controller
         foreach ($carouseldata as $key => $value) {
             $data = [];
             $data['polling'] = json_decode(Redis::get("polling:" . $value), true);
+            $data['polling']['videos_meta'] = (isset($data['polling']['videos_meta']) && !is_array($data['polling']['videos_meta'])) ? json_decode($data['polling']['videos_meta'], true) : $data['polling']['videos_meta'];
             $pollModel = Polling::find($value);
             $data['meta'] = $pollModel->getMetaForV2($profileId);
             if (isset($data['polling']['company_id']) &&  !(is_null($data['polling']['company_id']))) {
@@ -540,7 +549,7 @@ class LandingPageController extends Controller
         $suggestionsList = array_slice($tempMixSuggs, 0, 5, true);
         $finalSuggestionData = [];
         foreach ($suggestionsList as $suggObj) {
-            $dataObj = $this->getModelSuggestion($client, $profileId, $suggObj);
+            $dataObj = isset($suggObj) ? $this->getModelSuggestion($client, $profileId, $suggObj) : null;
             if (!is_null($dataObj) && count($dataObj) > 0) {
                 $finalSuggestionData[] = $dataObj;
             }
@@ -801,6 +810,9 @@ class LandingPageController extends Controller
                 }
 
                 $data[$name] = json_decode($cachedData, true);
+                if (isset($data[$name]["videos_meta"]) && !is_array($data[$name]["videos_meta"])) {
+                    $data[$name]['videos_meta'] = json_decode($data[$name]['videos_meta'], true);
+                }
             }
 
             if ($payload->model !== null) {

@@ -58,6 +58,16 @@ class PublicViewController extends Controller
         if (!$model) {
             return response()->json(['data' => null, 'model' => null, 'errors' => ["Could not find model."]]);
         }
+        
+        if(isset($model["videos_meta"]))
+        {
+            $model["videos_meta"] = json_decode($model["videos_meta"], true);
+        }
+
+        if(isset($model["assets_order"]))
+        {
+            $model["assets_order"] = json_decode($model["assets_order"], true);
+        }
 
         if (isset($model->content['text'])) {
             $model->content = $this->getContentForHTML($model->content);

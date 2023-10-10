@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
 use App\Payment\PaymentDetails;
 use App\Payment\PaymentLinks;
+use App\surveyApplicants;
 
 class Surveys extends Model implements Feedable
 {
@@ -28,7 +29,7 @@ class Surveys extends Model implements Feedable
     public $incrementing = false;
 
 
-    protected $fillable = ["id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "video_meta", "form_json", "multi_submission", "profile_updated_by", "invited_profile_ids", "expired_at", "is_active", "state", "deleted_at", "published_at", "is_private", "is_section"];
+    protected $fillable = ["id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "video_meta", "videos_meta", "form_json", "multi_submission", "profile_updated_by", "invited_profile_ids", "expired_at", "is_active", "state", "deleted_at", "published_at", "is_private", "is_section"];
 
     protected $with = ['profile', 'company'];
 
@@ -36,7 +37,7 @@ class Surveys extends Model implements Feedable
 
     protected $visible = [
         "id", "profile_id", "company_id", "privacy_id", "title", "description", "image_meta", "form_json",
-        "video_meta", "state", "multi_submission", "expired_at", "published_at", "profile", "company", "created_at", "updated_at", "is_private", "totalApplicants", "is_section"
+        "video_meta", "videos_meta", "state", "multi_submission", "expired_at", "published_at", "profile", "company", "created_at", "updated_at", "is_private", "totalApplicants", "is_section"
     ];
 
     protected $cast = [
@@ -55,6 +56,7 @@ class Surveys extends Model implements Feedable
             'description' => $this->description,
             'image_meta' => json_decode($this->image_meta),
             'video_meta' => json_decode($this->video_meta),
+            'videos_meta' => json_decode($this->videos_meta),
             'state' => $this->state,
             'expired_at' => $this->expired_at,
             'published_at' => $this->published_at,
@@ -107,10 +109,19 @@ class Surveys extends Model implements Feedable
         // $meta['review_param'] = ["survey_id" => $this->id,"profile"=>$profileId];
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
 
+
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
         $meta['isReviewed'] = (!empty($reviewed) ? true : false);
 
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+
+        $isReviewed = surveyApplicants::where("survey_id",$this->id)->where("profile_id",$profileId)->whereNull('deleted_at')->first();
+        
+        $meta['isInterested'] = false;
+        if($isReviewed != null){
+            $meta['isInterested'] = true;
+        }
+        
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
         $meta['applicationStatus'] = $k !== null ? (int)$k : null;
         $meta['submissionCount'] = (!empty($reviewed) ? $reviewed->attempt : 0);
@@ -138,6 +149,14 @@ class Surveys extends Model implements Feedable
         $meta['isPaid'] = PaymentHelper::getisPaidMetaFlag($payment);
 
         $meta['isInterested'] = ((!empty($reviewed)) ? true : false);
+
+        $isReviewed = surveyApplicants::where("survey_id",$this->id)->where("profile_id",$profileId)->whereNull('deleted_at')->first();
+
+        $meta['isInterested'] = false;
+        if($isReviewed != null){
+            $meta['isInterested'] = true;
+        }
+
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
 
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
@@ -292,6 +311,16 @@ class Surveys extends Model implements Feedable
             return null;
         }
         return $reason;
+    }
+
+    public function getSubmissionList()
+    {
+        $profileId = request()->user()->profile->id;
+        $surveyAttempt = SurveyAttemptMapping::select('id','profile_id','attempt','completion_date')->where("survey_id", "=", $this->id)->where("profile_id","=",$profileId)->where("deleted_at", "=", null)->whereNotNull("completion_date")->orderBy('completion_date', 'desc')->get()->toArray();
+
+        sort($surveyAttempt);
+
+        return $surveyAttempt;
     }
 
     public function getMandatoryFields()
