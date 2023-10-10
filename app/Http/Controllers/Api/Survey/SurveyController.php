@@ -48,8 +48,7 @@ class SurveyController extends Controller
     protected $model;
 
     protected $colorCodeList = [
-        "#F3C4CD", "#F1E6C7", "#D0DEEF", "#C1E2CF",
-        "#C1E4E5", "#F2D9C6", "#C6ECF2", "#C6CEF2", "#DEC6F2", "#F2C6E1", "#CAD1D9", "#D9CAD9", "#D9CACC", "#E2D5C4", "#CBCBDE", "#DDDECB", "#E9D4E7", "#D7D4D5", "#ECE1D8", "#CBC3CD"
+        "-7" => "#F3C4CD", "-6" => "#F1E6C7", "-5" => "#D0DEEF", "-4" => "#C1E2CF", "-3" => "#C1E4E5", "-2" => "#F2D9C6", "-1" => "#C6ECF2", "0" => "#C6CEF2", "1" => "#DEC6F2", "2" => "#F2C6E1", "3" => "#CAD1D9", "4" => "#D9CAD9", "5" => "#D9CACC", "6" => "#E2D5C4", "7" => "#CBCBDE", "8" => "#DDDECB", "9" => "#E9D4E7", "10" => "#D7D4D5", "11" => "#ECE1D8", "12" => "#CBC3CD", "13" => "#96B6C5",  "14" => "#C8E4B2",  "15" => "#FFD1DA",  "16" => "#D0F5BE",  "17" => "#D9ACF5"
     ];
 
     public function __construct(Surveys $model)
@@ -1030,8 +1029,6 @@ class SurveyController extends Controller
 
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
 
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1108,7 +1105,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
 
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
 
@@ -1400,8 +1397,6 @@ class SurveyController extends Controller
         
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
 
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1487,7 +1482,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
 
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
@@ -1797,9 +1792,6 @@ class SurveyController extends Controller
         
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
-
         if (empty($checkIFExists)) {
             $this->model = false;
             return $this->sendNewError("Invalid Survey");
@@ -1895,7 +1887,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             
             $quesOptions = isset($values['options']) ? $values['options'] : [];
             $queOptionIds = array_pluck($quesOptions, 'id');
@@ -2274,6 +2266,13 @@ class SurveyController extends Controller
         }
 
         return false;
+    }
+
+    // Shuffle color codes
+    function shuffleColorValues($colorCodeList) {
+        $colorValues = array_values($colorCodeList);
+        shuffle($colorValues);
+        return array_combine(array_keys($colorCodeList), $colorValues);
     }
 
     private function validateSurveyFormJson($request, $isUpdation = false)
@@ -2850,8 +2849,6 @@ class SurveyController extends Controller
         //     return $this->sendNewError("Only Survey Admin can view this report");
         // }
 
-        $colorCodeList = $this->colorCodeList;
-
         $prepareNode = ["reports" => []];
         $rankMapping = [];
         $optionValues = [];
@@ -2892,7 +2889,7 @@ class SurveyController extends Controller
         $counter = 0;
         
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->where("attempt", $attempt)->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
@@ -3139,8 +3136,6 @@ class SurveyController extends Controller
         //     return $this->sendNewError("Only Survey Admin can view this report");
         // }
 
-        $colorCodeList = $this->colorCodeList;
-
         $prepareNode = ["reports" => []];
         $rankMapping = [];
         $optionValues = [];
@@ -3169,7 +3164,7 @@ class SurveyController extends Controller
         $counter = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->where("attempt", $attempt)->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
