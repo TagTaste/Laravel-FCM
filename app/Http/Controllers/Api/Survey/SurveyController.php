@@ -164,7 +164,6 @@ class SurveyController extends Controller
             'is_private' => 'boolean'
         ]);
 
-
         $this->model = false;
         $this->messages = "Survey Failed";
         if ($validator->fails()) {
@@ -172,13 +171,22 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-        if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+30 days   "))) {
-            return $this->sendNewError("Expiry time exceeds a month");
+        $profile = $request->user()->profile;
+        $expiry_date = $request->expired_at;
+
+        if ($request->has("expired_at") && !empty($expiry_date)) 
+        {
+            if($profile->is_premium == 1 && (strtotime($expiry_date) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($profile->is_premium != 1 && (strtotime($expiry_date) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
         }
-        if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
+        if ($request->has("expired_at") && !empty($expiry_date) && strtotime($expiry_date) < time()) {
             return $this->sendNewError("Expiry time invalid");
         }
-
 
         $final_json = $this->validateSurveyFormJson($request);
 
@@ -191,13 +199,11 @@ class SurveyController extends Controller
             $is_section = true;
         }
 
-        
-
         //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
         if ($request->has('company_id')) {
             $companyId = $request->input('company_id');
-            $userId = $request->user()->id;
             $company = Company::find($companyId);
+            $userId = $request->user()->id;
             $userBelongsToCompany = $company->checkCompanyUser($userId);
             if (!$userBelongsToCompany) {
                 return $this->sendNewError("User does not belong to this company");
@@ -206,13 +212,13 @@ class SurveyController extends Controller
                 return $this->sendNewError("Only premium companies can create private surveys");
                 // return $next($request);
             }
-        } else if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
+        } else if (isset($request->is_private) && $request->is_private == 1 && $profile->is_premium != 1) {
             return $this->sendNewError("Only premium users can create private surveys");
         }
 
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
-        $prepData["profile_id"] = $request->user()->profile->id;
+        $prepData["profile_id"] = $profile->id;
         $prepData["state"] = $request->state;
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
@@ -335,7 +341,6 @@ class SurveyController extends Controller
      */
     public function update($id, Request $request)
     {
-
         $this->model = false;
         $this->messages = "Survey Failed";
 
@@ -377,16 +382,25 @@ class SurveyController extends Controller
             }
         }
 
-
         if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))) {
 
             return $this->sendNewError("Survey status cannot be changed");
         }
 
-        if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+30 days"))) {
-            return $this->sendNewError("Expiry time exceeds a month");
+        $profile = $request->user()->profile;
+        $expiry_date = $request->expired_at;
+
+        if ($request->has("expired_at") && !empty($expiry_date)) 
+        {
+            if($profile->is_premium == 1 && (strtotime($expiry_date) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($profile->is_premium != 1 && (strtotime($expiry_date) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
         }
-        if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
+        if ($request->has("expired_at") && !empty($expiry_date) && strtotime($expiry_date) < time()) {
             return $this->sendNewError("Expiry time invalid");
         }
 
@@ -398,9 +412,6 @@ class SurveyController extends Controller
         if (isset($final_json[0]["element_type"])  && $final_json[0]["element_type"] == "section") {
             $is_section = true;
         }
-
-
-
 
         $prepData = (object)[];
 

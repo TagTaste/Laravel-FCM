@@ -112,14 +112,11 @@ class CollaborateController extends Controller
      */
     public function store(Request $request, $profileId)
     {
-        $loggedInProfileId = $request->user()->profile->id;
-
-
         $profile = $request->user()->profile;
-
         $profileId = $profile->id ;
         $inputs = $request->all();
         $inputs['state'] = 1;
+
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
         {
             if(!$profile->is_premium) {
@@ -129,11 +126,26 @@ class CollaborateController extends Controller
             $inputs['state'] = 4;
         }
 
-        if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
+        // if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
+        // {
+        //     $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+        //             ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+        // }
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
         {
-            $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+            if($profile->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($profile->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
         }
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
+        }
+        
         $inputs['profile_id'] = $profileId;
 
         $fields = $request->has("fields") ? $request->input('fields') : [];
@@ -264,8 +276,6 @@ class CollaborateController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $loggedInProfileId = $request->user()->profile->id;
-
         $inputs = $request->all();
         unset($inputs['profile_id']);
         unset($inputs['state']);
@@ -273,6 +283,22 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
+        }
+
+        $profile = $request->user()->profile;
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
+        {
+            if($profile->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($profile->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
+        }
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
         }
 
         if($collaborate->collaborate_type == 'collaborate')
@@ -673,14 +699,27 @@ class CollaborateController extends Controller
         $collaborateId = $id;
 
         $inputs = $request->only(['methodology_id','age_group','expires_on',
-
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
         $this->checkInputForScopeReview($inputs);
         if(!isset($inputs['is_product_endorsement']) || is_null($inputs['is_product_endorsement']))
             $inputs['is_product_endorsement'] = 0;
 
-        $loggedInProfileId = $request->user()->profile->id;
+        $profile = $request->user()->profile;
 
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
+        {
+            if($profile->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($profile->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
+        }
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
+        }
 
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         if($collaborate === null){

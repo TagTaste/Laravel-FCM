@@ -84,11 +84,27 @@ class CollaborateController extends Controller
             return $this->sendError("Invalid Admin.");
         }
 
-
         $profile = $request->user()->profile;
         $profileId = $profile->id ;
         $inputs = $request->all();
         $inputs['state'] = 1;
+        
+        $company = Company::where('id',$companyId)->first();
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
+        {
+            if($company->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($company->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
+        }
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
+        }
+
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
         {
             $checkCompanyPremium = Company::where('id',$companyId)->where('is_premium',1)->exists();
@@ -248,6 +264,22 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
+        }
+
+        $company = Company::where('id',$companyId)->first();
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
+        {
+            if($company->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($company->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
+        }
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
         }
 
         if($collaborate->collaborate_type == 'collaborate')
@@ -529,22 +561,36 @@ class CollaborateController extends Controller
             return $this->sendError("Collaboration not found.");
         }
 
+        $company = Company::where('id',$companyId)->first();
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
+        {
+            if($company->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($company->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
+        }
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
+        }
+
         if($inputs['no_of_veterans'] > 0 || $inputs['no_of_expert'] > 0)
         {
             //$inputs['is_taster_residence'] = 1;
         }
+
         if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
         {
             $this->model = false;
             return $this->sendError("json is not valid.");
         }
 
-        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-        ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
-
+        // $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on']) ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
-
 
         //$inputs['is_taster_residence'] = is_null($inputs['is_taster_residence']) ? 0 : $inputs['is_taster_residence'];
 
