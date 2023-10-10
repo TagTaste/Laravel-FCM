@@ -288,6 +288,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             });
 
             Route::get("filterSearch/{type?}", 'SearchController@filterSearch');
+
         });
 
         /**
@@ -296,7 +297,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('report-type/{reportCategory}', "ReportController@getReportTypeList");
         Route::post('report-content', "ReportController@reportContent");
         Route::post('report-user', "ReportController@reportUser");
-
 
         /**
          * Route to change password.
@@ -356,6 +356,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         //global image upload function
         Route::post("globalImageUpload", "PhotoController@globalImageUpload");
         Route::post("globalFileUpload", "PhotoController@globalFileUpload");
+
         Route::post("{modelName}/globalVideoUpload", "PhotoController@globalVideoUpload");
 
 
@@ -463,7 +464,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("getCities", "CollaborateController@getCities");
         Route::post("addCities", "CollaborateController@addCities");
         Route::get("collaborateCloseReason", "CollaborateController@collaborateCloseReason");
-        
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
@@ -496,6 +496,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             //filter for dashboard of product review
             Route::get("dashboard/filters", "BatchController@filters"); //->middleware('permissionCollaborate');
             Route::get("dashboard/report/filters", "BatchController@reportFilters")->middleware('permissionCollaborate');
+            Route::get("question-filters","BatchController@questionFilters");  
             Route::get("batches/hutCsv", "BatchController@allHutCsv");
             Route::get("batches/{id}/hutCsv", "BatchController@hutCsv");
             Route::resource('batches', 'BatchController');
@@ -963,6 +964,33 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             
             Route::post('/text-answers/{id}/{question_id}/{option_id}', 'SurveyController@inputAnswers');
             Route::post('/media-list/{id}/{question_id}/{media_type}', 'SurveyController@mediaList');
+        });
+
+        Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => 'api.auth'], function () {
+            // private product review reports post api
+            Route::post("batches/{id}/headers/{headerId}/reports", "BatchController@reports");
+
+            // get filters for dashboard of product review
+            Route::get("dashboard/filters", "BatchController@filters");
+
+            // private product review summary post api
+            Route::post("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
+
+            // get all food shots for private product review post api
+            Route::post("batches/{id}/headers/{headerId}/question/{questionId}/reports", "BatchController@getList");
+
+            // download report post api
+            Route::post("batches/{id}/reportPdf", "BatchController@reportPdf");
+
+            // get all comments for private PR post api
+            Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/comments", "BatchController@comments");
+
+            // get all any-other nested options for private PR post api
+            Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options/{optionId}", "BatchController@optionIdReports");
+
+            // get all any-other options for private PR post api
+            Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
+
         });
     });
 
