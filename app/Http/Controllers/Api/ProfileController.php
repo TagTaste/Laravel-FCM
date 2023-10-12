@@ -890,14 +890,11 @@ class ProfileController extends Controller
         $email = $request->email;
         $otp = $request->otp;
 
-        $otpVerification = OTPMaster::where(function($query) use ($email, $source, $another_source) {
-            $query->where('email', $email)
-                ->where("source", $source)
-                ->orWhere("source", $another_source);
-        })
-        ->orderBy("id", "desc")
-        ->where("deleted_at", null)
-        ->first();
+        $otpVerification = OTPMaster::where('email', $email)
+            ->whereIn("source",[ $source, $another_source])
+            ->where("deleted_at", null)
+            ->orderBy("id", "desc")
+            ->first();
 
         if(empty($otpVerification))
         {
@@ -906,7 +903,7 @@ class ProfileController extends Controller
 
         // check for otp attempts
         if ($otpVerification && $otpVerification->attempts >= config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
-            $otpVerification->update(["deleted_at" => date("Y-m-d H:i:s")]);
+            OTPMaster::where('email', $email)->whereIn("source",[ $source, $another_source])->update(["deleted_at" => date("Y-m-d H:i:s")]);
             return $this->sendError("OTP attempts exhausted. Please regenerate OTP or try other login methods.");
         }
 
@@ -926,7 +923,7 @@ class ProfileController extends Controller
             $this->model = User::where('id', $user_id)->whereNull('verified_at')->where('email', $email)->update(['verified_at' => date("Y-m-d H:i:s")]);
             if($this->model == 1)
             {
-                $otpVerification->update(["deleted_at" => date("Y-m-d H:i:s")]);
+                OTPMaster::where('email', $email)->whereIn("source",[ $source, $another_source])->update(["deleted_at" => date("Y-m-d H:i:s")]);
                 $this->messages = "Your email is verified!";
             }
             
