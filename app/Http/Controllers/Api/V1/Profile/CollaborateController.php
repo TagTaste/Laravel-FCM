@@ -58,7 +58,7 @@ class CollaborateController extends Controller
             $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->pluck('collaborate_id');
             $collaborations = $collaborations->where('state','!=',2)->whereIn('id',$interestedInCollaboration);
         } else if($state == 4){ // State 4 is Draft
-            $collaborations = $collaborations->where('state','!=',2)->where('step',1)->where(function($q) use ($profileId,$companyIds) {
+            $collaborations = $collaborations->where('state',4)->where(function($q) use ($profileId,$companyIds) {
                 $q->where('profile_id', $profileId)
                   ->orWhereIn('company_id', $companyIds);
             });
@@ -119,7 +119,6 @@ class CollaborateController extends Controller
     public function store(Request $request, $profileId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-
 
         $profile = $request->user()->profile;
 
