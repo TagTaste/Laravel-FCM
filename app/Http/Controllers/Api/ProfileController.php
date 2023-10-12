@@ -890,12 +890,14 @@ class ProfileController extends Controller
         $email = $request->email;
         $otp = $request->otp;
 
-        $otpVerification = OTPMaster::where('email', "=", $email)
-            ->where("source", $source)
-            ->orWhere("source", $another_source)
-            ->orderBy("id", "desc")
-            ->where("deleted_at", null)
-            ->first();
+        $otpVerification = OTPMaster::where(function($query) use ($email, $source, $another_source) {
+            $query->where('email', $email)
+                ->where("source", $source)
+                ->orWhere("source", $another_source);
+        })
+        ->orderBy("id", "desc")
+        ->where("deleted_at", null)
+        ->first();
 
         if(empty($otpVerification))
         {
