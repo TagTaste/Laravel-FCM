@@ -1326,7 +1326,7 @@ class Profile extends Model
     public function getPollAnswerCountAttribute()
     {
         $pollQueIds = \DB::table('poll_questions')->whereNull('deleted_at')->get()->pluck('id');
-        return \DB::table('poll_votes')->where('profile_id', $this->id)->whereNull('deleted_at')->whereIn('poll_id',$pollQuesId)->get()->unique('poll_id')->count();
+        return \DB::table('poll_votes')->where('profile_id', $this->id)->whereNull('deleted_at')->whereIn('poll_id',$pollQueIds)->get()->unique('poll_id')->count();
     }
 
     public function getAmountAttribute()
