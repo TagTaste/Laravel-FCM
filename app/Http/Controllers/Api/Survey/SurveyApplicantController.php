@@ -298,7 +298,7 @@ class SurveyApplicantController extends Controller
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
 
         if (empty($checkApplicant) && (is_null($survey->is_private) || !$survey->is_private)) {
-            $this->saveApplicants($id, $request);
+            $this->saveApplicants($survey, $request);
         } elseif (empty($checkApplicant)) {
             $this->messages = $survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
             return $this->sendNewError("Something went wrong");
@@ -314,14 +314,14 @@ class SurveyApplicantController extends Controller
             !empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED")
 
         ) {
-            $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
+            $this->messages = $survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
             $this->model = ["status" => false];
             return $this->sendNewError("Something went wrong");
         }
         
         $last_attempt = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $request->user()->profile->id)
         ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
-
+        
         $answerAttempt = [];
         $answerAttempt["profile_id"] = $request->user()->profile->id;
         $answerAttempt["survey_id"] = $id;
@@ -329,7 +329,7 @@ class SurveyApplicantController extends Controller
         if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
             $last_attempt = 1;
             $answerAttempt["attempt"] = $last_attempt;
-            SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
+            $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
         } else {    //when its not first attempt
             $last_attempt = $last_attempt->attempt;
             if ($survey->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
@@ -406,6 +406,20 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
     
+    public function calcDobRange($year)
+    {
+
+        if ($year > 2000) {
+            return "gen-z";
+        } else if ($year >= 1981 && $year <= 2000) {
+            return "millenials";
+        } else if ($year >= 1961 && $year <= 1980) {
+            return "gen-x";
+        } else {
+            return "yold";
+        }
+    }
+
     public function userList($id, Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
