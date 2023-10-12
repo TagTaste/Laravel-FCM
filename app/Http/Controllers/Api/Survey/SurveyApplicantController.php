@@ -372,8 +372,6 @@ class SurveyApplicantController extends Controller
                 'message' => $request->input('message'), 'address' => $applierAddress,
                 'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
             ];
-
-
             $ins = \DB::table('survey_applicants')->insert($inputs);
         } else {
             $update = [];
@@ -407,7 +405,7 @@ class SurveyApplicantController extends Controller
         $this->model = true;
         return $this->sendResponse();
     }
-
+    
     public function userList($id, Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
