@@ -173,17 +173,54 @@ class SurveyController extends Controller
 
         $profile = $request->user()->profile;
         $expiry_date = $request->expired_at;
+        $premium_user_limit = strtotime("+1 year");
+        $non_premium_user_limit = strtotime("+3 months");
 
-        if ($request->has("expired_at") && !empty($expiry_date)) 
-        {
-            if($profile->is_premium == 1 && (strtotime($expiry_date) > strtotime("+1 year"))) {
-                return $this->sendNewError("Expiry time exceeds a year");
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if ($request->has('company_id')) {
+            $companyId = $request->input('company_id');
+            $company = Company::find($companyId);
+            $userId = $request->user()->id;
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendNewError("User does not belong to this company");
             }
-            else if($profile->is_premium != 1 && (strtotime($expiry_date) > strtotime("+3 months")))
+
+            if (isset($request->is_private) && $request->is_private == 1 && $company->is_premium != 1) {
+                return $this->sendNewError("Only premium companies can create private surveys");
+                // return $next($request);
+            }
+
+            //check for expiry date
+            if ($request->has("expired_at") && !empty($expiry_date)) 
             {
-                return $this->sendNewError("Expiry time exceeds 3 months");
+                if($company->is_premium == 1 && (strtotime($expiry_date) > $premium_user_limit)) {
+                    return $this->sendNewError("Expiry time exceeds a year");
+                }
+                else if($company->is_premium != 1 && (strtotime($expiry_date) > $non_premium_user_limit))
+                {
+                    return $this->sendNewError("Expiry time exceeds 3 months");
+                }
+            }
+        } 
+        else
+        {
+            if (isset($request->is_private) && $request->is_private == 1 && $profile->is_premium != 1) {
+                return $this->sendNewError("Only premium users can create private surveys");
+            }
+
+            //check for expiry date
+            if ($request->has("expired_at") && !empty($expiry_date)) 
+            {
+                if ($profile->is_premium == 1 && (strtotime($expiry_date) > $premium_user_limit)){
+                    return $this->sendNewError("Expiry time exceeds a year");
+                }
+                else if($profile->is_premium != 1 && (strtotime($expiry_date) > $non_premium_user_limit)) {
+                    return $this->sendNewError("Expiry time exceeds 3 months");
+                }
             }
         }
+        
         if ($request->has("expired_at") && !empty($expiry_date) && strtotime($expiry_date) < time()) {
             return $this->sendNewError("Expiry time invalid");
         }
@@ -197,23 +234,6 @@ class SurveyController extends Controller
         $is_section = false;   //for section 
         if (isset($final_json[0]["element_type"])  && $final_json[0]["element_type"] == "section") {
             $is_section = true;
-        }
-
-        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
-        if ($request->has('company_id')) {
-            $companyId = $request->input('company_id');
-            $company = Company::find($companyId);
-            $userId = $request->user()->id;
-            $userBelongsToCompany = $company->checkCompanyUser($userId);
-            if (!$userBelongsToCompany) {
-                return $this->sendNewError("User does not belong to this company");
-            }
-            if (isset($request->is_private) && $request->is_private == 1 && $company->is_premium != 1) {
-                return $this->sendNewError("Only premium companies can create private surveys");
-                // return $next($request);
-            }
-        } else if (isset($request->is_private) && $request->is_private == 1 && $profile->is_premium != 1) {
-            return $this->sendNewError("Only premium users can create private surveys");
         }
 
         $prepData["id"] = (string) Uuid::generate(4);
@@ -346,11 +366,13 @@ class SurveyController extends Controller
 
         $create = Surveys::where("id", "=", $id);
         $getSurvey = $create->first();
-        $previousState = $getSurvey->state;
+
         if (empty($getSurvey)) {
             $this->errors = ["Survey Id is Invalid"];
             return $this->sendResponse();
         }
+
+        $previousState = $getSurvey->state;
 
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
@@ -389,17 +411,34 @@ class SurveyController extends Controller
 
         $profile = $request->user()->profile;
         $expiry_date = $request->expired_at;
+        $premium_user_limit = strtotime("+1 year");
+        $non_premium_user_limit = strtotime("+3 months");
 
         if ($request->has("expired_at") && !empty($expiry_date)) 
         {
-            if($profile->is_premium == 1 && (strtotime($expiry_date) > strtotime("+1 year"))) {
-                return $this->sendNewError("Expiry time exceeds a year");
-            }
-            else if($profile->is_premium != 1 && (strtotime($expiry_date) > strtotime("+3 months")))
+            if ($request->has('company_id')) 
             {
-                return $this->sendNewError("Expiry time exceeds 3 months");
+                $company = Company::find($request->company_id);
+                if($company->is_premium == 1 && (strtotime($expiry_date) > $premium_user_limit)) {
+                    return $this->sendNewError("Expiry time exceeds a year");
+                }
+                else if($company->is_premium != 1 && (strtotime($expiry_date) > $non_premium_user_limit))
+                {
+                    return $this->sendNewError("Expiry time exceeds 3 months");
+                }
             }
+            else
+            {   
+                if($profile->is_premium == 1 && (strtotime($expiry_date) > $premium_user_limit)) {
+                    return $this->sendNewError("Expiry time exceeds a year");
+                }
+                else if($profile->is_premium != 1 && (strtotime($expiry_date) > $non_premium_user_limit))
+                {
+                    return $this->sendNewError("Expiry time exceeds 3 months");
+                }
+            } 
         }
+
         if ($request->has("expired_at") && !empty($expiry_date) && strtotime($expiry_date) < time()) {
             return $this->sendNewError("Expiry time invalid");
         }
