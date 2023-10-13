@@ -11,6 +11,7 @@ use App\SurveyAnswers;
 use App\surveyApplicants;
 use App\SurveyAttemptMapping;
 use App\Surveys;
+use App\SurveysEntryMapping;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
@@ -327,19 +328,30 @@ class SurveyApplicantController extends Controller
         $answerAttempt["survey_id"] = $id;
 
         if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
-            $last_attempt = 1;
-            $answerAttempt["attempt"] = $last_attempt;
+            $attempt_number = 1;
+            $answerAttempt["attempt"] = $attempt_number;
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
+            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id]);
+            $this->model = $attemptEntry;
+            return $this->sendResponse();
         } else {    //when its not first attempt
-            $last_attempt = $last_attempt->attempt;
+            $attempt_number = $last_attempt->attempt;
             if ($survey->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-                $last_attempt += 1;
-                $answerAttempt["attempt"] = $last_attempt;
-                SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
+                $attempt_number += 1;
+                $answerAttempt["attempt"] = $attempt_number;
+                $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id]);
+                $this->model = $attemptEntry;
+                return $this->sendResponse();
+            }else{
+                SurveysEntryMapping::where("surveys_attempt_id",$last_attempt->id)->whereNull("deleted_at")->update(["deleted_at" => date("Y-m-d H:i:s")]);
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id]);
+                $this->model = true;
+                return $this->sendNewResponse();
             }
         }
     }
-
+    
     public function saveApplicants(Surveys $id, Request $request)
     {
 
