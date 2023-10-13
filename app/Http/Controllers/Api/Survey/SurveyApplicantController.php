@@ -273,26 +273,26 @@ class SurveyApplicantController extends Controller
         $survey = $this->model->where("id", "=", $id)->first();
         $this->model = [];
         if (empty($survey)) {
-            $this->model = ["status" => false];
+            $this->model = false;
             return $this->sendNewError("Invalid Survey");
         }
         if ($survey->state == config("constant.SURVEY_STATES.CLOSED")) {
-            $this->model = ["status" => false];
+            $this->model = false;
             return $this->sendNewError("Survey is closed. Cannot submit answers");
         }
 
         if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {
-            $this->model = ["status" => false];
+            $this->model = false;
             return $this->sendNewError("Survey is expired. Cannot submit answers");
         }
 
         if ($survey->state == config("constant.SURVEY_STATES.DRAFT")) {
-            $this->model = ["status" => false];
+            $this->model = false;
             return $this->sendNewError("Survey is in draft. Cannot submit answers");
         }
 
         if (isset($survey->profile_id) && $survey->profile_id == $request->user()->profile->id) {
-            $this->model = ["status" => false];
+            $this->model = false;
             return $this->sendNewError("Admin Cannot Fill the Surveys");
         }
 
@@ -301,23 +301,23 @@ class SurveyApplicantController extends Controller
         if (empty($checkApplicant) && (is_null($survey->is_private) || !$survey->is_private)) {
             $this->saveApplicants($survey, $request);
         } elseif (empty($checkApplicant)) {
-            $this->messages = $survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
-            return $this->sendNewError("Something went wrong");
+            $this->status = false;
+            return $this->sendNewError($survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.");
         }
-
+        
         if (!($survey->multi_submission) && !empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
-            $this->model = ["status" => false];
+            $this->model = false;
             return $this->sendNewError("Already Answered");
         }
-
+        
 
         if (
             !empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED")
 
         ) {
-            $this->messages = $survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
-            $this->model = ["status" => false];
-            return $this->sendNewError("Something went wrong");
+
+            $this->model = false;
+            return $this->sendNewError($survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.");
         }
         
         $last_attempt = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $request->user()->profile->id)
@@ -327,6 +327,10 @@ class SurveyApplicantController extends Controller
         $answerAttempt["profile_id"] = $request->user()->profile->id;
         $answerAttempt["survey_id"] = $id;
 
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null]);
+        $user = $request->user()->profile->id;
+        Redis::set("surveys:application_status:$id:profile:$user", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"));
+        
         if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;

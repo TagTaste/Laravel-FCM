@@ -796,7 +796,7 @@ class SurveyController extends Controller
 
             if ($commit) {
                 DB::commit();
-
+                
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
