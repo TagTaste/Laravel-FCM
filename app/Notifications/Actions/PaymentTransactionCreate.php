@@ -29,7 +29,7 @@ class PaymentTransactionCreate extends Action
         $this->notification = $this->sub;
 
     }
-
+    
     public function via($notifiable)
     {
         $via = [];
