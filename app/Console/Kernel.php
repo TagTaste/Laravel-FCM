@@ -324,9 +324,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Graph\Build\UserQuiz::class,
         \App\Console\Commands\InsertApplicantsAttempt::class,
 
-
-
-
+        // quiz application_status
+        \App\Console\Commands\QuizApplicationStatus::class,
 
         //delete user
         \App\Console\Commands\DeleteUser::class,

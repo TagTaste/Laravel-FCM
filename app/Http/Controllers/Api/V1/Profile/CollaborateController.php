@@ -370,6 +370,7 @@ class CollaborateController extends Controller
             $inputs['expires_on'] = $request->expires_on;
             if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
                 $inputs['state'] = Collaborate::$state[0];
+                $inputs['step'] = 3;
                 $inputs['deleted_at'] = null;
                 $collaborate->addToCache();
                 $profile = Profile::find($profileId);
