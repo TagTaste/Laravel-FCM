@@ -830,7 +830,7 @@ class QuizController extends Controller
                 $tds_amount = number_format($amount/10,2);
             }
 
-            $data = ["amount" => $amount,"tds_amount" => $tds_amount,"payout_amount" => $amount - $tds_amount, "model_type" => "quiz", "model_id" => $request->quiz_id, "payment_id" => $paymentDetails->id];
+            $data = ["amount" => $amount,"tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "quiz", "model_id" => $request->quiz_id, "payment_id" => $paymentDetails->id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;
