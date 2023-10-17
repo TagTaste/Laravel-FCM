@@ -582,9 +582,9 @@ class SurveyController extends Controller
                 $this->errors = $validator->messages();
                 return $this->sendResponse();
             }
-
+            
             $id = $this->model->where("id", "=", $request->survey_id)->first();
-
+            
             $this->model = [];
             if (empty($id)) {
                 $this->model = ["status" => false];
@@ -933,9 +933,15 @@ class SurveyController extends Controller
 
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
+            
+            //TDS deduction
+            $tds_deduction = $request->user()->profile->tds_deduction;
+            $tds_amount = 0;
+            if($tds_deduction){
+                $tds_amount = round($amount/10);
+            }
 
-
-            $data = ["amount" => $amount, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
+            $data = ["amount" => $amount, "tds_amount" => $tds_amount,"payout_amount" => $amount - $tds_amount,"model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;
