@@ -15,8 +15,8 @@ class AddTdsToPaymentLinks extends Migration
     {
         //
         Schema::table('payment_links', function (Blueprint $table){
-            $table->decimal('payout_amount', 13, 2);
-            $table->decimal('tds_amount', 13, 2)->default(0);
+            $table->decimal('payout_amount', 13, 2)->after('amount');
+            $table->decimal('tds_amount', 13, 2)->after('payout_amount')->default(0);
         });
     }
 
