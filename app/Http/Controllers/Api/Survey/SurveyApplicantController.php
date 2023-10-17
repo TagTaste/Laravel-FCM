@@ -21,6 +21,8 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Helper;
+use Illuminate\Support\Facades\DB;
+
 
 class SurveyApplicantController extends Controller
 {
@@ -270,6 +272,8 @@ class SurveyApplicantController extends Controller
     }
 
     public function startSurvey($id, Request $request){
+
+    try{
         $survey = $this->model->where("id", "=", $id)->first();
         $this->model = [];
         if (empty($survey)) {
@@ -295,9 +299,10 @@ class SurveyApplicantController extends Controller
             $this->model = false;
             return $this->sendNewError("Admin Cannot Fill the Surveys");
         }
-
+        
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
 
+        DB::beginTransaction();
         if (empty($checkApplicant) && (is_null($survey->is_private) || !$survey->is_private)) {
             $this->saveApplicants($survey, $request);
         } elseif (empty($checkApplicant)) {
@@ -310,7 +315,6 @@ class SurveyApplicantController extends Controller
             return $this->sendNewError("Already Answered");
         }
         
-
         if (
             !empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED")
 
@@ -327,17 +331,14 @@ class SurveyApplicantController extends Controller
         $answerAttempt["profile_id"] = $request->user()->profile->id;
         $answerAttempt["survey_id"] = $id;
 
-        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null]);
-        $user = $request->user()->profile->id;
-        Redis::set("surveys:application_status:$id:profile:$user", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"));
+       
         
         if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
             SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id]);
-            $this->model = $attemptEntry;
-            return $this->sendResponse();
+            $this->model = true;
         } else {    //when its not first attempt
             $attempt_number = $last_attempt->attempt;
             if ($survey->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
@@ -345,15 +346,25 @@ class SurveyApplicantController extends Controller
                 $answerAttempt["attempt"] = $attempt_number;
                 $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
                 SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id]);
-                $this->model = $attemptEntry;
-                return $this->sendResponse();
+                $this->model = true;
             }else{
                 SurveysEntryMapping::where("surveys_attempt_id",$last_attempt->id)->whereNull("deleted_at")->update(["deleted_at" => date("Y-m-d H:i:s")]);
                 SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id]);
                 $this->model = true;
-                return $this->sendNewResponse();
             }
         }
+
+         //update applicant to inprogress
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null]);
+        $user = $request->user()->profile->id;
+        Redis::set("surveys:application_status:$id:profile:$user", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"));
+        DB::commit();
+        return $this->sendNewResponse();
+    } catch (Exception $ex) {
+        DB::rollback();
+        $this->model = false;
+        return $this->sendNewError("Error saving data " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
+    }
     }
     
     public function saveApplicants(Surveys $id, Request $request)
