@@ -940,7 +940,7 @@ class SurveyController extends Controller
             if($tds_deduction){
                 $tds_amount = round($amount/10);
             }
-
+            
             $data = ["amount" => $amount, "tds_amount" => $tds_amount,"payout_amount" => $amount - $tds_amount,"model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
