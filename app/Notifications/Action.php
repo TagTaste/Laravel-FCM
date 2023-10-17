@@ -56,19 +56,9 @@ class Action extends Notification implements ShouldQueue
         {
             return $via;
         }
-
-        if (config("app.env") != "production") {
-            $email_address = $this->model->owner->email;
-            $allowed_emails = ["nikhil@tagtaste.com","v-jaini@tagtaste.com","vineeta@tagtaste.com","tarun@tagtaste.com","sakshi@tagtaste.com","harsh@tagtaste.com","aashita@tagtaste.com","ankit@tagtaste.com","v-hariom@tagtaste.com","upendra@tagtaste.com"];
-            $allowed_emails = ["nikhil@tagtaste.com","niks267882@gmail.com"];
-            if (!in_array($email_address, $allowed_emails)){
-                return $via;
-            }
-        }
-
+        
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
-
         }
 
         $preference = null;
@@ -96,6 +86,7 @@ class Action extends Notification implements ShouldQueue
         } else {
             $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action);
         }
+
         if(is_null($preference)) {
             return $via;
         }
@@ -105,6 +96,7 @@ class Action extends Notification implements ShouldQueue
             $via[] = 'broadcast';
             $via[] = 'database';
         }
+        
         if($preference->email_value && $this->view && view()->exists($this->view)) {
             $via[] = 'mail';
         }
