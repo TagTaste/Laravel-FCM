@@ -51,7 +51,7 @@ class Action extends Notification implements ShouldQueue
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-
+       
         if(isset($this->allData['type']) && $this->allData['type'] == 'product')
         {
             return $via;

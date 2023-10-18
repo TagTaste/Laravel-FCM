@@ -498,6 +498,7 @@ class SurveyApplicantController extends Controller
                 "Profile link" => env('APP_URL') . "/@" . $applicant->profile->handle,
                 "Email" => $applicant->profile->email,
                 "Phone Number" => $applicant->profile->getContactDetail(),
+                "generation" => $applicant->generation,
                 "Occupation" => $job_profile,
                 "Specialization" => $specialization,
                 "Hometown" => $applicant->hometown,
