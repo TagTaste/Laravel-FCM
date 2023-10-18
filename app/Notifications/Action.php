@@ -62,7 +62,7 @@ class Action extends Notification implements ShouldQueue
         }
 
         $preference = null;
-
+        
         if(isset($this->model->company_id) && !is_null($this->model->company_id)) {
 
             //getting list of company admins

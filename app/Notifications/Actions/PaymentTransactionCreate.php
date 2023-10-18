@@ -15,12 +15,12 @@ class PaymentTransactionCreate extends Action
     public $sub;
     public $notification ;
     
-
+    
     public function __construct($event)
     {
         parent::__construct($event);
         
-        $this->view = 'emails.payment-create';
+        $this->view = 'emails.payment-create-v1';
         
         $this->sub = "Payment Initiated";
         if(!is_null($this->data->content)) {
@@ -33,7 +33,6 @@ class PaymentTransactionCreate extends Action
     public function via($notifiable)
     {
         $via = [];
-
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
         }

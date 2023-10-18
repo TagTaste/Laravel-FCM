@@ -17,7 +17,7 @@ class Razorpay
         $parameters["contact"] = [
             "name" => $paramArray["name"], "email" => $paramArray["beneficiaryEmail"], "contact" => $paramArray["beneficiaryPhoneNo"], "type" => "Taster"
         ];
-        $parameters["amount"] = ($paramArray["amount"] * 100);
+        $parameters["amount"] = ($paramArray["payout_amount"] * 100);
         $parameters["currency"] = "INR";
         $parameters["purpose"] = "payout";
         $parameters["description"] = $paramArray["comments"];

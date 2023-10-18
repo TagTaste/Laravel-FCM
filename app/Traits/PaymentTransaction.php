@@ -24,6 +24,7 @@ trait PaymentTransaction
             $pay = [];
             $pay["orderId"] = $data["transaction_id"];
             $pay["amount"] = $data["amount"];
+            $pay["payout_amount"] = $data["payout_amount"];
             $pay["beneficiaryPhoneNo"] = $data["phone"];
             $pay["beneficiaryEmail"] = $data["email"];
 
@@ -82,11 +83,11 @@ trait PaymentTransaction
                     if (isset($resp["result"]["payoutLink"])) {
                         $dataToUpdate["link"] = $resp["result"]["payoutLink"];
                     }
-                    
+
                     event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type,"payout_amount" => $data["payout_amount"],"tds_amount" => $data["tds_amount"]]));
 
                     return PaymentLinks::where("transaction_id", $data["transaction_id"])->update($dataToUpdate); //
-                } else {
+                } else {                
                     PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]); //
                     return false;
                 }
