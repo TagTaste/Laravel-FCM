@@ -114,7 +114,7 @@
                                           font-size: 14px;
                                           line-height: 1.5;
                                           font-weight: 700;">
-                                       {{$data["email"]}}</span>
+                                      {{$data["email"]}}</span>
                                   </p>
                                   <p
                                   style="
@@ -131,7 +131,7 @@
                                         line-height: 1.5;
                                         font-weight: 700;
                                         text-decoration: underline;">
-                                         <a href= {{$data["txn_skynet_link"]}}target="_blank" rel="noreferrer" style="color: #4990e2">{{$data["order_id"]}}</a>
+                                         <a href={{$data["txn_link"]}} target="_blank" rel="noreferrer" style="color: #4990e2">{{$data["order_id"]}}</a>
                                    </span>
                                 </p>
                                 <p
@@ -141,7 +141,7 @@
                                     font-size: 14px;
                                     line-height: 1.5;
                                     font-weight: 700;">
-                                   {{$data["type"]}}:   
+                                    {{$data["type"]}}:  
                                     <span  style="
                                         color: #499DE2;
                                         margin: 16px 0px 0px 0px;
@@ -149,7 +149,7 @@
                                         line-height: 1.5;
                                         font-weight: 700;
                                         text-decoration: underline;">
-                                         <a href={{$data["model_link"]}} target="_blank" rel="noreferrer" style="color: #4990e2">{{$data["model_title"]}}</a>
+                                         <a href="#" target="_blank" rel="noreferrer" style="color: #4990e2">{!!$data["pretext"] !!}</a>
                                    </span>
                                 </p>
                                 <p

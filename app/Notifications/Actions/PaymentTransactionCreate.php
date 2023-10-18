@@ -38,7 +38,7 @@ class PaymentTransactionCreate extends Action
         }
         return $via;
     }
-
+    
     public function toMail($notifiable)
     {
         if(view()->exists($this->view)){

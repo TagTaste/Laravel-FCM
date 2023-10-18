@@ -11,7 +11,8 @@ use App\PublicReviewProduct;
 use App\Surveys;
 use Exception;
 use Illuminate\Http\Request;
-
+use App\Mail\TdsDeductionFinanceMail;
+use Carbon\Carbon;
 
 trait PaymentTransaction
 {
@@ -57,7 +58,7 @@ trait PaymentTransaction
                 $pay["comments"] = $data["comment"] ?? "Payment from Tagtaste.";
             }
 
-
+            $current_time = Carbon::now()->toDateTimeString();
             $channel = 'App\\Services\\' . $paymentChannel;
             if (!method_exists($channel, 'createLink')) {
                 throw new Exception("Payment Channel Missing");
@@ -84,10 +85,17 @@ trait PaymentTransaction
                         $dataToUpdate["link"] = $resp["result"]["payoutLink"];
                     }
 
-                    event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type,"payout_amount" => $data["payout_amount"],"tds_amount" => $data["tds_amount"]]));
+                    event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type,"payout_amount" => $data["payout_amount"],"tds_amount" => $data["tds_amount"],"email"=>$data["email"]]));
+                    
+                    if ($data["tds_amount"] > 0){
+                        $profile_link = env('APP_URL').'/profile/'.$data["model"]["profile_id"];
+                        $txn_link = env('SKYNET_URL').'/main/payment-management/passbook';
+    
+                        \Mail::to("sahil@tagtaste.com")->send(new TdsDeductionFinanceMail(["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type,"payout_amount" => $data["payout_amount"],"tds_amount" => $data["tds_amount"], "created_at"=>$current_time,"email"=>$data["email"],"profile_link"=> $profile_link, "txn_link"=> $txn_link]));      
+                    }
 
                     return PaymentLinks::where("transaction_id", $data["transaction_id"])->update($dataToUpdate); //
-                } else {                
+                } else {    
                     PaymentLinks::where("transaction_id", $data["transaction_id"])->update(["status_json" => json_encode($resp)]); //
                     return false;
                 }
