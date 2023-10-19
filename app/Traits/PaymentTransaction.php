@@ -117,6 +117,9 @@ trait PaymentTransaction
             throw new Exception("Payment Channel Missing");
             return false;
         }
+        if($getChannel['status_id'] == config("constant.PAYMENT_INITIATED_STATUS_ID")){
+            return true
+        }
 
         $response = $channel::getStatus($getChannel);
 
