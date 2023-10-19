@@ -118,7 +118,7 @@ trait PaymentTransaction
             return false;
         }
         if($getChannel['status_id'] == config("constant.PAYMENT_INITIATED_STATUS_ID")){
-            return true
+            return true;
         }
 
         $response = $channel::getStatus($getChannel);
