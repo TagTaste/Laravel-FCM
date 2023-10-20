@@ -90,6 +90,10 @@ class ShareController extends BaseController
             $this->model['profile'] = json_decode(Redis::get('profile:small:' . $sharedModel['profile_id'] . ':V2'));
         }
         $this->model[$modelName] = $sharedModel;
+        if(isset($this->model[$modelName]["videos_meta"]))
+        {
+            $this->model[$modelName]["videos_meta"] = json_decode($this->model[$modelName]["videos_meta"], true);
+        }
         $this->model['meta'] = $exists->getMetaForV2Shared($loggedInProfileId);
         $this->model['seoTags'] = $seoTagShared;
         return $this->sendResponse();

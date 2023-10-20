@@ -20,7 +20,11 @@ class collaborateRoles
         //     return $next($request);
         // }
         $loggedInProfileId = $request->user()->profile->id;
-        $path = $request->getPathInfo();
+        $path = $request->getPathInfo();   
+        if($request->is('*/v1/*'))
+        {
+            $path = preg_replace('/v1/', 'v', $path);
+        }
        $ids = preg_split('#([/a-zA-Z]+)#', $path);
        $ids = array_reverse($ids);
        $collabId = null;
@@ -34,11 +38,14 @@ class collaborateRoles
             // ->where('state',1)
             ->where('id',$collabId)
             ->first();
+        if(is_null($collab))
+        {
+            return response()->json(['data'=>null,'errors'=>'Invalid Collaboration Project.','messages'=>null], 200);
+        }
         if($collab->collaborate_type != 'product-review' || (isset($collab->profile_id) && $collab->profile_id == $loggedInProfileId)) {
             return $next($request);
         }
         $companyId = $collab->company_id;
-        
         
         $path = preg_replace('#([0-9]+)#','id',$path); 
         $checkPermissionExist = \DB::table('collaborate_permissions')->where('route',$path)->where('method',$request->method())->count();
@@ -49,6 +56,10 @@ class collaborateRoles
         $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
         if($checkAdmin) {
             return $next($request);
+        }
+        if($request->is('*/v1/*'))
+        {
+            $path = preg_replace('/v/', 'v1', $path);
         }
         $permission  = \DB::table('collaborate_user_roles')
             ->where('profile_id',$loggedInProfileId)
