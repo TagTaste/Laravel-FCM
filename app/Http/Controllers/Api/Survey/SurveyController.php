@@ -48,8 +48,7 @@ class SurveyController extends Controller
     protected $model;
 
     protected $colorCodeList = [
-        "#F3C4CD", "#F1E6C7", "#D0DEEF", "#C1E2CF",
-        "#C1E4E5", "#F2D9C6", "#C6ECF2", "#C6CEF2", "#DEC6F2", "#F2C6E1", "#CAD1D9", "#D9CAD9", "#D9CACC", "#E2D5C4", "#CBCBDE", "#DDDECB", "#E9D4E7", "#D7D4D5", "#ECE1D8", "#CBC3CD"
+        "-7" => "#F3C4CD", "-6" => "#F1E6C7", "-5" => "#D0DEEF", "-4" => "#C1E2CF", "-3" => "#C1E4E5", "-2" => "#F2D9C6", "-1" => "#C6ECF2", "0" => "#C6CEF2", "1" => "#DEC6F2", "2" => "#F2C6E1", "3" => "#CAD1D9", "4" => "#D9CAD9", "5" => "#D9CACC", "6" => "#E2D5C4", "7" => "#CBCBDE", "8" => "#DDDECB", "9" => "#E9D4E7", "10" => "#D7D4D5", "11" => "#ECE1D8", "12" => "#CBC3CD", "13" => "#96B6C5",  "14" => "#C8E4B2",  "15" => "#FFD1DA",  "16" => "#D0F5BE",  "17" => "#D9ACF5"
     ];
 
     public function __construct(Surveys $model)
@@ -1029,8 +1028,6 @@ class SurveyController extends Controller
 
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
 
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1107,7 +1104,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
 
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
 
@@ -1400,8 +1397,6 @@ class SurveyController extends Controller
         
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
 
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1487,7 +1482,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
 
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
@@ -1797,9 +1792,6 @@ class SurveyController extends Controller
         
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
-
         if (empty($checkIFExists)) {
             $this->model = false;
             return $this->sendNewError("Invalid Survey");
@@ -1895,7 +1887,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             
             $quesOptions = isset($values['options']) ? $values['options'] : [];
             $queOptionIds = array_pluck($quesOptions, 'id');
@@ -1931,14 +1923,12 @@ class SurveyController extends Controller
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
             }));
 
-
             $respondentCount = count($answers->pluck("profile_id")->unique()->toArray());
             // $responseCount = array_unique(array_column($answers->toArray(), 'profile_id','batch_id'));
             // $responseCount = $answers->pluck('profile_id')->toArray();
 
             $prepareNode["reports"][$counter]["respondent_count"] = $respondentCount;
-            $prepareNode["reports"][$counter]["response_count"] = $count2;
-            
+            $prepareNode["reports"][$counter]["response_count"] = $count2;    
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
@@ -1968,7 +1958,25 @@ class SurveyController extends Controller
                 }));
                 $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                 $count = 0;
+
+                if (isset($values["version"]))
+                {
+                    // Add version key for new range type
+                    $prepareNode["reports"][$counter]["version"] = $values["version"];
+                    
+                    $last_index = count($values["options"]) - 1;
+                    $values["min"] = $values["options"][0]["title"];
+                    $values["max"] = $values["options"][$last_index]["title"];
+                }
+                $totalAnsSum = 0;
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                    if (isset($values["version"]))
+                    {
+                        $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
+                        $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
+                        $totalAnsSum +=  isset($getAvg[$min]) ? ($min)*($getAvg[$min]["count"]) : 0;
+                    }
+                    
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$min]) ? $getAvg[$min]["count"] : 0);
                     $prepareNode["reports"][$counter]["options"][$count]["answer_percentage"] = (isset($getAvg[$min]) ? $getAvg[$min]["avg"] : 0);
@@ -1976,6 +1984,22 @@ class SurveyController extends Controller
                     $prepareNode["reports"][$counter]["options"][$count]["option_type"] = 0;
                     $count++;
                 }
+
+                if (isset($values["version"]))
+                {
+                    // average of answers and percentage value at question level
+                    $totalRespondents = count(SurveyAttemptMapping::whereNotNull("completion_date")->whereNull("deleted_at")->where("survey_id", "=", $id)->where('attempt', 1)->get());
+                    $prepareNode["reports"][$counter]["percentage"] = ($totalRespondents == 0) ? 0 : (int)round(($respondentCount*100) / $totalRespondents); 
+                    $average = ($count2 == 0) ? 0 : number_format((float)($totalAnsSum/$count2), 2, '.', '');
+                    $optionList = $prepareNode["reports"][$counter]["options"];
+                    $filteredArray = array_values(array_filter($optionList, function ($arr) use ($average) {
+                        return $arr["value"] == round($average);
+                    }));
+                    $roundedAvgOption = count($filteredArray) == 0 ? ["label"=>"", "color_code" => "#fcda02"] : $filteredArray[0];
+                    $prepareNode["reports"][$counter]["average_value"] = empty($roundedAvgOption["label"]) ? $average : $average." (".$roundedAvgOption["label"].")"; 
+                    $prepareNode["reports"][$counter]["color_code"] = $roundedAvgOption["color_code"];
+                }
+
             } elseif (isset($values["multiOptions"])) {
                 $rowIndex = 0;
                 foreach ($values["multiOptions"]['row'] as $row) {
@@ -2242,6 +2266,13 @@ class SurveyController extends Controller
         }
 
         return false;
+    }
+
+    // Shuffle color codes
+    function shuffleColorValues($colorCodeList) {
+        $colorValues = array_values($colorCodeList);
+        shuffle($colorValues);
+        return array_combine(array_keys($colorCodeList), $colorValues);
     }
 
     private function validateSurveyFormJson($request, $isUpdation = false)
@@ -2818,8 +2849,6 @@ class SurveyController extends Controller
         //     return $this->sendNewError("Only Survey Admin can view this report");
         // }
 
-        $colorCodeList = $this->colorCodeList;
-
         $prepareNode = ["reports" => []];
         $rankMapping = [];
         $optionValues = [];
@@ -2860,7 +2889,7 @@ class SurveyController extends Controller
         $counter = 0;
         
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->where("attempt", $attempt)->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
@@ -2891,8 +2920,22 @@ class SurveyController extends Controller
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
                 $count = 0;
                 $pluckOpId = $answers->pluck("answer_value")->toArray();
+
+                if (isset($values["version"]))
+                {
+                    // Add version key for new range type
+                    $prepareNode["reports"][$counter]["version"] = $values["version"];
+                    $last_index = count($values["options"]) - 1;
+                    $values["min"] = $values["options"][0]["title"];
+                    $values["max"] = $values["options"][$last_index]["title"];
+                }
                 
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                    if (isset($values["version"]))
+                    {
+                        $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
+                        $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
+                    }
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     if (in_array($min, $pluckOpId))
                         $prepareNode["reports"][$counter]["options"][$count]["is_answered"] = true;
@@ -3071,7 +3114,7 @@ class SurveyController extends Controller
 
     public function userReport($id, $profile_id, Request $request)
     {
-
+        
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -3093,8 +3136,6 @@ class SurveyController extends Controller
         //     $this->model = false;
         //     return $this->sendNewError("Only Survey Admin can view this report");
         // }
-
-        $colorCodeList = $this->colorCodeList;
 
         $prepareNode = ["reports" => []];
         $rankMapping = [];
@@ -3124,7 +3165,7 @@ class SurveyController extends Controller
         $counter = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->where("attempt", $attempt)->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
@@ -3154,7 +3195,7 @@ class SurveyController extends Controller
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
                 $count = 0;
                 $pluckOpId = $answers->pluck("answer_value")->toArray();
-
+              
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     if (in_array($min, $pluckOpId))
@@ -3166,6 +3207,7 @@ class SurveyController extends Controller
                     $count++;
                 }
             }
+
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 $optionValues = $answers->pluck("answer_value")->toArray();
 
@@ -3519,6 +3561,13 @@ class SurveyController extends Controller
                     $multiChoiceCheckColumn[$values["id"]]["column"][$column["id"]] = html_entity_decode($column['title']);
                 }
             }
+            elseif($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE") && isset($values['version']))
+            {
+                foreach ($values["options"] as $option) {
+                    $option_labels[$values["id"]][$option["id"]] = $option['label'];
+                }
+                
+            }
         }
         // dd($questionIdMapping);
         // $applicants = SurveyAttemptMapping::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->groupBy("profile_id")->where("deleted_at", "=", null);
@@ -3642,7 +3691,6 @@ class SurveyController extends Controller
                     }
                     $ans .= html_entity_decode($multiChoiceCheckColumn[$answers->question_id]["column"][$answers->answer_value]);
                 } elseif ($answers->question_type <= config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
-
                     if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
                     }
@@ -3688,7 +3736,10 @@ class SurveyController extends Controller
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] = $ans;
                 } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
-                } else {
+                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE") && isset($option_labels[$answers->question_id][$answers->option_id])) {
+                    $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = empty($option_labels[$answers->question_id][$answers->option_id]) ? $ans : $ans." (".$option_labels[$answers->question_id][$answers->option_id].")";
+                }
+                else {
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = $ans;
                 }
             }
