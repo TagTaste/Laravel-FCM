@@ -665,7 +665,7 @@ class SurveyApplicantController extends Controller
                 
                 $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
             
-                $submission_entry = SurveysEntryMapping::where("survey_attempt_id",$submission["id"])->whereNull("deleted_at")->last();
+                $submission_entry = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->whereNull("deleted_at")->first();
                 if(isset($submission_entry)){
                     $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission_entry["created_at"]));
                     $duration = $durationForSection;
@@ -1150,7 +1150,7 @@ class SurveyApplicantController extends Controller
             $duration = "-";
             $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
 
-            $submission_entry = SurveysEntryMapping::where("survey_attempt_id",$submission["id"])->whereNull("deleted_at")->last();
+            $submission_entry = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->whereNull("deleted_at")->first();
 
             //Check submission duration with start survey
             if(isset($submission_entry)){
