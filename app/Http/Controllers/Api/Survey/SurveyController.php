@@ -3366,15 +3366,10 @@ class SurveyController extends Controller
             return $this->sendNewError("Only Survey Admin can view this report");
         }
 
-         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-            $companyId = $checkIFExists->company_id;
-            $userId = $request->user()->id;
-            $company = Company::find($companyId);
-            $userBelongsToCompany = $company->checkCompanyUser($userId);
-            if (!$userBelongsToCompany) {
-                $this->model = false;
-                return $this->sendNewError("User does not belong to this company");
-            }
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
         } else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
