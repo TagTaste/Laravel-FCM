@@ -147,6 +147,8 @@ class PublicReviewProductController extends Controller
         $meta = $product->getMetaFor($request->user()->profile->id);
         $seo = $product->getSeoTags($request->user()->profile->id);
         $product = $product->toArray();
+        $product["videos_meta"] = json_decode($product["videos_meta"]);
+        $product["assets_order"] = json_decode($product["assets_order"]);
         if (isset($product["not_accepting_response"]) && $product["not_accepting_response"] == 1) {
             $product["deprecation_note"] = "We are not accepting reviews for this product.";
         }

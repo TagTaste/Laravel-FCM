@@ -113,11 +113,16 @@ class PhotoController extends Controller
         return $this->sendResponse();
     }
 
-    public function globalVideoUpload(Request $request){
-        $profileId = $request->user()->profile->id;
-        $path = "global/video/$profileId";
-        $status = Storage::makeDirectory($path,0644,true);
+    public function globalVideoUpload($modelName, Request $request){
+        
+        if(!in_array($modelName, ['polling','surveys','quiz','collaborate'])){
+            return $this->sendNewError("This model is not supported.");
+        }
 
+        $profileId = $request->user()->profile->id;
+        $path = "global/video/$modelName/$profileId";
+        $status = Storage::makeDirectory($path,0644,true);
+        
         // $path = Shoutout::getProfileMediaPath($profile->id);
         $filename = $request->file('media_file')->getClientOriginalName();
         $filename = str_random(15).".".\File::extension($filename);
@@ -125,10 +130,10 @@ class PhotoController extends Controller
         $mediaJson =  $this->videoTranscodingNew($inputs['media_url']);
         $mediaJson = json_decode($mediaJson,true);
         $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
-        $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
+        $inputs = $mediaJson;
 
         $this->model = $inputs;
-        return $this->sendResponse();
+        return $this->sendNewResponse();
     }
 
     private function videoTranscodingNew($url)

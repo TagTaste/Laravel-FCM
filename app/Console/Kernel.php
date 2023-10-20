@@ -85,6 +85,8 @@ use App\Console\Commands\QuizApplicantScore;
 use App\Console\Commands\AddDobQuizApplicants;
 use App\Console\Commands\AddDobSurveyApplicants;
 use App\Console\Commands\AddDobCollaborateApplicants;
+use App\Console\Commands\AddReconciliationDatePaymentLinks;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -286,6 +288,7 @@ class Kernel extends ConsoleKernel
         AddDobQuizApplicants::class,
         AddDobSurveyApplicants::class,
         AddDobCollaborateApplicants::class,
+        AddReconciliationDatePaymentLinks::class,
 
         RemoveDuplicateFromReviewTable::class,
 

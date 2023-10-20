@@ -59,7 +59,9 @@ class UpdateProfileCompiledInfo extends Command
                     'private_review_count' => $model->privateReviewCount,
                     'public_review_count' => $model->reviewCount,
                     'survey_count' => $model->surveyCount,
-                    'amount' => $model->amount
+                    'amount' => $model->amount,
+                    'quiz_answer_count' => $model->quizAnswerCount,
+                    'poll_answer_count' => $model->pollAnswerCount
                 );
 
                 $profile_compiled_info = ProfileCompiledInfo::where('profile_id', $model->id)->first();
