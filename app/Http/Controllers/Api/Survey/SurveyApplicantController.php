@@ -662,9 +662,15 @@ class SurveyApplicantController extends Controller
             $duration = '-';
             if($applicant->application_status == 2){
                 $submission = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $applicant->profile->id)->whereNotNull("completion_date")->first();
-
+                
                 $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
             
+                $submission_entry = SurveysEntryMapping::where("survey_attempt_id",$submission["id"])->whereNull("deleted_at")->last();
+                if(isset($submission_entry)){
+                    $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission_entry["created_at"]));
+                    $duration = $durationForSection;
+                }
+
                 if ($survey->is_section && !empty($durationForSection)) {
                     $duration = $durationForSection;
                 }
@@ -1143,6 +1149,15 @@ class SurveyApplicantController extends Controller
             $submission_status = [];
             $duration = "-";
             $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
+
+            $submission_entry = SurveysEntryMapping::where("survey_attempt_id",$submission["id"])->whereNull("deleted_at")->last();
+
+            //Check submission duration with start survey
+            if(isset($submission_entry)){
+                $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission_entry["created_at"]));
+                $duration = $durationForSection;
+            }
+
             if ($checkIFExists->is_section && !empty($durationForSection)) {
                 $duration = $durationForSection;
             }
@@ -1150,7 +1165,7 @@ class SurveyApplicantController extends Controller
             $submission_status[] = ["title" => "Time", "value" => date("h:i:s A", strtotime($submission["completion_date"]))];
             $submission_status[] = ["title" => "Duration", "value" => $duration];
 
-
+            
             $profile["submission_status"][] = $submission_status;
             $profile["profile"] = $applicant->profile;
         }
