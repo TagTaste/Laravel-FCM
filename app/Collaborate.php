@@ -674,6 +674,7 @@ class Collaborate extends Model implements Feedable
         foreach ($cities as $city) {
             $modl['id'] = $city->id;
             $modl['city'] = $city->city;
+            $modl['no_of_taster'] = $city->no_of_taster;
             $modl['outlets'] = \DB::table('outlets')->join('collaborate_addresses', 'outlets.id', '=', 'collaborate_addresses.outlet_id')
                 //->where('is_active',1)
                 ->where('city_id', $city->id)

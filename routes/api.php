@@ -266,6 +266,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                 Route::get("collaborate/{id}/cities", "CollaborateController@getCities");
                 Route::get("collaborate/{id}/cities/{cityId}/outlets", "CollaborateController@getOutlets");
                 Route::get("collaborate/{id}/cities/{cityId}/outlets/{addressId}", "CollaborateController@outletStatus");
+                //copy collaboration
+                Route::post("collaborate/{id}/copy", "CollaborateController@copy");
+
                 Route::group(['namespace' => 'Company', 'prefix' => 'companies/{companyId}', 'as' => 'companies.', 'middleware' => 'api.CheckCompanyAdmin'], function () {
                     Route::post('collaborate/{collaborateId}/assignRole', 'CollaborateController@assignRole');
                     Route::post("collaborate/{id}/scopeOfReview", "CollaborateController@scopeOfReview");

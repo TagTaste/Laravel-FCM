@@ -88,7 +88,7 @@ class CollaborateController extends Controller
         $profile = $request->user()->profile;
         $profileId = $profile->id ;
         $inputs = $request->all();
-        $inputs['state'] = 1;
+        
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
         {
             $checkCompanyPremium = Company::where('id',$companyId)->where('is_premium',1)->exists();
@@ -98,6 +98,10 @@ class CollaborateController extends Controller
             }
             $inputs['step'] = 1;
             $inputs['state'] = 4;
+        }
+        else
+        {
+            $inputs['state'] =  $request->state;
         }
 
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
@@ -349,6 +353,10 @@ class CollaborateController extends Controller
 
                 event(new NewFeedable($this->model, $company));
             }
+            else if ($collaborate->state == 'Save')
+            {
+                $inputs['state'] = $request->state;
+            }
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
@@ -548,14 +556,16 @@ class CollaborateController extends Controller
 
         //$inputs['is_taster_residence'] = is_null($inputs['is_taster_residence']) ? 0 : $inputs['is_taster_residence'];
 
-        if(isset($inputs['step']))
-        {
-            $inputs['state'] = Collaborate::$state[0];
-        }
-        else
-        {
-            $inputs['state'] = Collaborate::$state[0];
-        }
+        $inputs['state'] = $request->state;
+
+        // if(isset($inputs['step']))
+        // {
+        //     $inputs['state'] = Collaborate::$state[0];
+        // }
+        // else
+        // {
+        //     $inputs['state'] = Collaborate::$state[0];
+        // }
 
         // if($request->has('city'))
         // {
