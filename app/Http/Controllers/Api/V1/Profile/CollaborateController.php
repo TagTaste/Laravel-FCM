@@ -447,8 +447,7 @@ class CollaborateController extends Controller
      */
     public function copy(Request $request, $profileId, $id)
     {
-        $collab = $this->model->where("id", $id)->whereNull("deleted_at")->first();
-        // dd($collab->toArray());
+        $collab = $this->model->where("id", $id)->where('state','!=',2)->first();
        
         if (empty($collab)) {
             $this->model = ["status" => false];
