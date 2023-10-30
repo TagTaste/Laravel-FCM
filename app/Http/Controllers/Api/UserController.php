@@ -35,7 +35,7 @@ class UserController extends Controller
         
         $validator = Validator::make($request->input('user'), [
             'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
+            'email' => 'required|email|max:255',
             'password' => 'required|min:6|confirmed',
         ]);
 
@@ -48,12 +48,41 @@ class UserController extends Controller
         $result = ['status'=>'success','newRegistered' =>true];
         
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),false,null,null,null,$alreadyVerified,null,null,null);
+
+        if(is_array($user) && isset($user["error"]))
+        {
+            return ['status'=>'failed','errors'=>$user["error"],'result'=>[]];
+        }
         
         $token = \JWTAuth::attempt(['email' => $request->input('user.email'),'password' => $request->input('user.password')]);
         $result['result'] = ['user'=>$user,'token'=> $token];
         
-        // Store jwt tokens for force-logout
-        $this->userService->storeUserLoginInfo($user->id, $request, $token);
+        if(isset($user))
+        {
+            // Store jwt tokens for force-logout
+            $this->userService->storeUserLoginInfo($user->id, $request, $token);
+
+            // Send verification email
+            $source = config("constant.SIGNUP_EMAIL_VERIFICATION");
+            $versionKey = 'X-VERSION';
+            $versionKeyIos = 'X-VERSION-IOS';
+
+            if ($request->hasHeader($versionKey)) {
+                $platform = "android";
+            } 
+            else if ($request->hasHeader($versionKeyIos)){
+                $platform = "ios";
+            } 
+            else {
+                $platform = "web";
+            }
+
+            $verificationResult = $this->userService->sendVerificationEmail($user->email, $source, $platform, 'sign-up');
+            if($verificationResult['result'] == false)
+            {
+                return ['status'=>'failed','errors'=>$verificationResult['error'],'result'=>[]];
+            }
+        }
         
         $companies = \App\Company::whereIn('id',[111,137,322])->get();
         foreach ($companies as $company) {
@@ -66,10 +95,12 @@ class UserController extends Controller
                 \Redis::sAdd("followers:company:" . $company->id, $user->profile->id);
             }
         }
-        $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
-        \Log::info('Queueing Verified Email...');
 
-        dispatch($mail);
+
+        // $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
+        // \Log::info('Queueing Verified Email...');
+
+        // dispatch($mail);
 
         return response()->json($result);
     }

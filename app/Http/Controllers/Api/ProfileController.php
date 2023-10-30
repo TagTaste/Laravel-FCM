@@ -12,6 +12,7 @@ use App\Subscriber;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use App\User;
+use App\OTPMaster;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Jobs\PhoneVerify;
@@ -863,6 +864,79 @@ class ProfileController extends Controller
         }
     }
 
+    public function sendVerifyEmail(Request $request)
+    {
+        $source = config("constant.EMAIL_VERIFICATION");
+        $email = $request->email;
+        $platform = $request->platform;
+
+        // Service called to send verification email
+        $result = $this->userService->sendVerificationEmail($email, $source, $platform);
+        if($result['result'] == false)
+        {
+            return $this->sendError($result['error']);
+        }
+        else
+        {
+            $this->model = $result['result'];
+            return $this->sendResponse();
+        }
+    }
+
+    public function verifyEmailOtp(Request $request)
+    {
+        $source = config("constant.SIGNUP_EMAIL_VERIFICATION");
+        $another_source = config("constant.EMAIL_VERIFICATION");
+        $email = $request->email;
+        $otp = $request->otp;
+
+        $otpVerification = OTPMaster::where('email', $email)
+            ->whereIn("source",[ $source, $another_source])
+            ->where("deleted_at", null)
+            ->orderBy("id", "desc")
+            ->first();
+
+        if(empty($otpVerification))
+        {
+            return $this->sendError("Something went wrong! Please regenerate OTP or try other login methods.");
+        }
+
+        // check for otp attempts
+        if ($otpVerification && $otpVerification->attempts >= config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
+            OTPMaster::where('email', $email)->whereIn("source",[ $source, $another_source])->update(["deleted_at" => date("Y-m-d H:i:s")]);
+            return $this->sendError("OTP attempts exhausted. Please regenerate OTP or try other login methods.");
+        }
+
+        if ($otpVerification && $otpVerification->otp == $otp) 
+        {
+            // check for otp expiration 
+            if($otpVerification->expired_at < date("Y-m-d H:i:s"))
+            {
+                return $this->sendError("OTP has expired. Please try again!");
+            }
+
+            // Update attempts
+            $otpVerification->update(["attempts" => $otpVerification->attempts + 1]);
+
+            $user_id = Profile::find($otpVerification->profile_id)->user_id;
+            
+            $this->model = User::where('id', $user_id)->whereNull('verified_at')->where('email', $email)->update(['verified_at' => date("Y-m-d H:i:s")]);
+            if($this->model == 1)
+            {
+                OTPMaster::where('email', $email)->whereIn("source",[ $source, $another_source])->update(["deleted_at" => date("Y-m-d H:i:s")]);
+                $this->messages = "Your email is verified!";
+            }
+            
+            return $this->sendResponse();
+
+        }
+        else
+        {
+            $otpVerification->update(["attempts" => $otpVerification->attempts + 1]);
+            return $this->sendError("Incorrect OTP entered. Please try again.");
+        }
+    }
+
     public function phoneVerify(Request $request)
     {
         $data = $request->except([
@@ -886,18 +960,28 @@ class ProfileController extends Controller
                 }
                 $otp = \DB::table('profiles')->where('id', $request->user()->profile->id)->first();
 
-                $otpNo = mt_rand(100000, 999999);
-
-                // $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
-                $text = $otpNo . " is your OTP to verify your number with TagTaste.";
-
-                if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
-                    $service = "twilio";
-                    $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
-                } else {
-                    $service = "twilio";
-                    $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                // check for server
+                $environment = env('APP_ENV');
+                if($environment == "test")
+                {
+                    $otpNo = 123456;
                 }
+                else
+                {
+                    $otpNo = mt_rand(100000, 999999);
+
+                    // $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
+                    $text = $otpNo . " is your OTP to verify your number with TagTaste.";
+
+                    if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
+                        $service = "twilio";
+                        $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                    } else {
+                        $service = "twilio";
+                        $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                    }
+                }
+
                 $this->model = $profile->update(['otp' => $otpNo]);
                 $job = ((new PhoneVerify($number, $request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
                 dispatch($job);
