@@ -17,7 +17,7 @@ class EmailOtpVerification implements ShouldQueue
      *
      * @return void
      */
-    private $mailDetails;
+    protected $mailDetails;
     
     public function __construct($mailDetails)
     {
@@ -32,10 +32,10 @@ class EmailOtpVerification implements ShouldQueue
      */
     public function handle()
     {
-        $data = ["otp" => $this->mailDetails->otp, "name" => $this->mailDetails->username];
+        $data = ["otp" => $this->mailDetails['otp'], "name" => $this->mailDetails['username']];
         \Mail::send('emails.verify-email', $data, function($message)
         {
-            $message->to($this->mailDetails->email, $this->mailDetails->username)->subject('Verify your email');
+            $message->to($this->mailDetails['email'], $this->mailDetails['username'])->subject('Verify your email');
         });
     }
 }

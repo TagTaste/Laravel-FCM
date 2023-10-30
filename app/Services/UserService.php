@@ -148,14 +148,22 @@ class UserService
             $environment = env('APP_ENV');
             if($environment == "test")
             {
-                $otpNo = 123456;
+                //$otpNo = 123456;
+
+                //Send OTP 
+                $otpNo = mt_rand(100000, 999999);
+                $mailDetails = ["username" => $verifyEmail->name, "email" => $email, "otp" => $otpNo];
+                $mail = ($mailType == 'sign-up') ? (new \App\Jobs\SignupEmailOtpVerification($mailDetails)) : (new \App\Jobs\EmailOtpVerification($mailDetails));
+                \Log::info('Queueing Verified Email...');
+
+                dispatch($mail);
             }
             else
             {
                 //Send OTP     
                 $otpNo = mt_rand(100000, 999999);
                 $mailDetails = ["username" => $verifyEmail->name, "email" => $email, "otp" => $otpNo];
-                $mail = ($mailType == 'sign-up') ? (new \App\Jobs\SignupEmailOtpVerification($mailDetails))->onQueue('otp_emails') : (new \App\Jobs\EmailOtpVerification($mailDetails))->onQueue('otp_emails');
+                $mail = ($mailType == 'sign-up') ? (new \App\Jobs\SignupEmailOtpVerification($mailDetails)) : (new \App\Jobs\EmailOtpVerification($mailDetails));
                 \Log::info('Queueing Verified Email...');
 
                 dispatch($mail);

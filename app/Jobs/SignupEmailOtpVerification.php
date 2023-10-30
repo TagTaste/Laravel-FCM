@@ -17,7 +17,7 @@ class SignupEmailOtpVerification implements ShouldQueue
      *
      * @return void
      */
-    private $mailDetails;
+    protected $mailDetails;
     
     public function __construct($mailDetails)
     {
@@ -32,10 +32,10 @@ class SignupEmailOtpVerification implements ShouldQueue
      */
     public function handle()
     {
-        $data = ["otp" => $this->mailDetails->otp];
+        $data = ["otp" => $this->mailDetails['otp']];
         \Mail::send('emails.signup-verify-email.blade', $data, function($message)
         {
-            $message->to($this->mailDetails->email, $this->mailDetails->username)->subject('Verify your email');
+            $message->to($this->mailDetails['email'], $this->mailDetails['username'])->subject('Verify your email');
         });
     }
 }
