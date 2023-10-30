@@ -145,21 +145,13 @@ class UserService
         if ($otpCheck == null) 
         {
             // check for server
-            $environment = env('APP_ENV');
-            if($environment == "test")
-            {
-                //$otpNo = 123456;
-
-                //Send OTP 
-                $otpNo = mt_rand(100000, 999999);
-                $mailDetails = ["username" => $verifyEmail->name, "email" => $email, "otp" => $otpNo];
-                $mail = ($mailType == 'sign-up') ? (new \App\Jobs\SignupEmailOtpVerification($mailDetails)) : (new \App\Jobs\EmailOtpVerification($mailDetails));
-                \Log::info('Queueing Verified Email...');
-
-                dispatch($mail);
-            }
-            else
-            {
+            // $environment = env('APP_ENV');
+            // if($environment == "test")
+            // {
+            //     $otpNo = 123456;
+            // }
+            // else
+            // {
                 //Send OTP     
                 $otpNo = mt_rand(100000, 999999);
                 $mailDetails = ["username" => $verifyEmail->name, "email" => $email, "otp" => $otpNo];
@@ -167,7 +159,7 @@ class UserService
                 \Log::info('Queueing Verified Email...');
 
                 dispatch($mail);
-            }
+            // }
 
             $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+10 minutes"))]);
 
