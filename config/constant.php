@@ -6,7 +6,8 @@ return  [
         'DRAFT' => 1,
         'PUBLISHED' => 2,
         'CLOSED' => 3,
-        'EXPIRED' => 4
+        'EXPIRED' => 4,
+        'SHOWN_INTEREST' => 5
     ],
 
     "SURVEY_STATUS" => [
@@ -95,7 +96,8 @@ return  [
         'DRAFT' => 1,
         'PUBLISHED' => 2,
         'CLOSED' => 3,
-        'EXPIRED' => 4
+        'EXPIRED' => 4,
+        'PARTICIPATED' => 5
     ],
 
     "COLLABORATE_HEADER_SELECTION_TYPE" => [

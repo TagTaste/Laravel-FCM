@@ -94,29 +94,37 @@ class SurveyController extends Controller
     {
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $surveys = $this->model->where("is_active", "=", 1);
+        $surveys = $this->model->where("is_active", "=", 1)->orderBy('state', 'asc')->orderBy('created_at', 'desc');
+        $state = $request->state;
+        $profileId = $request->user()->profile->id;
         if ($request->has('state') && !empty($request->input('state'))) {
-            $states = [$request->state];
-            if ($request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
-                $states = [config("constant.SURVEY_STATES.PUBLISHED"), config("constant.SURVEY_STATES.CLOSED"), config("constant.SURVEY_STATES.EXPIRED")];
+            $states = [$state];
+            if ($state == config("constant.SURVEY_STATES.CLOSED")) { // For Inactive quizzes
+                $states = [config("constant.SURVEY_STATES.CLOSED"), config("constant.SURVEY_STATES.EXPIRED")];
             }
-            $surveys = $surveys->whereIn("state", $states);
+            if ($state == config("constant.SURVEY_STATES.SHOWN_INTEREST"))
+            {
+                $attemptedSurveys = SurveyAttemptMapping::where("profile_id", $profileId)->whereNull("deleted_at")->pluck('survey_id');
+                $surveys = $surveys->whereIn('id',$attemptedSurveys);
+            }
+            else
+            {
+                $surveys = $surveys->whereIn("state", $states);
+
+                //Get compnaies of the logged in user.
+                $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
+
+                $surveys = $surveys->where(function ($q) use ($profileId, $companyIds) {
+                    $q->orWhere('profile_id', "=", $profileId);
+                    $q->orWhereIn('company_id', $companyIds);
+                });
+            }
         }
 
-        $surveys = $surveys->orderBy('state', 'asc')->orderBy('created_at', 'desc');
-        $profileId = $request->user()->profile->id;
         $title = isset($request->title) ? $request->title : null;
 
         $this->model = [];
         $data = [];
-
-        //Get compnaies of the logged in user.
-        $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
-
-        $surveys = $surveys->where(function ($q) use ($profileId, $companyIds) {
-            $q->orWhere('profile_id', "=", $profileId);
-            $q->orWhereIn('company_id', $companyIds);
-        });
 
         if (!is_null($title)) {
             $surveys = $surveys->where('title', 'like', '%' . $title . '%');
