@@ -1329,6 +1329,8 @@ class BatchController extends Controller
             $headers_array[$key] = $header->toArray();
             $headers_questions[$key] = Questions::select('id','is_mandatory', 'is_active','track_consistency', 'max_rank', 'questions')->where('collaborate_id', $collaborateId)->where('header_type_id', $header->id)->whereNull('parent_question_id')->orderBy('id')->get()->toArray();
 
+            $question_no = 1;
+
             if(!empty($headers_questions[$key])) {
                 foreach($headers_questions[$key] as $index => $value) {
                     $question_json_data = json_decode($value['questions'], true);
@@ -1341,6 +1343,7 @@ class BatchController extends Controller
                     {
                         $question_id = $headers_questions[$key][$index]["id"];
                         $headers_questions[$key][$index]["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
+                        $headers_questions[$key][$index]["question_no"] = $question_no;
                         $headers_array[$key]["questions"][] = $headers_questions[$key][$index];
                     } 
                     else if($headers_questions[$key][$index]["select_type"] == 2)
@@ -1365,8 +1368,10 @@ class BatchController extends Controller
                             $headers_questions[$key][$index]["option"] = $global_question_options_info;
                         }
 
+                        $headers_questions[$key][$index]["question_no"] = $question_no;
                         $headers_array[$key]["questions"][] = $headers_questions[$key][$index];
                     }
+                    $question_no++;
                 }
             }
 

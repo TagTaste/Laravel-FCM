@@ -974,25 +974,31 @@ class SurveyController extends Controller
         if(!empty($savedFilter)){
             $filterForm = json_decode($savedFilter->value, true);            
         }
-        
+  
         $finalFormJson = [];
+        $question_no = 1;
         foreach($formJson as $form){
             $elementType = $form['element_type'] ?? 'question';
             if($elementType == 'section'){
+                $question_no = 1; 
                 $questions = $form['questions'];
                 $finalQuestions = [];
                 foreach($questions as $question){
                     if($question['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTIPLE_CHOICE") || $question['question_type'] == config("constant.SURVEY_QUESTION_TYPES.SINGLE_CHOICE")){
                         $question['is_selected'] = $this->checkIfQuestionSelected($question['id'], $filterForm);
+                        $question['question_no'] = $question_no;
                         $finalQuestions[] = $question;
                     }
-                }      
+                    $question_no++;
+                } 
                 $finalFormJson[] = ["id"=>$form['id'], "title"=> $form['title'], "element_type"=>$form['element_type'], "questions"=> $finalQuestions];  
             }else{
                 if($form['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTIPLE_CHOICE") || $form['question_type'] == config("constant.SURVEY_QUESTION_TYPES.SINGLE_CHOICE")){
                     $form['is_selected'] = $this->checkIfQuestionSelected($form['id'], $filterForm);
+                    $form['question_no'] = $question_no;
                     $finalFormJson[] = $form;
                 }  
+                $question_no++;
             }
         }
         
