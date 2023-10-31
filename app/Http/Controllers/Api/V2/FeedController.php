@@ -348,7 +348,7 @@ class FeedController extends Controller
                 }
             }
 
-            if($name == 'collaborate' && $data[$name]["state"] == "Save")
+            if($name == 'collaborate' && isset($data[$name]["state"]) && $data[$name]["state"] == "Save")
             {
                 unset($data[$name]);
                 continue;
