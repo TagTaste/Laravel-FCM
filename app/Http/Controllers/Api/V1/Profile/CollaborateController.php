@@ -388,6 +388,7 @@ class CollaborateController extends Controller
             {
                 $inputs['state'] = $request->state;
                 $collaborate->addToCache();
+                $this->model = Collaborate::find($id);
 
                 event(new NewFeedable($this->model, $profile));
             }

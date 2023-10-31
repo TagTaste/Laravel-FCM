@@ -356,6 +356,10 @@ class CollaborateController extends Controller
             else if ($collaborate->state == 'Save')
             {
                 $inputs['state'] = $request->state;
+                $collaborate->addToCache();
+                $this->model = Collaborate::find($id);
+
+                event(new NewFeedable($this->model, $profile));
             }
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
