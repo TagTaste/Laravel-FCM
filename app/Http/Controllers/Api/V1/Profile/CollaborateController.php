@@ -375,11 +375,11 @@ class CollaborateController extends Controller
         $inputs['privacy_id'] = 1;
         if($request->expires_on != null) {
             $inputs['expires_on'] = $request->expires_on;
+            $profile = Profile::find($profileId);
             if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
                 $inputs['state'] = Collaborate::$state[0];
                 $inputs['deleted_at'] = null;
                 $collaborate->addToCache();
-                $profile = Profile::find($profileId);
                 $this->model = Collaborate::find($id);
 
                 event(new NewFeedable($this->model, $profile));
@@ -387,6 +387,9 @@ class CollaborateController extends Controller
             else if ($collaborate->state == 'Save')
             {
                 $inputs['state'] = $request->state;
+                $collaborate->addToCache();
+
+                event(new NewFeedable($this->model, $profile));
             }
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
@@ -902,7 +905,7 @@ class CollaborateController extends Controller
             $inputs['updated_at'] = $now;
             $inputs['deleted_at'] = null;
         }
-        $this->model = $collaborate->update($inputs);
+        // $this->model = $collaborate->update($inputs);
         if($request->has('batches'))
         {
             if (!is_null($collaborate->global_question_id)) {
@@ -915,6 +918,14 @@ class CollaborateController extends Controller
                         'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
                         'created_at'=>$now,'updated_at'=>$now];
                 }
+                $batch_names = array_unique(array_column($batchList, 'name'));
+                $batch_colors = array_unique(array_column($batchList, 'color_id'));
+
+                if(count($batchList) != $batch_names || count($batchList) != $batch_colors)
+                {
+                    return $this->sendError("Name or color of the batch must be unique to distinguish the batches.");
+                }
+                
                 if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
                 {
                     Collaborate\Batches::insert($batchList);

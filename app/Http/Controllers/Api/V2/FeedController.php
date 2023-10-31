@@ -331,7 +331,6 @@ class FeedController extends Controller
                     $key = $key . ":V2";
                     $cachedData = Redis::connection('V2')->get($key);
                 } else {
-
                     $cachedData = Redis::get($key);
                 }
                 if (!$cachedData) {
@@ -349,7 +348,12 @@ class FeedController extends Controller
                 }
             }
 
-            
+            if($name == 'collaborate' && $data[$name]["state"] == "Save")
+            {
+                unset($data[$name]);
+                continue;
+            }
+     
             if ($payload->model !== null) {
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
