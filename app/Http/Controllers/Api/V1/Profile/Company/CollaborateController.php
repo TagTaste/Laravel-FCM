@@ -645,6 +645,15 @@ class CollaborateController extends Controller
                         'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
                         'created_at'=>$now,'updated_at'=>$now];
                 }
+                
+                $batch_names = array_unique(array_column($batchList, 'name'));
+                $batch_colors = array_unique(array_column($batchList, 'color_id'));
+
+                if(count($batchList) != $batch_names || count($batchList) != $batch_colors)
+                {
+                    return $this->sendError("Name or color of the batch must be unique to distinguish the batches.");
+                }
+
                 if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
                 {
                     Collaborate\Batches::insert($batchList);

@@ -905,7 +905,7 @@ class CollaborateController extends Controller
             $inputs['updated_at'] = $now;
             $inputs['deleted_at'] = null;
         }
-        // $this->model = $collaborate->update($inputs);
+        $this->model = $collaborate->update($inputs);
         if($request->has('batches'))
         {
             if (!is_null($collaborate->global_question_id)) {
