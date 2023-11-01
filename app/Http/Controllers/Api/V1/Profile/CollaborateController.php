@@ -906,7 +906,7 @@ class CollaborateController extends Controller
             $inputs['updated_at'] = $now;
             $inputs['deleted_at'] = null;
         }
-        $this->model = $collaborate->update($inputs);
+        // $this->model = $collaborate->update($inputs);
         if($request->has('batches'))
         {
             if (!is_null($collaborate->global_question_id)) {
@@ -922,7 +922,7 @@ class CollaborateController extends Controller
                 $batch_names = array_unique(array_column($batchList, 'name'));
                 $batch_colors = array_unique(array_column($batchList, 'color_id'));
 
-                if(count($batchList) != $batch_names || count($batchList) != $batch_colors)
+                if(count($batchList) != count($batch_names) && count($batchList) != count($batch_colors))
                 {
                     return $this->sendError("Name or color of the batch must be unique to distinguish the batches.");
                 }
