@@ -346,7 +346,7 @@ class SurveyApplicantController extends Controller
                 $answerAttempt["attempt"] = $attempt_number;
                 $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
                 SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
-                $this->model = true;
+                $this->model = true;    
             }else{
                 SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
                 $this->model = true;

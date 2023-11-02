@@ -15,8 +15,8 @@ class AddColumnsToSurveysEntryMapping extends Migration
     {
         //
         Schema::table('surveys_entry_mapping', function (Blueprint $table) {
-            $table->string('section_id')->after('surveys_attempt_id')->nullable();
-            $table->integer('activity')->after('section_id')->nullable();
+            $table->integer('section_id')->after('surveys_attempt_id')->nullable();
+            $table->string('activity')->after('section_id')->nullable();
             
         });
     }
