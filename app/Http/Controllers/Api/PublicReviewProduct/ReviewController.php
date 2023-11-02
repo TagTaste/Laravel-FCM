@@ -20,6 +20,7 @@ use App\Collaborate\Review as PrivateReviewProductReview;
 use App\PaymentHelper;
 use App\Profile;
 use Illuminate\Support\Facades\Log;
+use App\PublicReviewEntryMapping;
 
 class ReviewController extends Controller
 {
@@ -378,6 +379,25 @@ class ReviewController extends Controller
     //        return $this->sendResponse();
     //    }
 
+    public function startReview(Request $request, $productId){
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+            $profileId = $request->user()->profile->id;
+            PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START")]);
+
+            $this->model = true;
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendError($e->getMessage());
+        }
+        
+        return $this->sendResponse();
+    }
     public function comments(Request $request, $productId, $reviewId)
     {
         $model = $this->model->where('id', $reviewId)->where('product_id', $productId)->first();
@@ -573,6 +593,14 @@ class ReviewController extends Controller
                     // $responseData = ["status" => false];
                 }
             }
+        }
+        
+
+        //update the entry mapping
+        if($currentStatus == 2){
+            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.END")]);
+        }else{
+            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
