@@ -383,7 +383,22 @@ class ReviewController extends Controller
         // begin transaction
         \DB::beginTransaction();
         try {
+            $this->model = false;
             $profileId = $request->user()->profile->id;
+            $product = PublicReviewProduct::where('id', $productId)->first();
+            if ($product === null) {
+                return $this->sendNewError("Product not found.");
+            }
+            if ($product->not_accepting_response == 1) {
+                return $this->sendNewError("We are not accepting reviews for this product.");
+            }
+
+            $userReview = Review::where('profile_id', $profileId)->where('product_id', $productId)->orderBy('id', 'desc')->first();
+
+            if (isset($userReview) && $userReview->current_status == 2) {
+                return $this->sendNewError("User already reviewd.");
+            }
+
             PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START")]);
 
             $this->model = true;
@@ -393,10 +408,10 @@ class ReviewController extends Controller
             \DB::rollback();
             \Log::info($e->getMessage());
             $this->model = null;
-            return $this->sendError($e->getMessage());
+            return $this->sendNewError($e->getMessage());
         }
         
-        return $this->sendResponse();
+        return $this->sendNewResponse();
     }
     public function comments(Request $request, $productId, $reviewId)
     {

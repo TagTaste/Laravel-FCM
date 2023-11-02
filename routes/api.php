@@ -496,6 +496,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
+
+            Route::post("batches/{batchId}/startReview", "BatchController@startReview");
+
             Route::get("userBatches", 'BatchController@userBatches');
             Route::put("batches/{batchId}/foodBillStatus", 'BatchController@foodBillStatus');
             Route::post("beginTasting", 'BatchController@beginTasting'); //required
@@ -1003,7 +1006,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         });
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => 'api.auth'], function () {
-            Route::post("batches/{batchId}/startReview", "BatchController@startReview");
 
             // private product review reports post api
             Route::post("batches/{id}/headers/{headerId}/reports", "BatchController@reports");

@@ -41,7 +41,19 @@ class ReviewController extends Controller
         // begin transaction
         \DB::beginTransaction();
         try {
+            $this->model = false;
             $profileId = $request->user()->profile->id;
+
+            $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id', $batchId)->where('profile_id', $profileId)->exists();
+
+            if (!$checkAssign) {
+                return $this->sendNewError("Wrong product assigned");
+            }
+            $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$profileId");
+            if ($latestCurrentStatus == 3) {
+                return $this->sendNewError("You have already completed this product");
+            }
+
             CollaborateTastingEntryMapping::create(["profile_id"=>$profileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "activity"=>config("constant.REVIEW_ACTIVITY.START")]);
 
             $this->model = true;
@@ -51,10 +63,10 @@ class ReviewController extends Controller
             \DB::rollback();
             \Log::info($e->getMessage());
             $this->model = null;
-            return $this->sendError($e->getMessage());
+            return $this->sendNewError($e->getMessage());
         }
         
-        return $this->sendResponse();
+        return $this->sendNewResponse();
     }
 
     public function reviewAnswers(Request $request, $collaborateId, $headerId)
@@ -227,9 +239,9 @@ class ReviewController extends Controller
 
         //update the entry mapping
         if($currentStatus == 3){
-            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.END")]);
+            CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.END")]);
         }else{
-            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
+            CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 
 
