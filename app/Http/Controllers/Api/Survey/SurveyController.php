@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Log;
 use App\PaymentHelper;
 use App\SurveyAttemptMapping;
 use App\Helper;
+use App\SurveysEntryMapping;
 
 class SurveyController extends Controller
 {
