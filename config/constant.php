@@ -80,7 +80,7 @@ return  [
     'SURVEY_ACTIVITY' => [
         'START' => 'start',
         'SECTION_SUBMIT' => 'section_submit',
-        'END' => 'submission_finish'
+        'END' => 'final_submit'
 
     ],
 
