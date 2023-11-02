@@ -337,7 +337,7 @@ class SurveyApplicantController extends Controller
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
-            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id]);
+            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY.START")]);
             $this->model = true;
         } else {    //when its not first attempt
             $attempt_number = $last_attempt->attempt;
@@ -345,11 +345,10 @@ class SurveyApplicantController extends Controller
                 $attempt_number += 1;
                 $answerAttempt["attempt"] = $attempt_number;
                 $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
-                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id]);
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY.START")]);
                 $this->model = true;
             }else{
-                SurveysEntryMapping::where("surveys_attempt_id",$last_attempt->id)->whereNull("deleted_at")->update(["deleted_at" => date("Y-m-d H:i:s")]);
-                SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id]);
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id,"activity"=>config("constant.SURVEY.START")]);
                 $this->model = true;
             }
         }
@@ -664,8 +663,8 @@ class SurveyApplicantController extends Controller
                 $submission = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $applicant->profile->id)->whereNotNull("completion_date")->first();
                 
                 $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
-            
-                $submission_entry = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->whereNull("deleted_at")->first();
+                
+                $submission_entry = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->orderBy("created_at", "asc")->whereNull("deleted_at")->first();
                 if(isset($submission_entry)){
                     $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission_entry["created_at"]));
                     $duration = $durationForSection;
@@ -1150,8 +1149,8 @@ class SurveyApplicantController extends Controller
             $duration = "-";
             $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
 
-            $submission_entry = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->whereNull("deleted_at")->first();
-
+            $submission_entry = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->orderBy("created_at", "asc")->whereNull("deleted_at")->first();
+            
             //Check submission duration with start survey
             if(isset($submission_entry)){
                 $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission_entry["created_at"]));

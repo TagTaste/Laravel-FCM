@@ -77,6 +77,13 @@ return  [
 
     ],
 
+    'SURVEY_ACTIVITY' => [
+        'START' => 'start',
+        'SECTION_SUBMIT' => 'section_submit',
+        'END' => 'submission_finish'
+
+    ],
+
     'NOTIFICATION_DELETE_PERIOD' => 60,
     'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2,
     'MINIMUM_PAID_TASTER_TOTAL_REVIEWS' => 3,

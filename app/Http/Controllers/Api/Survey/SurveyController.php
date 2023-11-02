@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Log;
 use App\PaymentHelper;
 use App\SurveyAttemptMapping;
 use App\Helper;
+use App\SurveyAttemptMapping;
 
 class SurveyController extends Controller
 {
@@ -644,6 +645,8 @@ class SurveyController extends Controller
             $last_attempt = SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
                 ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
 
+
+            $current_section = null;
             if ($id->is_section) {    //check if section and make preparequestionjson accdng to that
                 $questionsWithoutLast = [];
                 $sectionWithoutLast = $sectionJson = json_decode($id->form_json);
@@ -678,9 +681,9 @@ class SurveyController extends Controller
                 //CHECK FOR EVERY SECTION,MANADTORY QUESTIONS ANSWERED OR NOT
                 foreach ($sectionJson as $section) {
                     $quesFromSection = array_column($section->questions, "id");
-
+                    
                     if (isset($section->questions) && !empty($answerQuestionIds) && in_array($answerQuestionIds[0], $quesFromSection)) {
-
+                        $current_section = $section->id;
                         $prepareQuestionJson = $this->prepQuestionJson(json_encode($section->questions));
                         break;
                     }
@@ -711,12 +714,13 @@ class SurveyController extends Controller
             $answerAttempt["profile_id"] = $request->user()->profile->id;
             $answerAttempt["survey_id"] = $request->survey_id;
 
-
+            $current_attempt = null;
             if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
                 $last_attempt = 1;
                 $answerAttempt["attempt"] = $last_attempt;
-                SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
+                $current_attempt = $SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
             } else {    //when its not first attempt
+                $current_attempt = $last_attempt;
                 $last_attempt = $last_attempt->attempt;
                 if ($id->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $last_attempt += 1;
@@ -751,7 +755,7 @@ class SurveyController extends Controller
                     SurveyAnswers::where('survey_id', $request->survey_id)
                         ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])->where("attempt", $last_attempt)->update(["deleted_at" => date("Y-m-d H:i:s"), "is_active" => 0]);
                 }
-
+                
                 if (isset($values["options"]) && !empty($values["options"])) {
                     foreach ($values["options"] as $optVal) {
                         $answerArray["answer_value"] = $optVal["value"];
@@ -806,8 +810,14 @@ class SurveyController extends Controller
                     $completion_date = date("Y-m-d H:i:s");
                     SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
                         ->where("attempt", $last_attempt)->update(["completion_date" => $completion_date]);
-                }
 
+                        //save submission entry to table
+                        SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id, "section_id"=>$current_section, "activity"=>config("constant.SURVEY.END")]);
+                }else{
+                    //save submission entry to table
+                    SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id,"section_id"=>$current_section,"activity"=>config("constant.SURVEY.SECTION_SUBMIT")]);
+                }
+                
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => $completion_date]);
                 $user = $request->user()->profile->id;
                 Redis::set("surveys:application_status:$request->survey_id:profile:$user", $request->current_status);
