@@ -337,7 +337,7 @@ class SurveyApplicantController extends Controller
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
-            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY.START")]);
+            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
             $this->model = true;
         } else {    //when its not first attempt
             $attempt_number = $last_attempt->attempt;
@@ -345,10 +345,10 @@ class SurveyApplicantController extends Controller
                 $attempt_number += 1;
                 $answerAttempt["attempt"] = $attempt_number;
                 $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
-                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY.START")]);
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
                 $this->model = true;
             }else{
-                SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id,"activity"=>config("constant.SURVEY.START")]);
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
                 $this->model = true;
             }
         }
