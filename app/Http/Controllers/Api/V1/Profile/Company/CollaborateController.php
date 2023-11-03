@@ -343,12 +343,11 @@ class CollaborateController extends Controller
         if($request->expires_on != null) {
             $format_date = date("Y-m-d", strtotime($request->input('expires_on')));
             $inputs['expires_on'] = Carbon::createFromFormat('Y-m-d', $format_date)->toDateTimeString();
-
+            $company = Company::find($companyId);
             if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
                 $inputs['state'] = Collaborate::$state[0];
                 $inputs['deleted_at'] = null;
                 $collaborate->addToCache();
-                $company = Company::find($companyId);
                 $this->model = Collaborate::find($id);
 
                 event(new NewFeedable($this->model, $company));
@@ -359,7 +358,7 @@ class CollaborateController extends Controller
                 $collaborate->addToCache();
                 $this->model = Collaborate::find($id);
 
-                event(new NewFeedable($this->model, $profile));
+                event(new NewFeedable($this->model, $company));
             }
         }
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
