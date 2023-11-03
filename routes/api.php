@@ -497,7 +497,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
 
-            Route::post("batches/{batchId}/startReview", "BatchController@startReview");
+            Route::post("batches/{batchId}/startReview", "ReviewController@startReview");
 
             Route::get("userBatches", 'BatchController@userBatches');
             Route::put("batches/{batchId}/foodBillStatus", 'BatchController@foodBillStatus');

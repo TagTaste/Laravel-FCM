@@ -256,7 +256,7 @@ class BatchController extends Controller
             if ($currentStatus == 3) {
                 $profileId = $profile['profile']['id'];
                 $reviewCompletionData = \DB::select("SELECT MIN(created_at) as start_time,
-                            MAX(updated_at) as completion_timestamp, TIMEDIFF(MAX(updated_at),MIN(created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
+                            MAX(updated_at) as completion_timestamp, (SELECT MIN(created_at) FROM `collaborate_tasting_entry_mapping` where profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$id) as start_time_v2 FROM `collaborate_tasting_user_review` 
                             where current_status=3 AND profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$id");
 
                 $profile["review_completion"] = null;
@@ -266,7 +266,12 @@ class BatchController extends Controller
                     $timestamp = strtotime($reviewCompletionData[0]->completion_timestamp);
                     $date = date('d M Y', $timestamp);
                     $time = date('h:i:s A', $timestamp);
-                    $durationInSec = strtotime($reviewCompletionData[0]->review_time_taken) - strtotime('00:00:00');
+                    
+                    if(isset($reviewCompletionData[0]->start_time_v2)){
+                        $durationInSec = strtotime($reviewCompletionData[0]->completion_timestamp) - strtotime($reviewCompletionData[0]->start_time_v2);                        
+                    }else{
+                        $durationInSec = strtotime($reviewCompletionData[0]->completion_timestamp) - strtotime($reviewCompletionData[0]->start_time);
+                    }
                     $duration = $this->secondsToTime($durationInSec);
 
                     $data[] = ["title" => "Date", "value" => $date];
