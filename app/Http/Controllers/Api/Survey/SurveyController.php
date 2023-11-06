@@ -2187,74 +2187,121 @@ class SurveyController extends Controller
                     }
                     //doubt
                     else {
-
                         $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                         if ($answers->count() == 0) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = 0;
 
                         } else {
-                            $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
+                            // $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
+                            $image_response_count = 0;
+                            $image_total_count = 0;
+                            $video_response_count = 0;
+                            $video_total_count = 0;
+                            $document_response_count = 0;
+                            $document_total_count = 0;
+                            $url_count = 0;
                             foreach ($answers as $ansVal) {
 
-                                if (count($imageMeta) < 10) {
-                                    $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
-                                    if (is_array($decodeImg) && !empty($decodeImg)) {
-                                        array_map(function ($value) use ($ansVal, &$imageMeta) {
-                                            if (!empty($value)) {
-                                                $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                                $imageMeta[] = ["data" => $value, "meta" => $meta];
-                                            }
-                                        }, $decodeImg);
-                                    }
+                                // if (count($imageMeta) < 10) {
+                                //     $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
+                                //     if (is_array($decodeImg) && !empty($decodeImg)) {
+                                //         array_map(function ($value) use ($ansVal, &$imageMeta) {
+                                //             if (!empty($value)) {
+                                //                 $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                //                 $imageMeta[] = ["data" => $value, "meta" => $meta];
+                                //             }
+                                //         }, $decodeImg);
+                                //     }
+                                // }
+
+                                $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
+
+                                if(is_array($decodeImg) && !empty($decodeImg))
+                                {
+                                    $image_response_count++;
+                                    $image_total_count = $image_total_count+count($decodeImg);
                                 }
 
-                                if (count($videoMeta) < 10) {
-                                    $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
-                                    if (is_array($decodeVid) && !empty($decodeVid)) {
-                                        array_map(function ($value) use ($ansVal, &$videoMeta) {
-                                            if (!empty($value)) {
-                                                $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                                $videoMeta[] = ["data" => $value, "meta" => $meta];
-                                            }
-                                        }, $decodeVid);
-                                    }
+                                // if (count($videoMeta) < 10) {
+                                //     $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
+                                //     if (is_array($decodeVid) && !empty($decodeVid)) {
+                                //         array_map(function ($value) use ($ansVal, &$videoMeta) {
+                                //             if (!empty($value)) {
+                                //                 $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                //                 $videoMeta[] = ["data" => $value, "meta" => $meta];
+                                //             }
+                                //         }, $decodeVid);
+                                //     }
+                                // }
+
+                                $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
+
+                                if(is_array($decodeVid) && !empty($decodeVid))
+                                {
+                                    $video_response_count++;
+                                    $video_total_count = $video_total_count+count($decodeVid);
                                 }
 
-                                if (count($documentMeta) < 10) {
-                                    $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
-                                    if (is_array($decodeDoc) && !empty($decodeDoc)) {
+                                // if (count($documentMeta) < 10) {
+                                //     $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
+                                //     if (is_array($decodeDoc) && !empty($decodeDoc)) {
 
-                                        array_map(function ($value) use ($ansVal, &$documentMeta) {
-                                            if (!empty($value)) {
-                                                $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                                $documentMeta[] = ["data" => $value, "meta" => $meta];
-                                            }
-                                        }, $decodeDoc);
-                                    }
+                                //         array_map(function ($value) use ($ansVal, &$documentMeta) {
+                                //             if (!empty($value)) {
+                                //                 $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                //                 $documentMeta[] = ["data" => $value, "meta" => $meta];
+                                //             }
+                                //         }, $decodeDoc);
+                                //     }
+                                // }
+
+                                $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
+
+                                if(is_array($decodeDoc) && !empty($decodeDoc))
+                                {
+                                    $document_response_count++;
+                                    $document_total_count = $document_total_count+count($decodeDoc);
                                 }
 
-                                if (count($mediaUrl) < 10) {
-                                    $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
-                                    if (is_array($decodeUrl) && !empty($decodeUrl)) {
+                                // if (count($mediaUrl) < 10) {
+                                //     $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
+                                //     if (is_array($decodeUrl) && !empty($decodeUrl)) {
 
-                                        array_map(function ($value) use ($ansVal, &$mediaUrl) {
-                                            if (!empty($value)) {
-                                                $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                                $mediaUrl[] = ["data" => $value, "meta" => $meta];
-                                            }
-                                        }, $decodeUrl);
-                                    }
+                                //         array_map(function ($value) use ($ansVal, &$mediaUrl) {
+                                //             if (!empty($value)) {
+                                //                 $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                //                 $mediaUrl[] = ["data" => $value, "meta" => $meta];
+                                //             }
+                                //         }, $decodeUrl);
+                                //     }
+                                // }
+
+                                $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
+
+                                if(is_array($decodeUrl) && !empty($decodeUrl))
+                                {
+                                    $url_count++;
                                 }
                             }
                             // $imageMeta = $answers->pluck("image_meta")->toArray();
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"] = $imageMeta;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["reponse"] = $imageMeta;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["reponse_count"] = $image_response_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["total_count"] = $image_total_count;
 
                             // $videoMeta = $answers->pluck("video_meta")->toArray();
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = $videoMeta;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = $videoMeta;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"]["reponse_count"] = $video_response_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"]["total_count"] = $video_total_count;
+
                             // $documentMeta = $answers->pluck("document_meta")->toArray();
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = $documentMeta;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = $documentMeta;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["reponse_count"] = $document_response_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["total_count"] = $document_total_count;
+
                             // $mediaUrl = $answers->pluck("media_url")->toArray();
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = $mediaUrl;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = $mediaUrl;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["reponse_count"] = $url_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["total_count"] = $url_count;
                         }
                     }
                     $optCounter++;
