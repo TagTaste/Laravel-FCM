@@ -17,7 +17,7 @@ class Razorpay
         $parameters["contact"] = [
             "name" => $paramArray["name"], "email" => $paramArray["beneficiaryEmail"], "contact" => $paramArray["beneficiaryPhoneNo"], "type" => "Taster"
         ];
-        $parameters["amount"] = ($paramArray["amount"] * 100);
+        $parameters["amount"] = ($paramArray["payout_amount"] * 100);
         $parameters["currency"] = "INR";
         $parameters["purpose"] = "payout";
         $parameters["description"] = $paramArray["comments"];
@@ -35,6 +35,7 @@ class Razorpay
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Basic " . base64_encode(config("payment.RAZORPAY_KEY_ID") . ":" . config("payment.RAZORPAY_KEY_SECRET"))));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
         $response = curl_exec($ch);
         // echo "<br/>";
         $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);

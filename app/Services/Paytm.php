@@ -11,9 +11,10 @@ class Paytm
 
     public static function createLink($paramArray = [])
     {
+        $paramArray['amount'] = $params['payout_amount'];
         $link =  '/pls/api/v1/payout-link/create';
         $paramArray["callbackUrl"] = config("payment.PAYTM_CALLBACK_URL");
-
+        
         $post_data = json_encode($paramArray, JSON_UNESCAPED_SLASHES);
 
         $checksum = PaytmChecksum::generateSignature($post_data, config("payment.PAYTM_MERCHANT_KEY"));

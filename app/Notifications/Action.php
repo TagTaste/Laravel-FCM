@@ -51,18 +51,18 @@ class Action extends Notification implements ShouldQueue
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-
+       
         if(isset($this->allData['type']) && $this->allData['type'] == 'product')
         {
             return $via;
         }
+        
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
-
         }
 
         $preference = null;
-
+        
         if(isset($this->model->company_id) && !is_null($this->model->company_id)) {
 
             //getting list of company admins
@@ -86,6 +86,7 @@ class Action extends Notification implements ShouldQueue
         } else {
             $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action);
         }
+
         if(is_null($preference)) {
             return $via;
         }
@@ -95,6 +96,7 @@ class Action extends Notification implements ShouldQueue
             $via[] = 'broadcast';
             $via[] = 'database';
         }
+        
         if($preference->email_value && $this->view && view()->exists($this->view)) {
             $via[] = 'mail';
         }

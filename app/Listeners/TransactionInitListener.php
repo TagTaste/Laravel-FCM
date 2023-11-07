@@ -55,12 +55,21 @@ class TransactionInitListener
         }
         $buildTxnId = $initials . "_" . ++$number;
 
-        $data = PaymentLinks::create(["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->data->model_type, "model_id" => $event->data->model_id, "sub_model_id" => $event->data->sub_model_id ?? NULL, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID"), "payment_id" => $event->data->payment_id, "payment_channel" => $channel,"is_expert"=>request()->user()->profile->is_expert, "account_reconciliation_date"=>Carbon::now()]);
 
+        //TDS deduction
+        $tds_deduction = $event->data->tds_deduction;
+        $tds_amount = 0;
+        if($tds_deduction){
+            $tds_amount = number_format($event->data->amount/10,2);
+        }
+
+        $payout_amount = $event->data->amount - $tds_amount;
+        
+        $data = PaymentLinks::create(["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->data->model_type, "model_id" => $event->data->model_id, "sub_model_id" => $event->data->sub_model_id ?? NULL, "amount" => $event->data->amount, "payout_amount"=>$payout_amount,"tds_amount"=>$tds_amount,"phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID"), "payment_id" => $event->data->payment_id, "payment_channel" => $channel,"is_expert"=>request()->user()->profile->is_expert, "account_reconciliation_date"=>Carbon::now()]);
         
         if ($data) {
             if (!empty(request()->user()->profile->phone)) {
-                $d = ["transaction_id" => $buildTxnId, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->data->model_type, "title" => $event->data->model_id, "name" => request()->user()->name ?? "", "model" => $data, "model_id" => $event->data->model_id];
+                $d = ["transaction_id" => $buildTxnId, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->data->model_type, "title" => $event->data->model_id, "name" => request()->user()->name ?? "", "model" => $data, "model_id" => $event->data->model_id,"payout_amount"=>$payout_amount, "tds_amount"=>$tds_amount];
                 if (isset($event->data->comment)) {
                     $d["comment"] = $event->data->comment;
                 }
