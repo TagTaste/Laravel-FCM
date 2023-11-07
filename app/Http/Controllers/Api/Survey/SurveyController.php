@@ -2285,22 +2285,22 @@ class SurveyController extends Controller
                             }
                             // $imageMeta = $answers->pluck("image_meta")->toArray();
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["reponse"] = $imageMeta;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["reponse_count"] = $image_response_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["response_count"] = $image_response_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["total_count"] = $image_total_count;
 
                             // $videoMeta = $answers->pluck("video_meta")->toArray();
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = $videoMeta;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"]["reponse_count"] = $video_response_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"]["response_count"] = $video_response_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"]["total_count"] = $video_total_count;
 
                             // $documentMeta = $answers->pluck("document_meta")->toArray();
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = $documentMeta;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["reponse_count"] = $document_response_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["response_count"] = $document_response_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["total_count"] = $document_total_count;
 
                             // $mediaUrl = $answers->pluck("media_url")->toArray();
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = $mediaUrl;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["reponse_count"] = $url_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["response_count"] = $url_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["total_count"] = $url_count;
                         }
                     }
