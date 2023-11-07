@@ -48,8 +48,7 @@ class SurveyController extends Controller
     protected $model;
 
     protected $colorCodeList = [
-        "#F3C4CD", "#F1E6C7", "#D0DEEF", "#C1E2CF",
-        "#C1E4E5", "#F2D9C6", "#C6ECF2", "#C6CEF2", "#DEC6F2", "#F2C6E1", "#CAD1D9", "#D9CAD9", "#D9CACC", "#E2D5C4", "#CBCBDE", "#DDDECB", "#E9D4E7", "#D7D4D5", "#ECE1D8", "#CBC3CD"
+        "-7" => "#F3C4CD", "-6" => "#F1E6C7", "-5" => "#D0DEEF", "-4" => "#C1E2CF", "-3" => "#C1E4E5", "-2" => "#F2D9C6", "-1" => "#C6ECF2", "0" => "#C6CEF2", "1" => "#DEC6F2", "2" => "#F2C6E1", "3" => "#CAD1D9", "4" => "#D9CAD9", "5" => "#D9CACC", "6" => "#E2D5C4", "7" => "#CBCBDE", "8" => "#DDDECB", "9" => "#E9D4E7", "10" => "#D7D4D5", "11" => "#ECE1D8", "12" => "#CBC3CD", "13" => "#96B6C5",  "14" => "#C8E4B2",  "15" => "#FFD1DA",  "16" => "#D0F5BE",  "17" => "#D9ACF5"
     ];
 
     public function __construct(Surveys $model)
@@ -95,29 +94,37 @@ class SurveyController extends Controller
     {
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $surveys = $this->model->where("is_active", "=", 1);
+        $surveys = $this->model->where("is_active", "=", 1)->orderBy('state', 'asc')->orderBy('created_at', 'desc');
+        $state = $request->state;
+        $profileId = $request->user()->profile->id;
         if ($request->has('state') && !empty($request->input('state'))) {
-            $states = [$request->state];
-            if ($request->state == config("constant.SURVEY_STATES.PUBLISHED")) {
-                $states = [config("constant.SURVEY_STATES.PUBLISHED"), config("constant.SURVEY_STATES.CLOSED"), config("constant.SURVEY_STATES.EXPIRED")];
+            $states = [$state];
+            if ($state == config("constant.SURVEY_STATES.CLOSED")) { // For Inactive quizzes
+                $states = [config("constant.SURVEY_STATES.CLOSED"), config("constant.SURVEY_STATES.EXPIRED")];
             }
-            $surveys = $surveys->whereIn("state", $states);
+            if ($state == config("constant.SURVEY_STATES.SHOWN_INTEREST"))
+            {
+                $attemptedSurveys = SurveyAttemptMapping::where("profile_id", $profileId)->whereNull("deleted_at")->pluck('survey_id');
+                $surveys = $surveys->whereIn('id',$attemptedSurveys);
+            }
+            else
+            {
+                $surveys = $surveys->whereIn("state", $states);
+
+                //Get compnaies of the logged in user.
+                $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
+
+                $surveys = $surveys->where(function ($q) use ($profileId, $companyIds) {
+                    $q->orWhere('profile_id', "=", $profileId);
+                    $q->orWhereIn('company_id', $companyIds);
+                });
+            }
         }
 
-        $surveys = $surveys->orderBy('state', 'asc')->orderBy('created_at', 'desc');
-        $profileId = $request->user()->profile->id;
         $title = isset($request->title) ? $request->title : null;
 
         $this->model = [];
         $data = [];
-
-        //Get compnaies of the logged in user.
-        $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
-
-        $surveys = $surveys->where(function ($q) use ($profileId, $companyIds) {
-            $q->orWhere('profile_id', "=", $profileId);
-            $q->orWhereIn('company_id', $companyIds);
-        });
 
         if (!is_null($title)) {
             $surveys = $surveys->where('title', 'like', '%' . $title . '%');
@@ -174,10 +181,58 @@ class SurveyController extends Controller
             return $this->sendResponse();
         }
 
-        if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+30 days   "))) {
-            return $this->sendNewError("Expiry time exceeds a month");
+        $profile = $request->user()->profile;
+        $expiry_date = $request->expired_at;
+        $premium_user_limit = strtotime("+1 year");
+        $non_premium_user_limit = strtotime("+3 months");
+
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if ($request->has('company_id')) {
+            $companyId = $request->input('company_id');
+            $company = Company::find($companyId);
+            $userId = $request->user()->id;
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendNewError("User does not belong to this company");
+            }
+
+            if (isset($request->is_private) && $request->is_private == 1 && $company->is_premium != 1) {
+                return $this->sendNewError("Only premium companies can create private surveys");
+                // return $next($request);
+            }
+
+            //check for expiry date
+            if ($request->has("expired_at") && !empty($expiry_date)) 
+            {
+                if($company->is_premium == 1 && (strtotime($expiry_date) > $premium_user_limit)) {
+                    return $this->sendNewError("Expiry time exceeds a year");
+                }
+                else if($company->is_premium != 1 && (strtotime($expiry_date) > $non_premium_user_limit))
+                {
+                    return $this->sendNewError("Expiry time exceeds 3 months");
+                }
+            }
+        } 
+        else
+        {
+            if (isset($request->is_private) && $request->is_private == 1 && $profile->is_premium != 1) {
+                return $this->sendNewError("Only premium users can create private surveys");
+            }
+
+            //check for expiry date
+            if ($request->has("expired_at") && !empty($expiry_date)) 
+            {
+                if ($profile->is_premium == 1 && (strtotime($expiry_date) > $premium_user_limit)){
+                    return $this->sendNewError("Expiry time exceeds a year");
+                }
+                else if($profile->is_premium != 1 && (strtotime($expiry_date) > $non_premium_user_limit)) {
+                    return $this->sendNewError("Expiry time exceeds 3 months");
+                }
+            }
         }
-        if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
+        
+        if ($request->has("expired_at") && !empty($expiry_date) && strtotime($expiry_date) < time()) {
             return $this->sendNewError("Expiry time invalid");
         }
 
@@ -192,26 +247,9 @@ class SurveyController extends Controller
             $is_section = true;
         }
 
-        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
-        if ($request->has('company_id')) {
-            $companyId = $request->input('company_id');
-            $userId = $request->user()->id;
-            $company = Company::find($companyId);
-            $userBelongsToCompany = $company->checkCompanyUser($userId);
-            if (!$userBelongsToCompany) {
-                return $this->sendNewError("User does not belong to this company");
-            }
-            if (isset($request->is_private) && $request->is_private == 1 && $company->is_premium != 1) {
-                return $this->sendNewError("Only premium companies can create private surveys");
-                // return $next($request);
-            }
-        } else if (isset($request->is_private) && $request->is_private == 1 && $request->user()->profile->is_premium != 1) {
-            return $this->sendNewError("Only premium users can create private surveys");
-        }
-
         $prepData["id"] = (string) Uuid::generate(4);
         $prepData["is_active"] = 1;
-        $prepData["profile_id"] = $request->user()->profile->id;
+        $prepData["profile_id"] = $profile->id;
         $prepData["state"] = $request->state;
         $prepData["title"] = $request->title;
         $prepData["description"] = $request->description;
@@ -344,11 +382,13 @@ class SurveyController extends Controller
 
         $create = Surveys::where("id", "=", $id);
         $getSurvey = $create->first();
-        $previousState = $getSurvey->state;
+
         if (empty($getSurvey)) {
             $this->errors = ["Survey Id is Invalid"];
             return $this->sendResponse();
         }
+
+        $previousState = $getSurvey->state;
 
         $validator = Validator::make($request->all(), [
             'company_id' => 'nullable|exists:companies,id',
@@ -381,16 +421,42 @@ class SurveyController extends Controller
             }
         }
 
-
         if ($getSurvey->is_private !== null && ($request->has("is_private") && ((int)$request->is_private !== (int)$getSurvey->is_private))) {
 
             return $this->sendNewError("Survey status cannot be changed");
         }
 
-        if ($request->has("expired_at") && !empty($request->expired_at) && (strtotime($request->expired_at) > strtotime("+30 days"))) {
-            return $this->sendNewError("Expiry time exceeds a month");
+        $profile = $request->user()->profile;
+        $expiry_date = $request->expired_at;
+        $premium_user_limit = strtotime("+1 year");
+        $non_premium_user_limit = strtotime("+3 months");
+
+        if ($request->has("expired_at") && !empty($expiry_date)) 
+        {
+            if ($request->has('company_id')) 
+            {
+                $company = Company::find($request->company_id);
+                if($company->is_premium == 1 && (strtotime($expiry_date) > $premium_user_limit)) {
+                    return $this->sendNewError("Expiry time exceeds a year");
+                }
+                else if($company->is_premium != 1 && (strtotime($expiry_date) > $non_premium_user_limit))
+                {
+                    return $this->sendNewError("Expiry time exceeds 3 months");
+                }
+            }
+            else
+            {   
+                if($profile->is_premium == 1 && (strtotime($expiry_date) > $premium_user_limit)) {
+                    return $this->sendNewError("Expiry time exceeds a year");
+                }
+                else if($profile->is_premium != 1 && (strtotime($expiry_date) > $non_premium_user_limit))
+                {
+                    return $this->sendNewError("Expiry time exceeds 3 months");
+                }
+            } 
         }
-        if ($request->has("expired_at") && !empty($request->expired_at) && strtotime($request->expired_at) < time()) {
+
+        if ($request->has("expired_at") && !empty($expiry_date) && strtotime($expiry_date) < time()) {
             return $this->sendNewError("Expiry time invalid");
         }
 
@@ -1035,8 +1101,6 @@ class SurveyController extends Controller
 
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
 
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1113,7 +1177,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
 
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->whereIn("profile_id", $pluck)->get()->filter(function ($ans) use ($idsAttemptMapping) {
 
@@ -1406,8 +1470,6 @@ class SurveyController extends Controller
         
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
 
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -1493,7 +1555,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
 
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
@@ -1803,9 +1865,6 @@ class SurveyController extends Controller
         
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-        $colorCodeList = $this->colorCodeList;
-
-
         if (empty($checkIFExists)) {
             $this->model = false;
             return $this->sendNewError("Invalid Survey");
@@ -1901,7 +1960,7 @@ class SurveyController extends Controller
         $sectionKey = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             
             $quesOptions = isset($values['options']) ? $values['options'] : [];
             $queOptionIds = array_pluck($quesOptions, 'id');
@@ -1937,14 +1996,12 @@ class SurveyController extends Controller
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
             }));
 
-
             $respondentCount = count($answers->pluck("profile_id")->unique()->toArray());
             // $responseCount = array_unique(array_column($answers->toArray(), 'profile_id','batch_id'));
             // $responseCount = $answers->pluck('profile_id')->toArray();
 
             $prepareNode["reports"][$counter]["respondent_count"] = $respondentCount;
-            $prepareNode["reports"][$counter]["response_count"] = $count2;
-            
+            $prepareNode["reports"][$counter]["response_count"] = $count2;    
             $prepareNode["reports"][$counter]["question_id"] = $values["id"];
             $prepareNode["reports"][$counter]["is_mandatory"] = $values["is_mandatory"];
             $prepareNode["reports"][$counter]["title"] = $values["title"];
@@ -1974,7 +2031,25 @@ class SurveyController extends Controller
                 }));
                 $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);
                 $count = 0;
+
+                if (isset($values["version"]))
+                {
+                    // Add version key for new range type
+                    $prepareNode["reports"][$counter]["version"] = $values["version"];
+                    
+                    $last_index = count($values["options"]) - 1;
+                    $values["min"] = $values["options"][0]["title"];
+                    $values["max"] = $values["options"][$last_index]["title"];
+                }
+                $totalAnsSum = 0;
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                    if (isset($values["version"]))
+                    {
+                        $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
+                        $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
+                        $totalAnsSum +=  isset($getAvg[$min]) ? ($min)*($getAvg[$min]["count"]) : 0;
+                    }
+                    
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$min]) ? $getAvg[$min]["count"] : 0);
                     $prepareNode["reports"][$counter]["options"][$count]["answer_percentage"] = (isset($getAvg[$min]) ? $getAvg[$min]["avg"] : 0);
@@ -1982,6 +2057,22 @@ class SurveyController extends Controller
                     $prepareNode["reports"][$counter]["options"][$count]["option_type"] = 0;
                     $count++;
                 }
+
+                if (isset($values["version"]))
+                {
+                    // average of answers and percentage value at question level
+                    $totalRespondents = count(SurveyAttemptMapping::whereNotNull("completion_date")->whereNull("deleted_at")->where("survey_id", "=", $id)->where('attempt', 1)->get());
+                    $prepareNode["reports"][$counter]["percentage"] = ($totalRespondents == 0) ? 0 : (int)round(($respondentCount*100) / $totalRespondents); 
+                    $average = ($count2 == 0) ? 0 : number_format((float)($totalAnsSum/$count2), 2, '.', '');
+                    $optionList = $prepareNode["reports"][$counter]["options"];
+                    $filteredArray = array_values(array_filter($optionList, function ($arr) use ($average) {
+                        return $arr["value"] == round($average);
+                    }));
+                    $roundedAvgOption = count($filteredArray) == 0 ? ["label"=>"", "color_code" => "#fcda02"] : $filteredArray[0];
+                    $prepareNode["reports"][$counter]["average_value"] = empty($roundedAvgOption["label"]) ? $average : $average." (".$roundedAvgOption["label"].")"; 
+                    $prepareNode["reports"][$counter]["color_code"] = $roundedAvgOption["color_code"];
+                }
+
             } elseif (isset($values["multiOptions"])) {
                 $rowIndex = 0;
                 foreach ($values["multiOptions"]['row'] as $row) {
@@ -2248,6 +2339,13 @@ class SurveyController extends Controller
         }
 
         return false;
+    }
+
+    // Shuffle color codes
+    function shuffleColorValues($colorCodeList) {
+        $colorValues = array_values($colorCodeList);
+        shuffle($colorValues);
+        return array_combine(array_keys($colorCodeList), $colorValues);
     }
 
     private function validateSurveyFormJson($request, $isUpdation = false)
@@ -2824,8 +2922,6 @@ class SurveyController extends Controller
         //     return $this->sendNewError("Only Survey Admin can view this report");
         // }
 
-        $colorCodeList = $this->colorCodeList;
-
         $prepareNode = ["reports" => []];
         $rankMapping = [];
         $optionValues = [];
@@ -2866,7 +2962,7 @@ class SurveyController extends Controller
         $counter = 0;
         
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->where("attempt", $attempt)->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
@@ -2897,8 +2993,22 @@ class SurveyController extends Controller
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
                 $count = 0;
                 $pluckOpId = $answers->pluck("answer_value")->toArray();
+
+                if (isset($values["version"]))
+                {
+                    // Add version key for new range type
+                    $prepareNode["reports"][$counter]["version"] = $values["version"];
+                    $last_index = count($values["options"]) - 1;
+                    $values["min"] = $values["options"][0]["title"];
+                    $values["max"] = $values["options"][$last_index]["title"];
+                }
                 
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                    if (isset($values["version"]))
+                    {
+                        $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
+                        $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
+                    }
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     if (in_array($min, $pluckOpId))
                         $prepareNode["reports"][$counter]["options"][$count]["is_answered"] = true;
@@ -3077,7 +3187,7 @@ class SurveyController extends Controller
 
     public function userReport($id, $profile_id, Request $request)
     {
-
+        
         $checkIFExists = $this->model->where("id", "=", $id)->first();
         if (empty($checkIFExists)) {
             $this->model = false;
@@ -3099,8 +3209,6 @@ class SurveyController extends Controller
         //     $this->model = false;
         //     return $this->sendNewError("Only Survey Admin can view this report");
         // }
-
-        $colorCodeList = $this->colorCodeList;
 
         $prepareNode = ["reports" => []];
         $rankMapping = [];
@@ -3130,7 +3238,7 @@ class SurveyController extends Controller
         $counter = 0;
 
         foreach ($getJsonQues as $values) {
-            shuffle($colorCodeList);
+            $colorCodeList = $this->shuffleColorValues($this->colorCodeList);
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->where("profile_id", "=", $profile_id)->whereNull("deleted_at")->where("attempt", $attempt)->get();
 
             $pluckOpId = $answers->pluck("option_id")->toArray();
@@ -3160,7 +3268,7 @@ class SurveyController extends Controller
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
                 $count = 0;
                 $pluckOpId = $answers->pluck("answer_value")->toArray();
-
+              
                 for ($min = $values["min"]; $min <= $values['max']; $min++) {
                     $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
                     if (in_array($min, $pluckOpId))
@@ -3172,6 +3280,7 @@ class SurveyController extends Controller
                     $count++;
                 }
             }
+
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 $optionValues = $answers->pluck("answer_value")->toArray();
 
@@ -3372,15 +3481,10 @@ class SurveyController extends Controller
             return $this->sendNewError("Only Survey Admin can view this report");
         }
 
-         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
-            $companyId = $checkIFExists->company_id;
-            $userId = $request->user()->id;
-            $company = Company::find($companyId);
-            $userBelongsToCompany = $company->checkCompanyUser($userId);
-            if (!$userBelongsToCompany) {
-                $this->model = false;
-                return $this->sendNewError("User does not belong to this company");
-            }
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
         } else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
@@ -3530,6 +3634,13 @@ class SurveyController extends Controller
                     $multiChoiceCheckColumn[$values["id"]]["column"][$column["id"]] = html_entity_decode($column['title']);
                 }
             }
+            elseif($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE") && isset($values['version']))
+            {
+                foreach ($values["options"] as $option) {
+                    $option_labels[$values["id"]][$option["id"]] = $option['label'];
+                }
+                
+            }
         }
         // dd($questionIdMapping);
         // $applicants = SurveyAttemptMapping::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->groupBy("profile_id")->where("deleted_at", "=", null);
@@ -3653,7 +3764,6 @@ class SurveyController extends Controller
                     }
                     $ans .= html_entity_decode($multiChoiceCheckColumn[$answers->question_id]["column"][$answers->answer_value]);
                 } elseif ($answers->question_type <= config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
-
                     if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
                         $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
                     }
@@ -3699,7 +3809,10 @@ class SurveyController extends Controller
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] = $ans;
                 } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
-                } else {
+                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE") && isset($option_labels[$answers->question_id][$answers->option_id])) {
+                    $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = empty($option_labels[$answers->question_id][$answers->option_id]) ? $ans : $ans." (".$option_labels[$answers->question_id][$answers->option_id].")";
+                }
+                else {
                     $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = $ans;
                 }
             }

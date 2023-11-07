@@ -65,7 +65,7 @@ class ExpireonCollaboration extends Command
         if(!\Cache::add(get_class($this), true, 0.5)) {
             return false;
         }
-        \App\Collaborate::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
+        \App\Collaborate::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->where('state',1)->whereNull('deleted_at')
             ->orderBy('id')->chunk(100,function($models){
                 foreach($models as $model){
                     $companyId = $model->company_id;
@@ -87,7 +87,7 @@ class ExpireonCollaboration extends Command
                     $model->removeFromGraph();
                 }
             });
-            
+       
         //notify 1 day before expiry
 //        \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
 //            ->where('expires_on','<=',Carbon::now()->addDays(1)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
