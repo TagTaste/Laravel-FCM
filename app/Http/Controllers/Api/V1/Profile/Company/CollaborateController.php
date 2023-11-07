@@ -652,7 +652,7 @@ class CollaborateController extends Controller
                 $batch_names = array_unique(array_column($batchList, 'name'));
                 $batch_colors = array_unique(array_column($batchList, 'color_id'));
 
-                if(count($batchList) != $batch_names || count($batchList) != $batch_colors)
+                if(count($batchList) != count($batch_names) && count($batchList) != count($batch_colors))
                 {
                     return $this->sendError("Name or color of the batch must be unique to distinguish the batches.");
                 }
