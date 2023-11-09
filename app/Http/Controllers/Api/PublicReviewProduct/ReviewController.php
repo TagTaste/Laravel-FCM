@@ -612,10 +612,11 @@ class ReviewController extends Controller
         
 
         //update the entry mapping
+        $headerName = \DB::table('public_review_question_headers')->where('id', $headerId)->whereNull('deleted_at')->first();
         if($currentStatus == 2){
-            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.END")]);
+            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END")]);
         }else{
-            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
+            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.

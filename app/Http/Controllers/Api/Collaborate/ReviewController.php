@@ -238,10 +238,12 @@ class ReviewController extends Controller
         }
 
         //update the entry mapping
+        $headerName = \DB::table('collaborate_tasting_header')->where('id', $headerId)->whereNull('deleted_at')->first();
+
         if($currentStatus == 3){
-            CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.END")]);
+            CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END")]);
         }else{
-            CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
+            CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "header_title"=>$headerName->header_type, "activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 
 

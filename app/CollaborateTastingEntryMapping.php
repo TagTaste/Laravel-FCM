@@ -12,6 +12,6 @@ class CollaborateTastingEntryMapping extends Model
     const UPDATED_AT = 'updated_at';
 
     protected $guarded = ["id"];
-    protected $fillable = ["profile_id","collaborate_id","batch_id","header_id","activity","created_at","updated_at"];
+    protected $fillable = ["profile_id","collaborate_id","batch_id","header_id","header_title","activity","created_at","updated_at"];
 
 }
