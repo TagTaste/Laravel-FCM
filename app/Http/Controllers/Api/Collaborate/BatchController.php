@@ -1189,7 +1189,7 @@ class BatchController extends Controller
         $gender = ['Male', 'Female', 'Other'];
         $age = Helper::getGenerationFilter('string');
         // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
-        $currentStatus = [0, 1, 2, 3];
+        // $currentStatus = [0, 1, 2, 3];
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
@@ -1240,8 +1240,8 @@ class BatchController extends Controller
                     $data['age'] = $age;
                 if ($filter == 'city')
                     $data['city'] = $city;
-                if ($filter == 'current_status')
-                    $data['current_status'] = $currentStatus;
+                // if ($filter == 'current_status')
+                //     $data['current_status'] = $currentStatus;
                 if ($filter == 'super_taster')
                     $data['super_taster'] = $superTaster;
                 if ($filter == 'user_type')
@@ -1252,11 +1252,11 @@ class BatchController extends Controller
         } else {
             if (isset($version_num) && $version_num == 'v1')
             {
-                $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+                $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
             else
             {
-                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
         }
 
