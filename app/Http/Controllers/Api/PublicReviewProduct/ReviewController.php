@@ -610,7 +610,7 @@ class ReviewController extends Controller
             }
         }
         
-
+        
         //update the entry mapping
         $headerName = \DB::table('public_review_question_headers')->where('id', $headerId)->whereNull('deleted_at')->first();
         if($currentStatus == 2){

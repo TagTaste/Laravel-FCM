@@ -496,6 +496,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
+            
+            Route::get("batches/{batchId}/profile/{profileId}/submission_status", 'BatchController@getReviewTimeline');
 
             Route::post("batches/{batchId}/startReview", "ReviewController@startReview");
 
