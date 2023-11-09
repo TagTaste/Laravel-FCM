@@ -389,6 +389,12 @@ class BatchController extends Controller
     }
 
     public function getReviewTimeline(Request $request, $collaborateId, $batchId, $profileId){
+        $currentStatus = Redis::get("current_status:batch:$batchId:profile:" . $profileId);
+        if($currentStatus != 3){
+            $this->model = false;
+            return $this->sendNewError("You have not completed this review yet.");
+        }
+        
         $timeline_data = CollaborateTastingEntryMapping::where("collaborate_id",$collaborateId)->where("batch_id",$batchId)->where("profile_id",$profileId)->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
 
         $submission_status = [];
