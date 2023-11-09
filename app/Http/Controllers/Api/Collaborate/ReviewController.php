@@ -238,7 +238,7 @@ class ReviewController extends Controller
         }
 
         //update the entry mapping
-        $headerName = \DB::table('collaborate_tasting_header')->where('id', $headerId)->whereNull('deleted_at')->first();
+        $headerName = \DB::table('collaborate_tasting_header')->where('id', $headerId)->first();
 
         if($currentStatus == 3){
             CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END")]);

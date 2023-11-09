@@ -612,7 +612,7 @@ class ReviewController extends Controller
         
         
         //update the entry mapping
-        $headerName = \DB::table('public_review_question_headers')->where('id', $headerId)->whereNull('deleted_at')->first();
+        $headerName = \DB::table('public_review_question_headers')->where('id', $headerId)->first();
         if($currentStatus == 2){
             PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END")]);
         }else{
