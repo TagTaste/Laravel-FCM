@@ -2195,8 +2195,6 @@ class SurveyController extends Controller
                             // $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
                             $image_response_count = 0;
                             $image_total_count = 0;
-                            $video_response_count = 0;
-                            $video_total_count = 0;
                             $document_response_count = 0;
                             $document_total_count = 0;
                             $url_count = 0;
@@ -2234,13 +2232,6 @@ class SurveyController extends Controller
                                 //     }
                                 // }
 
-                                $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
-
-                                if(is_array($decodeVid) && !empty($decodeVid))
-                                {
-                                    $video_response_count++;
-                                    $video_total_count = $video_total_count+count($decodeVid);
-                                }
 
                                 // if (count($documentMeta) < 10) {
                                 //     $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
@@ -2287,21 +2278,22 @@ class SurveyController extends Controller
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["reponse"] = $imageMeta;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["response_count"] = $image_response_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["total_count"] = $image_total_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["color_code"] = $colorCodeList[0];
 
                             // $videoMeta = $answers->pluck("video_meta")->toArray();
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = $videoMeta;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"]["response_count"] = $video_response_count;
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"]["total_count"] = $video_total_count;
 
                             // $documentMeta = $answers->pluck("document_meta")->toArray();
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = $documentMeta;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["response_count"] = $document_response_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["total_count"] = $document_total_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["color_code"] = $colorCodeList[1];
 
                             // $mediaUrl = $answers->pluck("media_url")->toArray();
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = $mediaUrl;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["response_count"] = $url_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["total_count"] = $url_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] ["color_code"] = $colorCodeList[2];
                         }
                     }
                     $optCounter++;
@@ -3552,9 +3544,14 @@ class SurveyController extends Controller
                 $decode = (!is_null($answers->$media_type) ? json_decode($answers->$media_type, true) : []);
 
                 if (is_array($decode) && count($decode)) {
-
-                    foreach ($decode as $value) {
+                    foreach ($decode as $value) 
+                    {
                         $meta = ["profile_id" => $answers->profile->id, "name" => $answers->profile->name, "handle" => $answers->profile->handle];
+                        if($media_type == 'image_meta')
+                        {
+                            $meta = ["profile_id" => $answers->profile->id, "name" => $answers->profile->name, "handle" => $answers->profile->handle, "verified" => $answers->profile->verified, "image_meta" => $answers->profile->image_meta];
+                            $value["updated_at"] = ($answers->updated_at)->format('Y-m-d h:i:s');
+                        }
                         $elements[] = ["meta" => $meta,  "data" => $value];
                     }
                 }
