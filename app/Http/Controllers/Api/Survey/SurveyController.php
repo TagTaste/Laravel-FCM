@@ -683,7 +683,7 @@ class SurveyController extends Controller
                     $quesFromSection = array_column($section->questions, "id");
                     
                     if (isset($section->questions) && !empty($answerQuestionIds) && in_array($answerQuestionIds[0], $quesFromSection)) {
-                        $current_section = $section->id;
+                        $current_section = $section;
                         $prepareQuestionJson = $this->prepQuestionJson(json_encode($section->questions));
                         break;
                     }
@@ -812,10 +812,10 @@ class SurveyController extends Controller
                         ->where("attempt", $last_attempt)->update(["completion_date" => $completion_date]);
 
                         //save submission entry to table
-                        SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id, "section_id"=>$current_section, "activity"=>config("constant.SURVEY_ACTIVITY.END")]);
+                        SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id, "section_id"=>$current_section->id,"section_title"=>$current_section->title, "activity"=>config("constant.SURVEY_ACTIVITY.END")]);
                 }else{
                     //save submission entry to table
-                    SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id,"section_id"=>$current_section,"activity"=>config("constant.SURVEY_ACTIVITY.SECTION_SUBMIT")]);
+                    SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id,"section_id"=>$current_section->id,"section_title"=>$current_section->title,"activity"=>config("constant.SURVEY_ACTIVITY.SECTION_SUBMIT")]);
                 }
                 
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => $completion_date]);
