@@ -352,7 +352,7 @@ class SurveyApplicantController extends Controller
                 $this->model = true;
             }
         }
-
+        
          //update applicant to inprogress
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null]);
         $user = $request->user()->profile->id;

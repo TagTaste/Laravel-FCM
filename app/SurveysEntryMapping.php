@@ -12,6 +12,6 @@ class SurveysEntryMapping extends Model
     const UPDATED_AT = 'updated_at';
     
     protected $guarded = ["id"];
-    protected $fillable = ["surveys_attempt_id","activity","section_id","created_at","updated_at"];
+    protected $fillable = ["surveys_attempt_id","activity","section_id","section_title","created_at","updated_at"];
 
 }
