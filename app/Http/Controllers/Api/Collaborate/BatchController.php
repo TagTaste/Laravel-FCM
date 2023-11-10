@@ -394,7 +394,7 @@ class BatchController extends Controller
             $this->model = false;
             return $this->sendNewError("You have not completed this review yet.");
         }
-        
+
         $timeline_data = CollaborateTastingEntryMapping::where("collaborate_id",$collaborateId)->where("batch_id",$batchId)->where("profile_id",$profileId)->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
 
         $submission_status = [];
@@ -468,7 +468,7 @@ class BatchController extends Controller
 
         $submission_status["timeline"] = $timeline;        
         $submission_status["duration"] = $duration;
-        $this->model = ["submission_status"=>$submission_status];
+        $this->model = ["submission_status"=>[$submission_status]];
         return $this->sendNewResponse();
     }
 
