@@ -1990,11 +1990,12 @@ class SurveyController extends Controller
             
             $ans = $answers->pluck("option_id")->toArray();
             $ar = array_values(array_filter($ans));
-            $getAvg = (count($ar) ? $this->array_avg($ar, count($ar)) : 0);            
 
             $count2 = count(SurveyAnswers::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
             }));
+
+            $getAvg = (count($ar) ? $this->array_avg($ar, $count2) : 0);            
 
             $respondentCount = count($answers->pluck("profile_id")->unique()->toArray());
             // $responseCount = array_unique(array_column($answers->toArray(), 'profile_id','batch_id'));
