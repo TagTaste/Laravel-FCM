@@ -1305,4 +1305,6 @@ class SurveyApplicantController extends Controller
 
 
         return $this->sendResponse();
+
+    }
 }
