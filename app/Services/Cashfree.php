@@ -52,7 +52,7 @@ class Cashfree
     {
         $data["email"] = $paramArray["beneficiaryEmail"];
         $data["phone"] = $paramArray["beneficiaryPhoneNo"];
-        $data["amount"] = $paramArray["amount"];
+        $data["amount"] = $paramArray["payout_amount"];
         $data["name"] = $paramArray["name"];
         $data["linkExpiry"] = date("Y/m/d", strtotime("+10 days"));
         $data["cashgramId"] = $paramArray["orderId"];

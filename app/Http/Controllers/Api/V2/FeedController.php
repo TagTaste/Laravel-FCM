@@ -927,6 +927,7 @@ class FeedController extends Controller
             foreach ($collaborations as $key => $id) {
                 $cached_data = \App\V2\Detailed\Collaborate::where('id', (int)$id)->first();
                 if (!is_null($cached_data)) {
+                    $cached_data->videos_meta = json_decode($cached_data->videos_meta);
                     $data = $cached_data->toArray();
                     $suggestion["meta"]["count"]++;
                     array_push($suggestion["suggestion"], $data);

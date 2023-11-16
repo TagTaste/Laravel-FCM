@@ -6,7 +6,8 @@ return  [
         'DRAFT' => 1,
         'PUBLISHED' => 2,
         'CLOSED' => 3,
-        'EXPIRED' => 4
+        'EXPIRED' => 4,
+        'SHOWN_INTEREST' => 5
     ],
 
     "SURVEY_STATUS" => [
@@ -88,6 +89,9 @@ return  [
     "LINKEDIN_CLIENTID" => env("LINKEDIN_ID"),
     "LINKEDIN_SECRET" => env("LINKEDIN_LOGIN_SECRET"),
 
+    'SIGNUP_EMAIL_VERIFICATION' => "verify_signup_email",
+    'EMAIL_VERIFICATION' => "verify_email",
+
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
 
@@ -95,7 +99,8 @@ return  [
         'DRAFT' => 1,
         'PUBLISHED' => 2,
         'CLOSED' => 3,
-        'EXPIRED' => 4
+        'EXPIRED' => 4,
+        'PARTICIPATED' => 5
     ],
 
     "COLLABORATE_HEADER_SELECTION_TYPE" => [

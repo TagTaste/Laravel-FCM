@@ -54,18 +54,24 @@ class CollaborateController extends Controller
         
         //Get compnaies of the logged in user.
         $companyIds = \DB::table('company_users')->where('profile_id',$profileId)->pluck('company_id');
-        if($state == 6) {
+        if($state == 6) { // 6 is used to check the collaborates where user shown the interest
             $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->pluck('collaborate_id');
             $collaborations = $collaborations->where('state','!=',2)->whereIn('id',$interestedInCollaboration);
-        } else if($state == 4){
-            $collaborations = $collaborations->where('state','!=',2)->where('step',1)->where(function($q) use ($profileId,$companyIds) {
+        } else if($state == 4){ // State 4 is Draft
+            $collaborations = $collaborations->where('state',4)->where(function($q) use ($profileId,$companyIds) {
                 $q->where('profile_id', $profileId)
                   ->orWhereIn('company_id', $companyIds);
             });
-            
-        } else {
+        } else if($state == 5) { // Inactive collaborations. 3 = expired & 5 = closed
             $roleCollaborates = \DB::table('collaborate_user_roles')->where('profile_id',$profileId)->pluck('collaborate_id');
-            $collaborations = $collaborations->where('state','!=',2)->where('step',3)->where(function($q) use ($profileId,$companyIds,$roleCollaborates) {
+            $collaborations = $collaborations->whereIn('state',[3,5])->where(function($q) use ($profileId,$companyIds,$roleCollaborates) {
+                $q->where('profile_id', $profileId)
+                  ->orWhereIn('company_id', $companyIds)
+                  ->orWhereIn('id',$roleCollaborates);
+            });
+        } else { // Active collaborations
+            $roleCollaborates = \DB::table('collaborate_user_roles')->where('profile_id',$profileId)->pluck('collaborate_id');
+            $collaborations = $collaborations->where('state',1)->where('step',3)->where(function($q) use ($profileId,$companyIds,$roleCollaborates) {
                 $q->where('profile_id', $profileId)
                   ->orWhereIn('company_id', $companyIds)
                   ->orWhereIn('id',$roleCollaborates);
@@ -117,7 +123,6 @@ class CollaborateController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
 
         $profile = $request->user()->profile;
-
         $profileId = $profile->id ;
         $inputs = $request->all();
        
@@ -134,11 +139,26 @@ class CollaborateController extends Controller
             $inputs['state'] =  $request->state;
         }
 
-        if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
+        // if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
+        // {
+        //     $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+        //             ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+        // }
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
         {
-            $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
+            if($profile->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($profile->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
         }
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
+        }
+        
         $inputs['profile_id'] = $profileId;
 
         $fields = $request->has("fields") ? $request->input('fields') : [];
@@ -271,8 +291,6 @@ class CollaborateController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $loggedInProfileId = $request->user()->profile->id;
-
         $inputs = $request->all();
         unset($inputs['profile_id']);
         unset($inputs['state']);
@@ -280,6 +298,22 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
+        }
+
+        $profile = $request->user()->profile;
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
+        {
+            if($profile->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($profile->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
+        }
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
         }
 
         if($collaborate->collaborate_type == 'collaborate')
@@ -378,6 +412,7 @@ class CollaborateController extends Controller
             $profile = Profile::find($profileId);
             if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
                 $inputs['state'] = Collaborate::$state[0];
+                $inputs['step'] = 3;
                 $inputs['deleted_at'] = null;
                 $collaborate->addToCache();
                 $this->model = Collaborate::find($id);
@@ -701,10 +736,14 @@ class CollaborateController extends Controller
         $collaboration = $this->model->where('id',$id)
             ->where('profile_id', $profileId)
             ->whereNull('company_id')
-            ->whereIn('state',[Collaborate::$state[0], Collaborate::$state[4]])
+            ->whereIn('state',[Collaborate::$state[0], Collaborate::$state[4], Collaborate::$state[3]])
             ->first();
         if (is_null($collaboration)) {
             return $this->sendError("Collaboration not found.");
+        }
+        else if($collaboration->state == "Save")
+        {
+            return $this->sendError("Collaboration can not be closed in the draft state.");
         }
 
         event(new \App\Events\DeleteFilters(class_basename($collaboration), $collaboration->id));
@@ -818,7 +857,22 @@ class CollaborateController extends Controller
         if(!isset($inputs['is_product_endorsement']) || is_null($inputs['is_product_endorsement']))
             $inputs['is_product_endorsement'] = 0;
 
-        $loggedInProfileId = $request->user()->profile->id;
+        $profile = $request->user()->profile;
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on'])) 
+        {
+            if($profile->is_premium == 1 && (strtotime($inputs['expires_on']) > strtotime("+1 year"))) {
+                return $this->sendNewError("Expiry time exceeds a year");
+            }
+            else if($profile->is_premium != 1 && (strtotime($inputs['expires_on']) > strtotime("+3 months")))
+            {
+                return $this->sendNewError("Expiry time exceeds 3 months");
+            }
+        }
+
+        if ($request->has("expires_on") && !empty($inputs['expires_on']) && strtotime($inputs['expires_on']) < time()) {
+            return $this->sendNewError("Expiry time invalid");
+        }
 
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         if($collaborate === null){

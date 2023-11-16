@@ -45,6 +45,35 @@ Route::post('login', function (Request $request) {
         {
             return response()->json(['error' => 'invalid_credentials', 'message' => 'The username or password is incorrect.'], 401);
         }
+
+        $userVerified = \App\Profile\User::where('email',$credentials['email'])->first();
+        if(empty($userVerified->verified_at) && $userVerified->profile->onboarding_complete == 0)
+        {
+            // Send verification email
+            $source = config("constant.SIGNUP_EMAIL_VERIFICATION");
+            $versionKey = 'X-VERSION';
+            $versionKeyIos = 'X-VERSION-IOS';
+
+            if ($request->hasHeader($versionKey)) {
+                $platform = "android";
+            } 
+            else if ($request->hasHeader($versionKeyIos)){
+                $platform = "ios";
+            } 
+            else {
+                $platform = "web";
+            }
+
+            $verificationResult =  app('App\Services\UserService')->sendVerificationEmail($credentials['email'], $source, $platform, 'sign-up');
+            if($verificationResult['result'] == false)
+            {
+                return response()->json(['error' => 'email_verification', 'message' => $verificationResult['error']], 401);
+            }
+
+            $email_verified = false;
+        } else {
+            $email_verified = true;
+        }
     } 
     catch (Tymon\JWTAuth\Exceptions\JWTException $e) 
     {
@@ -53,11 +82,11 @@ Route::post('login', function (Request $request) {
     }
 
     // Store jwt tokens for force-logout
-    $user_id = App\User::where('email',$request->email)->first()->id;
-    app('App\Services\UserService')->storeUserLoginInfo($user_id, $request, $token);
+    app('App\Services\UserService')->storeUserLoginInfo($userVerified->id, $request, $token);
 
     app('App\Http\Controllers\Auth\LoginController')->checkForDeactivation($request);
-    return response()->json(compact('token'));
+    return response()->json(compact('token','email_verified'));
+
 });
 Route::post('social/login/auth/linkedin', 'Auth\LoginController@loginLinkedin');
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
@@ -660,6 +689,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('profile/phoneVerify', 'ProfileController@phoneVerify');
         Route::post('profile/requestOtp', 'ProfileController@requestOtp');
         Route::post('profile/verify/email', 'ProfileController@sendVerifyMail');
+
+        // Email verification via otp
+        Route::post('profile/verification/email', 'ProfileController@sendVerifyEmail');
+        Route::post('profile/verification/email/otp', 'ProfileController@verifyEmailOtp');
+
         //remove when profile/tagging api run proper on website and app
         //website all followers
         Route::get("profile/allFollowerslist", ['uses' => 'ProfileController@oldtagging']);

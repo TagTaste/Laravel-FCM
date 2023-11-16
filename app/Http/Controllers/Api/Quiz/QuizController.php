@@ -822,9 +822,15 @@ class QuizController extends Controller
 
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
+            
+            //TDS deduction
+            $tds_deduction = $request->user()->profile->tds_deduction;
+            $tds_amount = 0;
+            if($tds_deduction){
+                $tds_amount = number_format($amount/10,2);
+            }
 
-
-            $data = ["amount" => $amount, "model_type" => "quiz", "model_id" => $request->quiz_id, "payment_id" => $paymentDetails->id];
+            $data = ["amount" => $amount,"tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "quiz", "model_id" => $request->quiz_id, "payment_id" => $paymentDetails->id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;
@@ -854,29 +860,39 @@ class QuizController extends Controller
     {
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        $quizes = $this->model->whereNull("deleted_at");
-        if ($request->has('state') && !empty($request->input('state'))) {
-            $states = [$request->state];
-            if ($request->state == config("constant.QUIZ_STATES.PUBLISHED")) {
-                $states = [config("constant.QUIZ_STATES.PUBLISHED"), config("constant.QUIZ_STATES.CLOSED"), config("constant.QUIZ_STATES.EXPIRED")];
+        $quizes = $this->model->whereNull("deleted_at")->orderBy('state', 'asc')->orderBy('created_at', 'desc');
+        $state = $request->state;
+        $profileId = $request->user()->profile->id;
+        if ($request->has('state') && !empty($request->input('state'))) 
+        {    
+            $states = [$state];
+            if ($state == config("constant.QUIZ_STATES.CLOSED")) { // For Inactive quizzes
+                $states = [config("constant.QUIZ_STATES.CLOSED"), config("constant.QUIZ_STATES.EXPIRED")];
             }
-            $quizes = $quizes->whereIn("state", $states);
+            if ($state == config("constant.QUIZ_STATES.PARTICIPATED"))
+            {
+                $participatedQuizzes = QuizApplicants::where('profile_id', $profileId)->pluck('quiz_id');
+                $quizes = $quizes->whereIn('id',$participatedQuizzes);
+            }
+            else
+            {
+                $quizes = $quizes->whereIn("state", $states);
+
+                //Get compnaies of the logged in user.
+                $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
+
+                $quizes = $quizes->where(function ($q) use ($profileId, $companyIds) {
+                    $q->orWhere('profile_id', "=", $profileId);
+                    $q->orWhereIn('company_id', $companyIds);
+                });
+            }
+            
         }
 
-        $quizes = $quizes->orderBy('state', 'asc')->orderBy('created_at', 'desc');
-        $profileId = $request->user()->profile->id;
         $title = isset($request->title) ? $request->title : null;
 
         $this->model = [];
         $data = [];
-
-        //Get compnaies of the logged in user.
-        $companyIds = \DB::table('company_users')->where('profile_id', $profileId)->pluck('company_id');
-
-        $quizes = $quizes->where(function ($q) use ($profileId, $companyIds) {
-            $q->orWhere('profile_id', "=", $profileId);
-            $q->orWhereIn('company_id', $companyIds);
-        });
 
         if (!is_null($title)) {
             $quizes = $quizes->where('title', 'like', '%' . $title . '%');
