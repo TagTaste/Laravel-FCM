@@ -960,7 +960,7 @@ class CollaborateController extends Controller
             $inputs['updated_at'] = $now;
             $inputs['deleted_at'] = null;
         }
-        $this->model = $collaborate->update($inputs);
+        
         if($request->has('batches'))
         {
             if (!is_null($collaborate->global_question_id)) {
@@ -1040,6 +1040,7 @@ class CollaborateController extends Controller
                 return $this->sendError("You can not update your products as questionaire is not attached.");
             }
         }
+        $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::where('id',$id)->first();
         $this->model->videos_meta = json_decode($this->model->videos_meta);
         if(isset($inputs['step']) && !is_null($inputs['step']))

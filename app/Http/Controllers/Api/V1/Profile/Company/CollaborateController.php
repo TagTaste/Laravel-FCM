@@ -676,7 +676,6 @@ class CollaborateController extends Controller
             $inputs['created_at'] = $now;
             $inputs['updated_at'] = $now;
         }
-        $this->model = $collaborate->update($inputs);
         
         // current time
         $now = Carbon::now()->toDateTimeString();
@@ -762,6 +761,7 @@ class CollaborateController extends Controller
                 return $this->sendError("You can not update your products as questionaire is not attached.");
             }
         }
+        $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::where('id',$id)->first();
         if(isset($inputs['step']) && !is_null($inputs['step']))
         {
