@@ -352,7 +352,7 @@ class SurveyApplicantController extends Controller
                 $this->model = true;
             }
         }
-
+        
          //update applicant to inprogress
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null]);
         $user = $request->user()->profile->id;
@@ -1076,28 +1076,158 @@ class SurveyApplicantController extends Controller
         $h = floor(($seconds % 86400) / 3600);
         $d = floor(($seconds % 2592000) / 86400);
         $M = floor($seconds / 2592000);
+        
         $durationStr = "";
         if ($M > 0) {
-            $durationStr .= "$M month ";
+            $durationStr .= $M."m ";
         }
 
         if ($d > 0) {
-            $durationStr .= "$d day ";
+            $durationStr .= $d."d ";
         }
 
         if ($h > 0) {
-            $durationStr .= "$h hr ";
+            $durationStr .= $h."h ";
         }
 
         if ($m > 0) {
-            $durationStr .= "$m min ";
+            $durationStr .= $m."m ";
         }
 
         if ($s > 0) {
-            $durationStr .= "$s sec";
+            $durationStr .= $s."s";
         }
 
         return $durationStr;
+    }
+
+    public function getSubmissionTimeline($id, $profile_id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Survey");
+        }
+
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendNewError("Only Admin can view applicant list");
+        }
+        //paginate
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
+        //filters data
+
+        $applicant = surveyApplicants::where("survey_id", "=", $id)->where("profile_id", $profile_id)->whereNull("deleted_at")->first();
+
+        if (empty($applicant)) {
+            return $this->sendNewError("User has not participated in survey");
+        }
+
+        $submissions = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $profile_id)->whereNotNull("completion_date")->orderBy("attempt", "desc")->skip($skip)->take($take)->get()->toArray();
+        if (empty($submissions)) {
+            return $this->sendNewError("User has not completed the survey");
+        }
+        $profile = [];
+        $profile["id"] = $applicant->id;
+        $profile["profile_id"] = $profile_id;
+        $profile["company_id"] = $applicant->company_id;
+        $profile["survey_id"] = $id;
+        $profile["inprogress_count"] = $applicant->inprogress_count;
+        $profile["submission_count"] = $applicant->submission_count;
+
+        $submission_status = [];
+        
+        foreach ($submissions as $index => $submission) {
+            $submission_status = [];
+            $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
+
+            //create submission timeline
+            $timeline_data = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
+            $submission_status["id"] = $submission["id"];
+            $submission_status["title"] = "Submission ".($applicant->submission_count - $index);
+            $submission_status["is_collapsed"] = true;
+            
+            $timeline = []; 
+            $section_exist = false;   
+            $last_activity = null;
+            $last_section = null;
+            foreach($timeline_data as $t){
+                $timeline_obj = [];
+                $timeline_obj["section_id"] = $t->section_id;
+                if($t->activity == config("constant.SURVEY_ACTIVITY.START")){
+                    $timeline_obj["title"] = "BEGIN";
+                    $timeline_obj["color_code"] = "#00A146";
+                }else if($t->activity == config("constant.SURVEY_ACTIVITY.SECTION_SUBMIT")){
+                    $timeline_obj["title"] = $t->section_title;
+                    $timeline_obj["color_code"] = "#171717";
+                    $section_exist = true;
+                }else if($t->activity == config("constant.SURVEY_ACTIVITY.END")){
+                    if($section_exist){
+                        $timeline_obj["title"] = $t->section_title;
+                        $timeline_obj["color_code"] = "#171717";                            
+                    }else{
+                        $timeline_obj["title"] = "END";
+                        $timeline_obj["color_code"] = "#00AEB3";    
+                    }
+                }
+
+                if($last_section == $t->section_id && $last_activity == $t->activity){
+                    $last_obj = array_pop($timeline);
+                    $last_timestamps = $last_obj["timestamps"];
+                    array_push($last_timestamps, ["title"=>date("d M Y, h:i:s A", strtotime($t->created_at))]);
+                    $last_obj["timestamps"] = $last_timestamps;
+                    array_push($timeline, $last_obj);
+                }else{
+                    $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($t->created_at))]];
+                    array_push($timeline, $timeline_obj);
+                    if($section_exist && $t->activity == config("constant.SURVEY_ACTIVITY.END")){
+                        array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3"]);    
+                    }    
+                }
+                $last_section = $t->section_id;
+                $last_activity = $t->activity;
+            }
+
+            $entry_timestamp = $timeline_data[0] ?? null;
+            if(count($timeline) == 0){
+                //insert begin for old data
+                $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146"];
+                $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($submission["created_at"]))]];
+                if(isset($entry_timestamp)){
+                    $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($entry_timestamp->created_at))]];
+                }
+                array_push($timeline, $timeline_obj);    
+
+                //insert end for old data
+                $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3"];
+                $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($submission["completion_date"]))]];
+                array_push($timeline, $timeline_obj);  
+            }
+
+            $submission_status["timeline"] = $timeline;
+
+            //calculate duration if entry timestamp exist
+            if(isset($entry_timestamp)){
+                $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($entry_timestamp["created_at"]));
+            }
+            
+            $submission_status["duration"] = $duration;
+            $profile["submission_status"][] = $submission_status;
+            $profile["profile"] = $applicant->profile;
+        }
+
+        $this->model = $profile;
+        return $this->sendResponse();
     }
 
     public function getSubmissionStatus($id, $profile_id, Request $request)
@@ -1175,5 +1305,6 @@ class SurveyApplicantController extends Controller
 
 
         return $this->sendResponse();
+
     }
 }
