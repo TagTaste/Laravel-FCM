@@ -718,7 +718,7 @@ class SurveyController extends Controller
             if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
                 $last_attempt = 1;
                 $answerAttempt["attempt"] = $last_attempt;
-                $current_attempt = $SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
+                $current_attempt = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
             } else {    //when its not first attempt
                 $current_attempt = $last_attempt;
                 $last_attempt = $last_attempt->attempt;
