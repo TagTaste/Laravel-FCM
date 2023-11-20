@@ -396,6 +396,11 @@ class BatchController extends Controller
         }
 
         $timeline_data = CollaborateTastingEntryMapping::where("collaborate_id",$collaborateId)->where("batch_id",$batchId)->where("profile_id",$profileId)->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
+        
+        $applicant = Collaborate\Applicant::where('collaborate_id', $collaborateId)
+        ->whereNotNull('shortlisted_at')
+        ->whereNull('rejected_at')
+        ->where('profile_id', $profileId)->first();
 
         $submission_status = [];
         $submission_status["title"] = "";
@@ -468,7 +473,7 @@ class BatchController extends Controller
 
         $submission_status["timeline"] = $timeline;        
         $submission_status["duration"] = $duration;
-        $this->model = ["submission_status"=>[$submission_status]];
+        $this->model = ["submission_status"=>[$submission_status], "profile"=>$applicant->profile];
         return $this->sendNewResponse();
     }
 
