@@ -681,9 +681,11 @@ class SurveyController extends Controller
                 //CHECK FOR EVERY SECTION,MANADTORY QUESTIONS ANSWERED OR NOT
                 foreach ($sectionJson as $section) {
                     $quesFromSection = array_column($section->questions, "id");
+                    if($section->id == $request->section_id){
+                        $current_section = $section;                        
+                    }
                     
                     if (isset($section->questions) && !empty($answerQuestionIds) && in_array($answerQuestionIds[0], $quesFromSection)) {
-                        $current_section = $section;
                         $prepareQuestionJson = $this->prepQuestionJson(json_encode($section->questions));
                         break;
                     }

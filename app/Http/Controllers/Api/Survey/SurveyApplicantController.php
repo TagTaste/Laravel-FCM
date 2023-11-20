@@ -1227,7 +1227,7 @@ class SurveyApplicantController extends Controller
         }
 
         $this->model = $profile;
-        return $this->sendResponse();
+        return $this->sendNewResponse();
     }
 
     public function getSubmissionStatus($id, $profile_id, Request $request)
@@ -1299,12 +1299,7 @@ class SurveyApplicantController extends Controller
             $profile["profile"] = $applicant->profile;
         }
 
-
-
         $this->model = $profile;
-
-
         return $this->sendResponse();
-
     }
 }
