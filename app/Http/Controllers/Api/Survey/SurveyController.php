@@ -3524,8 +3524,11 @@ class SurveyController extends Controller
             $type = $getFiteredProfileIds['type'];
         }
 
-
-        $retrieveMediaAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id)->whereNull("deleted_at");
+        $retrieveMediaAnswers = SurveyAnswers::select('survey_answers.*')
+        ->join('surveys_attempt_mapping', function ($join) {
+            $join->on('survey_answers.survey_id', '=', 'surveys_attempt_mapping.survey_id')
+                ->on('survey_answers.profile_id', '=', 'surveys_attempt_mapping.profile_id');
+        })->where("survey_answers.is_active", "=", 1)->where("survey_answers.question_id", "=", $question_id)->where("survey_answers.question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_answers.survey_id", "=", $id)->whereNull("survey_answers.deleted_at")->whereNotNull("surveys_attempt_mapping.completion_date");
 
         if ($request->has('filters') && !empty($request->filters)) {
             $retrieveMediaAnswers->whereIn('profile_id', $profileIds, 'and', $type);
