@@ -3534,7 +3534,7 @@ class SurveyController extends Controller
             $retrieveMediaAnswers->whereIn('profile_id', $profileIds, 'and', $type);
         }
 
-        $retrieveAnswers = $retrieveMediaAnswers->get();
+        $retrieveAnswers = $retrieveMediaAnswers->distinct()->get();
         $page = $request->input('page');
 
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
