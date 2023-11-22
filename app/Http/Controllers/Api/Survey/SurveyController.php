@@ -3531,7 +3531,7 @@ class SurveyController extends Controller
         })->where("survey_answers.is_active", "=", 1)->where("survey_answers.question_id", "=", $question_id)->where("survey_answers.question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_answers.survey_id", "=", $id)->whereNull("survey_answers.deleted_at")->whereNotNull("surveys_attempt_mapping.completion_date");
 
         if ($request->has('filters') && !empty($request->filters)) {
-            $retrieveMediaAnswers->whereIn('profile_id', $profileIds, 'and', $type);
+            $retrieveMediaAnswers->whereIn('survey_answers.profile_id', $profileIds, 'and', $type);
         }
 
         $retrieveAnswers = $retrieveMediaAnswers->distinct()->get();
