@@ -15,10 +15,10 @@ class AddPosToQuestionnaireQuestions extends Migration
     {
         //
         Schema::table('questionnaire_questions', function (Blueprint $table){
-            $table->double('pos', 15, 8)->default(0);
+            $table->double('pos', 32, 16)->default(0);
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *

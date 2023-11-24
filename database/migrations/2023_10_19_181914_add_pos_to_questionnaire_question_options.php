@@ -15,7 +15,7 @@ class AddPosToQuestionnaireQuestionOptions extends Migration
     {
         //
         Schema::table('questionnaire_question_options', function (Blueprint $table){
-            $table->double('pos', 15, 8)->default(0);
+            $table->double('pos', 32, 16)->default(0);
         });
     }
 
