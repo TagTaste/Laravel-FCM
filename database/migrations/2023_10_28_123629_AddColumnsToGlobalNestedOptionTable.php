@@ -14,7 +14,7 @@ class AddColumnsToGlobalNestedOptionTable extends Migration
     public function up()
     {
         Schema::table('global_nested_option', function (Blueprint $table){
-            $table->double('pos', 15, 8)->after('value')->default(0);
+            $table->double('pos', 32, 16)->after('value')->default(0);
             $table->integer('aroma_list_id')->after('is_active')->nullable();
             $table->softDeletes()->after('updated_at');
         });
