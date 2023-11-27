@@ -321,6 +321,10 @@ class LandingPageController extends Controller
             $placeHolderImage = json_decode(config("constant.LANDING_PLACEHOLDER_IMAGE")[array_rand(config("constant.LANDING_PLACEHOLDER_IMAGE"))]);
             if ($model == config("constant.LANDING_MODEL.SURVEYS")) {
                 $data['surveys'] = json_decode(Redis::get("surveys:" . $value), true);
+                if(isset($data['surveys']['videos_meta']))
+                {
+                    $data['surveys']['videos_meta'] = (!is_array($data['surveys']['videos_meta'])) ? json_decode($data['surveys']['videos_meta'], true) : $data['surveys']['videos_meta'];
+                }
                 $surveyModel = Surveys::find($value);
                 $data['meta'] = $surveyModel->getMetaFor($profileId);
 
@@ -364,6 +368,10 @@ class LandingPageController extends Controller
                 $carousel['elements'][] = $data;
             } else if ($model == config("constant.LANDING_MODEL.PRODUCT")) {
                 $data['product'] = json_decode(Redis::get("public-review/product:" . $value . ":V2"), true);
+                if(isset($data['product']['videos_meta']))
+                {
+                    $data['product']['videos_meta'] = (!is_array($data['product']['videos_meta'])) ? json_decode($data['product']['videos_meta'], true) : $data['product']['videos_meta'];
+                }
                 $productModel = PublicReviewProduct::find($value);
                 $data['meta'] = $productModel->getMetaFor($profileId);
                 $data['type'] = $model;
@@ -665,6 +673,9 @@ class LandingPageController extends Controller
             $key = 'public-review/product:' . $productId . ':V2';
             $cachedData = Redis::connection('V2')->get($key);
             $product = json_decode($cachedData, true);
+            if (isset($product["videos_meta"]) && !is_array($product["videos_meta"])) {
+                $product['videos_meta'] = json_decode($product['videos_meta'], true);
+            }
 
             $productModel = \App\PublicReviewProduct::find($productId);
 
