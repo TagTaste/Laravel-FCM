@@ -176,7 +176,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         if(isset($nestedOption->nested_option_list))
                         {
 //                            echo $nestedOption->nested_option_list;
-                            $extra = \Db::table('global_nested_option')->where('is_active',1)->where('type','like',$nestedOption->nested_option_list)->get();
+                            $extra = \Db::table('global_nested_option')->where('is_active',1)->where('type','like',$nestedOption->nested_option_list)->whereNull('deleted_at')->get();
                             foreach ($extra as $nested)
                             {
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
