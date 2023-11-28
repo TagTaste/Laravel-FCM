@@ -201,7 +201,7 @@ class QuestionController extends Controller
     }
 
     public function getNestedQuestions(Request $request, $collaborateId, $headerId, $questionId)
-    {
+    {   
         $loggedInProfileId = $request->user()->profile->id;
         $value = $request->input('value');
         if(!$request->has('batch_id'))
@@ -223,7 +223,7 @@ class QuestionController extends Controller
         {
             $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_nested_options as A , 
                                       collaborate_tasting_nested_options as B where A.sequence_id = B.parent_id AND A.value LIKE '$value' 
-                                      AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND B.question_id = $questionId");
+                                      AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND B.question_id = $questionId ORDER BY B.pos asc");
 
         }
         else
@@ -231,7 +231,7 @@ class QuestionController extends Controller
             $squence = \DB::table('collaborate_tasting_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
             $this->model['question'] = \DB::table('collaborate_tasting_nested_options')->where('is_active',1)->where('question_id',$questionId)
-                ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
+                ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->orderBy("pos", "asc")->get();
                 $leafIds = $this->model['question']->pluck('id');
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
                 ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->whereIn('leaf_id',$leafIds)
