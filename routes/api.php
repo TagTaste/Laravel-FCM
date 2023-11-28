@@ -936,7 +936,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
         return response($str, 200, $headers);
     });
-        
     
     Route::group(['namespace' => 'Survey', 'prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
         Route::get('filters-list/{id}', 'SurveyController@getFilters');
@@ -953,6 +952,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/media-list/{id}/{question_id}/{media_type}', 'SurveyController@mediaList');
         Route::get('/questions-list', 'SurveyController@question_list')->name("questions.list");
         Route::post('/save-survey', 'SurveyController@saveAnswers');
+        Route::post("/{id}/startSurvey", "SurveyApplicantController@startSurvey");
         Route::get('/my-list', 'SurveyController@getMySurvey');
         Route::post('/close/{id}', 'SurveyController@closeSurveys');
         Route::get('/similar/{id}', 'SurveyController@similarSurveys');
@@ -976,9 +976,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission');
         Route::get('/{id}/answers', 'SurveyController@getAnswers');
         Route::get('/{id}/applicants/{profile_id}/submission_status', 'SurveyApplicantController@getSubmissionStatus');
-
+        Route::get('/{id}/applicants/{profile_id}/submission_timeline', 'SurveyApplicantController@getSubmissionTimeline');        
         Route::post('/{id}/copy','SurveyController@copy');
     });
+    
     
     Route::group(['namespace' => '','prefix' => 'v1', 'as' => ''], function () {
         Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {

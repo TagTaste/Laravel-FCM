@@ -11,6 +11,7 @@ use App\SurveyAnswers;
 use App\surveyApplicants;
 use App\SurveyAttemptMapping;
 use App\Surveys;
+use App\SurveysEntryMapping;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
@@ -20,6 +21,8 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Helper;
+use Illuminate\Support\Facades\DB;
+
 
 class SurveyApplicantController extends Controller
 {
@@ -268,6 +271,181 @@ class SurveyApplicantController extends Controller
         return $this->sendResponse();
     }
 
+    public function startSurvey($id, Request $request){
+
+    try{
+        $survey = $this->model->where("id", "=", $id)->first();
+        $this->model = [];
+        if (empty($survey)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Survey");
+        }
+        if ($survey->state == config("constant.SURVEY_STATES.CLOSED")) {
+            $this->model = false;
+            return $this->sendNewError("Survey is closed. Cannot submit answers");
+        }
+
+        if ($survey->state == config("constant.SURVEY_STATES.EXPIRED")) {
+            $this->model = false;
+            return $this->sendNewError("Survey is expired. Cannot submit answers");
+        }
+
+        if ($survey->state == config("constant.SURVEY_STATES.DRAFT")) {
+            $this->model = false;
+            return $this->sendNewError("Survey is in draft. Cannot submit answers");
+        }
+
+        if (isset($survey->profile_id) && $survey->profile_id == $request->user()->profile->id) {
+            $this->model = false;
+            return $this->sendNewError("Admin Cannot Fill the Surveys");
+        }
+        
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
+
+        DB::beginTransaction();
+        if (empty($checkApplicant) && (is_null($survey->is_private) || !$survey->is_private)) {
+            $this->saveApplicants($survey, $request);
+        } elseif (empty($checkApplicant)) {
+            $this->status = false;
+            return $this->sendNewError($survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.");
+        }
+        
+        if (!($survey->multi_submission) && !empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+            $this->model = false;
+            return $this->sendNewError("Already Answered");
+        }
+        
+        if (
+            !empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED")
+
+        ) {
+
+            $this->model = false;
+            return $this->sendNewError($survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.");
+        }
+        
+        $last_attempt = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $request->user()->profile->id)
+        ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
+        
+        $answerAttempt = [];
+        $answerAttempt["profile_id"] = $request->user()->profile->id;
+        $answerAttempt["survey_id"] = $id;
+
+       
+        
+        if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
+            $attempt_number = 1;
+            $answerAttempt["attempt"] = $attempt_number;
+            $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
+            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
+            $this->model = true;
+        } else {    //when its not first attempt
+            $attempt_number = $last_attempt->attempt;
+            if ($survey->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                $attempt_number += 1;
+                $answerAttempt["attempt"] = $attempt_number;
+                $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
+                $this->model = true;    
+            }else{
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
+                $this->model = true;
+            }
+        }
+        
+         //update applicant to inprogress
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null]);
+        $user = $request->user()->profile->id;
+        Redis::set("surveys:application_status:$id:profile:$user", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"));
+        DB::commit();
+        return $this->sendNewResponse();
+    } catch (Exception $ex) {
+        DB::rollback();
+        $this->model = false;
+        return $this->sendNewError("Error saving data " . $ex->getMessage() . " " . $ex->getFile() . " " . $ex->getLine());
+    }
+    }
+    
+    public function saveApplicants(Surveys $id, Request $request)
+    {
+
+        $loggedInprofileId = $request->user()->profile->id;
+
+        $isInvited = 0;
+        
+        $loggedInprofileId = $request->user()->profile->id;
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id->id)->where('profile_id', $loggedInprofileId)->whereNull('deleted_at')->first();
+        if (!empty($checkApplicant) && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED") && !($id->multi_submission)) {
+            $this->model = false;
+            return $this->sendNewError("Already Applied");
+        }
+        
+        if ($request->has('applier_address')) {
+            $applierAddress = $request->input('applier_address');
+            $address = json_decode($applierAddress, true);
+            $city = (isset($address['survey_city'])) ? $address['survey_city'] : null;
+        } else {
+            $city = null;
+            $applierAddress = null;
+        }
+
+        $profile = $request->user()->profile;
+        $dob = isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null;
+
+        if (empty($checkApplicant)) {
+            $inputs = [
+                'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
+                'message' => $request->input('message'), 'address' => $applierAddress,
+                'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
+            ];
+            $ins = \DB::table('survey_applicants')->insert($inputs);
+        } else {
+            $update = [];
+            if (empty($checkApplicant->address)) {
+                $update['address'] = $applierAddress;
+            }
+            if (empty($checkApplicant->city)) {
+                $update['city'] = $city;
+            }
+
+            if (empty($checkApplicant->age_group)) {
+                $update['age_group'] = $this->calcDobRange(date("Y", strtotime($profile->dob)));
+                $update['generation'] = Helper::getGeneration($profile->dob);
+            }
+            
+            if ($checkApplicant->is_invited) {
+                $hometown = $request->input('hometown');
+                $current_city = $request->input('current_city');
+                if (empty($checkApplicant->hometown)) {
+                    $update['hometown'] = $hometown;
+                }
+                if (empty($checkApplicant->current_city)) {
+                    $update['current_city'] = $current_city;
+                }
+            }
+
+            if (!empty($update)) {
+                $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
+            }
+        }
+        $this->model = true;
+        return $this->sendResponse();
+    }
+    
+    public function calcDobRange($year)
+    {
+
+        if ($year > 2000) {
+            return "gen-z";
+        } else if ($year >= 1981 && $year <= 2000) {
+            return "millenials";
+        } else if ($year >= 1961 && $year <= 1980) {
+            return "gen-x";
+        } else {
+            return "yold";
+        }
+    }
+
     public function userList($id, Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
@@ -483,9 +661,15 @@ class SurveyApplicantController extends Controller
             $duration = '-';
             if($applicant->application_status == 2){
                 $submission = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $applicant->profile->id)->whereNotNull("completion_date")->first();
-
+                
                 $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
-            
+                
+                $submission_entry = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->orderBy("created_at", "asc")->whereNull("deleted_at")->first();
+                if(isset($submission_entry)){
+                    $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission_entry["created_at"]));
+                    $duration = $durationForSection;
+                }
+
                 if ($survey->is_section && !empty($durationForSection)) {
                     $duration = $durationForSection;
                 }
@@ -893,28 +1077,158 @@ class SurveyApplicantController extends Controller
         $h = floor(($seconds % 86400) / 3600);
         $d = floor(($seconds % 2592000) / 86400);
         $M = floor($seconds / 2592000);
+        
         $durationStr = "";
         if ($M > 0) {
-            $durationStr .= "$M month ";
+            $durationStr .= $M."m ";
         }
 
         if ($d > 0) {
-            $durationStr .= "$d day ";
+            $durationStr .= $d."d ";
         }
 
         if ($h > 0) {
-            $durationStr .= "$h hr ";
+            $durationStr .= $h."h ";
         }
 
         if ($m > 0) {
-            $durationStr .= "$m min ";
+            $durationStr .= $m."m ";
         }
 
         if ($s > 0) {
-            $durationStr .= "$s sec";
+            $durationStr .= $s."s";
         }
 
         return $durationStr;
+    }
+
+    public function getSubmissionTimeline($id, $profile_id, Request $request)
+    {
+        $checkIFExists = $this->model->where("id", "=", $id)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Survey");
+        }
+
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendNewError("Only Admin can view applicant list");
+        }
+        //paginate
+        $page = $request->input('page');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
+        //filters data
+
+        $applicant = surveyApplicants::where("survey_id", "=", $id)->where("profile_id", $profile_id)->whereNull("deleted_at")->first();
+
+        if (empty($applicant)) {
+            return $this->sendNewError("User has not participated in survey");
+        }
+
+        $submissions = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $profile_id)->whereNotNull("completion_date")->orderBy("attempt", "desc")->skip($skip)->take($take)->get()->toArray();
+        if (empty($submissions)) {
+            return $this->sendNewError("User has not completed the survey");
+        }
+        $profile = [];
+        $profile["id"] = $applicant->id;
+        $profile["profile_id"] = $profile_id;
+        $profile["company_id"] = $applicant->company_id;
+        $profile["survey_id"] = $id;
+        $profile["inprogress_count"] = $applicant->inprogress_count;
+        $profile["submission_count"] = $applicant->submission_count;
+
+        $submission_status = [];
+        
+        foreach ($submissions as $index => $submission) {
+            $submission_status = [];
+            $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
+
+            //create submission timeline
+            $timeline_data = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
+            $submission_status["id"] = $submission["id"];
+            $submission_status["title"] = "Submission ".($applicant->submission_count - $index);
+            $submission_status["is_collapsed"] = true;
+            
+            $timeline = []; 
+            $section_exist = false;   
+            $last_activity = null;
+            $last_section = null;
+            foreach($timeline_data as $t){
+                $timeline_obj = [];
+                $timeline_obj["section_id"] = $t->section_id;
+                if($t->activity == config("constant.SURVEY_ACTIVITY.START")){
+                    $timeline_obj["title"] = "BEGIN";
+                    $timeline_obj["color_code"] = "#00A146";
+                }else if($t->activity == config("constant.SURVEY_ACTIVITY.SECTION_SUBMIT")){
+                    $timeline_obj["title"] = $t->section_title;
+                    $timeline_obj["color_code"] = "#171717";
+                    $section_exist = true;
+                }else if($t->activity == config("constant.SURVEY_ACTIVITY.END")){
+                    if($section_exist){
+                        $timeline_obj["title"] = $t->section_title;
+                        $timeline_obj["color_code"] = "#171717";                            
+                    }else{
+                        $timeline_obj["title"] = "END";
+                        $timeline_obj["color_code"] = "#00AEB3";    
+                    }
+                }
+
+                if($last_section == $t->section_id && $last_activity == $t->activity){
+                    $last_obj = array_pop($timeline);
+                    $last_timestamps = $last_obj["timestamps"];
+                    array_push($last_timestamps, ["title"=>date("d M Y, h:i:s A", strtotime($t->created_at))]);
+                    $last_obj["timestamps"] = $last_timestamps;
+                    array_push($timeline, $last_obj);
+                }else{
+                    $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($t->created_at))]];
+                    array_push($timeline, $timeline_obj);
+                    if($section_exist && $t->activity == config("constant.SURVEY_ACTIVITY.END")){
+                        array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3"]);    
+                    }    
+                }
+                $last_section = $t->section_id;
+                $last_activity = $t->activity;
+            }
+
+            $entry_timestamp = $timeline_data[0] ?? null;
+            if(count($timeline) == 0){
+                //insert begin for old data
+                $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146"];
+                $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($submission["created_at"]))]];
+                if(isset($entry_timestamp)){
+                    $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($entry_timestamp->created_at))]];
+                }
+                array_push($timeline, $timeline_obj);    
+
+                //insert end for old data
+                $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3"];
+                $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($submission["completion_date"]))]];
+                array_push($timeline, $timeline_obj);  
+            }
+
+            $submission_status["timeline"] = $timeline;
+
+            //calculate duration if entry timestamp exist
+            if(isset($entry_timestamp)){
+                $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($entry_timestamp["created_at"]));
+            }
+            
+            $submission_status["duration"] = $duration;
+            $profile["submission_status"][] = $submission_status;
+            $profile["profile"] = $applicant->profile;
+        }
+
+        $this->model = $profile;
+        return $this->sendNewResponse();
     }
 
     public function getSubmissionStatus($id, $profile_id, Request $request)
@@ -965,6 +1279,15 @@ class SurveyApplicantController extends Controller
             $submission_status = [];
             $duration = "-";
             $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission["created_at"]));
+
+            $submission_entry = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->orderBy("created_at", "asc")->whereNull("deleted_at")->first();
+            
+            //Check submission duration with start survey
+            if(isset($submission_entry)){
+                $durationForSection = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($submission_entry["created_at"]));
+                $duration = $durationForSection;
+            }
+
             if ($checkIFExists->is_section && !empty($durationForSection)) {
                 $duration = $durationForSection;
             }
@@ -972,16 +1295,12 @@ class SurveyApplicantController extends Controller
             $submission_status[] = ["title" => "Time", "value" => date("h:i:s A", strtotime($submission["completion_date"]))];
             $submission_status[] = ["title" => "Duration", "value" => $duration];
 
-
+            
             $profile["submission_status"][] = $submission_status;
             $profile["profile"] = $applicant->profile;
         }
 
-
-
         $this->model = $profile;
-
-
         return $this->sendResponse();
     }
 }

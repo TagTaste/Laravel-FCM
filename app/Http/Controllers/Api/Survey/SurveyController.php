@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Log;
 use App\PaymentHelper;
 use App\SurveyAttemptMapping;
 use App\Helper;
+use App\SurveysEntryMapping;
 
 class SurveyController extends Controller
 {
@@ -676,12 +677,9 @@ class SurveyController extends Controller
                 return $this->sendNewError("Admin Cannot Fill the Surveys");
             }
 
-
-
             $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->whereNull('deleted_at')->first();
 
             if (empty($checkApplicant) && (is_null($id->is_private) || !$id->is_private)) {
-
                 $this->saveApplicants($id, $request);
             } elseif (empty($checkApplicant)) {
                 $this->messages = $id->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.";
@@ -713,6 +711,8 @@ class SurveyController extends Controller
             $last_attempt = SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
                 ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
 
+
+            $current_section = null;
             if ($id->is_section) {    //check if section and make preparequestionjson accdng to that
                 $questionsWithoutLast = [];
                 $sectionWithoutLast = $sectionJson = json_decode($id->form_json);
@@ -747,9 +747,11 @@ class SurveyController extends Controller
                 //CHECK FOR EVERY SECTION,MANADTORY QUESTIONS ANSWERED OR NOT
                 foreach ($sectionJson as $section) {
                     $quesFromSection = array_column($section->questions, "id");
-
+                    if($section->id == $request->section_id){
+                        $current_section = $section;                        
+                    }
+                    
                     if (isset($section->questions) && !empty($answerQuestionIds) && in_array($answerQuestionIds[0], $quesFromSection)) {
-
                         $prepareQuestionJson = $this->prepQuestionJson(json_encode($section->questions));
                         break;
                     }
@@ -780,12 +782,13 @@ class SurveyController extends Controller
             $answerAttempt["profile_id"] = $request->user()->profile->id;
             $answerAttempt["survey_id"] = $request->survey_id;
 
-
+            $current_attempt = null;
             if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
                 $last_attempt = 1;
                 $answerAttempt["attempt"] = $last_attempt;
-                SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
+                $current_attempt = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
             } else {    //when its not first attempt
+                $current_attempt = $last_attempt;
                 $last_attempt = $last_attempt->attempt;
                 if ($id->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                     $last_attempt += 1;
@@ -820,7 +823,7 @@ class SurveyController extends Controller
                     SurveyAnswers::where('survey_id', $request->survey_id)
                         ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])->where("attempt", $last_attempt)->update(["deleted_at" => date("Y-m-d H:i:s"), "is_active" => 0]);
                 }
-
+                
                 if (isset($values["options"]) && !empty($values["options"])) {
                     foreach ($values["options"] as $optVal) {
                         $answerArray["answer_value"] = $optVal["value"];
@@ -865,7 +868,7 @@ class SurveyController extends Controller
 
             if ($commit) {
                 DB::commit();
-
+                
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
@@ -875,8 +878,14 @@ class SurveyController extends Controller
                     $completion_date = date("Y-m-d H:i:s");
                     SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
                         ->where("attempt", $last_attempt)->update(["completion_date" => $completion_date]);
-                }
 
+                        //save submission entry to table
+                        SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id, "section_id"=>$current_section->id ?? null,"section_title"=>$current_section->title ?? null, "activity"=>config("constant.SURVEY_ACTIVITY.END")]);
+                }else{
+                    //save submission entry to table
+                    SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id,"section_id"=>$current_section->id ?? null,"section_title"=>$current_section->title ?? null,"activity"=>config("constant.SURVEY_ACTIVITY.SECTION_SUBMIT")]);
+                }
+                
                 $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => $completion_date]);
                 $user = $request->user()->profile->id;
                 Redis::set("surveys:application_status:$request->survey_id:profile:$user", $request->current_status);
@@ -4312,7 +4321,7 @@ class SurveyController extends Controller
             $this->model = false;
             return $this->sendNewError("Already Applied");
         }
-
+        
         if ($request->has('applier_address')) {
             $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress, true);
