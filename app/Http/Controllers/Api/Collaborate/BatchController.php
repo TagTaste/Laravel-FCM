@@ -1189,7 +1189,7 @@ class BatchController extends Controller
         $gender = ['Male', 'Female', 'Other'];
         $age = Helper::getGenerationFilter('string');
         // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
-        $currentStatus = [0, 1, 2, 3];
+        // $currentStatus = [0, 1, 2, 3];
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
@@ -1240,8 +1240,8 @@ class BatchController extends Controller
                     $data['age'] = $age;
                 if ($filter == 'city')
                     $data['city'] = $city;
-                if ($filter == 'current_status')
-                    $data['current_status'] = $currentStatus;
+                // if ($filter == 'current_status')
+                //     $data['current_status'] = $currentStatus;
                 if ($filter == 'super_taster')
                     $data['super_taster'] = $superTaster;
                 if ($filter == 'user_type')
@@ -1252,11 +1252,11 @@ class BatchController extends Controller
         } else {
             if (isset($version_num) && $version_num == 'v1')
             {
-                $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+                $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
             else
             {
-                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
         }
 
@@ -1329,6 +1329,8 @@ class BatchController extends Controller
             $headers_array[$key] = $header->toArray();
             $headers_questions[$key] = Questions::select('id','is_mandatory', 'is_active','track_consistency', 'max_rank', 'questions')->where('collaborate_id', $collaborateId)->where('header_type_id', $header->id)->whereNull('parent_question_id')->orderBy('id')->get()->toArray();
 
+            $question_no = 1;
+
             if(!empty($headers_questions[$key])) {
                 foreach($headers_questions[$key] as $index => $value) {
                     $question_json_data = json_decode($value['questions'], true);
@@ -1341,6 +1343,7 @@ class BatchController extends Controller
                     {
                         $question_id = $headers_questions[$key][$index]["id"];
                         $headers_questions[$key][$index]["is_selected"] = $this->checkIfQuestionSelected($question_id, $filterForm);
+                        $headers_questions[$key][$index]["question_no"] = $question_no;
                         $headers_array[$key]["questions"][] = $headers_questions[$key][$index];
                     } 
                     else if($headers_questions[$key][$index]["select_type"] == 2)
@@ -1365,8 +1368,10 @@ class BatchController extends Controller
                             $headers_questions[$key][$index]["option"] = $global_question_options_info;
                         }
 
+                        $headers_questions[$key][$index]["question_no"] = $question_no;
                         $headers_array[$key]["questions"][] = $headers_questions[$key][$index];
                     }
+                    $question_no++;
                 }
             }
 
