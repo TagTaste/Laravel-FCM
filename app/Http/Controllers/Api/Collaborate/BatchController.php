@@ -414,9 +414,11 @@ class BatchController extends Controller
             if($t->activity == config("constant.REVIEW_ACTIVITY.START")){
                 $timeline_obj["title"] = "BEGIN";
                 $timeline_obj["color_code"] = "#00A146";
+                $timeline_obj["line_color_code"] = "#66C790";
             }else if($t->activity == config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT") || $t->activity == config("constant.REVIEW_ACTIVITY.END")){
                 $timeline_obj["title"] = $t->header_title;
                 $timeline_obj["color_code"] = "#171717";
+                $timeline_obj["line_color_code"] = "#747474";
             }
 
             if($last_header == $t->header_id && $last_activity == $t->activity){
@@ -430,7 +432,7 @@ class BatchController extends Controller
                 array_push($timeline, $timeline_obj);
 
                 if($t->activity == config("constant.REVIEW_ACTIVITY.END")){
-                    array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3"]);    
+                    array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3","line_color_code"=>"#66CED1"]);    
                 }    
             }
             $last_header = $t->header_id;
