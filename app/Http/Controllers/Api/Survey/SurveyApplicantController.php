@@ -1195,7 +1195,7 @@ class SurveyApplicantController extends Controller
                     $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($t->created_at))]];
                     array_push($timeline, $timeline_obj);
                     if($section_exist && $t->activity == config("constant.SURVEY_ACTIVITY.END")){
-                        array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3"]);    
+                        array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3", "line_color_code"=>"#66CED1"]);    
                     }    
                 }
                 $last_section = $t->section_id;
@@ -1205,7 +1205,7 @@ class SurveyApplicantController extends Controller
             $entry_timestamp = $timeline_data[0] ?? null;
             if(count($timeline) == 0){
                 //insert begin for old data
-                $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146"];
+                $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146","line_color_code"=>"#66C790"];
                 $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($submission["created_at"]))]];
                 if(isset($entry_timestamp)){
                     $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($entry_timestamp->created_at))]];
@@ -1213,7 +1213,7 @@ class SurveyApplicantController extends Controller
                 array_push($timeline, $timeline_obj);    
 
                 //insert end for old data
-                $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3"];
+                $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3", "line_color_code"=>"#66CED1"];
                 $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($submission["completion_date"]))]];
                 array_push($timeline, $timeline_obj);  
             }
