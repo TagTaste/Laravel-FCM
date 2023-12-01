@@ -209,7 +209,7 @@ class ReviewController extends Controller
         }
         return $this->sendResponse($responseData);
     }
-
+    
     protected function getMissingHeaders($collaborateId, $batchId, $profileId){
         $filledQuestionIds = \DB::table('collaborate_tasting_user_review')
         ->where('collaborate_id', $collaborateId)
