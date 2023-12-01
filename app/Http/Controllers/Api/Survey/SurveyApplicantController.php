@@ -1167,17 +1167,21 @@ class SurveyApplicantController extends Controller
                 if($t->activity == config("constant.SURVEY_ACTIVITY.START")){
                     $timeline_obj["title"] = "BEGIN";
                     $timeline_obj["color_code"] = "#00A146";
+                    $timeline_obj["line_color_code"] = "#66C790";
                 }else if($t->activity == config("constant.SURVEY_ACTIVITY.SECTION_SUBMIT")){
                     $timeline_obj["title"] = $t->section_title;
                     $timeline_obj["color_code"] = "#171717";
+                    $timeline_obj["line_color_code"] = "#747474";
                     $section_exist = true;
                 }else if($t->activity == config("constant.SURVEY_ACTIVITY.END")){
                     if($section_exist){
                         $timeline_obj["title"] = $t->section_title;
                         $timeline_obj["color_code"] = "#171717";                            
+                        $timeline_obj["line_color_code"] = "#747474";
                     }else{
                         $timeline_obj["title"] = "END";
-                        $timeline_obj["color_code"] = "#00AEB3";    
+                        $timeline_obj["color_code"] = "#00AEB3";
+                        $timeline_obj["line_color_code"] = "#66CED1";    
                     }
                 }
 
