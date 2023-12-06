@@ -188,7 +188,7 @@ trait FilterTraits
 
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['profile'] as $profile) {
-                    $query->orWhere('name', 'LIKE', $profile);
+                    $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile));
                 }
             });
         }
