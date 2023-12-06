@@ -3499,8 +3499,10 @@ class SurveyController extends Controller
 
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
-            $profileIds = $getFiteredProfileIds['profile_id'];
-            $type = $getFiteredProfileIds['type'];
+            $profileIds = array_keys($getFiteredProfileIds);
+            $type = false;
+            // $profileIds = $getFiteredProfileIds['profile_id'];
+            // $type = $getFiteredProfileIds['type'];
         } else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
