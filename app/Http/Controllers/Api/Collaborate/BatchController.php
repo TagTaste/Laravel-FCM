@@ -445,7 +445,7 @@ class BatchController extends Controller
             where current_status=3 AND profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$batchId");
 
             //insert begin for old data
-            $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146"];
+            $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146","line_color_code"=>"#66C790"];
             $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($reviewCompletionData[0]->start_time))]];
 
             if(isset($entry_timestamp)){
@@ -454,7 +454,7 @@ class BatchController extends Controller
             array_push($timeline, $timeline_obj);    
 
             //insert end for old data
-            $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3"];
+            $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3","line_color_code"=>"#66CED1"];
             $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($reviewCompletionData[0]->completion_timestamp))]];
             array_push($timeline, $timeline_obj);  
             
