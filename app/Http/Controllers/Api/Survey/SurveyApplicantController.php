@@ -1154,9 +1154,13 @@ class SurveyApplicantController extends Controller
             //create submission timeline
             $timeline_data = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
             $submission_status["id"] = $submission["id"];
-            $submission_status["title"] = "Submission ".($applicant->submission_count - $index);
+            $submission_status["title"] = "SUBMISSION ".($applicant->submission_count - $index);
             $submission_status["is_collapsed"] = true;
             
+            if($index == 0){
+                $submission_status["is_collapsed"] = false;
+            }
+
             $timeline = []; 
             $section_exist = false;   
             $last_activity = null;
