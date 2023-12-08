@@ -404,7 +404,7 @@ class BatchController extends Controller
 
         $submission_status = [];
         $submission_status["title"] = "";
-        $submission_status["is_collapsed"] = true;
+        $submission_status["is_collapsed"] = false;
         $timeline = []; 
         $last_activity = null;
         $last_header = null;
