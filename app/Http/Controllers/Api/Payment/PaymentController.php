@@ -98,7 +98,7 @@ class PaymentController extends Controller
 
         $this->model = [];
         $this->getStatus($txn_id);
-        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->where("payment_links.deleted_at", "=", null)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,link,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
+        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->where("payment_links.deleted_at", "=", null)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,payout_amount,tds_amount,link,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
         (
           'id', payment_status.id, 
           'value', payment_status.value,
@@ -157,7 +157,7 @@ class PaymentController extends Controller
                 $sub_title = 'Your transaction has cancelled';
                 $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/expired.png';
             }
-
+            
             $data->pop_up = [
                 "title" => $title,
                 "sub_title" => $sub_title,

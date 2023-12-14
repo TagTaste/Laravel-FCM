@@ -779,7 +779,15 @@ class ReviewController extends Controller
 
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
-            $data = ["amount" => $amount, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "payment_id" => $paymentDetails->id];
+
+            //TDS deduction
+            $tds_deduction = $request->user()->profile->tds_deduction;
+            $tds_amount = 0;
+            if($tds_deduction){
+                $tds_amount = number_format($amount/10,2);
+            }
+            
+            $data = ["amount" => $amount,"tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "Public Review", "model_id" => $paymentDetails->model_id, "payment_id" => $paymentDetails->id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;

@@ -55,7 +55,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
         $header = [];
         foreach ($data as &$datum)
         {
-            $headerInfo = isset($datum['header_info']) ? $datum['header_info'] : null;
+            $headerInfo = isset($datum['header_info']) && !empty($datum['header_info']) ? $datum['header_info'] : null;
             $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>isset($headerInfo) ? json_encode($headerInfo,true) : null,'collaborate_id'=>$collaborateId, 'header_selection_type'=>$datum['header_selection_type']];
         }
         Collaborate\ReviewHeader::insert($header);
@@ -176,9 +176,10 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         if(isset($nestedOption->nested_option_list))
                         {
 //                            echo $nestedOption->nested_option_list;
-                            $extra = \Db::table('global_nested_option')->where('is_active',1)->where('type','like',$nestedOption->nested_option_list)->get();
+                            $extra = \Db::table('global_nested_option')->where('is_active',1)->where('type','like',$nestedOption->nested_option_list)->whereNull('deleted_at')->get();
                             foreach ($extra as $nested)
                             {
+                                $pos = $nested->pos;
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $nestedOptionIntensity = isset($nested->is_intensity) ? $nested->is_intensity : $nestedOption->is_intensity;
@@ -191,7 +192,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 else 
                                     $trackConsistency = 0;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
-                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity,'image_url'=>$imageUrl,'option_type'=>$optionType,'track_consistency'=>$trackConsistency];
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity,'image_url'=>$imageUrl,'option_type'=>$optionType,'track_consistency'=>$trackConsistency, 'pos'=>$pos];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
@@ -214,7 +215,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
 //                        print_r($extraQuestion);
                         \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
 
-
+                        
                         $paths = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->whereNull('parent_id')->get();
 
                         foreach ($paths as $path)

@@ -6352,7 +6352,7 @@ class InsertPublicReviewQuestionair extends Command
  }
                 ';
 
-
+ 	
         $data = ['name'=>'updated_rank_range_questionnaire','keywords'=>"rank_range_questionnaire",'description'=>null,
 
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
@@ -6481,14 +6481,14 @@ class InsertPublicReviewQuestionair extends Command
                         if(isset($nestedOption->nested_option_list))
                         {
                             echo $nestedOption->nested_option_list;
-                            $extra = \Db::table('public_review_global_nested_option')->where('is_active',1)->where('type','like',$nestedOption->nested_option_list)->get();
+                            $extra = \Db::table('global_nested_option')->where('is_active',1)->where('type','like',$nestedOption->nested_option_list)->whereNull("deleted_at")->get();
                             foreach ($extra as $nested)
                             {
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $option_type = isset($nested->option_type) ? $nested->option_type : 0;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,
-                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nested->is_intensity, 'option_type'=>$option_type];
+                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nested->is_intensity, 'option_type'=>$option_type, 'pos'=>$nested->pos];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))

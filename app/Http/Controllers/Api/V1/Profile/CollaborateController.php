@@ -125,8 +125,7 @@ class CollaborateController extends Controller
         $profile = $request->user()->profile;
         $profileId = $profile->id ;
         $inputs = $request->all();
-        $inputs['state'] = 1;
-
+       
         if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
         {
             if(!$profile->is_premium) {
@@ -134,6 +133,10 @@ class CollaborateController extends Controller
             }
             $inputs['step'] = 1;
             $inputs['state'] = 4;
+        }
+        else
+        {
+            $inputs['state'] =  $request->state;
         }
 
         // if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] != 'product-review')
@@ -406,12 +409,20 @@ class CollaborateController extends Controller
         $inputs['privacy_id'] = 1;
         if($request->expires_on != null) {
             $inputs['expires_on'] = $request->expires_on;
+            $profile = Profile::find($profileId);
             if($collaborate->state == 'Expired' || $collaborate->state == 'Close' ) {
                 $inputs['state'] = Collaborate::$state[0];
                 $inputs['step'] = 3;
                 $inputs['deleted_at'] = null;
                 $collaborate->addToCache();
-                $profile = Profile::find($profileId);
+                $this->model = Collaborate::find($id);
+
+                event(new NewFeedable($this->model, $profile));
+            }
+            else if ($collaborate->state == 'Save')
+            {
+                $inputs['state'] = $request->state;
+                $collaborate->addToCache();
                 $this->model = Collaborate::find($id);
 
                 event(new NewFeedable($this->model, $profile));
@@ -464,6 +475,124 @@ class CollaborateController extends Controller
     
         $this->model->removeFromGraph();
         return $this->sendResponse();
+    }
+
+    /**
+     * Make a copy of an existing collaboration
+     *
+     * @param  int $id
+     * @param Request $request
+     * @return Response
+     */
+    public function copy(Request $request, $profileId, $id)
+    {
+        $collab = $this->model->where("id", $id)->where('state','!=',2)->first();
+       
+        if (empty($collab)) {
+            $this->model = ["status" => false];
+            return $this->sendNewError("Invalid Collaboration");
+        }
+
+        //NOTE : Verify copmany admin. Token user is really admin of company_id comning from frontend.
+        if ($request->has('company_id')) {
+            $companyId = $request->input('company_id');
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendNewError("User does not belong to this company");
+            }
+
+            $prepData["company_id"] = $request->company_id;
+        }
+        $profile = $request->user()->profile;
+        $prepData["profile_id"] = $profile->id;
+        $prepData["step"] = $collab->step;
+        $prepData["state"] = Collaborate::$state[3];
+        $prepData["title"] = mb_substr("Copied - " . $collab->title, 0, 150);
+        $prepData["description"] = $collab->description;
+        $prepData["collaborate_type"] = $collab->collaborate_type;
+        $prepData["financials"] = $collab->financials; 
+        $prepData["location"] = $collab->location; 
+        $prepData["document_required"] = $collab->document_required; 
+        $prepData["images_meta"] = json_encode($collab->images_meta, true); 
+        $prepData["videos_meta"] = $collab->videos_meta; 
+        $prepData["video"] = $collab->video; 
+        $prepData["file1"] = $collab->file1;
+        $prepData["is_contest"] = $collab->is_contest;
+        $prepData["admin_note"] = $collab->admin_note;
+        $prepData["privacy_id"] = 1;
+        $prepData["expires_on"] = date("Y-m-d", strtotime("+90 days"));
+        
+        if($collab->collaborate_type == "product-review")
+        {
+            $prepData["step"] = 1;
+            $prepData["category_id"] = $collab->category_id;
+            $prepData["type_id"] = $collab->type_id;
+            $prepData["is_taster_residence"] = $collab->is_taster_residence;
+            $prepData["brand_name"] = $collab->brand_name;
+            $prepData["brand_logo"] = $collab->brand_logo;
+        }
+
+        if(($request->has('company_id') && $company->is_premium == 1) || $profile->is_premium == 1)
+        {
+            $prepData["expires_on"] = date("Y-m-d", strtotime("+365 days"));
+        }
+
+        if(($request->has('company_id') && $company->is_premium != 1))
+        {
+            $prepData["expires_on"] = date("Y-m-d", strtotime("+90 days"));
+        }
+
+        $create = Collaborate::create($prepData);
+        if (isset($create->id)) 
+        {
+            $mandatory_field_ids = collect($collab->mandatory_fields)->pluck('id')->toArray();
+
+            //storing mandatory fields
+            if(isset($mandatory_field_ids) && $mandatory_field_ids != null && count($mandatory_field_ids)>0)
+            {
+                $this->storeMandatoryFields($mandatory_field_ids,$create->id);
+            }
+            
+            $success_message = "Your collaboration has been copied and saved to my collaborations";
+
+            if($collab->collaborate_type == "product-review")
+            {
+                //Tasting location for product-review
+                if(!empty($collab->addresses))
+                {
+                    $this->storeCity($collab->addresses,$create->id,$create);
+                }
+
+                //storing allergens
+                $allergensIds = collect($collab->collaborate_allergens)->pluck('id')->toArray();
+                $allergens = [];
+                if(count($allergensIds) > 0 && !empty($allergensIds) && is_array($allergensIds))
+                {
+                    foreach ($allergensIds as $allergensId)
+                    {
+                        $allergens[] = ['collaborate_id' => $create->id,'allergens_id' => $allergensId];
+                    }
+                    $this->model->collaborate_allergens()->insert($allergens);
+                }
+
+                $success_message = "Your tasting has been copied and saved to my tastings";
+            }
+
+            $this->model = ["status" => true];
+            $data = [
+                "id" => $create->id,
+                "message" => $success_message,
+                "button_text" => "VIEW"
+            ];
+        }
+        else
+        { 
+            return $this->sendNewError("Something went wrong!");
+        }
+
+        return $this->sendNewResponse($data);
     }
 
     public function approve(Request $request, $profileId, $id)
@@ -764,15 +893,16 @@ class CollaborateController extends Controller
                     ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
 
         $inputs['admin_note'] = ($request->has('admin_note') && !is_null($request->input('admin_note'))) ? $request->input('admin_note') : null;
+        $inputs['state'] = $request->state;
 
-        if(isset($inputs['step']))
-        {
-            $inputs['state'] = Collaborate::$state[0];
-        }
-        else
-        {
-            $inputs['state'] = Collaborate::$state[0];
-        }
+        // if(isset($inputs['step']))
+        // {
+        //     $inputs['state'] = Collaborate::$state[0];
+        // }
+        // else
+        // {
+        //     $inputs['state'] = Collaborate::$state[0];
+        // }
 
         // if($request->has('city'))
         // {
@@ -830,7 +960,7 @@ class CollaborateController extends Controller
             $inputs['updated_at'] = $now;
             $inputs['deleted_at'] = null;
         }
-        $this->model = $collaborate->update($inputs);
+        
         if($request->has('batches'))
         {
             if (!is_null($collaborate->global_question_id)) {
@@ -843,6 +973,13 @@ class CollaborateController extends Controller
                         'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
                         'created_at'=>$now,'updated_at'=>$now];
                 }
+                $batch_names = array_unique(array_column($batchList, 'name'));
+
+                if(count($batchList) != count($batch_names))
+                {
+                    return $this->sendError("Name of the batch must be unique to distinguish the batches.");
+                }
+                
                 if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
                 {
                     Collaborate\Batches::insert($batchList);
@@ -903,6 +1040,7 @@ class CollaborateController extends Controller
                 return $this->sendError("You can not update your products as questionaire is not attached.");
             }
         }
+        $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::where('id',$id)->first();
         $this->model->videos_meta = json_decode($this->model->videos_meta);
         if(isset($inputs['step']) && !is_null($inputs['step']))

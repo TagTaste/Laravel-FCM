@@ -83,6 +83,13 @@ return  [
         'SECTION_SUBMIT' => 'section_submit',
         'END' => 'final_submit'
     ],
+  
+    'SURVEY_ACTIVITY' => [
+        'START' => 'start',
+        'SECTION_SUBMIT' => 'section_submit',
+        'END' => 'final_submit'
+
+    ],
 
     'NOTIFICATION_DELETE_PERIOD' => 60,
     'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2,

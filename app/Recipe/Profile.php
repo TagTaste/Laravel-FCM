@@ -163,7 +163,7 @@ class Profile extends BaseProfile
 
     public function getEmailAttribute($value)
     {
-        return $this->user->email;
+        return $this->user->email  ?? "";
     }
 
     public function getContactDetail()
