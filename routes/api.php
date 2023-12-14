@@ -241,6 +241,25 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("search_test/explore_test", "ExplorePageController@exploreTest");
         });
 
+        Route::group(['namespace' => '', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
+            Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+                // count with filters
+                Route::post('filters-list/{id}', 'SurveyController@getFilters');
+            });
+
+            Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => 'api.auth'], function () {
+                // get filters for dashboard of product review
+                Route::post("dashboard/filters", "BatchController@filters");
+
+                // private product review reports post api
+                Route::post("batches/{id}/headers/{headerId}/reports", "BatchController@reports");
+
+                // private product review summary post api
+                Route::post("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
+            });
+        });
+
+
         //Routes to get personalised meta
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
         Route::get("/meta/{modelName}/{id}/{modelId}", "MetaController@getSharedMeta");
@@ -496,6 +515,18 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("getCities", "CollaborateController@getCities");
         Route::post("addCities", "CollaborateController@addCities");
         Route::get("collaborateCloseReason", "CollaborateController@collaborateCloseReason");
+
+        // PR applicant filters with count
+        Route::post("v1/collaborate/{id}/applicantFilters", "CollaborateController@applicantFilters");
+
+        // PR applicant reports
+        Route::post("v1/collaborate/{id}/collaborateApplicants", "Collaborate\ApplicantController@index");
+
+        // PR product based applicant filters with count
+        Route::post("v1/collaborate/{id}/batches/{batchId}/applicantFilters", "Collaborate\BatchController@applicantFilters");
+
+         // PR product based applicant reports
+         Route::post("v1/collaborate/{id}/batches/{batchId}", "Collaborate\BatchController@show");
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
@@ -980,7 +1011,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/{id}/copy','SurveyController@copy');
     });
     
-    
     Route::group(['namespace' => '','prefix' => 'v1', 'as' => ''], function () {
         Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
             Route::get('filters-list/{id}/questions', 'SurveyController@getFilterQuestions');
@@ -989,7 +1019,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
             Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
 
-            
+            // survey applicant reports API
+            Route::post('/{id}/applicants', 'SurveyApplicantController@index');
+
+            //survey Applicant filters with count
+            Route::post('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission');
 
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');

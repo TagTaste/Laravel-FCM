@@ -5,10 +5,14 @@ namespace App\Traits;
 
 use Illuminate\Support\Collection;
 use App\Helper;
+use Carbon\Carbon;
+use App\Collaborate\Review;
+use App\Collaborate\Applicant;
+use App\Recipe\Profile;
 
 trait FilterFactory
 {
-    public function getFilters($filters, $collaborateId)
+    public function getFilters($filters, $collaborateId, $batchId = null)
     {
         $gender = ['Male', 'Female', 'Other'];
         $age = Helper::getGenerationFilter('string');
@@ -16,70 +20,183 @@ trait FilterFactory
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
-        $applicants = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->get();
-        $city = [];
+        $collabApplicants = Applicant::where('collaborate_id', $collaborateId);
+        $applicants = $collabApplicants->get();
+
+        $city = array_unique(array_filter($applicants->pluck('city')->toArray()));
+        $city = array_values($city);
+
+        $hometown = array_unique(array_filter($applicants->pluck('hometown')->toArray()));
+        $hometown = array_values($hometown);
+
+        $current_city = array_unique(array_filter($applicants->pluck('current_city')->toArray()));
+        $current_city = array_values($current_city);
+        
+        // $city = [];
         $profile = [];
-        $hometown = [];
-        $current_city = [];
-        foreach ($applicants as $applicant) {
-            if (isset($applicant->city)) {
-                if (!in_array($applicant->city, $city))
-                    $city[] = $applicant->city;
+        // $hometown = [];
+        // $current_city = [];
+        // foreach ($applicants as $applicant) {
+        //     if (isset($applicant->city)) {
+        //         if (!in_array($applicant->city, $city))
+        //             $city[] = $applicant->city;
+        //     }
+
+        //     if (isset($applicant->hometown)) {
+        //         if (!in_array($applicant->hometown, $hometown))
+        //             $hometown[] = $applicant->hometown;
+        //     }
+
+        //     if (isset($applicant->current_city)) {
+        //         if (!in_array($applicant->current_city, $current_city))
+        //             $current_city[] = $applicant->current_city;
+        //     }
+
+        //     $specializations = \DB::table('profiles')
+        //         ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
+        //         ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')
+        //         ->where('profiles.id', $applicant->profile_id)
+        //         ->pluck('name');
+        //     foreach ($specializations as $specialization) {
+        //         if (!in_array($specialization, $profile) && $specialization != null)
+        //             $profile[] = $specialization;
+        //     }
+        // }
+
+        // profile specializations
+        $specializations = \DB::table('profiles')
+        ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
+        ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id');
+
+        $query = clone $specializations;
+        $profile = $query->whereIn('profiles.id', $applicants->pluck('profile_id'))->groupBy('name')->pluck('name')->toArray();
+        $profile = array_values(array_filter($profile));
+
+        $request = request();
+
+        if($request->is('*/v1/*'))
+        {
+            // applied Filters
+            $filteredProfileIds = $this->getFilteredProfile($filters, $collaborateId);
+            if(isset($batchId)){ // product applicants filters
+                $filteredProfileIds = $this->getFilterProfileIds($filters, $collaborateId, $batchId)['profile_id']->toArray();
+                $collabProfileIds = $collabApplicants->pluck('profile_id')->toArray();
+                $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $collabProfileIds;
             }
 
-            if (isset($applicant->hometown)) {
-                if (!in_array($applicant->hometown, $hometown))
-                    $hometown[] = $applicant->hometown;
-            }
+            $genderCounts = $this->getCount($collabApplicants, 'gender', $filteredProfileIds);
+            $gender = $this->getFieldPairedData($gender, $genderCounts);
 
-            if (isset($applicant->current_city)) {
-                if (!in_array($applicant->current_city, $current_city))
-                    $current_city[] = $applicant->current_city;
-            }
+            $ageCounts = $this->getCount($collabApplicants, 'generation', $filteredProfileIds);
+            $age = $this->getFieldPairedData($age, $ageCounts);
 
-            $specializations = \DB::table('profiles')
-                ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
-                ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')
-                ->where('profiles.id', $applicant->profile_id)
-                ->pluck('name');
-            foreach ($specializations as $specialization) {
-                if (!in_array($specialization, $profile) && $specialization != null)
-                    $profile[] = $specialization;
+            $cityCounts = $this->getCount($collabApplicants, 'city', $filteredProfileIds);
+            $city = $this->getFieldPairedData($city, $cityCounts);
+
+            $hometownCounts = $this->getCount($collabApplicants, 'hometown', $filteredProfileIds);
+            $hometown = $this->getFieldPairedData($hometown, $hometownCounts);
+
+            $currentCityCounts = $this->getCount($collabApplicants, 'current_city', $filteredProfileIds);
+            $current_city = $this->getFieldPairedData($current_city, $currentCityCounts);
+
+            $profileModel = Profile::whereNull('deleted_at');
+
+            //count of experts
+            $userTypeCounts = $this->getCount($profileModel,'is_expert', $filteredProfileIds);
+            $userType = $this->getProfileFieldPairedData($userType, $userTypeCounts, 'Expert', 'Consumer');
+
+            //sensory trained or not
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds, 'true');
+            $sensoryTrained =  $this->getProfileFieldPairedData($sensoryTrained, $sensoryTrainedCounts, 'Yes', 'No');
+
+            //super taster or not
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds, 'true');
+            $superTaster = $this->getProfileFieldPairedData($superTaster, $superTasterCounts, 'SuperTaster', 'Normal');
+
+            // profile specializations
+            $specializationsCount = $specializations->select('name', \DB::raw('COUNT(*) as count'))->whereIn('profiles.id', $filteredProfileIds)->groupBy('name')->pluck('count','name');
+
+            $profile = $this->getFieldPairedData($profile, $specializationsCount);
+        }
+
+        if(isset($batchId)){ // product applicants filters
+            // for to be notified and notified status
+            $beginTastingField = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->whereIn('profile_id', $filteredProfileIds)->pluck('begin_tasting','profile_id')->toArray();
+
+            // for completed and in-progress status
+            $currentStatusField = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->whereIn('profile_id', $filteredProfileIds)->pluck('current_status','profile_id')->toArray();
+
+            //get the perfect status count
+            foreach ($currentStatusField as $key => $value) {
+                if (array_key_exists($key, $beginTastingField)) {
+                    $beginTastingField[$key] = $value;
+                }
+            }
+            $currentStatusCounts = array_count_values($beginTastingField);
+            $currentStatus = $this->getFieldPairedData($currentStatus, $currentStatusCounts);
+
+            // collab allergens
+            $allergenData = \DB::table('collaborate_allergens')->join('allergens', 'collaborate_allergens.allergens_id', '=', 'allergens.id')->where('collaborate_allergens.collaborate_id', $collaborateId); 
+            $allergenIds = $allergenData->pluck('id')->toArray();
+            $allergenIdNames = array_combine($allergenIds, $allergenData->pluck('allergens.name')->toArray());
+
+            $allergenCounts = \DB::table('profiles_allergens')->select('allergens_id', \DB::raw('COUNT(*) as count'))->whereIn('profile_id', $filteredProfileIds)->whereIn('allergens_id', $allergenIds)->groupBy('allergens_id')->pluck('count','allergens_id');
+
+            foreach($allergenIdNames as $key => $val)
+            {  
+                $inner_arr['key'] = $val;
+                $inner_arr['value'] = $val;
+                $inner_arr['count'] = isset($allergenCounts[$key]) ? $allergenCounts[$key] : 0;
+                $allergenIdNames[$key] = $inner_arr;
             }
         }
+
         //$profile = array_filter($profile);
         $data = [];
-        if (count($filters)) {
-            foreach ($filters as $filter) {
-                if ($filter == 'gender')
-                    $data['gender'] = $gender;
-                if ($filter == 'age')
-                    $data['age'] = $age;
-                if ($filter == 'city')
-                    $data['city'] = $city;
-                if ($filter == 'current_status')
-                    $data['current_status'] = $currentStatus;
-                if ($filter == 'profile')
-                    $data['profile'] = $profile;
-                if ($filter == 'hometown')
-                    $data['hometown'] = $hometown;
-                if ($filter == 'current_city')
-                    $data['current_city'] = $current_city;
-                if ($filter == 'super_taster')
-                    $data['super_taster'] = $superTaster;
-                if ($filter == 'user_type')
-                    $data['user_type'] = $userType;
-                if ($filter == 'sensory_trained')
-                    $data['sensory_trained'] = $sensoryTrained;
+        // if (count($filters)) {
+        //     foreach ($filters as $filter) {
+        //         if ($filter == 'gender')
+        //             $data['gender'] = $gender;
+        //         if ($filter == 'age')
+        //             $data['age'] = $age;
+        //         if ($filter == 'city')
+        //             $data['city'] = $city;
+        //         if ($filter == 'current_status')
+        //             $data['current_status'] = $currentStatus;
+        //         if ($filter == 'profile')
+        //             $data['profile'] = $profile;
+        //         if ($filter == 'hometown')
+        //             $data['hometown'] = $hometown;
+        //         if ($filter == 'current_city')
+        //             $data['current_city'] = $current_city;
+        //         if ($filter == 'super_taster')
+        //             $data['super_taster'] = $superTaster;
+        //         if ($filter == 'user_type')
+        //             $data['user_type'] = $userType;
+        //         if ($filter == 'sensory_trained')
+        //             $data['sensory_trained'] = $sensoryTrained;
+        //     }
+        // } else {
+
+            // product applicants filters
+            if($request->is('*/v1/*') && isset($batchId)){
+                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "allergens" => array_values($allergenIdNames), "super_taster" => $superTaster];
+            } else if($request->is('*/v1/*')){  // remove current status in new applicants filters
+                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
+            } else {
+                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
             }
-        } else {
-            $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
-        }
+        // }
         return $data;
     }
 
     public function getFilteredProfile($filters, $collaborateId, $batchId = null)
     {
+        $version_num = '';
+        if(request()->is('*/v1/*')){
+            $version_num = 'v1';
+        } 
+
         $profileIds = new Collection([]);
         if ($profileIds->count() == 0 && isset($filters['profile_id'])) {
             $filterProfile = [];
@@ -112,8 +229,7 @@ trait FilterFactory
         }
 
         $Ids = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId);
-
-
+        
         if (isset($filters['profile'])) {
             $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
                 ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
@@ -125,79 +241,102 @@ trait FilterFactory
             });
         }
 
-        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
-            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
-        }
-
         if (isset($filters['city'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['city'] as $city) {
-                    $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('collaborate_applicants.city', 'LIKE', $city['key']);
+                    } else {
+                        $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
+                    }
                 }
             });
         }
 
         if (isset($filters['age'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters,  $version_num) {
                 foreach ($filters['age'] as $age) {
-                    $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $age = htmlspecialchars_decode($age['key']);
+                        $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
+                    } else {
+                        $age = htmlspecialchars_decode($age);
+                        $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
+                    }
                 }
             });
         }
 
         if (isset($filters['gender'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters,  $version_num) {
                 foreach ($filters['gender'] as $gender) {
-                    $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender['key']);
+                    } else {
+                        $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
+                    }
                 }
             });
         }
 
         if (isset($filters['hometown'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['hometown'] as $hometown) {
-                    $query->orWhere('collaborate_applicants.hometown', 'LIKE', $hometown);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('collaborate_applicants.hometown', 'LIKE', $hometown['key']);
+                    } else {
+                        $query->orWhere('collaborate_applicants.hometown', 'LIKE', $hometown);
+                    }
                 }
             });
         }
 
         if (isset($filters['current_city'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['current_city'] as $current_city) {
-                    $query->orWhere('collaborate_applicants.current_city', 'LIKE', $current_city);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('collaborate_applicants.current_city', 'LIKE', $current_city['key']);
+                    } else {
+                        $query->orWhere('collaborate_applicants.current_city', 'LIKE', $current_city);
+                    }
                 }
             });
         }
 
+        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
+            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
+        }
 
         if (isset($filters['sensory_trained'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['sensory_trained'] as $sensory) {
-                    if ($sensory == 'Yes')
+                    if ((isset($version_num) && $version_num == 'v1' && $sensory['key'] == 'Yes') || $sensory == 'Yes')
                         $sensory = 1;
                     else
                         $sensory = 0;
+
                     $query->orWhere('profiles.is_sensory_trained', $sensory);
                 }
             });
         }
 
         if (isset($filters['super_taster'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['super_taster'] as $superTaster) {
-                    if ($superTaster == 'SuperTaster')
+                    if ((isset($version_num) && $version_num == 'v1' && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster'){
                         $superTaster = 1;
-                    else
+                    } else {
                         $superTaster = 0;
+                    }
                     $query->orWhere('profiles.is_tasting_expert', $superTaster);
                 }
             });
         }
 
         if (isset($filters['user_type'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['user_type'] as $userType) {
-                    if ($userType == 'Expert')
+                    if ((isset($version_num) && $version_num == 'v1' && $userType['key'] == 'Expert') || $userType == 'Expert')
                         $userType = 1;
                     else
                         $userType = 0;
@@ -215,6 +354,222 @@ trait FilterFactory
         $profileIds = $profileIds->merge($Ids);
 
         return $profileIds->toArray();
+    }
+
+    public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
+    {
+        $version_num = '';
+        if(request()->is('*/v2/*')){
+            $version_num = 'v2';
+        } else if(request()->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
+        $profileIds = new Collection([]);
+        $isFilterAble = false;
+        if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
+            $filterProfile = [];
+            foreach ($filters['include_profile_id'] as $filter) {
+                $isFilterAble = true;
+                $filterProfile[] = (isset($version_num) && $version_num == 'v2') ? (int)$filter['key'] : (int)$filter;
+            }
+            $profileIds = $profileIds->merge($filterProfile);
+        }
+        
+        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens'])) {
+            $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
+        }
+        
+        if (isset($filters['city'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['city'] as $city) {
+                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
+                        $query->orWhere('collaborate_applicants.city', 'LIKE', (is_string($city) && !isset($city['key'])) ? $city : $city['key']);
+                    // } else {
+                    //     $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
+                    // }
+                }
+            });
+        }
+        
+        if (isset($filters['age'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['age'] as $age) {
+                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
+                        $age = (is_string($age) && !isset($age['key'])) ? htmlspecialchars_decode($age) : htmlspecialchars_decode($age['key']);
+                        $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
+                    // } else {
+                    //     $age = htmlspecialchars_decode($age);
+                    //     $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
+                    // }
+                }
+            });
+        }
+
+        if (isset($filters['gender'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['gender'] as $gender) {
+                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
+                        $query->orWhere('collaborate_applicants.gender', 'LIKE', (is_string($gender) && !isset($gender['key'])) ? $gender : $gender['key']);
+                    // } else {
+                    //     $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
+                    // }
+                }
+            });
+        }
+
+        if (isset($filters['hometown'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['hometown'] as $hometown) {
+                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
+                        $query->orWhere('collaborate_applicants.hometown', 'LIKE', (is_string($hometown) && !isset($hometown['key'])) ? $hometown : $hometown['key']);
+                    // } else {
+                    //     $query->orWhere('collaborate_applicants.hometown', 'LIKE', $hometown);
+                    // }
+                }
+            });
+        }
+
+        if (isset($filters['current_city'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['current_city'] as $current_city) {
+                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
+                        $query->orWhere('collaborate_applicants.current_city', 'LIKE', (is_string($current_city) && !isset($current_city['key'])) ? $current_city : $current_city['key']);
+                    // } else {
+                    //     $query->orWhere('collaborate_applicants.current_city', 'LIKE', $current_city);
+                    // }
+                }
+            });
+        }
+
+        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
+            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
+        }
+
+        if (isset($filters['sensory_trained'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['sensory_trained'] as $sensory) {
+                    if ((isset($sensory['key']) && $sensory['key'] == 'Yes') || (is_string($sensory) && !isset($sensory['key']) && $sensory == 'Yes'))
+                        $sensory = 1;
+                    else
+                        $sensory = 0;
+                    $query->orWhere('profiles.is_sensory_trained', $sensory);
+                }
+            });
+        }
+
+        if (isset($filters['super_taster'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['super_taster'] as $superTaster) {
+                    if ((isset($superTaster['key']) && $superTaster['key']  == 'SuperTaster') || (is_string($superTaster) && !isset($superTaster['key']) && $superTaster == 'SuperTaster'))
+                        $superTaster = 1;
+                    else
+                        $superTaster = 0;
+                    $query->orWhere('profiles.is_tasting_expert', $superTaster);
+                }
+            });
+        }
+
+        if (isset($filters['user_type'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['user_type'] as $userType) {
+                    if ((isset($userType['key']) && $userType['key'] == 'Expert') || (is_string($userType) && !isset($userType['key']) && $userType == 'Expert'))
+                        $userType = 1;
+                    else
+                        $userType = 0;
+                    $query->orWhere('profiles.is_expert', $userType);
+                }
+            });
+        }
+
+        //apply filter on question's options
+        if (isset($version_num) && !empty($version_num) && isset($filters['question_filter']))
+        {
+            $ques_filter = ['profile_id' => request()->user()->profile->id, 'collaborate_id'=> $collaborateId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
+
+            \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->updateOrInsert(['collaborate_id'=> $collaborateId], $ques_filter); 
+
+            if(!empty($filters['question_filter']))
+            {
+                $header_ids = collect($filters['question_filter'])->pluck('id')->toArray();
+                $entered_count = 0;
+    
+                foreach($header_ids as $key => $header)
+                {
+                    foreach($filters['question_filter'][$key]['questions'] as $question)
+                    {
+                        $question_filtered_data = Review::whereIn('tasting_header_id',$header_ids)->where('collaborate_id',$collaborateId)->whereIn('profile_id', $Ids->distinct()->pluck('collaborate_applicants.profile_id')->toArray())->where('question_id',$question["id"]);
+
+                        if(!empty($question["option"]))
+                        {
+                            $option_ids = collect($question["option"])->pluck('id');
+                            $question_filtered_data = $question_filtered_data->whereIn('collaborate_tasting_user_review.leaf_id',$option_ids);
+                        }
+                        if($entered_count == 0)
+                        {   
+                            $profile_ids = $question_filtered_data->distinct()->pluck('profile_id')->toArray();
+                        }
+                        else
+                        {
+                            $profile_ids = array_intersect($question_filtered_data->distinct()->pluck('profile_id')->toArray(), $profile_ids);
+                        }  
+                        $entered_count++;
+                    }
+                }
+
+                $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profile_ids);
+            }
+        }
+
+        if (isset($filters['current_status']) && !is_null($batchId)) {
+            $currentStatusIds = new Collection([]);
+            foreach ($filters['current_status'] as $currentStatus) {
+                if ($currentStatus == 0 || $currentStatus == 1) {
+                    $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('begin_tasting', $currentStatus)->get()->pluck('profile_id')->unique();
+                    $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->get()->pluck('profile_id')->unique();                   
+                    $ids = $ids->diff($ids2);
+                } else {
+                    $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', $currentStatus)->get()->pluck('profile_id')->unique();
+                }
+                $currentStatusIds = $currentStatusIds->merge($ids);
+            }
+            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $currentStatusIds);
+        }    
+        
+        if ($profileIds->count() > 0 && isset($Ids)) {
+            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
+        }
+
+        if (isset($Ids)) {
+            $isFilterAble = true;
+            $Ids = $Ids->get()->pluck('profile_id');
+            $profileIds = $profileIds->merge($Ids);
+        }
+
+        if ($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
+            $filterNotProfileIds = [];
+            foreach ($filters['exclude_profile_id'] as $filter) {
+                $isFilterAble = true;
+                $filterNotProfileIds[] = (isset($version_num) && $version_num == 'v2') ? (int)$filter['key'] : (int)$filter;
+            }
+            $profileIds = $profileIds->diff($filterNotProfileIds);
+        } else if (isset($filters['exclude_profile_id'])) {
+            $isFilterAble = false;
+            $excludeAble = false;
+            $filterNotProfileIds = [];
+            foreach ($filters['exclude_profile_id'] as $filter) {
+                $isFilterAble = false;
+                $excludeAble = true;
+                $filterNotProfileIds[] = (isset($version_num) && $version_num == 'v2') ? (int)$filter['key'] : (int)$filter;
+            }
+            $profileIds = $profileIds->merge($filterNotProfileIds);
+        }
+
+        if ($isFilterAble)
+            return ['profile_id' => $profileIds, 'type' => false]; //data for these profile ids only 
+        else
+            return ['profile_id' => $profileIds, 'type' => true]; //these profile ids will be excluded from total completed reviews
+
     }
 
     public function getSearchedProfile($q, $collaborateId)
@@ -273,6 +628,36 @@ trait FilterFactory
             ->get();
     }
 
+    public function getCount($model, $field, $profileIds)
+    {
+        $query = clone $model;
+        $table = $query->getModel()->getTable();
+        $query->select($field, \DB::raw('COUNT(*) as count'));
+        if($table == 'collaborate_applicants'){
+            $query = $query->whereIn('profile_id', $profileIds);
+        } else {
+            $query->whereIn('id', $profileIds);
+        }
 
+        return $query->groupBy($field)->pluck('count', $field);
+    }
+
+    public function getFieldPairedData($field, $fieldCounts)
+    {
+        foreach($field as $key => $val)
+        {  
+            $inner_arr['key'] = $val;
+            $inner_arr['value'] = $val;
+            $inner_arr['count'] = isset($fieldCounts[$val]) ? $fieldCounts[$val] : 0;
+            $field[$key] = $inner_arr;
+        }
+        return $field;
+    }
+
+    public function getProfileFieldPairedData($field, $fieldCounts, $val1, $val2)
+    {
+        $field = [['key' => $val1, 'value' => $val1, 'count' => isset($fieldCounts[1]) ? $fieldCounts[1] : 0], ['key' => $val2, 'value' => $val2, 'count' => isset($fieldCounts[0]) ? $fieldCounts[0] : 0]];
+        return $field;
+    }
    
 }

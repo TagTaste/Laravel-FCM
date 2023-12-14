@@ -14,10 +14,10 @@ class Profile extends BaseProfile
     use Notifiable;
     protected $fillable = [];
 
-    protected $with = [];
+    protected $with = ['allergens'];
 
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise','user_id',
-        'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta",'is_ttfb_user','verified','is_expert','is_tasting_expert','phone','tasting_instructions','is_premium','hometown',"is_sensory_trained","account_deactivated"];
+        'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta",'is_ttfb_user','verified','is_expert','is_tasting_expert','phone','tasting_instructions','is_premium','hometown',"is_sensory_trained","account_deactivated", 'allergens'];
 
 
     protected $appends = ['name','designation','imageUrl','ageRange', 'email','account_deactivated'];
@@ -64,6 +64,11 @@ class Profile extends BaseProfile
     public function awards()
     {
         return $this->belongsToMany('App\Profile\Award','profile_awards','profile_id','award_id');
+    }
+
+    public function allergens()
+    {
+        return $this->belongsToMany('App\Profile\Allergen','profiles_allergens','profile_id','allergens_id');
     }
     
     public function certifications()

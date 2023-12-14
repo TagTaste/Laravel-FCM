@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\Collaborate\Review;
+use App\Collaborate\Applicant;
 use App\Traits\FilterFactory;
 use App\Collaborate\BatchAssign;
 use App\Helper;
@@ -379,6 +380,13 @@ class BatchController extends Controller
     {
         $batches = $this->model->where('id', $id)->where('collaborate_id', $collaborateId)->first();
         $this->model = $batches->delete();
+        return $this->sendResponse();
+    }
+
+    public function applicantFilters(Request $request, $collaborateId, $batchId)
+    {
+        $appliedFilters = $request->input('filters');
+        $this->model = $this->getFilters($appliedFilters, $collaborateId, $batchId);
         return $this->sendResponse();
     }
 
@@ -1179,11 +1187,13 @@ class BatchController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
 
-        $filters = $request->input('filter');
+        // $filters = $request->input('filter');
 
         $version_num = '';
         if($request->is('*/v1/*')){
             $version_num = 'v1';
+        } else if($request->is('*/v2/*')){
+            $version_num = 'v2';
         }
 
         $gender = ['Male', 'Female', 'Other'];
@@ -1193,16 +1203,24 @@ class BatchController extends Controller
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
-        $applicants = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->get();
-        $city = [];
-        foreach ($applicants as $applicant) {
-            if (isset($applicant->city)) {
-                if (!in_array($applicant->city, $city))
-                    $city[] = $applicant->city;
-            }
-        }
+        $applicants = Applicant::query()->join('collaborate_tasting_user_review as c1', 'collaborate_applicants.collaborate_id', '=', 'c1.collaborate_id')
+            ->join('collaborate_tasting_user_review as c2', 'collaborate_applicants.profile_id', '=', 'c2.profile_id')
+            ->select('collaborate_applicants.*')
+            ->where('collaborate_applicants.collaborate_id', $collaborateId)
+            ->where('c1.current_status', 3)
+            ->distinct()->get();
+        $city = $applicants->pluck('city')->toArray();
+        $city = array_unique(array_filter($city));
+        $city = array_values($city);
+        // $city = [];
+        // foreach ($applicants as $applicant) {
+        //     if (isset($applicant->city)) {
+        //         if (!in_array($applicant->city, $city))
+        //             $city[] = $applicant->city;
+        //     }
+        // }
         $data = [];
-        if (isset($version_num) && $version_num == 'v1')
+        if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2'))
         {
             $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
             $questions_count = 0;
@@ -1226,31 +1244,73 @@ class BatchController extends Controller
                     $question_filter = [['value' => 'Questions', 'count' => $questions_count]];
                     break;
             }
-            if(!is_null($filters) && count($filters) && in_array('question_filter', $filters))
+            // if(!is_null($filters) && count($filters) && in_array('question_filter', $filters))
+            // {
+            //     $data['question_filter'] = $question_filter;
+            // }
+        }
+
+        if (isset($version_num) && $version_num == 'v2')
+        {
+            $filters = $request->input('filters');
+            $filteredData = $this->getFilterProfileIds($filters, $collaborateId);
+            $filteredProfileIds = $filteredData['profile_id']->toArray();
+            $applicantProfileIds = $applicants->pluck('profile_id')->toArray();
+            
+            if($filteredData['type'] == true)
             {
-                $data['question_filter'] = $question_filter;
+                $profileIds = array_values(array_diff($applicantProfileIds, $filteredProfileIds));
             }
+            else
+            {
+                $profileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
+            }
+
+            $collabApplicants = Applicant::where('collaborate_id', $collaborateId);
+
+            $genderCounts = $this->getCount($collabApplicants, 'gender', $profileIds);
+            $gender = $this->getFieldPairedData($gender, $genderCounts);
+
+            $ageCounts = $this->getCount($collabApplicants, 'generation', $profileIds);
+            $age = $this->getFieldPairedData($age, $ageCounts);
+
+            $cityCounts = $this->getCount($collabApplicants, 'city', $profileIds);
+            $city = $this->getFieldPairedData($city, $cityCounts);
+
+            $profileModel = Profile::whereNull('deleted_at');
+
+            //count of experts
+            $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
+            $userType = $this->getProfileFieldPairedData($userType, $userTypeCounts, 'Expert', 'Consumer');
+
+            //sensory trained or not
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds, 'true');
+            $sensoryTrained =  $this->getProfileFieldPairedData($sensoryTrained, $sensoryTrainedCounts, 'Yes', 'No');
+
+            //super taster or not
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds, 'true');
+            $superTaster = $this->getProfileFieldPairedData($superTaster, $superTasterCounts, 'SuperTaster', 'Normal');
         }
         
-        if (!is_null($filters) && count($filters)) {
-            foreach ($filters as $filter) {
-                if ($filter == 'gender')
-                    $data['gender'] = $gender;
-                if ($filter == 'age')
-                    $data['age'] = $age;
-                if ($filter == 'city')
-                    $data['city'] = $city;
-                // if ($filter == 'current_status')
-                //     $data['current_status'] = $currentStatus;
-                if ($filter == 'super_taster')
-                    $data['super_taster'] = $superTaster;
-                if ($filter == 'user_type')
-                    $data['user_type'] = $userType;
-                if ($filter == 'sensory_trained')
-                    $data['sensory_trained'] = $sensoryTrained;
-            }
-        } else {
-            if (isset($version_num) && $version_num == 'v1')
+        // if (!is_null($filters) && count($filters)) {
+        //     foreach ($filters as $filter) {
+        //         if ($filter == 'gender')
+        //             $data['gender'] = $gender;
+        //         if ($filter == 'age')
+        //             $data['age'] = $age;
+        //         if ($filter == 'city')
+        //             $data['city'] = $city;
+        //         if ($filter == 'current_status')
+        //             $data['current_status'] = $currentStatus;
+        //         if ($filter == 'super_taster')
+        //             $data['super_taster'] = $superTaster;
+        //         if ($filter == 'user_type')
+        //             $data['user_type'] = $userType;
+        //         if ($filter == 'sensory_trained')
+        //             $data['sensory_trained'] = $sensoryTrained;
+        //     }
+        // } else {
+            if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2'))
             {
                 $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
@@ -1258,7 +1318,7 @@ class BatchController extends Controller
             {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
-        }
+        // }
 
         $this->model = $data;
 
@@ -1652,178 +1712,6 @@ class BatchController extends Controller
 
         $this->model = Profile::whereIn('id', $profileIds)->get();
         return $this->sendResponse();
-    }
-
-    public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
-    {
-        $profileIds = new Collection([]);
-        $isFilterAble = false;
-        if ($profileIds->count() == 0 && isset($filters['include_profile_id'])) {
-            $filterProfile = [];
-            foreach ($filters['include_profile_id'] as $filter) {
-                $isFilterAble = true;
-                $filterProfile[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterProfile);
-        }
-        
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter'])) {
-            $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
-        }
-        
-        if (isset($filters['city'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['city'] as $city) {
-                    $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
-                }
-            });
-        }
-        
-        if (isset($filters['age'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['age'] as $age) {
-                    $age = htmlspecialchars_decode($age);
-                    $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
-                }
-            });
-        }
-
-        if (isset($filters['gender'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['gender'] as $gender) {
-                    $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
-                }
-            });
-        }
-
-        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
-            $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
-        }
-
-        if (isset($filters['sensory_trained'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['sensory_trained'] as $sensory) {
-                    if ($sensory == 'Yes')
-                        $sensory = 1;
-                    else
-                        $sensory = 0;
-                    $query->orWhere('profiles.is_sensory_trained', $sensory);
-                }
-            });
-        }
-
-        if (isset($filters['super_taster'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['super_taster'] as $superTaster) {
-                    if ($superTaster == 'SuperTaster')
-                        $superTaster = 1;
-                    else
-                        $superTaster = 0;
-                    $query->orWhere('profiles.is_tasting_expert', $superTaster);
-                }
-            });
-        }
-
-        if (isset($filters['user_type'])) {
-            $Ids = $Ids->where(function ($query) use ($filters) {
-                foreach ($filters['user_type'] as $userType) {
-                    if ($userType == 'Expert')
-                        $userType = 1;
-                    else
-                        $userType = 0;
-                    $query->orWhere('profiles.is_expert', $userType);
-                }
-            });
-        }
-
-        //apply filter on question's options
-        if (request()->is('*/v1/*') && isset($filters['question_filter']))
-        {
-            $ques_filter = ['profile_id' => request()->user()->profile->id, 'collaborate_id'=> $collaborateId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
-
-            \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->updateOrInsert(['collaborate_id'=> $collaborateId], $ques_filter); 
-
-            if(!empty($filters['question_filter']))
-            {
-                $header_ids = collect($filters['question_filter'])->pluck('id')->toArray();
-                $entered_count = 0;
-    
-                foreach($header_ids as $key => $header)
-                {
-                    foreach($filters['question_filter'][$key]['questions'] as $question)
-                    {
-                        $question_filtered_data = Review::whereIn('tasting_header_id',$header_ids)->where('collaborate_id',$collaborateId)->whereIn('profile_id', $Ids->distinct()->pluck('collaborate_applicants.profile_id')->toArray())->where('question_id',$question["id"]);
-
-                        if(!empty($question["option"]))
-                        {
-                            $option_ids = collect($question["option"])->pluck('id');
-                            $question_filtered_data = $question_filtered_data->whereIn('collaborate_tasting_user_review.leaf_id',$option_ids);
-                        }
-                        if($entered_count == 0)
-                        {   
-                            $profile_ids = $question_filtered_data->distinct()->pluck('profile_id')->toArray();
-                        }
-                        else
-                        {
-                            $profile_ids = array_intersect($question_filtered_data->distinct()->pluck('profile_id')->toArray(), $profile_ids);
-                        }  
-                        $entered_count++;
-                    }
-                }
-
-                $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profile_ids);
-            }
-        }
-
-        if (isset($filters['current_status']) && !is_null($batchId)) {
-            $currentStatusIds = new Collection([]);
-            foreach ($filters['current_status'] as $currentStatus) {
-                if ($currentStatus == 0 || $currentStatus == 1) {
-                    $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('begin_tasting', $currentStatus)->get()->pluck('profile_id')->unique();
-                    $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->get()->pluck('profile_id')->unique();                   
-                    $ids = $ids->diff($ids2);
-                } else {
-                    $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', $currentStatus)->get()->pluck('profile_id')->unique();
-                }
-                $currentStatusIds = $currentStatusIds->merge($ids);
-            }
-            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $currentStatusIds);
-        }    
-        
-        if ($profileIds->count() > 0 && isset($Ids)) {
-            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
-        }
-
-        if (isset($Ids)) {
-            $isFilterAble = true;
-            $Ids = $Ids->get()->pluck('profile_id');
-            $profileIds = $profileIds->merge($Ids);
-        }
-
-        if ($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
-            $filterNotProfileIds = [];
-            foreach ($filters['exclude_profile_id'] as $filter) {
-                $isFilterAble = true;
-                $filterNotProfileIds[] = (int)$filter;
-            }
-            $profileIds = $profileIds->diff($filterNotProfileIds);
-        } else if (isset($filters['exclude_profile_id'])) {
-            $isFilterAble = false;
-            $excludeAble = false;
-            $filterNotProfileIds = [];
-            foreach ($filters['exclude_profile_id'] as $filter) {
-                $isFilterAble = false;
-                $excludeAble = true;
-                $filterNotProfileIds[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterNotProfileIds);
-        }
-
-        if ($isFilterAble)
-            return ['profile_id' => $profileIds, 'type' => false]; //data for these profile ids only 
-        else
-            return ['profile_id' => $profileIds, 'type' => true]; //these profile ids will be excluded from total completed reviews
-
     }
 
     public function reportPdf(Request $request, $collaborateId, $batchId)
