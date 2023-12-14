@@ -3725,7 +3725,7 @@ class SurveyController extends Controller
         }
 
         $finalAttempMapping = [];
-        foreach ($getCount as $pattempt) {
+        foreach($getCount as $pattempt) {
             $finalAttempMapping[$pattempt->profile_id][] = $pattempt->attempt;
         }
 
