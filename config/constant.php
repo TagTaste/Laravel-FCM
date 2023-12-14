@@ -78,6 +78,12 @@ return  [
 
     ],
 
+    'REVIEW_ACTIVITY' => [
+        'START' => 'start',
+        'SECTION_SUBMIT' => 'section_submit',
+        'END' => 'final_submit'
+    ],
+  
     'SURVEY_ACTIVITY' => [
         'START' => 'start',
         'SECTION_SUBMIT' => 'section_submit',

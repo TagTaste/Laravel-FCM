@@ -24,6 +24,7 @@ use App\Collaborate\Review;
 use App\Traits\FilterFactory;
 use App\Collaborate\BatchAssign;
 use App\Helper;
+use App\CollaborateTastingEntryMapping;
 
 class BatchController extends Controller
 {
@@ -256,7 +257,7 @@ class BatchController extends Controller
             if ($currentStatus == 3) {
                 $profileId = $profile['profile']['id'];
                 $reviewCompletionData = \DB::select("SELECT MIN(created_at) as start_time,
-                            MAX(updated_at) as completion_timestamp, TIMEDIFF(MAX(updated_at),MIN(created_at)) as review_time_taken FROM `collaborate_tasting_user_review` 
+                            MAX(updated_at) as completion_timestamp, (SELECT MIN(created_at) FROM `collaborate_tasting_entry_mapping` where profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$id) as start_time_v2 FROM `collaborate_tasting_user_review` 
                             where current_status=3 AND profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$id");
 
                 $profile["review_completion"] = null;
@@ -266,7 +267,12 @@ class BatchController extends Controller
                     $timestamp = strtotime($reviewCompletionData[0]->completion_timestamp);
                     $date = date('d M Y', $timestamp);
                     $time = date('h:i:s A', $timestamp);
-                    $durationInSec = strtotime($reviewCompletionData[0]->review_time_taken) - strtotime('00:00:00');
+                    
+                    if(isset($reviewCompletionData[0]->start_time_v2)){
+                        $durationInSec = strtotime($reviewCompletionData[0]->completion_timestamp) - strtotime($reviewCompletionData[0]->start_time_v2);                        
+                    }else{
+                        $durationInSec = strtotime($reviewCompletionData[0]->completion_timestamp) - strtotime($reviewCompletionData[0]->start_time);
+                    }
                     $duration = $this->secondsToTime($durationInSec);
 
                     $data[] = ["title" => "Date", "value" => $date];
@@ -380,6 +386,97 @@ class BatchController extends Controller
         $batches = $this->model->where('id', $id)->where('collaborate_id', $collaborateId)->first();
         $this->model = $batches->delete();
         return $this->sendResponse();
+    }
+
+    public function getReviewTimeline(Request $request, $collaborateId, $batchId, $profileId){
+        $currentStatus = Redis::get("current_status:batch:$batchId:profile:" . $profileId);
+        if($currentStatus != 3){
+            $this->model = false;
+            return $this->sendNewError("You have not completed this review yet.");
+        }
+
+        $timeline_data = CollaborateTastingEntryMapping::where("collaborate_id",$collaborateId)->where("batch_id",$batchId)->where("profile_id",$profileId)->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
+        
+        $applicant = Collaborate\Applicant::where('collaborate_id', $collaborateId)
+        ->whereNotNull('shortlisted_at')
+        ->whereNull('rejected_at')
+        ->where('profile_id', $profileId)->first();
+
+        $submission_status = [];
+        $submission_status["title"] = "";
+        $submission_status["is_collapsed"] = false;
+        $timeline = []; 
+        $last_activity = null;
+        $last_header = null;
+        foreach($timeline_data as $t){
+            $timeline_obj = [];
+            $timeline_obj["header_id"] = $t->header_id;
+            if($t->activity == config("constant.REVIEW_ACTIVITY.START")){
+                $timeline_obj["title"] = "BEGIN";
+                $timeline_obj["color_code"] = "#00A146";
+                $timeline_obj["line_color_code"] = "#66C790";
+            }else if($t->activity == config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT") || $t->activity == config("constant.REVIEW_ACTIVITY.END")){
+                $timeline_obj["title"] = $t->header_title;
+                $timeline_obj["color_code"] = "#171717";
+                $timeline_obj["line_color_code"] = "#747474";
+            }
+
+            if($last_header == $t->header_id && $last_activity == $t->activity){
+                $last_obj = array_pop($timeline);
+                $last_timestamps = $last_obj["timestamps"];
+                array_push($last_timestamps, ["title"=>date("d M Y, h:i:s A", strtotime($t->created_at))]);
+                $last_obj["timestamps"] = $last_timestamps;
+                array_push($timeline, $last_obj);
+            }else{
+                $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($t->created_at))]];
+                array_push($timeline, $timeline_obj);
+
+                if($t->activity == config("constant.REVIEW_ACTIVITY.END")){
+                    array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3","line_color_code"=>"#66CED1"]);    
+                }    
+            }
+            $last_header = $t->header_id;
+            $last_activity = $t->activity;
+        }
+
+        if(count($timeline) == 0){
+            $reviewCompletionData = \DB::select("SELECT MIN(created_at) as start_time,
+            MAX(updated_at) as completion_timestamp FROM `collaborate_tasting_user_review` 
+            where current_status=3 AND profile_id=$profileId AND collaborate_id=$collaborateId AND batch_id=$batchId");
+
+            //insert begin for old data
+            $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146","line_color_code"=>"#66C790"];
+            $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($reviewCompletionData[0]->start_time))]];
+
+            if(isset($entry_timestamp)){
+                $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($entry_timestamp->created_at))]];
+            }
+            array_push($timeline, $timeline_obj);    
+
+            //insert end for old data
+            $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3","line_color_code"=>"#66CED1"];
+            $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($reviewCompletionData[0]->completion_timestamp))]];
+            array_push($timeline, $timeline_obj);  
+            
+            $durationInSec = strtotime($reviewCompletionData[0]->completion_timestamp) - strtotime($reviewCompletionData[0]->start_time);
+
+            $duration = $this->secondsToTime($durationInSec);
+        }else{
+            $entry_timestamp = $timeline_data[0]->created_at ?? null;
+            $exit_timestamp =  $timeline_data[count($timeline_data) - 1]->created_at ?? null;
+
+            if($entry_timestamp != null && $exit_timestamp != null){
+                $durationInSec = strtotime($exit_timestamp) - strtotime($entry_timestamp);     
+                $duration = $this->secondsToTime($durationInSec);           
+            }else{
+                $duration = "-";
+            }
+        }
+
+        $submission_status["timeline"] = $timeline;        
+        $submission_status["duration"] = $duration;
+        $this->model = ["submission_status"=>[$submission_status], "profile"=>$applicant->profile];
+        return $this->sendNewResponse();
     }
 
     public function assignBatch(Request $request, $id)
