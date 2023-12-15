@@ -687,6 +687,11 @@ class SurveyApplicantController extends Controller
 
     public function export($id, Request $request)
     {
+        $version_num = '';
+        if(request()->is('*/v1/*')){
+            $version_num = 'v1';
+        } 
+
         $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
 
         if ($survey === null) {
@@ -710,7 +715,7 @@ class SurveyApplicantController extends Controller
         //filters data
         $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -796,7 +801,7 @@ class SurveyApplicantController extends Controller
 
             // Call them separately
             $excel->setDescription('A Surveys Applicants list');
-
+         
             $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
                 $sheet->fromArray($finalData);
                 foreach ($sheet->getColumnIterator() as $row) {

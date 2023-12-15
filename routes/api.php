@@ -1025,6 +1025,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             //survey Applicant filters with count
             Route::post('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission');
 
+            // survey applicant report
+            Route::post('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission');
+
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
 
