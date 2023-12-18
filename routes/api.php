@@ -184,6 +184,17 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     Route::post('newsletters', 'NewsletterController@store');
     Route::get('/user/verify/email/{token}', 'UserController@verify');
 
+    // Routes for preview of questionnaire tool. It'll not work with traditional auth system jwt.It'll be using temp tokens just for the session of some duration.
+
+    Route::middleware([])->group(function () {
+        Route::group(['namespace' => 'QuestionnairePreview', 'prefix' => 'preview/questionnaire/'], function () {
+            Route::get('{id}/headers', ['uses' => 'QuestionnairePreviewController@headers']);
+            Route::get('{id}/headers/{headerId}/questions', ['uses' => 'QuestionnairePreviewController@reviewQuestions']);
+            Route::get('{id}/headers/{headerId}/question/{questionId}', ['uses' => 'QuestionnairePreviewController@getNestedOptions']);
+            Route::get('{id}/headers/{headerId}/question/{questionId}/search', ['uses' => 'QuestionnairePreviewController@getNestedOptionSearch']);
+        });        
+    });
+    
     /**
      * Authenticated routes.
      */
