@@ -1254,6 +1254,9 @@ class QuizController extends Controller
             $meta = $quiz->getMetaFor($profileId);
             $quiz->image_meta = json_decode($quiz->image_meta);
             $quiz->video_meta = json_decode($quiz->video_meta);
+            if (isset($quiz->videos_meta) && !is_array($quiz->videos_meta)) {
+                $quiz->videos_meta = json_decode($quiz->videos_meta);
+            }
             $quiz->form_json = json_decode($quiz->form_json);
 
             $this->model[] = ['quizzes' => $quiz, 'meta' => $meta];
