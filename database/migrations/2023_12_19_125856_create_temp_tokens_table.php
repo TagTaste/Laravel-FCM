@@ -23,8 +23,6 @@ class CreateTempTokensTable extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->timestamp('expired_at')->nullable();
-
-            $table->foreign("questionnaire_share_id")->references("id")->on("questionnaire_preview_share_users");
         });
     }
 

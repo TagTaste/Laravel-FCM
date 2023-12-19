@@ -302,7 +302,7 @@ class Deeplink
         $res = $client->request('POST', 'https://api.branch.io/v1/url', [
             'json' => [
                 "branch_key" => env('BRANCH_KEY'),
-
+                
                 "data" => [
                     '$canonical_identifier' =>  'questionnaire_preview/',
                     '$og_title' =>              $model->title,
