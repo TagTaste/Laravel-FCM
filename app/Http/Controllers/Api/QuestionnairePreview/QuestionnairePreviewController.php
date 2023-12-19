@@ -14,6 +14,8 @@ use App\QuestionnaireHeaderHelpers;
 use App\QuestionnaireQuestions;
 use App\QuestionnaireQuestionhelpers;
 use App\QuestionnaireQuestionOptions;
+use App\Deeplink;
+use App\Mail\QuestionnairePreviewShareMail;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -69,6 +71,7 @@ class QuestionnairePreviewController extends Controller
         }
 
         $questionnaire['headers'] = $headers;
+
         $this->model = $questionnaire;
         return $this->sendNewResponse();
     }
@@ -190,6 +193,19 @@ class QuestionnairePreviewController extends Controller
         $this->model['option'] = $options;
         return $this->sendNewResponse();
     }
-
-
+    
+    public function shareQuestionnaire(Request $request, $id){
+        $questionnaire = QuestionnaireLists::select('id','title','description')->where('id',$id)->first();
+        if(is_null($questionnaire)){
+            return $this->sendNewError("This questionnaire doesn't exist.");
+        }
+        $deepLink = Deeplink::getQuestionnairePreviewLink($questionnaire);
+        $emailList = $request->email;
+        foreach($emailList as $email){
+            $otpNo = mt_rand(100000, 999999);
+             
+            \Mail::to($email)->send(new QuestionnairePreviewShareMail(["link" => $deepLink, "otp"=>$otpNo]));     
+        }
+        return $this->sendNewResponse();
+    }
 }

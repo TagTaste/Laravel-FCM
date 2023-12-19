@@ -185,13 +185,18 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     Route::get('/user/verify/email/{token}', 'UserController@verify');
 
     // Routes for preview of questionnaire tool. It'll not work with traditional auth system jwt.It'll be using temp tokens just for the session of some duration.
+    Route::post('preview/questionnaire/{id}/verify-otp', function (Request $request) {
+        
+    });
 
     Route::middleware([])->group(function () {
-        Route::group(['namespace' => 'QuestionnairePreview', 'prefix' => 'preview/questionnaire/'], function () {
-            Route::get('{id}/headers', ['uses' => 'QuestionnairePreviewController@headers']);
-            Route::get('{id}/headers/{headerId}/questions', ['uses' => 'QuestionnairePreviewController@reviewQuestions']);
-            Route::get('{id}/headers/{headerId}/question/{questionId}', ['uses' => 'QuestionnairePreviewController@getNestedOptions']);
-            Route::get('{id}/headers/{headerId}/question/{questionId}/search', ['uses' => 'QuestionnairePreviewController@getNestedOptionSearch']);
+        Route::group(['namespace' => 'QuestionnairePreview', 'prefix' => 'preview/questionnaire/{id}/'], function () {
+            Route::get('headers', ['uses' => 'QuestionnairePreviewController@headers']);
+            Route::get('headers/{headerId}/questions', ['uses' => 'QuestionnairePreviewController@reviewQuestions']);
+            Route::get('headers/{headerId}/question/{questionId}', ['uses' => 'QuestionnairePreviewController@getNestedOptions']);
+            Route::get('headers/{headerId}/question/{questionId}/search', ['uses' => 'QuestionnairePreviewController@getNestedOptionSearch']);
+
+            Route::post('share', ['uses' => 'QuestionnairePreviewController@shareQuestionnaire']);
         });        
     });
     
