@@ -313,7 +313,8 @@ class Deeplink
                     'token' =>                  $model->token,
                     'isOwner' =>                false,
                     'modelName' =>              "questionnairePreview",
-                    'modelID' =>                $model->id
+                    'modelID' =>                $model->id,
+                    "owner" => $model->email,
                 ],
             ],
         ]);

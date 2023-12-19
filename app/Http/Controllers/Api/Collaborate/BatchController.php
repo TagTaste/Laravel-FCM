@@ -1820,7 +1820,7 @@ class BatchController extends Controller
                 }
             });
         }
-
+        
         if (isset($filters['user_type'])) {
             $Ids = $Ids->where(function ($query) use ($filters) {
                 foreach ($filters['user_type'] as $userType) {

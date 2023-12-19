@@ -73,5 +73,6 @@ class Kernel extends HttpKernel
         'permissionCollaborate'=> \App\Http\Middleware\collaborateRoles::class,
         'iosCollaborate'=>\App\Http\Middleware\Api\IosCollaborate::class,
         "manage.permission"=> manageApplicantsPermission::class,
+        "api.tempAuth"=> \App\Http\Middleware\Api\tempAuth::class,
     ];
 }

@@ -14,8 +14,12 @@ use App\QuestionnaireHeaderHelpers;
 use App\QuestionnaireQuestions;
 use App\QuestionnaireQuestionhelpers;
 use App\QuestionnaireQuestionOptions;
+use App\QuestionnairePreviewShareUsers;
+use App\TempTokens;
+
 use App\Deeplink;
 use App\Mail\QuestionnairePreviewShareMail;
+use Illuminate\Support\Str;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -199,13 +203,66 @@ class QuestionnairePreviewController extends Controller
         if(is_null($questionnaire)){
             return $this->sendNewError("This questionnaire doesn't exist.");
         }
-        $deepLink = Deeplink::getQuestionnairePreviewLink($questionnaire);
         $emailList = $request->email;
+        $error = "";
         foreach($emailList as $email){
             $otpNo = mt_rand(100000, 999999);
-             
-            \Mail::to($email)->send(new QuestionnairePreviewShareMail(["link" => $deepLink, "otp"=>$otpNo]));     
+            $questionnaire->email = $email;
+            $deepLink = Deeplink::getQuestionnairePreviewLink($questionnaire);
+
+            $data = ["email"=>$email, "questionnaire_id"=> $id, "otp"=>$otpNo, "created_at"=>date("Y-m-d H:i:s"), "updated_at"=>date("Y-m-d H:i:s"), "expired_at"=>date("Y-m-d H:i:s", strtotime("+7 days"))];
+            $insertData = QuestionnairePreviewShareUsers::create($data); 
+            if($insertData){
+                // \Mail::to($email)->send(new QuestionnairePreviewShareMail(["link" => $deepLink, "otp"=>$otpNo]));     
+            }else{
+                $error .= $email.", ";
+            }   
         }
-        return $this->sendNewResponse();
+        
+        if(strlen($error) > 0){
+            $error = "Sharing failed to email: ".substr($error, 0, strlen($error)-2);
+            $this->model = $error;
+            return $this->sendNewError($error);
+        }else{
+            $this->model = "Questionnaire shared successfully";
+            return $this->sendNewResponse();
+        }
+    }
+
+    public function generateToken(Request $request, $id){
+        $questionnaire = QuestionnaireLists::select('id','title','description')->where('id',$id)->first();
+        if(is_null($questionnaire)){
+            return $this->sendNewError("This questionnaire doesn't exist anymore.");
+        }
+        
+        $otpNo = $request->otp ?? null;
+        $email = $request->email ?? null;
+        if(is_null($otpNo) || is_null($email)){
+            return $this->sendNewError("Please provide email & otp to verify.");
+        }
+        
+        $sharedUser = QuestionnairePreviewShareUsers::where('questionnaire_id', $id)
+        ->where('email', $email)
+        ->where('otp', $otpNo)
+        ->whereNull('deleted_at')
+        ->where('expired_at', '>=', date("Y-m-d"))
+        ->first();
+
+        if(!isset($sharedUser) || is_null($sharedUser)){
+            return $this->sendNewError("Otp verification failed. Please enter correct details.");
+        }
+        
+        $token = $temporaryToken = Str::random(120);
+        $data = ["questionnaire_share_id"=>$sharedUser->id, "email"=>$email, "source"=> "mail", "token"=>$token, "created_at"=>date("Y-m-d H:i:s"), "updated_at"=>date("Y-m-d H:i:s"), "expired_at"=>date("Y-m-d H:i:s", strtotime("+30 minutes"))];
+
+        $insertData = TempTokens::create($data);
+        if($insertData){
+            QuestionnairePreviewShareUsers::where('id', $sharedUser->id)->update(["attempts"=> $sharedUser->attempts+1, "updated_at"=>date("Y-m-d H:i:s")]);
+
+            $this->model = ["token"=>$token];
+            return $this->sendNewResponse();    
+        }else{
+            return $this->sendNewError("Unable to generate verification token.");    
+        }
     }
 }
