@@ -38,12 +38,12 @@ class TempAuth
     {
         
         $token = $request->bearerToken();
-
+        
         $tokenDetail = TempTokens::where(\DB::raw('BINARY token'),$token)
         ->whereNull('deleted_at')
         ->where('expired_at', '>=', date("Y-m-d H:i:s"))
         ->first();
-        
+
         if($tokenDetail){
             $response = $next($request);
         }else{

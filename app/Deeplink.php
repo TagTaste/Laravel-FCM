@@ -296,7 +296,7 @@ class Deeplink
     {
         return "Checkout this quiz on TagTaste! \r\n";
     }
-
+    
     public static function getQuestionnairePreviewLink($model){
         $client = new \GuzzleHttp\Client();
         $res = $client->request('POST', 'https://api.branch.io/v1/url', [
@@ -310,7 +310,7 @@ class Deeplink
                     '$og_app_id' =>             env('FACEBOOK_ID'),
                     '$desktop_url' =>           env('APP_URL')."/preview/questionnaire/$model->id",
                     '$twitter_site' =>          '@tagtaste',
-                    'token' =>                  $model->token,
+                    'token' =>                  "",
                     'isOwner' =>                false,
                     'modelName' =>              "questionnairePreview",
                     'modelID' =>                $model->id,

@@ -16,8 +16,8 @@ class CreateTempTokensTable extends Migration
         //
         Schema::create('temp_tokens', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('questionnaire_share_id')->unsigned();
-            $table->string('email');
+            $table->integer('questionnaire_share_id')->unsigned()->nullable();
+            $table->string('email')->nullable();
             $table->string('source');
             $table->text('token');
             $table->timestamps();
