@@ -210,7 +210,7 @@ class QuestionnairePreviewController extends Controller
             $otpNo = mt_rand(100000, 999999);
             $questionnaire->email = $email;
             $deepLink = Deeplink::getQuestionnairePreviewLink($questionnaire);
-
+            $deepLink->otp = $otpNo;
             array_push($deepLinksList, $deepLink);
             $data = ["email"=>$email, "questionnaire_id"=> $id, "otp"=>$otpNo, "created_at"=>date("Y-m-d H:i:s"), "updated_at"=>date("Y-m-d H:i:s"), "expired_at"=>date("Y-m-d H:i:s", strtotime("+7 days"))];
             $insertData = QuestionnairePreviewShareUsers::create($data); 
