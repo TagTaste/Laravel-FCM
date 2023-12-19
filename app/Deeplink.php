@@ -314,7 +314,7 @@ class Deeplink
                     'isOwner' =>                false,
                     'modelName' =>              "questionnairePreview",
                     'modelID' =>                $model->id,
-                    "owner" => $model->email,
+                    "owner" => $model->email
                 ],
             ],
         ]);
