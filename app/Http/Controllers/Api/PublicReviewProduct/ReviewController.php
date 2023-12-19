@@ -20,6 +20,7 @@ use App\Collaborate\Review as PrivateReviewProductReview;
 use App\PaymentHelper;
 use App\Profile;
 use Illuminate\Support\Facades\Log;
+use App\PublicReviewEntryMapping;
 
 class ReviewController extends Controller
 {
@@ -378,6 +379,40 @@ class ReviewController extends Controller
     //        return $this->sendResponse();
     //    }
 
+    public function startReview(Request $request, $productId){
+        // begin transaction
+        \DB::beginTransaction();
+        try {
+            $this->model = false;
+            $profileId = $request->user()->profile->id;
+            $product = PublicReviewProduct::where('id', $productId)->first();
+            if ($product === null) {
+                return $this->sendNewError("Product not found.");
+            }
+            if ($product->not_accepting_response == 1) {
+                return $this->sendNewError("We are not accepting reviews for this product.");
+            }
+
+            $userReview = Review::where('profile_id', $profileId)->where('product_id', $productId)->orderBy('id', 'desc')->first();
+
+            if (isset($userReview) && $userReview->current_status == 2) {
+                return $this->sendNewError("User already reviewd.");
+            }
+
+            PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START")]);
+
+            $this->model = true;
+            \DB::commit();
+        } catch (\Exception $e) {
+            // roll in case of error
+            \DB::rollback();
+            \Log::info($e->getMessage());
+            $this->model = null;
+            return $this->sendNewError($e->getMessage());
+        }
+        
+        return $this->sendNewResponse();
+    }
     public function comments(Request $request, $productId, $reviewId)
     {
         $model = $this->model->where('id', $reviewId)->where('product_id', $productId)->first();
@@ -573,6 +608,15 @@ class ReviewController extends Controller
                     // $responseData = ["status" => false];
                 }
             }
+        }
+        
+        
+        //update the entry mapping
+        $headerName = \DB::table('public_review_question_headers')->where('id', $headerId)->first();
+        if($currentStatus == 2){
+            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END")]);
+        }else{
+            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 
         //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.

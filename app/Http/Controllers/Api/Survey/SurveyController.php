@@ -2209,74 +2209,113 @@ class SurveyController extends Controller
                     }
                     //doubt
                     else {
-
                         $prepareNode["reports"][$counter]["options"][$optCounter]["allowed_media"] = (isset($optVal["allowed_media"]) ? $optVal["allowed_media"] : []);
                         if ($answers->count() == 0) {
                             $prepareNode["reports"][$counter]["options"][$optCounter]["answer_count"] = 0;
 
                         } else {
-                            $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
+                            // $imageMeta = $videoMeta = $documentMeta = $mediaUrl = [];
+                            $image_response_count = 0;
+                            $image_total_count = 0;
+                            $document_response_count = 0;
+                            $document_total_count = 0;
+                            $url_count = 0;
                             foreach ($answers as $ansVal) {
 
-                                if (count($imageMeta) < 10) {
-                                    $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
-                                    if (is_array($decodeImg) && !empty($decodeImg)) {
-                                        array_map(function ($value) use ($ansVal, &$imageMeta) {
-                                            if (!empty($value)) {
-                                                $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                                $imageMeta[] = ["data" => $value, "meta" => $meta];
-                                            }
-                                        }, $decodeImg);
-                                    }
+                                // if (count($imageMeta) < 10) {
+                                //     $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
+                                //     if (is_array($decodeImg) && !empty($decodeImg)) {
+                                //         array_map(function ($value) use ($ansVal, &$imageMeta) {
+                                //             if (!empty($value)) {
+                                //                 $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                //                 $imageMeta[] = ["data" => $value, "meta" => $meta];
+                                //             }
+                                //         }, $decodeImg);
+                                //     }
+                                // }
+
+                                $decodeImg = (!is_array($ansVal->image_meta) ?  json_decode($ansVal->image_meta, true) : $ansVal->image_meta);
+
+                                if(is_array($decodeImg) && !empty($decodeImg))
+                                {
+                                    $image_response_count++;
+                                    $image_total_count = $image_total_count+count($decodeImg);
                                 }
 
-                                if (count($videoMeta) < 10) {
-                                    $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
-                                    if (is_array($decodeVid) && !empty($decodeVid)) {
-                                        array_map(function ($value) use ($ansVal, &$videoMeta) {
-                                            if (!empty($value)) {
-                                                $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                                $videoMeta[] = ["data" => $value, "meta" => $meta];
-                                            }
-                                        }, $decodeVid);
-                                    }
+                                // if (count($videoMeta) < 10) {
+                                //     $decodeVid = (!is_array($ansVal->video_meta) ?  json_decode($ansVal->video_meta, true) : $ansVal->video_meta);
+                                //     if (is_array($decodeVid) && !empty($decodeVid)) {
+                                //         array_map(function ($value) use ($ansVal, &$videoMeta) {
+                                //             if (!empty($value)) {
+                                //                 $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                //                 $videoMeta[] = ["data" => $value, "meta" => $meta];
+                                //             }
+                                //         }, $decodeVid);
+                                //     }
+                                // }
+
+
+                                // if (count($documentMeta) < 10) {
+                                //     $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
+                                //     if (is_array($decodeDoc) && !empty($decodeDoc)) {
+
+                                //         array_map(function ($value) use ($ansVal, &$documentMeta) {
+                                //             if (!empty($value)) {
+                                //                 $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                //                 $documentMeta[] = ["data" => $value, "meta" => $meta];
+                                //             }
+                                //         }, $decodeDoc);
+                                //     }
+                                // }
+
+                                $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
+
+                                if(is_array($decodeDoc) && !empty($decodeDoc))
+                                {
+                                    $document_response_count++;
+                                    $document_total_count = $document_total_count+count($decodeDoc);
                                 }
 
-                                if (count($documentMeta) < 10) {
-                                    $decodeDoc = (!is_array($ansVal->document_meta) ?  json_decode($ansVal->document_meta, true) : $ansVal->document_meta);
-                                    if (is_array($decodeDoc) && !empty($decodeDoc)) {
+                                // if (count($mediaUrl) < 10) {
+                                //     $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
+                                //     if (is_array($decodeUrl) && !empty($decodeUrl)) {
 
-                                        array_map(function ($value) use ($ansVal, &$documentMeta) {
-                                            if (!empty($value)) {
-                                                $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                                $documentMeta[] = ["data" => $value, "meta" => $meta];
-                                            }
-                                        }, $decodeDoc);
-                                    }
-                                }
+                                //         array_map(function ($value) use ($ansVal, &$mediaUrl) {
+                                //             if (!empty($value)) {
+                                //                 $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
+                                //                 $mediaUrl[] = ["data" => $value, "meta" => $meta];
+                                //             }
+                                //         }, $decodeUrl);
+                                //     }
+                                // }
 
-                                if (count($mediaUrl) < 10) {
-                                    $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
-                                    if (is_array($decodeUrl) && !empty($decodeUrl)) {
+                                $decodeUrl = (!is_array($ansVal->media_url) ?  json_decode($ansVal->media_url, true) : $ansVal->media_url);
 
-                                        array_map(function ($value) use ($ansVal, &$mediaUrl) {
-                                            if (!empty($value)) {
-                                                $meta = ["profile_id" => $ansVal->profile->id, "name" => $ansVal->profile->name, "handle" => $ansVal->profile->handle];
-                                                $mediaUrl[] = ["data" => $value, "meta" => $meta];
-                                            }
-                                        }, $decodeUrl);
-                                    }
+                                if(is_array($decodeUrl) && !empty($decodeUrl))
+                                {
+                                    $url_count++;
                                 }
                             }
                             // $imageMeta = $answers->pluck("image_meta")->toArray();
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"] = $imageMeta;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["reponse"] = $imageMeta;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["response_count"] = $image_response_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["total_count"] = $image_total_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["color_code"] = $colorCodeList[0];
 
                             // $videoMeta = $answers->pluck("video_meta")->toArray();
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = $videoMeta;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = $videoMeta;
+
                             // $documentMeta = $answers->pluck("document_meta")->toArray();
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = $documentMeta;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"] = $documentMeta;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["response_count"] = $document_response_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["total_count"] = $document_total_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["document_meta"]["color_code"] = $colorCodeList[1];
+
                             // $mediaUrl = $answers->pluck("media_url")->toArray();
-                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = $mediaUrl;
+                            // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] = $mediaUrl;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["response_count"] = $url_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"]["total_count"] = $url_count;
+                            $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["media_url"] ["color_code"] = $colorCodeList[2];
                         }
                     }
                     $optCounter++;
@@ -3499,22 +3538,28 @@ class SurveyController extends Controller
 
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
-            $profileIds = $getFiteredProfileIds['profile_id'];
-            $type = $getFiteredProfileIds['type'];
+            $profileIds = array_keys($getFiteredProfileIds);
+            $type = false;
+            // $profileIds = $getFiteredProfileIds['profile_id'];
+            // $type = $getFiteredProfileIds['type'];
         } else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }
 
-
-        $retrieveMediaAnswers = SurveyAnswers::where("is_active", "=", 1)->where("question_id", "=", $question_id)->where("question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_id", "=", $id)->whereNull("deleted_at");
+        $retrieveMediaAnswers = SurveyAnswers::select('survey_answers.*')
+        ->join('surveys_attempt_mapping', function ($join) {
+            $join->on('survey_answers.survey_id', '=', 'surveys_attempt_mapping.survey_id')
+                ->on('survey_answers.profile_id', '=', 'surveys_attempt_mapping.profile_id')
+                ->on('survey_answers.attempt', '=', 'surveys_attempt_mapping.attempt');
+        })->where("survey_answers.is_active", "=", 1)->where("survey_answers.question_id", "=", $question_id)->where("survey_answers.question_type", "=", config("constant.MEDIA_SURVEY_QUESTION_TYPE"))->where("survey_answers.survey_id", "=", $id)->whereNull("survey_answers.deleted_at")->whereNotNull("surveys_attempt_mapping.completion_date");
 
         if ($request->has('filters') && !empty($request->filters)) {
-            $retrieveMediaAnswers->whereIn('profile_id', $profileIds, 'and', $type);
+            $retrieveMediaAnswers->whereIn('survey_answers.profile_id', $profileIds, 'and', $type);
         }
 
-        $retrieveAnswers = $retrieveMediaAnswers->get();
+        $retrieveAnswers = $retrieveMediaAnswers->distinct()->get();
         $page = $request->input('page');
 
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
@@ -3527,9 +3572,14 @@ class SurveyController extends Controller
                 $decode = (!is_null($answers->$media_type) ? json_decode($answers->$media_type, true) : []);
 
                 if (is_array($decode) && count($decode)) {
-
-                    foreach ($decode as $value) {
+                    foreach ($decode as $value) 
+                    {
                         $meta = ["profile_id" => $answers->profile->id, "name" => $answers->profile->name, "handle" => $answers->profile->handle];
+                        if($media_type == 'image_meta')
+                        {
+                            $meta = ["profile_id" => $answers->profile->id, "name" => $answers->profile->name, "handle" => $answers->profile->handle, "verified" => $answers->profile->verified, "image_meta" => $answers->profile->image_meta];
+                            $value["updated_at"] = ($answers->updated_at)->format('Y-m-d h:i:s');
+                        }
                         $elements[] = ["meta" => $meta,  "data" => $value];
                     }
                 }
@@ -3675,7 +3725,7 @@ class SurveyController extends Controller
         }
 
         $finalAttempMapping = [];
-        foreach ($getCount as $pattempt) {
+        foreach($getCount as $pattempt) {
             $finalAttempMapping[$pattempt->profile_id][] = $pattempt->attempt;
         }
 

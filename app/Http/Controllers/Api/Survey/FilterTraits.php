@@ -189,7 +189,7 @@ trait FilterTraits
                     if (isset($version_num) && $version_num == 'v1'){
                         $query->orWhere('name', 'LIKE', $profile['key']);
                     } else {
-                        $query->orWhere('name', 'LIKE', $profile);
+                        $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile));
                     }
                 }
             });

@@ -1249,9 +1249,13 @@ class SurveyApplicantController extends Controller
             //create submission timeline
             $timeline_data = SurveysEntryMapping::where("surveys_attempt_id",$submission["id"])->orderBy("created_at", "asc")->whereNull("deleted_at")->get();
             $submission_status["id"] = $submission["id"];
-            $submission_status["title"] = "Submission ".($applicant->submission_count - $index);
+            $submission_status["title"] = "SUBMISSION ".($applicant->submission_count - $index);
             $submission_status["is_collapsed"] = true;
             
+            if($index == 0){
+                $submission_status["is_collapsed"] = false;
+            }
+
             $timeline = []; 
             $section_exist = false;   
             $last_activity = null;
@@ -1262,17 +1266,21 @@ class SurveyApplicantController extends Controller
                 if($t->activity == config("constant.SURVEY_ACTIVITY.START")){
                     $timeline_obj["title"] = "BEGIN";
                     $timeline_obj["color_code"] = "#00A146";
+                    $timeline_obj["line_color_code"] = "#66C790";
                 }else if($t->activity == config("constant.SURVEY_ACTIVITY.SECTION_SUBMIT")){
                     $timeline_obj["title"] = $t->section_title;
                     $timeline_obj["color_code"] = "#171717";
+                    $timeline_obj["line_color_code"] = "#747474";
                     $section_exist = true;
                 }else if($t->activity == config("constant.SURVEY_ACTIVITY.END")){
                     if($section_exist){
                         $timeline_obj["title"] = $t->section_title;
                         $timeline_obj["color_code"] = "#171717";                            
+                        $timeline_obj["line_color_code"] = "#747474";
                     }else{
                         $timeline_obj["title"] = "END";
-                        $timeline_obj["color_code"] = "#00AEB3";    
+                        $timeline_obj["color_code"] = "#00AEB3";
+                        $timeline_obj["line_color_code"] = "#66CED1";    
                     }
                 }
 
@@ -1286,7 +1294,7 @@ class SurveyApplicantController extends Controller
                     $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($t->created_at))]];
                     array_push($timeline, $timeline_obj);
                     if($section_exist && $t->activity == config("constant.SURVEY_ACTIVITY.END")){
-                        array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3"]);    
+                        array_push($timeline, ["title"=>"END", "color_code"=>"#00AEB3", "line_color_code"=>"#66CED1"]);    
                     }    
                 }
                 $last_section = $t->section_id;
@@ -1296,7 +1304,7 @@ class SurveyApplicantController extends Controller
             $entry_timestamp = $timeline_data[0] ?? null;
             if(count($timeline) == 0){
                 //insert begin for old data
-                $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146"];
+                $timeline_obj = ["title"=>"BEGIN", "color_code"=>"#00A146","line_color_code"=>"#66C790"];
                 $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($submission["created_at"]))]];
                 if(isset($entry_timestamp)){
                     $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($entry_timestamp->created_at))]];
@@ -1304,7 +1312,7 @@ class SurveyApplicantController extends Controller
                 array_push($timeline, $timeline_obj);    
 
                 //insert end for old data
-                $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3"];
+                $timeline_obj = ["title"=>"END", "color_code"=>"#00AEB3", "line_color_code"=>"#66CED1"];
                 $timeline_obj["timestamps"] = [["title"=>date("d M Y, h:i:s A", strtotime($submission["completion_date"]))]];
                 array_push($timeline, $timeline_obj);  
             }
