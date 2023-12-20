@@ -1332,15 +1332,21 @@ class BatchController extends Controller
 
             switch ($questions_count) {
                 case 0:
-                    $question_filter = [['value' => '+ Add Questions', 'count' => $questions_count]];
+                    $que_val = '+ Add Questions';
                     break;
                 case 1:
-                    $question_filter = [['value' => 'Question', 'count' => $questions_count]];
+                    $que_val = 'Question';
                     break;
                 default:
-                    $question_filter = [['value' => 'Questions', 'count' => $questions_count]];
+                    $que_val = 'Questions';
                     break;
             }
+            $question_filter = [['value' => $que_val, 'count' => $questions_count]];
+            if($version_num == 'v2')
+            {
+                $question_filter = [['key' => 'question','value' => $que_val, 'count' => $questions_count]];
+            }
+            
             // if(!is_null($filters) && count($filters) && in_array('question_filter', $filters))
             // {
             //     $data['question_filter'] = $question_filter;
@@ -1367,26 +1373,44 @@ class BatchController extends Controller
 
             $genderCounts = $this->getCount($collabApplicants, 'gender', $profileIds);
             $gender = $this->getFieldPairedData($gender, $genderCounts);
+            $gender['key'] = 'gender';
+            $gender['value'] = 'Gender';  
 
             $ageCounts = $this->getCount($collabApplicants, 'generation', $profileIds);
             $age = $this->getFieldPairedData($age, $ageCounts);
+            $age['key'] = 'age';
+            $age['value'] = 'Age';
 
             $cityCounts = $this->getCount($collabApplicants, 'city', $profileIds);
             $city = $this->getFieldPairedData($city, $cityCounts);
+            $city['key'] = 'city';
+            $city['value'] = 'City';
 
             $profileModel = Profile::whereNull('deleted_at');
 
             //count of experts
             $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
             $userType = $this->getProfileFieldPairedData($userType, $userTypeCounts, 'Expert', 'Consumer');
+            $userType['key'] = 'user_type';
+            $userType['value'] = 'User Type';
 
             //sensory trained or not
             $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds, 'true');
             $sensoryTrained =  $this->getProfileFieldPairedData($sensoryTrained, $sensoryTrainedCounts, 'Yes', 'No');
+            $sensoryTrained['key'] = 'sensory_trained';
+            $sensoryTrained['value'] = 'Sensory Trained';
 
             //super taster or not
             $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds, 'true');
             $superTaster = $this->getProfileFieldPairedData($superTaster, $superTasterCounts, 'SuperTaster', 'Normal');
+            $superTaster['key'] = 'super_taster';
+            $superTaster['value'] = 'Super Taster';
+
+            $question_filter_values = $question_filter;
+            $question_filter = [];
+            $question_filter['key'] = 'question_filter';
+            $question_filter['value'] = 'Question Filter';  
+            $question_filter['items'] = $question_filter_values;
         }
         
         // if (!is_null($filters) && count($filters)) {
@@ -1407,12 +1431,11 @@ class BatchController extends Controller
         //             $data['sensory_trained'] = $sensoryTrained;
         //     }
         // } else {
-            if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2'))
-            {
+            if (isset($version_num) && $version_num == 'v1') {
                 $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
-            }
-            else
-            {
+            } else if(isset($version_num) && $version_num == 'v2') {
+                $data = [$question_filter, $gender, $age, $city, $userType, $sensoryTrained, $superTaster];
+            } else {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
         // }

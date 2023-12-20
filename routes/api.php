@@ -242,11 +242,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         });
 
         Route::group(['namespace' => '', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
-            Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
-                // count with filters
-                Route::post('filters-list/{id}', 'SurveyController@getFilters');
-            });
-
             Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => 'api.auth'], function () {
                 // get filters for dashboard of product review
                 Route::post("dashboard/filters", "BatchController@filters");
@@ -256,6 +251,21 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
                 // private product review summary post api
                 Route::post("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
+
+                // private product review reports pdf api
+                Route::post("batches/{id}/reportPdf", "BatchController@reportPdf");
+
+                // get all food shots for private product review post api
+                Route::post("batches/{id}/headers/{headerId}/question/{questionId}/reports", "BatchController@getList");
+
+                // get all comments for private PR post api
+                Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/comments", "BatchController@comments");
+
+                // get all any-other nested options for private PR post api
+                Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options/{optionId}", "BatchController@optionIdReports");
+
+                // get all any-other options for private PR post api
+                Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
             });
         });
 
@@ -1025,15 +1035,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             // Route::post('/reports/{id}', 'SurveyController@reports')->name("reports");
             Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
             Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
-
-            // survey applicant reports API
-            Route::post('/{id}/applicants', 'SurveyApplicantController@index');
-
-            //survey Applicant filters with count
-            Route::post('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission');
-
-            // survey applicant report
-            Route::post('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission');
 
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');

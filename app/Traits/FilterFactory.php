@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Collaborate\Review;
 use App\Collaborate\Applicant;
 use App\Recipe\Profile;
+use App\Profile\Allergen;
 
 trait FilterFactory
 {
@@ -86,37 +87,55 @@ trait FilterFactory
 
             $genderCounts = $this->getCount($collabApplicants, 'gender', $filteredProfileIds);
             $gender = $this->getFieldPairedData($gender, $genderCounts);
+            $gender['key'] = 'gender';
+            $gender['value'] = 'Gender';
 
             $ageCounts = $this->getCount($collabApplicants, 'generation', $filteredProfileIds);
             $age = $this->getFieldPairedData($age, $ageCounts);
+            $age['key'] = 'age';
+            $age['value'] = 'Age';
 
             $cityCounts = $this->getCount($collabApplicants, 'city', $filteredProfileIds);
             $city = $this->getFieldPairedData($city, $cityCounts);
+            $city['key'] = 'city';
+            $city['value'] = 'City';
 
             $hometownCounts = $this->getCount($collabApplicants, 'hometown', $filteredProfileIds);
             $hometown = $this->getFieldPairedData($hometown, $hometownCounts);
+            $hometown['key'] = 'hometown';
+            $hometown['value'] = 'Hometown';
 
             $currentCityCounts = $this->getCount($collabApplicants, 'current_city', $filteredProfileIds);
             $current_city = $this->getFieldPairedData($current_city, $currentCityCounts);
+            $current_city['key'] = 'current_city';
+            $current_city['value'] = 'Current City';
 
             $profileModel = Profile::whereNull('deleted_at');
 
             //count of experts
             $userTypeCounts = $this->getCount($profileModel,'is_expert', $filteredProfileIds);
             $userType = $this->getProfileFieldPairedData($userType, $userTypeCounts, 'Expert', 'Consumer');
+            $userType['key'] = 'user_type';
+            $userType['value'] = 'User Type';
 
             //sensory trained or not
             $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds, 'true');
             $sensoryTrained =  $this->getProfileFieldPairedData($sensoryTrained, $sensoryTrainedCounts, 'Yes', 'No');
+            $sensoryTrained['key'] = 'sensory_trained';
+            $sensoryTrained['value'] = 'Sensory Trained';
 
             //super taster or not
             $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds, 'true');
             $superTaster = $this->getProfileFieldPairedData($superTaster, $superTasterCounts, 'SuperTaster', 'Normal');
+            $superTaster['key'] = 'super_taster';
+            $superTaster['value'] = 'Super Taster';
 
             // profile specializations
             $specializationsCount = $specializations->select('name', \DB::raw('COUNT(*) as count'))->whereIn('profiles.id', $filteredProfileIds)->groupBy('name')->pluck('count','name');
 
             $profile = $this->getFieldPairedData($profile, $specializationsCount);
+            $profile['key'] = 'profile';
+            $profile['value'] = 'Profile';
         }
 
         if(isset($batchId)){ // product applicants filters
@@ -133,7 +152,17 @@ trait FilterFactory
                 }
             }
             $currentStatusCounts = array_count_values($beginTastingField);
-            $currentStatus = $this->getFieldPairedData($currentStatus, $currentStatusCounts);
+            $currentStatus = ["To Be Notified", "Notified", "In Progress", "Completed"];
+            foreach($currentStatus as $key => $val)
+            {  
+                $inner_arr['key'] = $key;
+                $inner_arr['value'] = $val;
+                $inner_arr['count'] = isset($currentStatusCounts[$key]) ? $currentStatusCounts[$key] : 0;
+                unset($currentStatus[$key]);
+                $currentStatus['items'][$key] = $inner_arr;
+            }
+            $currentStatus['key'] = 'current_status';
+            $currentStatus['value'] = 'Current Status';
 
             // collab allergens
             $allergenData = \DB::table('collaborate_allergens')->join('allergens', 'collaborate_allergens.allergens_id', '=', 'allergens.id')->where('collaborate_allergens.collaborate_id', $collaborateId); 
@@ -147,8 +176,12 @@ trait FilterFactory
                 $inner_arr['key'] = $val;
                 $inner_arr['value'] = $val;
                 $inner_arr['count'] = isset($allergenCounts[$key]) ? $allergenCounts[$key] : 0;
-                $allergenIdNames[$key] = $inner_arr;
+                $allergenItems[$key] = $inner_arr;
             }
+            $allergens = [];
+            $allergens['key'] = 'allergens';
+            $allergens['value'] = 'Allergens';
+            $allergens['items'] = array_values($allergenItems);
         }
 
         //$profile = array_filter($profile);
@@ -180,9 +213,9 @@ trait FilterFactory
 
             // product applicants filters
             if($request->is('*/v1/*') && isset($batchId)){
-                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "allergens" => array_values($allergenIdNames), "super_taster" => $superTaster];
+                $data = [$gender, $age, $city, $currentStatus, $profile, $hometown, $current_city, $sensoryTrained,$userType, $allergens, $superTaster];
             } else if($request->is('*/v1/*')){  // remove current status in new applicants filters
-                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
+                $data = [$gender, $age, $city, $profile, $hometown, $current_city, $sensoryTrained, $userType, $superTaster];
             } else {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
             }
@@ -524,6 +557,7 @@ trait FilterFactory
         if (isset($filters['current_status']) && !is_null($batchId)) {
             $currentStatusIds = new Collection([]);
             foreach ($filters['current_status'] as $currentStatus) {
+                $currentStatus = is_string($currentStatus) && !isset($currentStatus['key']) ? $currentStatus : $currentStatus['key'];
                 if ($currentStatus == 0 || $currentStatus == 1) {
                     $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('begin_tasting', $currentStatus)->get()->pluck('profile_id')->unique();
                     $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->get()->pluck('profile_id')->unique();                   
@@ -534,7 +568,13 @@ trait FilterFactory
                 $currentStatusIds = $currentStatusIds->merge($ids);
             }
             $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $currentStatusIds);
-        }    
+        }
+
+        if (isset($filters['allergens'])) {
+            $allergen = Allergen::where('name', $filters['allergens'])->first();
+            $profileIds = $allergen->profile()->whereIn('profile_id', $Ids->get()->pluck('profile_id'))->pluck('profile_id');
+            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
+        }
         
         if ($profileIds->count() > 0 && isset($Ids)) {
             $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
@@ -646,17 +686,19 @@ trait FilterFactory
     {
         foreach($field as $key => $val)
         {  
+            unset($field[$key]);
             $inner_arr['key'] = $val;
             $inner_arr['value'] = $val;
             $inner_arr['count'] = isset($fieldCounts[$val]) ? $fieldCounts[$val] : 0;
-            $field[$key] = $inner_arr;
+            $field['items'][$key] = $inner_arr;
         }
         return $field;
     }
 
     public function getProfileFieldPairedData($field, $fieldCounts, $val1, $val2)
     {
-        $field = [['key' => $val1, 'value' => $val1, 'count' => isset($fieldCounts[1]) ? $fieldCounts[1] : 0], ['key' => $val2, 'value' => $val2, 'count' => isset($fieldCounts[0]) ? $fieldCounts[0] : 0]];
+        $field = [];
+        $field['items'] = [['key' => $val1, 'value' => $val1, 'count' => isset($fieldCounts[1]) ? $fieldCounts[1] : 0], ['key' => $val2, 'value' => $val2, 'count' => isset($fieldCounts[0]) ? $fieldCounts[0] : 0]];
         return $field;
     }
    
