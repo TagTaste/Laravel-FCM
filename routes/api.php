@@ -189,6 +189,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     
     Route::middleware(['api.tempAuth'])->group(function () {
         Route::group(['namespace' => 'QuestionnairePreview', 'prefix' => 'preview/questionnaire/{id}/'], function () {
+            Route::get('detail', ['uses' => 'QuestionnairePreviewController@questionnaireDetail']);
             Route::get('headers', ['uses' => 'QuestionnairePreviewController@headers']);
             Route::get('headers/{headerId}/questions', ['uses' => 'QuestionnairePreviewController@reviewQuestions']);
             Route::get('headers/{headerId}/question/{questionId}', ['uses' => 'QuestionnairePreviewController@getNestedOptions']);

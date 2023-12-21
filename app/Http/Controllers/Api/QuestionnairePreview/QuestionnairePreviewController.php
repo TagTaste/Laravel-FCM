@@ -42,8 +42,7 @@ class QuestionnairePreviewController extends Controller
         $this->now = Carbon::now()->toDateTimeString();
     }
 
-
-    public function headers(Request $request, $id)
+    public function questionnaireDetail(Request $request, $id)
     {
         $questionnaire = QuestionnaireLists::select('id','title','description')->where('id',$id)->first();
         if(is_null($questionnaire)){
@@ -53,6 +52,17 @@ class QuestionnairePreviewController extends Controller
         $questionnaire['pop_up_title'] = 'Amazing to meet you!';
         $questionnaire['pop_up_description'] = 'This is a preview of the questionnaire. No interactions are recorded. You can comment and share your feedback for improving the questionnaire. The questionnaire creator will get a notification of your suggestions and update it accordingly.';
         
+        $this->model = $questionnaire;
+        return $this->sendNewResponse();
+    }
+
+    public function headers(Request $request, $id)
+    {
+        $questionnaire = QuestionnaireLists::select('id','title','description')->where('id',$id)->first();
+        if(is_null($questionnaire)){
+            return $this->sendNewError("This questionnaire doesn't exist.");
+        }
+
         $headers = QuestionnaireHeaders::select('id','title as header_type','header_type_id as header_selection_type')
         ->where('questionnaire_id',$id)
         ->where('is_active',1)
@@ -74,9 +84,7 @@ class QuestionnairePreviewController extends Controller
             $header->header_info = $headerHelper;
         }
 
-        $questionnaire['headers'] = $headers;
-
-        $this->model = $questionnaire;
+        $this->model = $headers;
         return $this->sendNewResponse();
     }
 
