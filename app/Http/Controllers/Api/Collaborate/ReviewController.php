@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Redis;
 use App\PublicReviewProduct\Review as PublicReviewProductReview;
 use Illuminate\Support\Facades\Log;
 use App\CollaborateTastingEntryMapping;
-use App\Applicant;
 
 class ReviewController extends Controller
 {

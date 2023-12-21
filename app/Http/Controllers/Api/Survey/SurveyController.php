@@ -1013,7 +1013,7 @@ class SurveyController extends Controller
             }
             
             $applicant = surveyApplicants::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)->whereNull("deleted_at")->first();
-
+            
             $data = ["amount" => $amount, "tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id, "is_donation"=> $applicant->is_donation, "donation_organisation_id"=> $applicant->donation_organisation_id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
