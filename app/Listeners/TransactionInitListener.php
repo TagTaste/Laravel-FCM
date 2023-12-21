@@ -9,6 +9,7 @@ use App\Payment\PaymentLinks;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Carbon\Carbon;
+use App\DonationOrganisation;
 
 class TransactionInitListener
 {
@@ -41,7 +42,7 @@ class TransactionInitListener
         } else if ($event->data->model_type == "Public Review") {
             $initials = "TXN_PUR_" . date("dmy");
         }
-
+        
         $getOldTxnId = PaymentLinks::where("transaction_id", "LIKE", '%' . $initials . "%")->orderBy("id", "desc")->first();
 
         $number = 0;
@@ -65,9 +66,20 @@ class TransactionInitListener
 
         $payout_amount = $event->data->amount - $tds_amount;
         
-        $data = PaymentLinks::create(["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->data->model_type, "model_id" => $event->data->model_id, "sub_model_id" => $event->data->sub_model_id ?? NULL, "amount" => $event->data->amount, "payout_amount"=>$payout_amount,"tds_amount"=>$tds_amount,"phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID"), "payment_id" => $event->data->payment_id, "payment_channel" => $channel,"is_expert"=>request()->user()->profile->is_expert, "account_reconciliation_date"=>Carbon::now()]);
+        $insertData = ["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->data->model_type, "model_id" => $event->data->model_id, "sub_model_id" => $event->data->sub_model_id ?? NULL, "amount" => $event->data->amount, "payout_amount"=>$payout_amount,"tds_amount"=>$tds_amount,"phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID"), "payment_id" => $event->data->payment_id, "payment_channel" => $channel,"is_expert"=>request()->user()->profile->is_expert, "account_reconciliation_date"=>Carbon::now()];
         
-        if ($data) {
+        if($event->data->is_donation){
+            $insertData['is_donation'] = true;
+            $organisation = DonationOrganisation::find($event->data->donation_organisation_id);
+            $insertData['donation_organisation_id'] = $event->data->donation_organisation_id;
+
+            $insertData['tds_amount'] = 0;
+            $insertData['payout_amount'] = $event->data->amount;            
+        }
+
+        $data = PaymentLinks::create($insertData);
+        
+        if ($data && !$event->data->is_donation) {
             if (!empty(request()->user()->profile->phone)) {
                 $d = ["transaction_id" => $buildTxnId, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->data->model_type, "title" => $event->data->model_id, "name" => request()->user()->name ?? "", "model" => $data, "model_id" => $event->data->model_id,"payout_amount"=>$payout_amount, "tds_amount"=>$tds_amount];
                 if (isset($event->data->comment)) {
@@ -79,6 +91,8 @@ class TransactionInitListener
             } else {
                 return ["status" => false, "reason" => "phone"];
             }
+        }else if($event->data->is_donation){
+            return ["status" => true];
         }
         return ["status" => false, "reason" => "txn failed"];
     }

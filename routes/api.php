@@ -196,6 +196,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
         Route::post('/user/requestOtp', 'UserController@requestOtp');
 
+
+        //Routes for donation
+        Route::get('donation/organisations', 'DonationOrganisationController@index');
+
         /**
          * Route to update user invite code, this roiute will be mostly used by the admin dashboard
          */
@@ -720,6 +724,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("establishmentType", "ProfileController@establishmentType");
         Route::get("profile/getAllergens", "ProfileController@getAllergens");
         Route::post("profile/addAllergens", "ProfileController@addAllergens");
+        Route::post("profile/donation/update", "ProfileController@updateDonation");        
         Route::post("profile/reviewHelperText", "ProfileController@reviewHelperText");
         Route::get("profile/tagging", ['uses' => 'ProfileController@tagging']);
         Route::post('profile/nestedFollow', ['uses' => 'ProfileController@nestedFollow']);

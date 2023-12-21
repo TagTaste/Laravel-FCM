@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Redis;
 use App\PublicReviewProduct\Review as PublicReviewProductReview;
 use Illuminate\Support\Facades\Log;
 use App\CollaborateTastingEntryMapping;
+use App\Applicant;
 
 class ReviewController extends Controller
 {
@@ -397,7 +398,7 @@ class ReviewController extends Controller
                 } else {
                     $key = "consumer";
                 }
-
+                
                 if ($getCount[$key] >= $getAmount["current"][$key][0]["user_count"]) {
                     //error message for different user type counts exceeded
                     return ["status" => false, "reason" => "not_paid"];
@@ -406,7 +407,9 @@ class ReviewController extends Controller
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
 
-            $data = ["amount" => $amount, "tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id, "payment_id" => $paymentDetails->id];
+            $applicant = Applicant::where("collaborate_id", $paymentDetails->model_id)->where("profile_id", $request->user()->profile->id)->first();
+
+            $data = ["amount" => $amount, "tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id, "payment_id" => $paymentDetails->id, "is_donation"=> $applicant->is_donation, "donation_organisation_id"=> $applicant->donation_organisation_id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;

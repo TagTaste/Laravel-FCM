@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Mail;
 use Tagtaste\Api\SendsJsonResponse;
 use Carbon\Carbon;
 use App\Passbook;
-
+use App\DonationOrganisation;
 
 
 class PaymentController extends Controller
@@ -98,7 +98,7 @@ class PaymentController extends Controller
 
         $this->model = [];
         $this->getStatus($txn_id);
-        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->where("payment_links.deleted_at", "=", null)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,payout_amount,tds_amount,link,amount,payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
+        $getData = DB::table("payment_links")->where("profile_id", $request->user()->profile->id)->where("transaction_id", $txn_id)->where("payment_links.deleted_at", "=", null)->join("payment_status", "payment_status.id", "=", "payment_links.status_id")->select(DB::raw("payment_links.id,transaction_id,model_id,sub_model_id,model_type as model,payout_amount,tds_amount,link,amount,donation_organisation_id, payment_links.created_at,payment_links.updated_at,  JSON_OBJECT
         (
           'id', payment_status.id, 
           'value', payment_status.value,
@@ -126,6 +126,9 @@ class PaymentController extends Controller
             $v->deeplink = $deeplink;
             $js = json_decode($v->status);
             $v->status = $js;
+
+            $donationOrganisation = DonationOrganisation::find($v->donation_organisation_id);
+            $v->donation_organisation = $donationOrganisation;
         }
 
         if (!empty($data)) {
@@ -156,6 +159,10 @@ class PaymentController extends Controller
                 $title = 'Expired';
                 $sub_title = 'Your transaction has cancelled';
                 $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/expired.png';
+             }else if ($data->status->id == config("constant.PAYMENT_DONATED_STATUS_ID")) {
+                $title = 'Donated';
+                $sub_title = 'Your earning has successfully donated';
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/expired.png';
             }
             
             $data->pop_up = [
@@ -180,6 +187,7 @@ class PaymentController extends Controller
     {
         $this->model = [
             ["key" => "total", "title" => "Total Transactions"],
+            ["key" => "7", "title" => "Donated Transactions"],
             ["key" => "1", "title" => "Initiated Transactions"],
             ["key" => "2", "title" => "Pending Transactions"],
             ["key" => "3", "title" => "Redeemed Transactions"],
@@ -201,6 +209,7 @@ class PaymentController extends Controller
         $failure = PaymentLinks::where("status_id", config("constant.PAYMENT_FAILURE_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
         $expired = PaymentLinks::where("status_id", config("constant.PAYMENT_EXPIRED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
         $initiated = PaymentLinks::where("status_id", config("constant.PAYMENT_INITIATED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
+        $donated = PaymentLinks::where("status_id", config("constant.PAYMENT_DONATED_STATUS_ID"))->where("profile_id", $request->user()->profile->id)->select(DB::raw("SUM(amount) as amount"))->where("payment_links.deleted_at", "=", null)->first();
 
         $totalEarning = number_format(($totalEarning->amount ?? 0), 2, '.', "");
         $toBeRedeemed = number_format((($pending->amount ?? 0) + ($initiated->amount ?? 0)), 2, '.', "");
@@ -210,6 +219,7 @@ class PaymentController extends Controller
         $failure = number_format(($failure->amount ?? 0), 2, '.', "");
         $expired = number_format(($expired->amount ?? 0), 2, '.', "");
         $initiated = number_format(($initiated->amount ?? 0), 2, '.', "");
+        $donated = number_format(($donated->amount ?? 0), 2, '.', "");
 
         $this->model = [
             [
@@ -221,6 +231,11 @@ class PaymentController extends Controller
                 "title" => "Earning Redeemed", "value" => "₹" . $redeemed,
                 "color_code" => "#E5F5EC", "text_color" => "#171717", "border_color" => "#CCECDA", "value_color" => "#00A146",
                 "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/redeemed.png"
+            ],
+            [
+                "title" => "Donated", "value" => "₹" . $donated,
+                "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0", "value_color" => "#F47816",
+                "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
             ],
             [
                 "title" => "To be Redeemed", "value" => "₹" . $toBeRedeemed,

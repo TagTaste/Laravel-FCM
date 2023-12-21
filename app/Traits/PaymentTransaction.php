@@ -112,7 +112,7 @@ trait PaymentTransaction
             }
         }
     }
-
+    
     public function getStatus($transaction_id)
     {
 

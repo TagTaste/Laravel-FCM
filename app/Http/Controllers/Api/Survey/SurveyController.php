@@ -892,7 +892,7 @@ class SurveyController extends Controller
             } else {
                 $responseData = ["status" => false];
             }
-
+            
             //NOTE: Check for all the details according to flow and create txn and push txn to queue for further process.
             if ($this->model == true && $request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 if (!($id->multi_submission)) {
@@ -918,14 +918,10 @@ class SurveyController extends Controller
 
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
-
-
             $responseData["is_paid"] = true;
-
             if ($requestPaid) {
                 $flag = ["status" => false, "reason" => "paid"];
             }
-
             if ($paymnetExist != null) {
                 //check for excluded flag for profiles 
                 $exp = (!empty($paymnetExist->excluded_profiles) ? $paymnetExist->excluded_profiles : null);
@@ -1016,7 +1012,9 @@ class SurveyController extends Controller
                 $tds_amount = number_format($amount/10,2);
             }
             
-            $data = ["amount" => $amount, "tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id];
+            $applicant = surveyApplicants::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)->whereNull("deleted_at")->first();
+
+            $data = ["amount" => $amount, "tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "Survey", "model_id" => $request->survey_id, "payment_id" => $paymentDetails->id, "is_donation"=> $applicant->is_donation, "donation_organisation_id"=> $applicant->donation_organisation_id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;

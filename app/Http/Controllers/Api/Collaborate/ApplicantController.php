@@ -226,6 +226,21 @@ class ApplicantController extends Controller
                 $inputs['documents_verified'] = $doc->is_verified;
             }
         }
+        if($request->has("is_donation")){
+            $isDonation = $request->is_donation;
+            if($isDonation){
+                $organisationId = $request->donation_organisation['id'] ?? null;
+                if(is_null($organisationId)){
+                    $this->model = false;
+                    return $this->sendError("Organisation detail missing.");
+                }
+                $inputs['is_donation'] = true;
+                $inputs['donation_organisation_id'] = $organisationId;                
+            }else{
+                $inputs['is_donation'] = false;
+            }
+        }
+
         $inputs['share_number'] = $request->has('share_number') ? $request->share_number : 0;
         $this->model = $this->model->create($inputs);
 

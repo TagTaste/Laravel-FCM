@@ -176,6 +176,22 @@ class SurveyApplicantController extends Controller
             'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
         ];
 
+        if($request->has("is_donation")){
+            $isDonation = $request->is_donation;
+            if($isDonation){
+                $organisationId = $request->donation_organisation['id'] ?? null;
+                if(is_null($organisationId)){
+                    $this->model = false;
+                    return $this->sendError("Organisation detail missing.");
+                }
+                $data['is_donation'] = true;
+                $data['donation_organisation_id'] = $organisationId;                
+            }else{
+                $data['is_donation'] = false;
+            }
+        }
+
+
         $create = surveyApplicants::create($data);
 
         if (isset($create->id)) {
