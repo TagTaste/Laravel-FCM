@@ -1637,19 +1637,13 @@ class Profile extends Model
         }
         return $badgeList;
     }
-    // $channelOwnerProfileIds = \DB::table("subscribers")
-    // ->select('channels.profile_id')
-    // ->join('channels', 'subscribers.channel_name', '=', 'channels.name')
-    // ->where('subscribers.profile_id', '=', $id)
-    // ->where('subscribers.channel_name', 'like', 'network.%')
-    // ->where('subscribers.channel_name', 'not like', 'feed.' . $id)
-    // ->where('subscribers.channel_name', 'not like', 'network.' . $id)
-    // ->where('subscribers.channel_name', 'not like', 'public.' . $id)
-    // ->whereNull('subscribers.deleted_at')
-    // ->get();
+
     public function getDonationOrganisationAttribute(){
         $data = DonationProfileMapping::where('profile_id', $this->id)
         ->whereNull('deleted_at')->first();
-        return $data->getOrganisation();
+        if(!is_null($data)){
+            return $data->getOrganisation();
+        }
+        return $data;
     }
 }

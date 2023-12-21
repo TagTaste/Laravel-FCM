@@ -69,7 +69,6 @@ class TransactionInitListener
         $insertData = ["transaction_id" => $buildTxnId, "profile_id" => request()->user()->profile->id, "model_type" => $event->data->model_type, "model_id" => $event->data->model_id, "sub_model_id" => $event->data->sub_model_id ?? NULL, "amount" => $event->data->amount, "payout_amount"=>$payout_amount,"tds_amount"=>$tds_amount,"phone" => request()->user()->profile->phone, "status_id" => config("constant.PAYMENT_INITIATED_STATUS_ID"), "payment_id" => $event->data->payment_id, "payment_channel" => $channel,"is_expert"=>request()->user()->profile->is_expert, "account_reconciliation_date"=>Carbon::now()];
         
         if($event->data->is_donation){
-            $insertData['is_donation'] = true;
             $organisation = DonationOrganisation::find($event->data->donation_organisation_id);
             $insertData['donation_organisation_id'] = $event->data->donation_organisation_id;
 
