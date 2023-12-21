@@ -529,15 +529,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         // PR applicant filters with count
         Route::post("v1/collaborate/{id}/applicantFilters", "CollaborateController@applicantFilters");
 
-        // PR applicant reports
-        Route::post("v1/collaborate/{id}/collaborateApplicants", "Collaborate\ApplicantController@index");
-
-        // PR product based applicant filters with count
-        Route::post("v1/collaborate/{id}/batches/{batchId}/applicantFilters", "Collaborate\BatchController@applicantFilters");
-
-         // PR product based applicant reports
-         Route::post("v1/collaborate/{id}/batches/{batchId}", "Collaborate\BatchController@show");
-
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
             
@@ -1074,6 +1065,24 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             // get all any-other options for private PR post api
             Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
+
+            // graph filters with count
+            Route::post("graphfilters", "GraphController@graphFilters");
+
+            // graph reports
+            Route::post("header/{id}/graph", "GraphController@createGraphs");
+
+            // PR applicant reports
+            Route::post("collaborateApplicants", "ApplicantController@index");
+
+            // PR applicant report PDF
+            Route::post('collaborateApplicants/export', 'ApplicantController@export');
+
+            // PR product based applicant filters with count
+            Route::post("batches/{batchId}/applicantFilters", "BatchController@applicantFilters");
+
+            // PR product based applicant reports
+            Route::post("batches/{batchId}", "BatchController@show");
 
         });
     });

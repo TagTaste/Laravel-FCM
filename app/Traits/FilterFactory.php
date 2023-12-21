@@ -114,19 +114,19 @@ trait FilterFactory
 
             //count of experts
             $userTypeCounts = $this->getCount($profileModel,'is_expert', $filteredProfileIds);
-            $userType = $this->getProfileFieldPairedData($userType, $userTypeCounts, 'Expert', 'Consumer');
+            $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
 
             //sensory trained or not
             $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds, 'true');
-            $sensoryTrained =  $this->getProfileFieldPairedData($sensoryTrained, $sensoryTrainedCounts, 'Yes', 'No');
+            $sensoryTrained =  $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
 
             //super taster or not
             $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds, 'true');
-            $superTaster = $this->getProfileFieldPairedData($superTaster, $superTasterCounts, 'SuperTaster', 'Normal');
+            $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';
 
@@ -178,6 +178,7 @@ trait FilterFactory
                 $inner_arr['count'] = isset($allergenCounts[$key]) ? $allergenCounts[$key] : 0;
                 $allergenItems[$key] = $inner_arr;
             }
+
             $allergens = [];
             $allergens['key'] = 'allergens';
             $allergens['value'] = 'Allergens';
@@ -219,6 +220,185 @@ trait FilterFactory
             } else {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
             }
+        // }
+        return $data;
+    }
+
+    public function dashboardFilters($filters, $collaborateId, $version_num, $filterType)
+    {
+        $gender = ['Male', 'Female', 'Other'];
+        $age = Helper::getGenerationFilter('string');
+        // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+        // $currentStatus = [0, 1, 2, 3];
+        $userType = ['Expert', 'Consumer'];
+        $sensoryTrained = ["Yes", "No"];
+        $superTaster = ["SuperTaster", "Normal"];
+        $applicants = Applicant::query()->join('collaborate_tasting_user_review as c1', 'collaborate_applicants.collaborate_id', '=', 'c1.collaborate_id')
+            ->join('collaborate_tasting_user_review as c2', 'collaborate_applicants.profile_id', '=', 'c2.profile_id')
+            ->select('collaborate_applicants.*')
+            ->where('collaborate_applicants.collaborate_id', $collaborateId)
+            ->where('c1.current_status', 3)
+            ->distinct()->get();
+        $city = $applicants->pluck('city')->toArray();
+        $city = array_unique(array_filter($city));
+        $city = array_values($city);
+
+        // profile specializations
+        $specializations = \DB::table('profiles')
+        ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
+        ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id');
+
+        $query = clone $specializations;
+        $profile = $query->whereIn('profiles.id', $applicants->pluck('profile_id'))->groupBy('name')->pluck('name')->toArray();
+        $profile = array_values(array_filter($profile));
+        
+        $data = [];
+        if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2') && $filterType == 'dashboard_filters')
+        {
+            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
+            $questions_count = 0;
+            if(!is_null($savedFilter))
+            {   
+                $headers = json_decode($savedFilter->value, true);
+                foreach($headers as $header)
+                {
+                    $questions_count += count($header['questions']);
+                }
+            }
+
+            switch ($questions_count) {
+                case 0:
+                    $que_val = '+ Add Questions';
+                    break;
+                case 1:
+                    $que_val = 'Question';
+                    break;
+                default:
+                    $que_val = 'Questions';
+                    break;
+            }
+            $question_filter = [['value' => $que_val, 'count' => $questions_count]];
+            if($version_num == 'v2')
+            {
+                $question_filter = [['key' => 'question','value' => $que_val, 'count' => $questions_count]];
+            }
+            
+            // if(!is_null($filters) && count($filters) && in_array('question_filter', $filters))
+            // {
+            //     $data['question_filter'] = $question_filter;
+            // }
+        }
+
+        if (isset($version_num) && $version_num == 'v2' && $filterType == 'dashboard_filters' || ($version_num == 'v1' && $filterType == 'graph_filters'))
+        {
+            if($filterType == 'dashboard_filters')
+            {
+                $filteredData = $this->getFilterProfileIds($filters, $collaborateId);
+                $filteredProfileIds = $filteredData['profile_id']->toArray();
+                $applicantProfileIds = $applicants->pluck('profile_id')->toArray();
+                
+                if($filteredData['type'] == true)
+                {
+                    $profileIds = array_values(array_diff($applicantProfileIds, $filteredProfileIds));
+                }
+                else
+                {
+                    $profileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
+                }
+            } else {
+                $profileIds = $this->getFilteredProfile($filters, $collaborateId);
+            }
+
+            $collabApplicants = Applicant::where('collaborate_id', $collaborateId);
+
+            $genderCounts = $this->getCount($collabApplicants, 'gender', $profileIds);
+            $gender = $this->getFieldPairedData($gender, $genderCounts);
+            $gender['key'] = 'gender';
+            $gender['value'] = 'Gender';  
+
+            $ageCounts = $this->getCount($collabApplicants, 'generation', $profileIds);
+            $age = $this->getFieldPairedData($age, $ageCounts);
+            $age['key'] = 'age';
+            $age['value'] = 'Age';
+
+            $cityCounts = $this->getCount($collabApplicants, 'city', $profileIds);
+            $city = $this->getFieldPairedData($city, $cityCounts);
+            $city['key'] = 'city';
+            $city['value'] = 'City';
+
+            $profileModel = Profile::whereNull('deleted_at');
+
+            //count of experts
+            $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
+            $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
+            $userType['key'] = 'user_type';
+            $userType['value'] = 'User Type';
+
+            //sensory trained or not
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds, 'true');
+            $sensoryTrained =  $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
+            $sensoryTrained['key'] = 'sensory_trained';
+            $sensoryTrained['value'] = 'Sensory Trained';
+
+            //super taster or not
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds, 'true');
+            $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
+            $superTaster['key'] = 'super_taster';
+            $superTaster['value'] = 'Super Taster';
+
+            if($filterType == 'dashboard_filters'){
+                $question_filter_values = $question_filter;
+                $question_filter = [];
+                $question_filter['key'] = 'question_filter';
+                $question_filter['value'] = 'Question Filter';  
+                $question_filter['items'] = $question_filter_values;
+            }  
+            else if($filterType == 'graph_filters'){
+                // profile specializations
+                $specializationsCount = $specializations->select('name', \DB::raw('COUNT(*) as count'))->whereIn('profiles.id', $profileIds)->groupBy('name')->pluck('count','name');
+
+                $profile = $this->getFieldPairedData($profile, $specializationsCount);
+                $profile['key'] = 'profile';
+                $profile['value'] = 'Profile';
+            }
+        }
+        
+        // if (!is_null($filters) && count($filters)) {
+        //     foreach ($filters as $filter) {
+        //         if ($filter == 'gender')
+        //             $data['gender'] = $gender;
+        //         if ($filter == 'age')
+        //             $data['age'] = $age;
+        //         if ($filter == 'city')
+        //             $data['city'] = $city;
+        //         if ($filter == 'current_status')
+        //             $data['current_status'] = $currentStatus;
+        //         if ($filter == 'super_taster')
+        //             $data['super_taster'] = $superTaster;
+        //         if ($filter == 'user_type')
+        //             $data['user_type'] = $userType;
+        //         if ($filter == 'sensory_trained')
+        //             $data['sensory_trained'] = $sensoryTrained;
+        //     }
+        // } else {
+            if ($filterType == 'dashboard_filters') {
+                if(isset($version_num) && $version_num == 'v1'){
+                    $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+                } else if(isset($version_num) && $version_num == 'v2') {
+                    $data = [$question_filter, $gender, $age, $city, $userType, $sensoryTrained, $superTaster];
+                } else {
+                    $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+                }
+            } 
+            
+            if($filterType == 'graph_filters'){
+                if(isset($version_num) && $version_num == 'v1'){
+                    $data = [$gender, $age, $city, $profile, $userType, $sensoryTrained, $superTaster];
+                } else {
+                    $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, 'profile' => $profile, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+                }
+            }
+        
         // }
         return $data;
     }
@@ -267,9 +447,13 @@ trait FilterFactory
             $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
                 ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
 
-            $Ids = $Ids->where(function ($query) use ($filters) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['profile'] as $profile) {
-                    $query->orWhere('name', 'LIKE', $profile);
+                    if (isset($version_num) && $version_num == 'v1'){
+                        $query->orWhere('name', 'LIKE', $profile['key']);
+                    } else {
+                        $query->orWhere('name', 'LIKE', $profile);
+                    }
                 }
             });
         }
@@ -684,6 +868,12 @@ trait FilterFactory
 
     public function getFieldPairedData($field, $fieldCounts)
     {
+        if(empty($field))
+        {
+            $field['items'] = [];
+            return $field;
+        }
+
         foreach($field as $key => $val)
         {  
             unset($field[$key]);
@@ -695,7 +885,7 @@ trait FilterFactory
         return $field;
     }
 
-    public function getProfileFieldPairedData($field, $fieldCounts, $val1, $val2)
+    public function getProfileFieldPairedData($fieldCounts, $val1, $val2)
     {
         $field = [];
         $field['items'] = [['key' => $val1, 'value' => $val1, 'count' => isset($fieldCounts[1]) ? $fieldCounts[1] : 0], ['key' => $val2, 'value' => $val2, 'count' => isset($fieldCounts[0]) ? $fieldCounts[0] : 0]];
