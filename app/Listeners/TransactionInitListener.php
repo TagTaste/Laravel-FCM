@@ -75,10 +75,11 @@ class TransactionInitListener
 
             $insertData['tds_amount'] = 0;
             $insertData['payout_amount'] = $event->data->amount;            
+            $insertData['status_id'] = config("constant.PAYMENT_DONATED_STATUS_ID");            
         }
 
         $data = PaymentLinks::create($insertData);
-        
+
         if ($data && !$event->data->is_donation) {
             if (!empty(request()->user()->profile->phone)) {
                 $d = ["transaction_id" => $buildTxnId, "amount" => $event->data->amount, "phone" => request()->user()->profile->phone, "email" => request()->user()->email, "model_type" => $event->data->model_type, "title" => $event->data->model_id, "name" => request()->user()->name ?? "", "model" => $data, "model_id" => $event->data->model_id,"payout_amount"=>$payout_amount, "tds_amount"=>$tds_amount];
