@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\QuestionnaireQuestionHelpers;
 
 class QuestionnaireQuestions extends Model
 {
@@ -39,5 +40,19 @@ class QuestionnaireQuestions extends Model
         }
         
         return ["intensity_value"=>$intensityValue, "intensity_color"=>$intensityColor];
+    }
+
+    public function getHelper(){
+        $questionHelper = QuestionnaireQuestionHelpers::select('assets_order','images','title as text','video_link','videos_meta')
+        ->where('question_id', $this->id)
+        ->where('is_active', 1)
+        ->whereNull('deleted_at')->first();
+
+        if(!is_null($questionHelper)){
+            $questionHelper['assets_order'] = json_decode($questionHelper->assets_order);
+            $questionHelper['images'] = json_decode($questionHelper->images);
+            $questionHelper['videos_meta'] = json_decode($questionHelper->videos_meta);
+        }
+        return $questionHelper;
     }
 }

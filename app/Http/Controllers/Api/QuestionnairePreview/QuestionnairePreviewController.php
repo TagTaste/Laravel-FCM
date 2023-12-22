@@ -12,7 +12,7 @@ use App\QuestionnaireLists;
 use App\QuestionnaireHeaders;
 use App\QuestionnaireHeaderHelpers;
 use App\QuestionnaireQuestions;
-use App\QuestionnaireQuestionhelpers;
+use App\QuestionnaireQuestionHelpers;
 use App\QuestionnaireQuestionOptions;
 use App\QuestionnairePreviewShareUsers;
 use App\TempTokens;
@@ -112,11 +112,14 @@ class QuestionnairePreviewController extends Controller
         ->get();
 
         foreach($questions as $question){
+            $question->subtitle = $question->sub_title;
+            $question->header_type_id = $question->header_id;
             //if its a global question
             if($question->is_nested_option){
                 $question->min_selection = $question->min_selection ?? [];
                 $question->max_selection = $question->max_selection ?? [];
-                
+                $question->info = $question->getHelper();
+
                 $intesnityData = $question->updateIntensityValues();
                 $question->intensity_value = $intesnityData['intensity_value'];
                 $question->intensity_color = $intesnityData['intensity_color'];
