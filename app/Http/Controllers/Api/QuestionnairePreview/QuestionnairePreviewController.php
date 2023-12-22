@@ -65,7 +65,6 @@ class QuestionnairePreviewController extends Controller
 
         $headers = QuestionnaireHeaders::select('id','title as header_type','header_type_id as header_selection_type')
         ->where('questionnaire_id',$id)
-        ->where('is_active',1)
         ->whereNull('deleted_at')
         ->orderBy('pos', 'asc')
         ->get();
@@ -97,7 +96,6 @@ class QuestionnairePreviewController extends Controller
         
         $header = QuestionnaireHeaders::where('questionnaire_id',$id)
         ->where('id',$headerId)
-        ->where('is_active',1)
         ->whereNull('deleted_at')
         ->get();
 
@@ -106,7 +104,6 @@ class QuestionnairePreviewController extends Controller
         }
          
         $questions = QuestionnaireQuestions::where('header_id',$headerId)
-        ->where('is_active',1)
         ->whereNull('deleted_at')
         ->orderBy('pos', 'asc')
         ->get();
@@ -129,7 +126,6 @@ class QuestionnairePreviewController extends Controller
             }else{
                 //if it is not global question
                 $options = QuestionnaireQuestionOptions::where('question_id', $question->id)
-                ->where('is_active',1)
                 ->whereNull('deleted_at')
                 ->orderBy('pos', 'asc')
                 ->get();
@@ -190,7 +186,7 @@ class QuestionnairePreviewController extends Controller
         $term = array_filter(explode(" ",$term), 'strlen');
 
         $question = QuestionnaireQuestions::where('id',$questionId)
-        ->whereNull('deleted_at')->where('is_active',1)->first();
+        ->whereNull('deleted_at')->first();
         if(is_null($question)){
             return $this->sendNewError("Questiuon not found");
         }
