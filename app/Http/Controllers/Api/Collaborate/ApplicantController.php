@@ -46,7 +46,6 @@ class ApplicantController extends Controller
     public function index(Request $request, $collaborateId)
     {
 
-
         $collaborate = Collaborate::where('id', $collaborateId)
             //->where('state','!=',Collaborate::$state[1])
             ->first();

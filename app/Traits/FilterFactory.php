@@ -81,7 +81,7 @@ trait FilterFactory
             $filteredProfileIds = $this->getFilteredProfile($filters, $collaborateId);
             if(isset($batchId)){ // product applicants filters
                 $filteredProfileIds = $this->getFilterProfileIds($filters, $collaborateId, $batchId)['profile_id']->toArray();
-                $collabProfileIds = $collabApplicants->pluck('profile_id')->toArray();
+                $collabProfileIds = $collabApplicants->whereNotNull('shortlisted_at')->pluck('profile_id')->toArray();
                 $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $collabProfileIds;
             }
 
