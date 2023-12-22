@@ -139,7 +139,7 @@ class ProfileController extends Controller
         }
 
         // When user deselect the selected eating habit
-        if($data['profile']['foodie_type_id'] = '0' || empty($data['profile']['foodie_type_id']))
+        if($data['profile']['foodie_type_id'] == '0' || empty($data['profile']['foodie_type_id']))
         {
             $data['profile']['foodie_type_id'] = null;
         }
