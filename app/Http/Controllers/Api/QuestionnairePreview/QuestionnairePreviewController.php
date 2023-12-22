@@ -12,7 +12,7 @@ use App\QuestionnaireLists;
 use App\QuestionnaireHeaders;
 use App\QuestionnaireHeaderHelpers;
 use App\QuestionnaireQuestions;
-use App\QuestionnaireQuestionHelpers;
+use App\QuestionnaireQuestionHelper;
 use App\QuestionnaireQuestionOptions;
 use App\QuestionnairePreviewShareUsers;
 use App\TempTokens;

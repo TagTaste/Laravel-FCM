@@ -3,7 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\QuestionnaireQuestionHelpers;
+use App\QuestionnaireQuestionHelper;
 
 class QuestionnaireQuestions extends Model
 {
@@ -43,7 +43,7 @@ class QuestionnaireQuestions extends Model
     }
 
     public function getHelper(){
-        $questionHelper = QuestionnaireQuestionHelpers::select('assets_order','images','title as text','video_link','videos_meta')
+        $questionHelper = QuestionnaireQuestionHelper::select('assets_order','images','title as text','video_link','videos_meta')
         ->where('question_id', $this->id)
         ->where('is_active', 1)
         ->whereNull('deleted_at')->first();
