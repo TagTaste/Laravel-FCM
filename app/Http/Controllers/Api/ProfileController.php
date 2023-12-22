@@ -120,12 +120,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-
-        echo "reac";
-        return true;
-        $this->model = true;
-        return $this->sendResponse();
-
+        
         $data = $request->except([
             "_method", "_token", 'hero_image', 'image', 'resume', 'remove', 'remove_image',
             'remove_hero_image', 'verified_phone'
