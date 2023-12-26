@@ -170,6 +170,7 @@ trait FilterFactory
             $allergenIdNames = array_combine($allergenIds, $allergenData->pluck('allergens.name')->toArray());
 
             $allergenCounts = \DB::table('profiles_allergens')->select('allergens_id', \DB::raw('COUNT(*) as count'))->whereIn('profile_id', $filteredProfileIds)->whereIn('allergens_id', $allergenIds)->groupBy('allergens_id')->pluck('count','allergens_id');
+            $allergenItems = [];
 
             foreach($allergenIdNames as $key => $val)
             {  
@@ -593,7 +594,7 @@ trait FilterFactory
             $profileIds = $profileIds->merge($filterProfile);
         }
         
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens'])) {
+        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens']) || isset($filters['profile'])) {
             $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
         }
         
@@ -631,6 +632,17 @@ trait FilterFactory
                     // } else {
                     //     $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
                     // }
+                }
+            });
+        }
+
+        if (isset($filters['profile'])) {
+            $Ids =   $Ids->leftJoin('profile_specializations', 'collaborate_applicants.profile_id', '=', 'profile_specializations.profile_id')
+                ->leftJoin('specializations', 'profile_specializations.specialization_id', '=', 'specializations.id');
+
+            $Ids = $Ids->where(function ($query) use ($filters) {
+                foreach ($filters['profile'] as $profile) {
+                    $query->orWhere('name', 'LIKE', (is_string($profile) && !isset($profile['key'])) ? $profile : $profile['key']);
                 }
             });
         }
