@@ -55,4 +55,10 @@ class QuestionnaireQuestions extends Model
         }
         return $questionHelper;
     }
+
+    public function getSelectType(){
+        $seletType = \DB::table('questionnaire_question_types')
+        ->where("id", $this->select_type)->get()->pluck("select_type");
+        return $seletType[0] ?? null;
+    }
 }

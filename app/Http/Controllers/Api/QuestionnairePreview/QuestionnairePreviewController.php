@@ -111,6 +111,9 @@ class QuestionnairePreviewController extends Controller
         foreach($questions as $question){
             $question->subtitle = $question->sub_title;
             $question->header_type_id = $question->header_id;
+            $question->select_type = $question->getSelectType();
+
+            
             //if its a global question
             if($question->is_nested_option){
                 $question->min_selection = $question->min_selection ?? [];
