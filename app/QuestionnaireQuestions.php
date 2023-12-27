@@ -26,7 +26,7 @@ class QuestionnaireQuestions extends Model
     }
 
     public function updateIntensityValues(){
-        $intensityValueList = json_decode($this->intensity_value);
+        $intensityValueList = json_decode($this->intensity_value) ?? [];
         $intensityValue = '';
         $intensityColor = '';
         foreach($intensityValueList as $intensityObj){
