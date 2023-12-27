@@ -755,7 +755,11 @@ trait FilterFactory
             foreach ($filters['current_status'] as $currentStatus) {
                 $currentStatus = is_string($currentStatus) && !isset($currentStatus['key']) ? $currentStatus : $currentStatus['key'];
                 if ($currentStatus == 0 || $currentStatus == 1) {
-                    $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('begin_tasting', $currentStatus)->get()->pluck('profile_id')->unique();
+                    // $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('begin_tasting', $currentStatus)->get()->pluck('profile_id')->unique();
+                    $ids = \DB::table('collaborate_batches_assign as c1')->select('c1.profile_id')->join('collaborate_applicants as c2', function ($join) {
+                        $join->on('c1.collaborate_id', '=', 'c2.collaborate_id')
+                            ->on('c1.profile_id', '=', 'c2.profile_id');
+                    })->where('c1.collaborate_id', $collaborateId)->where('c1.batch_id', $batchId)->where('c1.begin_tasting', $currentStatus)->whereNotNull('c2.shortlisted_at')->distinct()->pluck('c1.profile_id');
                     $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->get()->pluck('profile_id')->unique();                   
                     $ids = $ids->diff($ids2);
                 } else {
