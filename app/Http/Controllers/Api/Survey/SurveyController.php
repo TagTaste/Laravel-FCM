@@ -4396,6 +4396,10 @@ class SurveyController extends Controller
         if($request->is('*/v1/*')){
             $version_num = 'v1';
         }
+        else if($request->is('*/v2/*'))
+        {
+            $version_num = 'v2';
+        }
         return $this->getFilterParameters($version_num, $surveyId, $request);
     }
 

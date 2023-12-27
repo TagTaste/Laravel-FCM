@@ -241,6 +241,13 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("search_test/explore_test", "ExplorePageController@exploreTest");
         });
 
+        Route::group(['namespace' => '', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
+            Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+                // count with filters
+                Route::post('filters-list/{id}', 'SurveyController@getFilters');
+            });
+        });
+
         //Routes to get personalised meta
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
         Route::get("/meta/{modelName}/{id}/{modelId}", "MetaController@getSharedMeta");
@@ -989,7 +996,14 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
             Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
 
-            
+            // survey applicant reports API
+            Route::post('/{id}/applicants', 'SurveyApplicantController@index');
+
+            //survey Applicant filters with count
+            Route::post('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission');
+ 
+            // survey applicant report
+            Route::post('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission');
 
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
