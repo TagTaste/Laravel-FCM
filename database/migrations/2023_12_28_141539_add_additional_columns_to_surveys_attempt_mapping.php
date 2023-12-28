@@ -14,11 +14,11 @@ class AddAdditionalColumnsToSurveysAttemptMapping extends Migration
     public function up()
     {
         Schema::table('surveys_attempt_mapping', function (Blueprint $table) {
-            $table->tinyInteger('is_flag')->after('completion_date')->unsigned()->default(0)->index(); // 0 or 1
-            $table->bigInteger('duration')->after('is_flag')->unsigned()->nullable()->index(); // in seconds (bigint)
-            $table->timestamp('start_review')->after('duration')->unsigned()->nullable()->index(); 
-            $table->timestamp('end_review')->after('start_review')->unsigned()->nullable()->index(); 
-            $table->tinyInteger('current_status')->after('end_review')->unsigned()->nullable()->index(); 
+            $table->tinyInteger('current_status')->after('completion_date')->unsigned()->nullable()->index(); 
+            $table->timestamp('start_review')->after('current_status')->nullable()->index(); 
+            $table->timestamp('end_review')->after('start_review')->nullable()->index(); 
+            $table->bigInteger('duration')->after('end_review')->unsigned()->nullable()->index(); // in seconds (bigint)
+            $table->boolean('is_flag')->after('duration')->default(false)->index(); // 0 or 1
         });
     }
 
