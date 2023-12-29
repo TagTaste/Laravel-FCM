@@ -140,12 +140,15 @@ class QuestionnairePreviewController extends Controller
                 ->whereNull('deleted_at')
                 ->orderBy('pos', 'asc')
                 ->get();
-                
+                $counter = 1;
                 foreach($options as $option){
                     $option->value = $option->title;
                     $option->option_type = $option->getOptionType();
-                    $option->image_url = $option->getImage();                
-                    
+                    $option->image_url = $option->getImage();   
+                    $option->colorCode = $option->color;             
+                    if($question->select_type = 5){
+                        $option->id = $counter;
+                    }
                     //set intensity
                     if($option->is_intensity){
                         $intesnityData = $option->updateIntensityValues();
@@ -153,6 +156,8 @@ class QuestionnairePreviewController extends Controller
                         $option->intensity_color = $intesnityData['intensity_color'];
                         $option->intensity_type = 2;
                     }
+
+                    $counter++;
                 }
                 $question->option = $options;
             }
