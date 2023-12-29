@@ -50,7 +50,14 @@ class QuestionnaireQuestions extends Model
 
         if(!is_null($questionHelper)){
             $questionHelper['assets_order'] = json_decode($questionHelper->assets_order);
-            $questionHelper['images'] = json_decode($questionHelper->images);
+            $imageJson = json_decode($questionHelper->images);
+            $imageList = [];
+            if(!is_null($imageJson)){                
+                foreach($imageJson as $image){
+                    array_push($imageList,$image->original_photo);
+                }
+            }
+            $questionHelper['images'] = $imageList;    
             $questionHelper['videos_meta'] = json_decode($questionHelper->videos_meta);
         }
         return $questionHelper;
