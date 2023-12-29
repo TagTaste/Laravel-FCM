@@ -33,6 +33,10 @@ return  [
         "COMPLETED" => 2
     ],
 
+    "TXN_REASON" => [
+        "DONATION" => "donation"
+    ]
+
     "QUIZ_RESULT_IMAGE_URL" =>[
          "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/0_score.gif",
         "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/33_score.gif",

@@ -915,7 +915,7 @@ class SurveyController extends Controller
         $responseData = $flag = [];
         $requestPaid = $request->is_paid ?? false;
         $responseData["status"] = true;
-
+        
         $paymnetExist = PaymentDetails::where('model_id', $request->survey_id)->where('is_active', 1)->first();
         if ($paymnetExist != null || $requestPaid) {
             $responseData["is_paid"] = true;
@@ -942,7 +942,13 @@ class SurveyController extends Controller
             //phone not updated
             //paid taster - No Rewarded
 
-            if ($flag["status"] == true) {
+            if ($flag["status"] == true && isset($flag["reason"]) && $flag["reason"] == config("constant.TXN_REASON.DONATION")) {
+                $responseData["get_paid"] = true;
+                $responseData["title"] = "Congratulations!";
+                $responseData["subTitle"] = "You have successfully completed the survey.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
+                $responseData["helper"] = "We sincerely appreciate your generosity in choosing to donate your reward!";
+            }else if ($flag["status"] == true) {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed the survey.";

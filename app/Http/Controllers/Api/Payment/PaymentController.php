@@ -162,7 +162,7 @@ class PaymentController extends Controller
              }else if ($data->status->id == config("constant.PAYMENT_DONATED_STATUS_ID")) {
                 $title = 'Donated';
                 $sub_title = 'Your earning has successfully donated';
-                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Transaction-Detail/expired.png';
+                $icon = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/donation.png';
             }
             
             $data->pop_up = [
@@ -235,7 +235,7 @@ class PaymentController extends Controller
             [
                 "title" => "Donated", "value" => "₹" . $donated,
                 "color_code" => "#FDF1E7", "text_color" => "#171717", "border_color" => "#FDE4D0", "value_color" => "#F47816",
-                "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/toberedeemed.png"
+                "icon" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Passbook/donation.png"
             ],
             [
                 "title" => "To be Redeemed", "value" => "₹" . $toBeRedeemed,
