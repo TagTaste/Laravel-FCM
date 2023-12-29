@@ -18,7 +18,20 @@ class QuestionnaireQuestions extends Model
             ->Where('parent_id',0)
             ->whereNull('deleted_at')->where('is_active',1)
             ->orderBy('pos','asc')->get();
-        
+            
+            foreach($nestedOptions as $optionObj){
+                $checknestedIds = \DB::table('global_nested_option')
+                ->where('parent_id',$optionObj->sequence_id)
+                ->where('type',$optionObj->type)
+                ->whereNull('deleted_at')
+                ->where('is_active',1)
+                ->get()->pluck('id');
+            
+                $optionObj->is_nested_option = 0;
+                if(count($checknestedIds)){
+                    $optionObj->is_nested_option = 1;
+                }
+            }
             return $nestedOptions;
         }else{
             return [];

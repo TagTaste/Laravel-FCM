@@ -184,12 +184,29 @@ class QuestionnairePreviewController extends Controller
             return $this->sendNewError("Option with this id doesn't exist");
 
         }
-
-        $optionList = \DB::table('global_nested_option')->where('parent_id',$option->s_no)
+        
+        $optionList = \DB::table('global_nested_option')
+        ->where('parent_id',$option->s_no)
+        ->where('type',$option->type)
         ->whereNull('deleted_at')
         ->where('is_active',1)
         ->orderBy('pos', 'asc')
         ->get();
+
+        foreach($optionList as $optionObj){
+            $checknestedIds = \DB::table('global_nested_option')
+            ->where('parent_id',$optionObj->s_no)
+            ->where('type',$optionObj->type)
+            ->whereNull('deleted_at')
+            ->where('is_active',1)
+            ->get()->pluck('id');
+            
+            $optionObj->is_nested_option = 0;
+            if(count($checknestedIds)){
+                $optionObj->is_nested_option = 1;
+            }
+        }
+
 
         $this->model['question'] = $optionList;
         return $this->sendNewResponse();
@@ -204,7 +221,7 @@ class QuestionnairePreviewController extends Controller
         $question = QuestionnaireQuestions::where('id',$questionId)
         ->whereNull('deleted_at')->first();
         if(is_null($question)){
-            return $this->sendNewError("Questiuon not found");
+            return $this->sendNewError("Question not found");
         }
 
         $options = \DB::table('global_nested_option')->where('type',$question->nested_option_list)
@@ -217,6 +234,20 @@ class QuestionnairePreviewController extends Controller
         }
         })->get();
 
+
+        foreach($options as $optionObj){
+            $checknestedIds = \DB::table('global_nested_option')
+            ->where('parent_id',$optionObj->s_no)
+            ->where('type',$question->nested_option_list)
+            ->whereNull('deleted_at')
+            ->where('is_active',1)
+            ->get()->pluck('id');
+        
+            $optionObj->is_nested_option = 0;
+            if(count($checknestedIds)){
+                $optionObj->is_nested_option = 1;
+            }
+        }
         $this->model['option'] = $options;
         return $this->sendNewResponse();
     }
