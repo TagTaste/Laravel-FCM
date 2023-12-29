@@ -132,7 +132,7 @@ class QuestionnairePreviewController extends Controller
                 $question->intensity_value = $intesnityData['intensity_value'];
                 $question->intensity_color = $intesnityData['intensity_color'];
                 $question->intensity_type = 2;
-
+                
                 $question->option = $question->getOptions();
             }else{
                 //if it is not global question
@@ -146,7 +146,7 @@ class QuestionnairePreviewController extends Controller
                     $option->option_type = $option->getOptionType();
                     $option->image_url = $option->getImage();   
                     $option->colorCode = $option->color;             
-                    if($question->select_type = 5){
+                    if($question->select_type == 5){
                         $option->id = $counter;
                     }
                     //set intensity
