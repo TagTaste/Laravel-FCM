@@ -77,7 +77,15 @@ class QuestionnairePreviewController extends Controller
 
             if(!is_null($headerHelper)){
                 $headerHelper['assets_order'] = json_decode($headerHelper->assets_order);
-                $headerHelper['images'] = json_decode($headerHelper->images);
+                $imageJson = json_decode($headerHelper->images);
+                $imageList = [];
+                if(!is_null($imageJson)){                
+                    foreach($imageJson as $image){
+                        array_push($imageList,$image->original_photo);
+                    }
+                }
+                 $headerHelper['images'] = $imageList;
+                // $headerHelper['images'] = json_decode($headerHelper->images);
                 $headerHelper['videos_meta'] = json_decode($headerHelper->videos_meta);
             }
             $header->header_info = $headerHelper;
