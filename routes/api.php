@@ -499,6 +499,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
+            
+            Route::get("batches/{batchId}/profile/{profileId}/submission_status", 'BatchController@getReviewTimeline');
+
+            Route::post("batches/{batchId}/startReview", "ReviewController@startReview");
+
             Route::get("userBatches", 'BatchController@userBatches');
             Route::put("batches/{batchId}/foodBillStatus", 'BatchController@foodBillStatus');
             Route::post("beginTasting", 'BatchController@beginTasting'); //required
@@ -583,7 +588,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("headers/{headerId}/reports", "ReportController@reports");
             Route::get("headers/{headerId}/questions/{questionId}/comments", "ReportController@comments");
             Route::get("headers/{headerId}/questions/{questionId}/anyother", "ReportController@anyother");
-
+            
             // api for product-review tasting
             Route::get("headers/{id}/question/{questionId}/search", "QuestionController@getNestedOptionSearch");
             Route::get("headers/{id}/question/{questionId}/searchNestedParent", "QuestionController@getNestedOptionSearchNestedParent");
@@ -591,6 +596,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post("headers/{headerId}/review", "ReviewController@reviewAnswers");
             Route::get("headers/{id}", "QuestionController@reviewQuestions");
             Route::get("headers", "QuestionController@headers");
+            Route::post("startReview", "ReviewController@startReview");
+
 
             //collaborate comments
             Route::get('reviews/{reviewId}/comments', "ReviewController@comments");
@@ -1005,6 +1012,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         });
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => 'api.auth'], function () {
+
             // private product review reports post api
             Route::post("batches/{id}/headers/{headerId}/reports", "BatchController@reports");
 
