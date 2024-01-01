@@ -21,10 +21,11 @@ use App\PaymentHelper;
 use App\Profile;
 use Illuminate\Support\Facades\Log;
 use App\PublicReviewEntryMapping;
+use App\Traits\FlagReview;
 
 class ReviewController extends Controller
 {
-    use CheckTags;
+    use CheckTags, FlagReview;
     /**
      * Variable to model
      *
@@ -398,11 +399,17 @@ class ReviewController extends Controller
             if (isset($userReview) && $userReview->current_status == 2) {
                 return $this->sendNewError("User already reviewd.");
             }
+            $current_status = isset($userReview->current_status) ? $userReview->current_status : null;
 
-            PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START")]);
+            // Add start time of review and current_status
+            $currentDateTime = Carbon::now();
+            \DB::table('public_review_user_timings')->where('product_id', $productId)->where('profile_id', $profileId)->latest('created_at')->update(["start_review" => $currentDateTime, "current_status" => $current_status]);
+
+            PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
 
             $this->model = true;
             \DB::commit();
+
         } catch (\Exception $e) {
             // roll in case of error
             \DB::rollback();
@@ -605,7 +612,7 @@ class ReviewController extends Controller
                     $headerList = $this->getMissingHeaders($product, $loggedInProfileId);
                     $this->model = ["status" => false];
                     return $this->sendError("Mandatory questions missing in ".$headerList);
-                    // $responseData = ["status" => false];
+                    $responseData = ["status" => false];
                 }
             }
         }
@@ -613,9 +620,23 @@ class ReviewController extends Controller
         
         //update the entry mapping
         $headerName = \DB::table('public_review_question_headers')->where('id', $headerId)->first();
+        $public_review_timings = \DB::table('public_review_user_timings')->where('product_id', $productId)->latest('created_at')->where('profile_id', $loggedInProfileId);
         if($currentStatus == 2){
-            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END")]);
+            //update duration and end review
+            $currentDateTime = Carbon::now();
+            $start_review = Carbon::parse($public_review_timings->first()->start_review);
+            $end_review = $currentDateTime;
+            $duration = $end_review->diffInSeconds($start_review);
+            $flag = $this->flagReview($start_review, $duration);
+
+            $public_review_timings->update(["current_status" => $currentStatus, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
+
+            PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
         }else{
+            if($public_review_timings->first()->current_status != $currentStatus)
+            {
+                $public_review_timings->update(["current_status" => $currentStatus]);
+            }
             PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 

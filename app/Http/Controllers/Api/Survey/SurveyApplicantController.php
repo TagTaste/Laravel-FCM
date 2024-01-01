@@ -323,29 +323,34 @@ class SurveyApplicantController extends Controller
             $this->model = false;
             return $this->sendNewError($survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.");
         }
-        
-        $last_attempt = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $request->user()->profile->id)
+
+
+        $profile_id = $request->user()->profile->id;
+        $last_attempt = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $profile_id)
         ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
         
         $answerAttempt = [];
-        $answerAttempt["profile_id"] = $request->user()->profile->id;
+        $answerAttempt["profile_id"] = $profile_id;
         $answerAttempt["survey_id"] = $id;
-
-       
+        $currentDateTime = Carbon::now();
         
         if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;
+            $answerAttempt["start_review"] = $currentDateTime;
+            $answerAttempt["current_status"] = $checkApplicant->application_status;
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
-            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
+            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
             $this->model = true;
         } else {    //when its not first attempt
             $attempt_number = $last_attempt->attempt;
             if ($survey->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $attempt_number += 1;
                 $answerAttempt["attempt"] = $attempt_number;
+                $answerAttempt["start_review"] = $currentDateTime;
+                $answerAttempt["current_status"] = $checkApplicant->application_status;
                 $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
-                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
                 $this->model = true;    
             }else{
                 SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);

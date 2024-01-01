@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Collaborate;
 use App\Collaborate;
 use App\Collaborate\Applicant;
 use App\Collaborate\Review;
+use App\Collaborate\BatchAssign;
 use App\Collaborate\ReviewHeader;
 use App\Company;
 use App\Events\TransactionInit;
@@ -19,10 +20,12 @@ use Illuminate\Support\Facades\Redis;
 use App\PublicReviewProduct\Review as PublicReviewProductReview;
 use Illuminate\Support\Facades\Log;
 use App\CollaborateTastingEntryMapping;
+use App\Traits\FlagReview;
 
 class ReviewController extends Controller
 {
 
+    use FlagReview;
     protected $model;
     protected $now;
 
@@ -44,9 +47,9 @@ class ReviewController extends Controller
             $this->model = false;
             $profileId = $request->user()->profile->id;
 
-            $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id', $batchId)->where('profile_id', $profileId)->exists();
+            $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id', $batchId)->where('profile_id', $profileId);
 
-            if (!$checkAssign) {
+            if (!$checkAssign->exists()) {
                 return $this->sendNewError("Wrong product assigned");
             }
             $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$profileId");
@@ -54,7 +57,11 @@ class ReviewController extends Controller
                 return $this->sendNewError("You have already completed this product");
             }
 
-            CollaborateTastingEntryMapping::create(["profile_id"=>$profileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "activity"=>config("constant.REVIEW_ACTIVITY.START")]);
+            // Add start time and current_status to collab_batches_assign
+            $currentDateTime = Carbon::now();
+            $checkAssign->update(["start_review" => $currentDateTime, "current_status" => $latestCurrentStatus]);
+
+            CollaborateTastingEntryMapping::create(["profile_id"=>$profileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
 
             $this->model = true;
             \DB::commit();
@@ -237,12 +244,27 @@ class ReviewController extends Controller
             \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId", $currentStatus);
         }
 
-        //update the entry mapping
+        //update the entry mapping and end review time with duration
         $headerName = \DB::table('collaborate_tasting_header')->where('id', $headerId)->first();
 
+        $review_info = BatchAssign::where('batch_id', $batchId)->where('profile_id', $loggedInProfileId)->latest('created_at');
+        
         if($currentStatus == 3){
-            CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END")]);
+            //update duration and end review
+            $currentDateTime = Carbon::now();
+            $start_review = Carbon::parse($review_info->first()->start_review);
+            $end_review = $currentDateTime;
+            $duration = $end_review->diffInSeconds($start_review);
+            $flag = $this->flagReview($start_review, $duration);
+                     
+            $review_info->update(["current_status" => $currentStatus, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
+
+            CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
         }else{
+            if($review_info->first()->current_status != $currentStatus)
+            {
+                $review_info->update(["current_status" => $currentStatus]);
+            }
             CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "header_title"=>$headerName->header_type, "activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 

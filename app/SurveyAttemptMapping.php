@@ -12,7 +12,7 @@ class SurveyAttemptMapping extends Model
     const UPDATED_AT = 'updated_at';
 
     protected $guarded = ["id"];
-    protected $fillable = ["profile_id","survey_id","completion_date","created_at","attempt"];
+    protected $fillable = ["profile_id","survey_id","completion_date","start_review", "end_review", "current_status", "duration", "is_flag", "created_at","attempt"];
 
 
     public function profile()
