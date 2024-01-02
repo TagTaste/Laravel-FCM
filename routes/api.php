@@ -1008,6 +1008,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             // survey get rejected applicants
             Route::post("/{id}/getRejectApplicants", "SurveyApplicantController@getRejectApplicants");
 
+            // survey get rejected applicants report
+            Route::post('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission');
+
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
 

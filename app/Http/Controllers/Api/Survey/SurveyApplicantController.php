@@ -835,10 +835,15 @@ class SurveyApplicantController extends Controller
             // return $this->sendError("Only Admin can download report of this survey");
         }
 
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         //filters data
         $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -889,7 +894,6 @@ class SurveyApplicantController extends Controller
             );
             array_push($finalData, $temp);
         }
-
 
         $relativePath = "reports/surveysAnsweredExcel/$id";
         $name = "survey-" . $id . "-" . uniqid();
