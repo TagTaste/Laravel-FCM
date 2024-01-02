@@ -426,7 +426,7 @@ trait FilterTraits
             // age data
             $ageData = [];
             $ageCounts = $this->getCount($surveyApplicants, 'generation', $filteredProfileIds, $isFilterable);
-            $ageData['items'] = $this->addCountToField($gender, $genderCounts);
+            $ageData['items'] = $this->addCountToField($age, $ageCounts);
             $ageData['key'] = 'age';
             $ageData['value'] = 'Age';
         }
