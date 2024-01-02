@@ -338,7 +338,7 @@ class SurveyApplicantController extends Controller
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;
             $answerAttempt["start_review"] = $currentDateTime;
-            $answerAttempt["current_status"] = config("constant.SURVEY_APPLICANT_ANSWER_STATUS.In Progress");
+            $answerAttempt["current_status"] = config("constant.SURVEY_APPLICANT_STATUS.In Progress");
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
             SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
             $this->model = true;
@@ -348,7 +348,7 @@ class SurveyApplicantController extends Controller
                 $attempt_number += 1;
                 $answerAttempt["attempt"] = $attempt_number;
                 $answerAttempt["start_review"] = $currentDateTime;
-                $answerAttempt["current_status"] = config("constant.SURVEY_APPLICANT_ANSWER_STATUS.In Progress");
+                $answerAttempt["current_status"] = config("constant.SURVEY_APPLICANT_STATUS.In Progress");
                 $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
                 SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
                 $this->model = true;    
