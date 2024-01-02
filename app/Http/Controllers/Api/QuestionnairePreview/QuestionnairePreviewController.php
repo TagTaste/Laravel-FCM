@@ -63,18 +63,18 @@ class QuestionnairePreviewController extends Controller
             return $this->sendNewError("This questionnaire doesn't exist.");
         }
 
-        $headers = QuestionnaireHeaders::select('id','title as header_type','header_type_id as header_selection_type')
+        $headers = QuestionnaireHeaders::select('id','title as header_type','header_type_id')
         ->where('questionnaire_id',$id)
         ->whereNull('deleted_at')
         ->orderBy('pos', 'asc')
         ->get();
-
         foreach($headers as $header){
+            $header->header_selection_type = $header->getHeaderSelectionType();
             $headerHelper = QuestionnaireHeaderHelpers::select('assets_order','images','title as text','video_link','videos_meta')
             ->where('header_id', $header->id)
             ->where('is_active', 1)
             ->whereNull('deleted_at')->first();
-
+            
             if(!is_null($headerHelper)){
                 $headerHelper['assets_order'] = json_decode($headerHelper->assets_order);
                 $imageJson = json_decode($headerHelper->images);
