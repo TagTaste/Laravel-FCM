@@ -1040,6 +1040,9 @@ class SurveyApplicantController extends Controller
     public function getRejectApplicants(Request $request, $id)
     {
         $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
         $page = $request->input('page');
         $q = $request->input('q');
         $filters = $request->input('filters');
@@ -1053,8 +1056,13 @@ class SurveyApplicantController extends Controller
             $list = $list->whereIn('id', $ids);
         }
 
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         if (isset($filters) && $filters != null) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $list = $list->whereIn('profile_id', $profileIds);
         }

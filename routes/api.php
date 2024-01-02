@@ -1005,6 +1005,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             // survey applicant report
             Route::post('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission');
 
+            // survey get rejected applicants
+            Route::post("/{id}/getRejectApplicants", "SurveyApplicantController@getRejectApplicants");
+
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
 
