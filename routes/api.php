@@ -1078,6 +1078,12 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             // PR applicant report PDF
             Route::post('collaborateApplicants/export', 'ApplicantController@export');
 
+            // PR rejected applicants list
+            Route::post("getRejectApplicants", "ApplicantController@getRejectApplicants");
+
+            // PR rejected applicants list PDF
+            Route::post("getRejectApplicants/export", "ApplicantController@getRejectApplicantsExport");
+
             // PR product based applicant filters with count
             Route::post("batches/{batchId}/applicantFilters", "BatchController@applicantFilters");
 
