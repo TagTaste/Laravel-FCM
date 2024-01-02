@@ -288,7 +288,6 @@ class SurveyApplicantController extends Controller
     }
 
     public function startSurvey($id, Request $request){
-
     try{
         $survey = $this->model->where("id", "=", $id)->first();
         $this->model = [];
@@ -414,6 +413,22 @@ class SurveyApplicantController extends Controller
                 'message' => $request->input('message'), 'address' => $applierAddress,
                 'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
             ];
+
+            if($request->has("is_donation")){
+                $isDonation = $request->is_donation;
+                if($isDonation){
+                    $organisationId = $request->donation_organisation['id'] ?? null;
+                    if(is_null($organisationId)){
+                        $this->model = false;
+                        return $this->sendError("Organisation detail missing.");
+                    }
+                    $inputs['is_donation'] = true;
+                    $inputs['donation_organisation_id'] = $organisationId;                
+                }else{
+                    $inputs['is_donation'] = false;
+                }
+            }
+            
             $ins = \DB::table('survey_applicants')->insert($inputs);
         } else {
             $update = [];
