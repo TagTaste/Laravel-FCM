@@ -415,7 +415,11 @@ trait FilterFactory
         if ($profileIds->count() == 0 && isset($filters['profile_id'])) {
             $filterProfile = [];
             foreach ($filters['profile_id'] as $filter) {
-                $filterProfile[] = (int)$filter;
+                if (isset($version_num) && $version_num == 'v1'){
+                    $filterProfile[] = (int)$filter['key'];
+                } else {
+                    $filterProfile[] = (int)$filter;
+                }
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
