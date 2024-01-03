@@ -403,7 +403,18 @@ class ReviewController extends Controller
 
             // Add start time of review and current_status
             $currentDateTime = Carbon::now();
-            \DB::table('public_review_user_timings')->where('product_id', $productId)->where('profile_id', $profileId)->latest('created_at')->update(["start_review" => $currentDateTime, "current_status" => $current_status]);
+            $existingRecord = \DB::table('public_review_user_timings')->where('product_id', $productId)->where('profile_id', $profileId)->latest('created_at');
+
+            if(!$existingRecord->exists()){
+                \DB::table('public_review_user_timings')->insert([
+                    'product_id' => $productId,
+                    'profile_id' => $profileId,
+                    'start_review' => $currentDateTime,
+                    'current_status' => $current_status,
+                ]);
+            } else {
+                $existingRecord->update(["start_review" => $currentDateTime, "current_status" => $current_status]);
+            }
 
             PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
 
