@@ -149,7 +149,11 @@ trait FilterTraits
             $filterProfile = [];
             foreach ($filters['profile_id'] as $filter) {
                 //$isFilterAble = true;
-                $filterProfile[] = (int)$filter;
+                if (isset($version_num) && $version_num == 'v1'){
+                    $filterProfile[] = (int)$filter['key'];
+                } else {
+                    $filterProfile[] = (int)$filter;
+                }
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
@@ -297,7 +301,7 @@ trait FilterTraits
         }
        
         if ($profileIds->count() > 0 && isset($Ids)) {
-            $Ids = $Ids->whereIn('profile_id', $profileIds);
+            $Ids = $Ids->whereIn('survey_applicants.profile_id', $profileIds);
             
         }
 
