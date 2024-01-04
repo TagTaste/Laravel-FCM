@@ -128,6 +128,7 @@ class SurveyApplicantController extends Controller
 
         $this->model['invitedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull("deleted_at")->count();
         $this->model['rejectedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
+        $this->model['activeApplicantsCount'] = surveyApplicants::where('survey_id', $id)->whereNull('rejected_at')->whereNull("deleted_at")->count();
 
         $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
