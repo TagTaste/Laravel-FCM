@@ -31,7 +31,7 @@ class AddAdditionalColumnsToPublicReviewUserTimings extends Migration
     public function down()
     {
         Schema::table('public_review_user_timings', function (Blueprint $table) {
-            $table->dropIndex(['id','is_flag', 'duration', 'start_review', 'end_review', 'current_status']);
+            $table->dropColumn(['id','is_flag', 'duration', 'start_review', 'end_review', 'current_status']);
         });
     }
 }

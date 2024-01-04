@@ -59,7 +59,7 @@ class ReviewController extends Controller
 
             // Add start time and current_status to collab_batches_assign
             $currentDateTime = Carbon::now();
-            $checkAssign->update(["start_review" => $currentDateTime, "current_status" => $latestCurrentStatus]);
+            $checkAssign->update(["start_review" => $currentDateTime, "current_status" => 2]);
 
             CollaborateTastingEntryMapping::create(["profile_id"=>$profileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
 
@@ -261,10 +261,6 @@ class ReviewController extends Controller
 
             CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
         }else{
-            if($review_info->first()->current_status != $currentStatus)
-            {
-                $review_info->update(["current_status" => $currentStatus]);
-            }
             CollaborateTastingEntryMapping::create(["profile_id"=>$loggedInProfileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "header_id"=>$headerId, "header_title"=>$headerName->header_type, "activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 

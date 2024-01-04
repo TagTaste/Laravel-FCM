@@ -399,7 +399,6 @@ class ReviewController extends Controller
             if (isset($userReview) && $userReview->current_status == 2) {
                 return $this->sendNewError("User already reviewd.");
             }
-            $current_status = isset($userReview->current_status) ? $userReview->current_status : null;
 
             // Add start time of review and current_status
             $currentDateTime = Carbon::now();
@@ -410,12 +409,9 @@ class ReviewController extends Controller
                     'product_id' => $productId,
                     'profile_id' => $profileId,
                     'start_review' => $currentDateTime,
-                    'current_status' => $current_status,
+                    'current_status' => 1,
                 ]);
-            } else {
-                $existingRecord->update(["start_review" => $currentDateTime, "current_status" => $current_status]);
-            }
-
+            } 
             PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
 
             $this->model = true;

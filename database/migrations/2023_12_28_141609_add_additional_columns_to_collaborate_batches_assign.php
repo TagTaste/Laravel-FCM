@@ -31,7 +31,7 @@ class AddAdditionalColumnsToCollaborateBatchesAssign extends Migration
     public function down()
     {
         Schema::table('collaborate_batches_assign', function (Blueprint $table) {
-            $table->dropIndex(['id','is_flag', 'duration', 'start_review', 'end_review', 'current_status']);
+            $table->dropColumn(['id','is_flag', 'duration', 'start_review', 'end_review', 'current_status']);
         });
     }
 }

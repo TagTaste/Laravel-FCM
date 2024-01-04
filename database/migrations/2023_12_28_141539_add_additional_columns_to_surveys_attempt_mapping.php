@@ -30,7 +30,7 @@ class AddAdditionalColumnsToSurveysAttemptMapping extends Migration
     public function down()
     {
         Schema::table('surveys_attempt_mapping', function (Blueprint $table) {
-            $table->dropIndex(['is_flag', 'duration', 'start_review', 'end_review', 'current_status']);
+            $table->dropColumn(['is_flag', 'duration', 'start_review', 'end_review', 'current_status']);
         });
     }
 }
