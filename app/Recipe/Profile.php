@@ -56,11 +56,6 @@ class Profile extends BaseProfile
         return null;
     }
 
-    public function getFoodieTypeAttribute()
-    {
-        return isset($this->foodie_type_id) ? \DB::table('foodie_type')->where('id', $this->foodie_type_id)->first() : null;
-    }
-    
     public function experience()
     {
         return $this->hasMany('App\Profile\Experience');
