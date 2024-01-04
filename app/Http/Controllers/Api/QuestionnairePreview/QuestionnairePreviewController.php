@@ -269,7 +269,7 @@ class QuestionnairePreviewController extends Controller
             $data = ["email"=>$email, "questionnaire_id"=> $id, "otp"=>$otpNo, "created_at"=>date("Y-m-d H:i:s"), "updated_at"=>date("Y-m-d H:i:s"), "expired_at"=>date("Y-m-d H:i:s", strtotime("+7 days"))];
             $insertData = QuestionnairePreviewShareUsers::create($data); 
             if($insertData){
-                \Mail::to($email)->send(new QuestionnairePreviewShareMail(["link" => $deepLink, "otp"=>$otpNo]));     
+                \Mail::to($email)->send(new QuestionnairePreviewShareMail(["link" => $deepLink->url, "otp"=>$otpNo]));     
             }else{
                 $error .= $email.", ";
             }   
