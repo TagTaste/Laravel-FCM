@@ -123,6 +123,7 @@ class ProfileController extends Controller
             "_method", "_token", 'hero_image', 'image', 'resume', 'remove', 'remove_image',
             'remove_hero_image', 'verified_phone'
         ]);
+
         //proper verified.
         if (isset($data['verified'])) {
             $data['verified'] = empty($data['verified']) ? 0 : 1;
@@ -134,6 +135,12 @@ class ProfileController extends Controller
             }
         } else {
             unset($data['profile']['handle']);
+        }
+
+        // When user deselect the selected eating habit
+        if(isset($data['profile']['foodie_type_id']) && ($data['profile']['foodie_type_id'] == '0' || empty($data['profile']['foodie_type_id'])))
+        {
+            $data['profile']['foodie_type_id'] = null;
         }
 
         // pallate visibility

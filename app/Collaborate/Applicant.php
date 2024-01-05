@@ -12,11 +12,11 @@ class Applicant extends Model {
         'hut','created_at','updated_at','city','age_group','gender','company_id','document_meta','terms_verified', 'documents_verified','share_number','hometown','current_city','dob','generation'];
 
     protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address',
-        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified','phone','submission_count','hometown','current_city','dob','generation'];
+        'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified','phone','submission_count','hometown','current_city','dob','generation', 'age'];
 
     protected $with = ['profile','company'];
 
-    protected $appends = ['phone','submission_count'];
+    protected $appends = ['age', 'phone','submission_count'];
 
     protected $casts = [
         'collaborate_id' => 'integer',
@@ -45,6 +45,18 @@ class Applicant extends Model {
         // }
         return json_decode($value,true);
     }
+    
+    public function getAgeAttribute()
+    {
+        if(isset($this->dob))
+        {
+            $birthday = new \DateTime($this->dob);
+            $currentDate = new \DateTime();
+            $age = $birthday->diff($currentDate)->y;
+        }
+        return isset($age) ? $age : null;
+    }
+
     public function getDocumentMetaAttribute($value)
     {
         return json_decode($value);
