@@ -627,7 +627,7 @@ class SurveyApplicantController extends Controller
             $superTaster['value'] = 'Super Taster';
 
             // application status
-            $statusCounts = $this->getCount($surveyApplicants, 'application_status', $filteredProfileIds);
+            $statusCounts = $this->getCount($surveyApplicants, 'application_status', $profileIds);
 
             foreach($applicationStatus as $key => $val)
             {  
