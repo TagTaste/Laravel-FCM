@@ -512,15 +512,17 @@ trait FilterTraits
         return $this->sendResponse();
     }
 
-    public function getCount($model, $field, $profileIds, $isFilterable = false)
+    public function getCount($model, $field, $profileIds)
     {
         $query = clone $model;
         $table = $query->getModel()->getTable();
         $query = $query->select($field, \DB::raw('COUNT(*) as count'));
 
-        if ($isFilterable == true) {
-            ($table == 'survey_applicants') ? $query->whereIn('profile_id', $profileIds) : $query->whereIn('id', $profileIds);
-        }  
+        if($table == 'survey_applicants'){
+            $query = $query->whereIn('profile_id', $profileIds);
+        } else {
+            $query->whereIn('id', $profileIds);
+        }
         
         return $query->groupBy($field)->pluck('count', $field);
     }

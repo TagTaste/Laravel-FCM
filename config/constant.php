@@ -47,6 +47,11 @@ return  [
         'In Progress' => 3
     ],
 
+    "SURVEY_APPLICANT_STATE" => [
+        "REJECTED" => 0,
+        "ACTIVE" => 1,
+    ],
+
     "MEDIA_SURVEY_QUESTION_TYPE" => 5,
     'PAYMENT_INITIATED_STATUS_ID' => 1,
     'PAYMENT_PENDING_STATUS_ID' => 2,

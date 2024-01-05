@@ -559,8 +559,8 @@ class SurveyApplicantController extends Controller
         ];
         $city = [];
         $profile = [];
-        $hometown = [];
-        $current_city = [];
+        // $hometown = [];
+        // $current_city = [];
         $applicants = $surveyApplicants->get();
         $applicantProfileIds = $applicants->pluck('profile_id');
 
@@ -582,45 +582,52 @@ class SurveyApplicantController extends Controller
 
         if (isset($version_num) && $version_num == 'v1')
         {
+            $current_state = $request->state;
+      
             $surveyData = Surveys::where("id", "=", $id)->first();
             $filters = $request->input('filters');
-            $isFilterable = isset($filters) && !empty($filters) ? true : false;
             $filteredProfileIds = $this->getProfileIdOfFilter($surveyData, $request, $version_num)['profile_id'];
 
             $profileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
 
             $profileModel = Profile::whereNull('deleted_at');
-           
-            $ageCounts = $this->getCount($surveyApplicants, 'generation', $filteredProfileIds, $isFilterable);
+            
+            if(isset($current_state) && $current_state == config("constant.SURVEY_APPLICANT_STATE.ACTIVE")){
+                $surveyApplicants = $surveyApplicants->whereNull('survey_applicants.rejected_at');
+            } else if(isset($current_state) && $current_state == config("constant.SURVEY_APPLICANT_STATE.REJECTED")){
+                $surveyApplicants = $surveyApplicants->whereNotNull('survey_applicants.rejected_at');
+            }
+
+            $ageCounts = $this->getCount($surveyApplicants, 'generation', $profileIds);
             $age = $this->getFieldPairedData($age, $ageCounts);
             $age['key'] = 'age';
             $age['value'] = 'Age';
 
-            $genderCounts = $this->getCount($surveyApplicants,'gender', $filteredProfileIds, $isFilterable);
+            $genderCounts = $this->getCount($surveyApplicants,'gender', $profileIds);
             $gender = $this->getFieldPairedData($gender, $genderCounts);
             $gender['key'] = 'gender';
             $gender['value'] = 'Gender';
             
             // count of experts
-            $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds, true);
+            $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
             $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
 
             // sensory trained or not
-            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds, 'true');
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds);
             $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
 
             // supar taster or not
-            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds, 'true');
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds);
             $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';
 
             // application status
-            $statusCounts = $this->getCount($surveyApplicants, 'application_status', $filteredProfileIds, $isFilterable);
+            $statusCounts = $this->getCount($surveyApplicants, 'application_status', $filteredProfileIds);
 
             foreach($applicationStatus as $key => $val)
             {  
