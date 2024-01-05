@@ -340,6 +340,9 @@ class SurveyController extends Controller
             $meta = $survey->getMetaFor($profileId);
             $survey->image_meta = json_decode($survey->image_meta);
             $survey->video_meta = json_decode($survey->video_meta);
+            if (isset($survey->video_meta) && !is_array($survey->video_meta)) {
+                $survey->videos_meta = json_decode($survey->videos_meta);
+            }
             $survey->videos_meta = json_decode($survey->videos_meta);
 
             $this->model[] = ['surveys' => $survey, 'meta' => $meta];

@@ -92,6 +92,10 @@ class SimilarController extends Controller
         //get meta
         foreach($similarModels as $similar){
             $temp = $similar->toArray();
+
+            if (isset($temp['videos_meta']) && !is_array($temp['videos_meta'])) {
+                $temp['videos_meta'] = json_decode($temp['videos_meta'], true);
+            }
             
             if($profiles){
                 $temp['profile'] = $profiles->get($similar->$ownerColumn);
