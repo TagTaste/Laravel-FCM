@@ -17,6 +17,8 @@ class AddQueueColumnsToPaymentLinksTable extends Migration
         Schema::table('payment_links', function (Blueprint $table) {
             $table->string('job_id')->nullable();
             $table->boolean('in_queue')->nullable()->default(0);
+            $table->json('queue_response')->nullable(); 
+            
         });
     }
 
@@ -29,7 +31,7 @@ class AddQueueColumnsToPaymentLinksTable extends Migration
     {
         //
         Schema::table('payment_links', function(Blueprint $table){
-            $table->dropColumn(['job_id','in_queue']);
+            $table->dropColumn(['job_id','in_queue','queue_response']);
         });
     }
 }
