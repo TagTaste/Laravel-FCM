@@ -78,12 +78,39 @@ trait FilterFactory
         if($request->is('*/v1/*'))
         {
             // applied Filters
-            $filteredProfileIds = $this->getFilteredProfile($filters, $collaborateId);
             if(isset($batchId)){ // product applicants filters
                 $filteredProfileIds = $this->getFilterProfileIds($filters, $collaborateId, $batchId)['profile_id']->toArray();
+
                 $collabProfileIds = $collabApplicants->whereNotNull('shortlisted_at')->whereNull('rejected_at')->pluck('profile_id')->toArray();
+        
+                $current_status = $request->current_status; 
+                $beginTasting = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId);
+                // for completed and in-progress status
+                $currentStatus = \DB::table('collaborate_tasting_user_review')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId);
+
+                if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.TO_BE_NOTIFIED")) || ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.NOTIFIED"))){
+                    $ids1 = $beginTasting->where('begin_tasting', $current_status)->pluck('profile_id')->toArray();
+                    $ids2 = $currentStatus->pluck('profile_id')->unique()->toArray();
+
+                    $statusFilteredIds = array_diff($ids1, $ids2);
+                    $collabProfileIds = array_values(array_intersect($collabProfileIds, $statusFilteredIds));
+                } else if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.INPROGRESS")) || ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED"))){
+                    $statusFilteredIds = $currentStatus->where('current_status', $current_status)->pluck('profile_id')->unique()->toArray();
+                    $collabProfileIds = array_values(array_intersect($collabProfileIds, $statusFilteredIds));
+                }
+
                 $filteredProfileIds = array_values(array_intersect($collabProfileIds, $filteredProfileIds));
                 $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $collabProfileIds;
+            } else {
+                $current_state = $request->state;
+                if(isset($current_state) && $current_state == config("constant.COLLABORATE_APPLICANT_STATE.ACTIVE")){
+                    $collabProfileIds = $collabApplicants->whereNotNull('shortlisted_at')->whereNull('rejected_at')->pluck('profile_id')->toArray();
+                } else if(isset($current_state) && $current_state == config("constant.COLLABORATE_APPLICANT_STATE.REJECTED")){
+                    $collabProfileIds = $collabApplicants->whereNotNull('collaborate_applicants.rejected_at')->pluck('profile_id')->toArray();
+                } 
+
+                $filteredProfileIds = $this->getFilteredProfile($filters, $collaborateId);
+                $filteredProfileIds = array_values(array_intersect($collabProfileIds, $filteredProfileIds));
             }
             
             $genderCounts = $this->getCount($collabApplicants, 'gender', $filteredProfileIds);

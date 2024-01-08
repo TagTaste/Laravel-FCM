@@ -59,7 +59,8 @@ class BatchController extends Controller
             ->orderBy("created_at", "desc")->get()->toArray();
         foreach ($batches as &$batch) {
             //$batch['beginTastingCount'] = \DB::table('collaborate_batches_assign')->where('begin_tasting',1)->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
-            $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
+            // $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
+            $batch['assignedCount'] = Applicant::where('collaborate_id', $collaborateId)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->pluck('profile_id')->count();
             $batch['reviewedCount'] = \DB::table('collaborate_tasting_user_review')->where('current_status', 3)->where('collaborate_id', $batch['collaborate_id'])
                 ->where('batch_id', $batch['id'])->distinct()->get(['profile_id'])->count();
 
