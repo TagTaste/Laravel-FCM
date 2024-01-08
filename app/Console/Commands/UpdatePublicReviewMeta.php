@@ -16,7 +16,7 @@ class UpdatePublicReviewMeta extends Command
      *
      * @var string
      */
-    protected $signature = 'update_public_review_meta';
+    protected $signature = 'update:public:reviewMeta';
     /**
      * The console command description.
      *
@@ -47,31 +47,31 @@ class UpdatePublicReviewMeta extends Command
             foreach($reviews as $review){
                 //first check in public_review_entry_mapping
                 $startActivity = config("constant.REVIEW_ACTIVITY.START");
-                $startDate =  \DB::select("SELECT MIN(created_at) as start_date FROM `public_review_entry_mapping` where profile_id=$review->profile_id AND product_id='$review->product_id' AND activity = '$startActivity' AND deleted_at IS NULL");
+                $startDateData =  \DB::select("SELECT MIN(created_at) as start_date FROM `public_review_entry_mapping` where profile_id=$review->profile_id AND product_id='$review->product_id' AND activity = '$startActivity' AND deleted_at IS NULL");
                 
                 
                 $endActivity = config("constant.REVIEW_ACTIVITY.END");
-                $endDate =  \DB::select("SELECT MAX(created_at) as end_date FROM `public_review_entry_mapping` where profile_id=$review->profile_id AND product_id='$review->product_id' AND activity = '$endActivity' AND deleted_at IS NULL");
+                $endDateData =  \DB::select("SELECT MAX(created_at) as end_date FROM `public_review_entry_mapping` where profile_id=$review->profile_id AND product_id='$review->product_id' AND activity = '$endActivity' AND deleted_at IS NULL");
 
-                $start_date = $startDate[0]->start_date;
-                $end_date = $endDate[0]->end_date;
+                $startDate = $startDateData[0]->start_date;
+                $endDate = $endDateData[0]->end_date;
                 
-                if(isset($start_date) || isset($end_date)){
-                     $data = ["start_review" => $start_date, "current_status" => 1];
-                     if(isset($end_date)){
-                        $data["end_review"] = $end_date;
+                if(isset($startDate)){
+                     $data = ["start_review" => $startDate, "current_status" => 1];
+                     if(isset($endDate)){
+                        $data["end_review"] = $endDate;
                         $data["current_status"] = 2;
-                        $data["duration"] = strtotime($end_date) - strtotime($start_date);
+                        $data["duration"] = strtotime($endDate) - strtotime($startDate);
                      }
                      \DB::table('public_review_user_timings')->where('id', $review->id)->update($data);
                 }else{
                     //Check in public_product_user_review
-                    $reviewData = \DB::select("SELECT MIN(created_at) as start_date, MAX(updated_at) as end_date, MAX(current_status) as current_status FROM `public_product_user_review` WHERE profile_id = $review->profile_id AND product_id = '$review->product_id'");
+                    $reviewData = \DB::select("SELECT MAX(updated_at) as end_date, MAX(current_status) as current_status FROM `public_product_user_review` WHERE profile_id = $review->profile_id AND product_id = '$review->product_id'");
 
-                    $data = ["start_review"=>$reviewData[0]->start_date, "current_status" => 1];
+                    $data = ["start_review"=> $review->created_at, "current_status" => 1];
 
                     if($reviewData[0]->current_status == 2){
-                        $durationInSec = strtotime($reviewData[0]->end_date) - strtotime($reviewData[0]->start_date);
+                        $durationInSec = strtotime($reviewData[0]->end_date) - strtotime($review->created_at);
                         $data["end_review"] = $reviewData[0]->end_date;
                         $data["duration"] = $durationInSec;
                         $data["current_status"] = 2;

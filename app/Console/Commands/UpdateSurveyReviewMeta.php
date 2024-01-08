@@ -17,7 +17,7 @@ class UpdateSurveyReviewMeta extends Command
      *
      * @var string
      */
-    protected $signature = 'update_survey_review_meta';
+    protected $signature = 'update:survey:reviewMeta';
     /**
      * The console command description.
      *
@@ -57,10 +57,7 @@ class UpdateSurveyReviewMeta extends Command
                 $startDate = $startDateData[0]->start_date;
                 $endDate = $endDateData[0]->end_date;
                 
-                if(isset($startDate) || isset($endDate)){
-                    // $startDate = json_decode(json_encode(($startDate[0]->start_date), true));
-                    // $endDate = json_decode(json_encode(($endDate[0]->end_date), true));
-
+                if(isset($startDate)){
                     $data = ["start_review" => $startDate, "current_status" => 3];
                     if(isset($endDate)){
                         $data["end_review"] = $endDate;

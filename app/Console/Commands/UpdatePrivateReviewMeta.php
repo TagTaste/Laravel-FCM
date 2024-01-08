@@ -18,7 +18,7 @@ class UpdatePrivateReviewMeta extends Command
      *
      * @var string
      */
-    protected $signature = 'update_private_review_meta';
+    protected $signature = 'update:private:reviewMeta';
     /**
      * The console command description.
      *
@@ -49,38 +49,38 @@ class UpdatePrivateReviewMeta extends Command
             foreach($reviews as $review){
                 //first check in collaborate_tasting_entry_mapping
                 $startActivity = config("constant.REVIEW_ACTIVITY.START");
-                $startDate =  \DB::select("SELECT MIN(created_at) as start_date FROM `collaborate_tasting_entry_mapping` where profile_id=$review->profile_id AND collaborate_id=$review->collaborate_id AND batch_id=$review->batch_id AND activity = '$startActivity' AND deleted_at IS NULL");
+                $startDateData =  \DB::select("SELECT MIN(created_at) as start_date FROM `collaborate_tasting_entry_mapping` where profile_id=$review->profile_id AND collaborate_id=$review->collaborate_id AND batch_id=$review->batch_id AND activity = '$startActivity' AND deleted_at IS NULL");
                 
                 
                 $endActivity = config("constant.REVIEW_ACTIVITY.END");
-                $endDate =  \DB::select("SELECT MAX(created_at) as end_date FROM `collaborate_tasting_entry_mapping` where profile_id=$review->profile_id AND collaborate_id=$review->collaborate_id AND batch_id=$review->batch_id AND activity = '$endActivity' AND deleted_at IS NULL");
+                $endDateData =  \DB::select("SELECT MAX(created_at) as end_date FROM `collaborate_tasting_entry_mapping` where profile_id=$review->profile_id AND collaborate_id=$review->collaborate_id AND batch_id=$review->batch_id AND activity = '$endActivity' AND deleted_at IS NULL");
 
-                $start_date = $startDate[0]->start_date;
-                $end_date = $endDate[0]->end_date;
+                $startDate = $startDateData[0]->start_date;
+                $endDate = $endDateData[0]->end_date;
                 
-                if(isset($start_date) || isset($end_date)){
-                     $startDate = json_decode(json_encode(($startDate[0]->start_date), true));
-                     $endDate = json_decode(json_encode(($endDate[0]->end_date), true));
-
-                     $data = ["start_review" => $start_date, "current_status" => 2];
-                     if(isset($end_date)){
-                        $data["end_review"] = $end_date;
+                if(isset($startDate)){
+                    $data = ["start_review" => $startDate, "current_status" => 2];
+                    if(isset($endDate)){
+                        $data["end_review"] = $endDate;
                         $data["current_status"] = 3;
-                        $data["duration"] = strtotime($end_date) - strtotime($start_date);
-                     }
-                     BatchAssign::where('id', $review->id)->update($data);
+                        $data["duration"] = strtotime($endDate) - strtotime($startDate);
+                    }
+                    $review->update($data);
                 }else{
                     //Check in collaborate_tasting_user_review
                     $reviewData = \DB::select("SELECT MIN(created_at) as start_date, MAX(updated_at) as end_date, MAX(current_status) as current_status FROM `collaborate_tasting_user_review` WHERE profile_id = $review->profile_id AND collaborate_id = $review->collaborate_id AND batch_id = $review->batch_id");
 
-                    if($reviewData[0]->current_status == 3){
+                    $data = ["start_review"=> $reviewData[0]->start_date, "current_status" => $review->begin_tasting];
+
+                    if($reviewData[0]->current_status == 2){
+                        $data["current_status"] = 2;
+                    } else if($reviewData[0]->current_status == 3){
                         $durationInSec = strtotime($reviewData[0]->end_date) - strtotime($reviewData[0]->start_date);
-                        $data = ["start_review" => $reviewData[0]->start_date, 
-                        "end_review" => $reviewData[0]->end_date,
-                        "current_status" => 3,
-                        "duration" => $durationInSec];
-                        BatchAssign::where('id', $review->id)->update($data);
+                        $data["end_review"] = $reviewData[0]->end_date;
+                        $data["duration"] = $durationInSec;
+                        $data["current_status"] = 3;
                     }
+                    $review->update($data);
                 }
             }            
         });
