@@ -590,13 +590,15 @@ class SurveyApplicantController extends Controller
 
             $profileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
 
-            $profileModel = Profile::whereNull('deleted_at');
-            
             if(isset($current_state) && $current_state == config("constant.SURVEY_APPLICANT_STATE.ACTIVE")){
-                $surveyApplicants = $surveyApplicants->whereNull('survey_applicants.rejected_at');
+                $surveyApplicantIds = $surveyApplicants->whereNull('survey_applicants.rejected_at')->pluck('profile_id')->toArray();
+                $profileIds = array_values(array_intersect($profileIds->toArray(), $surveyApplicantIds));
             } else if(isset($current_state) && $current_state == config("constant.SURVEY_APPLICANT_STATE.REJECTED")){
-                $surveyApplicants = $surveyApplicants->whereNotNull('survey_applicants.rejected_at');
+                $surveyApplicantIds = $surveyApplicants->whereNotNull('survey_applicants.rejected_at')->pluck('profile_id')->toArray();
+                $profileIds = array_values(array_intersect($profileIds->toArray(), $surveyApplicantIds));
             }
+
+            $profileModel = Profile::whereNull('deleted_at');
 
             $ageCounts = $this->getCount($surveyApplicants, 'generation', $profileIds);
             $age = $this->getFieldPairedData($age, $ageCounts);
