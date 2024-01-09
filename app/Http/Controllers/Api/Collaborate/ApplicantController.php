@@ -620,25 +620,44 @@ class ApplicantController extends Controller
 
         $share_number = $request->has('share_number') ? $request->share_number : 0;
         $now = Carbon::now()->toDateTimeString();
+
+        $updateData = [
+            'shortlisted_at' => $now,
+            'rejected_at' => null,
+            'message' => $request->input('message'),
+            'applier_address' => $applierAddress,
+            'hut' => $hut,
+            'city' => $city,
+            'age_group' => $profile->ageRange,
+            'gender' => $profile->gender,
+            'document_meta' => $document_meta,
+            'terms_verified' => $terms_verified,
+            'documents_verified' => $documents_verified,
+            'share_number' => $share_number,
+            'dob' => $dob,
+            'generation' => Helper::getGeneration($profile->dob)
+        ];
+
+        if($request->has("is_donation")){
+            $isDonation = $request->is_donation;
+            if($isDonation){
+                $organisationId = $request->donation_organisation['id'] ?? null;
+                if(is_null($organisationId)){
+                    $this->model = false;
+                    return $this->sendError("Organisation detail missing.");
+                }
+                $updateData['is_donation'] = true;
+                $updateData['donation_organisation_id'] = $organisationId;                
+            }else{
+                $updateData['is_donation'] = false;
+            }
+        }
+
+
         $this->model = \DB::table('collaborate_applicants')
             ->where('collaborate_id', $id)
             ->where('profile_id', $loggedInProfileId)
-            ->update([
-                'shortlisted_at' => $now,
-                'rejected_at' => null,
-                'message' => $request->input('message'),
-                'applier_address' => $applierAddress,
-                'hut' => $hut,
-                'city' => $city,
-                'age_group' => $profile->ageRange,
-                'gender' => $profile->gender,
-                'document_meta' => $document_meta,
-                'terms_verified' => $terms_verified,
-                'documents_verified' => $documents_verified,
-                'share_number' => $share_number,
-                'dob' => $dob,
-                'generation' => Helper::getGeneration($profile->dob)
-            ]);
+            ->update($updateData);
 
 
         return $this->sendResponse();
