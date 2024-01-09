@@ -345,7 +345,7 @@ class ReviewController extends Controller
             }else if ($flag["status"] == true && isset($flag["reason"]) && $flag["reason"] == config("constant.TXN_REASON.DONATION")) {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
-                $responseData["subTitle"] = "You have successfully completed the survey.";
+                $responseData["subTitle"] = "You have successfully completed the review.";
                 $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
                 $responseData["helper"] = "We sincerely appreciate your generosity in choosing to donate your reward!";
             }else if ($flag["status"] == true) {
