@@ -152,6 +152,7 @@ class QuestionController extends Controller
                 ->where('question_id',$questionId)->get()->groupBy('question_id');
             foreach ($answerModels as $answerModel)
             {
+                
                 $data = [];
                 $comment = null;
                 $selectType = null;
