@@ -82,8 +82,8 @@
                                         style="font-weight: 700;font-size: 16px;color: #181818;">{{$data["otp"]}}</span>
                                        </p>
                                     <div style="text-align: center;">
-                                     <button href={{$data["link"]}} target="_blank"  style="background-color:
-                                     #EFB920;border-radius: 8px;padding: 8px 12px 8px 12px;border: none;font-weight: 500;font-size: 16px;color: #171717;" >View Questionnaire</button>
+                                     <a href={{$data["link"]}} target="_blank"  style="background-color:
+                                     #EFB920;border-radius: 8px;padding: 8px 12px 8px 12px;border: none;font-weight: 500;font-size: 16px;color: #171717;" >View Questionnaire</a>
                                     </div>
                                 
                                     <p
