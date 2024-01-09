@@ -244,7 +244,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::group(['namespace' => '', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
             Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => 'api.auth'], function () {
                 // get filters for dashboard of product review
-                Route::post("dashboard/filters", "BatchController@filters");
+                Route::get("dashboard/filters", "BatchController@filters");
 
                 // private product review reports post api
                 Route::post("batches/{id}/headers/{headerId}/reports", "BatchController@reports");
@@ -562,8 +562,12 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             //question-level filters on private product review reports
             Route::get("batches/{id}/question-filters", "BatchController@questionFilters");
 
-            //filter for dashboard of product review
+            //filters for dashboard of product review
             Route::get("dashboard/filters", "BatchController@filters"); //->middleware('permissionCollaborate');
+
+            //filters for product based reports
+            Route::post("batches/{id}/dashboard/filters", "BatchController@productFilters");
+
             Route::get("dashboard/report/filters", "BatchController@reportFilters")->middleware('permissionCollaborate');
             Route::get("question-filters","BatchController@questionFilters");  
             Route::get("batches/hutCsv", "BatchController@allHutCsv");
@@ -1067,7 +1071,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
 
             // graph filters with count
-            Route::post("graphfilters", "GraphController@graphFilters");
+            Route::get("graphfilters", "GraphController@graphFilters");
 
             // graph reports
             Route::post("header/{id}/graph", "GraphController@createGraphs");

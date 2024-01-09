@@ -483,6 +483,11 @@ class BatchController extends Controller
 
     public function applicantFilters(Request $request, $collaborateId, $batchId)
     {
+        $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
         $appliedFilters = $request->input('filters');
         $this->model = $this->getFilters($appliedFilters, $collaborateId, $batchId);
         return $this->sendResponse();
@@ -1296,6 +1301,21 @@ class BatchController extends Controller
 
         $appliedFilters = $request->input('filters');
         $this->model = $this->dashboardFilters($appliedFilters, $collaborateId, $version_num, 'dashboard_filters');
+
+        return $this->sendResponse();
+    }
+
+    public function productFilters(Request $request, $collaborateId, $batchId)
+    {
+        $collaborate = Collaborate::where('id', $collaborateId)->where('state', '!=', Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        $version_num = '';
+        $appliedFilters = $request->input('filters');
+        $this->model = $this->dashboardFilters($appliedFilters, $collaborateId, $version_num, 'dashboard_product_filters', $batchId);
 
         return $this->sendResponse();
     }
