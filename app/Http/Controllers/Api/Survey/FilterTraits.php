@@ -417,8 +417,10 @@ trait FilterTraits
             $surveyData = Surveys::where("id", "=", $survey_id)->first();
             
             $filteredProfileIds = array_keys($this->getProfileIdOfReportFilter($surveyData, $request, $version_num));
+            $applicantProfileIds = $surveyApplicants->pluck('profile_id');
             $filters = $request->input('filters');
             $isFilterable = isset($filters) && !empty($filters) ? true : false;
+            $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
             
             // gender data
             $genderData = [];
