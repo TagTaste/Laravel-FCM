@@ -481,7 +481,7 @@ class GraphController extends Controller
                             $optionArray["value"] = $option->value;
                             $optionArray["headers"] = [];
                             $totalApplicants[$singlebatch->id][$option->leaf_id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)->where('batch_id', $singlebatch->id)->where('leaf_id', $option->leaf_id)->distinct()->get(['profile_id'])->count();
-
+                             
                             $headerArray = [];
                             foreach ($combinationHeadList as $header) {
 
@@ -497,7 +497,8 @@ class GraphController extends Controller
                                 $responseCount = $response->pluck('value')->count();
                                 $intensityArrray = $response->pluck('intensity')->toArray();
 
-                                if ($totalApplicants[$singlebatch->id] != 0 && $responseCount) {     //if response exists ,and total applicants for batch is not 0
+                                if ($Applicants[$singlebatch->id] != 0 && $responseCount) {     
+                                    //if response exists ,and total applicants for batch is not 0
                                     $headerArray['percentage'] = (string)number_format(round((($responseCount / $Applicants[$singlebatch->id]) * 100), 2), 2, '.', '');
                                     $headerArray['response'] = $responseCount;
                                     if ($question->is_intensity) {
@@ -507,8 +508,7 @@ class GraphController extends Controller
                                         foreach ($answer as $intensityName => $counOfIntensity) {
                                             $sum += $counOfIntensity * ($intensities[$intensityName]) + ($counOfIntensity * (isset($question->initial_intensity) ? $question->initial_intensity : 1));
                                         }
-
-                                        $headerArray['intensity'] = (string)number_format(round(($sum / $totalApplicants[$singlebatch->id][$option->leaf_id]), 2), 2, '.', '');
+                                        $headerArray['intensity'] = (!empty($totalApplicants[$singlebatch->id][$option->leaf_id]) && $totalApplicants[$singlebatch->id][$option->leaf_id] != 0) ? (string)number_format(round(($sum / $totalApplicants[$singlebatch->id][$option->leaf_id]), 2), 2, '.', '') : 0;
                                     }
                                 } else {
                                     $headerArray['percentage'] = "0.00";
