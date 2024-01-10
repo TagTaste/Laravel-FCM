@@ -1076,6 +1076,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             // graph reports
             Route::post("header/{id}/graph", "GraphController@createGraphs");
 
+            // graph combination report
+            Route::post("graph/combination", "GraphController@graphCombination");
+
             // PR applicant reports
             Route::post("collaborateApplicants", "ApplicantController@index");
 
