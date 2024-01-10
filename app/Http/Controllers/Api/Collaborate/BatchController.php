@@ -1334,7 +1334,11 @@ class BatchController extends Controller
             if(!empty($headers_questions[$key])) {
                 foreach($headers_questions[$key] as $index => $value) {
                     $question_json_data = json_decode($value['questions'], true);
+                    
                     foreach($question_json_data as $k => $question_json){
+                        if($k == 'id'){
+                            continue;
+                        }
                         $headers_questions[$key][$index][$k] = $question_json;
                         unset($headers_questions[$key][$index]['questions']);
                     }
