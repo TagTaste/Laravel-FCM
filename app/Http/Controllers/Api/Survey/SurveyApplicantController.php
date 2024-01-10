@@ -345,15 +345,29 @@ class SurveyApplicantController extends Controller
         $answerAttempt = [];
         $answerAttempt["profile_id"] = $request->user()->profile->id;
         $answerAttempt["survey_id"] = $id;
-
-       
         
+        $updateData = [];
         if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
             SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
             $this->model = true;
+
+            if($request->has("is_donation")){
+                $isDonation = $request->is_donation;
+                if($isDonation){
+                    $organisationId = $request->donation_organisation['id'] ?? null;
+                    if(is_null($organisationId)){
+                        $this->model = false;
+                        return $this->sendError("Organisation detail missing.");
+                    }
+                    $updateData['is_donation'] = true;
+                    $updateData['donation_organisation_id'] = $organisationId;                
+                }else{
+                    $updateData['is_donation'] = false;
+                }
+            }
         } else {    //when its not first attempt
             $attempt_number = $last_attempt->attempt;
             if ($survey->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
@@ -367,9 +381,14 @@ class SurveyApplicantController extends Controller
                 $this->model = true;
             }
         }
+
+        
+       
+
+        $updateData[] = ["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null];
         
          //update applicant to inprogress
-        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null]);
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update($updateData);
         $user = $request->user()->profile->id;
         Redis::set("surveys:application_status:$id:profile:$user", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"));
         DB::commit();
@@ -412,23 +431,7 @@ class SurveyApplicantController extends Controller
                 'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
                 'message' => $request->input('message'), 'address' => $applierAddress,
                 'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
-            ];
-
-            if($request->has("is_donation")){
-                $isDonation = $request->is_donation;
-                if($isDonation){
-                    $organisationId = $request->donation_organisation['id'] ?? null;
-                    if(is_null($organisationId)){
-                        $this->model = false;
-                        return $this->sendError("Organisation detail missing.");
-                    }
-                    $inputs['is_donation'] = true;
-                    $inputs['donation_organisation_id'] = $organisationId;                
-                }else{
-                    $inputs['is_donation'] = false;
-                }
-            }
-            
+            ];            
             $ins = \DB::table('survey_applicants')->insert($inputs);
         } else {
             $update = [];
@@ -459,6 +462,7 @@ class SurveyApplicantController extends Controller
                 $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
             }
         }
+        
         $this->model = true;
         return $this->sendResponse();
     }
