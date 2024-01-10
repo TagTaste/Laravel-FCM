@@ -382,11 +382,9 @@ class SurveyApplicantController extends Controller
             }
         }
 
-        
-       
+        $updateData["application_status"] = config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS");
+        $updateData["completion_date"] = null;       
 
-        $updateData[] = ["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null];
-        
          //update applicant to inprogress
         $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update($updateData);
         $user = $request->user()->profile->id;
