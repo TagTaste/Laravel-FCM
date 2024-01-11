@@ -1916,9 +1916,12 @@ class SurveyController extends Controller
         // }
 
 
-
-
         //check if user has completed this survey
+        $isReviewer = count(SurveyAttemptMapping::whereNotNull("completion_date")->whereNull("deleted_at")->where("survey_id", "=", $id)->("profile_id",$request->user()->profile->id)->get());
+
+        if($isReviewer == 0){
+            return $this->sendNewError("You have not filled this survey.");
+        }
 
         $applicants =  SurveyAttemptMapping::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->whereNotNull("completion_date")->where("deleted_at", "=", null);
 
@@ -2309,7 +2312,7 @@ class SurveyController extends Controller
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["response_count"] = $image_response_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["total_count"] = $image_total_count;
                             $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["image_meta"]["color_code"] = $colorCodeList[0];
-
+                            
                             // $videoMeta = $answers->pluck("video_meta")->toArray();
                             // $prepareNode["reports"][$counter]["options"][$optCounter]["files"]["video_meta"] = $videoMeta;
 
@@ -2894,7 +2897,6 @@ class SurveyController extends Controller
         $this->messages = "Report Successful";
         return $this->sendResponse();
     }
-
 
     function array_avg($array, $respCount = 0)
     {
