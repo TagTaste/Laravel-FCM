@@ -23,7 +23,7 @@ class FlagReasonConditionsTableSeeder extends Seeder
             ],
             [
                 'flag_reason_id' => 1,
-                'condition_value' => '1800',
+                'condition_value' => '2700',
                 'condition_slug' => 'max_duration',
                 'condition_description' => 'maximum value of duration in seconds',
                 'created_at' => Carbon::now(),
@@ -31,7 +31,7 @@ class FlagReasonConditionsTableSeeder extends Seeder
             ],
             [
                 'flag_reason_id' => 2,
-                'condition_value' => '10:00:00',
+                'condition_value' => '08:00:00',
                 'condition_slug' => 'min_start_time',
                 'condition_description' => 'Minimum time value to start an review',
                 'created_at' => Carbon::now(),
@@ -39,7 +39,7 @@ class FlagReasonConditionsTableSeeder extends Seeder
             ],
             [
                 'flag_reason_id' => 2,
-                'condition_value' => '20:00:00',
+                'condition_value' => '22:00:00',
                 'condition_slug' => 'max_start_time',
                 'condition_description' => 'Maximum time value to start an review',
                 'created_at' => Carbon::now(),
