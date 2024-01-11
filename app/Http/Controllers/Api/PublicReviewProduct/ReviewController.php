@@ -19,6 +19,7 @@ use App\Jobs\AddUserInfoWithReview;
 use App\Collaborate\Review as PrivateReviewProductReview;
 use App\PaymentHelper;
 use App\Profile;
+use App\PublicReviewUserTiming;
 use Illuminate\Support\Facades\Log;
 use App\PublicReviewEntryMapping;
 use App\Traits\FlagReview;
@@ -402,10 +403,10 @@ class ReviewController extends Controller
 
             // Add start time of review and current_status
             $currentDateTime = Carbon::now();
-            $existingRecord = \DB::table('public_review_user_timings')->where('product_id', $productId)->where('profile_id', $profileId)->latest('created_at');
+            $existingRecord = PublicReviewUserTiming::where('product_id', $productId)->where('profile_id', $profileId)->latest('created_at');
 
             if(!$existingRecord->exists()){
-                \DB::table('public_review_user_timings')->insert([
+                PublicReviewUserTiming::insert([
                     'product_id' => $productId,
                     'profile_id' => $profileId,
                     'start_review' => $currentDateTime,
@@ -627,23 +628,19 @@ class ReviewController extends Controller
         
         //update the entry mapping
         $headerName = \DB::table('public_review_question_headers')->where('id', $headerId)->first();
-        $public_review_timings = \DB::table('public_review_user_timings')->where('product_id', $productId)->latest('created_at')->where('profile_id', $loggedInProfileId);
+        $public_review_timings = PublicReviewUserTiming::where('product_id', $productId)->latest('created_at')->where('profile_id', $loggedInProfileId);
         if($currentStatus == 2){
             //update duration and end review
             $currentDateTime = Carbon::now();
             $start_review = Carbon::parse($public_review_timings->first()->start_review);
             $end_review = $currentDateTime;
             $duration = $end_review->diffInSeconds($start_review);
-            $flag = $this->flagReview($start_review, $duration);
+            $flag = $this->flagReview($start_review, $duration, $public_review_timings->first()->id, 'PublicReviewUserTiming');
 
             $public_review_timings->update(["current_status" => $currentStatus, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
 
             PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.END"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
         }else{
-            if($public_review_timings->first()->current_status != $currentStatus)
-            {
-                $public_review_timings->update(["current_status" => $currentStatus]);
-            }
             PublicReviewEntryMapping::create(["profile_id"=>$loggedInProfileId, "product_id"=>$productId, "header_id"=>$headerId,"header_title"=>$headerName->header_type,"activity"=>config("constant.REVIEW_ACTIVITY.SECTION_SUBMIT")]);
         }
 

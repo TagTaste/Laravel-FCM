@@ -59,8 +59,10 @@ class ReviewController extends Controller
 
             // Add start time and current_status to collab_batches_assign
             $currentDateTime = Carbon::now();
-            $checkAssign->update(["start_review" => $currentDateTime, "current_status" => 2]);
-
+            if (empty($checkAssign->first()->start_review) && is_null($checkAssign->first()->start_review)) {
+                $checkAssign->update(["start_review" => $currentDateTime, "current_status" => 2]);
+            }
+            
             CollaborateTastingEntryMapping::create(["profile_id"=>$profileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
 
             $this->model = true;
@@ -255,7 +257,7 @@ class ReviewController extends Controller
             $start_review = Carbon::parse($review_info->first()->start_review);
             $end_review = $currentDateTime;
             $duration = $end_review->diffInSeconds($start_review);
-            $flag = $this->flagReview($start_review, $duration);
+            $flag = $this->flagReview($start_review, $duration, $review_info->first()->id, 'BatchAssign');
                      
             $review_info->update(["current_status" => $currentStatus, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
 
