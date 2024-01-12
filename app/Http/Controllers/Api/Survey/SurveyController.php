@@ -1887,6 +1887,12 @@ class SurveyController extends Controller
             $this->model = false;
             return $this->sendNewError("Invalid Survey");
         }
+
+        if ($checkIFExists->is_private == 1) {
+            $this->model = false;
+            return $this->sendNewError("Survey is private");
+        }
+        
         
         // if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
         //     // $request->filters = '';
@@ -1914,12 +1920,12 @@ class SurveyController extends Controller
         //     $this->model = false;
         //     return $this->sendNewError("Only Survey Admin can view this report");
         // }
-
-
+        
         //check if user has completed this survey
-        $isReviewer = count(SurveyAttemptMapping::whereNotNull("completion_date")->whereNull("deleted_at")->where("survey_id", "=", $id)->("profile_id",$request->user()->profile->id)->get());
-
+        $isReviewer = count(SurveyAttemptMapping::whereNotNull("completion_date")->whereNull("deleted_at")->where("survey_id", "=", $id)->where("profile_id",$request->user()->profile->id)->get());
+        
         if($isReviewer == 0){
+            $this->model = false;
             return $this->sendNewError("You have not filled this survey.");
         }
 
