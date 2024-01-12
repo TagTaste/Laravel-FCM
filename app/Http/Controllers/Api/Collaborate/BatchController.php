@@ -25,6 +25,7 @@ use App\Traits\FilterFactory;
 use App\Collaborate\BatchAssign;
 use App\Helper;
 use App\CollaborateTastingEntryMapping;
+use App\Payment\PaymentLinks;
 
 class BatchController extends Controller
 {
@@ -281,8 +282,9 @@ class BatchController extends Controller
 
                     $profile["review_completion"] = $data;
                 }
+
+                $profile["txn_status"] = $this->getTxnStatusForApplicant($id,$profileId);
             }
-            
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
 
@@ -322,6 +324,19 @@ class BatchController extends Controller
         $this->model['beginTastingCount'] = $this->model['assignedCount'] - $userCountWithbegintasting;
         $this->model['notifiedUserCount'] = $userCountWithbegintasting - ($this->model['reviewedCount'] + $this->model['inProgressUserCount']);
         return $this->sendResponse();
+    }
+
+    function getTxnStatusForApplicant($batchId, $profileId){
+        $getPaymentDetails =  \DB::table("payment_links")
+                            ->select('payment_status.*')
+                            ->join('payment_status', 'payment_links.status_id', '=', 'payment_status.id')
+                            ->where('payment_links.sub_model_id', '=', $batchId)
+                            ->where('payment_links.profile_id', '=', $profileId)
+                            ->where('payment_links.model_type', '=', 'Private Review')
+                            ->whereNull('payment_links.deleted_at')
+                            ->first();
+
+        return $getPaymentDetails;
     }
 
     function secondsToTime($seconds)
