@@ -650,7 +650,7 @@ class SurveyApplicantController extends Controller
             $profile['value'] = 'Profile';
         }
 
-        $profile = array_filter($profile);
+        // $profile = array_filter($profile);
         $data = [];
         // $filters = $request->input('filter');
         // if (isset($filters) && count($filters)) {
