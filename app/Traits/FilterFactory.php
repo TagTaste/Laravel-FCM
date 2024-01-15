@@ -727,7 +727,7 @@ trait FilterFactory
         }
 
         //apply filter on question's options
-        if (isset($version_num) && !empty($version_num) && isset($filters['question_filter']))
+        if (isset($version_num) && isset($filters['question_filter']))
         {
             $ques_filter = ['profile_id' => request()->user()->profile->id, 'collaborate_id'=> $collaborateId, 'value'=> json_encode($filters['question_filter']), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
 
