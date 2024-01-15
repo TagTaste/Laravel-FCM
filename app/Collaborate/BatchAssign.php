@@ -10,11 +10,11 @@ class BatchAssign extends Model {
 
     protected $table = 'collaborate_batches_assign';
 
-    protected $fillable = ['batch_id','profile_id','begin_tasting','collaborate_id','last_seen','created_at','updated_at'];
+    protected $fillable = ['batch_id','profile_id','begin_tasting','collaborate_id','start_review', 'end_review', 'current_status', 'duration', 'is_flag','last_seen','created_at','updated_at'];
 
-    protected $visible = ['batch_id','profile_id','begin_tasting','batches','collaborate_id','last_seen','created_at','updated_at'];
+    protected $visible = ['batch_id','profile_id','begin_tasting','batches','collaborate_id', 'start_review', 'end_review', 'current_status', 'duration', 'is_flag', 'last_seen','created_at','updated_at'];
 
-    protected $appends = ['current_status'];
+    // protected $appends = ['current_status'];
 
     protected $with = ['batches'];
 
@@ -23,11 +23,11 @@ class BatchAssign extends Model {
         return $this->belongsTo(Batches::class,'batch_id','id');
     }
 
-    public function getCurrentStatusAttribute()
-    {
-        $currentStatus =  \DB::table('collaborate_tasting_user_review')->select('current_status')
-            ->where('batch_id',$this->batch_id)->where('profile_id',request()->user()->profile->id)->first();
-        return isset($currentStatus) ? $currentStatus->current_status : 0;
-    }
+    // public function getCurrentStatusAttribute()
+    // {
+    //     $currentStatus =  \DB::table('collaborate_tasting_user_review')->select('current_status')
+    //         ->where('batch_id',$this->batch_id)->where('profile_id',request()->user()->profile->id)->first();
+    //     return isset($currentStatus) ? $currentStatus->current_status : 0;
+    // }
 
 }

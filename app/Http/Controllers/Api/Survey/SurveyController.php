@@ -40,11 +40,12 @@ use App\PaymentHelper;
 use App\SurveyAttemptMapping;
 use App\Helper;
 use App\SurveysEntryMapping;
+use App\Traits\FlagReview;
 
 class SurveyController extends Controller
 {
 
-    use SendsJsonResponse, FilterTraits;
+    use SendsJsonResponse, FilterTraits, FlagReview;
 
     protected $model;
 
@@ -711,7 +712,8 @@ class SurveyController extends Controller
             }, $optionArray);
 
             $prepareQuestionJson = [];
-            $last_attempt = SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
+            $profile_id = $request->user()->profile->id;
+            $last_attempt = SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $profile_id)
                 ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
 
 
@@ -782,7 +784,7 @@ class SurveyController extends Controller
             }
 
             $answerAttempt = [];
-            $answerAttempt["profile_id"] = $request->user()->profile->id;
+            $answerAttempt["profile_id"] = $profile_id;
             $answerAttempt["survey_id"] = $request->survey_id;
 
             $current_attempt = null;
@@ -811,7 +813,7 @@ class SurveyController extends Controller
                     continue;
                 }
                 $answerArray = [];
-                $answerArray["profile_id"] = $request->user()->profile->id;
+                $answerArray["profile_id"] = $profile_id;
                 $answerArray["survey_id"] = $request->survey_id;
                 $answerArray["question_id"] = $values["question_id"];
                 $answerArray["question_type"] = $values["question_type_id"];
@@ -819,12 +821,12 @@ class SurveyController extends Controller
 
                 //checking if answer exists for this ques ,then delete and save new ones
                 $answerExists = SurveyAnswers::where('survey_id', $request->survey_id)
-                    ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])
+                    ->where("profile_id", $profile_id)->where("question_id", $values["question_id"])
                     ->where("attempt", $last_attempt)->whereNull("deleted_at")
                     ->first();
                 if (!empty($answerExists)) {
                     SurveyAnswers::where('survey_id', $request->survey_id)
-                        ->where("profile_id", $request->user()->profile->id)->where("question_id", $values["question_id"])->where("attempt", $last_attempt)->update(["deleted_at" => date("Y-m-d H:i:s"), "is_active" => 0]);
+                        ->where("profile_id", $profile_id)->where("question_id", $values["question_id"])->where("attempt", $last_attempt)->update(["deleted_at" => date("Y-m-d H:i:s"), "is_active" => 0]);
                 }
                 
                 if (isset($values["options"]) && !empty($values["options"])) {
@@ -875,21 +877,30 @@ class SurveyController extends Controller
                 $this->model = true;
                 $responseData = ["status" => true];
                 $this->messages = "Answer Submitted Successfully";
+
+                $currentDateTime = Carbon::now();
                 $completion_date = isset($checkApplicant) ? $checkApplicant->completion_date : null;
                 //when completed update completion_date in mapping table
                 if ($request->current_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
+                    //update duration and end review
+                    $survey_attempt = SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $profile_id)
+                    ->where("attempt", $last_attempt)->first();
+                    $start_review = Carbon::parse($survey_attempt->start_review);
+                    $end_review = $currentDateTime;
+                    $duration = $end_review->diffInSeconds($start_review);
                     $completion_date = date("Y-m-d H:i:s");
-                    SurveyAttemptMapping::where("survey_id", $request->survey_id)->where("profile_id", $request->user()->profile->id)
-                        ->where("attempt", $last_attempt)->update(["completion_date" => $completion_date]);
+                    $flag = $this->flagReview($start_review, $duration, $survey_attempt->id, 'SurveyAttemptMapping');
+                     
+                    $survey_attempt->update(["completion_date" => $completion_date, "current_status" => $request->current_status, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
 
-                        //save submission entry to table
-                        SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id, "section_id"=>$current_section->id ?? null,"section_title"=>$current_section->title ?? null, "activity"=>config("constant.SURVEY_ACTIVITY.END")]);
+                    //save submission entry to table
+                    SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id, "section_id"=>$current_section->id ?? null,"section_title"=>$current_section->title ?? null, "activity"=>config("constant.SURVEY_ACTIVITY.END"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
                 }else{
                     //save submission entry to table
                     SurveysEntryMapping::create(["surveys_attempt_id"=>$current_attempt->id,"section_id"=>$current_section->id ?? null,"section_title"=>$current_section->title ?? null,"activity"=>config("constant.SURVEY_ACTIVITY.SECTION_SUBMIT")]);
                 }
                 
-                $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => $request->current_status, "completion_date" => $completion_date]);
+                $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $request->survey_id)->where('profile_id', $profile_id)->update(["application_status" => $request->current_status, "completion_date" => $completion_date]);
                 $user = $request->user()->profile->id;
                 Redis::set("surveys:application_status:$request->survey_id:profile:$user", $request->current_status);
             } else {

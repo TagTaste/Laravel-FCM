@@ -45,10 +45,10 @@ class QuestionController extends Controller
     public function reviewQuestions(Request $request, $productId, $headerId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $exists = \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
-        if(!$exists){
-            \DB::table('public_review_user_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
-        }
+        // $exists = \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
+        // if(!$exists){
+        //     \DB::table('public_review_user_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
+        // }
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
