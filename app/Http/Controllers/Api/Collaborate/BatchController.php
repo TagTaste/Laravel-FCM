@@ -296,7 +296,7 @@ class BatchController extends Controller
 
                 // Add flagging reasons specific to each profile review
                 $modelId = $profileModelIds[$profileId];
-                $profile['flag_reasons'] = $profileFlagReasons[$modelId]->pluck('flagReason')->toArray();
+                $profile['flag_reasons'] = isset($profileFlagReasons[$modelId]) ? $profileFlagReasons[$modelId]->pluck('flagReason')->toArray() : [];
             }
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
