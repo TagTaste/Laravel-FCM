@@ -26,6 +26,7 @@ use App\Collaborate\BatchAssign;
 use App\Helper;
 use App\CollaborateTastingEntryMapping;
 use App\Payment\PaymentLinks;
+use App\ModelFlagReason;
 
 class BatchController extends Controller
 {
@@ -231,8 +232,13 @@ class BatchController extends Controller
         $profiles = $profiles
             ->skip($skip)->take($take)->get();
 
+        $profileBatchData = BatchAssign::where('batch_id', $id)->where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds);
+        $profileFlagValues = $profileBatchData->pluck('is_flag','profile_id')->toArray();
+        $profileModelIds = $profileBatchData->pluck('id','profile_id')->toArray();
+        $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->whereIn('model_id', $profileModelIds)->where('model', 'BatchAssign')->get()->groupBy('model_id');
+        
         $profiles = $profiles->toArray();
-
+    
         foreach ($profiles as &$profile) {
             if (Collaborate::where('id', $collaborateId)->first()->track_consistency) {
                 $this->model['track_consistency'] = 1;
@@ -284,6 +290,13 @@ class BatchController extends Controller
                 }
 
                 $profile["txn_status"] = $this->getTxnStatusForApplicant($id,$profileId);
+
+                // review is flagged or not
+                $profile['is_flag'] = $profileFlagValues[$profileId];
+
+                // Add flagging reasons specific to each profile review
+                $modelId = $profileModelIds[$profileId];
+                $profile['flag_reasons'] = $profileFlagReasons[$modelId]->pluck('flagReason')->toArray();
             }
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }

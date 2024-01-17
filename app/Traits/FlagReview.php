@@ -6,15 +6,19 @@ use Carbon\CarbonInterval;
 use Carbon\Carbon;
 use App\FlagReason;
 use App\ModelFlagReason;
+use App\Profile\User;
 
 
 trait FlagReview
 {
-    public function flagReview($start_review, $duration, $model_id, $model){
+    public function flagReview($start_review, $duration, $model_id, $model, $user_id){
 
         $start_time = $start_review->format('H:i:s');
         $flag = false;
-
+        if(!empty(User::where('id',$user_id)->first()->email)){
+            $email = explode('@', User::where('id',$user_id)->first()->email, 2);
+        }
+        
         // review flagging based on some conditions
         $flag_reasons = FlagReason::get();
         foreach($flag_reasons as $reason){
@@ -32,6 +36,15 @@ trait FlagReview
             if($reason->slug == 'review_start_time'){
                 // Check if the time is greater than 10 PM OR less than 8 AM 
                 if (($start_time > $reason_conditions['max_start_time']) || ($start_time < $reason_conditions['min_start_time'])) {
+                    // Add flagging reason
+                    $this->addModelFlagReasons($flag_reason_data);
+                    $flag = true;
+                }
+            }
+
+            if($reason->slug == 'tagtaste_employee'){
+                // Check if use is tagtaste'employee or not
+                if ((isset($email[1]) && $email[1] == $reason_conditions['email_domain'])) {
                     // Add flagging reason
                     $this->addModelFlagReasons($flag_reason_data);
                     $flag = true;

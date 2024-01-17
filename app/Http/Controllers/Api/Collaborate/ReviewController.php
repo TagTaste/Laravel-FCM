@@ -257,7 +257,7 @@ class ReviewController extends Controller
             $start_review = Carbon::parse($review_info->first()->start_review);
             $end_review = $currentDateTime;
             $duration = $end_review->diffInSeconds($start_review);
-            $flag = $this->flagReview($start_review, $duration, $review_info->first()->id, 'BatchAssign');
+            $flag = $this->flagReview($start_review, $duration, $review_info->first()->id, 'BatchAssign', $request->user()->id);
                      
             $review_info->update(["current_status" => $currentStatus, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
 

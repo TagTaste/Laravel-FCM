@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FlagReason extends Model
 {
+    protected $visible = ['id', 'reason', 'slug'];
+
     // one reason to multiple conditions
     public function conditions()
     {

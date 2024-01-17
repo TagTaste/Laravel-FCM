@@ -339,6 +339,8 @@ class Kernel extends ConsoleKernel
         // upload storage logs to s3
         \App\Console\Commands\UploadLogsToS3::class,
 
+        \App\Console\Commands\ModelFlagReview::class,
+
         //deacitveted user push
         \App\Console\Commands\Build\Cache\DeactivatedUsers::class,
 

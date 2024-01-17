@@ -12,6 +12,8 @@ class FlagReasonConditionsTableSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('flag_reason_conditions')->truncate();
+
         $data = [
             [
                 'flag_reason_id' => 1,
@@ -42,6 +44,14 @@ class FlagReasonConditionsTableSeeder extends Seeder
                 'condition_value' => '22:00:00',
                 'condition_slug' => 'max_start_time',
                 'condition_description' => 'Maximum time value to start an review',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'flag_reason_id' => 3,
+                'condition_value' => 'tagtaste.com',
+                'condition_slug' => 'email_domain',
+                'condition_description' => 'Domain of the email to check for tagtaste employees',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]
