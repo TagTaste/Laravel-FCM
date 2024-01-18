@@ -443,7 +443,7 @@ class BatchController extends Controller
         ->where('profile_id', $profileId)->first();
 
         $submission_status = [];
-        $submission_status["title"] = "";
+        $submission_status["title"] = "SUBMISSION";
         $submission_status["is_collapsed"] = false;
         $timeline = []; 
         $last_activity = null;
@@ -517,11 +517,24 @@ class BatchController extends Controller
         $profileBatchData = BatchAssign::where('batch_id', $batchId)->where('collaborate_id', $collaborateId)->where('profile_id', $profileId)->first();
         $modelId = $profileBatchData->id;
         $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->where('model_id', $modelId)->where('model', 'BatchAssign')->get()->groupBy('model_id');
+        $profileFlagReasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
+        $total_reasons = count($profileFlagReasons);
+        $flag_text = 'Flagged for';
+        $reason_texts = '';
+        if($total_reasons > 1){
+            for($i=0; $i < ($total_reasons - 1); $i++){
+                $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$i]).', ';
+            }
+            $flag_text = $flag_text.' '.$reason_texts.'and '.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$total_reasons - 1]).'.';
+        } else {
+            $flag_text = $flag_text.' '.$reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[0]).'.';
+        }
 
         $submission_status["timeline"] = $timeline;        
         $submission_status["duration"] = $duration;
         $submission_status["is_flag"] = $profileBatchData->is_flag;
-        $submission_status["flag_reasons"] = $profileFlagReasons[$modelId]->pluck('flagReason')->toArray();
+        $submission_status["flag_text"] = $flag_text;
+        // $submission_status["flag_reasons"] = $profileFlagReasons[$modelId]->pluck('flagReason')->toArray();
         $this->model = ["submission_status"=>[$submission_status], "profile"=>$applicant->profile];
         return $this->sendNewResponse();
     }

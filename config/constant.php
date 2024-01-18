@@ -163,6 +163,12 @@ return  [
         "tagtaste_employee" => '#F0F6FD'
     ],
 
+    "FLAG_REASONS_TEXT" => [
+        "review_duration" => 'review time',
+        "tagtaste_employee" => 'review duration',
+        "review_start_time" => 'being TT employee'
+    ],
+
     "POLL_PLACEHOLDER_IMAGE" => [
         '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650040773892_Poll%201.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650040773892_Poll%201.png"}',
         '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650040872771_Poll%202.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650040872771_Poll%202.png"}',
