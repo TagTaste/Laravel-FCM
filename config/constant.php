@@ -159,8 +159,8 @@ return  [
 
     // Review flagging
     "FLAG_COLORS" => [
-        "default" => '#F0F6FD',
-        "tagtaste_employee" => '#FFECF0'
+        "default" => '#FFECF0',
+        "tagtaste_employee" => '#F0F6FD'
     ],
 
     "POLL_PLACEHOLDER_IMAGE" => [
