@@ -292,11 +292,23 @@ class BatchController extends Controller
                 $profile["txn_status"] = $this->getTxnStatusForApplicant($id,$profileId);
 
                 // review is flagged or not
-                $profile['is_flag'] = $profileFlagValues[$profileId];
+                // $profile['is_flag'] = $profileFlagValues[$profileId];
 
                 // Add flagging reasons specific to each profile review
                 $modelId = $profileModelIds[$profileId];
-                $profile['flag_reasons'] = isset($profileFlagReasons[$modelId]) ? $profileFlagReasons[$modelId]->pluck('flagReason')->toArray() : [];
+                // $profile['flag_reasons'] = isset($profileFlagReasons[$modelId]) ? $profileFlagReasons[$modelId]->pluck('flagReason')->toArray() : [];
+
+                // check if review is flagged or not & add color for flagged review
+                if($profileFlagValues[$profileId] == 1){
+                    // check the reason and add color based on that
+                    $flag_reasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
+                    
+                    $profile['flag_color'] = config("constant.FLAG_COLORS.default");
+                    $employee_reason = 'tagtaste_employee';
+                    if(in_array($employee_reason, $flag_reasons)){
+                        $profile['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason);
+                    }
+                }
             }
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
@@ -501,8 +513,15 @@ class BatchController extends Controller
             }
         }
 
+        // flag review data
+        $profileBatchData = BatchAssign::where('batch_id', $batchId)->where('collaborate_id', $collaborateId)->where('profile_id', $profileId)->first();
+        $modelId = $profileBatchData->id;
+        $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->where('model_id', $modelId)->where('model', 'BatchAssign')->get()->groupBy('model_id');
+
         $submission_status["timeline"] = $timeline;        
         $submission_status["duration"] = $duration;
+        $submission_status["is_flag"] = $profileBatchData->is_flag;
+        $submission_status["flag_reasons"] = $profileFlagReasons[$modelId]->pluck('flagReason')->toArray();
         $this->model = ["submission_status"=>[$submission_status], "profile"=>$applicant->profile];
         return $this->sendNewResponse();
     }
