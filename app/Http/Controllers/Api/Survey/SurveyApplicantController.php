@@ -11,6 +11,7 @@ use App\SurveyAnswers;
 use App\surveyApplicants;
 use App\SurveyAttemptMapping;
 use App\Surveys;
+use App\ModelFlagReason;
 use App\SurveysEntryMapping;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
@@ -118,6 +119,30 @@ class SurveyApplicantController extends Controller
             ->where('is_tasting_expert', 1)
             ->whereIn('id', $profileIdsForCounts)
             ->get();
+
+        // survey applicant data with attemps
+        $surveyApplicantData = SurveyAttemptMapping::where('survey_id', $id)->select('id','profile_id')->where('is_flag', 1)->whereNotNull('completion_date')->whereNull('deleted_at');
+        $reviewModelIds = $surveyApplicantData->pluck('id')->toArray();
+        $flaggedReviewData = $surveyApplicantData->get()->groupBy('profile_id');
+        $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->whereIn('model_id', $reviewModelIds)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
+
+        foreach($applicants as &$applicant){
+            $profileId = $applicant['profile_id'];
+            // check if review is flagged or not & add color for flagged review
+            if(isset($flaggedReviewData[$profileId]) && !empty($flaggedReviewData) && !is_null($flaggedReviewData)){
+                $modelIds = $flaggedReviewData[$profileId]->pluck('id')->toArray();
+                $applicant['flag_color'] = config("constant.FLAG_COLORS.default");
+                $employee_reason = 'tagtaste_employee';
+                foreach($modelIds as $modelId){
+                    // check for the employee reason and add color based on that
+                    $flag_reasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
+                    if(in_array($employee_reason, $flag_reasons)){
+                        $applicant['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason);
+                    }
+                }
+            }
+        }
+        
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = surveyApplicants::where('survey_id', $id)
             ->whereNull('deleted_at')->count();
