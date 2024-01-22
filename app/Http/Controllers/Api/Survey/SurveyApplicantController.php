@@ -129,7 +129,7 @@ class SurveyApplicantController extends Controller
         foreach($applicants as &$applicant){
             $profileId = $applicant['profile_id'];
             // check if review is flagged or not & add color for flagged review
-            if(isset($flaggedReviewData[$profileId]) && !empty($flaggedReviewData) && !is_null($flaggedReviewData)){
+            if(isset($flaggedReviewData[$profileId]) && !empty($flaggedReviewData)){
                 $modelIds = $flaggedReviewData[$profileId]->pluck('id')->toArray();
                 $applicant['flag_color'] = config("constant.FLAG_COLORS.default");
                 $employee_reason = 'tagtaste_employee';
@@ -138,8 +138,9 @@ class SurveyApplicantController extends Controller
                     $flag_reasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
                     if(in_array($employee_reason, $flag_reasons)){
                         $applicant['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason);
-                    }
+                    }  
                 }
+                $applicant['flag_count'] = count($modelIds);
             }
         }
         
@@ -1259,7 +1260,27 @@ class SurveyApplicantController extends Controller
             if(isset($entry_timestamp)){
                 $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($entry_timestamp["created_at"]));
             }
-            
+
+            if($submission["is_flag"] == 1){
+                $modelId = $submission["id"];
+                $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->where('model_id', $modelId)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
+                $profileFlagReasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
+                $total_reasons = count($profileFlagReasons);
+                $flag_text = 'Flagged for';
+                $reason_texts = '';
+                if($total_reasons > 1){
+                    for($i=0; $i < ($total_reasons - 1); $i++){
+                        $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$i]).', ';
+                    }
+                    $flag_text = $flag_text.' '.$reason_texts.'and '.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$total_reasons - 1]).'.';
+                } else {
+                    $flag_text = $flag_text.' '.$reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[0]).'.';
+                }
+
+                $submission_status["is_flag"] = 1;
+                $submission_status["flag_text"] = $flag_text;
+            }
+
             $submission_status["duration"] = $duration;
             $profile["submission_status"][] = $submission_status;
             $profile["profile"] = $applicant->profile;

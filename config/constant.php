@@ -164,9 +164,9 @@ return  [
     ],
 
     "FLAG_REASONS_TEXT" => [
-        "review_duration" => 'review time',
-        "tagtaste_employee" => 'review duration',
-        "review_start_time" => 'being TT employee'
+        "review_start_time" => 'review time',
+        "review_duration" => 'review duration',
+        "tagtaste_employee" => 'being TT employee'
     ],
 
     "POLL_PLACEHOLDER_IMAGE" => [
