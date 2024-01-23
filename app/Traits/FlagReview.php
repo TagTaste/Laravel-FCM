@@ -56,6 +56,11 @@ trait FlagReview
     }
 
     private function addModelFlagReasons($data){
-        ModelFlagReason::create($data);
+        //check if already exists or not
+        $model_flag_reasons = new ModelFlagReason;
+        $exists = $model_flag_reasons->where('model_id', $data['model_id'])->where('flag_reason_id', $data['flag_reason_id'])->where('model', $data['model'])->exists();
+        if(!$exists){
+            ModelFlagReason::create($data);
+        }
     }
 }
