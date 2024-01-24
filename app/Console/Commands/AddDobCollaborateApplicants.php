@@ -48,5 +48,8 @@ class AddDobCollaborateApplicants extends Command
                 \DB::table("collaborate_applicants")->where('profile_id', $id)->update(["dob" => $dob, "generation"=> $generation]);    
             }
         }  
-    }                
+    }    
+    
+    
+    
 }
