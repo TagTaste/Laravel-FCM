@@ -1016,6 +1016,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
 
+            // for testing purpose(code optimisation)
+            Route::post('/download-reports/test/{id}', 'SurveyController@newExcelReport');
+
             //get long answer
             //get short answer
             //get media urls
