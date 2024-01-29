@@ -518,12 +518,14 @@ class BatchController extends Controller
             $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->where('model_id', $modelId)->where('model', 'BatchAssign')->get()->groupBy('model_id');
             $profileFlagReasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
             $total_reasons = count($profileFlagReasons);
+            $sec_last_index = $total_reasons - 2;
             $flag_text = 'Flagged for';
             $reason_texts = '';
             if($total_reasons > 1){
-                for($i=0; $i < ($total_reasons - 1); $i++){
+                for($i=0; $i < $sec_last_index; $i++){
                     $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$i]).', ';
                 }
+                $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$sec_last_index]).' ';
                 $flag_text = $flag_text.' '.$reason_texts.'and '.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$total_reasons - 1]).'.';
             } else {
                 $flag_text = $flag_text.' '.$reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[0]).'.';
