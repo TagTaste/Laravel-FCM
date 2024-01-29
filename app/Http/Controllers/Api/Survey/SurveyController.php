@@ -3728,7 +3728,6 @@ class SurveyController extends Controller
 
 
         // $getCount = $applicants->get();
-
         if ($request->has('filters') && !empty($request->filters)) {
             $getCount = $applicants->get()->filter(function ($ans) use ($idAttemptFilterMapped) {
                 return isset($idAttemptFilterMapped[$ans->profile_id]) ? in_array($ans->attempt, $idAttemptFilterMapped[$ans->profile_id]) : false;
@@ -3771,7 +3770,6 @@ class SurveyController extends Controller
                     });
             // $getSurveyAnswers = $getSurveyAnswers->get();
         }
-
         
         $counter = 0;
         foreach ($getSurveyAnswers as $answers) {
@@ -3899,6 +3897,7 @@ class SurveyController extends Controller
         }
 
         $finalData = array_values($headers);
+
         $result = [];
         foreach ($finalData as $value) {
             foreach ($value as $row) {
@@ -3989,6 +3988,10 @@ class SurveyController extends Controller
         $rankMapping = [];
         $rankOptionMapping = [];
         $rankWeightage = [];
+        $multiChoiceRadioColumn = [];
+        $multiChoiceRadioRow = [];
+        $multiChoiceCheckColumn = [];
+        $multiChoiceCheckRow = [];
         $rankExists = 0;
 
         $getJsonQues = [];
@@ -4040,179 +4043,166 @@ class SurveyController extends Controller
             }
         }
 
-        $surveyAttemptData = new SurveyAttemptMapping;
-        
-        $applicants = $surveyAttemptData::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->where("deleted_at", "=", null);
-
+        $applicants = SurveyAttemptMapping::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->where('current_status', 2)->where("deleted_at", "=", null);
+        $startMemory = memory_get_usage();
         if ($request->has('filters') && !empty($request->filters)) {
-            $getCount = $applicants->get()->filter(function ($ans) use ($idAttemptFilterMapped) {
-                return isset($idAttemptFilterMapped[$ans->profile_id]) ? in_array($ans->attempt, $idAttemptFilterMapped[$ans->profile_id]) : false;
-            });
+            $getFinalApplicants = $applicants->whereIn('profile_id', array_keys($idAttemptFilterMapped))->get();
         }else{
-            $getCount = $applicants->get();
-        }
+            $getFinalApplicants = $applicants->get();
+        }   
 
-        dd($getCount->toArray());
         $finalAttempMapping = [];
-        foreach($getCount as $pattempt) {
+        foreach($getFinalApplicants as $pattempt) {
             $finalAttempMapping[$pattempt->profile_id][] = $pattempt->attempt;
         }
+  
 
         $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id)->whereNull("deleted_at");
-      
-        $resumeArray = $surveyAttemptData::select("profile_id", "attempt")->where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("completion_date")->get();
-        $idsAttemptMapping = [];
-
-        foreach ($resumeArray as $resume) {
-            $idsAttemptMapping[$resume->profile_id][] = $resume->attempt;
-        }
 
         if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
-            $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids)->get();
-        } else {
-            $getSurveyAnswers = $getSurveyAnswers->get()->filter(function ($ans) use ($finalAttempMapping) {
-                return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
-            });
-        }
-        dd($finalAttempMapping);
-        dd($getSurveyAnswers->toArray());
-       
+            $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids);
+        } 
+        // else {
+        //     $getSurveyAnswers = $getSurveyAnswers->get()->filter(function ($ans) use ($finalAttempMapping) {
+        //         return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
+        //     }); 
+        // }
+        
+       $answeredProfileIds = $getSurveyAnswers->distinct()->pluck('profile_id')->toArray();
+       $surveyApplicantData = surveyApplicants::where("survey_id", $id)->whereIn("profile_id", $answeredProfileIds)->whereNull("deleted_at")->get()->groupBy('profile_id')->toArray();
         $counter = 0;
-        $startMemory = memory_get_usage();
-        foreach ($getSurveyAnswers as $answers) {
-            if (!isset($headers[$answers->profile_id][$answers->attempt])) {
-                $counter++;
-                $headers[$answers->profile_id][$answers->attempt] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null,"generation"=>null,"gender"=>null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
-                foreach ($questionIdMapping as $key => $value) {
+       
+        $getSurveyAnswers->chunk(100, function ($surveyAnswers) use (&$counter, &$headers, $finalAttempMapping, $surveyApplicantData, $questionIdMapping, $rankMapping, $multiChoiceRadioRow, $multiChoiceCheckRow, $rankExists, $rankOptionMapping, 
+        &$rankWeightage, $multiChoiceRadioColumn, $multiChoiceCheckColumn) {        
+            foreach ($surveyAnswers as $answers) {
+                if(!isset($finalAttempMapping[$answers->profile_id]) || (isset($finalAttempMapping[$answers->profile_id]) && in_array($answers->attempt, $finalAttempMapping[$answers->profile_id]) == false)){
+                    continue;
+                }
 
-                    if (isset($rankMapping[$key])) {
-                        foreach ($rankMapping[$key] as  $v) {
-                            $headers[$answers->profile_id][$answers->attempt][$value . $v . "_(" . $key . ")_"] = null;
+                if (!isset($headers[$answers->profile_id][$answers->attempt])) {
+                    $counter++;
+                    $headers[$answers->profile_id][$answers->attempt] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null,"generation"=>null,"gender"=>null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
+                    foreach ($questionIdMapping as $key => $value) {
+                        if (isset($rankMapping[$key])) {
+                            foreach ($rankMapping[$key] as  $v) {
+                                $headers[$answers->profile_id][$answers->attempt][$value . $v . "_(" . $key . ")_"] = null;
+                            }
+                        } elseif (isset($multiChoiceRadioRow[$key])) {
+                            foreach ($multiChoiceRadioRow[$key] as $v) {
+                                $headers[$answers->profile_id][$answers->attempt][$value . $v . "_(" . $key . ")_"] = null;
+                            }
+                        } elseif (isset($multiChoiceCheckRow[$key])) {
+                            foreach ($multiChoiceCheckRow[$key] as $v) {
+                                $headers[$answers->profile_id][$answers->attempt][$value . $v . "_(" . $key . ")_"] = null;
+                            }
+                        } else {
+                            $headers[$answers->profile_id][$answers->attempt][$value . "_(" . $key . ")_"] = null;
                         }
-                    } elseif (isset($multiChoiceRadioRow[$key])) {
-                        foreach ($multiChoiceRadioRow[$key] as $v) {
-                            $headers[$answers->profile_id][$answers->attempt][$value . $v . "_(" . $key . ")_"] = null;
-                        }
-                    } elseif (isset($multiChoiceCheckRow[$key])) {
-                        foreach ($multiChoiceCheckRow[$key] as $v) {
-                            $headers[$answers->profile_id][$answers->attempt][$value . $v . "_(" . $key . ")_"] = null;
-                        }
-                    } else {
+                    }
+                }
+                
+                $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
+                $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
+                $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
+                $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
+                if (isset($questionIdMapping[$answers->question_id])) {
+                    // $surveyApplicant = surveyApplicants::where("survey_id", $id)->where("profile_id", $answers->profile_id)->whereNull("deleted_at")->first();
+                    $surveyApplicant = $surveyApplicantData[$answers->profile_id][0];
 
-                        $headers[$answers->profile_id][$answers->attempt][$value . "_(" . $key . ")_"] = null;
+                    $headers[$answers->profile_id][$answers->attempt]["Name"] = html_entity_decode($answers->profile->name);
+                    $headers[$answers->profile_id][$answers->attempt]["Email"] = html_entity_decode($answers->profile->email);
+                    $headers[$answers->profile_id][$answers->attempt]["Age"] = floor((time() - strtotime($surveyApplicant['dob'])) / 31556926);
+                    $headers[$answers->profile_id][$answers->attempt]["generation"] = html_entity_decode($surveyApplicant['generation']);
+                    $headers[$answers->profile_id][$answers->attempt]["gender"] = html_entity_decode($surveyApplicant['gender']);
+
+                    $headers[$answers->profile_id][$answers->attempt]["Phone"] = \DB::Table("profiles")->where("id", "=", $answers->profile->id)->first()->phone;
+                    $headers[$answers->profile_id][$answers->attempt]["City"] = html_entity_decode($answers->profile->city);
+                    $headers[$answers->profile_id][$answers->attempt]["Hometown"] = html_entity_decode($surveyApplicant['hometown']);
+                    $headers[$answers->profile_id][$answers->attempt]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($answers->profile->handle);
+                    $headers[$answers->profile_id][$answers->attempt]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
+
+                    $ans = "";
+
+                    if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK") && isset($rankMapping[$answers->question_id][$answers->option_id])) {
+                        $rankExists++;
+                        if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
+                            $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] . ";";
+                        }
+                        $ans .= html_entity_decode($rankOptionMapping[$answers->question_id][$answers->answer_value]);
+                        $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->answer_value]]['sum'] += (int)$answers->option_id;
+                        $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->answer_value]]['count']++;
+                    } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") && isset($multiChoiceRadioRow[$answers->question_id][$answers->answer_value])) {
+
+                        if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"]) && !empty($answers->option_id)) {
+                            $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] . ";";
+                        }
+                        $ans .= html_entity_decode($multiChoiceRadioColumn[$answers->question_id]["column"][$answers->option_id]);
+                    } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
+                        if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
+                            $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] . ";";
+                        }
+                        $ans .= html_entity_decode($multiChoiceCheckColumn[$answers->question_id]["column"][$answers->answer_value]);
+                    } elseif ($answers->question_type <= config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
+                        if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
+                            $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
+                        }
+                        $ans .= html_entity_decode($answers->answer_value);
+                    }
+
+                    $ans = trim($ans, " ");
+                    $p = false;
+                    if (!empty($image) && is_array($image)) {
+                        if (!empty($answers->answer_value) && !empty(array_column($image, "original_photo"))) {
+                            $ans .= ";";
+                        }
+                        $ans .= implode(";", array_column($image, "original_photo"));
+                        $p = true;
+                    }
+
+                    if (!empty($video) && is_array($video)) {
+                        if ($p && !empty(array_column($video, "video_url"))) {
+                            $ans .= ";";
+                        }
+                        $ans .= implode(";", array_column($video, "video_url"));
+                    }
+
+                    if (!empty($doc) && is_array($doc)) {
+                        if ($p && !empty(array_column($doc, "document_url"))) {
+                            $ans .= ";";
+                        }
+                        $ans .= implode(";", array_column($doc, "document_url"));
+                    }
+
+                    if (!empty($url) && is_array($url)) {
+                        if ($p && !empty(array_column($url, "url"))) {
+                            $ans .= ";";
+                        }
+                        $ans .= implode(";", array_column($url, "url"));
+                    }
+                    if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK") && isset($rankMapping[$answers->question_id][$answers->option_id])) {
+                        $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
+                    } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") && isset($multiChoiceRadioRow[$answers->question_id][$answers->answer_value])) {
+                        $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] = $ans;
+                    } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
+                        $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
+                    } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE") && isset($option_labels[$answers->question_id][$answers->option_id])) {
+                        $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = empty($option_labels[$answers->question_id][$answers->option_id]) ? $ans : $ans." (".$option_labels[$answers->question_id][$answers->option_id].")";
+                    }
+                    else {
+                        $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = $ans;
                     }
                 }
             }
-            $image = (!is_array($answers->image_meta) ? json_decode($answers->image_meta, true) : $answers->image_meta);
-            $video = (!is_array($answers->video_meta) ? json_decode($answers->image_meta, true) : $answers->video_meta);
-            $doc = (!is_array($answers->document_meta) ? json_decode($answers->document_meta, true) : $answers->document_meta);
-            $url = (!is_array($answers->media_url) ? json_decode($answers->media_url, true) : $answers->media_url);
-            if (isset($questionIdMapping[$answers->question_id])) {
-                // if (!isset($headers[$answers->profile_id])) {
-                //     ;
-                // }
-                // $headers[$answers->profile_id]["Sr no"] = $counter;
-
-                $surveyApplicant = surveyApplicants::where("survey_id", $id)->where("profile_id", $answers->profile_id)->whereNull("deleted_at")->first();
-
-                $headers[$answers->profile_id][$answers->attempt]["Name"] = html_entity_decode($answers->profile->name);
-                $headers[$answers->profile_id][$answers->attempt]["Email"] = html_entity_decode($answers->profile->email);
-                $headers[$answers->profile_id][$answers->attempt]["Age"] = floor((time() - strtotime($surveyApplicant->dob)) / 31556926);
-                $headers[$answers->profile_id][$answers->attempt]["generation"] = html_entity_decode($surveyApplicant->generation);
-                $headers[$answers->profile_id][$answers->attempt]["gender"] = html_entity_decode($surveyApplicant->gender);
-
-                $headers[$answers->profile_id][$answers->attempt]["Phone"] = \DB::Table("profiles")->where("id", "=", $answers->profile->id)->first()->phone;
-                $headers[$answers->profile_id][$answers->attempt]["City"] = html_entity_decode($answers->profile->city);
-                $headers[$answers->profile_id][$answers->attempt]["Hometown"] = html_entity_decode($surveyApplicant->hometown);
-                $headers[$answers->profile_id][$answers->attempt]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($answers->profile->handle);
-                $headers[$answers->profile_id][$answers->attempt]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
-
-                $ans = "";
-
-                if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK") && isset($rankMapping[$answers->question_id][$answers->option_id])) {
-                    $rankExists++;
-                    if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
-                        $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] . ";";
-                    }
-                    $ans .= html_entity_decode($rankOptionMapping[$answers->question_id][$answers->answer_value]);
-                    $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->answer_value]]['sum'] += (int)$answers->option_id;
-                    $rankWeightage[$rankOptionMapping[$answers->question_id][$answers->answer_value]]['count']++;
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") && isset($multiChoiceRadioRow[$answers->question_id][$answers->answer_value])) {
-
-                    if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"]) && !empty($answers->option_id)) {
-                        $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] . ";";
-                    }
-                    $ans .= html_entity_decode($multiChoiceRadioColumn[$answers->question_id]["column"][$answers->option_id]);
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
-                    if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
-                        $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] . ";";
-                    }
-                    $ans .= html_entity_decode($multiChoiceCheckColumn[$answers->question_id]["column"][$answers->answer_value]);
-                } elseif ($answers->question_type <= config("constant.SURVEY_QUESTION_TYPES.RANGE")) {
-                    if (isset($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"]) && !empty($answers->answer_value)) {
-                        $ans .= $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] . ";";
-                    }
-                    $ans .= html_entity_decode($answers->answer_value);
-                }
-
-
-
-
-                $ans = trim($ans, " ");
-                $p = false;
-                if (!empty($image) && is_array($image)) {
-                    if (!empty($answers->answer_value) && !empty(array_column($image, "original_photo"))) {
-                        $ans .= ";";
-                    }
-                    $ans .= implode(";", array_column($image, "original_photo"));
-                    $p = true;
-                }
-
-                if (!empty($video) && is_array($video)) {
-                    if ($p && !empty(array_column($video, "video_url"))) {
-                        $ans .= ";";
-                    }
-                    $ans .= implode(";", array_column($video, "video_url"));
-                }
-
-                if (!empty($doc) && is_array($doc)) {
-                    if ($p && !empty(array_column($doc, "document_url"))) {
-                        $ans .= ";";
-                    }
-                    $ans .= implode(";", array_column($doc, "document_url"));
-                }
-
-                if (!empty($url) && is_array($url)) {
-                    if ($p && !empty(array_column($url, "url"))) {
-                        $ans .= ";";
-                    }
-                    $ans .=   implode(";", array_column($url, "url"));
-                }
-                if ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK") && isset($rankMapping[$answers->question_id][$answers->option_id])) {
-                    $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $rankMapping[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") && isset($multiChoiceRadioRow[$answers->question_id][$answers->answer_value])) {
-                    $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceRadioRow[$answers->question_id][$answers->answer_value] . "_(" . $answers->question_id . ")_"] = $ans;
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK") && isset($multiChoiceCheckRow[$answers->question_id][$answers->option_id])) {
-                    $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . $multiChoiceCheckRow[$answers->question_id][$answers->option_id] . "_(" . $answers->question_id . ")_"] = $ans;
-                } elseif ($answers->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE") && isset($option_labels[$answers->question_id][$answers->option_id])) {
-                    $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = empty($option_labels[$answers->question_id][$answers->option_id]) ? $ans : $ans." (".$option_labels[$answers->question_id][$answers->option_id].")";
-                }
-                else {
-                    $headers[$answers->profile_id][$answers->attempt][$questionIdMapping[$answers->question_id] . "_(" . $answers->question_id . ")_"] = $ans;
-                }
-            }
-        }
-        $endMemory = memory_get_usage();
-        $memoryUsage = ($endMemory - $startMemory) / 1024;
+        });
+        
         $finalData = array_values($headers);
-        dd("Memory usage: {$memoryUsage} KB");
         $result = [];
         foreach ($finalData as $value) {
             foreach ($value as $row) {
                 $result[] = $row;
             }
         }
-
+      
         $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-" . $id . "-" . uniqid();
 
@@ -4253,6 +4243,7 @@ class SurveyController extends Controller
         $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
         $this->model = \Storage::url($resp);
         unlink($excel_save_path);
+        
 
         return $this->sendResponse();
     }
