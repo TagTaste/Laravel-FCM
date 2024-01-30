@@ -72,7 +72,8 @@ class SurveyApplicantController extends Controller
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
-        $applicants = surveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("rejected_at");
+        $applicantModel = new surveyApplicants();
+        $applicants = $applicantModel::where("survey_id", "=", $id);
         if ($q != null) {
             $searchByProfile = surveyApplicants::where('survey_id', $id)
                 ->whereNUll('company_id')
@@ -99,15 +100,14 @@ class SurveyApplicantController extends Controller
                 ->whereIn('profile_id', $profileIds);
         }
 
-        $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
+        $applicantProfileIds = $applicants->pluck('profile_id');
+        $applicants = $applicants->whereNull("deleted_at")->whereNull("rejected_at")->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
+        $profileIdsForCounts = array_column($applicants, 'profile_id');
 
-
-        $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
         //count of sensory trained
         $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
             ->whereIn('profiles.id', $profileIdsForCounts)
             ->get();
-
 
         //count of experts
         $countExpert = \DB::table('profiles')
@@ -122,13 +122,12 @@ class SurveyApplicantController extends Controller
             ->where('is_tasting_expert', 1)
             ->whereIn('id', $profileIdsForCounts)
             ->get();
-        $this->model['applicants'] = $applicants;
-        $this->model['totalApplicants'] = surveyApplicants::where('survey_id', $id)
-            ->whereNull('deleted_at')->count();
 
-        $this->model['invitedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull("deleted_at")->count();
-        $this->model['rejectedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
-        $this->model['activeApplicantsCount'] = surveyApplicants::where('survey_id', $id)->whereNull('rejected_at')->whereNull("deleted_at")->count();
+        $this->model['applicants'] = $applicants;
+        $this->model['totalApplicants'] = $applicantModel::where("survey_id", "=", $id)->whereNull('deleted_at')->count();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
+        $this->model['activeApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNull('rejected_at')->whereNull("deleted_at")->count();
 
         $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
@@ -1062,8 +1061,9 @@ class SurveyApplicantController extends Controller
         $filters = $request->input('filters');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $list = surveyApplicants::where('survey_id', $id)->whereNull('deleted_at') //->whereNull('shortlisted_at')
-            ->whereNotNull('rejected_at');
+
+        $applicantModel = new surveyApplicants();
+        $list = $applicantModel::where('survey_id', $id);
 
         if (isset($q) && $q != null) {
             $ids = $this->getSearchedProfile($q, $id);
@@ -1084,9 +1084,37 @@ class SurveyApplicantController extends Controller
             $archived = $this->sortApplicants($request->sortBy, $list, $id);
         }
 
-        $this->model['rejectedApplicantsCount'] = $list->count();
-        $list = $list->skip($skip)->take($take)->get();
+        $applicantProfileIds = $list->pluck('profile_id');
+        $list = $list->whereNull('deleted_at')->whereNotNull('rejected_at')->skip($skip)->take($take)->get();
+        $profileIdsForCounts = $list->pluck('profile_id');
+
+        //count of sensory trained
+        $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
+            ->whereIn('profiles.id', $profileIdsForCounts)
+            ->get();
+
+        //count of experts
+        $countExpert = \DB::table('profiles')
+            ->select('id')
+            ->where('is_expert', 1)
+            ->whereIn('id', $profileIdsForCounts)
+            ->get();
+
+        //count of super tasters
+        $countSuperTaste = \DB::table('profiles')
+            ->select('id')
+            ->where('is_tasting_expert', 1)
+            ->whereIn('id', $profileIdsForCounts)
+            ->get();
+
         $this->model['rejectedApplicantList'] = $list;
+        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
+        $this->model['activeApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNull('rejected_at')->whereNull("deleted_at")->count();
+
+        $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
+        $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
+        $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
 
         return $this->sendResponse();
     }
