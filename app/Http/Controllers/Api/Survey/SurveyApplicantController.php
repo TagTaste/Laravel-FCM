@@ -101,8 +101,8 @@ class SurveyApplicantController extends Controller
         }
 
         $applicantProfileIds = $applicants->pluck('profile_id');
-        $applicants = $applicants->whereNull("deleted_at")->whereNull("rejected_at")->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
-        $profileIdsForCounts = array_column($applicants, 'profile_id');
+        $applicants = $applicants->whereNull("deleted_at")->whereNull("rejected_at");
+        $profileIdsForCounts = $applicants->pluck('profile_id');
 
         //count of sensory trained
         $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
@@ -123,7 +123,7 @@ class SurveyApplicantController extends Controller
             ->whereIn('id', $profileIdsForCounts)
             ->get();
 
-        $this->model['applicants'] = $applicants;
+        $this->model['applicants'] = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get();
         $this->model['totalApplicants'] = $applicantModel::where("survey_id", "=", $id)->whereNull('deleted_at')->count();
         $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
         $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
@@ -1085,7 +1085,7 @@ class SurveyApplicantController extends Controller
         }
 
         $applicantProfileIds = $list->pluck('profile_id');
-        $list = $list->whereNull('deleted_at')->whereNotNull('rejected_at')->skip($skip)->take($take)->get();
+        $list = $list->whereNull('deleted_at')->whereNotNull('rejected_at');
         $profileIdsForCounts = $list->pluck('profile_id');
 
         //count of sensory trained
@@ -1107,7 +1107,7 @@ class SurveyApplicantController extends Controller
             ->whereIn('id', $profileIdsForCounts)
             ->get();
 
-        $this->model['rejectedApplicantList'] = $list;
+        $this->model['rejectedApplicantList'] = $list->skip($skip)->take($take)->get();
         $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
         $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
         $this->model['activeApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNull('rejected_at')->whereNull("deleted_at")->count();
