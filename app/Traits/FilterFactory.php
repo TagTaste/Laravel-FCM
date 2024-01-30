@@ -609,7 +609,7 @@ trait FilterFactory
             $profileIds = $profileIds->merge($filterProfile);
         }
         
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens']) || isset($filters['profile'])) {
+        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens']) || isset($filters['profile']) || isset($filters['include_profile_id'])) {
             $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
         }
         
@@ -787,13 +787,13 @@ trait FilterFactory
 
         if (isset($filters['allergens'])) {
             $allergen = Allergen::where('name', $filters['allergens'])->first();
-            $profileIds = $allergen->profile()->whereIn('profile_id', $Ids->get()->pluck('profile_id'))->pluck('profile_id');
-            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
+            $allergenProfileIds = $allergen->profile()->whereIn('profile_id', $Ids->get()->pluck('profile_id'))->pluck('profile_id');
+            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $allergenProfileIds);
         }
         
-        if ($profileIds->count() > 0 && isset($Ids)) {
-            $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
-        }
+        // if ($profileIds->count() > 0 && isset($Ids)) {
+        //     $Ids = $Ids->whereIn('collaborate_applicants.profile_id', $profileIds);
+        // }
 
         if (isset($Ids)) {
             $isFilterAble = true;
