@@ -139,7 +139,7 @@ class ApplicantController extends Controller
 
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->count();
-        $this->model['rejectedApplicants'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->count();
         $this->model['invitedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
         $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
