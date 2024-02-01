@@ -2075,18 +2075,20 @@ class SurveyController extends Controller
                     $values["max"] = $values["options"][$last_index]["title"];
                 }
                 $totalAnsSum = 0;
-                for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                $increment = (isset($values["version"]) && $values["version"] == 3) ? -1 : 1;
+
+                for ($i = $values["min"]; ((isset($values["version"]) && $values["version"] == 3) ? $i >= $values['max'] : $i <= $values['max']); $i += $increment) {
                     if (isset($values["version"]))
                     {
                         $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
                         $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
-                        $totalAnsSum +=  isset($getAvg[$min]) ? ($min)*($getAvg[$min]["count"]) : 0;
+                        $totalAnsSum +=  isset($getAvg[$i]) ? ($i)*($getAvg[$i]["count"]) : 0;
                     }
                     
-                    $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
-                    $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$min]) ? $getAvg[$min]["count"] : 0);
-                    $prepareNode["reports"][$counter]["options"][$count]["answer_percentage"] = (isset($getAvg[$min]) ? $getAvg[$min]["avg"] : 0);
-                    $prepareNode["reports"][$counter]["options"][$count]["color_code"] = (isset($colorCodeList[$min]) ? $colorCodeList[$min] : "#fcda02");
+                    $prepareNode["reports"][$counter]["options"][$count]["value"] = $i;
+                    $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$i]) ? $getAvg[$i]["count"] : 0);
+                    $prepareNode["reports"][$counter]["options"][$count]["answer_percentage"] = (isset($getAvg[$i]) ? $getAvg[$i]["avg"] : 0);
+                    $prepareNode["reports"][$counter]["options"][$count]["color_code"] = (isset($colorCodeList[$i]) ? $colorCodeList[$i] : "#fcda02");
                     $prepareNode["reports"][$counter]["options"][$count]["option_type"] = 0;
                     $count++;
                 }
