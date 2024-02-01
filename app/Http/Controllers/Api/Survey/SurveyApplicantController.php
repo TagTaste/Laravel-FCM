@@ -91,6 +91,8 @@ class SurveyApplicantController extends Controller
             $applicants = $applicants->whereIn('id', $searchByProfile);
         }
 
+        $searchedApplicantProfileIds = $applicants->pluck('profile_id');
+
         if ($request->sortBy != null) {
             $applicants = $this->sortApplicants($request->sortBy, $applicants, $id);
         }
@@ -127,7 +129,7 @@ class SurveyApplicantController extends Controller
 
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = $applicantModel::where("survey_id", "=", $id)->whereNull('deleted_at')->count();
-        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
         $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
         $this->model['activeApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNull('rejected_at')->whereNull("deleted_at")->count();
 
@@ -1072,6 +1074,8 @@ class SurveyApplicantController extends Controller
             $list = $list->whereIn('id', $ids);
         }
 
+        $searchedApplicantProfileIds = $list->pluck('profile_id');
+
         $version_num = '';
         if($request->is('*/v1/*')){
             $version_num = 'v1';
@@ -1110,7 +1114,7 @@ class SurveyApplicantController extends Controller
             ->get();
 
         $this->model['rejectedApplicantList'] = $list->skip($skip)->take($take)->get();
-        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
         $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
         $this->model['activeApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNull('rejected_at')->whereNull("deleted_at")->count();
 
@@ -1174,9 +1178,13 @@ class SurveyApplicantController extends Controller
     public function getInvitedApplicants(Request $request, $id)
     {
         $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
+        
         $page = $request->input('page');
         $q = $request->input('q');
-        $filters = $request->input('filters');
+        // $filters = $request->input('filters');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
 
@@ -1188,14 +1196,14 @@ class SurveyApplicantController extends Controller
             $list = $list->whereIn('id', $ids);
         }
 
-        if (isset($filters) && $filters != null) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
-            $profileIds = $getFiteredProfileIds['profile_id'];
-            $list = $list->whereIn('profile_id', $profileIds);
-        }
-        if ($request->sortBy != null) {
-            $archived = $this->sortApplicants($request->sortBy, $list, $id);
-        }
+        // if (isset($filters) && $filters != null) {
+        //     $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+        //     $profileIds = $getFiteredProfileIds['profile_id'];
+        //     $list = $list->whereIn('profile_id', $profileIds);
+        // }
+        // if ($request->sortBy != null) {
+        //     $archived = $this->sortApplicants($request->sortBy, $list, $id);
+        // }
 
         $applicantProfileIds = $list->pluck('profile_id');
         $list = $list->where('is_invited', 1)->whereNull('deleted_at')
