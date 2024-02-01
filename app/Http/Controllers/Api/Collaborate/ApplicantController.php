@@ -73,7 +73,6 @@ class ApplicantController extends Controller
         //filters data
         $q = $request->input('q');
         $filters = $request->input('filters');
-        $profileIds = $this->getFilteredProfile($filters, $collaborateId);
 
         $type = true;
         $boolean = 'and';
@@ -87,12 +86,16 @@ class ApplicantController extends Controller
             $searchedProfiles = $this->getSearchedProfile($q, $collaborateId);
             $applicants = $applicants->whereIn('id', $searchedProfiles);
         }
-        if ($request->sortBy != null) {
-            $applicants = $this->sortApplicants($request->sortBy, $applicants, $collaborateId);
+
+        $searchedApplicantProfileIds = $applicants->pluck('profile_id')->toArray();
+
+        if (isset($filters) && $filters != null) {
+            $profileIds = $this->getFilteredProfile($filters, $collaborateId);
+            $applicants = $applicants->whereIn('profile_id', $profileIds);
         }
 
-        if (!empty($profileIds)) {
-            $applicants = $applicants->whereIn('profile_id', $profileIds);
+        if ($request->sortBy != null) {
+            $applicants = $this->sortApplicants($request->sortBy, $applicants, $collaborateId);
         }
 
         $applicantProfileIds = $applicants->pluck('profile_id')->toArray();
@@ -140,7 +143,7 @@ class ApplicantController extends Controller
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->count();
         $this->model['rejectedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->count();
-        $this->model['invitedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)
+        $this->model['invitedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
         $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
@@ -686,6 +689,8 @@ class ApplicantController extends Controller
             $list = $list->whereIn('id', $ids);
         }
 
+        $searchedApplicantProfileIds = $list->pluck('profile_id')->toArray();
+
         if (isset($filters) && $filters != null) {
             $profileIds = $this->getFilteredProfile($filters, $collaborateId);
             $list = $list->whereIn('profile_id', $profileIds);
@@ -720,7 +725,7 @@ class ApplicantController extends Controller
         $this->model['rejectedApplicantList'] = $list->skip($skip)->take($take)->get();
         $this->model['totalApplicants'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->count();
         $this->model['rejectedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->count();
-        $this->model['invitedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)
+        $this->model['invitedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
         $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
