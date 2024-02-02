@@ -27,7 +27,6 @@ class PaymentTransactionCreate extends Action
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
         }
         $this->notification = $this->sub;
-
     }
     
     public function via($notifiable)

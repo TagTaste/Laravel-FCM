@@ -83,6 +83,12 @@ return  [
 
     ],
 
+    'REVIEW_ACTIVITY' => [
+        'START' => 'start',
+        'SECTION_SUBMIT' => 'section_submit',
+        'END' => 'final_submit'
+    ],
+  
     'SURVEY_ACTIVITY' => [
         'START' => 'start',
         'SECTION_SUBMIT' => 'section_submit',
@@ -121,6 +127,19 @@ return  [
         "PRODUCT_EXPERIENCE" => 2,
         "bill_shot" => 3
     ],
+
+    "COLLABORATE_APPLICANT_STATE" => [
+        "REJECTED" => 0,
+        "ACTIVE" => 1,
+    ],
+
+    "COLLABORATE_CURRENT_STATUS" => [
+        "TO_BE_NOTIFIED" => 0,
+        "NOTIFIED" => 1,
+        "INPROGRESS" => 2,
+        "COMPLETED" => 3
+    ],
+
     'SELECT_TYPES' => [
         'SELFIE_TYPE' => 6,
         'RANK_TYPE'=>7,

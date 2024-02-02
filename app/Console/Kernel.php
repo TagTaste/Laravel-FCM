@@ -336,8 +336,15 @@ class Kernel extends ConsoleKernel
         // user forceful logout
         \App\Console\Commands\ForceLogout::class,
 
+        // upload storage logs to s3
+        \App\Console\Commands\UploadLogsToS3::class,
+
         //deacitveted user push
-        \App\Console\Commands\Build\Cache\DeactivatedUsers::class
+        \App\Console\Commands\Build\Cache\DeactivatedUsers::class,
+
+        \App\Console\Commands\UpdatePrivateReviewMeta::class,
+        \App\Console\Commands\UpdateSurveyReviewMeta::class,
+        \App\Console\Commands\UpdatePublicReviewMeta::class
 
     ];
 
@@ -397,7 +404,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('review:calculation')->dailyAt('01:00');
        // $schedule->command('SetExpireon:Collab')->dailyAt('12:00');
 
-
+       $schedule->command('upload:storage:logs')->dailyAt('00:30');
 
     }
 

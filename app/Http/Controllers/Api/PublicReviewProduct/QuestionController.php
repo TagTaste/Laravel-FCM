@@ -45,10 +45,10 @@ class QuestionController extends Controller
     public function reviewQuestions(Request $request, $productId, $headerId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $exists = \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
-        if(!$exists){
-            \DB::table('public_review_user_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
-        }
+        // $exists = \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
+        // if(!$exists){
+        //     \DB::table('public_review_user_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
+        // }
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
@@ -101,7 +101,7 @@ class QuestionController extends Controller
                 if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1)
                 {
                     $data->questions->option = \DB::table('public_review_nested_options')->where('header_id',$headerId)
-                        ->where('question_id',$data->id)->where('is_active',1)->whereNull('parent_id')->get();
+                        ->where('question_id',$data->id)->where('is_active',1)->whereNull('parent_id')->orderBy("pos","asc")->get();
                 }
 //                if($data->questions->title == 'INSTRUCTION' || $data->questions->title == 'INSTRUCTIONS' || $data->questions->title == 'Instruction' || $data->questions->title == 'Instructions')
 //                {
@@ -132,7 +132,7 @@ class QuestionController extends Controller
         if($product === null){
             return $this->sendError("Product not found.");
         }
-
+        
         if(is_null($id))
         {
             $this->model['question'] = \DB::select("SELECT B.* FROM public_review_nested_options as A , 
@@ -145,13 +145,14 @@ class QuestionController extends Controller
             $squence = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('global_question_id',$product->global_question_id)->where('id',$id)->first();
             $this->model['question'] = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
-                ->where('global_question_id',$product->global_question_id)->where('parent_id',$squence->sequence_id)->get();
+                ->where('global_question_id',$product->global_question_id)->where('parent_id',$squence->sequence_id)->orderBy("pos","asc")->get();
             $leafIds = $this->model['question']->pluck('id');
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$product->id)
                 ->where('header_id',$headerId)->whereIn('leaf_id',$leafIds)
                 ->where('question_id',$questionId)->get()->groupBy('question_id');
             foreach ($answerModels as $answerModel)
             {
+                
                 $data = [];
                 $comment = null;
                 $selectType = null;

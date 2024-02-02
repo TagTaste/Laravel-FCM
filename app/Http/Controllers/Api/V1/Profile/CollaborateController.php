@@ -1149,7 +1149,13 @@ class CollaborateController extends Controller
                         ->exists();
         if($isReviewed)
         {
-            return ;
+            // check if new cities are added and already present cities are not removed
+            $old_cities = Collaborate\Addresses::where('collaborate_id',$collaborateId)->pluck('city_id')->toArray();
+            $new_cities = array_map('intval', array_column($addresses, 'id'));
+            if(count($addresses) <= count($old_cities) && !empty(array_diff($old_cities, $new_cities))){
+                return $this->sendNewError("City can't be removed as some users already have reviewed it.");
+            }
+               
         }
         Collaborate\Addresses::where('collaborate_id',$collaborateId)->delete();
         $cities = [];

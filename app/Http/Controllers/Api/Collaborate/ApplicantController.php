@@ -46,7 +46,6 @@ class ApplicantController extends Controller
     public function index(Request $request, $collaborateId)
     {
 
-
         $collaborate = Collaborate::where('id', $collaborateId)
             //->where('state','!=',Collaborate::$state[1])
             ->first();
@@ -74,35 +73,38 @@ class ApplicantController extends Controller
         //filters data
         $q = $request->input('q');
         $filters = $request->input('filters');
-        $profileIds = $this->getFilteredProfile($filters, $collaborateId);
 
         $type = true;
         $boolean = 'and';
         if (isset($filters))
             $type = false;
-        $applicants = Collaborate\Applicant::where('collaborate_id', $collaborateId);
+
+        $applicantModel = new Collaborate\Applicant();
+        $applicants = $applicantModel::where('collaborate_id', $collaborateId);
+
         if (isset($q) && $q != null) {
             $searchedProfiles = $this->getSearchedProfile($q, $collaborateId);
             $applicants = $applicants->whereIn('id', $searchedProfiles);
         }
+
+        $searchedApplicantProfileIds = $applicants->pluck('profile_id')->toArray();
+
+        if (isset($filters) && $filters != null) {
+            $profileIds = $this->getFilteredProfile($filters, $collaborateId);
+            $applicants = $applicants->whereIn('profile_id', $profileIds);
+        }
+
         if ($request->sortBy != null) {
             $applicants = $this->sortApplicants($request->sortBy, $applicants, $collaborateId);
         }
 
+        $applicantProfileIds = $applicants->pluck('profile_id')->toArray();
+        $applicants = $applicants->whereNotNull('shortlisted_at')->whereNull('rejected_at')->orderBy("created_at", "desc");
+        $pId = $applicants->pluck('profile_id')->toArray();
 
-        $applicants = $applicants
-            ->whereIn('profile_id', $profileIds)
-            ->whereNotNull('shortlisted_at')
-            ->whereNull('rejected_at')->orderBy("created_at", "desc");
-          
-       $pId = $applicants->get()->toArray();
-        $applicants = $applicants
-            ->skip($skip)->take($take)->get();
-
-        $applicants = $applicants->toArray();
+        $applicants = $applicants->skip($skip)->take($take)->get()->toArray();
 
         foreach ($applicants as &$applicant) {
-
             $batchIds = Redis::sMembers("collaborate:" . $applicant['collaborate_id'] . ":profile:" . $applicant['profile_id'] . ":");
             $count = count($batchIds);
             if ($count) {
@@ -119,33 +121,29 @@ class ApplicantController extends Controller
             $applicant['batches'] = $count > 0 ? $batchInfos : null;
         }
 
-
         //count of sensory trained
         $countSensory = AppProfile::where('is_sensory_trained', "=", 1)
-            ->whereIn('profiles.id', array_column($pId, "profile_id"))
+            ->whereIn('profiles.id', $pId)
             ->get();
-
 
         //count of experts
         $countExpert = \DB::table('profiles')
             ->select('id')
             ->where('is_expert', 1)
-            ->whereIn('id', array_column($pId, "profile_id"))
+            ->whereIn('id', $pId)
             ->get();
 
         //count of super tasters
         $countSuperTaste = \DB::table('profiles')
             ->select('id')
             ->where('is_tasting_expert', 1)
-            ->whereIn('id', array_column($pId, "profile_id"))
+            ->whereIn('id', $pId)
             ->get();
 
         $this->model['applicants'] = $applicants;
-        $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id', $collaborateId)->whereNotNull('shortlisted_at')
-            ->whereNull('rejected_at')->count();
-        $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id', $collaborateId) //->whereNull('shortlisted_at')
-            ->whereNotNull('rejected_at')->count();
-        $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id', $collaborateId)->where('is_invited', 1)
+        $this->model['totalApplicants'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->count();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
         $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
@@ -682,13 +680,16 @@ class ApplicantController extends Controller
         $filters = $request->input('filters');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $list = Collaborate\Applicant::where('collaborate_id', $collaborateId) //->whereNull('shortlisted_at')
-            ->whereNotNull('rejected_at');
+
+        $applicantModel = new Collaborate\Applicant();
+        $list = $applicantModel::where('collaborate_id', $collaborateId);
 
         if (isset($q) && $q != null) {
             $ids = $this->getSearchedProfile($q, $collaborateId);
             $list = $list->whereIn('id', $ids);
         }
+
+        $searchedApplicantProfileIds = $list->pluck('profile_id')->toArray();
 
         if (isset($filters) && $filters != null) {
             $profileIds = $this->getFilteredProfile($filters, $collaborateId);
@@ -698,9 +699,37 @@ class ApplicantController extends Controller
             $archived = $this->sortApplicants($request->sortBy, $list, $collaborateId);
         }
 
-        $this->model['rejectedApplicantsCount'] = $list->count();
-        $list = $list->skip($skip)->take($take)->get();
-        $this->model['rejectedApplicantList'] = $list;
+        $applicantProfileIds = $list->pluck('profile_id')->toArray();
+        $list = $list->whereNotNull('rejected_at'); 
+        $pId = $list->pluck('profile_id')->toArray();
+
+        //count of sensory trained
+        $countSensory = AppProfile::where('is_sensory_trained', "=", 1)
+            ->whereIn('profiles.id', $pId)
+            ->get();
+
+        //count of experts
+        $countExpert = \DB::table('profiles')
+            ->select('id')
+            ->where('is_expert', 1)
+            ->whereIn('id', $pId)
+            ->get();
+
+        //count of super tasters
+        $countSuperTaste = \DB::table('profiles')
+            ->select('id')
+            ->where('is_tasting_expert', 1)
+            ->whereIn('id', $pId)
+            ->get();
+
+        $this->model['rejectedApplicantList'] = $list->skip($skip)->take($take)->get();
+        $this->model['totalApplicants'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->count();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)
+            ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
+        $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
+        $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
+        $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
 
         return $this->sendResponse();
     }
@@ -742,12 +771,49 @@ class ApplicantController extends Controller
     public function getInvitedApplicants(Request $request, $collaborateId)
     {
         $page = $request->input('page');
+        $q = $request->input('q');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id', $collaborateId)->where('is_invited', 1)
+
+        $applicantModel = new Collaborate\Applicant();
+        $list = $applicantModel::where('collaborate_id', $collaborateId);
+
+        if (isset($q) && $q != null) {
+            $ids = $this->getSearchedProfile($q, $collaborateId);
+            $list = $list->whereIn('id', $ids);
+        }
+
+        $applicantProfileIds = $list->pluck('profile_id')->toArray();
+        $list = $list->where('is_invited', 1)->whereNull('shortlisted_at')->whereNull('rejected_at'); 
+        $pId = $list->pluck('profile_id')->toArray();
+
+        //count of sensory trained
+        $countSensory = AppProfile::where('is_sensory_trained', "=", 1)
+            ->whereIn('profiles.id', $pId)
+            ->get();
+
+        //count of experts
+        $countExpert = \DB::table('profiles')
+            ->select('id')
+            ->where('is_expert', 1)
+            ->whereIn('id', $pId)
+            ->get();
+
+        //count of super tasters
+        $countSuperTaste = \DB::table('profiles')
+            ->select('id')
+            ->where('is_tasting_expert', 1)
+            ->whereIn('id', $pId)
+            ->get();
+
+        $this->model['invitedApplicants'] = $list->skip($skip)->take($take)->get();
+        $this->model['totalApplicants'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->count();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where('collaborate_id', $collaborateId)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
-        $this->model['invitedApplicants'] = Collaborate\Applicant::where('collaborate_id', $collaborateId)->where('is_invited', 1)
-            ->whereNull('shortlisted_at')->whereNull('rejected_at')->skip($skip)->take($take)->get();
+        $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
+        $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
+        $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
 
         return $this->sendResponse();
     }
