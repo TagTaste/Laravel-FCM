@@ -25,6 +25,10 @@ class collaborateRoles
         {
             $path = preg_replace('/v1/', 'v', $path);
         }
+        else if($request->is('*/v2/*'))
+        {
+            $path = preg_replace('/v2/', 'v', $path);
+        }
        $ids = preg_split('#([/a-zA-Z]+)#', $path);
        $ids = array_reverse($ids);
        $collabId = null;
@@ -42,6 +46,7 @@ class collaborateRoles
         {
             return response()->json(['data'=>null,'errors'=>'Invalid Collaboration Project.','messages'=>null], 200);
         }
+        
         if($collab->collaborate_type != 'product-review' || (isset($collab->profile_id) && $collab->profile_id == $loggedInProfileId)) {
             return $next($request);
         }
@@ -60,6 +65,10 @@ class collaborateRoles
         if($request->is('*/v1/*'))
         {
             $path = preg_replace('/v/', 'v1', $path);
+        }
+        else if($request->is('*/v2/*'))
+        {
+            $path = preg_replace('/v/', 'v2', $path);
         }
         $permission  = \DB::table('collaborate_user_roles')
             ->where('profile_id',$loggedInProfileId)

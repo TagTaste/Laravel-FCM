@@ -45,7 +45,7 @@ class Applicant extends Model {
         // }
         return json_decode($value,true);
     }
-    
+
     public function getAgeAttribute()
     {
         if(isset($this->dob))
