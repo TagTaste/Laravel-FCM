@@ -257,6 +257,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         });
 
         Route::group(['namespace' => '', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
+            Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+                // count with filters
+                Route::post('filters-list/{id}', 'SurveyController@getFilters');
+            });
+
             Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => 'api.auth'], function () {
                 // get filters for dashboard of product review
                 Route::get("dashboard/filters", "BatchController@filters");
@@ -1046,6 +1051,20 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
             Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
 
+            // survey applicant reports API
+            Route::post('/{id}/applicants', 'SurveyApplicantController@index');
+
+            //survey Applicant filters with count
+            Route::post('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission');
+ 
+            // survey applicant report
+            Route::post('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission');
+
+            // survey get rejected applicants
+            Route::post("/{id}/getRejectApplicants", "SurveyApplicantController@getRejectApplicants");
+
+            // survey get rejected applicants report
+            Route::post('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission');
 
             Route::post('/reports/{id}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");            
             Route::post('/reports/{id}/section/{sectionId}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");
