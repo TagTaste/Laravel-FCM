@@ -1011,11 +1011,12 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
             Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
 
-            
+            Route::post('/reports/{id}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");            
+            Route::post('/reports/{id}/section/{sectionId}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");
 
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
-
+            
             //get long answer
             //get short answer
             //get media urls
