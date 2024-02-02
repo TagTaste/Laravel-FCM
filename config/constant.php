@@ -51,6 +51,11 @@ return  [
         'In Progress' => 3
     ],
 
+    "SURVEY_APPLICANT_STATE" => [
+        "REJECTED" => 0,
+        "ACTIVE" => 1,
+    ],
+
     "MEDIA_SURVEY_QUESTION_TYPE" => 5,
     'PAYMENT_INITIATED_STATUS_ID' => 1,
     'PAYMENT_PENDING_STATUS_ID' => 2,
@@ -127,6 +132,19 @@ return  [
         "PRODUCT_EXPERIENCE" => 2,
         "bill_shot" => 3
     ],
+
+    "COLLABORATE_APPLICANT_STATE" => [
+        "REJECTED" => 0,
+        "ACTIVE" => 1,
+    ],
+
+    "COLLABORATE_CURRENT_STATUS" => [
+        "TO_BE_NOTIFIED" => 0,
+        "NOTIFIED" => 1,
+        "INPROGRESS" => 2,
+        "COMPLETED" => 3
+    ],
+
     'SELECT_TYPES' => [
         'SELFIE_TYPE' => 6,
         'RANK_TYPE'=>7,

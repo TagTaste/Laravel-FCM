@@ -85,12 +85,13 @@ trait PaymentTransaction
                         $dataToUpdate["link"] = $resp["result"]["payoutLink"];
                     }
 
+                    
                     event(new PaymentTransactionCreate($data["model"], null, ["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type,"payout_amount" => $data["payout_amount"],"tds_amount" => $data["tds_amount"],"email"=>$data["email"]]));
                     
                     if ($data["tds_amount"] > 0){
                         $profile_link = env('APP_URL').'/profile/'.$data["model"]["profile_id"];
                         $txn_link = env('SKYNET_URL').'/main/payment-management/passbook?txn='.$data["transaction_id"];
-    
+                        
                         \Mail::to("sahil@tagtaste.com")->send(new TdsDeductionFinanceMail(["title" => "Payment Link Generated", "name" => $data["name"], "order_id" => $data["transaction_id"], "amount" => $pay["amount"], "pretext" => $hyperlink, "type" => $type,"payout_amount" => $data["payout_amount"],"tds_amount" => $data["tds_amount"], "created_at"=>$current_time,"email"=>$data["email"],"profile_link"=> $profile_link, "txn_link"=> $txn_link]));      
                     }
 

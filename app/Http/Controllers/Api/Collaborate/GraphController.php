@@ -78,47 +78,55 @@ class GraphController extends Controller
 
     public function graphFilters(Request $request, $collaborateId)
     {
-
-        $filters = $request->input('filter');
-
-        $gender = ['Male', 'Female', 'Other'];
-        $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
-        $userType = ['Expert', 'Consumer'];
-        $sensoryTrained = ["Yes", "No"];
-        $superTaster = ["SuperTaster", "Normal"];
-        $applicants = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->get();
-        $city = [];
-        $profile = \DB::table('specializations')->orderBy("order", "ASC")->get()->pluck('name')->toArray();
-        foreach ($applicants as $applicant) {
-            if (isset($applicant->city)) {
-                if (!in_array($applicant->city, $city))
-                    $city[] = $applicant->city;
-            }
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
         }
-        $data = [];
-        if (count($filters)) {
-            foreach ($filters as $filter) {
-                if ($filter == 'gender')
-                    $data['gender'] = $gender;
-                if ($filter == 'age')
-                    $data['age'] = $age;
-                if ($filter == 'city')
-                    $data['city'] = $city;
-                if ($filter == 'profiles')
-                    $data['profiles'] = $profile;
-                if ($filter == 'super_taster')
-                    $data['super_taster'] = $superTaster;
-                if ($filter == 'user_type')
-                    $data['user_type'] = $userType;
-                if ($filter == 'sensory_trained')
-                    $data['sensory_trained'] = $sensoryTrained;
-            }
-        } else {
-            $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "profiles" => $profile, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
-        }
-        $this->model = $data;
+
+        $appliedFilters = $request->input('filters');
+
+        $this->model = $this->dashboardFilters($appliedFilters, $collaborateId, $version_num, 'graph_filters');
 
         return $this->sendResponse();
+
+        // $filters = $request->input('filter');
+
+        // $gender = ['Male', 'Female', 'Other'];
+        // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+        // $userType = ['Expert', 'Consumer'];
+        // $sensoryTrained = ["Yes", "No"];
+        // $superTaster = ["SuperTaster", "Normal"];
+        // $applicants = \DB::table('collaborate_applicants')->where('collaborate_id', $collaborateId)->get();
+        // $city = [];
+        // $profile = \DB::table('specializations')->orderBy("order", "ASC")->get()->pluck('name')->toArray();
+        // foreach ($applicants as $applicant) {
+        //     if (isset($applicant->city)) {
+        //         if (!in_array($applicant->city, $city))
+        //             $city[] = $applicant->city;
+        //     }
+        // }
+        // $data = [];
+        // if (count($filters)) {
+        //     foreach ($filters as $filter) {
+        //         if ($filter == 'gender')
+        //             $data['gender'] = $gender;
+        //         if ($filter == 'age')
+        //             $data['age'] = $age;
+        //         if ($filter == 'city')
+        //             $data['city'] = $city;
+        //         if ($filter == 'profiles')
+        //             $data['profiles'] = $profile;
+        //         if ($filter == 'super_taster')
+        //             $data['super_taster'] = $superTaster;
+        //         if ($filter == 'user_type')
+        //             $data['user_type'] = $userType;
+        //         if ($filter == 'sensory_trained')
+        //             $data['sensory_trained'] = $sensoryTrained;
+        //     }
+        // } else {
+        //     $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "profiles" => $profile, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+        // }
+        
     }
 
     public function graphReports(Request $request, $collaborateId)
@@ -473,7 +481,7 @@ class GraphController extends Controller
                             $optionArray["value"] = $option->value;
                             $optionArray["headers"] = [];
                             $totalApplicants[$singlebatch->id][$option->leaf_id] = \DB::table('collaborate_tasting_user_review')->where('value', '!=', '')->where('current_status', 3)->where('collaborate_id', $collaborateId)->where('batch_id', $singlebatch->id)->where('leaf_id', $option->leaf_id)->distinct()->get(['profile_id'])->count();
-
+                             
                             $headerArray = [];
                             foreach ($combinationHeadList as $header) {
 
@@ -489,7 +497,8 @@ class GraphController extends Controller
                                 $responseCount = $response->pluck('value')->count();
                                 $intensityArrray = $response->pluck('intensity')->toArray();
 
-                                if ($totalApplicants[$singlebatch->id] != 0 && $responseCount) {     //if response exists ,and total applicants for batch is not 0
+                                if ($Applicants[$singlebatch->id] != 0 && $responseCount) {     
+                                    //if response exists ,and total applicants for batch is not 0
                                     $headerArray['percentage'] = (string)number_format(round((($responseCount / $Applicants[$singlebatch->id]) * 100), 2), 2, '.', '');
                                     $headerArray['response'] = $responseCount;
                                     if ($question->is_intensity) {
@@ -499,8 +508,7 @@ class GraphController extends Controller
                                         foreach ($answer as $intensityName => $counOfIntensity) {
                                             $sum += $counOfIntensity * ($intensities[$intensityName]) + ($counOfIntensity * (isset($question->initial_intensity) ? $question->initial_intensity : 1));
                                         }
-
-                                        $headerArray['intensity'] = (string)number_format(round(($sum / $totalApplicants[$singlebatch->id][$option->leaf_id]), 2), 2, '.', '');
+                                        $headerArray['intensity'] = (!empty($totalApplicants[$singlebatch->id][$option->leaf_id]) && $totalApplicants[$singlebatch->id][$option->leaf_id] != 0) ? (string)number_format(round(($sum / $totalApplicants[$singlebatch->id][$option->leaf_id]), 2), 2, '.', '') : 0;
                                     }
                                 } else {
                                     $headerArray['percentage'] = "0.00";

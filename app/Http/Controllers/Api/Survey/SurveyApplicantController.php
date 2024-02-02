@@ -43,7 +43,6 @@ class SurveyApplicantController extends Controller
             return $this->sendError("Invalid Survey");
         }
 
-
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
             $companyId = $checkIFExists->company_id;
             $userId = $request->user()->id;
@@ -55,6 +54,12 @@ class SurveyApplicantController extends Controller
         } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
             return $this->sendError("Only Admin can view applicant list");
         }
+
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         //paginate
         $page = $request->input('page');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
@@ -63,12 +68,12 @@ class SurveyApplicantController extends Controller
         $q = $request->input('q');
         $profileIds = [];
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
-
-        $applicants = surveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->whereNull("rejected_at");
+        $applicantModel = new surveyApplicants();
+        $applicants = $applicantModel::where("survey_id", "=", $id);
         if ($q != null) {
             $searchByProfile = surveyApplicants::where('survey_id', $id)
                 ->whereNUll('company_id')
@@ -86,6 +91,8 @@ class SurveyApplicantController extends Controller
             $applicants = $applicants->whereIn('id', $searchByProfile);
         }
 
+        $searchedApplicantProfileIds = $applicants->pluck('profile_id');
+
         if ($request->sortBy != null) {
             $applicants = $this->sortApplicants($request->sortBy, $applicants, $id);
         }
@@ -95,15 +102,14 @@ class SurveyApplicantController extends Controller
                 ->whereIn('profile_id', $profileIds);
         }
 
-        $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
+        $applicantProfileIds = $applicants->pluck('profile_id');
+        $applicants = $applicants->whereNull("deleted_at")->whereNull("rejected_at");
+        $profileIdsForCounts = $applicants->pluck('profile_id');
 
-
-        $profileIdsForCounts = (($request->has('filters') && !empty($request->filters)) ? array_column($applicants, 'profile_id') : SurveyApplicants::where("survey_id", "=", $id)->whereNull("deleted_at")->get()->pluck("profile_id"));
         //count of sensory trained
         $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
             ->whereIn('profiles.id', $profileIdsForCounts)
             ->get();
-
 
         //count of experts
         $countExpert = \DB::table('profiles')
@@ -118,12 +124,14 @@ class SurveyApplicantController extends Controller
             ->where('is_tasting_expert', 1)
             ->whereIn('id', $profileIdsForCounts)
             ->get();
-        $this->model['applicants'] = $applicants;
-        $this->model['totalApplicants'] = surveyApplicants::where('survey_id', $id)
-            ->whereNull('deleted_at')->count();
 
-        $this->model['invitedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull("deleted_at")->count();
-        $this->model['rejectedApplicantsCount'] = surveyApplicants::where('survey_id', $id)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
+        $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
+
+        $this->model['applicants'] = $applicants;
+        $this->model['totalApplicants'] = $applicantModel::where("survey_id", "=", $id)->whereNull('deleted_at')->count();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
+        $this->model['activeApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNull('rejected_at')->whereNull("deleted_at")->count();
 
         $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
@@ -338,20 +346,26 @@ class SurveyApplicantController extends Controller
             $this->model = false;
             return $this->sendNewError($survey->profile->user->name . " accepted your survey participation request by mistake and it has been reversed.");
         }
-        
-        $last_attempt = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $request->user()->profile->id)
+
+
+        $profile_id = $request->user()->profile->id;
+        $last_attempt = SurveyAttemptMapping::where("survey_id", $id)->where("profile_id", $profile_id)
         ->orderBy("updated_at", "desc")->whereNull("deleted_at")->first();
         
         $answerAttempt = [];
-        $answerAttempt["profile_id"] = $request->user()->profile->id;
+        $answerAttempt["profile_id"] = $profile_id;
         $answerAttempt["survey_id"] = $id;
+
+        $currentDateTime = Carbon::now();
         
         $updateData = [];
         if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;
+            $answerAttempt["start_review"] = $currentDateTime;
+            $answerAttempt["current_status"] = config("constant.SURVEY_APPLICANT_STATUS.In Progress");
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
-            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
+            SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
             $this->model = true;
 
             if($request->has("is_donation")){
@@ -373,8 +387,10 @@ class SurveyApplicantController extends Controller
             if ($survey->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
                 $attempt_number += 1;
                 $answerAttempt["attempt"] = $attempt_number;
+                $answerAttempt["start_review"] = $currentDateTime;
+                $answerAttempt["current_status"] = config("constant.SURVEY_APPLICANT_STATUS.In Progress");
                 $attemptEntry = SurveyAttemptMapping::create($answerAttempt);    //when new attempt of same user first entry
-                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
+                SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
                 $this->model = true;    
             }else{
                 SurveysEntryMapping::create(["surveys_attempt_id"=>$last_attempt->id,"activity"=>config("constant.SURVEY_ACTIVITY.START")]);
@@ -565,6 +581,11 @@ class SurveyApplicantController extends Controller
 
     public function applicantFilters($id, Request $request)
     {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         $gender = ['Male', 'Female', 'Other'];
         $age = Helper::getGenerationFilter('string');
         // $age = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
@@ -572,7 +593,8 @@ class SurveyApplicantController extends Controller
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
-        $applicants = \DB::table('survey_applicants')->where('survey_id', $id)->get();
+        $surveyApplicants = surveyApplicants::where('survey_id', $id)
+        ->whereNull('survey_applicants.deleted_at');
         $applicationStatus = [
             'To Be Notified',
             'Notified',
@@ -581,48 +603,124 @@ class SurveyApplicantController extends Controller
         ];
         $city = [];
         $profile = [];
-        $hometown = [];
-        $current_city = [];
+        // $hometown = [];
+        // $current_city = [];
+        $applicants = $surveyApplicants->get();
+        $applicantProfileIds = $applicants->pluck('profile_id');
+
         foreach ($applicants as $applicant) {
             if (isset($applicant->city)) {
                 if (!in_array($applicant->city, $city))
                     $city[] = $applicant->city;
             }
-            
-            $specializations = \DB::table('profiles')
-                ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
-                ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')
-                ->where('profiles.id', $applicant->profile_id)
-                ->pluck('name');
-            foreach ($specializations as $specialization) {
-                if (!in_array($specialization, $profile) && $specialization != null)
-                    $profile[] = $specialization;
-            }
         }
-        //$profile = array_filter($profile);
-        $data = [];
-        $filters = $request->input('filter');
-        if (count($filters)) {
-            foreach ($filters as $filter) {
-                if ($filter == 'gender')
-                    $data['gender'] = $gender;
-                if ($filter == 'age')
-                    $data['age'] = $age;
-                if ($filter == 'city')
-                    $data['city'] = $city;
-                if ($filter == 'profile')
-                    $data['profile'] = $profile;
-                if ($filter == 'super_taster')
-                    $data['super_taster'] = $superTaster;
-                if ($filter == 'user_type')
-                    $data['user_type'] = $userType;
-                if ($filter == 'sensory_trained')
-                    $data['sensory_trained'] = $sensoryTrained;
-                if ($filter == 'application_status')
-                    $data['application_status'] = $applicationStatus;
+
+        // profile specializations
+        $specializations = \DB::table('profiles')
+            ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
+            ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id');
+
+        $query = clone $specializations;
+        $profile = $query->whereIn('profiles.id', $applicantProfileIds)->groupBy('name')->pluck('name')->toArray();
+        $profile = array_values(array_filter($profile));
+
+        if (isset($version_num) && $version_num == 'v1')
+        {
+            $current_state = $request->state;
+      
+            $surveyData = Surveys::where("id", "=", $id)->first();
+            $filters = $request->input('filters');
+            $filteredProfileIds = $this->getProfileIdOfFilter($surveyData, $request, $version_num)['profile_id'];
+
+            $profileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
+
+            if(isset($current_state) && $current_state == config("constant.SURVEY_APPLICANT_STATE.ACTIVE")){
+                $surveyApplicantIds = $surveyApplicants->whereNull('survey_applicants.rejected_at')->pluck('profile_id')->toArray();
+                $profileIds = array_values(array_intersect($profileIds->toArray(), $surveyApplicantIds));
+            } else if(isset($current_state) && $current_state == config("constant.SURVEY_APPLICANT_STATE.REJECTED")){
+                $surveyApplicantIds = $surveyApplicants->whereNotNull('survey_applicants.rejected_at')->pluck('profile_id')->toArray();
+                $profileIds = array_values(array_intersect($profileIds->toArray(), $surveyApplicantIds));
             }
-        } else {
+
+            $profileModel = Profile::whereNull('deleted_at');
+
+            $ageCounts = $this->getCount($surveyApplicants, 'generation', $profileIds);
+            $age = $this->getFieldPairedData($age, $ageCounts);
+            $age['key'] = 'age';
+            $age['value'] = 'Age';
+
+            $genderCounts = $this->getCount($surveyApplicants,'gender', $profileIds);
+            $gender = $this->getFieldPairedData($gender, $genderCounts);
+            $gender['key'] = 'gender';
+            $gender['value'] = 'Gender';
+            
+            // count of experts
+            $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
+            $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
+            $userType['key'] = 'user_type';
+            $userType['value'] = 'User Type';
+
+            // sensory trained or not
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds);
+            $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
+            $sensoryTrained['key'] = 'sensory_trained';
+            $sensoryTrained['value'] = 'Sensory Trained';
+
+            // supar taster or not
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds);
+            $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
+            $superTaster['key'] = 'super_taster';
+            $superTaster['value'] = 'Super Taster';
+
+            // application status
+            $statusCounts = $this->getCount($surveyApplicants, 'application_status', $profileIds);
+
+            foreach($applicationStatus as $key => $val)
+            {  
+                $inner_arr['key'] = $val;
+                $inner_arr['value'] = $val;
+                $val = config("constant.SURVEY_APPLICANT_STATUS." . ucwords($val));
+                $inner_arr['count'] = isset($statusCounts[$val]) ? $statusCounts[$val] : 0;
+                unset($applicationStatus[$key]);
+                $applicationStatus['items'][$key] = $inner_arr;
+            }
+            $applicationStatus['key'] = 'application_status';
+            $applicationStatus['value'] = 'Application Status';
+
+            // profile specializations
+            $specializationsCount = $specializations->select('name', \DB::raw('COUNT(*) as count'))->whereIn('profiles.id', $profileIds)->groupBy('name')->pluck('count','name');
+            $profile = $this->getFieldPairedData($profile, $specializationsCount);
+            $profile['key'] = 'profile';
+            $profile['value'] = 'Profile';
+        }
+
+        // $profile = array_filter($profile);
+        $data = [];
+        // $filters = $request->input('filter');
+        // if (isset($filters) && count($filters)) {
+        //     foreach ($filters as $filter) {
+        //         if ($filter == 'gender')
+        //             $data['gender'] = $gender;
+        //         if ($filter == 'age')
+        //             $data['age'] = $age;
+        //         if ($filter == 'city')
+        //             $data['city'] = $city;
+        //         if ($filter == 'profile')
+        //             $data['profile'] = $profile;
+        //         if ($filter == 'super_taster')
+        //             $data['super_taster'] = $superTaster;
+        //         if ($filter == 'user_type')
+        //             $data['user_type'] = $userType;
+        //         if ($filter == 'sensory_trained')
+        //             $data['sensory_trained'] = $sensoryTrained;
+        //         if ($filter == 'application_status')
+        //             $data['application_status'] = $applicationStatus;
+        //     }
+        // } else {
             $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster, "application_status" => $applicationStatus];
+        // }
+        if (isset($version_num) && $version_num == 'v1'){
+            $data = [$gender, $age, $profile, $sensoryTrained, $userType, $superTaster, $applicationStatus];
         }
         $this->model = $data;
         return $this->sendResponse();
@@ -631,6 +729,11 @@ class SurveyApplicantController extends Controller
 
     public function export($id, Request $request)
     {
+        $version_num = '';
+        if(request()->is('*/v1/*')){
+            $version_num = 'v1';
+        } 
+
         $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
 
         if ($survey === null) {
@@ -654,7 +757,7 @@ class SurveyApplicantController extends Controller
         //filters data
         $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -740,7 +843,7 @@ class SurveyApplicantController extends Controller
 
             // Call them separately
             $excel->setDescription('A Surveys Applicants list');
-
+         
             $excel->sheet('Sheetname', function ($sheet) use ($finalData) {
                 $sheet->fromArray($finalData);
                 foreach ($sheet->getColumnIterator() as $row) {
@@ -786,10 +889,15 @@ class SurveyApplicantController extends Controller
             // return $this->sendError("Only Admin can download report of this survey");
         }
 
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         //filters data
         $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -840,7 +948,6 @@ class SurveyApplicantController extends Controller
             );
             array_push($finalData, $temp);
         }
-
 
         $relativePath = "reports/surveysAnsweredExcel/$id";
         $name = "survey-" . $id . "-" . uniqid();
@@ -991,21 +1098,32 @@ class SurveyApplicantController extends Controller
     public function getRejectApplicants(Request $request, $id)
     {
         $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
         $page = $request->input('page');
         $q = $request->input('q');
         $filters = $request->input('filters');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $list = surveyApplicants::where('survey_id', $id)->whereNull('deleted_at') //->whereNull('shortlisted_at')
-            ->whereNotNull('rejected_at');
+
+        $applicantModel = new surveyApplicants();
+        $list = $applicantModel::where('survey_id', $id);
 
         if (isset($q) && $q != null) {
             $ids = $this->getSearchedProfile($q, $id);
             $list = $list->whereIn('id', $ids);
         }
 
+        $searchedApplicantProfileIds = $list->pluck('profile_id');
+
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
         if (isset($filters) && $filters != null) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $list = $list->whereIn('profile_id', $profileIds);
         }
@@ -1013,9 +1131,37 @@ class SurveyApplicantController extends Controller
             $archived = $this->sortApplicants($request->sortBy, $list, $id);
         }
 
-        $this->model['rejectedApplicantsCount'] = $list->count();
-        $list = $list->skip($skip)->take($take)->get();
-        $this->model['rejectedApplicantList'] = $list;
+        $applicantProfileIds = $list->pluck('profile_id');
+        $list = $list->whereNull('deleted_at')->whereNotNull('rejected_at');
+        $profileIdsForCounts = $list->pluck('profile_id');
+
+        //count of sensory trained
+        $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
+            ->whereIn('profiles.id', $profileIdsForCounts)
+            ->get();
+
+        //count of experts
+        $countExpert = \DB::table('profiles')
+            ->select('id')
+            ->where('is_expert', 1)
+            ->whereIn('id', $profileIdsForCounts)
+            ->get();
+
+        //count of super tasters
+        $countSuperTaste = \DB::table('profiles')
+            ->select('id')
+            ->where('is_tasting_expert', 1)
+            ->whereIn('id', $profileIdsForCounts)
+            ->get();
+
+        $this->model['rejectedApplicantList'] = $list->skip($skip)->take($take)->get();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
+        $this->model['activeApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNull('rejected_at')->whereNull("deleted_at")->count();
+
+        $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
+        $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
+        $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
 
         return $this->sendResponse();
     }
@@ -1073,32 +1219,65 @@ class SurveyApplicantController extends Controller
     public function getInvitedApplicants(Request $request, $id)
     {
         $survey = $this->model->where('id', $id)->whereNull('deleted_at')->first();
+        if ($survey === null) {
+            return $this->sendError("Invalid survey Project.");
+        }
+        
         $page = $request->input('page');
         $q = $request->input('q');
-        $filters = $request->input('filters');
+        // $filters = $request->input('filters');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $list = surveyApplicants::where('survey_id', $id)->where('is_invited', 1)->whereNull('deleted_at')
-            ->whereNull('rejected_at');
 
+        $applicantModel = new surveyApplicants();
+        $list = $applicantModel::where('survey_id', $id);
 
         if (isset($q) && $q != null) {
             $ids = $this->getSearchedProfile($q, $id);
             $list = $list->whereIn('id', $ids);
         }
 
+        // if (isset($filters) && $filters != null) {
+        //     $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
+        //     $profileIds = $getFiteredProfileIds['profile_id'];
+        //     $list = $list->whereIn('profile_id', $profileIds);
+        // }
+        // if ($request->sortBy != null) {
+        //     $archived = $this->sortApplicants($request->sortBy, $list, $id);
+        // }
 
-        if (isset($filters) && $filters != null) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
-            $profileIds = $getFiteredProfileIds['profile_id'];
-            $list = $list->whereIn('profile_id', $profileIds);
-        }
-        if ($request->sortBy != null) {
-            $archived = $this->sortApplicants($request->sortBy, $list, $id);
-        }
+        $applicantProfileIds = $list->pluck('profile_id');
+        $list = $list->where('is_invited', 1)->whereNull('deleted_at')
+        ->whereNull('rejected_at');
+        $profileIdsForCounts = $list->pluck('profile_id');
 
-        $this->model['invitedApplicantsCount'] = $list->count();
+        //count of sensory trained
+        $countSensory = \DB::table('profiles')->where('is_sensory_trained', "=", 1)
+            ->whereIn('profiles.id', $profileIdsForCounts)
+            ->get();
+
+        //count of experts
+        $countExpert = \DB::table('profiles')
+            ->select('id')
+            ->where('is_expert', 1)
+            ->whereIn('id', $profileIdsForCounts)
+            ->get();
+
+        //count of super tasters
+        $countSuperTaste = \DB::table('profiles')
+            ->select('id')
+            ->where('is_tasting_expert', 1)
+            ->whereIn('id', $profileIdsForCounts)
+            ->get();
+
         $this->model['invitedApplicants'] = $list->skip($skip)->take($take)->get();
+        $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
+        $this->model['rejectedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNotNull('rejected_at')->whereNull("deleted_at")->count();
+        $this->model['activeApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $applicantProfileIds)->whereNull('rejected_at')->whereNull("deleted_at")->count();
+
+        $this->model["overview"][] = ['title' => "Sensory Trained", "count" => $countSensory->count()];
+        $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
+        $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
 
         return $this->sendResponse();
     }

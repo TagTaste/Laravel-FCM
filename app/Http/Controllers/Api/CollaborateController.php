@@ -1062,8 +1062,9 @@ class CollaborateController extends Controller
 
     public function applicantFilters(Request $request, $collaborateId)
     {
-        $filters = $request->input('filter');
-        $this->model = $this->getFilters($filters, $collaborateId);
+        // $filters = $request->input('filter');
+        $appliedFilters = $request->input('filters');
+        $this->model = $this->getFilters($appliedFilters, $collaborateId);
         return $this->sendResponse();
     }
 
