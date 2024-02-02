@@ -340,7 +340,11 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\UploadLogsToS3::class,
 
         //deacitveted user push
-        \App\Console\Commands\Build\Cache\DeactivatedUsers::class
+        \App\Console\Commands\Build\Cache\DeactivatedUsers::class,
+
+        \App\Console\Commands\UpdatePrivateReviewMeta::class,
+        \App\Console\Commands\UpdateSurveyReviewMeta::class,
+        \App\Console\Commands\UpdatePublicReviewMeta::class
 
     ];
 

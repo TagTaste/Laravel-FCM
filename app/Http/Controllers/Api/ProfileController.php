@@ -123,8 +123,7 @@ class ProfileController extends Controller
             "_method", "_token", 'hero_image', 'image', 'resume', 'remove', 'remove_image',
             'remove_hero_image', 'verified_phone'
         ]);
-        
-        
+
         //proper verified.
         if (isset($data['verified'])) {
             $data['verified'] = empty($data['verified']) ? 0 : 1;

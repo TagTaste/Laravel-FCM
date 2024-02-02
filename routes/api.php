@@ -177,13 +177,28 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     Route::post('/user/register', ['uses' => 'UserController@register']);
     Route::get("profile/images/{id}.jpg", ['as' => 'profile.image', 'uses' => 'ProfileController@image']);
     Route::get("profile/hero/{id}.jpg", ['as' => 'profile.heroImage', 'uses' => 'ProfileController@heroImage']);
-
+    
     /**
      * newsletter.
      */
     Route::post('newsletters', 'NewsletterController@store');
     Route::get('/user/verify/email/{token}', 'UserController@verify');
 
+    // Routes for preview of questionnaire tool. It'll not work with traditional auth system jwt.It'll be using temp tokens just for the session of some duration.
+    Route::post('preview/questionnaire/{id}/verify-otp', 'QuestionnairePreview\QuestionnairePreviewController@generateToken');
+    
+    Route::middleware(['api.tempAuth'])->group(function () {
+        Route::group(['namespace' => 'QuestionnairePreview', 'prefix' => 'preview/questionnaire/{id}/'], function () {
+            Route::get('detail', ['uses' => 'QuestionnairePreviewController@questionnaireDetail']);
+            Route::get('headers', ['uses' => 'QuestionnairePreviewController@headers']);
+            Route::get('headers/{headerId}/questions', ['uses' => 'QuestionnairePreviewController@reviewQuestions']);
+            Route::get('headers/{headerId}/question/{questionId}', ['uses' => 'QuestionnairePreviewController@getNestedOptions']);
+            Route::get('headers/{headerId}/question/{questionId}/search', ['uses' => 'QuestionnairePreviewController@getNestedOptionSearch']);
+
+            Route::post('share', ['uses' => 'QuestionnairePreviewController@shareQuestionnaire']);
+        });        
+    });
+    
     /**
      * Authenticated routes.
      */
@@ -1031,9 +1046,13 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
             Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
 
+
+            Route::post('/reports/{id}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");            
+            Route::post('/reports/{id}/section/{sectionId}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");
+
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
-
+            
             //get long answer
             //get short answer
             //get media urls

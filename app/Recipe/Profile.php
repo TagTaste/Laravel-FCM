@@ -20,11 +20,17 @@ class Profile extends BaseProfile
         'keywords','image','isFollowing','ageRange','gender',"image_meta","hero_image_meta",'is_ttfb_user','verified','is_expert','is_tasting_expert','phone','tasting_instructions','is_premium','hometown',"is_sensory_trained","account_deactivated", 'foodie_type_id', 'foodie_type', 'allergens'];
 
 
+
     protected $appends = ['name','designation','imageUrl','ageRange', 'email','account_deactivated', 'foodie_type'];
     
     public function getDesignationAttribute()
     {
        return $this->professional !== null ? $this->professional->designation : null;
+    }
+
+    public function getFoodieTypeAttribute()
+    {
+        return isset($this->foodie_type_id) ? \DB::table('foodie_type')->where('id', $this->foodie_type_id)->first() : null;
     }
     
     public function getAgeRangeAttribute()
