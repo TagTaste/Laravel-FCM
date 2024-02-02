@@ -33,6 +33,10 @@ return  [
         "COMPLETED" => 2
     ],
 
+    "TXN_REASON" => [
+        "DONATION" => "donation"
+    ],
+
     "QUIZ_RESULT_IMAGE_URL" =>[
          "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/0_score.gif",
         "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/33_score.gif",
@@ -59,6 +63,7 @@ return  [
     'PAYMENT_FAILURE_STATUS_ID' => 4,
     'PAYMENT_CANCELLED_STATUS_ID' => 5,
     'PAYMENT_EXPIRED_STATUS_ID' => 6,
+    'PAYMENT_DONATED_STATUS_ID' => 7,
     'MINIMUM_PAID_TASTER_REVIEWS' => 4,
 
     'PAYMENT_STATUS' => [

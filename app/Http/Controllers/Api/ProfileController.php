@@ -23,6 +23,7 @@ use Twilio\Rest\Client as TwilioClient;
 use Twilio\Jwt\ClientToken;
 use App\BlockAccount\BlockAccount;
 use App\Services\UserService;
+use App\DonationProfileMapping;
 
 class ProfileController extends Controller
 {
@@ -119,6 +120,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
+        
         $data = $request->except([
             "_method", "_token", 'hero_image', 'image', 'resume', 'remove', 'remove_image',
             'remove_hero_image', 'verified_phone'
@@ -276,6 +278,7 @@ class ProfileController extends Controller
                 \DB::table('profiles_cuisines')->where('profile_id', $loggedInProfileId)->delete();
             }
         }
+        
         if ($request->has('establishment_type_id')) {
             $establishmentTypeIds = $request->input('establishment_type_id');
             $establishmentTypes = [];
@@ -1090,6 +1093,37 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
+    public function updateDonation(Request $request){
+        $profileId = $request->user()->profile->id;
+        $this->model = false;
+        if($request->has("is_donation")){
+            $this->model = true;
+            $isDonation = $request->is_donation;
+            if($isDonation){
+                $organisationId = $request->donation_organisation['id'] ?? null;
+                $this->model = true;
+                if(is_null($organisationId)){
+                    $this->model = false;
+                    return $this->sendNewError("Organisation detail missing.");
+                }
+                $data = ["is_donation"=>true];
+                \App\Profile::where('id', $profileId)->update($data);
+
+                DonationProfileMapping::where('profile_id',$profileId)->whereNull('deleted_at')->update(["deleted_at"=>Carbon::now()]);
+
+                $data = ["profile_id"=>$profileId, "donation_organisation_id"=>$organisationId, "created_at"=>Carbon::now(), "updated_at"=>Carbon::now()];
+                DonationProfileMapping::updateOrInsert($data);
+                
+            }else{                
+                $data = ["is_donation"=>false];
+                \App\Profile::where('id', $profileId)->update($data);
+
+                DonationProfileMapping::where('profile_id',$profileId)->whereNull('deleted_at')->update(["deleted_at"=>Carbon::now()]);
+            }
+        }
+        return $this->sendNewResponse();
+    }
+    
     public function addAllergens(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;

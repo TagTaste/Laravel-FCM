@@ -113,7 +113,7 @@ trait PaymentTransaction
             }
         }
     }
-
+    
     public function getStatus($transaction_id)
     {
 
@@ -128,7 +128,7 @@ trait PaymentTransaction
             throw new Exception("Payment Channel Missing");
             return false;
         }
-        if($getChannel['status_id'] == config("constant.PAYMENT_INITIATED_STATUS_ID")){
+        if($getChannel['status_id'] == config("constant.PAYMENT_INITIATED_STATUS_ID") || $getChannel['status_id'] == config("constant.PAYMENT_DONATED_STATUS_ID")){
             return true;
         }
 

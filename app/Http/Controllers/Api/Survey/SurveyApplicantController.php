@@ -184,6 +184,22 @@ class SurveyApplicantController extends Controller
             'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, "application_status" => (int)config("constant.SURVEY_APPLICANT_ANSWER_STATUS.TO_BE_NOTIFIED"), "created_at" => date("Y-m-d H:i:s"), "updated_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
         ];
 
+        if($request->has("is_donation")){
+            $isDonation = $request->is_donation;
+            if($isDonation){
+                $organisationId = $request->donation_organisation['id'] ?? null;
+                if(is_null($organisationId)){
+                    $this->model = false;
+                    return $this->sendError("Organisation detail missing.");
+                }
+                $data['is_donation'] = true;
+                $data['donation_organisation_id'] = $organisationId;                
+            }else{
+                $data['is_donation'] = false;
+            }
+        }
+
+
         $create = surveyApplicants::create($data);
 
         if (isset($create->id)) {
@@ -280,7 +296,6 @@ class SurveyApplicantController extends Controller
     }
 
     public function startSurvey($id, Request $request){
-
     try{
         $survey = $this->model->where("id", "=", $id)->first();
         $this->model = [];
@@ -340,8 +355,10 @@ class SurveyApplicantController extends Controller
         $answerAttempt = [];
         $answerAttempt["profile_id"] = $profile_id;
         $answerAttempt["survey_id"] = $id;
+
         $currentDateTime = Carbon::now();
         
+        $updateData = [];
         if (empty($last_attempt)) {   //WHEN ITS FIRST ATTEMPT
             $attempt_number = 1;
             $answerAttempt["attempt"] = $attempt_number;
@@ -350,6 +367,21 @@ class SurveyApplicantController extends Controller
             $attemptEntry = SurveyAttemptMapping::create($answerAttempt);  //entry on first hit
             SurveysEntryMapping::create(["surveys_attempt_id"=>$attemptEntry->id,"activity"=>config("constant.SURVEY_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
             $this->model = true;
+
+            if($request->has("is_donation")){
+                $isDonation = $request->is_donation;
+                if($isDonation){
+                    $organisationId = $request->donation_organisation['id'] ?? null;
+                    if(is_null($organisationId)){
+                        $this->model = false;
+                        return $this->sendError("Organisation detail missing.");
+                    }
+                    $updateData['is_donation'] = true;
+                    $updateData['donation_organisation_id'] = $organisationId;                
+                }else{
+                    $updateData['is_donation'] = false;
+                }
+            }
         } else {    //when its not first attempt
             $attempt_number = $last_attempt->attempt;
             if ($survey->multi_submission && $checkApplicant->application_status == config("constant.SURVEY_APPLICANT_ANSWER_STATUS.COMPLETED")) {
@@ -365,9 +397,12 @@ class SurveyApplicantController extends Controller
                 $this->model = true;
             }
         }
-        
+
+        $updateData["application_status"] = config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS");
+        $updateData["completion_date"] = null;       
+
          //update applicant to inprogress
-        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update(["application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"), "completion_date" => null]);
+        $checkApplicant = \DB::table("survey_applicants")->where('survey_id', $id)->where('profile_id', $request->user()->profile->id)->update($updateData);
         $user = $request->user()->profile->id;
         Redis::set("surveys:application_status:$id:profile:$user", config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INPROGRESS"));
         DB::commit();
@@ -410,7 +445,7 @@ class SurveyApplicantController extends Controller
                 'is_invited' => $isInvited, 'profile_id' => $loggedInprofileId, 'survey_id' => $id->id,
                 'message' => $request->input('message'), 'address' => $applierAddress,
                 'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "created_at" => date("Y-m-d H:i:s"), "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
-            ];
+            ];            
             $ins = \DB::table('survey_applicants')->insert($inputs);
         } else {
             $update = [];
@@ -441,6 +476,7 @@ class SurveyApplicantController extends Controller
                 $ins = \DB::table('survey_applicants')->where("id", "=", $checkApplicant->id)->update($update);
             }
         }
+        
         $this->model = true;
         return $this->sendResponse();
     }

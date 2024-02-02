@@ -301,7 +301,7 @@ class ReviewController extends Controller
 
     }
 
-
+    
     public function paidProcessing($collaborateId, $batchId, Request $request)
     {
         $responseData = $flag = [];
@@ -362,7 +362,13 @@ class ReviewController extends Controller
                 // $responseData["subTitle"] = "You have successfully completed the review.";
                 // $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/failed.png";
                 $responseData["helper"] = "You can earn money for such review by enroling yourself in paid taster program.";
-            } else if ($flag["status"] == true) {
+            }else if ($flag["status"] == true && isset($flag["reason"]) && $flag["reason"] == config("constant.TXN_REASON.DONATION")) {
+                $responseData["get_paid"] = true;
+                $responseData["title"] = "Congratulations!";
+                $responseData["subTitle"] = "You have successfully completed the review.";
+                $responseData["icon"] = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/Payment/Static/Submit-Review/congratulation.png";
+                $responseData["helper"] = "We sincerely appreciate your generosity in choosing to donate your reward!";
+            }else if ($flag["status"] == true) {
                 $responseData["get_paid"] = true;
                 $responseData["title"] = "Congratulations!";
                 $responseData["subTitle"] = "You have successfully completed the review.";
@@ -417,7 +423,7 @@ class ReviewController extends Controller
                 } else {
                     $key = "consumer";
                 }
-
+                
                 if ($getCount[$key] >= $getAmount["current"][$key][0]["user_count"]) {
                     //error message for different user type counts exceeded
                     return ["status" => false, "reason" => "not_paid"];
@@ -426,7 +432,9 @@ class ReviewController extends Controller
                 $amount = ((isset($getAmount["current"][$key][0]["amount"])) ? $getAmount["current"][$key][0]["amount"] : 0);
             }
 
-            $data = ["amount" => $amount, "tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id, "payment_id" => $paymentDetails->id];
+            $applicant = Applicant::where("collaborate_id", $paymentDetails->model_id)->where("profile_id", $request->user()->profile->id)->first();
+
+            $data = ["amount" => $amount, "tds_deduction"=>$request->user()->profile->tds_deduction, "model_type" => "Private Review", "model_id" => $paymentDetails->model_id, "sub_model_id" => $paymentDetails->sub_model_id, "payment_id" => $paymentDetails->id, "is_donation"=> $applicant->is_donation, "donation_organisation_id"=> $applicant->donation_organisation_id];
 
             if (isset($paymentDetails->comment) && !empty($paymentDetails->comment)) {
                 $data["comment"] = $paymentDetails->comment;
