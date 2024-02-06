@@ -96,8 +96,9 @@ class PublicViewController extends Controller
             ];
         }
 
-        $socialPreview = $model->getPreviewContent();
-        $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id);
+        $socialPreview = null;
+        // $socialPreview = $model->getPreviewContent();
+        // $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id);
         $this->model['social'] = [];
         $this->model['social']['deeplink'] = Deeplink::getShortLink($modelName, $id);
         $this->model['social']['deeplink_text'] = Deeplink::getDeepLinkText($modelName,$model);
