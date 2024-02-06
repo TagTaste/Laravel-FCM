@@ -137,7 +137,24 @@ class SurveyApplicantController extends Controller
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
         $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
 
+        foreach($applicants as &$applicant){
+            $applicant["txn_status"] = $this->getTxnStatusForApplicant($id,$applicant['profile_id']);
+        }
+
         return $this->sendResponse();
+    }
+
+    function getTxnStatusForApplicant($surveyId, $profileId){
+        $getPaymentDetails =  \DB::table("payment_links")
+                            ->select('payment_status.*')
+                            ->join('payment_status', 'payment_links.status_id', '=', 'payment_status.id')
+                            ->where('payment_links.model_id', '=', $surveyId)
+                            ->where('payment_links.profile_id', '=', $profileId)
+                            ->where('payment_links.model_type', '=', 'Survey')
+                            ->whereNull('payment_links.deleted_at')
+                            ->first();
+
+        return $getPaymentDetails;
     }
 
     public function showInterest($id, Request $request)
