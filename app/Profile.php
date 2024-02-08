@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Redis;
 use App\BlockAccount\BlockAccount;
+use App\DonationProfileMapping;
 
 class Profile extends Model
 {
@@ -26,7 +27,7 @@ class Profile extends Model
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
         'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step', 'gender', 'foodie_type_id', 'onboarding_complete', "image_meta", "hero_image_meta", 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'is_ttfb_user',
         // palate data
-        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_sensory_trained', 'is_paid_taster'
+        'palate_visibility', 'palate_iteration', 'palate_iteration_status', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_sensory_trained', 'is_paid_taster','is_donation'
     ];
 
     // palate_visibility 1 visible to all, 0 hidden from everyone, 2 visible to people I follow
@@ -51,7 +52,7 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy', 'profileCompletion', 'batchesCount', 'gender', 'user_id', 'newBatchesCount', 'shippingaddress',
         'profile_occupations', 'profile_specializations', 'is_veteran', 'is_expert', 'foodie_type_id', 'foodie_type', 'establishment_types', 'cuisines', 'interested_collections',
-        'onboarding_complete', "image_meta", "hero_image_meta", 'fb_info', 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'reviewCount', 'allergens', 'totalPostCount', 'imagePostCount', 'document_meta', 'is_ttfb_user', 'palate_sensitivity', 'palate_visibility', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_paid_taster', 'is_sensory_trained', 'payment','profile_badges'
+        'onboarding_complete', "image_meta", "hero_image_meta", 'fb_info', 'is_facebook_connected', 'is_linkedin_connected', 'is_google_connected', 'is_tasting_expert', 'reviewCount', 'allergens', 'totalPostCount', 'imagePostCount', 'document_meta', 'is_ttfb_user', 'palate_sensitivity', 'palate_visibility', 'palate_test_status', 'tasting_instructions', 'is_premium', 'hometown', 'is_paid_taster', 'is_sensory_trained', 'payment','profile_badges',"is_donation","donation_organisation"
     ];
 
 
@@ -59,7 +60,7 @@ class Profile extends Model
         'imageUrl', 'shippingaddress', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name',
         'resumeUrl', 'experience', 'education', 'mutualFollowers', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount',
         'remainingMessages', 'isFollowedBy', 'isMessageAble', 'profileCompletion', 'batchesCount', 'newBatchesCount', 'foodie_type', 'establishment_types',
-        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'quizAnswerCount','pollAnswerCount','totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment','profile_badges'
+        'cuisines', 'allergens', 'interested_collections', 'fb_info', 'reviewCount', 'privateReviewCount', 'surveyCount', 'quizAnswerCount','pollAnswerCount','totalPostCount', 'amount', 'imagePostCount', 'document_meta', 'palate_sensitivity', 'shoutoutPostCount', 'shoutoutSharePostCount', 'collaboratePostCount', 'collaborateSharePostCount', 'photoPostCount', 'photoSharePostCount', 'pollingPostCount', 'pollingSharePostCount', 'productSharePostCount', 'payment','profile_badges',"donation_organisation"
     ];
 
     /**
@@ -1635,5 +1636,14 @@ class Profile extends Model
             }
         }
         return $badgeList;
+    }
+
+    public function getDonationOrganisationAttribute(){
+        $data = DonationProfileMapping::where('profile_id', $this->id)
+        ->whereNull('deleted_at')->first();
+        if(!is_null($data)){
+            return $data->getOrganisation();
+        }
+        return $data;
     }
 }

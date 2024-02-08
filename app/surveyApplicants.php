@@ -14,8 +14,9 @@ class surveyApplicants extends Model
 
     protected $guarded = ["id"];
 
-    // protected $visible = ['id','profile_id','survey_id','is_invited','profile,
-    // 'message','hut','created_at','updated_at','city','age_group','gender','company','company_id','document_meta','terms_verified', 'documents_verified','phone','submission_count','hometown','current_city'];
+
+    protected $visible = ['id','profile_id','survey_id','is_invited','profile',
+    'message','address','hut','created_at','updated_at','city','age_group','gender','generation','dob','company','completion_date','is_donation','donation_organisation_id','company_id','document_meta','terms_verified', 'documents_verified','phone','submission_count','hometown','current_city','application_status','inprogress_count','last_submission','is_donation','donation_organisation_id'];
 
     protected $appends = ['phone','inprogress_count','last_submission','submission_count'];
 
