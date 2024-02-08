@@ -129,7 +129,12 @@ class Helper
         }
     }
     public static function getOptionForValue($value, $optionList){
-        $number = round($value);   
+        $number = round($value);  
+        if((float)$value < 0){
+            $parts = explode('.', $value);
+            $values_after_decimal = isset($parts[1]) ? $parts[1] : '0';
+            $number = ($values_after_decimal >= 50) ? (int)ceil($value) : (int)floor($value);
+        }
 
         $filteredArray = array_values(array_filter($optionList, function ($obj) use ($number) {
             return $obj->value == $number;
