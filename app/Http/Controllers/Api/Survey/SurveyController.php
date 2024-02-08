@@ -3988,11 +3988,15 @@ class SurveyController extends Controller
         if ($checkIFExists["is_section"]) {  //for section type form_json
             $sectionedQuestions = array_column($getJsonQues, 'questions');
             if(count($sectionedQuestions)){
-                $getJsonQues = array_map('current', $sectionedQuestions);  
+                $getJsonQues = array_merge(...$sectionedQuestions);
             } 
         }
 
         for($j=0; $j<count($getJsonQues); $j++){
+            if ($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
+                $rangeQueLables[$getJsonQues[$j]['id']] = array_column($getJsonQues[$j]['options'], 'label', 'id');
+            }
+
             if ($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")){
                 $max = $getJsonQues[$j]['max'];
                 for($k=1; $k<=$max; $k++){
@@ -4031,11 +4035,11 @@ class SurveyController extends Controller
             $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids);
         } 
         
-        $answeredProfileIds = $getSurveyAnswers->distinct()->pluck('profile_id')->toArray();
+        $answeredProfileIds = array_keys($finalAttempMapping);
         $surveyApplicantData = surveyApplicants::where("survey_id", $id)->whereIn("profile_id", $answeredProfileIds)->whereNull("deleted_at")->get()->groupBy('profile_id');
         $questionTitles = array_column($getJsonQues,'title','id');
 
-        $getSurveyAnswers =  $getSurveyAnswers->get()->groupBy('profile_id');
+        $getSurveyAnswers =  $getSurveyAnswers->whereIn('profile_id', $answeredProfileIds)->get()->groupBy('profile_id');
         $counter = 0;
         $result = [];
 
@@ -4126,6 +4130,11 @@ class SurveyController extends Controller
                     if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK")){
                         $result[$counter][$questionTitles[$answer->question_id]."[Rank".$rank."]_(".$answer->question_id.")_"] = $RankQueOptions[$answer->question_id][$ans];
                         $rank++;
+                        continue;
+                    }
+
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = empty($rangeQueLables[$answer->question_id][$answer->option_id]) ? $ans : $ans." (".$rangeQueLables[$answer->question_id][$answer->option_id].")";
                         continue;
                     }
 
