@@ -2097,7 +2097,7 @@ class SurveyController extends Controller
                     $average = ($count2 == 0) ? 0 : number_format((float)($totalAnsSum/$count2), 2, '.', '');
                     $optionList = $prepareNode["reports"][$counter]["options"];
                     $filteredArray = array_values(array_filter($optionList, function ($arr) use ($average) {
-                        return $arr["value"] == round($average);
+                        return $arr["value"] == ceil($average);
                     }));
                     $roundedAvgOption = count($filteredArray) == 0 ? ["label"=>"", "color_code" => "#fcda02"] : $filteredArray[0];
                     $prepareNode["reports"][$counter]["average_value"] = empty($roundedAvgOption["label"]) ? $average : $average." (".$roundedAvgOption["label"].")"; 
