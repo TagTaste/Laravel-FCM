@@ -4061,7 +4061,6 @@ class SurveyController extends Controller
                 $result[$counter]['Timestamp'] = null;
 
                 $profileAttemptAnswers = $getSurveyAnswers[$profile_id]->where('attempt', $finalAttempMapping[$profile_id][$k]);
-                $rank = 1;
 
                 // Initial Question initialization
                 foreach($initQues as $que){
@@ -4083,7 +4082,7 @@ class SurveyController extends Controller
                         if (!empty($image) && is_array($image)) {
                             $img = array_column($image, "original_photo");
                             if($ans != ""){
-                                $ans .= " ;".$img[0];
+                                $ans .= "; ".$img[0];
                             }
                             $ans = $img[0];
                         }
@@ -4091,7 +4090,7 @@ class SurveyController extends Controller
                         if (!empty($video) && is_array($video)) {
                             $vid = array_column($video, "video_url");
                             if($ans != ""){
-                                $ans .= " ;".$vid[0];
+                                $ans .= "; ".$vid[0];
                             }
                             $ans = $vid[0];
                         }
@@ -4099,7 +4098,7 @@ class SurveyController extends Controller
                         if (!empty($doc) && is_array($doc)) {
                             $d = array_column($doc, "document_url"); 
                             if($ans != ""){
-                                $ans .= " ;".$d[0];
+                                $ans .= "; ".$d[0];
                             }
                             $ans = $d[0];
                         }
@@ -4107,29 +4106,28 @@ class SurveyController extends Controller
                         if (!empty($url) && is_array($url)) {
                             $u = array_column($url, "url");
                             if($ans != ""){
-                                $ans .= " ;".$u[0];
+                                $ans .= "; ".$u[0];
                             }
                             $ans = $u[0];
                         }
                     }
 
-                    if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")){
+                    if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")){ //row is answer_value and col is option_id(answer)
                         $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->answer_value]."]_(".$answer->question_id.")_"] = $gridColTitles[$answer->question_id][$answer->option_id];
                         continue;
                     }
 
-                    if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")){
+                    if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")){ //row is option_id and col is answer_value(answer)
                         if (isset($result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"])){
-                            $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] .= " ;".$gridColTitles[$answer->question_id][$ans];
+                            $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] .= "; ".$gridColTitles[$answer->question_id][$ans];
                         } else {
                             $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] = $gridColTitles[$answer->question_id][$ans];
                         }
                         continue;
                     }
 
-                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK")){
-                        $result[$counter][$questionTitles[$answer->question_id]."[Rank".$rank."]_(".$answer->question_id.")_"] = $RankQueOptions[$answer->question_id][$ans];
-                        $rank++;
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK")){ //option_id is for rank and answer_value is an answer
+                        $result[$counter][$questionTitles[$answer->question_id]."[Rank".$answer->option_id."]_(".$answer->question_id.")_"] = $RankQueOptions[$answer->question_id][$ans];
                         continue;
                     }
 
@@ -4139,7 +4137,7 @@ class SurveyController extends Controller
                     }
 
                     if (isset($result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"])){
-                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] .= " ;".$ans;
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] .= "; ".$ans;
                     } else {
                         $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = $ans;
                     }
