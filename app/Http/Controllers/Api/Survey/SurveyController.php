@@ -3991,30 +3991,6 @@ class SurveyController extends Controller
                 $getJsonQues = array_merge(...$sectionedQuestions);
             } 
         }
-
-        for($j=0; $j<count($getJsonQues); $j++){
-            if ($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
-                $rangeQueLables[$getJsonQues[$j]['id']] = array_column($getJsonQues[$j]['options'], 'label', 'id');
-            }
-
-            if ($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")){
-                $max = $getJsonQues[$j]['max'];
-                for($k=1; $k<=$max; $k++){
-                    $initQues[] = $getJsonQues[$j]['title']."[Rank".$k."]_(".$getJsonQues[$j]['id'].")_";
-                }
-                $RankQueOptions[$getJsonQues[$j]['id']] = array_column($getJsonQues[$j]['options'], 'title', 'id');
-            } else if($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") || $getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")) {
-                $rows = $getJsonQues[$j]['multiOptions']['row'];
-                $cols = $getJsonQues[$j]['multiOptions']['column']; 
-                $gridRowTitles[$getJsonQues[$j]['id']] = array_column($rows, 'title', 'id');
-                $gridColTitles[$getJsonQues[$j]['id']] = array_column($cols, 'title', 'id');
-                for($l=0; $l<count($rows); $l++){
-                    $initQues[] = $getJsonQues[$j]['title']."[".$rows[$l]['title']."]_(".$getJsonQues[$j]['id'].")_";
-                }
-            } else {
-                $initQues[] = $getJsonQues[$j]['title']."_(".$getJsonQues[$j]['id'].")_";
-            }
-        }
     
         $applicants = SurveyAttemptMapping::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->where('current_status', 2)->where("deleted_at", "=", null);
       
@@ -4039,9 +4015,36 @@ class SurveyController extends Controller
         $surveyApplicantData = surveyApplicants::where("survey_id", $id)->whereIn("profile_id", $answeredProfileIds)->whereNull("deleted_at")->get()->groupBy('profile_id');
         $questionTitles = array_column($getJsonQues,'title','id');
 
-        $getSurveyAnswers =  $getSurveyAnswers->whereIn('profile_id', $answeredProfileIds)->get()->groupBy('profile_id');
+        $getSurveyAnswers =  $getSurveyAnswers->whereIn('question_id', array_keys($questionTitles))->whereIn('profile_id', $answeredProfileIds);
+        $getRangeMax = clone $getSurveyAnswers;
+        $getSurveyAnswers =  $getSurveyAnswers->get()->groupBy('profile_id');
         $counter = 0;
         $result = [];
+
+        for($j=0; $j<count($getJsonQues); $j++){
+            if ($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
+                $rangeQueLables[$getJsonQues[$j]['id']] = array_column($getJsonQues[$j]['options'], 'label', 'id');
+            }
+
+            if ($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")){
+                // $max = $getJsonQues[$j]['max'];
+                $max = $getRangeMax->where('question_id', $getJsonQues[$j]['id'])->max('option_id');
+                for($k=1; $k<=$max; $k++){
+                    $initQues[] = $getJsonQues[$j]['title']."[Rank".$k."]_(".$getJsonQues[$j]['id'].")_";
+                }
+                $RankQueOptions[$getJsonQues[$j]['id']] = array_column($getJsonQues[$j]['options'], 'title', 'id');
+            } else if($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") || $getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")) {
+                $rows = $getJsonQues[$j]['multiOptions']['row'];
+                $cols = $getJsonQues[$j]['multiOptions']['column']; 
+                $gridRowTitles[$getJsonQues[$j]['id']] = array_column($rows, 'title', 'id');
+                $gridColTitles[$getJsonQues[$j]['id']] = array_column($cols, 'title', 'id');
+                for($l=0; $l<count($rows); $l++){
+                    $initQues[] = $getJsonQues[$j]['title']."[".$rows[$l]['title']."]_(".$getJsonQues[$j]['id'].")_";
+                }
+            } else {
+                $initQues[] = $getJsonQues[$j]['title']."_(".$getJsonQues[$j]['id'].")_";
+            }
+        }
 
         for($i=0; $i<count($answeredProfileIds); $i++){
             $profile_id = $answeredProfileIds[$i];
@@ -4072,82 +4075,81 @@ class SurveyController extends Controller
                         $result[$counter]['Timestamp'] = date("Y-m-d H:i:s", strtotime($answer->created_at)) . " GMT +5.30";
                     }
 
-                    if(isset($questionTitles[$answer->question_id])){
-                        $ans = $answer->answer_value; 
-                        if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.UPLOAD_FILE")){
-                            $image = (!is_array($answer->image_meta) ? json_decode($answer->image_meta, true) :$answer->image_meta);
-                            $video = (!is_array($answer->video_meta) ? json_decode($answer->video_meta, true) : $answer->video_meta);
-                            $doc = (!is_array($answer->document_meta) ? json_decode($answer->document_meta, true) : $answer->document_meta);
-                            $url = (!is_array($answer->media_url) ? json_decode($answer->media_url, true) : $answer->media_url);
+                    $ans = $answer->answer_value; 
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.UPLOAD_FILE")){
+                        $image = (!is_array($answer->image_meta) ? json_decode($answer->image_meta, true) :$answer->image_meta);
+                        $video = (!is_array($answer->video_meta) ? json_decode($answer->video_meta, true) : $answer->video_meta);
+                        $doc = (!is_array($answer->document_meta) ? json_decode($answer->document_meta, true) : $answer->document_meta);
+                        $url = (!is_array($answer->media_url) ? json_decode($answer->media_url, true) : $answer->media_url);
 
-                            if (!empty($image) && is_array($image)) {
-                                $img = array_column($image, "original_photo");
-                                if($ans != ""){
-                                    $ans .= "; ".$img[0];
-                                }
-                                $ans = $img[0];
+                        if (!empty($image) && is_array($image)) {
+                            $img = array_column($image, "original_photo");
+                            if($ans != ""){
+                                $ans .= "; ".$img[0];
                             }
-
-                            if (!empty($video) && is_array($video)) {
-                                $vid = array_column($video, "video_url");
-                                if($ans != ""){
-                                    $ans .= "; ".$vid[0];
-                                }
-                                $ans = $vid[0];
-                            }
-
-                            if (!empty($doc) && is_array($doc)) {
-                                $d = array_column($doc, "document_url"); 
-                                if($ans != ""){
-                                    $ans .= "; ".$d[0];
-                                }
-                                $ans = $d[0];
-                            }
-
-                            if (!empty($url) && is_array($url)) {
-                                $u = array_column($url, "url");
-                                if($ans != ""){
-                                    $ans .= "; ".$u[0];
-                                }
-                                $ans = $u[0];
-                            }
+                            $ans = $img[0];
                         }
 
-                        if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")){ //row is answer_value and col is option_id(answer)
-                            $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->answer_value]."]_(".$answer->question_id.")_"] = $gridColTitles[$answer->question_id][$answer->option_id];
-                            continue;
-                        }
-
-                        if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")){ //row is option_id and col is answer_value(answer)
-                            if (isset($result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"])){
-                                $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] .= "; ".$gridColTitles[$answer->question_id][$ans];
-                            } else {
-                                $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] = $gridColTitles[$answer->question_id][$ans];
+                        if (!empty($video) && is_array($video)) {
+                            $vid = array_column($video, "video_url");
+                            if($ans != ""){
+                                $ans .= "; ".$vid[0];
                             }
-                            continue;
+                            $ans = $vid[0];
                         }
 
-                        if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK")){ //option_id is for rank and answer_value is an answer
-                            $result[$counter][$questionTitles[$answer->question_id]."[Rank".$answer->option_id."]_(".$answer->question_id.")_"] = $RankQueOptions[$answer->question_id][$ans];
-                            continue;
+                        if (!empty($doc) && is_array($doc)) {
+                            $d = array_column($doc, "document_url"); 
+                            if($ans != ""){
+                                $ans .= "; ".$d[0];
+                            }
+                            $ans = $d[0];
                         }
 
-                        if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
-                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = empty($rangeQueLables[$answer->question_id][$answer->option_id]) ? $ans : $ans." (".$rangeQueLables[$answer->question_id][$answer->option_id].")";
-                            continue;
-                        }
-
-                        if (isset($result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"])){
-                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] .= "; ".$ans;
-                        } else {
-                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = $ans;
+                        if (!empty($url) && is_array($url)) {
+                            $u = array_column($url, "url");
+                            if($ans != ""){
+                                $ans .= "; ".$u[0];
+                            }
+                            $ans = $u[0];
                         }
                     }
+
+                    if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")){ //row is answer_value and col is option_id(answer)
+                        $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->answer_value]."]_(".$answer->question_id.")_"] = $gridColTitles[$answer->question_id][$answer->option_id];
+                        continue;
+                    }
+
+                    if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")){ //row is option_id and col is answer_value(answer)
+                        if (isset($result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"])){
+                            $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] .= "; ".$gridColTitles[$answer->question_id][$ans];
+                        } else {
+                            $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] = $gridColTitles[$answer->question_id][$ans];
+                        }
+                        continue;
+                    }
+
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK")){ //option_id is for rank and answer_value is an answer
+                        $result[$counter][$questionTitles[$answer->question_id]."[Rank".$answer->option_id."]_(".$answer->question_id.")_"] = $RankQueOptions[$answer->question_id][$ans];
+                        continue;
+                    }
+
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = empty($rangeQueLables[$answer->question_id][$answer->option_id]) ? $ans : $ans." (".$rangeQueLables[$answer->question_id][$answer->option_id].")";
+                        continue;
+                    }
+
+                    if (isset($result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"])){
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] .= "; ".$ans;
+                    } else {
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = $ans;
+                    }
+                    
                 }
                 $counter++;
             }
         }
-      
+      dd($result);
         $relativePath = "reports/surveysAnsweredExcel";
         $name = "surveys-" . $id . "-" . uniqid();
 
