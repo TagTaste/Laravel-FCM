@@ -4082,38 +4082,38 @@ class SurveyController extends Controller
                         $doc = (!is_array($answer->document_meta) ? json_decode($answer->document_meta, true) : $answer->document_meta);
                         $url = (!is_array($answer->media_url) ? json_decode($answer->media_url, true) : $answer->media_url);
 
-                            if (!empty($image) && is_array($image)) {
-                                $img = array_column($image, "original_photo");
-                                if($ans != ""){
-                                    $ans .= "; ".$img[0];
-                                }
-                                $ans = $img[0];
+                        if (!empty($image) && is_array($image)) {
+                            $img = array_column($image, "original_photo");
+                            if($ans != ""){
+                                $ans .= "; ".$img[0];
                             }
-
-                            if (!empty($video) && is_array($video)) {
-                                $vid = array_column($video, "video_url");
-                                if($ans != ""){
-                                    $ans .= "; ".$vid[0];
-                                }
-                                $ans = $vid[0];
-                            }
-
-                            if (!empty($doc) && is_array($doc)) {
-                                $d = array_column($doc, "document_url"); 
-                                if($ans != ""){
-                                    $ans .= "; ".$d[0];
-                                }
-                                $ans = $d[0];
-                            }
-
-                            if (!empty($url) && is_array($url)) {
-                                $u = array_column($url, "url");
-                                if($ans != ""){
-                                    $ans .= "; ".$u[0];
-                                }
-                                $ans = $u[0];
-                            }
+                            $ans = $img[0];
                         }
+
+                        if (!empty($video) && is_array($video)) {
+                            $vid = array_column($video, "video_url");
+                            if($ans != ""){
+                                $ans .= "; ".$vid[0];
+                            }
+                            $ans = $vid[0];
+                        }
+
+                        if (!empty($doc) && is_array($doc)) {
+                            $d = array_column($doc, "document_url"); 
+                            if($ans != ""){
+                                $ans .= "; ".$d[0];
+                            }
+                            $ans = $d[0];
+                        }
+
+                        if (!empty($url) && is_array($url)) {
+                            $u = array_column($url, "url");
+                            if($ans != ""){
+                                $ans .= "; ".$u[0];
+                            }
+                            $ans = $u[0];
+                        }
+                    }
 
                     if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")){ //row is answer_value and col is option_id(answer)
                         $result[$counter][html_entity_decode($questionTitles[$answer->question_id])."[".$gridRowTitles[$answer->question_id][$answer->answer_value]."]_(".$answer->question_id.")_"] = html_entity_decode($gridColTitles[$answer->question_id][$answer->option_id]);
@@ -4134,17 +4134,17 @@ class SurveyController extends Controller
                         continue;
                     }
 
-                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
-                        $result[$counter][html_entity_decode($questionTitles[$answer->question_id])."_(".$answer->question_id.")_"] = empty($rangeQueLables[$answer->question_id][$answer->option_id]) ? $ans : $ans." (".$rangeQueLables[$answer->question_id][$answer->option_id].")";
-                        continue;
-                    }
+                        if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
+                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = empty($rangeQueLables[$answer->question_id][$answer->option_id]) ? $ans : $ans." (".$rangeQueLables[$answer->question_id][$answer->option_id].")";
+                            continue;
+                        }
 
-                    if (isset($result[$counter][html_entity_decode($questionTitles[$answer->question_id])."_(".$answer->question_id.")_"])){
-                        $result[$counter][html_entity_decode($questionTitles[$answer->question_id])."_(".$answer->question_id.")_"] .= "; ".$ans;
-                    } else {
-                        $result[$counter][html_entity_decode($questionTitles[$answer->question_id])."_(".$answer->question_id.")_"] = $ans;
+                        if (isset($result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"])){
+                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] .= "; ".$ans;
+                        } else {
+                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = $ans;
+                        }
                     }
-                    
                 }
                 $counter++;
             }
