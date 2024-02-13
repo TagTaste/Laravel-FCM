@@ -211,6 +211,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
         Route::post('/user/requestOtp', 'UserController@requestOtp');
 
+
+        //Routes for donation
+        Route::get('donation/organisations', 'DonationOrganisationController@index');
+
         /**
          * Route to update user invite code, this roiute will be mostly used by the admin dashboard
          */
@@ -255,6 +259,40 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("search/explore", "ExplorePageController@explore");
             Route::get("search_test/explore_test", "ExplorePageController@exploreTest");
         });
+
+        Route::group(['namespace' => '', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
+            Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+                // count with filters
+                Route::post('filters-list/{id}', 'SurveyController@getFilters');
+            });
+
+            Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => 'api.auth'], function () {
+                // get filters for dashboard of product review
+                Route::get("dashboard/filters", "BatchController@filters");
+
+                // private product review reports post api
+                Route::post("batches/{id}/headers/{headerId}/reports", "BatchController@reports");
+
+                // private product review summary post api
+                Route::post("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
+
+                // private product review reports pdf api
+                Route::post("batches/{id}/reportPdf", "BatchController@reportPdf");
+
+                // get all food shots for private product review post api
+                Route::post("batches/{id}/headers/{headerId}/question/{questionId}/reports", "BatchController@getList");
+
+                // get all comments for private PR post api
+                Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/comments", "BatchController@comments");
+
+                // get all any-other nested options for private PR post api
+                Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options/{optionId}", "BatchController@optionIdReports");
+
+                // get all any-other options for private PR post api
+                Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
+            });
+        });
+
 
         //Routes to get personalised meta
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
@@ -512,6 +550,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("addCities", "CollaborateController@addCities");
         Route::get("collaborateCloseReason", "CollaborateController@collaborateCloseReason");
 
+        // PR applicant filters with count
+        Route::post("v1/collaborate/{id}/applicantFilters", "CollaborateController@applicantFilters");
+
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
             
@@ -545,8 +586,12 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             //question-level filters on private product review reports
             Route::get("batches/{id}/question-filters", "BatchController@questionFilters");
 
-            //filter for dashboard of product review
+            //filters for dashboard of product review
             Route::get("dashboard/filters", "BatchController@filters"); //->middleware('permissionCollaborate');
+
+            //filters for product based reports
+            Route::post("batches/{id}/dashboard/filters", "BatchController@productFilters");
+
             Route::get("dashboard/report/filters", "BatchController@reportFilters")->middleware('permissionCollaborate');
             Route::get("question-filters","BatchController@questionFilters");  
             Route::get("batches/hutCsv", "BatchController@allHutCsv");
@@ -735,6 +780,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("establishmentType", "ProfileController@establishmentType");
         Route::get("profile/getAllergens", "ProfileController@getAllergens");
         Route::post("profile/addAllergens", "ProfileController@addAllergens");
+        Route::post("profile/donation/update", "ProfileController@updateDonation");        
         Route::post("profile/reviewHelperText", "ProfileController@reviewHelperText");
         Route::get("profile/tagging", ['uses' => 'ProfileController@tagging']);
         Route::post('profile/nestedFollow', ['uses' => 'ProfileController@nestedFollow']);
@@ -1002,7 +1048,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('/{id}/copy','SurveyController@copy');
     });
     
-    
     Route::group(['namespace' => '','prefix' => 'v1', 'as' => ''], function () {
         Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
             Route::get('filters-list/{id}/questions', 'SurveyController@getFilterQuestions');
@@ -1011,13 +1056,30 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/reports/{id}', 'SurveyController@sectionReports')->name("sectionReports");
             Route::post('/reports/{id}/section/{sectionId}', 'SurveyController@sectionReports')->name("sectionReports");
 
-            
+            // survey applicant reports API
+            Route::post('/{id}/applicants', 'SurveyApplicantController@index');
+
+            //survey Applicant filters with count
+            Route::post('/{id}/applicantFilters', 'SurveyApplicantController@applicantFilters')->middleware('manage.permission');
+ 
+            // survey applicant report
+            Route::post('/{id}/applicants/export', 'SurveyApplicantController@export')->middleware('manage.permission');
+
+            // survey get rejected applicants
+            Route::post("/{id}/getRejectApplicants", "SurveyApplicantController@getRejectApplicants");
+
+            // survey get rejected applicants report
+            Route::post('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission');
+
+            Route::post('/reports/{id}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");            
+            Route::post('/reports/{id}/section/{sectionId}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");
 
             Route::post('/respondents/{id}', 'SurveyController@surveyRespondents');
             Route::post('/download-reports/{id}', 'SurveyController@excelReport');
 
             // for testing purpose(code optimisation)
             Route::post('/download-reports/test/{id}', 'SurveyController@newExcelReport');
+
 
             //get long answer
             //get short answer
@@ -1054,6 +1116,33 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             // get all any-other options for private PR post api
             Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
+
+            // graph filters with count
+            Route::get("graphfilters", "GraphController@graphFilters");
+
+            // graph reports
+            Route::post("header/{id}/graph", "GraphController@createGraphs");
+
+            // graph combination report
+            Route::post("graph/combination", "GraphController@graphCombination");
+
+            // PR applicant reports
+            Route::post("collaborateApplicants", "ApplicantController@index");
+
+            // PR applicant report PDF
+            Route::post('collaborateApplicants/export', 'ApplicantController@export');
+
+            // PR rejected applicants list
+            Route::post("getRejectApplicants", "ApplicantController@getRejectApplicants");
+
+            // PR rejected applicants list PDF
+            Route::post("getRejectApplicants/export", "ApplicantController@getRejectApplicantsExport");
+
+            // PR product based applicant filters with count
+            Route::post("batches/{batchId}/applicantFilters", "BatchController@applicantFilters");
+
+            // PR product based applicant reports
+            Route::post("batches/{batchId}", "BatchController@show");
 
         });
     });

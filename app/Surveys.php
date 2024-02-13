@@ -120,6 +120,7 @@ class Surveys extends Model implements Feedable
         $meta['isInterested'] = false;
         if($isReviewed != null){
             $meta['isInterested'] = true;
+            $meta['is_invited'] = $isReviewed->is_invited;
         }
         
         $k = Redis::get("surveys:application_status:$this->id:profile:$profileId");
@@ -155,6 +156,7 @@ class Surveys extends Model implements Feedable
         $meta['isInterested'] = false;
         if($isReviewed != null){
             $meta['isInterested'] = true;
+            $meta['is_invited'] = $isReviewed->is_invited;
         }
 
         $payment = PaymentDetails::where("model_type", "Survey")->where("model_id", $this->id)->where("is_active", 1)->first();
