@@ -4134,16 +4134,15 @@ class SurveyController extends Controller
                         continue;
                     }
 
-                        if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
-                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = empty($rangeQueLables[$answer->question_id][$answer->option_id]) ? $ans : $ans." (".$rangeQueLables[$answer->question_id][$answer->option_id].")";
-                            continue;
-                        }
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = empty($rangeQueLables[$answer->question_id][$answer->option_id]) ? $ans : $ans." (".$rangeQueLables[$answer->question_id][$answer->option_id].")";
+                        continue;
+                    }
 
-                        if (isset($result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"])){
-                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] .= "; ".$ans;
-                        } else {
-                            $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = $ans;
-                        }
+                    if (isset($result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"])){
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] .= "; ".$ans;
+                    } else {
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = $ans;
                     }
                 }
                 $counter++;
