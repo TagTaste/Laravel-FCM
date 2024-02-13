@@ -4255,7 +4255,6 @@ class SurveyController extends Controller
 
 
         // $getCount = $applicants->get();
-
         if ($request->has('filters') && !empty($request->filters)) {
             $getCount = $applicants->get()->filter(function ($ans) use ($idAttemptFilterMapped) {
                 return isset($idAttemptFilterMapped[$ans->profile_id]) ? in_array($ans->attempt, $idAttemptFilterMapped[$ans->profile_id]) : false;
@@ -4298,7 +4297,6 @@ class SurveyController extends Controller
                     });
             // $getSurveyAnswers = $getSurveyAnswers->get();
         }
-
         
         $counter = 0;
         foreach ($getSurveyAnswers as $answers) {
@@ -4424,12 +4422,257 @@ class SurveyController extends Controller
                 }
             }
         }
+        
 
         $finalData = array_values($headers);
+
         $result = [];
         foreach ($finalData as $value) {
             foreach ($value as $row) {
                 $result[] = $row;
+            }
+        }
+
+        $relativePath = "reports/surveysAnsweredExcel";
+        $name = "surveys-" . $id . "-" . uniqid();
+
+        $excel = Excel::create($name, function ($excel) use ($name, $result) {
+            // Set the title
+            $excel->setTitle($name);
+
+            // Chain the setters
+            $excel->setCreator('Tagtaste')
+                ->setCompany('Tagtaste');
+
+            // Call them separately
+            $excel->setDescription('Survey Response List');
+
+            $excel->sheet('Sheetname', function ($sheet) use ($result) {
+                $sheet->fromArray($result, null, 'A1', true, true);
+                // ->getFont()->setBold(true);
+
+                foreach ($sheet->getColumnIterator() as $row) {
+                    $cellcount = 0;
+                    foreach ($row->getCellIterator() as $cell) {
+
+                        if (!is_null($cell->getValue()) && str_contains($cell->getValue(), '/@')) {
+                            $cell_link = $cell->getValue();
+                            $cell->getHyperlink()
+                                ->setUrl($cell_link)
+                                ->setTooltip('Click here to access profile');
+                        }
+                        if ($cellcount == 0 && str_contains($cell->getValue(), '_(')) $cell->setValueExplicit(substr($cell->getValue(), 0, strpos($cell->getValue(), "_(")));
+                        $cellcount++;
+                    }
+                }
+            })->store('xlsx', false, true);
+        });
+        $excel->getActiveSheet()->getStyle("1:1")->getFont()->setBold(true);
+        $excel_save_path = storage_path("exports/" . $excel->filename . ".xlsx");
+        $s3 = \Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($excel_save_path), ['visibility' => 'public']);
+        $this->model = \Storage::url($resp);
+        unlink($excel_save_path);
+
+        return $this->sendResponse();
+    }
+
+    public function newExcelReport($id, Request $request)
+    {
+        $version_num = '';
+        if($request->is('*/v1/*')){
+            $version_num = 'v1';
+        }
+
+        $checkIFExists = $this->model->where("id", "=", $id)->first();
+
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Survey");
+        }
+        
+        if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
+            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+        }else if ($request->has('filters') && !empty($request->filters)) {
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
+            $profileIds = $getFiteredProfileIds['profile_id'];
+            $type = $getFiteredProfileIds['type'];
+        }
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                $this->model = false;
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } 
+
+        $getJsonQues = json_decode($checkIFExists["form_json"], true);
+
+        if ($checkIFExists["is_section"]) {  //for section type form_json
+            $sectionedQuestions = array_column($getJsonQues, 'questions');
+            if(count($sectionedQuestions)){
+                $getJsonQues = array_merge(...$sectionedQuestions);
+            } 
+        }
+    
+        $applicants = SurveyAttemptMapping::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->where('current_status', 2)->where("deleted_at", "=", null);
+      
+        if ($request->has('filters') && !empty($request->filters)) {
+            $getFinalApplicants = $applicants->whereIn('profile_id', array_keys($idAttemptFilterMapped))->get();
+        }else{
+            $getFinalApplicants = $applicants->get();
+        }   
+
+        $finalAttempMapping = [];
+        foreach($getFinalApplicants as $pattempt) {
+            $finalAttempMapping[$pattempt->profile_id][] = $pattempt->attempt;
+        }
+  
+        $getSurveyAnswers = SurveyAnswers::where("survey_id", "=", $id)->whereNull("deleted_at");
+
+        if ($request->has("profile_ids") && !empty($request->input("profile_ids"))) {
+            $getSurveyAnswers = $getSurveyAnswers->whereIn("profile_id", $request->profile_ids);
+        } 
+        
+        $answeredProfileIds = array_keys($finalAttempMapping);
+        $surveyApplicantData = surveyApplicants::where("survey_id", $id)->whereIn("profile_id", $answeredProfileIds)->whereNull("deleted_at")->get()->groupBy('profile_id');
+        $questionTitles = array_column($getJsonQues,'title','id');
+
+        $getSurveyAnswers =  $getSurveyAnswers->whereIn('question_id', array_keys($questionTitles))->whereIn('profile_id', $answeredProfileIds);
+        
+        for($j=0; $j<count($getJsonQues); $j++){
+            if ($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
+                $rangeQueLables[$getJsonQues[$j]['id']] = array_column($getJsonQues[$j]['options'], 'label', 'id');
+            }
+
+            if ($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")){
+                $getRangeMax = clone $getSurveyAnswers;
+                // $max = $getJsonQues[$j]['max'];
+                $max = $getRangeMax->where('question_id', $getJsonQues[$j]['id'])->max('option_id');
+                for($k=1; $k<=$max; $k++){
+                    $initQues[] = html_entity_decode($getJsonQues[$j]['title'])."[Rank".$k."]_(".$getJsonQues[$j]['id'].")_";
+                }
+                $RankQueOptions[$getJsonQues[$j]['id']] = array_column($getJsonQues[$j]['options'], 'title', 'id');
+            } else if($getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO") || $getJsonQues[$j]['question_type'] == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")) {
+                $rows = $getJsonQues[$j]['multiOptions']['row'];
+                $cols = $getJsonQues[$j]['multiOptions']['column']; 
+                $gridRowTitles[$getJsonQues[$j]['id']] = array_column($rows, 'title', 'id');
+                $gridColTitles[$getJsonQues[$j]['id']] = array_column($cols, 'title', 'id');
+                for($l=0; $l<count($rows); $l++){
+                    $initQues[] = html_entity_decode($getJsonQues[$j]['title'])."[".$rows[$l]['title']."]_(".$getJsonQues[$j]['id'].")_";
+                }
+            } else {
+                $initQues[] = html_entity_decode($getJsonQues[$j]['title'])."_(".$getJsonQues[$j]['id'].")_";
+            }
+        }
+        
+        $getSurveyAnswers =  $getSurveyAnswers->get()->groupBy('profile_id');
+        $counter = 0;
+        $result = [];
+        for($i=0; $i<count($answeredProfileIds); $i++){
+            $profile_id = $answeredProfileIds[$i];
+            for($k=0; $k<count($finalAttempMapping[$profile_id]); $k++){
+                // attempt wise profile data
+                $applicant = $surveyApplicantData[$profile_id][0];
+                $result[$counter]['Sr no'] = $counter+1;
+                $result[$counter]['Name'] = html_entity_decode($applicant->profile->name);
+                $result[$counter]['Email'] = html_entity_decode($applicant->profile->email);
+                $result[$counter]['Age'] = floor((time() - strtotime($applicant->dob)) / 31556926);
+                $result[$counter]['Generation'] = html_entity_decode($applicant->generation);
+                $result[$counter]['Gender'] = html_entity_decode($applicant->gender);
+                $result[$counter]['Phone'] = $applicant->phone;
+                $result[$counter]['City'] = html_entity_decode($applicant->profile->city);
+                $result[$counter]['Hometown'] = html_entity_decode($applicant->hometown);
+                $result[$counter]['Profile Url'] = env('APP_URL') . "/@" . html_entity_decode($applicant->profile->handle);
+                $result[$counter]['Timestamp'] = null;
+
+                $profileAttemptAnswers = $getSurveyAnswers[$profile_id]->where('attempt', $finalAttempMapping[$profile_id][$k]);
+
+                // Initial Question initialization
+                foreach($initQues as $que){
+                    $result[$counter][$que] = null;
+                }
+
+                foreach($profileAttemptAnswers as $answer){  
+                    if(!isset($result[$counter]['Timestamp'])){
+                        $result[$counter]['Timestamp'] = date("Y-m-d H:i:s", strtotime($answer->created_at)) . " GMT +5.30";
+                    }
+
+                    $ans = html_entity_decode($answer->answer_value); 
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.UPLOAD_FILE")){
+                        $image = (!is_array($answer->image_meta) ? json_decode($answer->image_meta, true) :$answer->image_meta);
+                        $video = (!is_array($answer->video_meta) ? json_decode($answer->video_meta, true) : $answer->video_meta);
+                        $doc = (!is_array($answer->document_meta) ? json_decode($answer->document_meta, true) : $answer->document_meta);
+                        $url = (!is_array($answer->media_url) ? json_decode($answer->media_url, true) : $answer->media_url);
+
+                        if (!empty($image) && is_array($image)) {
+                            $img = array_column($image, "original_photo");
+                            if($ans != ""){
+                                $ans .= "; ".$img[0];
+                            }
+                            $ans = $img[0];
+                        }
+
+                        if (!empty($video) && is_array($video)) {
+                            $vid = array_column($video, "video_url");
+                            if($ans != ""){
+                                $ans .= "; ".$vid[0];
+                            }
+                            $ans = $vid[0];
+                        }
+
+                        if (!empty($doc) && is_array($doc)) {
+                            $d = array_column($doc, "document_url"); 
+                            if($ans != ""){
+                                $ans .= "; ".$d[0];
+                            }
+                            $ans = $d[0];
+                        }
+
+                        if (!empty($url) && is_array($url)) {
+                            $u = array_column($url, "url");
+                            if($ans != ""){
+                                $ans .= "; ".$u[0];
+                            }
+                            $ans = $u[0];
+                        }
+                    }
+
+                    if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_RADIO")){ //row is answer_value and col is option_id(answer)
+                        $result[$counter][html_entity_decode($questionTitles[$answer->question_id])."[".$gridRowTitles[$answer->question_id][$answer->answer_value]."]_(".$answer->question_id.")_"] = html_entity_decode($gridColTitles[$answer->question_id][$answer->option_id]);
+                        continue;
+                    }
+
+                    if($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.MULTI_SELECT_CHECK")){ //row is option_id and col is answer_value(answer)
+                        if (isset($result[$counter][html_entity_decode($questionTitles[$answer->question_id])."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"])){
+                            $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] .= "; ".html_entity_decode($gridColTitles[$answer->question_id][$ans]);
+                        } else {
+                            $result[$counter][$questionTitles[$answer->question_id]."[".$gridRowTitles[$answer->question_id][$answer->option_id]."]_(".$answer->question_id.")_"] = html_entity_decode($gridColTitles[$answer->question_id][$ans]);
+                        }
+                        continue;
+                    }
+
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANK")){ //option_id is for rank and answer_value is an answer
+                        $result[$counter][html_entity_decode($questionTitles[$answer->question_id])."[Rank".$answer->option_id."]_(".$answer->question_id.")_"] = html_entity_decode($RankQueOptions[$answer->question_id][$ans]);
+                        continue;
+                    }
+
+                    if ($answer->question_type == config("constant.SURVEY_QUESTION_TYPES.RANGE")){
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = empty($rangeQueLables[$answer->question_id][$answer->option_id]) ? $ans : $ans." (".$rangeQueLables[$answer->question_id][$answer->option_id].")";
+                        continue;
+                    }
+
+                    if (isset($result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"])){
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] .= "; ".$ans;
+                    } else {
+                        $result[$counter][$questionTitles[$answer->question_id]."_(".$answer->question_id.")_"] = $ans;
+                    }
+                }
+                $counter++;
             }
         }
 
