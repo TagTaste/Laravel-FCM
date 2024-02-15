@@ -126,7 +126,10 @@ class SurveyApplicantController extends Controller
             ->get();
 
         $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
-
+        
+        foreach($applicants as &$applicant){
+            $applicant["txn_status"] = $this->getTxnStatusForApplicant($id,$applicant['profile_id']);
+        }
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = $applicantModel::where("survey_id", "=", $id)->whereNull('deleted_at')->count();
         $this->model['invitedApplicantsCount'] = $applicantModel::where("survey_id", "=", $id)->whereIn('profile_id', $searchedApplicantProfileIds)->where('is_invited', 1)->whereNull("deleted_at")->count();
@@ -137,9 +140,7 @@ class SurveyApplicantController extends Controller
         $this->model["overview"][] = ['title' => "Experts", "count" => $countExpert->count()];
         $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
 
-        foreach($applicants as &$applicant){
-            $applicant["txn_status"] = $this->getTxnStatusForApplicant($id,$applicant['profile_id']);
-        }
+        
 
         return $this->sendResponse();
     }
