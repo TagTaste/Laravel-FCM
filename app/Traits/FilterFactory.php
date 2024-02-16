@@ -116,28 +116,31 @@ trait FilterFactory
             
             $genderCounts = $this->getCount($collabApplicants, 'gender', $filteredProfileIds);
             $gender = $this->getFieldPairedData($gender, $genderCounts);
+            $gender = $this->addEmptyValue($gender, $genderCounts);
             $gender['key'] = 'gender';
             $gender['value'] = 'Gender';
 
             $ageCounts = $this->getCount($collabApplicants, 'generation', $filteredProfileIds);
             $age = $this->getFieldPairedData($age, $ageCounts);
+            $age = $this->addEmptyValue($age, $ageCounts);
             $age['key'] = 'age';
-            $age['value'] = 'Age';
+            $age['value'] = 'Generation';
 
             $cityCounts = $this->getCount($collabApplicants, 'city', $filteredProfileIds);
             $city = $this->getFieldPairedData($city, $cityCounts);
+            $city = $this->addEmptyValue($city, $cityCounts);
             $city['key'] = 'city';
-            $city['value'] = 'City';
+            $city['value'] = 'Tasting City';
 
-            $hometownCounts = $this->getCount($collabApplicants, 'hometown', $filteredProfileIds);
-            $hometown = $this->getFieldPairedData($hometown, $hometownCounts);
-            $hometown['key'] = 'hometown';
-            $hometown['value'] = 'Hometown';
+            // $hometownCounts = $this->getCount($collabApplicants, 'hometown', $filteredProfileIds);
+            // $hometown = $this->getFieldPairedData($hometown, $hometownCounts);
+            // $hometown['key'] = 'hometown';
+            // $hometown['value'] = 'Hometown';
 
-            $currentCityCounts = $this->getCount($collabApplicants, 'current_city', $filteredProfileIds);
-            $current_city = $this->getFieldPairedData($current_city, $currentCityCounts);
-            $current_city['key'] = 'current_city';
-            $current_city['value'] = 'Current City';
+            // $currentCityCounts = $this->getCount($collabApplicants, 'current_city', $filteredProfileIds);
+            // $current_city = $this->getFieldPairedData($current_city, $currentCityCounts);
+            // $current_city['key'] = 'current_city';
+            // $current_city['value'] = 'Current City';
 
             $profileModel = Profile::whereNull('deleted_at');
 
@@ -164,7 +167,13 @@ trait FilterFactory
 
             $profile = $this->getFieldPairedData($profile, $specializationsCount);
             $profile['key'] = 'profile';
-            $profile['value'] = 'Profile';
+            $profile['value'] = 'Job Profile';
+
+            // Date filter
+            $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
+            $date['type'] = 'date';
+            $date['key'] = 'show_interest_date';
+            $date['value'] = 'Show Interest Date';
         }
 
         if(isset($batchId)){ // product applicants filters
@@ -191,7 +200,7 @@ trait FilterFactory
                 $currentStatus['items'][$key] = $inner_arr;
             }
             $currentStatus['key'] = 'current_status';
-            $currentStatus['value'] = 'Current Status';
+            $currentStatus['value'] = 'Status';
 
             // collab allergens
             $allergenData = \DB::table('collaborate_allergens')->join('allergens', 'collaborate_allergens.allergens_id', '=', 'allergens.id')->where('collaborate_allergens.collaborate_id', $collaborateId); 
@@ -213,6 +222,10 @@ trait FilterFactory
             $allergens['key'] = 'allergens';
             $allergens['value'] = 'Allergens';
             $allergens['items'] = array_values($allergenItems);
+
+            // Date filter key and value will be different for product filters
+            $date['key'] = 'review_date';
+            $date['value'] = 'Review Date';
         }
 
         //$profile = array_filter($profile);
@@ -244,9 +257,9 @@ trait FilterFactory
 
             // product applicants filters
             if($request->is('*/v1/*') && isset($batchId)){
-                $data = [$gender, $age, $city, $currentStatus, $profile, $hometown, $current_city, $sensoryTrained,$userType, $allergens, $superTaster];
+                $data = [$gender, $age, $city, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster, $date];
             } else if($request->is('*/v1/*')){  // remove current status in new applicants filters
-                $data = [$gender, $age, $city, $profile, $hometown, $current_city, $sensoryTrained, $userType, $superTaster];
+                $data = [$gender, $age, $city, $profile, $sensoryTrained, $userType, $superTaster, $date];
             } else {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
             }
@@ -314,14 +327,6 @@ trait FilterFactory
 
         if (isset($version_num) && (($version_num == 'v2' && $filterType == 'dashboard_filters') || ($version_num == 'v1' && $filterType == 'graph_filters') || $filterType == 'dashboard_product_filters'))
         {
-            // get values of fields
-            $genderData = $this->getFieldPairedData($gender);
-            $ageData = $this->getFieldPairedData($age);
-            $cityData = $this->getFieldPairedData($city);
-            $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer');
-            $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No');
-            $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal');
-
             if($filterType == 'dashboard_product_filters')
             {
                 $filteredData = $this->getFilterProfileIds($filters, $collaborateId);
@@ -351,21 +356,35 @@ trait FilterFactory
 
                 // get values of fields
                 $genderData = $this->getFieldPairedData($gender, $genderCounts);
+                $genderData = $this->addEmptyValue($genderData, $genderCounts);
                 $ageData = $this->getFieldPairedData($age, $ageCounts);
+                $ageData = $this->addEmptyValue($ageData, $ageCounts);
                 $cityData = $this->getFieldPairedData($city, $cityCounts);
+                $cityData = $this->addEmptyValue($cityData, $cityCounts);
                 $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer', $userTypeCounts);
                 $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No', $sensoryTrainedCounts);
                 $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal', $superTasterCounts);
+            } else {
+                // get values of fields
+                $genderData = $this->getFieldPairedData($gender);
+                $genderData = $this->addEmptyValue($genderData);
+                $ageData = $this->getFieldPairedData($age);
+                $ageData = $this->addEmptyValue($ageData);
+                $cityData = $this->getFieldPairedData($city);
+                $cityData = $this->addEmptyValue($cityData);
+                $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer');
+                $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No');
+                $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal');
             }
 
             $genderData['key'] = 'gender';
             $genderData['value'] = 'Gender';  
 
             $ageData['key'] = 'age';
-            $ageData['value'] = 'Age';
+            $ageData['value'] = 'Generation';
 
             $cityData['key'] = 'city';
-            $cityData['value'] = 'City';
+            $cityData['value'] = 'Tasting City';
 
             $userTypeData['key'] = 'user_type';
             $userTypeData['value'] = 'User Type';
@@ -379,9 +398,16 @@ trait FilterFactory
             if($filterType == 'dashboard_filters' || $filterType == 'dashboard_product_filters'){
                 $question_filter_values = $question_filter;
                 $question_filter = [];
+                $question_filter['type'] = 'question_filter';
                 $question_filter['key'] = 'question_filter';
                 $question_filter['value'] = 'Question Filter';  
                 $question_filter['items'] = $question_filter_values;
+
+                // Date filter
+                $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
+                $date['type'] = 'date';
+                $date['key'] = 'review_date';
+                $date['value'] = 'Review Date';
             }  
             else if($filterType == 'graph_filters'){
                 $profile = $this->getFieldPairedData($profile);
@@ -394,7 +420,7 @@ trait FilterFactory
             if(isset($version_num) && $version_num == 'v1'){
                 $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             } else if(isset($version_num) && $version_num == 'v2') {
-                $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData];
+                $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData, $date];
             } else {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
@@ -409,7 +435,7 @@ trait FilterFactory
         }
 
         if ($filterType == 'dashboard_product_filters') {
-            $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData];
+            $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData, $date];
         }
         
         return $data;
@@ -478,7 +504,7 @@ trait FilterFactory
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['city'] as $city) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('collaborate_applicants.city', 'LIKE', $city['key']);
+                        ($city['key'] == "not_defined") ? $query->orWhereNull('collaborate_applicants.city') : $query->orWhere('collaborate_applicants.city', 'LIKE', $city['key']);
                     } else {
                         $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
                     }
@@ -491,7 +517,7 @@ trait FilterFactory
                 foreach ($filters['age'] as $age) {
                     if (isset($version_num) && $version_num == 'v1'){
                         $age = htmlspecialchars_decode($age['key']);
-                        $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
+                        ($age == "not_defined") ? $query->orWhereNull('collaborate_applicants.generation') : $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
                     } else {
                         $age = htmlspecialchars_decode($age);
                         $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
@@ -504,7 +530,7 @@ trait FilterFactory
             $Ids = $Ids->where(function ($query) use ($filters,  $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender['key']);
+                        ($gender['key'] == "not_defined") ? $query->orWhereNull('collaborate_applicants.gender') : $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender['key']);
                     } else {
                         $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
                     }
@@ -616,11 +642,8 @@ trait FilterFactory
         if (isset($filters['city'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['city'] as $city) {
-                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        $query->orWhere('collaborate_applicants.city', 'LIKE', (is_string($city) && !isset($city['key'])) ? $city : $city['key']);
-                    // } else {
-                    //     $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
-                    // }
+                    $city = (is_string($city) && !isset($city['key'])) ? $city : $city['key'];
+                    ($city == "not_defined") ? $query->orWhereNull('collaborate_applicants.city') : $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
                 }
             });
         }
@@ -628,13 +651,8 @@ trait FilterFactory
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
-                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        $age = (is_string($age) && !isset($age['key'])) ? htmlspecialchars_decode($age) : htmlspecialchars_decode($age['key']);
-                        $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
-                    // } else {
-                    //     $age = htmlspecialchars_decode($age);
-                    //     $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
-                    // }
+                    $age = (is_string($age) && !isset($age['key'])) ? htmlspecialchars_decode($age) : htmlspecialchars_decode($age['key']);
+                    ($age == "not_defined") ? $query->orWhereNull('collaborate_applicants.generation') : $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
                 }
             });
         }
@@ -642,11 +660,8 @@ trait FilterFactory
         if (isset($filters['gender'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
-                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        $query->orWhere('collaborate_applicants.gender', 'LIKE', (is_string($gender) && !isset($gender['key'])) ? $gender : $gender['key']);
-                    // } else {
-                    //     $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
-                    // }
+                    $gender = (is_string($gender) && !isset($gender['key'])) ? $gender : $gender['key'];
+                    ($gender == "not_defined") ? $query->orWhereNull('collaborate_applicants.gender') : $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
                 }
             });
         }
@@ -887,7 +902,11 @@ trait FilterFactory
     {
         $query = clone $model;
         $table = $query->getModel()->getTable();
-        $query->select($field, \DB::raw('COUNT(*) as count'));
+        if($field == 'gender' || $field == 'generation' || $field == 'city' ){
+            $query->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
+        } else {
+            $query->select($field, \DB::raw('COUNT(*) as count'));
+        }
         if($table == 'collaborate_applicants'){
             $query = $query->whereIn('profile_id', $profileIds);
         } else {
@@ -915,6 +934,17 @@ trait FilterFactory
             }
             $field['items'][$key] = $inner_arr;
         }
+       
+        return $field;
+    }
+
+    public function addEmptyValue($field, $fieldCounts = null){
+        $inner_arr['key'] = "not_defined";
+        $inner_arr['value'] = "Didn't mention";
+        if(isset($fieldCounts) && !empty($fieldCounts)){
+            $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : 0;
+        }
+        array_push($field['items'], $inner_arr);
         return $field;
     }
 
