@@ -37,31 +37,69 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
                     if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        $query->orWhere('generation', 'LIKE', $age['key']);
+                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
                     }else{
                     // $age = htmlspecialchars_decode($age);
-                        $query->orWhere('generation', 'LIKE', $age);
+                        $query->orWhere('survey_applicants.generation', 'LIKE', $age);
                     }
                 }
             });
         }
         
-        
         if (isset($filters['gender'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
+                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
                     }else{
                         $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
                     }
                 }
             });
         }
+
+        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
+            $Ids =   $Ids->leftJoin('profiles', 'survey_applicants.profile_id', '=', 'profiles.id');
+        }
+        if (isset($filters['sensory_trained'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['sensory_trained'] as $sensory) {
+                    if ((isset($sensory['key']) && $sensory['key'] == 'Yes') || $sensory == 'Yes'){
+                        $sensory = 1;
+                    } else {
+                        $sensory = 0;
+                    }
+                    $query->orWhere('profiles.is_sensory_trained', $sensory);
+                }
+            });
+        }
+
+        if (isset($filters['super_taster'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['super_taster'] as $superTaster) {
+                    if ((isset($superTaster['key']) && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster')
+                        $superTaster = 1;
+                    else
+                        $superTaster = 0;
+                    $query->orWhere('profiles.is_tasting_expert', $superTaster);
+                }
+            });
+        }
+
+        if (isset($filters['user_type'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['user_type'] as $userType) {
+                    if ((isset($userType['key']) && $userType['key'] == 'Expert') || $userType == 'Expert')
+                        $userType = 1;
+                    else
+                        $userType = 0;
+                    $query->orWhere('profiles.is_expert', $userType);
+                }
+            });
+        }
         
         if ($profileIds->count() > 0 && isset($Ids)) {
-            $Ids = $Ids->whereIn('profile_id', $profileIds);
-            
+            $Ids = $Ids->whereIn('profile_id', $profileIds); 
         }
 
         if (isset($Ids)) {
@@ -72,7 +110,6 @@ trait FilterTraits
 
         $profileCompleteAttempt = SurveyAttemptMapping::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $surveyDetails->id)->whereNull("deleted_at")->whereNotNull("completion_date")->whereIn('profile_id',$profileIds)->get();
 
-        
         $idsAttemptMapping = [];
         foreach ($profileCompleteAttempt as $pattempt) {
             $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
@@ -176,10 +213,10 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('generation', 'LIKE', $age['key']);
+                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
                     }else{
                     // $age = htmlspecialchars_decode($age);
-                        $query->orWhere('generation', 'LIKE', $age);
+                        $query->orWhere('survey_applicants.generation', 'LIKE', $age);
                     }
                 }
             });
@@ -204,7 +241,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
+                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
                     }else{
                         $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
                     }
@@ -267,7 +304,7 @@ trait FilterTraits
         if (isset($filters['sensory_trained'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['sensory_trained'] as $sensory) {
-                    if ((isset($version_num) && $version_num == 'v1' && $sensory['key'] == 'Yes') || $sensory == 'Yes'){
+                    if ((isset($sensory['key']) && $sensory['key'] == 'Yes') || $sensory == 'Yes'){
                         $sensory = 1;
                     } else {
                         $sensory = 0;
@@ -280,7 +317,7 @@ trait FilterTraits
         if (isset($filters['super_taster'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['super_taster'] as $superTaster) {
-                    if ((isset($version_num) && $version_num == 'v1' && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster')
+                    if ((isset($superTaster['key']) && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster')
                         $superTaster = 1;
                     else
                         $superTaster = 0;
@@ -292,7 +329,7 @@ trait FilterTraits
         if (isset($filters['user_type'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['user_type'] as $userType) {
-                    if ((isset($version_num) && $version_num == 'v1' && $userType['key'] == 'Expert') || $userType == 'Expert')
+                    if ((isset($userType['key']) && $userType['key'] == 'Expert') || $userType == 'Expert')
                         $userType = 1;
                     else
                         $userType = 0;
@@ -514,7 +551,7 @@ trait FilterTraits
         if (isset($version_num) && $version_num == 'v2'){
             $dateData = [];
             $dateData['items'] = $date;
-            $date['type'] = 'date';
+            $dateData['type'] = 'date';
             $dateData['key'] = 'date';
             $dateData['value'] = 'Submission Date';
 
