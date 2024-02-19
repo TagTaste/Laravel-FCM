@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Helper;
 use Carbon\Carbon;
 use App\Surveys;
+use App\Recipe\Profile;
 use App\SurveyAnswers;
 use App\SurveyAttemptMapping;
 
@@ -419,30 +420,44 @@ trait FilterTraits
             $filteredProfileIds = array_keys($this->getProfileIdOfReportFilter($surveyData, $request, $version_num));
             $applicantProfileIds = $surveyApplicants->pluck('profile_id');
             $filters = $request->input('filters');
-            $isFilterable = isset($filters) && !empty($filters) ? true : false;
             $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
             
             // gender data
             $genderData = [];
-            $genderCounts = $this->getCount($surveyApplicants,'gender', $filteredProfileIds, $isFilterable);
+            $genderCounts = $this->getCount($surveyApplicants,'gender', $filteredProfileIds);
             $genderData['items'] = $this->addCountToField($gender, $genderCounts);
+            $genderData = $this->addEmptyValue($genderData, $genderCounts);
             $genderData['key'] = 'gender';
             $genderData['value'] = 'Gender';
 
             // age data
             $ageData = [];
-            $ageCounts = $this->getCount($surveyApplicants, 'generation', $filteredProfileIds, $isFilterable);
+            $ageCounts = $this->getCount($surveyApplicants, 'generation', $filteredProfileIds);
             $ageData['items'] = $this->addCountToField($age, $ageCounts);
+            $ageData = $this->addEmptyValue($ageData, $ageCounts);
             $ageData['key'] = 'age';
-            $ageData['value'] = 'Age';
+            $ageData['value'] = 'Generation';
+
+            $profileModel = Profile::whereNull('deleted_at');
+            
+            // count of experts
+            $userTypeCounts = $this->getCount($profileModel,'is_expert', $filteredProfileIds);
+            $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
+            $userType['key'] = 'user_type';
+            $userType['value'] = 'User Type';
+
+            // sensory trained or not
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds);
+            $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
+            $sensoryTrained['key'] = 'sensory_trained';
+            $sensoryTrained['value'] = 'Sensory Trained';
+
+            // supar taster or not
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds);
+            $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
+            $superTaster['key'] = 'super_taster';
+            $superTaster['value'] = 'Super Taster';
         }
-
-        // $age = [['key' => 'gen-z', 'value' => 'Gen-Z'], ['key' => 'gen-x', 'value' => 'Gen-X'], ['key' => 'millenials', 'value' => 'Millenials'], ['key' => 'yold', 'value' => 'YOld']];
-
-        // $application_status = [["key" => 0, "value" => 'invited'], ["key" => 1, "value" => 'incomplete'], ['key' => 2, 'value' => "completed"]];
-        // $userType = ['Expert', 'Consumer'];
-        // $sensoryTrained = ["Yes", "No"];
-        // $superTaster = ["SuperTaster", "Normal"];
 
         $applicants = \DB::table('survey_applicants')->where('survey_id', $survey_id)->get();
         $city = [];
@@ -499,15 +514,17 @@ trait FilterTraits
         if (isset($version_num) && $version_num == 'v2'){
             $dateData = [];
             $dateData['items'] = $date;
+            $date['type'] = 'date';
             $dateData['key'] = 'date';
-            $dateData['value'] = 'Date Range';
+            $dateData['value'] = 'Submission Date';
 
             $questionFilterData = [];
             $questionFilterData['items'] = $question_filter;
+            $questionFilterData['type'] = 'question_filter';
             $questionFilterData['key'] = 'question_filter';
             $questionFilterData['value'] = 'Question Filter';
 
-            $data = [$genderData, $ageData, $dateData, $questionFilterData];
+            $data = [$genderData, $ageData, $questionFilterData, $userType, $sensoryTrained, $superTaster, $dateData];
         }
         $this->model = $data;
 
@@ -554,6 +571,15 @@ trait FilterTraits
             unset($field[$key]);
             $field['items'][$key] = $inner_arr;
         }
+        return $field;
+    }
+
+    public function addEmptyValue($field, $fieldCounts){
+        $inner_arr['key'] = "not_defined";
+        $inner_arr['value'] = "Didn't mention";
+        $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : 0;
+        
+        array_push($field['items'], $inner_arr);
         return $field;
     }
 

@@ -745,7 +745,7 @@ class BatchController extends Controller
 
         //filters data
         $filters = $request->input('filters');
-        $resp = $this->getFilterProfileIds($filters, $collaborateId);
+        $resp = $this->getFilterProfileIds($filters, $collaborateId, $batchId);
         $profileIds = $resp['profile_id'];
         $type = $resp['type'];
         $boolean = 'and';
