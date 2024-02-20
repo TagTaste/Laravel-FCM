@@ -572,7 +572,7 @@ trait FilterTraits
     {
         $query = clone $model;
         $table = $query->getModel()->getTable();
-        $query = $query->select($field, \DB::raw('COUNT(*) as count'));
+        $query->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
 
         if($table == 'survey_applicants'){
             $query = $query->whereIn('profile_id', $profileIds);
@@ -614,7 +614,7 @@ trait FilterTraits
     public function addEmptyValue($field, $fieldCounts){
         $inner_arr['key'] = "not_defined";
         $inner_arr['value'] = "Didn't mention";
-        $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : 0;
+        $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : (isset($fieldCounts[""]) ? $fieldCounts[""] : 0);
         
         array_push($field['items'], $inner_arr);
         return $field;

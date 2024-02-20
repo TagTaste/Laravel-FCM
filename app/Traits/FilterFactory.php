@@ -223,16 +223,13 @@ trait FilterFactory
             $allergens['value'] = 'Allergens';
             $allergens['items'] = array_values($allergenItems);
 
-            if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED")) || !isset($current_status)){
-                // Date filter key and value will be different for product filters
-                $date['key'] = 'review_date';
-                $date['value'] = 'Review Date';
-            }
-            
+            // Date filter key and value will be different for product filters
+            $date['key'] = 'review_date';
+            $date['value'] = 'Review Date';
         }
 
         //$profile = array_filter($profile);
-        // $data = [];
+        $data = [];
         // if (count($filters)) {
         //     foreach ($filters as $filter) {
         //         if ($filter == 'gender')
@@ -260,11 +257,7 @@ trait FilterFactory
 
             // product applicants filters
             if($request->is('*/v1/*') && isset($batchId)){
-                if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED")) || !isset($current_status)){
-                    $data = [$gender, $age, $city, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster, $date];  
-                } else {
-                    $data = [$gender, $age, $city, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster];  
-                }    
+                $data = [$gender, $age, $city, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster, $date];
             } else if($request->is('*/v1/*')){  // remove current status in new applicants filters
                 $data = [$gender, $age, $city, $profile, $sensoryTrained, $userType, $superTaster, $date];
             } else {
@@ -371,12 +364,6 @@ trait FilterFactory
                 $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer', $userTypeCounts);
                 $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No', $sensoryTrainedCounts);
                 $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal', $superTasterCounts);
-
-                // Date filter
-                $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
-                $date['type'] = 'date';
-                $date['key'] = 'review_date';
-                $date['value'] = 'Review Date';
             } else {
                 // get values of fields
                 $genderData = $this->getFieldPairedData($gender);
@@ -415,6 +402,12 @@ trait FilterFactory
                 $question_filter['key'] = 'question_filter';
                 $question_filter['value'] = 'Question Filter';  
                 $question_filter['items'] = $question_filter_values;
+
+                // Date filter
+                $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
+                $date['type'] = 'date';
+                $date['key'] = 'review_date';
+                $date['value'] = 'Review Date';
             }  
             else if($filterType == 'graph_filters'){
                 $profile = $this->getFieldPairedData($profile);
@@ -427,7 +420,7 @@ trait FilterFactory
             if(isset($version_num) && $version_num == 'v1'){
                 $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             } else if(isset($version_num) && $version_num == 'v2') {
-                $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData];
+                $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData, $date];
             } else {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
@@ -569,26 +562,6 @@ trait FilterFactory
             });
         }
 
-        if(isset($filters['show_interest_date'])){
-            $start_date = '';
-            $end_date = '';
-            foreach ($filters['show_interest_date'] as $date) {
-                if($date['key'] == 'start_date' && !empty($date['value'])){
-                    $start_date = Carbon::parse($date['value'])->startOfDay();
-                }else if($date['key'] == 'end_date' && !empty($date['value'])){
-                    $end_date = Carbon::parse($date['value'])->endOfDay();                   
-                }
-            }
-
-            if($start_date != '' && $end_date != ''){
-                $Ids = $Ids->whereBetween('collaborate_applicants.shortlisted_at',[$start_date, $end_date]);
-            } else if($start_date != '') {
-                $Ids = $Ids->where('collaborate_applicants.shortlisted_at','>=',$start_date);
-            } else if($end_date != '') {
-                $Ids = $Ids->where('collaborate_applicants.shortlisted_at','<=',$end_date);  
-            }
-        }
-
         if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
             $Ids =   $Ids->leftJoin('profiles', 'collaborate_applicants.profile_id', '=', 'profiles.id');
         }
@@ -662,32 +635,8 @@ trait FilterFactory
             $profileIds = $profileIds->merge($filterProfile);
         }
         
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens']) || isset($filters['profile']) || isset($filters['include_profile_id']) || isset($filters['review_date'])) {
+        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens']) || isset($filters['profile']) || isset($filters['include_profile_id'])) {
             $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
-        }
-
-        if(isset($filters['review_date'])){
-            $start_date = '';
-            $end_date = '';
-            foreach ($filters['review_date'] as $date) {
-                if($date['key'] == 'start_date' && !empty($date['value'])){
-                    $start_date = Carbon::parse($date['value'])->startOfDay();
-                }else if($date['key'] == 'end_date' && !empty($date['value'])){
-                    $end_date = Carbon::parse($date['value'])->endOfDay();                   
-                }
-            }
-            $Ids = $Ids->leftJoin('collaborate_batches_assign', function($join) {
-                $join->on('collaborate_applicants.profile_id', '=', 'collaborate_batches_assign.profile_id')
-                     ->on('collaborate_applicants.collaborate_id', '=', 'collaborate_batches_assign.collaborate_id');
-            })->where('collaborate_batches_assign.batch_id', $batchId)->where('current_status', 3);
-
-            if($start_date != '' && $end_date != ''){
-                $Ids = $Ids->whereBetween('collaborate_batches_assign.end_review',[$start_date, $end_date]);
-            } else if($start_date != '') {
-                $Ids = $Ids->where('collaborate_batches_assign.end_review','>=',$start_date);
-            } else if($end_date != '') {
-                $Ids = $Ids->where('collaborate_batches_assign.end_review','<=',$end_date);  
-            }
         }
         
         if (isset($filters['city'])) {
@@ -953,11 +902,8 @@ trait FilterFactory
     {
         $query = clone $model;
         $table = $query->getModel()->getTable();
-        if($field == 'gender' || $field == 'generation' || $field == 'city' ){
-            $query->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
-        } else {
-            $query->select($field, \DB::raw('COUNT(*) as count'));
-        }
+        $query->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
+        
         if($table == 'collaborate_applicants'){
             $query = $query->whereIn('profile_id', $profileIds);
         } else {
@@ -993,7 +939,7 @@ trait FilterFactory
         $inner_arr['key'] = "not_defined";
         $inner_arr['value'] = "Didn't mention";
         if(isset($fieldCounts) && !empty($fieldCounts)){
-            $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : 0;
+            $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : (isset($fieldCounts[""]) ? $fieldCounts[""] : 0);
         }
         array_push($field['items'], $inner_arr);
         return $field;
