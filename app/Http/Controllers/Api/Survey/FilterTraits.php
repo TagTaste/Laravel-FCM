@@ -37,7 +37,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
                     if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
+                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
                     }else{
                     // $age = htmlspecialchars_decode($age);
                         $query->orWhere('survey_applicants.generation', 'LIKE', $age);
@@ -50,7 +50,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
+                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender')->orWhere('survey_applicants.gender','') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
                     }else{
                         $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
                     }
@@ -213,7 +213,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
+                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
                     }else{
                     // $age = htmlspecialchars_decode($age);
                         $query->orWhere('survey_applicants.generation', 'LIKE', $age);
@@ -241,7 +241,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
+                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender')->orWhere('survey_applicants.gender','') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
                     }else{
                         $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
                     }

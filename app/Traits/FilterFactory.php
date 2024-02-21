@@ -223,9 +223,11 @@ trait FilterFactory
             $allergens['value'] = 'Allergens';
             $allergens['items'] = array_values($allergenItems);
 
-            // Date filter key and value will be different for product filters
-            $date['key'] = 'review_date';
-            $date['value'] = 'Review Date';
+            if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED")) || !isset($current_status)){
+                // Date filter key and value will be different for product filters
+                $date['key'] = 'review_date';
+                $date['value'] = 'Review Date';
+            }
         }
 
         //$profile = array_filter($profile);
@@ -257,7 +259,11 @@ trait FilterFactory
 
             // product applicants filters
             if($request->is('*/v1/*') && isset($batchId)){
-                $data = [$gender, $age, $city, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster, $date];
+                if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED")) || !isset($current_status)){
+                    $data = [$gender, $age, $city, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster, $date];  
+                } else {
+                    $data = [$gender, $age, $city, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster];  
+                }
             } else if($request->is('*/v1/*')){  // remove current status in new applicants filters
                 $data = [$gender, $age, $city, $profile, $sensoryTrained, $userType, $superTaster, $date];
             } else {
@@ -364,6 +370,12 @@ trait FilterFactory
                 $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer', $userTypeCounts);
                 $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No', $sensoryTrainedCounts);
                 $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal', $superTasterCounts);
+
+                // Date filter
+                $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
+                $date['type'] = 'date';
+                $date['key'] = 'review_date';
+                $date['value'] = 'Review Date';
             } else {
                 // get values of fields
                 $genderData = $this->getFieldPairedData($gender);
@@ -402,12 +414,6 @@ trait FilterFactory
                 $question_filter['key'] = 'question_filter';
                 $question_filter['value'] = 'Question Filter';  
                 $question_filter['items'] = $question_filter_values;
-
-                // Date filter
-                $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
-                $date['type'] = 'date';
-                $date['key'] = 'review_date';
-                $date['value'] = 'Review Date';
             }  
             else if($filterType == 'graph_filters'){
                 $profile = $this->getFieldPairedData($profile);
@@ -420,7 +426,7 @@ trait FilterFactory
             if(isset($version_num) && $version_num == 'v1'){
                 $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             } else if(isset($version_num) && $version_num == 'v2') {
-                $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData, $date];
+                $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData];
             } else {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
@@ -504,7 +510,7 @@ trait FilterFactory
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['city'] as $city) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        ($city['key'] == "not_defined") ? $query->orWhereNull('collaborate_applicants.city') : $query->orWhere('collaborate_applicants.city', 'LIKE', $city['key']);
+                        ($city['key'] == "not_defined") ? $query->orWhereNull('collaborate_applicants.city')->orWhere('collaborate_applicants.city','') : $query->orWhere('collaborate_applicants.city', 'LIKE', $city['key']);
                     } else {
                         $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
                     }
@@ -517,7 +523,7 @@ trait FilterFactory
                 foreach ($filters['age'] as $age) {
                     if (isset($version_num) && $version_num == 'v1'){
                         $age = htmlspecialchars_decode($age['key']);
-                        ($age == "not_defined") ? $query->orWhereNull('collaborate_applicants.generation') : $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
+                        ($age == "not_defined") ? $query->orWhereNull('collaborate_applicants.generation')->orWhere('collaborate_applicants.generation','') : $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
                     } else {
                         $age = htmlspecialchars_decode($age);
                         $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
@@ -530,7 +536,7 @@ trait FilterFactory
             $Ids = $Ids->where(function ($query) use ($filters,  $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        ($gender['key'] == "not_defined") ? $query->orWhereNull('collaborate_applicants.gender') : $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender['key']);
+                        ($gender['key'] == "not_defined") ? $query->orWhereNull('collaborate_applicants.gender')->orWhere('collaborate_applicants.gender','') : $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender['key']);
                     } else {
                         $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
                     }
@@ -560,6 +566,26 @@ trait FilterFactory
                     }
                 }
             });
+        }
+
+        if(isset($filters['show_interest_date'])){
+            $start_date = '';
+            $end_date = '';
+            foreach ($filters['show_interest_date'] as $date) {
+                if($date['key'] == 'start_date' && !empty($date['value'])){
+                    $start_date = Carbon::parse($date['value'])->startOfDay();
+                }else if($date['key'] == 'end_date' && !empty($date['value'])){
+                    $end_date = Carbon::parse($date['value'])->endOfDay();                   
+                }
+            }
+
+            if($start_date != '' && $end_date != ''){
+                $Ids = $Ids->whereBetween('collaborate_applicants.shortlisted_at',[$start_date, $end_date]);
+            } else if($start_date != '') {
+                $Ids = $Ids->where('collaborate_applicants.shortlisted_at','>=',$start_date);
+            } else if($end_date != '') {
+                $Ids = $Ids->where('collaborate_applicants.shortlisted_at','<=',$end_date);  
+            }
         }
 
         if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
@@ -635,15 +661,40 @@ trait FilterFactory
             $profileIds = $profileIds->merge($filterProfile);
         }
         
-        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens']) || isset($filters['profile']) || isset($filters['include_profile_id'])) {
+        if (isset($filters['city']) || isset($filters['age']) || isset($filters['gender'])  || isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type']) || isset($filters['current_status']) || isset($filters['question_filter']) || isset($filters['current_city']) || isset($filters['hometown']) || isset($filters['allergens']) || isset($filters['allergens']) || isset($filters['profile']) || isset($filters['include_profile_id']) || isset($filters['review_date'])) {
             $Ids = \DB::table('collaborate_applicants')->where('collaborate_applicants.collaborate_id', $collaborateId);
+        }
+
+
+        if(isset($filters['review_date'])){
+            $start_date = '';
+            $end_date = '';
+            foreach ($filters['review_date'] as $date) {
+                if($date['key'] == 'start_date' && !empty($date['value'])){
+                    $start_date = Carbon::parse($date['value'])->startOfDay();
+                }else if($date['key'] == 'end_date' && !empty($date['value'])){
+                    $end_date = Carbon::parse($date['value'])->endOfDay();                   
+                }
+            }
+            $Ids = $Ids->leftJoin('collaborate_batches_assign', function($join) {
+                $join->on('collaborate_applicants.profile_id', '=', 'collaborate_batches_assign.profile_id')
+                     ->on('collaborate_applicants.collaborate_id', '=', 'collaborate_batches_assign.collaborate_id');
+            })->where('collaborate_batches_assign.batch_id', $batchId)->where('current_status', 3);
+
+            if($start_date != '' && $end_date != ''){
+                $Ids = $Ids->whereBetween('collaborate_batches_assign.end_review',[$start_date, $end_date]);
+            } else if($start_date != '') {
+                $Ids = $Ids->where('collaborate_batches_assign.end_review','>=',$start_date);
+            } else if($end_date != '') {
+                $Ids = $Ids->where('collaborate_batches_assign.end_review','<=',$end_date);  
+            }
         }
         
         if (isset($filters['city'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['city'] as $city) {
                     $city = (is_string($city) && !isset($city['key'])) ? $city : $city['key'];
-                    ($city == "not_defined") ? $query->orWhereNull('collaborate_applicants.city') : $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
+                    ($city == "not_defined") ? $query->orWhereNull('collaborate_applicants.city')->orWhere('collaborate_applicants.city','') : $query->orWhere('collaborate_applicants.city', 'LIKE', $city);
                 }
             });
         }
@@ -652,7 +703,7 @@ trait FilterFactory
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
                     $age = (is_string($age) && !isset($age['key'])) ? htmlspecialchars_decode($age) : htmlspecialchars_decode($age['key']);
-                    ($age == "not_defined") ? $query->orWhereNull('collaborate_applicants.generation') : $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
+                    ($age == "not_defined") ? $query->orWhereNull('collaborate_applicants.generation')->orWhere('collaborate_applicants.generation','') : $query->orWhere('collaborate_applicants.generation', 'LIKE', $age);
                 }
             });
         }
@@ -661,7 +712,7 @@ trait FilterFactory
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     $gender = (is_string($gender) && !isset($gender['key'])) ? $gender : $gender['key'];
-                    ($gender == "not_defined") ? $query->orWhereNull('collaborate_applicants.gender') : $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
+                    ($gender == "not_defined") ? $query->orWhereNull('collaborate_applicants.gender')->orWhere('collaborate_applicants.gender','') : $query->orWhere('collaborate_applicants.gender', 'LIKE', $gender);
                 }
             });
         }
