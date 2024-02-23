@@ -332,15 +332,13 @@ trait FilterFactory
                 $profileIds = Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->distinct()->pluck('profile_id')->toArray();
 
                 if(isset($filters) && !empty($filters)){
-                    $filteredData = $this->getFilterProfileIds($filters, $collaborateId);
+                    $filteredData = $this->getFilterProfileIds($filters, $collaborateId, $batchId);
                     $filteredProfileIds = $filteredData['profile_id']->toArray();
 
                     if($filteredData['type'] == true)
                     {
                         $profileIds = array_values(array_diff($profileIds, $filteredProfileIds));
-                    }
-                    else
-                    {
+                    } else {
                         $profileIds = array_values(array_intersect($profileIds, $filteredProfileIds));
                     }
                 }
