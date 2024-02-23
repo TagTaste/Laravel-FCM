@@ -276,7 +276,7 @@ trait FilterFactory
     public function dashboardFilters($filters, $collaborateId, $version_num, $filterType, $batchId = null)
     {
         $gender = ['Male', 'Female', 'Other'];
-        $age = Helper::getGenerationFilter('string');
+        $age = ["Gen S", "Gen X", "Millennials", "Gen Z", "Gen A"];
         $userType = ['Expert', 'Consumer'];
         $sensoryTrained = ["Yes", "No"];
         $superTaster = ["SuperTaster", "Normal"];
@@ -291,15 +291,13 @@ trait FilterFactory
         $city = array_values($city);
 
         // profile specializations
-        $specializations = \DB::table('profiles')
+        $profile = \DB::table('profiles')
         ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
-        ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id');
-
-        $query = clone $specializations;
-        $profile = $query->whereIn('profiles.id', $applicants->pluck('profile_id'))->groupBy('name')->pluck('name')->toArray();
+        ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')->whereIn('profiles.id', $applicants->pluck('profile_id'))->groupBy('name')->pluck('name')->toArray();
         $profile = array_values(array_filter($profile));
         
         $data = [];
+
         if (isset($version_num) && !empty($version_num) && ($filterType == 'dashboard_filters') || ($filterType == 'dashboard_product_filters'))
         {
             $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
@@ -325,37 +323,35 @@ trait FilterFactory
                     break;
             }
             $question_filter = [['value' => $que_val, 'count' => $questions_count]];
-            if($version_num == 'v2')
-            {
-                $question_filter = [['key' => 'question','value' => $que_val, 'count' => $questions_count]];
-            }
         }
 
         if (isset($version_num) && (($version_num == 'v2' && $filterType == 'dashboard_filters') || ($version_num == 'v1' && $filterType == 'graph_filters') || $filterType == 'dashboard_product_filters'))
         {
             if($filterType == 'dashboard_product_filters')
             {
-                $filteredData = $this->getFilterProfileIds($filters, $collaborateId);
-                $filteredProfileIds = $filteredData['profile_id']->toArray();
-                $completedProfileIds = Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->distinct()->pluck('profile_id')->toArray();
-                
-                if($filteredData['type'] == true)
-                {
-                    $profileIds = array_values(array_diff($completedProfileIds, $filteredProfileIds));
-                }
-                else
-                {
-                    $filteredProfileIds = array_values(array_intersect($completedProfileIds, $filteredProfileIds));
-                    $profileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $completedProfileIds;
+                $profileIds = Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->distinct()->pluck('profile_id')->toArray();
+
+                if(isset($filters) && !empty($filters)){
+                    $filteredData = $this->getFilterProfileIds($filters, $collaborateId);
+                    $filteredProfileIds = $filteredData['profile_id']->toArray();
+
+                    if($filteredData['type'] == true)
+                    {
+                        $profileIds = array_values(array_diff($profileIds, $filteredProfileIds));
+                    }
+                    else
+                    {
+                        $profileIds = array_values(array_intersect($profileIds, $filteredProfileIds));
+                    }
                 }
 
-                $collabApplicants = Applicant::where('collaborate_id', $collaborateId);
+                $collabApplicants = new Applicant();
                 $profileModel = Profile::whereNull('deleted_at');
 
                 // get counts of fields
-                $genderCounts = $this->getCount($collabApplicants, 'gender', $profileIds);
-                $ageCounts = $this->getCount($collabApplicants, 'generation', $profileIds);
-                $cityCounts = $this->getCount($collabApplicants, 'city', $profileIds);
+                $genderCounts = $this->getCount($collabApplicants, 'gender', $profileIds, $collaborateId);
+                $ageCounts = $this->getCount($collabApplicants, 'generation', $profileIds, $collaborateId);
+                $cityCounts = $this->getCount($collabApplicants, 'city', $profileIds, $collaborateId);
                 $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
                 $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds, 'true');
                 $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds, 'true');
@@ -408,12 +404,11 @@ trait FilterFactory
             $superTasterData['value'] = 'Super Taster';
 
             if($filterType == 'dashboard_filters' || $filterType == 'dashboard_product_filters'){
-                $question_filter_values = $question_filter;
-                $question_filter = [];
-                $question_filter['type'] = 'question_filter';
-                $question_filter['key'] = 'question_filter';
-                $question_filter['value'] = 'Question Filter';  
-                $question_filter['items'] = $question_filter_values;
+                $question_filter_data = [];
+                $question_filter_data['type'] = 'question_filter';
+                $question_filter_data['key'] = 'question_filter';
+                $question_filter_data['value'] = 'Question Filter';  
+                $question_filter_data['items'] = [['key' => 'question','value' => $que_val, 'count' => $questions_count]];
             }  
             else if($filterType == 'graph_filters'){
                 $profile = $this->getFieldPairedData($profile);
@@ -426,7 +421,7 @@ trait FilterFactory
             if(isset($version_num) && $version_num == 'v1'){
                 $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             } else if(isset($version_num) && $version_num == 'v2') {
-                $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData];
+                $data = [$question_filter_data, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData];
             } else {
                 $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
             }
@@ -441,7 +436,7 @@ trait FilterFactory
         }
 
         if ($filterType == 'dashboard_product_filters') {
-            $data = [$question_filter, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData, $date];
+            $data = [$question_filter_data, $genderData, $ageData, $cityData, $userTypeData, $sensoryTrainedData, $superTasterData, $date];
         }
         
         return $data;
@@ -949,19 +944,22 @@ trait FilterFactory
             ->get();
     }
 
-    public function getCount($model, $field, $profileIds)
+    public function getCount($model, $field, $profileIds, $id = null)
     {
-        $query = clone $model;
-        $table = $query->getModel()->getTable();
-        $query->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
+        if(!isset($id)){
+            $model = clone $model;
+        }
+        // $query = clone $model;
+        $table = $model->getModel()->getTable();
+        $model = $model->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
         
         if($table == 'collaborate_applicants'){
-            $query = $query->whereIn('profile_id', $profileIds);
+            $model = isset($id) ? $model->where('collaborate_id', $id)->whereIn('profile_id', $profileIds) : $model->whereIn('profile_id', $profileIds);
         } else {
-            $query->whereIn('id', $profileIds);
+            $model = $model->whereIn('id', $profileIds);
         }
 
-        return $query->groupBy($field)->pluck('count', $field);
+        return $model->groupBy($field)->pluck('count', $field);
     }
 
     public function getFieldPairedData($field, $fieldCounts = null)
