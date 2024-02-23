@@ -448,16 +448,16 @@ trait FilterTraits
         $gender = [['key' => 'Male', 'value' => 'Male'], ['key' => 'Female', 'value' => 'Female'], ['key' => 'Other', 'value' => 'Other']];
         $age = Helper::getGenerationFilter();
 
-        $surveyApplicants = surveyApplicants::where('survey_id', $survey_id)
-            ->whereNull('survey_applicants.deleted_at')->whereNotNull('completion_date');
+        $surveyAttemptedProfileIds = SurveyAttemptMapping::select('profile_id')->distinct()->where("survey_id", "=", $survey_id)->whereNotNull("completion_date")->whereNull("deleted_at")->pluck('profile_id');
+    
+        $surveyApplicants = surveyApplicants::where('survey_id', $survey_id)->whereNull('survey_applicants.deleted_at');
 
         if (isset($version_num) && $version_num == 'v2'){
             $surveyData = Surveys::where("id", "=", $survey_id)->first();
             
             $filteredProfileIds = array_keys($this->getProfileIdOfReportFilter($surveyData, $request, $version_num));
-            $applicantProfileIds = $surveyApplicants->pluck('profile_id');
             $filters = $request->input('filters');
-            $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
+            $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $surveyAttemptedProfileIds;
             
             // gender data
             $genderData = [];

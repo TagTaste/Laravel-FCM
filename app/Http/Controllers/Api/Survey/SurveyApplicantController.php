@@ -715,7 +715,7 @@ class SurveyApplicantController extends Controller
             // Date filter
             $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
             $date['type'] = 'date';
-            $date['key'] = 'submission_date';
+            $date['key'] = 'date';
             $date['value'] = 'Submission Date';
         }
 
