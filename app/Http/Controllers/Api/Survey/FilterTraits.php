@@ -575,7 +575,7 @@ trait FilterTraits
         $query->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
 
         if($table == 'survey_applicants'){
-            $query = $query->whereIn('profile_id', $profileIds);
+            $query = $query->whereIn('survey_applicants.profile_id', $profileIds);
         } else {
             $query->whereIn('id', $profileIds);
         }
