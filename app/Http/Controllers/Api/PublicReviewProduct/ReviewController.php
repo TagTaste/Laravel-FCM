@@ -635,7 +635,7 @@ class ReviewController extends Controller
             $start_review = Carbon::parse($public_review_timings->first()->start_review);
             $end_review = $currentDateTime;
             $duration = $end_review->diffInSeconds($start_review);
-            $flag = $this->flagReview($start_review, $duration, $public_review_timings->first()->id, 'PublicReviewUserTiming');
+            $flag = $this->flagReview($start_review, $duration, $public_review_timings->first()->id, 'PublicReviewUserTiming', $request->user()->id);
 
             $public_review_timings->update(["current_status" => $currentStatus, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
 

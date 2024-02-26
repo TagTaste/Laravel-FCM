@@ -11,6 +11,7 @@ use App\SurveyAnswers;
 use App\surveyApplicants;
 use App\SurveyAttemptMapping;
 use App\Surveys;
+use App\ModelFlagReason;
 use App\SurveysEntryMapping;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
@@ -125,7 +126,31 @@ class SurveyApplicantController extends Controller
             ->whereIn('id', $profileIdsForCounts)
             ->get();
 
-        $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
+       $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
+
+        // survey applicant data with attemps
+        $surveyApplicantData = SurveyAttemptMapping::where('survey_id', $id)->select('id','profile_id')->where('is_flag', 1)->whereNotNull('completion_date')->whereNull('deleted_at');
+        $reviewModelIds = $surveyApplicantData->pluck('id')->toArray();
+        $flaggedReviewData = $surveyApplicantData->get()->groupBy('profile_id');
+        $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->whereIn('model_id', $reviewModelIds)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
+
+        foreach($applicants as &$applicant){
+            $profileId = $applicant['profile_id'];
+            // check if review is flagged or not & add color for flagged review
+            if(isset($flaggedReviewData[$profileId]) && !empty($flaggedReviewData)){
+                $modelIds = $flaggedReviewData[$profileId]->pluck('id')->toArray();
+                $applicant['flag_color'] = config("constant.FLAG_COLORS.default");
+                $employee_reason = 'tagtaste_employee';
+                foreach($modelIds as $modelId){
+                    // check for the employee reason and add color based on that
+                    $flag_reasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
+                    if(in_array($employee_reason, $flag_reasons)){
+                        $applicant['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason);
+                    }  
+                }
+                $applicant['flag_count'] = count($modelIds);
+            }
+        }
         
         foreach($applicants as &$applicant){
             $applicant["txn_status"] = $this->getTxnStatusForApplicant($id,$applicant['profile_id']);
@@ -1340,7 +1365,6 @@ class SurveyApplicantController extends Controller
             return $this->sendNewError("Invalid Survey");
         }
 
-
         if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
             $companyId = $checkIFExists->company_id;
             $userId = $request->user()->id;
@@ -1459,7 +1483,29 @@ class SurveyApplicantController extends Controller
             if(isset($entry_timestamp)){
                 $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($entry_timestamp["created_at"]));
             }
-            
+
+            if($submission["is_flag"] == 1){
+                $modelId = $submission["id"];
+                $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->where('model_id', $modelId)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
+                $profileFlagReasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
+                $total_reasons = count($profileFlagReasons);
+                $sec_last_index = $total_reasons - 2;
+                $flag_text = 'Flagged for';
+                $reason_texts = '';
+                if($total_reasons > 1){
+                    for($i=0; $i < $sec_last_index; $i++){
+                        $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$i]).', ';
+                    }
+                    $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$sec_last_index]).' ';
+                    $flag_text = $flag_text.' '.$reason_texts.'and '.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$total_reasons - 1]).'.';
+                } else {
+                    $flag_text = $flag_text.' '.$reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[0]).'.';
+                }
+
+                $submission_status["is_flag"] = 1;
+                $submission_status["flag_text"] = $flag_text;
+            }
+
             $submission_status["duration"] = $duration;
             $profile["submission_status"][] = $submission_status;
             $profile["profile"] = $applicant->profile;

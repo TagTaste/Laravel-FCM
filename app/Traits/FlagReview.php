@@ -6,15 +6,19 @@ use Carbon\CarbonInterval;
 use Carbon\Carbon;
 use App\FlagReason;
 use App\ModelFlagReason;
+use App\Profile\User;
 
 
 trait FlagReview
 {
-    public function flagReview($start_review, $duration, $model_id, $model){
+    public function flagReview($start_review, $duration, $model_id, $model, $user_id){
 
         $start_time = $start_review->format('H:i:s');
         $flag = false;
-
+        if(!empty(User::where('id',$user_id)->first()->email)){
+            $email = explode('@', User::where('id',$user_id)->first()->email, 2);
+        }
+        
         // review flagging based on some conditions
         $flag_reasons = FlagReason::get();
         foreach($flag_reasons as $reason){
@@ -37,12 +41,26 @@ trait FlagReview
                     $flag = true;
                 }
             }
+
+            if($reason->slug == 'tagtaste_employee'){
+                // Check if use is tagtaste'employee or not
+                if ((isset($email[1]) && $email[1] == $reason_conditions['email_domain'])) {
+                    // Add flagging reason
+                    $this->addModelFlagReasons($flag_reason_data);
+                    $flag = true;
+                }
+            }
         }
 
         return $flag;
     }
 
     private function addModelFlagReasons($data){
-        ModelFlagReason::create($data);
+        //check if already exists or not
+        $model_flag_reasons = new ModelFlagReason;
+        $exists = $model_flag_reasons->where('model_id', $data['model_id'])->where('flag_reason_id', $data['flag_reason_id'])->where('model', $data['model'])->exists();
+        if(!$exists){
+            ModelFlagReason::create($data);
+        }
     }
 }
