@@ -346,7 +346,8 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\UpdatePrivateReviewMeta::class,
         \App\Console\Commands\UpdateSurveyReviewMeta::class,
-        \App\Console\Commands\UpdatePublicReviewMeta::class
+        \App\Console\Commands\UpdatePublicReviewMeta::class,
+        \App\Console\Commands\Script\BatchReviewsMeta::class
 
     ];
 

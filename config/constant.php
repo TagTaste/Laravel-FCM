@@ -33,6 +33,10 @@ return  [
         "COMPLETED" => 2
     ],
 
+    "TXN_REASON" => [
+        "DONATION" => "donation"
+    ],
+
     "QUIZ_RESULT_IMAGE_URL" =>[
          "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/0_score.gif",
         "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/icon/quiz_submit/33_score.gif",
@@ -47,6 +51,11 @@ return  [
         'In Progress' => 3
     ],
 
+    "SURVEY_APPLICANT_STATE" => [
+        "REJECTED" => 0,
+        "ACTIVE" => 1,
+    ],
+
     "MEDIA_SURVEY_QUESTION_TYPE" => 5,
     'PAYMENT_INITIATED_STATUS_ID' => 1,
     'PAYMENT_PENDING_STATUS_ID' => 2,
@@ -54,6 +63,7 @@ return  [
     'PAYMENT_FAILURE_STATUS_ID' => 4,
     'PAYMENT_CANCELLED_STATUS_ID' => 5,
     'PAYMENT_EXPIRED_STATUS_ID' => 6,
+    'PAYMENT_DONATED_STATUS_ID' => 7,
     'MINIMUM_PAID_TASTER_REVIEWS' => 4,
 
     'PAYMENT_STATUS' => [
@@ -122,6 +132,19 @@ return  [
         "PRODUCT_EXPERIENCE" => 2,
         "bill_shot" => 3
     ],
+
+    "COLLABORATE_APPLICANT_STATE" => [
+        "REJECTED" => 0,
+        "ACTIVE" => 1,
+    ],
+
+    "COLLABORATE_CURRENT_STATUS" => [
+        "TO_BE_NOTIFIED" => 0,
+        "NOTIFIED" => 1,
+        "INPROGRESS" => 2,
+        "COMPLETED" => 3
+    ],
+
     'SELECT_TYPES' => [
         'SELFIE_TYPE' => 6,
         'RANK_TYPE'=>7,
