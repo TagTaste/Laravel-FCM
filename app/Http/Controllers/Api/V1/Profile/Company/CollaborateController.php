@@ -314,6 +314,10 @@ class CollaborateController extends Controller
             }
         }
         unset($inputs['images']);
+
+        // videos meta
+        $inputs["videos_meta"] = ($request->has('videos_meta') && !is_null($request->input('videos_meta'))) ? $request->videos_meta : null;
+
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
@@ -401,6 +405,7 @@ class CollaborateController extends Controller
         }
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
+        $this->model->videos_meta = json_decode($this->model->videos_meta);
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();
