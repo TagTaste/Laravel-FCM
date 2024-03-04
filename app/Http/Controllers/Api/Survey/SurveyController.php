@@ -1503,7 +1503,6 @@ class SurveyController extends Controller
         
         $checkIFExists = $this->model->where("id", "=", $id)->first();
 
-
         if (empty($checkIFExists)) {
             $this->model = false;
             return $this->sendNewError("Invalid Survey");
@@ -2594,24 +2593,26 @@ class SurveyController extends Controller
                 {
                     // Add version key for new range type
                     $prepareNode["reports"][$counter]["version"] = $values["version"];
-                    
                     $last_index = count($values["options"]) - 1;
                     $values["min"] = $values["options"][0]["title"];
                     $values["max"] = $values["options"][$last_index]["title"];
                 }
                 $totalAnsSum = 0;
-                for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                $increment = (isset($values["version"]) && $values["version"] == 3) ? -1 : 1;
+                
+                for ($i = $values["min"]; ((isset($values["version"]) && $values["version"] == 3) ? $i >= $values['max'] : $i <= $values['max']); $i += $increment) 
+                {
                     if (isset($values["version"]))
                     {
                         $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
                         $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
-                        $totalAnsSum +=  isset($getAvg[$min]) ? ($min)*($getAvg[$min]["count"]) : 0;
+                        $totalAnsSum +=  isset($getAvg[$i]) ? ($i)*($getAvg[$i]["count"]) : 0;
                     }
                     
-                    $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
-                    $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$min]) ? $getAvg[$min]["count"] : 0);
-                    $prepareNode["reports"][$counter]["options"][$count]["answer_percentage"] = (isset($getAvg[$min]) ? $getAvg[$min]["avg"] : 0);
-                    $prepareNode["reports"][$counter]["options"][$count]["color_code"] = (isset($colorCodeList[$min]) ? $colorCodeList[$min] : "#fcda02");
+                    $prepareNode["reports"][$counter]["options"][$count]["value"] = $i;
+                    $prepareNode["reports"][$counter]["options"][$count]["answer_count"] = (isset($getAvg[$i]) ? $getAvg[$i]["count"] : 0);
+                    $prepareNode["reports"][$counter]["options"][$count]["answer_percentage"] = (isset($getAvg[$i]) ? $getAvg[$i]["avg"] : 0);
+                    $prepareNode["reports"][$counter]["options"][$count]["color_code"] = (isset($colorCodeList[$i]) ? $colorCodeList[$i] : "#fcda02");
                     $prepareNode["reports"][$counter]["options"][$count]["option_type"] = 0;
                     $count++;
                 }
@@ -2624,6 +2625,12 @@ class SurveyController extends Controller
                     $average = ($count2 == 0) ? 0 : number_format((float)($totalAnsSum/$count2), 2, '.', '');
                     $optionList = $prepareNode["reports"][$counter]["options"];
                     $filteredArray = array_values(array_filter($optionList, function ($arr) use ($average) {
+                        if((float)$average < 0){
+                            $parts = explode('.', $average);
+                            $values_after_decimal = isset($parts[1]) ? $parts[1] : '0';
+                            $roundedVal = ($values_after_decimal >= 50) ? (int)ceil($average) : (int)floor($average);
+                            return $arr["value"] == $roundedVal;
+                        }
                         return $arr["value"] == round($average);
                     }));
                     $roundedAvgOption = count($filteredArray) == 0 ? ["label"=>"", "color_code" => "#fcda02"] : $filteredArray[0];
@@ -2886,7 +2893,6 @@ class SurveyController extends Controller
                 // }
             }
 
-
             $prepareNode["reports"][$counter]["options"] = array_values($prepareNode["reports"][$counter]["options"]);
 
             //for sections having questions 
@@ -2899,7 +2905,6 @@ class SurveyController extends Controller
                     $getJson[$sectionKeys[$sectionKey]]["questions"][] = $prepareNode["reports"][$counter];
                 }
             }
-            //
 
             $answers = [];
             $counter++;
@@ -3597,20 +3602,23 @@ class SurveyController extends Controller
                     $last_index = count($values["options"]) - 1;
                     $values["min"] = $values["options"][0]["title"];
                     $values["max"] = $values["options"][$last_index]["title"];
+                    
                 }
+                $increment = (isset($values["version"]) && $values["version"] == 3) ? -1 : 1;
                 
-                for ($min = $values["min"]; $min <= $values['max']; $min++) {
+                for ($i = $values["min"]; ((isset($values["version"]) && $values["version"] == 3) ? $i >= $values['max'] : $i <= $values['max']); $i += $increment) 
+                {
                     if (isset($values["version"]))
                     {
                         $prepareNode["reports"][$counter]["options"][$count]["id"] = $values["options"][$count]["id"];
                         $prepareNode["reports"][$counter]["options"][$count]["label"] = $values["options"][$count]["label"];
                     }
-                    $prepareNode["reports"][$counter]["options"][$count]["value"] = $min;
-                    if (in_array($min, $pluckOpId))
+                    $prepareNode["reports"][$counter]["options"][$count]["value"] = $i;
+                    if (in_array($i, $pluckOpId))
                         $prepareNode["reports"][$counter]["options"][$count]["is_answered"] = true;
                     else
                         $prepareNode["reports"][$counter]["options"][$count]["is_answered"] = false;
-                    $prepareNode["reports"][$counter]["options"][$count]["color_code"] = (isset($colorCodeList[$min]) ? $colorCodeList[$min] : "#fcda02");
+                    $prepareNode["reports"][$counter]["options"][$count]["color_code"] = (isset($colorCodeList[$i]) ? $colorCodeList[$i] : "#fcda02");
                     $prepareNode["reports"][$counter]["options"][$count]["option_type"] = 0;
                     $count++;
                 }
