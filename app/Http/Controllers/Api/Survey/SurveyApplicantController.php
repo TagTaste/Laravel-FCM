@@ -716,7 +716,7 @@ class SurveyApplicantController extends Controller
             $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
             $date['type'] = 'date';
             $date['key'] = 'date';
-            $date['value'] = 'Submission Date';
+            $date['value'] = 'Submission Date Range';
         }
 
         // $profile = array_filter($profile);

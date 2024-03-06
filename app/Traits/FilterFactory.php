@@ -226,7 +226,7 @@ trait FilterFactory
             if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED")) || !isset($current_status)){
                 // Date filter key and value will be different for product filters
                 $date['key'] = 'review_date';
-                $date['value'] = 'Review Date';
+                $date['value'] = 'Review Date Filter';
             }
         }
 
@@ -369,7 +369,7 @@ trait FilterFactory
                 $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
                 $date['type'] = 'date';
                 $date['key'] = 'review_date';
-                $date['value'] = 'Review Date';
+                $date['value'] = 'Review Date Filter';
             } else {
                 // get values of fields
                 $genderData = $this->getFieldPairedData($gender);

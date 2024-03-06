@@ -229,7 +229,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['profile'] as $profile) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('name', 'LIKE', $profile['key']);
+                        $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile['key']));
                     } else {
                         $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile));
                     }
@@ -553,7 +553,7 @@ trait FilterTraits
             $dateData['items'] = $date;
             $dateData['type'] = 'date';
             $dateData['key'] = 'date';
-            $dateData['value'] = 'Submission Date';
+            $dateData['value'] = 'Submission Date Range';
 
             $questionFilterData = [];
             $questionFilterData['items'] = $question_filter;
