@@ -108,7 +108,7 @@ class Auth extends GetUserFromToken
             $sunday = strtotime(date("Y-m-d", $monday) . " +6 days");
             $this_week_sd = date("Y-m-d", $monday);
             $this_week_ed = date("Y-m-d", $sunday);
-            $string = "Time : " . date("Y-m-d H:i:s") . "| Profile_id : " . $user . "IP Lookup: ". $ip_look_up ." | Method : " . $request->method() . " | Url : " . $request->fullUrl() . "| Platform : ".$platform."|".json_encode($request->all()).PHP_EOL.$token.PHP_EOL;
+            $string = "Time : " . date("Y-m-d H:i:s") . " | Profile_id : " . $user . " | IP Lookup: ". $ip_look_up ." | Method : " . $request->method() . " | Url : " . $request->fullUrl() . "| Platform : ".$platform."|".json_encode($request->all()).PHP_EOL.$token.PHP_EOL;
 
             file_put_contents(storage_path("logs") . "/" . $this_week_sd . "-" . $this_week_ed . ".txt", $string, FILE_APPEND);
         }
