@@ -10,9 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\File;
 use App\Mail\JobResponse;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\ProfileData;
 
 class ChatController extends Controller
 {
+    use ProfileData;
+    
     /**
      * Variable to model
      *
@@ -180,6 +183,18 @@ class ChatController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat\Member::where('chat_id',$chadId)->where('profile_id',$loggedInProfileId)
             ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
+        return $this->sendResponse();
+    }
+
+    public function followers(Request $request, $id)
+    {
+        $this->model = $this->getFollowerList($request, $id, 'chat');
+        return $this->sendResponse();
+    }
+
+    public function searchedProfiles(Request $request)
+    {
+        $this->model = $this->getSearchedProfiles($request, 'chat');
         return $this->sendResponse();
     }
 

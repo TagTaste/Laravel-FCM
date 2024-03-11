@@ -11,11 +11,9 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\CompanyUser;
-use App\Traits\CheckTTEmployee;
 
 class ChatController extends Controller
-{
-    use CheckTTEmployee;
+{   
     public $model;
     public $now;
 
@@ -217,11 +215,9 @@ class ChatController extends Controller
             $data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')->where('users.name','like','%'.$key.'%')->get();
         }
     	
-
         $this->model = $data;
     	return $this->sendResponse();
         
-	
     }
 
     public function getChatId(Request $request)
