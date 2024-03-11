@@ -212,7 +212,7 @@ class ChatController extends Controller
         $data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
             ->whereIn('profiles.id',$profileIds)->where('users.name','like','%'.$key.'%')->get();
         
-        $tagTasteEmployee = $this->checkTTEmployee($id);
+        $tagTasteEmployee = $this->checkTTEmployee($loggedInProfileId);
         if($tagTasteEmployee){
             $data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')->where('users.name','like','%'.$key.'%')->get();
         }
