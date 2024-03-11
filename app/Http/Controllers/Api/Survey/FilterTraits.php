@@ -275,13 +275,13 @@ trait FilterTraits
             
             if($start_date != '' && $end_date != ''){
                 $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->whereBetween('completion_date',[$start_date, $end_date])->get()->pluck('profile_id')->unique();
-                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+                $Ids = $Ids->whereIn('survey_applicants.profile_id', $dateProfileIds);
             }else if($start_date != ''){
                 $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','>=',$start_date)->get()->pluck('profile_id')->unique();
-                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+                $Ids = $Ids->whereIn('survey_applicants.profile_id', $dateProfileIds);
             }else if($end_date != ''){
                 $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','<=',$end_date)->get()->pluck('profile_id')->unique();
-                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+                $Ids = $Ids->whereIn('survey_applicants.profile_id', $dateProfileIds);
             }           
         }
         
