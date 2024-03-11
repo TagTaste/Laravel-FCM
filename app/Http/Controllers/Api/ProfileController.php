@@ -24,9 +24,11 @@ use Twilio\Jwt\ClientToken;
 use App\BlockAccount\BlockAccount;
 use App\Services\UserService;
 use App\DonationProfileMapping;
+use App\Traits\CheckTTEmployee;
 
 class ProfileController extends Controller
 {
+    use CheckTTEmployee;
     protected $userService;
 
     public function __construct(UserService $userService)
@@ -526,9 +528,14 @@ class ProfileController extends Controller
     public function followers(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-
         $this->model = [];
+
         $profileIds = Redis::SMEMBERS("followers:profile:" . $id);
+
+        $tagTasteEmployee = $this->checkTTEmployee($id);
+        if($tagTasteEmployee){
+            $profileIds = Profile::pluck('id')->toArray();
+        }
 
         $deac_profiles = User::join('profiles', 'users.id', '=', 'profiles.user_id')->whereNull('users.deleted_at')->where('users.account_deactivated', 1)->pluck('profiles.id')->toArray();
 
