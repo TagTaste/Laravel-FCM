@@ -187,7 +187,7 @@ class MemberController extends Controller
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         if($this->checkTTEmployee($loggedInProfileId)){
-            $profileIds = Profile::whereNull('deleted_at')->pluck('id')->toArray();
+            $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
@@ -240,7 +240,7 @@ class MemberController extends Controller
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         if($this->checkTTEmployee($loggedInProfileId)){
-            $profileIds = Profile::whereNull('deleted_at')->pluck('id')->toArray();
+            $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)

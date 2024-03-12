@@ -19,7 +19,7 @@ trait ProfileData
 
         if(isset($module) && !empty($module) && $module == 'chat'){
             if($this->checkTTEmployee($profile_id)){
-                $profileIds = Profile::whereNull('deleted_at')->pluck('id')->toArray();
+                $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $profile_id)->pluck('id')->toArray();
             }
         }
 
@@ -68,7 +68,7 @@ trait ProfileData
 
         if(isset($module) && !empty($module) && $module == 'chat'){
             if( $this->checkTTEmployee($loggedInProfileId)){
-                $profileIds = Profile::whereNull('deleted_at')->pluck('id')->toArray();
+                $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
             }
         }
         
