@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Strategies\Paginator;
 use App\V1\Chat\Member;
 use App\V1\Chat;
+use App\Profile;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\CheckTTEmployee;
 
 class MemberController extends Controller
 {
-    //
+    use CheckTTEmployee;
     public $model;
     public $time;
 
@@ -39,7 +41,7 @@ class MemberController extends Controller
         }
         else
         {
-            $this->model = Member::withTrashed()->where('chat_id',$chatId)->where('created_at','<=',$member->exited_on)->whereNull('exited_on')->join('profiles','profiles.id','=','chat_members.profile_id')->whereNull('profiles.deleted_at')->get();
+            $this->model = Member::withTrashed()->where('chat_id',$chatId)->where('chat_members.created_at','<=',$member->exited_on)->whereNull('exited_on')->join('profiles','profiles.id','=','chat_members.profile_id')->whereNull('profiles.deleted_at')->get();
         }
     	return $this->sendResponse();
     }
@@ -184,6 +186,9 @@ class MemberController extends Controller
         $loggedInProfileId = $request->user()->profile->id ;
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        if($this->checkTTEmployee($loggedInProfileId)){
+            $profileIds = Profile::whereNull('deleted_at')->pluck('id')->toArray();
+        }
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
             $ids2[] = $chatProfileId;
@@ -234,6 +239,9 @@ class MemberController extends Controller
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        if($this->checkTTEmployee($loggedInProfileId)){
+            $profileIds = Profile::whereNull('deleted_at')->pluck('id')->toArray();
+        }
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
             $ids2[] = $chatProfileId;

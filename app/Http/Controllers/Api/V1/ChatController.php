@@ -11,9 +11,11 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\CompanyUser;
+use App\Traits\CheckTTEmployee;
 
 class ChatController extends Controller
-{   
+{
+    use CheckTTEmployee;   
     public $model;
     public $now;
 
