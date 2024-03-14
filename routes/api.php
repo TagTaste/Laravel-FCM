@@ -576,7 +576,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::get("reportSummary", "BatchController@reportSummary")->middleware('permissionCollaborate');;
             Route::get("batches/{id}/reportHeader", "QuestionController@reportHeader")->middleware('permissionCollaborate');
             Route::get("batches/{id}/headers/{headerId}/reports", "BatchController@reports")->middleware('permissionCollaborate');
-            Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports"->middleware('permissionCollaborate'));
+            Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports")->middleware('permissionCollaborate');
             Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options/{optionId}", "BatchController@optionIdReports")->middleware('permissionCollaborate');
             Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments", "BatchController@comments")->middleware('permissionCollaborate');
             Route::get("getHeaderWeight", "BatchController@getHeaderWeight")->middleware('permissionCollaborate');
