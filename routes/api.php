@@ -1091,7 +1091,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post('/media-list/{id}/{question_id}/{media_type}', 'SurveyController@mediaList');
         });
 
-        Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => ['api.auth', 'permissionCollaborate'], function () {
+        Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.', 'middleware' => ['api.auth', 'permissionCollaborate']], function () {
 
             // private product review reports post api
             Route::post("batches/{id}/headers/{headerId}/reports", "BatchController@reports");
