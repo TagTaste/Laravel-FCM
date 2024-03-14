@@ -235,10 +235,11 @@ class BatchController extends Controller
         $profiles = $profiles
             ->skip($skip)->take($take)->get();
 
-        $profileBatchData = BatchAssign::where('batch_id', $id)->where('collaborate_id', $collaborateId)->where('is_flag', 1)->whereIn('profile_id', $profileIds);
-        // $profileFlagValues = $profileBatchData->pluck('is_flag','profile_id')->toArray();
+        $profileBatchData = BatchAssign::where('batch_id', $id)->where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds);
         $profileModelIds = $profileBatchData->pluck('id','profile_id')->toArray();
-        $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->whereIn('model_id', $profileModelIds)->where('model', 'BatchAssign')->get()->groupBy('model_id');
+        $profileFlagValues = $profileBatchData->pluck('is_flag','profile_id')->toArray();
+        $flag_slugs = array(config("constant.FLAG_SLUG.SYSTEM"), config("constant.FLAG_SLUG.MANUAL1"));
+        $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id','reason')->whereIn('model_id', $profileModelIds)->whereIn('slug', $flag_slugs)->where('model', 'BatchAssign')->get()->groupBy('model_id');
         
         $profiles = $profiles->toArray();
     
@@ -294,28 +295,26 @@ class BatchController extends Controller
 
                 $profile["txn_status"] = $this->getTxnStatusForApplicant($id,$profileId);
 
+                $modelId = $profileModelIds[$profileId];
                 // check if review is flagged or not & add color for flagged review
-                if(isset($profileModelIds[$profileId]) && !empty($profileModelIds) && !is_null($profileModelIds)){
-                    // Add flagging reasons specific to each profile review
-                    $modelId = $profileModelIds[$profileId];
-                    // $profile['flag_reasons'] = isset($profileFlagReasons[$modelId]) ? $profileFlagReasons[$modelId]->pluck('flagReason')->toArray() : [];
-
+                if(isset($profileFlagValues[$profileId]) && $profileFlagValues[$profileId] == 1){
                     // check the reason and add color based on that
-                    $flag_reasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
+                    $flag_reasons = $profileFlagReasons[$modelId]->pluck('reason')->toArray();
                     
                     $profile['flag_color'] = config("constant.FLAG_COLORS.default");
-                    $employee_reason = 'tagtaste_employee';
-                    if(in_array($employee_reason, $flag_reasons)){
-                        $profile['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason);
+                    $employee_reason_slug = "tagtaste_employee";
+                    if(in_array(config("constant.FLAG_REASONS_TEXT.".$employee_reason_slug), $flag_reasons)){
+                        $profile['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason_slug);
                     }
+                } else { // if a review is unflagged
+                    // check weather it was previously flagged or not
+                    $profile['prev_flagged'] = isset($profileFlagReasons[$modelId]) ? 1 : 0;
                 }
             }
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
 
-
         //count of sensory trained
-
         $countSensory = \DB::table('profiles')
             ->select('profiles.id')
             ->where('profiles.is_sensory_trained', 1)
@@ -516,32 +515,94 @@ class BatchController extends Controller
         // flag review data
         $profileBatchData = BatchAssign::where('batch_id', $batchId)->where('collaborate_id', $collaborateId)->where('profile_id', $profileId)->first();
 
-        if($profileBatchData->is_flag == 1){
-            $modelId = $profileBatchData->id;
-            $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->where('model_id', $modelId)->where('model', 'BatchAssign')->get()->groupBy('model_id');
-            $profileFlagReasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
-            $total_reasons = count($profileFlagReasons);
-            $sec_last_index = $total_reasons - 2;
-            $flag_text = 'Flagged for';
-            $reason_texts = '';
-            if($total_reasons > 1){
-                for($i=0; $i < $sec_last_index; $i++){
-                    $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$i]).', ';
+        $modelId = $profileBatchData->id;
+        $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id','reason', 'slug', 'created_at')->where('model_id', $modelId)->where('model', 'BatchAssign')->get()->groupBy('model_id');
+
+        $flag_text = '';
+        if(!($profileFlagReasons->isEmpty())){
+            // get specific review reasons data in decending order.
+            $profileFlagReasons = $profileFlagReasons[$modelId]->sortByDesc('created_at');
+            $lastReasonSlug = $profileFlagReasons->pluck('slug')->first();
+        
+            if($lastReasonSlug == 'system_flag'){
+                $profileFlagReasons = $profileFlagReasons->pluck('reason')->toArray(); 
+                $total_reasons = count($profileFlagReasons);
+                $sec_last_index = $total_reasons - 2;
+                $flag_text = 'Flagged for';
+                $reason_texts = '';
+                if($total_reasons > 1){
+                    for($i=0; $i < $sec_last_index; $i++){
+                        $reason_texts = $reason_texts.$profileFlagReasons[$i].', ';
+                    }
+                    $reason_texts = $reason_texts.$profileFlagReasons[$sec_last_index].' ';
+                    $flag_text = $flag_text.' '.$reason_texts.'and '.$profileFlagReasons[$total_reasons - 1].'.';
+                } else {
+                    $flag_text = $flag_text.' '.$reason_texts.$profileFlagReasons[0].'.';
                 }
-                $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$sec_last_index]).' ';
-                $flag_text = $flag_text.' '.$reason_texts.'and '.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$total_reasons - 1]).'.';
             } else {
-                $flag_text = $flag_text.' '.$reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[0]).'.';
+                // last flag/unflag reason
+                $flag_text = $profileFlagReasons->pluck('reason')->first();
             }
-
-            $submission_status["is_flag"] = $profileBatchData->is_flag;
-            $submission_status["flag_text"] = $flag_text;
         }
-
+        $submission_status["is_flag"] = $profileBatchData->is_flag;
+        $submission_status["flag_text"] = $flag_text;
         $submission_status["timeline"] = $timeline;        
         $submission_status["duration"] = $duration;
-        // $submission_status["flag_reasons"] = $profileFlagReasons[$modelId]->pluck('flagReason')->toArray();
         $this->model = ["submission_status"=>[$submission_status], "profile"=>$applicant->profile];
+        return $this->sendNewResponse();
+    }
+
+    public function flagUnflagReview(Request $request, $collaborateId, $batchId, $profileId)
+    {
+        $flag_request = $request->flag;
+        $this->model = 0;
+        $loggedInProfileId = $request->user()->profile->id;
+
+        //flag or unflag a review
+        $profileReview = BatchAssign::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('profile_id', $profileId)->first();
+        $reviewFlag = $profileReview->is_flag;
+
+        // check if it's already flagged or unflagged
+        if(isset($flag_request) && $flag_request == 1 && $flag_request == $reviewFlag){
+            return $this->sendNewError("It is already flagged, it cannot be flagged again.");
+        } else if(isset($flag_request) && $flag_request == 0 && $flag_request == $reviewFlag) {
+            return $this->sendNewError("It is already Unflagged, it cannot be Unflagged again.");
+        }
+
+        $flag = $profileReview->update(['is_flag' => $flag_request]);
+        $updateReason = ModelFlagReason::create(['model_id' => $profileReview->id, 'reason' => $request->flag_text, 'slug' => config("constant.FLAG_SLUG.MANUAL".$flag_request), 'model' => 'BatchAssign', 'profile_id' => $loggedInProfileId]);
+
+        if($flag && $updateReason){
+            $this->model = 1;
+        } else {
+            return $this->sendNewError("Something went wrong. Review cannot be flagged or Unflagged.");
+        }
+        return $this->sendNewResponse();
+    }
+
+    public function flagLogs($collaborateId, $batchId, $profileId){
+        $model_id = BatchAssign::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('profile_id', $profileId)->first()->id;
+        $modelFlagReasons = ModelFlagReason::where('model', 'BatchAssign')->where('model_id', $model_id)->get();
+        $this->model = [];
+        foreach($modelFlagReasons as $modelFlagReason){
+            if($modelFlagReason->slug == config("constant.FLAG_SLUG.MANUAL0")){
+                $data['title'] = 'UNFLAGGED';
+                $data['color_code'] = config("constant.FLAG_COLORS.unflag_color");
+                $data['line_color_code'] = config("constant.FLAG_COLORS.unflag_line_color");
+            } else {
+                $data['title'] = 'FLAGGED';
+                $data['color_code'] = config("constant.FLAG_COLORS.flag_color");
+                $data['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
+            }
+            $data['flag_text'] = $modelFlagReason->reason;
+            $data['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('Y-m-d H:i:s');
+            if(!empty($modelFlagReason->company_id)){
+                $data['company'] = Company::where('id', $modelFlagReason->company_id)->first()->toArray();
+            } else {
+                $data['profile'] = Profile::where('id', $modelFlagReason->profile_id)->first()->toArray();
+            }
+            $this->model[] = $data;
+        }
         return $this->sendNewResponse();
     }
 

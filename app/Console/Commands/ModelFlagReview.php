@@ -64,7 +64,20 @@ class ModelFlagReview extends Command
                     $user_id = $profile->where('id', $review->profile_id)->first()->user_id;
                     $start_review = Carbon::parse($review->start_review);
 
-                    $flag = $this->flagReview($start_review, $review->duration, $review->id, $model, $user_id);
+                    // find model id
+                    switch ($model) {
+                        case 'BatchAssign':
+                            $created_model_id = $review->collaborate_id;
+                            break;
+                        case 'SurveyAttemptMapping':
+                            $created_model_id = $review->survey_id;
+                            break;
+                        case 'PublicReviewUserTiming':
+                            $created_model_id = $review->product_id;
+                            break;
+                    }
+
+                    $flag = $this->flagReview($start_review, $review->duration, $review->id, $model, $user_id, $created_model_id);
                     $review->update(["is_flag" => $flag]);
                 }
             }            

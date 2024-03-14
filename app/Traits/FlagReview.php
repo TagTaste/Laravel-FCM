@@ -7,12 +7,16 @@ use Carbon\Carbon;
 use App\FlagReason;
 use App\ModelFlagReason;
 use App\Profile\User;
+use App\V2\Collaborate;
+use App\Surveys;
+use App\PublicReviewProduct;
 
 
 trait FlagReview
 {
-    public function flagReview($start_review, $duration, $model_id, $model, $user_id){
+    public function flagReview($start_review, $duration, $model_id, $model, $user_id, $created_model_id){
 
+        $adminIds = $this->getAdminIds($model, $created_model_id);
         $start_time = $start_review->format('H:i:s');
         $flag = false;
         if(!empty(User::where('id',$user_id)->first()->email)){
@@ -23,7 +27,7 @@ trait FlagReview
         $flag_reasons = FlagReason::get();
         foreach($flag_reasons as $reason){
             $reason_conditions = $reason->conditions()->pluck('condition_value', 'condition_slug')->toArray();
-            $flag_reason_data = ['model_id' => $model_id, 'flag_reason_id' => $reason->id, 'model' => $model];
+            $flag_reason_data = ['model_id' => $model_id, 'flag_reason_id' => $reason->id, 'reason' => config("constant.FLAG_REASONS_TEXT.".$reason->slug), 'slug' => config("constant.FLAG_SLUG.SYSTEM"), 'model' => $model, 'profile_id' => $adminIds['profile_id'], 'company_id' => $adminIds['company_id']];
             if($reason->slug == 'review_duration'){
                 // Check if the duration is less than 3 mins OR greater than 45 mins
                 if (($duration < $reason_conditions['min_duration']) || ($duration > $reason_conditions['max_duration'])) {
@@ -62,5 +66,28 @@ trait FlagReview
         if(!$exists){
             ModelFlagReason::create($data);
         }
+    }
+
+    private function getAdminIds($model, $model_id){
+        $ids = [];
+        // find model id and get profile_id, company_id from the relevant tables
+        switch ($model) {
+            case 'BatchAssign':
+                $collaborateData = Collaborate::select('profile_id', 'company_id')->find($model_id);
+                $ids['profile_id'] = $collaborateData->profile_id;
+                $ids['company_id'] = $collaborateData->company_id;
+                break;
+            case 'SurveyAttemptMapping':
+                $surveyData = Surveys::select('profile_id', 'company_id')->find($model_id);
+                $ids['profile_id'] = $surveyData->profile_id;
+                $ids['company_id'] = $surveyData->company_id;
+                break;
+            case 'PublicReviewUserTiming':
+                $publicReviewData = PublicReviewProduct::select('company_id')->find($model_id);
+                $ids['profile_id'] = null;
+                $ids['company_id'] = $publicReviewData->company_id;
+                break;
+        }
+        return $ids;
     }
 }

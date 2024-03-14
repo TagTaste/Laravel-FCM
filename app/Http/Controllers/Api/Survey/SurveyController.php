@@ -889,7 +889,7 @@ class SurveyController extends Controller
                     $end_review = $currentDateTime;
                     $duration = $end_review->diffInSeconds($start_review);
                     $completion_date = date("Y-m-d H:i:s");
-                    $flag = $this->flagReview($start_review, $duration, $survey_attempt->id, 'SurveyAttemptMapping', $request->user()->id);
+                    $flag = $this->flagReview($start_review, $duration, $survey_attempt->id, 'SurveyAttemptMapping', $request->user()->id, $request->survey_id);
                      
                     $survey_attempt->update(["completion_date" => $completion_date, "current_status" => $request->current_status, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
 

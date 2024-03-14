@@ -558,6 +558,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             
             Route::get("batches/{batchId}/profile/{profileId}/submission_status", 'BatchController@getReviewTimeline');
 
+            // Manually Flag/UnFlag a review
+            Route::post("batches/{batchId}/profile/{profileId}/flag", 'BatchController@flagUnflagReview');
+            // Flag logs
+            Route::get("batches/{batchId}/profile/{profileId}/flag", 'BatchController@flagLogs');
+
             Route::post("batches/{batchId}/startReview", "ReviewController@startReview");
 
             Route::get("userBatches", 'BatchController@userBatches');

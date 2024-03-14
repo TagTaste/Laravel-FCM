@@ -1486,20 +1486,20 @@ class SurveyApplicantController extends Controller
 
             if($submission["is_flag"] == 1){
                 $modelId = $submission["id"];
-                $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->where('model_id', $modelId)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
-                $profileFlagReasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
+                $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id', 'reason')->where('model_id', $modelId)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
+                $profileFlagReasons = $profileFlagReasons[$modelId]->pluck('reason')->toArray();
                 $total_reasons = count($profileFlagReasons);
                 $sec_last_index = $total_reasons - 2;
                 $flag_text = 'Flagged for';
                 $reason_texts = '';
                 if($total_reasons > 1){
                     for($i=0; $i < $sec_last_index; $i++){
-                        $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$i]).', ';
+                        $reason_texts = $reason_texts.$profileFlagReasons[$i].', ';
                     }
-                    $reason_texts = $reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$sec_last_index]).' ';
-                    $flag_text = $flag_text.' '.$reason_texts.'and '.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[$total_reasons - 1]).'.';
+                    $reason_texts = $reason_texts.$profileFlagReasons[$sec_last_index].' ';
+                    $flag_text = $flag_text.' '.$reason_texts.'and '.$profileFlagReasons[$total_reasons - 1].'.';
                 } else {
-                    $flag_text = $flag_text.' '.$reason_texts.config("constant.FLAG_REASONS_TEXT.".$profileFlagReasons[0]).'.';
+                    $flag_text = $flag_text.' '.$reason_texts.$profileFlagReasons[0].'.';
                 }
 
                 $submission_status["is_flag"] = 1;
