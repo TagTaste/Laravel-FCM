@@ -128,27 +128,41 @@ class SurveyApplicantController extends Controller
 
        $applicants = $applicants->orderBy("created_at", "desc")->skip($skip)->take($take)->get()->toArray();
 
-        // survey applicant data with attemps
-        $surveyApplicantData = SurveyAttemptMapping::where('survey_id', $id)->select('id','profile_id')->where('is_flag', 1)->whereNotNull('completion_date')->whereNull('deleted_at');
+        // survey applicant data with attempts
+        $surveyApplicantData = SurveyAttemptMapping::where('survey_id', $id)->select('id','profile_id','is_flag')->whereNotNull('completion_date')->whereNull('deleted_at');
         $reviewModelIds = $surveyApplicantData->pluck('id')->toArray();
         $flaggedReviewData = $surveyApplicantData->get()->groupBy('profile_id');
-        $profileFlagReasons = ModelFlagReason::with('flagReason')->select('model_id', 'flag_reason_id')->whereIn('model_id', $reviewModelIds)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
+        $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id', 'reason')->whereIn('model_id', $reviewModelIds)->where('slug', '<>', config("constant.FLAG_SLUG.MANUAL0"))->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
 
         foreach($applicants as &$applicant){
             $profileId = $applicant['profile_id'];
-            // check if review is flagged or not & add color for flagged review
             if(isset($flaggedReviewData[$profileId]) && !empty($flaggedReviewData)){
-                $modelIds = $flaggedReviewData[$profileId]->pluck('id')->toArray();
-                $applicant['flag_color'] = config("constant.FLAG_COLORS.default");
-                $employee_reason = 'tagtaste_employee';
-                foreach($modelIds as $modelId){
-                    // check for the employee reason and add color based on that
-                    $flag_reasons = $profileFlagReasons[$modelId]->pluck('flagReason')->pluck('slug')->toArray();
-                    if(in_array($employee_reason, $flag_reasons)){
-                        $applicant['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason);
-                    }  
+                $profileSubmissionFlagVal = $flaggedReviewData[$profileId]->pluck('is_flag')->toArray();
+
+                // check whether any of the submission is flagged or not
+                if(in_array(1, $profileSubmissionFlagVal)){
+                    $applicant['flag_color'] = config("constant.FLAG_COLORS.default");
+                    $employee_reason_slug = 'tagtaste_employee';
+                    $modelIds = $flaggedReviewData[$profileId]->where('is_flag', 1)->pluck('id')->toArray();
+                    foreach($modelIds as $modelId){
+                        // check for the employee reason and add color based on that
+                        $flag_reasons = $profileFlagReasons[$modelId]->pluck('reason')->toArray();
+                        if(in_array(config("constant.FLAG_REASONS_TEXT.".$employee_reason_slug), $flag_reasons)){
+                            $applicant['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason_slug);
+                        }  
+                    }
+                    $applicant['flag_count'] = count($modelIds);
+                } else { // if all submissions are unflagged
+                    $modelIds = $flaggedReviewData[$profileId]->pluck('id')->toArray();
+                    // check whether any of the submission was previously flagged or not
+                    foreach($modelIds as $modelId){
+                        $applicant['prev_flagged'] = 0;
+                        if(isset($profileFlagReasons[$modelId]) && !empty($profileFlagReasons[$modelId])){
+                            $applicant['prev_flagged'] = 1;
+                            break;
+                        }
+                    }
                 }
-                $applicant['flag_count'] = count($modelIds);
             }
         }
         
@@ -1484,28 +1498,38 @@ class SurveyApplicantController extends Controller
                 $duration = $this->secondsToTime(strtotime($submission["completion_date"]) - strtotime($entry_timestamp["created_at"]));
             }
 
-            if($submission["is_flag"] == 1){
-                $modelId = $submission["id"];
-                $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id', 'reason')->where('model_id', $modelId)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
-                $profileFlagReasons = $profileFlagReasons[$modelId]->pluck('reason')->toArray();
-                $total_reasons = count($profileFlagReasons);
-                $sec_last_index = $total_reasons - 2;
-                $flag_text = 'Flagged for';
-                $reason_texts = '';
-                if($total_reasons > 1){
-                    for($i=0; $i < $sec_last_index; $i++){
-                        $reason_texts = $reason_texts.$profileFlagReasons[$i].', ';
-                    }
-                    $reason_texts = $reason_texts.$profileFlagReasons[$sec_last_index].' ';
-                    $flag_text = $flag_text.' '.$reason_texts.'and '.$profileFlagReasons[$total_reasons - 1].'.';
-                } else {
-                    $flag_text = $flag_text.' '.$reason_texts.$profileFlagReasons[0].'.';
-                }
+            $modelId = $submission["id"];
+            $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id', 'reason', 'slug')->where('model_id', $modelId)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
 
-                $submission_status["is_flag"] = 1;
-                $submission_status["flag_text"] = $flag_text;
+            $flag_text = '';
+            if(!($profileFlagReasons->isEmpty())){
+                // get specific review reasons data in decending order.
+                $profileFlagReasons = $profileFlagReasons[$modelId]->sortByDesc('created_at');
+                $lastReasonSlug = $profileFlagReasons->pluck('slug')->first();
+                if($lastReasonSlug == 'system_flag'){
+                    $profileFlagReasons = $profileFlagReasons->pluck('reason')->toArray();
+                    $total_reasons = count($profileFlagReasons);
+                    $sec_last_index = $total_reasons - 2;
+                    $flag_text = 'Flagged for';
+                    $reason_texts = '';
+                    if($total_reasons > 1){
+                        for($i=0; $i < $sec_last_index; $i++){
+                            $reason_texts = $reason_texts.$profileFlagReasons[$i].', ';
+                        }
+                        $reason_texts = $reason_texts.$profileFlagReasons[$sec_last_index].' ';
+                        $flag_text = $flag_text.' '.$reason_texts.'and '.$profileFlagReasons[$total_reasons - 1].'.';
+                    } else {
+                        $flag_text = $flag_text.' '.$reason_texts.$profileFlagReasons[0].'.';
+                    }
+                } else {
+                    // last flag/unflag reason
+                    $flag_text = $profileFlagReasons->pluck('reason')->first();
+                }
+                
             }
 
+            $submission_status["is_flag"] = $submission["is_flag"];
+            $submission_status["flag_text"] = $flag_text;
             $submission_status["duration"] = $duration;
             $profile["submission_status"][] = $submission_status;
             $profile["profile"] = $applicant->profile;
@@ -1586,5 +1610,151 @@ class SurveyApplicantController extends Controller
 
         $this->model = $profile;
         return $this->sendResponse();
+    }
+
+    public function flagUnflagReview(Request $request, $surveyId, $submissionId)
+    {
+        $checkIFExists = $this->model->where("id", "=", $surveyId)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Survey");
+        }
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendNewError("Only Admin can flag or unflag a submission");
+        }
+
+        $this->model = 0;
+        $flag_request = $request->flag;
+        $flag_reason = $request->flag_text;
+        if(empty($flag_reason) && $flag_reason == '' && $flag_request == 1){
+            return $this->sendNewError("Reason is required to flag a review");
+        } else if(empty($flag_reason) && $flag_reason == '' && $flag_request == 0) {
+            return $this->sendNewError("Reason is required to unflag a review");
+        }
+
+        $loggedInProfileId = $request->user()->profile->id;
+
+        //flag or unflag a review
+        $profileSubmission = SurveyAttemptMapping::find($submissionId);
+        $submissionFlag = $profileSubmission->is_flag;
+
+        // check if it's already flagged or unflagged
+        if(isset($flag_request) && $flag_request == 1 && $flag_request == $submissionFlag){
+            return $this->sendNewError("It is already flagged, it cannot be flagged again.");
+        } else if(isset($flag_request) && $flag_request == 0 && $flag_request == $submissionFlag) {
+            return $this->sendNewError("It is already Unflagged, it cannot be Unflagged again.");
+        }
+
+        $flag = $profileSubmission->update(['is_flag' => $flag_request]);
+        $updateReason = ModelFlagReason::create(['model_id' => $submissionId, 'reason' => $flag_reason, 'slug' => config("constant.FLAG_SLUG.MANUAL".$flag_request), 'model' => 'SurveyAttemptMapping', 'profile_id' => $loggedInProfileId]);
+
+        $success_message = ($flag_request == 1) ? "Review has been flagged successfully!" : "Review has been unflagged successfully!";
+        if($flag && $updateReason){
+            $this->model = $success_message;
+        } else {
+            return $this->sendNewError("Something went wrong. Review cannot be flagged or Unflagged.");
+        }
+        return $this->sendNewResponse();
+    }
+
+    public function flagLogs(Request $request, $surveyId, $profileId){
+        $checkIFExists = $this->model->where("id", "=", $surveyId)->whereNull("deleted_at")->first();
+        if (empty($checkIFExists)) {
+            $this->model = false;
+            return $this->sendNewError("Invalid Survey");
+        }
+
+        if (isset($checkIFExists->company_id) && !empty($checkIFExists->company_id)) {
+            $companyId = $checkIFExists->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if (!$userBelongsToCompany) {
+                return $this->sendNewError("User does not belong to this company");
+            }
+        } else if (isset($checkIFExists->profile_id) &&  $checkIFExists->profile_id != $request->user()->profile->id) {
+            return $this->sendNewError("Only Admin can flag or unflag a submission");
+        }
+
+        $submissions = SurveyAttemptMapping::where('survey_id', $surveyId)->where('profile_id', $profileId)->get()->sortByDesc('completion_date');
+
+        $modelFlagReasons = ModelFlagReason::where('model', 'SurveyAttemptMapping')->get();
+        $profiles = Profile::get();
+        $companies = Company::get();
+
+        $data = [];
+        $submissionCount = count($submissions);
+        $title = ($submissionCount == 1) ? 0 : 1;
+        foreach($submissions as $submission){
+            $submission_data = [];
+            $submission_data["title"] = ($title == 0) ? "" : "SUBMISSION ".$submissionCount;
+            $submission_id = $submission->id;
+            $systemFlagReasons = $modelFlagReasons->where('model_id', $submission_id)->where('slug', config("constant.FLAG_SLUG.SYSTEM"))->groupBy('model_id')[$submission_id];
+            $manualFlagReasons = $modelFlagReasons->where('model_id', $submission_id)->where('slug','<>',config("constant.FLAG_SLUG.SYSTEM"))->sortByDesc('created_at');
+            $submissionCount--;
+
+            $submission_data["flag_logs"] = [];
+            // Manually flagged reviews    
+            foreach($manualFlagReasons as $modelFlagReason){
+                if($modelFlagReason->slug == config("constant.FLAG_SLUG.MANUAL0")){
+                    $flag_logs['title'] = 'UNFLAGGED';
+                    $flag_logs['color_code'] = config("constant.FLAG_COLORS.unflag_color");
+                    $flag_logs['line_color_code'] = config("constant.FLAG_COLORS.unflag_line_color");
+                } else {
+                    $flag_logs['title'] = 'FLAGGED';
+                    $flag_logs['color_code'] = config("constant.FLAG_COLORS.flag_color");
+                    $flag_logs['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
+                }
+                $flag_logs['flag_text'] = $modelFlagReason->reason;
+                $flag_logs['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('Y-m-d H:i:s');
+                $flag_logs['profile'] = $profiles->where('id', $modelFlagReason->profile_id)->first()->toArray();
+                $submission_data["flag_logs"][] = $flag_logs;
+                $flag_logs = [];
+            }
+
+            // system flagged review's reason
+            $flag_logs['title'] = 'FLAGGED';
+            $flag_logs['color_code'] = config("constant.FLAG_COLORS.flag_color");
+            $flag_logs['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
+            $reasons = $systemFlagReasons->pluck('reason')->toArray();
+            $total_reasons = count($reasons);
+            $sec_last_index = $total_reasons - 2;
+            $flag_logs['flag_text'] = 'Flagged for';
+            $reason_texts = '';
+            if($total_reasons > 1){
+                for($i=0; $i < $sec_last_index; $i++){
+                    $reason_texts = $reason_texts.$reasons[$i].', ';
+                }
+                $reason_texts = $reason_texts.$reasons[$sec_last_index].' ';
+                $flag_logs['flag_text'] = $flag_logs['flag_text'].' '.$reason_texts.'and '.$reasons[$total_reasons - 1].'.';
+            } else {
+                $flag_logs['flag_text'] = $flag_logs['flag_text'].' '.$reason_texts.$reasons[0].'.';
+            }
+            $otherData = $systemFlagReasons->first();
+            $flag_logs['created_at'] = Carbon::parse($otherData->created_at)->format('Y-m-d H:i:s');
+            if(!empty($otherData->company_id)){
+                $flag_logs['company'] = $companies->where('id', $otherData->company_id)->first()->toArray();
+            } else {
+                $flag_logs['profile'] = $profiles->where('id', $otherData->profile_id)->first()->toArray();
+            }
+            $submission_data["flag_logs"][] = $flag_logs;
+
+            //add submission data
+            $data[] = $submission_data;
+        }
+
+        
+        $this->model = $data;
+
+        return $this->sendNewResponse();
     }
 }

@@ -300,14 +300,13 @@ class BatchController extends Controller
                 if(isset($profileFlagValues[$profileId]) && $profileFlagValues[$profileId] == 1){
                     // check the reason and add color based on that
                     $flag_reasons = $profileFlagReasons[$modelId]->pluck('reason')->toArray();
-                    
                     $profile['flag_color'] = config("constant.FLAG_COLORS.default");
                     $employee_reason_slug = "tagtaste_employee";
                     if(in_array(config("constant.FLAG_REASONS_TEXT.".$employee_reason_slug), $flag_reasons)){
                         $profile['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason_slug);
                     }
                 } else { // if a review is unflagged
-                    // check weather it was previously flagged or not
+                    // check whether it was previously flagged or not
                     $profile['prev_flagged'] = isset($profileFlagReasons[$modelId]) ? 1 : 0;
                 }
             }
@@ -556,12 +555,14 @@ class BatchController extends Controller
     {
         $flag_request = $request->flag;
         $flag_reason = $request->flag_text;
+        $this->model = 0;
+
         if(empty($flag_reason) && $flag_reason == '' && $flag_request == 1){
             return $this->sendNewError("Reason is required to flag a review");
         } else if(empty($flag_reason) && $flag_reason == '' && $flag_request == 0) {
             return $this->sendNewError("Reason is required to unflag a review");
         }
-        $this->model = 0;
+        
         $loggedInProfileId = $request->user()->profile->id;
 
         //flag or unflag a review
@@ -578,8 +579,9 @@ class BatchController extends Controller
         $flag = $profileReview->update(['is_flag' => $flag_request]);
         $updateReason = ModelFlagReason::create(['model_id' => $profileReview->id, 'reason' => $flag_reason, 'slug' => config("constant.FLAG_SLUG.MANUAL".$flag_request), 'model' => 'BatchAssign', 'profile_id' => $loggedInProfileId]);
 
+        $success_message = ($flag_request == 1) ? "Review has been flagged successfully!" : "Review has been unflagged successfully!";
         if($flag && $updateReason){
-            $this->model = 1;
+            $this->model = $success_message;
         } else {
             return $this->sendNewError("Something went wrong. Review cannot be flagged or Unflagged.");
         }
