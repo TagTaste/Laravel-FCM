@@ -555,6 +555,12 @@ class BatchController extends Controller
     public function flagUnflagReview(Request $request, $collaborateId, $batchId, $profileId)
     {
         $flag_request = $request->flag;
+        $flag_reason = $request->flag_text;
+        if(empty($flag_reason) && $flag_reason == '' && $flag_request == 1){
+            return $this->sendNewError("Reason is required to flag a review");
+        } else if(empty($flag_reason) && $flag_reason == '' && $flag_request == 0) {
+            return $this->sendNewError("Reason is required to unflag a review");
+        }
         $this->model = 0;
         $loggedInProfileId = $request->user()->profile->id;
 
@@ -570,7 +576,7 @@ class BatchController extends Controller
         }
 
         $flag = $profileReview->update(['is_flag' => $flag_request]);
-        $updateReason = ModelFlagReason::create(['model_id' => $profileReview->id, 'reason' => $request->flag_text, 'slug' => config("constant.FLAG_SLUG.MANUAL".$flag_request), 'model' => 'BatchAssign', 'profile_id' => $loggedInProfileId]);
+        $updateReason = ModelFlagReason::create(['model_id' => $profileReview->id, 'reason' => $flag_reason, 'slug' => config("constant.FLAG_SLUG.MANUAL".$flag_request), 'model' => 'BatchAssign', 'profile_id' => $loggedInProfileId]);
 
         if($flag && $updateReason){
             $this->model = 1;
@@ -583,8 +589,14 @@ class BatchController extends Controller
     public function flagLogs($collaborateId, $batchId, $profileId){
         $model_id = BatchAssign::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('profile_id', $profileId)->first()->id;
         $modelFlagReasons = ModelFlagReason::where('model', 'BatchAssign')->where('model_id', $model_id)->get();
+        $systemFlagReasons = $modelFlagReasons->where('slug', config("constant.FLAG_SLUG.SYSTEM"))->groupBy('model_id')[$model_id];
+        $manualFlagReasons = $modelFlagReasons->where('slug','<>',config("constant.FLAG_SLUG.SYSTEM"))->sortByDesc('created_at');
+
+        $profiles = Profile::get();
         $this->model = [];
-        foreach($modelFlagReasons as $modelFlagReason){
+
+        // Manually flagged reviews    
+        foreach($manualFlagReasons as $modelFlagReason){
             if($modelFlagReason->slug == config("constant.FLAG_SLUG.MANUAL0")){
                 $data['title'] = 'UNFLAGGED';
                 $data['color_code'] = config("constant.FLAG_COLORS.unflag_color");
@@ -596,13 +608,38 @@ class BatchController extends Controller
             }
             $data['flag_text'] = $modelFlagReason->reason;
             $data['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('Y-m-d H:i:s');
-            if(!empty($modelFlagReason->company_id)){
-                $data['company'] = Company::where('id', $modelFlagReason->company_id)->first()->toArray();
-            } else {
-                $data['profile'] = Profile::where('id', $modelFlagReason->profile_id)->first()->toArray();
-            }
+            $data['profile'] = $profiles->where('id', $modelFlagReason->profile_id)->first()->toArray();
             $this->model[] = $data;
+            $data = [];
         }
+
+        // system flagged review's reason
+        $data['title'] = 'FLAGGED';
+        $data['color_code'] = config("constant.FLAG_COLORS.flag_color");
+        $data['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
+        $reasons = $systemFlagReasons->pluck('reason')->toArray();
+        $total_reasons = count($reasons);
+        $sec_last_index = $total_reasons - 2;
+        $data['flag_text'] = 'Flagged for';
+        $reason_texts = '';
+        if($total_reasons > 1){
+            for($i=0; $i < $sec_last_index; $i++){
+                $reason_texts = $reason_texts.$reasons[$i].', ';
+            }
+            $reason_texts = $reason_texts.$reasons[$sec_last_index].' ';
+            $data['flag_text'] = $data['flag_text'].' '.$reason_texts.'and '.$reasons[$total_reasons - 1].'.';
+        } else {
+            $data['flag_text'] = $data['flag_text'].' '.$reason_texts.$reasons[0].'.';
+        }
+        $otherData = $systemFlagReasons->first();
+        $data['created_at'] = Carbon::parse($otherData->created_at)->format('Y-m-d H:i:s');
+        if(!empty($otherData->company_id)){
+            $data['company'] = Company::where('id', $otherData->company_id)->first()->toArray();
+        } else {
+            $data['profile'] = $profiles->where('id', $otherData->profile_id)->first()->toArray();
+        }
+        $this->model[] = $data;
+
         return $this->sendNewResponse();
     }
 

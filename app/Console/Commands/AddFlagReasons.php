@@ -76,7 +76,7 @@ class AddFlagReasons extends Command
                 }
 
                 $reason_slug = $system_flag_reasons[$modelFlagReason->flag_reason_id];
-                $modelFlagReason->where('model_id', $modelFlagReason->model_id)->where('model', $modelFlagReason->model)->update(['reason' => config("constant.FLAG_REASONS_TEXT.".$reason_slug), 'slug' => config("constant.FLAG_SLUG.SYSTEM"), 'profile_id' => $profile_id, 'company_id' => $company_id]);
+                $modelFlagReason->where('model_id', $modelFlagReason->model_id)->where('flag_reason_id', $modelFlagReason->flag_reason_id)->where('model', $modelFlagReason->model)->update(['reason' => config("constant.FLAG_REASONS_TEXT.".$reason_slug), 'slug' => config("constant.FLAG_SLUG.SYSTEM"), 'profile_id' => $profile_id, 'company_id' => $company_id]);
             }        
         });
     }
