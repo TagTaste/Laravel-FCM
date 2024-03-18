@@ -441,7 +441,7 @@ class BatchController extends Controller
         ->where('profile_id', $profileId)->first();
 
         $submission_status = [];
-        $submission_status["title"] = "SUBMISSION";
+        $submission_status["title"] = "REVIEW";
         $submission_status["is_collapsed"] = false;
         $timeline = []; 
         $last_activity = null;
@@ -609,7 +609,7 @@ class BatchController extends Controller
                 $data['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
             }
             $data['flag_text'] = $modelFlagReason->reason;
-            $data['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('Y-m-d H:i:s');
+            $data['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('d M Y, h:i:s A');
             $data['profile'] = $profiles->where('id', $modelFlagReason->profile_id)->first()->toArray();
             $this->model[] = $data;
             $data = [];

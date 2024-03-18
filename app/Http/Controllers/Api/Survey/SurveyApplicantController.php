@@ -1715,7 +1715,7 @@ class SurveyApplicantController extends Controller
                     $flag_logs['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
                 }
                 $flag_logs['flag_text'] = $modelFlagReason->reason;
-                $flag_logs['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('Y-m-d H:i:s');
+                $flag_logs['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('d M Y, h:i:s A');
                 $flag_logs['profile'] = $profiles->where('id', $modelFlagReason->profile_id)->first()->toArray();
                 $submission_data["flag_logs"][] = $flag_logs;
                 $flag_logs = [];
