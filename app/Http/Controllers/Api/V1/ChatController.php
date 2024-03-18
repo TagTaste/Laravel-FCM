@@ -50,6 +50,21 @@ class ChatController extends Controller
         {
             $profileIds = [$profileIds];
         }
+        
+        if($request->input('chat_type') == 0 && count($profileIds) > 250){
+            return $this->sendError('You cannot add more than 250 participants to the group. Please reduce the number of participants and try again!');
+        }
+        
+        $tagTasteEmployee = $this->checkTTEmployee($ownerProfileId);
+        if(!$tagTasteEmployee){
+            $profileFollowers = Redis::SMEMBERS("followers:profile:".$ownerProfileId);
+            // if it's not a tagtaste employee, then check for the members whether they are profile's followers or not.
+            if(array_diff($profileIds, $profileFollowers)){
+                return $this->sendError('Something went wrong! Please ensure you can only chat or make a chat group with your followers.');
+            } 
+        }
+        
+        // Add owner's profile Id
         if(!in_array($ownerProfileId, $profileIds))
         {
             $profileIds[] = $ownerProfileId;
