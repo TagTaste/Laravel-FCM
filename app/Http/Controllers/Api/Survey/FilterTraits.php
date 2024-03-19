@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Helper;
 use Carbon\Carbon;
 use App\Surveys;
+use App\Recipe\Profile;
 use App\SurveyAnswers;
 use App\SurveyAttemptMapping;
 
@@ -36,31 +37,69 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
                     if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        $query->orWhere('generation', 'LIKE', $age['key']);
+                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
                     }else{
                     // $age = htmlspecialchars_decode($age);
-                        $query->orWhere('generation', 'LIKE', $age);
+                        $query->orWhere('survey_applicants.generation', 'LIKE', $age);
                     }
                 }
             });
         }
         
-        
         if (isset($filters['gender'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
+                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender')->orWhere('survey_applicants.gender','') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
                     }else{
                         $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
                     }
                 }
             });
         }
+
+        if (isset($filters['sensory_trained']) || isset($filters['super_taster']) || isset($filters['user_type'])) {
+            $Ids =   $Ids->leftJoin('profiles', 'survey_applicants.profile_id', '=', 'profiles.id');
+        }
+        if (isset($filters['sensory_trained'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['sensory_trained'] as $sensory) {
+                    if ((isset($sensory['key']) && $sensory['key'] == 'Yes') || $sensory == 'Yes'){
+                        $sensory = 1;
+                    } else {
+                        $sensory = 0;
+                    }
+                    $query->orWhere('profiles.is_sensory_trained', $sensory);
+                }
+            });
+        }
+
+        if (isset($filters['super_taster'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['super_taster'] as $superTaster) {
+                    if ((isset($superTaster['key']) && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster')
+                        $superTaster = 1;
+                    else
+                        $superTaster = 0;
+                    $query->orWhere('profiles.is_tasting_expert', $superTaster);
+                }
+            });
+        }
+
+        if (isset($filters['user_type'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['user_type'] as $userType) {
+                    if ((isset($userType['key']) && $userType['key'] == 'Expert') || $userType == 'Expert')
+                        $userType = 1;
+                    else
+                        $userType = 0;
+                    $query->orWhere('profiles.is_expert', $userType);
+                }
+            });
+        }
         
         if ($profileIds->count() > 0 && isset($Ids)) {
-            $Ids = $Ids->whereIn('profile_id', $profileIds);
-            
+            $Ids = $Ids->whereIn('profile_id', $profileIds); 
         }
 
         if (isset($Ids)) {
@@ -71,7 +110,6 @@ trait FilterTraits
 
         $profileCompleteAttempt = SurveyAttemptMapping::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $surveyDetails->id)->whereNull("deleted_at")->whereNotNull("completion_date")->whereIn('profile_id',$profileIds)->get();
 
-        
         $idsAttemptMapping = [];
         foreach ($profileCompleteAttempt as $pattempt) {
             $idsAttemptMapping[$pattempt->profile_id][] = $pattempt->attempt;
@@ -175,10 +213,10 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('generation', 'LIKE', $age['key']);
+                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
                     }else{
                     // $age = htmlspecialchars_decode($age);
-                        $query->orWhere('generation', 'LIKE', $age);
+                        $query->orWhere('survey_applicants.generation', 'LIKE', $age);
                     }
                 }
             });
@@ -191,7 +229,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['profile'] as $profile) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('name', 'LIKE', $profile['key']);
+                        $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile['key']));
                     } else {
                         $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile));
                     }
@@ -203,7 +241,7 @@ trait FilterTraits
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
                     if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
+                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender')->orWhere('survey_applicants.gender','') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
                     }else{
                         $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
                     }
@@ -237,13 +275,13 @@ trait FilterTraits
             
             if($start_date != '' && $end_date != ''){
                 $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->whereBetween('completion_date',[$start_date, $end_date])->get()->pluck('profile_id')->unique();
-                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+                $Ids = $Ids->whereIn('survey_applicants.profile_id', $dateProfileIds);
             }else if($start_date != ''){
                 $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','>=',$start_date)->get()->pluck('profile_id')->unique();
-                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+                $Ids = $Ids->whereIn('survey_applicants.profile_id', $dateProfileIds);
             }else if($end_date != ''){
                 $dateProfileIds = SurveyAttemptMapping::where('survey_id', $surveyDetails->id)->whereNull('deleted_at')->where('completion_date','<=',$end_date)->get()->pluck('profile_id')->unique();
-                $Ids = $Ids->whereIn('profile_id', $dateProfileIds);
+                $Ids = $Ids->whereIn('survey_applicants.profile_id', $dateProfileIds);
             }           
         }
         
@@ -266,7 +304,7 @@ trait FilterTraits
         if (isset($filters['sensory_trained'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['sensory_trained'] as $sensory) {
-                    if ((isset($version_num) && $version_num == 'v1' && $sensory['key'] == 'Yes') || $sensory == 'Yes'){
+                    if ((isset($sensory['key']) && $sensory['key'] == 'Yes') || $sensory == 'Yes'){
                         $sensory = 1;
                     } else {
                         $sensory = 0;
@@ -279,7 +317,7 @@ trait FilterTraits
         if (isset($filters['super_taster'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['super_taster'] as $superTaster) {
-                    if ((isset($version_num) && $version_num == 'v1' && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster')
+                    if ((isset($superTaster['key']) && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster')
                         $superTaster = 1;
                     else
                         $superTaster = 0;
@@ -291,7 +329,7 @@ trait FilterTraits
         if (isset($filters['user_type'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['user_type'] as $userType) {
-                    if ((isset($version_num) && $version_num == 'v1' && $userType['key'] == 'Expert') || $userType == 'Expert')
+                    if ((isset($userType['key']) && $userType['key'] == 'Expert') || $userType == 'Expert')
                         $userType = 1;
                     else
                         $userType = 0;
@@ -410,39 +448,53 @@ trait FilterTraits
         $gender = [['key' => 'Male', 'value' => 'Male'], ['key' => 'Female', 'value' => 'Female'], ['key' => 'Other', 'value' => 'Other']];
         $age = Helper::getGenerationFilter();
 
-        $surveyApplicants = surveyApplicants::where('survey_id', $survey_id)
-            ->whereNull('survey_applicants.deleted_at')->whereNotNull('completion_date');
+        $surveyAttemptedProfileIds = SurveyAttemptMapping::select('profile_id')->distinct()->where("survey_id", "=", $survey_id)->whereNotNull("completion_date")->whereNull("deleted_at")->pluck('profile_id');
+    
+        $surveyApplicants = surveyApplicants::where('survey_id', $survey_id)->whereNull('survey_applicants.deleted_at');
 
         if (isset($version_num) && $version_num == 'v2'){
             $surveyData = Surveys::where("id", "=", $survey_id)->first();
             
             $filteredProfileIds = array_keys($this->getProfileIdOfReportFilter($surveyData, $request, $version_num));
-            $applicantProfileIds = $surveyApplicants->pluck('profile_id');
             $filters = $request->input('filters');
-            $isFilterable = isset($filters) && !empty($filters) ? true : false;
-            $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
+            $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $surveyAttemptedProfileIds;
             
             // gender data
             $genderData = [];
-            $genderCounts = $this->getCount($surveyApplicants,'gender', $filteredProfileIds, $isFilterable);
+            $genderCounts = $this->getCount($surveyApplicants,'gender', $filteredProfileIds);
             $genderData['items'] = $this->addCountToField($gender, $genderCounts);
+            $genderData = $this->addEmptyValue($genderData, $genderCounts);
             $genderData['key'] = 'gender';
             $genderData['value'] = 'Gender';
 
             // age data
             $ageData = [];
-            $ageCounts = $this->getCount($surveyApplicants, 'generation', $filteredProfileIds, $isFilterable);
+            $ageCounts = $this->getCount($surveyApplicants, 'generation', $filteredProfileIds);
             $ageData['items'] = $this->addCountToField($age, $ageCounts);
+            $ageData = $this->addEmptyValue($ageData, $ageCounts);
             $ageData['key'] = 'age';
-            $ageData['value'] = 'Age';
+            $ageData['value'] = 'Generation';
+
+            $profileModel = Profile::whereNull('deleted_at');
+            
+            // count of experts
+            $userTypeCounts = $this->getCount($profileModel,'is_expert', $filteredProfileIds);
+            $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
+            $userType['key'] = 'user_type';
+            $userType['value'] = 'User Type';
+
+            // sensory trained or not
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds);
+            $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
+            $sensoryTrained['key'] = 'sensory_trained';
+            $sensoryTrained['value'] = 'Sensory Trained';
+
+            // supar taster or not
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds);
+            $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
+            $superTaster['key'] = 'super_taster';
+            $superTaster['value'] = 'Super Taster';
         }
-
-        // $age = [['key' => 'gen-z', 'value' => 'Gen-Z'], ['key' => 'gen-x', 'value' => 'Gen-X'], ['key' => 'millenials', 'value' => 'Millenials'], ['key' => 'yold', 'value' => 'YOld']];
-
-        // $application_status = [["key" => 0, "value" => 'invited'], ["key" => 1, "value" => 'incomplete'], ['key' => 2, 'value' => "completed"]];
-        // $userType = ['Expert', 'Consumer'];
-        // $sensoryTrained = ["Yes", "No"];
-        // $superTaster = ["SuperTaster", "Normal"];
 
         $applicants = \DB::table('survey_applicants')->where('survey_id', $survey_id)->get();
         $city = [];
@@ -499,15 +551,17 @@ trait FilterTraits
         if (isset($version_num) && $version_num == 'v2'){
             $dateData = [];
             $dateData['items'] = $date;
+            $dateData['type'] = 'date';
             $dateData['key'] = 'date';
-            $dateData['value'] = 'Date Range';
+            $dateData['value'] = 'Submission Date Range';
 
             $questionFilterData = [];
             $questionFilterData['items'] = $question_filter;
+            $questionFilterData['type'] = 'question_filter';
             $questionFilterData['key'] = 'question_filter';
             $questionFilterData['value'] = 'Question Filter';
 
-            $data = [$genderData, $ageData, $dateData, $questionFilterData];
+            $data = [$genderData, $ageData, $questionFilterData, $userType, $sensoryTrained, $superTaster, $dateData];
         }
         $this->model = $data;
 
@@ -518,10 +572,10 @@ trait FilterTraits
     {
         $query = clone $model;
         $table = $query->getModel()->getTable();
-        $query = $query->select($field, \DB::raw('COUNT(*) as count'));
+        $query->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
 
         if($table == 'survey_applicants'){
-            $query = $query->whereIn('profile_id', $profileIds);
+            $query = $query->whereIn('survey_applicants.profile_id', $profileIds);
         } else {
             $query->whereIn('id', $profileIds);
         }
@@ -554,6 +608,15 @@ trait FilterTraits
             unset($field[$key]);
             $field['items'][$key] = $inner_arr;
         }
+        return $field;
+    }
+
+    public function addEmptyValue($field, $fieldCounts){
+        $inner_arr['key'] = "not_defined";
+        $inner_arr['value'] = "Didn't mention";
+        $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : (isset($fieldCounts[""]) ? $fieldCounts[""] : 0);
+        
+        array_push($field['items'], $inner_arr);
         return $field;
     }
 

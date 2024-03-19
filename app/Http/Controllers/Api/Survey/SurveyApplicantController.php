@@ -689,11 +689,13 @@ class SurveyApplicantController extends Controller
 
             $ageCounts = $this->getCount($surveyApplicants, 'generation', $profileIds);
             $age = $this->getFieldPairedData($age, $ageCounts);
+            $age = $this->addEmptyValue($age, $ageCounts);
             $age['key'] = 'age';
-            $age['value'] = 'Age';
+            $age['value'] = 'Generation';
 
             $genderCounts = $this->getCount($surveyApplicants,'gender', $profileIds);
             $gender = $this->getFieldPairedData($gender, $genderCounts);
+            $gender = $this->addEmptyValue($gender, $genderCounts);
             $gender['key'] = 'gender';
             $gender['value'] = 'Gender';
             
@@ -728,13 +730,19 @@ class SurveyApplicantController extends Controller
                 $applicationStatus['items'][$key] = $inner_arr;
             }
             $applicationStatus['key'] = 'application_status';
-            $applicationStatus['value'] = 'Application Status';
+            $applicationStatus['value'] = 'Status';
 
             // profile specializations
             $specializationsCount = $specializations->select('name', \DB::raw('COUNT(*) as count'))->whereIn('profiles.id', $profileIds)->groupBy('name')->pluck('count','name');
             $profile = $this->getFieldPairedData($profile, $specializationsCount);
             $profile['key'] = 'profile';
-            $profile['value'] = 'Profile';
+            $profile['value'] = 'Job Profile';
+
+            // Date filter
+            $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
+            $date['type'] = 'date';
+            $date['key'] = 'date';
+            $date['value'] = 'Submission Date Range';
         }
 
         // $profile = array_filter($profile);
@@ -763,7 +771,7 @@ class SurveyApplicantController extends Controller
             $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster, "application_status" => $applicationStatus];
         // }
         if (isset($version_num) && $version_num == 'v1'){
-            $data = [$gender, $age, $profile, $sensoryTrained, $userType, $superTaster, $applicationStatus];
+            $data = [$gender, $age, $profile, $sensoryTrained, $userType, $superTaster, $applicationStatus, $date];
         }
         $this->model = $data;
         return $this->sendResponse();
