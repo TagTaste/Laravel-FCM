@@ -1698,7 +1698,7 @@ class SurveyApplicantController extends Controller
             $submission_data = [];
             $submission_data["title"] = ($title == 0) ? "" : "SUBMISSION ".$submissionCount;
             $submission_id = $submission->id;
-            $systemFlagReasons = $modelFlagReasons->where('model_id', $submission_id)->where('slug', config("constant.FLAG_SLUG.SYSTEM"))->groupBy('model_id')[$submission_id];
+            $systemFlagReasons = $modelFlagReasons->where('model_id', $submission_id)->where('slug', config("constant.FLAG_SLUG.SYSTEM"));
             $manualFlagReasons = $modelFlagReasons->where('model_id', $submission_id)->where('slug','<>',config("constant.FLAG_SLUG.SYSTEM"))->sortByDesc('created_at');
             $submissionCount--;
 
@@ -1722,34 +1722,37 @@ class SurveyApplicantController extends Controller
             }
 
             // system flagged review's reason
-            $flag_logs['title'] = 'FLAGGED';
-            $flag_logs['color_code'] = config("constant.FLAG_COLORS.flag_color");
-            $flag_logs['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
-            $reasons = $systemFlagReasons->pluck('reason')->toArray();
-            $total_reasons = count($reasons);
-            $sec_last_index = $total_reasons - 2;
-            $flag_logs['flag_text'] = 'Flagged for';
-            $reason_texts = '';
-            if($total_reasons > 1){
-                for($i=0; $i < $sec_last_index; $i++){
-                    $reason_texts = $reason_texts.$reasons[$i].', ';
+            if(!$systemFlagReasons->isEmpty()){
+                $systemFlagReasons = $systemFlagReasons->groupBy('model_id')[$submission_id];
+                $flag_logs['title'] = 'FLAGGED';
+                $flag_logs['color_code'] = config("constant.FLAG_COLORS.flag_color");
+                $flag_logs['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
+                $reasons = $systemFlagReasons->pluck('reason')->toArray();
+                $total_reasons = count($reasons);
+                $sec_last_index = $total_reasons - 2;
+                $flag_logs['flag_text'] = 'Flagged for';
+                $reason_texts = '';
+                if($total_reasons > 1){
+                    for($i=0; $i < $sec_last_index; $i++){
+                        $reason_texts = $reason_texts.$reasons[$i].', ';
+                    }
+                    $reason_texts = $reason_texts.$reasons[$sec_last_index].' ';
+                    $flag_logs['flag_text'] = $flag_logs['flag_text'].' '.$reason_texts.'and '.$reasons[$total_reasons - 1].'.';
+                } else {
+                    $flag_logs['flag_text'] = $flag_logs['flag_text'].' '.$reason_texts.$reasons[0].'.';
                 }
-                $reason_texts = $reason_texts.$reasons[$sec_last_index].' ';
-                $flag_logs['flag_text'] = $flag_logs['flag_text'].' '.$reason_texts.'and '.$reasons[$total_reasons - 1].'.';
-            } else {
-                $flag_logs['flag_text'] = $flag_logs['flag_text'].' '.$reason_texts.$reasons[0].'.';
-            }
-            $otherData = $systemFlagReasons->first();
-            $flag_logs['created_at'] = Carbon::parse($otherData->created_at)->format('Y-m-d H:i:s');
-            if(!empty($otherData->company_id)){
-                $flag_logs['company'] = $companies->where('id', $otherData->company_id)->first()->toArray();
-            } else {
-                $flag_logs['profile'] = $profiles->where('id', $otherData->profile_id)->first()->toArray();
-            }
-            $submission_data["flag_logs"][] = $flag_logs;
+                $otherData = $systemFlagReasons->first();
+                $flag_logs['created_at'] = Carbon::parse($otherData->created_at)->format('d M Y, h:i:s A');
+                if(!empty($otherData->company_id)){
+                    $flag_logs['company'] = $companies->where('id', $otherData->company_id)->first()->toArray();
+                } else {
+                    $flag_logs['profile'] = $profiles->where('id', $otherData->profile_id)->first()->toArray();
+                }
+                $submission_data["flag_logs"][] = $flag_logs;
 
-            //add submission data
-            $data[] = $submission_data;
+                //add submission data
+                $data[] = $submission_data;
+            }
         }
 
         
