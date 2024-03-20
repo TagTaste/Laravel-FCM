@@ -12,9 +12,11 @@ use App\Http\Controllers\Api\Controller;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\File;
 use App\Helper;
+use App\Traits\ScaleColor;
 
 class ReportController extends Controller
 {
+    use ScaleColor;
     public function reportHeaders(Request $request, $id)
     {
         $product = PublicReviewProduct::where('id',$id)->first();
@@ -150,25 +152,6 @@ class ReportController extends Controller
                 break;
             default:
                 return '#305D03';
-        }
-    }
-
-    protected function getRatingBasedColor($rating, $scale){
-        if($rating == 0 || is_null($rating))
-            return null;
-        $rating_val = ($scale == 7) ? config('constant.SEVEN_SCALE_RANGE_VALUES') : config('constant.NINE_SCALE_RANGE_VALUES');
-        switch ($rating) {
-            case ($rating < $rating_val[0]):
-                return config('constant.SCALE_RANGE_COLORS.red');
-                break;
-            case ($rating >= $rating_val[0] && $rating < $rating_val[1]):
-                return config('constant.SCALE_RANGE_COLORS.orange');
-                break;
-            case ($rating >= $rating_val[1] && $rating < $rating_val[2]):
-                return config('constant.SCALE_RANGE_COLORS.light_green');
-                break;
-            default: // $rating >= $rating_val[2]
-                return config('constant.SCALE_RANGE_COLORS.dark_green');
         }
     }
 
