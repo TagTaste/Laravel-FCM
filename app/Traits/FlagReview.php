@@ -59,12 +59,32 @@ trait FlagReview
         return $flag;
     }
 
+    public function flagUnflag($flag_request, $flag_reason, $flag_status, $loggedInProfileId, $model_id, $model){
+        if(empty($flag_reason) && $flag_reason == '' && $flag_request == 1){
+            return "Reason is required to flag a review";
+        } else if(empty($flag_reason) && $flag_reason == '' && $flag_request == 0) {
+            return "Reason is required to unflag a review";
+        }
+
+        // check if it's already flagged or unflagged
+        if(isset($flag_request) && $flag_request == 1 && $flag_request == $flag_status){
+            return "It is already flagged, it cannot be flagged again.";
+        } else if(isset($flag_request) && $flag_request == 0 && $flag_request == $flag_status) {
+            return "It is already Unflagged, it cannot be Unflagged again.";
+        }
+        $data = ['model_id' => $model_id, 'reason' => $flag_reason, 'slug' => config("constant.FLAG_SLUG.MANUAL".$flag_request), 'model' => $model, 'profile_id' => $loggedInProfileId];
+        return $this->addModelFlagReasons($data);
+    }
+
     private function addModelFlagReasons($data){
         //check if already exists or not
         $model_flag_reasons = new ModelFlagReason;
-        $exists = $model_flag_reasons->where('model_id', $data['model_id'])->where('flag_reason_id', $data['flag_reason_id'])->where('model', $data['model'])->exists();
+        $exists = null;
+        if(isset($data['flag_reason_id'])){
+            $exists = $model_flag_reasons->where('model_id', $data['model_id'])->where('flag_reason_id', $data['flag_reason_id'])->where('model', $data['model'])->exists();
+        }
         if(!$exists){
-            ModelFlagReason::create($data);
+            return $model_flag_reasons->create($data);
         }
     }
 

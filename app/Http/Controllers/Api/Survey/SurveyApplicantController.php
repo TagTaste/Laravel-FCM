@@ -23,12 +23,12 @@ use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Helper;
 use Illuminate\Support\Facades\DB;
-
+use App\Traits\FlagReview;
 
 class SurveyApplicantController extends Controller
 {
 
-    use SendsJsonResponse, FilterTraits;
+    use SendsJsonResponse, FilterTraits, FlagReview;
 
     private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed", 3 => "In Progress"];
     public function __construct(Surveys $model)
@@ -1499,7 +1499,7 @@ class SurveyApplicantController extends Controller
             }
 
             $modelId = $submission["id"];
-            $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id', 'reason', 'slug')->where('model_id', $modelId)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
+            $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id', 'reason', 'slug', 'created_at')->where('model_id', $modelId)->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
 
             $flag_text = '';
             if(!($profileFlagReasons->isEmpty())){
@@ -1635,30 +1635,20 @@ class SurveyApplicantController extends Controller
         $this->model = 0;
         $flag_request = $request->flag;
         $flag_reason = $request->flag_text;
-        if(empty($flag_reason) && $flag_reason == '' && $flag_request == 1){
-            return $this->sendNewError("Reason is required to flag a review");
-        } else if(empty($flag_reason) && $flag_reason == '' && $flag_request == 0) {
-            return $this->sendNewError("Reason is required to unflag a review");
-        }
-
         $loggedInProfileId = $request->user()->profile->id;
-
-        //flag or unflag a review
+       
         $profileSubmission = SurveyAttemptMapping::find($submissionId);
         $submissionFlag = $profileSubmission->is_flag;
 
-        // check if it's already flagged or unflagged
-        if(isset($flag_request) && $flag_request == 1 && $flag_request == $submissionFlag){
-            return $this->sendNewError("It is already flagged, it cannot be flagged again.");
-        } else if(isset($flag_request) && $flag_request == 0 && $flag_request == $submissionFlag) {
-            return $this->sendNewError("It is already Unflagged, it cannot be Unflagged again.");
+        // flag or unflag a review
+        $flagUnflagSubmission = $this->flagUnflag($flag_request, $flag_reason, $submissionFlag, $loggedInProfileId, $submissionId, 'SurveyAttemptMapping');
+        if(is_string($flagUnflagSubmission)){
+            return $this->sendNewError($flagUnflagSubmission);
         }
-
         $flag = $profileSubmission->update(['is_flag' => $flag_request]);
-        $updateReason = ModelFlagReason::create(['model_id' => $submissionId, 'reason' => $flag_reason, 'slug' => config("constant.FLAG_SLUG.MANUAL".$flag_request), 'model' => 'SurveyAttemptMapping', 'profile_id' => $loggedInProfileId]);
 
         $success_message = ($flag_request == 1) ? "Review has been flagged successfully!" : "Review has been unflagged successfully!";
-        if($flag && $updateReason){
+        if($flag && $flagUnflagSubmission){
             $this->model = $success_message;
         } else {
             return $this->sendNewError("Something went wrong. Review cannot be flagged or Unflagged.");
@@ -1749,10 +1739,10 @@ class SurveyApplicantController extends Controller
                     $flag_logs['profile'] = $profiles->where('id', $otherData->profile_id)->first()->toArray();
                 }
                 $submission_data["flag_logs"][] = $flag_logs;
-
-                //add submission data
-                $data[] = $submission_data;
             }
+            
+            //add submission data
+            $data[] = $submission_data;
         }
 
         

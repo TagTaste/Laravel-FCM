@@ -28,10 +28,11 @@ use App\Helper;
 use App\CollaborateTastingEntryMapping;
 use App\Payment\PaymentLinks;
 use App\ModelFlagReason;
+use App\Traits\FlagReview;
 
 class BatchController extends Controller
 {
-    use FilterFactory;
+    use FilterFactory, FlagReview;
     protected $model;
 
 
@@ -556,31 +557,19 @@ class BatchController extends Controller
         $flag_request = $request->flag;
         $flag_reason = $request->flag_text;
         $this->model = 0;
-
-        if(empty($flag_reason) && $flag_reason == '' && $flag_request == 1){
-            return $this->sendNewError("Reason is required to flag a review");
-        } else if(empty($flag_reason) && $flag_reason == '' && $flag_request == 0) {
-            return $this->sendNewError("Reason is required to unflag a review");
-        }
-        
         $loggedInProfileId = $request->user()->profile->id;
 
-        //flag or unflag a review
         $profileReview = BatchAssign::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('profile_id', $profileId)->first();
-        $reviewFlag = $profileReview->is_flag;
 
-        // check if it's already flagged or unflagged
-        if(isset($flag_request) && $flag_request == 1 && $flag_request == $reviewFlag){
-            return $this->sendNewError("It is already flagged, it cannot be flagged again.");
-        } else if(isset($flag_request) && $flag_request == 0 && $flag_request == $reviewFlag) {
-            return $this->sendNewError("It is already Unflagged, it cannot be Unflagged again.");
+        //flag or unflag a review
+        $flagUnflagSubmission = $this->flagUnflag($flag_request, $flag_reason,$profileReview->is_flag, $loggedInProfileId, $profileReview->id, 'BatchAssign');
+        if(is_string($flagUnflagSubmission)){
+            return $this->sendNewError($flagUnflagSubmission);
         }
-
         $flag = $profileReview->update(['is_flag' => $flag_request]);
-        $updateReason = ModelFlagReason::create(['model_id' => $profileReview->id, 'reason' => $flag_reason, 'slug' => config("constant.FLAG_SLUG.MANUAL".$flag_request), 'model' => 'BatchAssign', 'profile_id' => $loggedInProfileId]);
 
         $success_message = ($flag_request == 1) ? "Review has been flagged successfully!" : "Review has been unflagged successfully!";
-        if($flag && $updateReason){
+        if($flag && $flagUnflagSubmission){
             $this->model = $success_message;
         } else {
             return $this->sendNewError("Something went wrong. Review cannot be flagged or Unflagged.");
@@ -595,7 +584,10 @@ class BatchController extends Controller
         $manualFlagReasons = $modelFlagReasons->where('slug','<>',config("constant.FLAG_SLUG.SYSTEM"))->sortByDesc('created_at');
 
         $profiles = Profile::get();
-        $this->model = [];
+        $submission_data = [];
+        $submission_data["title"] = "";
+        $submission_data["flag_logs"] = [];
+        $final_data = [];
 
         // Manually flagged reviews    
         foreach($manualFlagReasons as $modelFlagReason){
@@ -611,7 +603,7 @@ class BatchController extends Controller
             $data['flag_text'] = $modelFlagReason->reason;
             $data['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('d M Y, h:i:s A');
             $data['profile'] = $profiles->where('id', $modelFlagReason->profile_id)->first()->toArray();
-            $this->model[] = $data;
+            $submission_data["flag_logs"][] = $data;
             $data = [];
         }
 
@@ -642,9 +634,10 @@ class BatchController extends Controller
             } else {
                 $data['profile'] = $profiles->where('id', $otherData->profile_id)->first()->toArray();
             }
-            $this->model[] = $data;
+            $submission_data["flag_logs"][] = $data;
         }
-
+        $final_data[0] = $submission_data;
+        $this->model = $final_data;
         return $this->sendNewResponse();
     }
 
