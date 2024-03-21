@@ -76,6 +76,61 @@ trait FlagReview
         return $this->addModelFlagReasons($data);
     }
 
+    public function flagLog($model_id, $model, $modelFlagReasons, $profiles, $companies){
+        $systemFlagReasons = $modelFlagReasons->where('model_id', $model_id)->where('slug', config("constant.FLAG_SLUG.SYSTEM"));
+        $manualFlagReasons = $modelFlagReasons->where('model_id', $model_id)->where('slug','<>',config("constant.FLAG_SLUG.SYSTEM"))->sortByDesc('created_at');
+        $flag_logs = [];
+        // Manually flagged reviews    
+        foreach($manualFlagReasons as $modelFlagReason){
+            if($modelFlagReason->slug == config("constant.FLAG_SLUG.MANUAL0")){
+                $log['title'] = 'UNFLAGGED';
+                $log['color_code'] = config("constant.FLAG_COLORS.unflag_color");
+                $log['line_color_code'] = config("constant.FLAG_COLORS.unflag_line_color");
+            } else {
+                $log['title'] = 'FLAGGED';
+                $log['color_code'] = config("constant.FLAG_COLORS.flag_color");
+                $log['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
+            }
+            $log['flag_text'] = $modelFlagReason->reason;
+            $log['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('d M Y, h:i:s A');
+            $log['profile'] = $profiles->where('id', $modelFlagReason->profile_id)->first()->toArray();
+            $flag_logs[] = $log;
+            $log = [];
+        }
+
+        // system flagged review's reason
+        if(!$systemFlagReasons->isEmpty()){
+            $systemFlagReasons = $systemFlagReasons->groupBy('model_id')[$model_id];
+            $log['title'] = 'FLAGGED';
+            $log['color_code'] = config("constant.FLAG_COLORS.flag_color");
+            $log['line_color_code'] = config("constant.FLAG_COLORS.flag_line_color");
+            $reasons = $systemFlagReasons->pluck('reason')->toArray();
+            $total_reasons = count($reasons);
+            $sec_last_index = $total_reasons - 2;
+            $log['flag_text'] = 'Flagged for';
+            $reason_texts = '';
+            if($total_reasons > 1){
+                for($i=0; $i < $sec_last_index; $i++){
+                    $reason_texts = $reason_texts.$reasons[$i].', ';
+                }
+                $reason_texts = $reason_texts.$reasons[$sec_last_index].' ';
+                $log['flag_text'] = $log['flag_text'].' '.$reason_texts.'and '.$reasons[$total_reasons - 1].'.';
+            } else {
+                $log['flag_text'] = $log['flag_text'].' '.$reason_texts.$reasons[0].'.';
+            }
+            $otherData = $systemFlagReasons->first();
+            $log['created_at'] = Carbon::parse($otherData->created_at)->format('d M Y, h:i:s A');
+            if(!empty($otherData->company_id)){
+                $log['company'] = $companies->where('id', $otherData->company_id)->first()->toArray();
+            } else {
+                $log['profile'] = $profiles->where('id', $otherData->profile_id)->first()->toArray();
+            }
+            $flag_logs[] = $log;
+        }
+
+        return $flag_logs;
+    }
+
     private function addModelFlagReasons($data){
         //check if already exists or not
         $model_flag_reasons = new ModelFlagReason;
