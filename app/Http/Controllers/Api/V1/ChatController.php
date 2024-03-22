@@ -11,10 +11,11 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\CompanyUser;
+use App\Traits\CheckTTEmployee;
 
 class ChatController extends Controller
 {
-    //
+    use CheckTTEmployee;   
     public $model;
     public $now;
 
@@ -30,14 +31,14 @@ class ChatController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
-       $this->model = Chat::whereHas('members',function($query) use ($profileId) {
-       $query->where('profile_id',$profileId)->whereNull('deleted_at');
-       })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id FROM message_recepients GROUP BY chat_id, recepient_id)
-       message_recepients'),function($join) use ($profileId){
-       $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
-       })->skip($skip)->take($take)->orderBy('message_recepients.sent_on', 'desc')->get();
-
-       return $this->sendResponse();
+        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+        })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id FROM message_recepients GROUP BY chat_id, recepient_id)
+        message_recepients'),function($join) use ($profileId){
+            $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
+        })->skip($skip)->take($take)->orderBy('message_recepients.sent_on', 'desc')->get();
+  
+        return $this->sendResponse();
     }
 
     public function store(Request $request)
@@ -49,6 +50,21 @@ class ChatController extends Controller
         {
             $profileIds = [$profileIds];
         }
+        
+        if($request->input('chat_type') == 0 && count($profileIds) > 250){
+            return $this->sendError('You cannot add more than 250 participants to the group. Please reduce the number of participants and try again!');
+        }
+        
+        $tagTasteEmployee = $this->checkTTEmployee($ownerProfileId);
+        if(!$tagTasteEmployee){
+            $profileFollowers = Redis::SMEMBERS("followers:profile:".$ownerProfileId);
+            // if it's not a tagtaste employee, then check for the members whether they are profile's followers or not.
+            if(array_diff($profileIds, $profileFollowers)){
+                return $this->sendError('Something went wrong! Please ensure you can only chat or make a chat group with your followers.');
+            } 
+        }
+        
+        // Add owner's profile Id
         if(!in_array($ownerProfileId, $profileIds))
         {
             $profileIds[] = $ownerProfileId;
@@ -202,19 +218,23 @@ class ChatController extends Controller
     public function chatSearch(Request $request)
     {
     	$key = $request->input('k');
-    	 $loggedInProfileId = $request->user()->profile->id;
+    	$loggedInProfileId = $request->user()->profile->id;
     	$data['groups'] = Chat::whereHas('members',function($query) use ($loggedInProfileId){
     		$query->where('profile_id',$loggedInProfileId)->withTrashed();
     	})->where('name','like','%'.$key.'%')->where('chat_type',0)->get();
 
     	$profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-    	$data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
+        $data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
             ->whereIn('profiles.id',$profileIds)->where('users.name','like','%'.$key.'%')->get();
-
+        
+        $tagTasteEmployee = $this->checkTTEmployee($loggedInProfileId);
+        if($tagTasteEmployee){
+            $data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')->where('profiles.id', '<>', $loggedInProfileId)->where('users.name','like','%'.$key.'%')->get();
+        }
+    	
         $this->model = $data;
     	return $this->sendResponse();
         
-	
     }
 
     public function getChatId(Request $request)

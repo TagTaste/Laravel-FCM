@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Strategies\Paginator;
 use App\V1\Chat\Member;
 use App\V1\Chat;
+use App\Profile;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\CheckTTEmployee;
 
 class MemberController extends Controller
 {
-    //
+    use CheckTTEmployee;
     public $model;
     public $time;
 
@@ -39,7 +41,7 @@ class MemberController extends Controller
         }
         else
         {
-            $this->model = Member::withTrashed()->where('chat_id',$chatId)->where('created_at','<=',$member->exited_on)->whereNull('exited_on')->join('profiles','profiles.id','=','chat_members.profile_id')->whereNull('profiles.deleted_at')->get();
+            $this->model = Member::withTrashed()->where('chat_id',$chatId)->where('chat_members.created_at','<=',$member->exited_on)->whereNull('exited_on')->join('profiles','profiles.id','=','chat_members.profile_id')->whereNull('profiles.deleted_at')->get();
         }
     	return $this->sendResponse();
     }
@@ -59,9 +61,23 @@ class MemberController extends Controller
     	Member::withTrashed()->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['exited_on'=>null]);
 
     	$memberIds = Member::withTrashed()->where('chat_id',$chatId)->pluck('profile_id')->toArray();
-        $profileId = array_diff($profileIds, $memberIds);
-        $chatMembers = [];
+        $profileId = array_diff($profileIds, $memberIds);   
+        $total_count = count($memberIds) + count($profileId);
 
+        if($total_count > 250){
+            return $this->sendError('You cannot add more than 250 participants to the group. Please reduce the number of participants and try again!');
+        }
+
+        $tagTasteEmployee = $this->checkTTEmployee($loggedInProfileId);
+        if(!$tagTasteEmployee){
+            $profileFollowers = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+            // if it's not a tagtaste employee, then check for the members whether they are profile's followers or not.
+            if(array_diff($profileId, $profileFollowers)){
+                return $this->sendError('Something went wrong! Please ensure you can only chat or make a chat group with your followers.');
+            } 
+        }
+
+        $chatMembers = [];
         foreach ($profileId as $id)
         {
             $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$id,'created_at'=>$this->time,'is_admin'=>0];
@@ -180,22 +196,28 @@ class MemberController extends Controller
 
     public function getMembersToAdd(Request $request, $chatId)
     {
-        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('exited_on')->get()->pluck('profile_id');
+        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('exited_on')->get()->pluck('profile_id')->toArray();
         $loggedInProfileId = $request->user()->profile->id ;
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        $ids = []; $ids2 = [];
-        foreach ($chatProfileIds as $chatProfileId)
-            $ids2[] = $chatProfileId;
-        foreach ($profileIds as $profileId)
-            $ids[] = (int)$profileId;
+        if($this->checkTTEmployee($loggedInProfileId)){
+            $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
+        }
+        
+        // $ids = []; $ids2 = [];
+        // foreach ($chatProfileIds as $chatProfileId)
+        //     $ids2[] = $chatProfileId;
+        // foreach ($profileIds as $profileId)
+        //     $ids[] = (int)$profileId;
 
-        $profileIds = array_diff($ids,$ids2);
+        $profileIds = array_map('intval', $profileIds);     
+        $profileIds = array_diff($profileIds,$chatProfileIds);
         $count = count($profileIds);
         if($count > 0 && Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
             $count = $count - 1;
         }
         $this->model['count'] = $count;
+        $this->model['participants_count'] = count($chatProfileIds);
         $data = [];
 
         $page = $request->has('page') ? $request->input('page') : 1;
@@ -214,8 +236,8 @@ class MemberController extends Controller
         if(count($profileIds)> 0)
         {
             $data = Redis::mget($profileIds);
-
         }
+        
         foreach($data as &$profile){
             if(is_null($profile)){
                 continue;
@@ -234,6 +256,9 @@ class MemberController extends Controller
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        if($this->checkTTEmployee($loggedInProfileId)){
+            $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
+        }
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
             $ids2[] = $chatProfileId;

@@ -402,6 +402,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('chatShareMessage', "ChatController@chatShareMessage");
         Route::get('chatGroup', "ChatController@chatGroup");
         Route::get("chatrooms", "ChatController@rooms");
+        // to get followers list for chat
+        Route::get("chats/profile/{profileId}/followers", "ChatController@followers");
+        // to get searched profiles for chat
+        Route::get("chats/profile/search", "ChatController@searchedProfiles");
         Route::post("chats/{chatId}/members/addAdmin", 'Chat\\MemberController@addAdmin');
         Route::post("chats/{chatId}/members/removeAdmin", 'Chat\\MemberController@removeAdmin');
         Route::post("chats/{chatId}/messages/{id}/markRead", 'Chat\\MessageController@markRead');
