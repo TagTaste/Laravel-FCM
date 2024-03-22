@@ -185,7 +185,7 @@ return  [
         "default" => '#FFECF0',
         "tagtaste_employee" => '#F0F6FD',
         "flag_color" => '#DD2E1F',
-        "flag_line_color" => '#DD2E1F',
+        "flag_line_color" => '#EB8279',
         "unflag_color" => '#00A146',
         "unflag_line_color" => '#66C790'
     ],
