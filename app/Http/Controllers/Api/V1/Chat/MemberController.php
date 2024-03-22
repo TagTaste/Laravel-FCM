@@ -196,25 +196,28 @@ class MemberController extends Controller
 
     public function getMembersToAdd(Request $request, $chatId)
     {
-        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('exited_on')->get()->pluck('profile_id');
+        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('exited_on')->get()->pluck('profile_id')->toArray();
         $loggedInProfileId = $request->user()->profile->id ;
         $this->model = [];
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         if($this->checkTTEmployee($loggedInProfileId)){
             $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
-        $ids = []; $ids2 = [];
-        foreach ($chatProfileIds as $chatProfileId)
-            $ids2[] = $chatProfileId;
-        foreach ($profileIds as $profileId)
-            $ids[] = (int)$profileId;
+        
+        // $ids = []; $ids2 = [];
+        // foreach ($chatProfileIds as $chatProfileId)
+        //     $ids2[] = $chatProfileId;
+        // foreach ($profileIds as $profileId)
+        //     $ids[] = (int)$profileId;
 
-        $profileIds = array_diff($ids,$ids2);
+        $profileIds = array_map('intval', $profileIds);     
+        $profileIds = array_diff($profileIds,$chatProfileIds);
         $count = count($profileIds);
         if($count > 0 && Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
             $count = $count - 1;
         }
         $this->model['count'] = $count;
+        $this->model['participants_count'] = count($chatProfileIds);
         $data = [];
 
         $page = $request->has('page') ? $request->input('page') : 1;
@@ -233,8 +236,8 @@ class MemberController extends Controller
         if(count($profileIds)> 0)
         {
             $data = Redis::mget($profileIds);
-
         }
+        
         foreach($data as &$profile){
             if(is_null($profile)){
                 continue;
