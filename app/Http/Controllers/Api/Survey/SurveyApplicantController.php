@@ -1517,9 +1517,9 @@ class SurveyApplicantController extends Controller
                             $reason_texts = $reason_texts.$profileFlagReasons[$i].', ';
                         }
                         $reason_texts = $reason_texts.$profileFlagReasons[$sec_last_index].' ';
-                        $flag_text = $flag_text.' '.$reason_texts.'and '.$profileFlagReasons[$total_reasons - 1].'.';
+                        $flag_text = $flag_text.' '.$reason_texts.'and '.$profileFlagReasons[$total_reasons - 1].' (System Generated)';
                     } else {
-                        $flag_text = $flag_text.' '.$reason_texts.$profileFlagReasons[0].'.';
+                        $flag_text = $flag_text.' '.$reason_texts.$profileFlagReasons[0].' (System Generated)';
                     }
                 } else {
                     // last flag/unflag reason
@@ -1685,7 +1685,7 @@ class SurveyApplicantController extends Controller
         $submissionCount = count($submissions);
         $title = ($submissionCount == 1) ? 0 : 1;
         foreach($submissions as $submission){
-            $flag_logs = $this->flagLog($submission->id, 'SurveyAttemptMapping', $modelFlagReasons, $profiles, $companies);
+            $flag_logs = $this->flagLaog($submission->id, 'SurveyAttemptMapping', $modelFlagReasons, $profiles, $companies);
             if(empty($flag_logs)){
                 continue;
             }

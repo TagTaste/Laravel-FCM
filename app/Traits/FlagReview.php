@@ -114,9 +114,9 @@ trait FlagReview
                     $reason_texts = $reason_texts.$reasons[$i].', ';
                 }
                 $reason_texts = $reason_texts.$reasons[$sec_last_index].' ';
-                $log['flag_text'] = $log['flag_text'].' '.$reason_texts.'and '.$reasons[$total_reasons - 1].'.';
+                $log['flag_text'] = $log['flag_text'].' '.$reason_texts.'and '.$reasons[$total_reasons - 1].' (System Generated)';
             } else {
-                $log['flag_text'] = $log['flag_text'].' '.$reason_texts.$reasons[0].'.';
+                $log['flag_text'] = $log['flag_text'].' '.$reason_texts.$reasons[0].' (System Generated)';
             }
             $otherData = $systemFlagReasons->first();
             $log['created_at'] = Carbon::parse($otherData->created_at)->format('d M Y, h:i:s A');

@@ -535,9 +535,9 @@ class BatchController extends Controller
                         $reason_texts = $reason_texts.$profileFlagReasons[$i].', ';
                     }
                     $reason_texts = $reason_texts.$profileFlagReasons[$sec_last_index].' ';
-                    $flag_text = $flag_text.' '.$reason_texts.'and '.$profileFlagReasons[$total_reasons - 1].'.';
+                    $flag_text = $flag_text.' '.$reason_texts.'and '.$profileFlagReasons[$total_reasons - 1].' (System Generated)';
                 } else {
-                    $flag_text = $flag_text.' '.$reason_texts.$profileFlagReasons[0].'.';
+                    $flag_text = $flag_text.' '.$reason_texts.$profileFlagReasons[0].' (System Generated)';
                 }
             } else {
                 // last flag/unflag reason
