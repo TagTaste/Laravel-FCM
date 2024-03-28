@@ -1685,7 +1685,7 @@ class SurveyApplicantController extends Controller
         $submissionCount = count($submissions);
         $title = ($submissionCount == 1) ? 0 : 1;
         foreach($submissions as $submission){
-            $flag_logs = $this->flagLaog($submission->id, 'SurveyAttemptMapping', $modelFlagReasons, $profiles, $companies);
+            $flag_logs = $this->flagLog($submission->id, 'SurveyAttemptMapping', $modelFlagReasons, $profiles, $companies);
             if(empty($flag_logs)){
                 continue;
             }
