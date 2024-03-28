@@ -240,7 +240,7 @@ class BatchController extends Controller
         $profileModelIds = $profileBatchData->pluck('id','profile_id')->toArray();
         $profileFlagValues = $profileBatchData->pluck('is_flag','profile_id')->toArray();
         $flag_slugs = array(config("constant.FLAG_SLUG.SYSTEM"), config("constant.FLAG_SLUG.MANUAL1"));
-        $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id','reason')->whereIn('model_id', $profileModelIds)->whereIn('slug', $flag_slugs)->where('model', 'BatchAssign')->get()->groupBy('model_id');
+        $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id','reason','slug','created_at')->whereIn('model_id', $profileModelIds)->whereIn('slug', $flag_slugs)->where('model', 'BatchAssign')->get()->groupBy('model_id');
         
         $profiles = $profiles->toArray();
     
@@ -299,13 +299,18 @@ class BatchController extends Controller
                 $modelId = $profileModelIds[$profileId];
                 // check if review is flagged or not & add color for flagged review
                 if(isset($profileFlagValues[$profileId]) && $profileFlagValues[$profileId] == 1){
-                    // check the reason and add color based on that
-                    $flag_reasons = $profileFlagReasons[$modelId]->pluck('reason')->toArray();
                     $profile['flag_color'] = config("constant.FLAG_COLORS.default");
-                    $employee_reason_slug = "tagtaste_employee";
-                    if(in_array(config("constant.FLAG_REASONS_TEXT.".$employee_reason_slug), $flag_reasons)){
-                        $profile['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason_slug);
+                    $last_reason_slug = $profileFlagReasons[$modelId]->sortByDesc('created_at')->first()->slug;
+                    // check whether the last reason is system flagged or not
+                    if($last_reason_slug == config("constant.FLAG_SLUG.SYSTEM")){
+                        // add color based on system flagged reasons
+                        $flag_reasons = $profileFlagReasons[$modelId]->where('slug', config("constant.FLAG_SLUG.SYSTEM"))->pluck('reason')->toArray();
+                        $employee_reason_slug = "tagtaste_employee";
+                        if(in_array(config("constant.FLAG_REASONS_TEXT.".$employee_reason_slug), $flag_reasons)){
+                            $profile['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason_slug);
+                        }
                     }
+                    
                 } else { // if a review is unflagged
                     // check whether it was previously flagged or not
                     $profile['prev_flagged'] = isset($profileFlagReasons[$modelId]) ? 1 : 0;

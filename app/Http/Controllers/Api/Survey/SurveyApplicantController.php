@@ -132,7 +132,7 @@ class SurveyApplicantController extends Controller
         $surveyApplicantData = SurveyAttemptMapping::where('survey_id', $id)->select('id','profile_id','is_flag')->whereNotNull('completion_date')->whereNull('deleted_at');
         $reviewModelIds = $surveyApplicantData->pluck('id')->toArray();
         $flaggedReviewData = $surveyApplicantData->get()->groupBy('profile_id');
-        $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id', 'reason')->whereIn('model_id', $reviewModelIds)->where('slug', '<>', config("constant.FLAG_SLUG.MANUAL0"))->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
+        $profileFlagReasons = ModelFlagReason::select('model_id', 'flag_reason_id', 'reason','slug','created_at')->whereIn('model_id', $reviewModelIds)->where('slug', '<>', config("constant.FLAG_SLUG.MANUAL0"))->where('model', 'SurveyAttemptMapping')->get()->groupBy('model_id');
 
         foreach($applicants as &$applicant){
             $profileId = $applicant['profile_id'];
@@ -145,11 +145,15 @@ class SurveyApplicantController extends Controller
                     $employee_reason_slug = 'tagtaste_employee';
                     $modelIds = $flaggedReviewData[$profileId]->where('is_flag', 1)->pluck('id')->toArray();
                     foreach($modelIds as $modelId){
-                        // check for the employee reason and add color based on that
-                        $flag_reasons = $profileFlagReasons[$modelId]->pluck('reason')->toArray();
-                        if(in_array(config("constant.FLAG_REASONS_TEXT.".$employee_reason_slug), $flag_reasons)){
-                            $applicant['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason_slug);
-                        }  
+                        $last_reason_slug = $profileFlagReasons[$modelId]->sortByDesc('created_at')->first()->slug;
+                        // check whether the last reason is system flagged or not
+                        if($last_reason_slug == config("constant.FLAG_SLUG.SYSTEM")){
+                            // add color based on system flagged reasons
+                            $flag_reasons = $profileFlagReasons[$modelId]->where('slug', config("constant.FLAG_SLUG.SYSTEM"))->pluck('reason')->toArray();
+                            if(in_array(config("constant.FLAG_REASONS_TEXT.".$employee_reason_slug), $flag_reasons)){
+                                $applicant['flag_color'] = config("constant.FLAG_COLORS.".$employee_reason_slug);
+                            } 
+                        }             
                     }
                     $applicant['flag_count'] = count($modelIds);
                 } else { // if all submissions are unflagged
