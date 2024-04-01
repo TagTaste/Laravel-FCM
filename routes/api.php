@@ -520,6 +520,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("collaborate/shortlisted", "CollaborateController@shortlisted");
         Route::post("collaborate/{id}/shortlist", "CollaborateController@shortlist");
         Route::get("collaborate/{id}/applicantFilters", "CollaborateController@applicantFilters");
+
         //collaborate
         Route::get("collaborate/all", "CollaborateController@all");
         Route::get("collaborate/productReview/types", "CollaborateController@getProductReviewType");
@@ -537,6 +538,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("uploadBrandLogo", "CollaborateController@uploadBrandLogo");
         Route::delete("deleteImages", "CollaborateController@deleteImages");
         Route::resource("collaborate", "CollaborateController");
+
+        // hometown list for search
+        Route::post("collaborate/{id}/hometown", "CollaborateController@getHometownList")->middleware('permissionCollaborate');
+        // current city list for search
+        Route::post("collaborate/{id}/currentCity", "CollaborateController@getCurrentCityList")->middleware('permissionCollaborate');
 
         //product review related api
         Route::get("userBatches", "CollaborateController@userBatches");
@@ -561,6 +567,18 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
             
             Route::get("batches/{batchId}/profile/{profileId}/submission_status", 'BatchController@getReviewTimeline')->middleware('permissionCollaborate');;
+
+            // Manually Flag/UnFlag a review
+            Route::post("batches/{batchId}/profile/{profileId}/flag", 'BatchController@flagUnflagReview')->middleware('permissionCollaborate');
+
+            // Flag logs
+            Route::get("batches/{batchId}/profile/{profileId}/flag", 'BatchController@flagLogs')->middleware('permissionCollaborate');
+
+            // hometown list for search
+            Route::post("batches/{batchId}/hometown", "BatchController@getHometownList")->middleware('permissionCollaborate');
+
+            // current cities list for search
+            Route::post("batches/{batchId}/currentCity", "BatchController@getCurrentCityList")->middleware('permissionCollaborate');
 
             Route::post("batches/{batchId}/startReview", "ReviewController@startReview");
             

@@ -2177,6 +2177,24 @@ class BatchController extends Controller
         return $this->sendResponse();
     }
 
+    public function getHometownList(Request $request, $collaborateId, $batchId){
+        $filters = $request->input('filters');
+        $current_status = $request->current_status;
+        $search_val = $request->q;
+        $page = $request->page;
+        $this->model = $this->getProductWiseFieldList('hometown', $current_status, $filters, $collaborateId, $batchId, $search_val, $page);
+        return $this->sendResponse();
+    }
+
+    public function getCurrentCityList(Request $request, $collaborateId, $batchId){
+        $filters = $request->input('filters');
+        $current_status = $request->current_status;
+        $search_val = $request->q;
+        $page = $request->page;
+        $this->model = $this->getProductWiseFieldList('current_city', $current_status, $filters, $collaborateId, $batchId, $search_val, $page);
+        return $this->sendResponse();
+    }
+
     protected function getRatingMeta($userCount, $headerRatingSum, $question)
     {
         $meta = [];
@@ -2303,7 +2321,6 @@ class BatchController extends Controller
         $this->model = $data;
         return $this->sendResponse();
     }
-
 
     //status = 0 batchassigned
     //status = 1 foodBill shot submitted
