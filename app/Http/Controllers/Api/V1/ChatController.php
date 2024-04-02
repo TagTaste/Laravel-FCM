@@ -526,6 +526,15 @@ class ChatController extends Controller
             if(!$collaborate){
                 return $this->sendNewError("Collaboration not found");
             }
+            
+            if(isset($data["batch_id"]) && !empty($data["batch_id"])){
+                $batch = \DB::table('collaborate_batches')->where('id',$data['batch_id'])->where('collaborate_id',$data['model_id'])
+                ->count();
+                if($batch == 0){
+                    return $this->sendNewError("This batch doesn't belong to this collaboration or not found");
+                }
+            }
+
             $data["model_id"] = intval($data["model_id"]);
             $data["batch_id"] = isset($data["batch_id"]) && !empty($data["batch_id"]) ? intval($data["batch_id"]) : null;
         }else if($data["model_name"] == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
