@@ -39,10 +39,10 @@ class Chat extends Model
 
     public function getModelValueAttribute(){
         if($this->model_name == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
-            $collaborate = Collaborate::find($data["model_id"]);
+            $collaborate = Collaborate::find($this->model_id);
             return $collaborate->title ?? "";
         }else if($this->model_name == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
-            $survey = Surveys::find($data["model_id"]);
+            $survey = Surveys::find($this->model_id);
             return $survey->title ?? "";
         }
         return null;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V2;
 
-use App\v1\Chat;
+use App\V1\Chat;
 use App\V2\Detailed\Collaborate;
 use App\CompanyUser;
 use App\Events\Actions\Like;

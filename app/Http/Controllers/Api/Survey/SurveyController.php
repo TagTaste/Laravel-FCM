@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Survey;
 
-use App\v1\Chat;
+use App\V1\Chat;
 use App\Collaborate\Review;
 use Illuminate\Http\Request;
 use App\Company;
