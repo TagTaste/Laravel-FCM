@@ -12,6 +12,8 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\CompanyUser;
 use App\Traits\CheckTTEmployee;
+use App\Collaborate;
+use App\Surveys;
 
 class ChatController extends Controller
 {
@@ -493,4 +495,53 @@ class ChatController extends Controller
         return $class::find($featureId);
     }
 
+    public function createGroup(Request $request){
+        $profileId = $request->user()->profile->id;
+        $data = $request->input();
+        $this->model = false;
+        $profileIds = $data["profile_id"];
+        
+        // Add owner's profile Id
+        if(!in_array($profileId, $profileIds))
+        {
+            $profileIds[] = $profileId;
+        }
+        
+        if(count($profileIds) > 250){
+            return $this->sendNewError('You cannot add more than 250 participants to the group. Please reduce the number of participants and try again!');
+        }
+
+        $inputs = [];
+        $inputs['chat_type'] = 0;
+        $inputs['name']= $data["name"];
+        $inputs['image']= isset($data["image"]) ? $data["image"] : null;
+        $inputs['profile_id']=$profileId;
+        $inputs['created_at']=$this->now;
+        
+        $inputs['model_name']= $data["model_name"];
+        $inputs['model_id']= $data["model_id"];
+        $inputs['batch_id']= isset($data["batch_id"]) && !empty($data["batch_id"]) ? $data["batch_id"] : null;
+
+        if($data["model_name"] == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+            $collaborate = Collaborate::find($data["model_id"]);
+            if(!$collaborate){
+                return $this->sendNewError("Collaboration not found");
+            }
+            $data["model_id"] = intval($data["model_id"]);
+            $data["batch_id"] = isset($data["batch_id"]) && !empty($data["batch_id"]) ? intval($data["batch_id"]) : null;
+        }else if($data["model_name"] == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+            $survey = Surveys::find($data["model_id"]);
+            if(!$survey){
+                return $this->sendNewError("Survey not found");
+            }
+        }else{
+            return $this->sendNewError("This model is not supported.");
+        }            
+        
+        $chatId = $this->createChatRoom($inputs, $profileIds);
+        $data["chat_id"] = $chatId;
+        unset($data["profile_id"]);
+        $this->model = $data;
+        return $this->sendNewResponse();
+    }
 }

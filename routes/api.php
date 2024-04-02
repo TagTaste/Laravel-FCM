@@ -298,6 +298,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
         Route::get("/meta/{modelName}/{id}/{modelId}", "MetaController@getSharedMeta");
         Route::group(['namespace' => 'V1', 'prefix' => 'v1/', 'as' => 'v1.'], function () {
+            Route::post('chats/group', "ChatController@createGroup");
             Route::post("{feature}/{featureId}/message", "ChatController@featureMessage");
             Route::get("chatGroup", 'ChatController@chatGroup');
             Route::post("chatShareMessage", 'ChatController@shareAsMessage');

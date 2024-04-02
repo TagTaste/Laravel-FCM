@@ -13,12 +13,12 @@ class Chat extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'profile_id','image','chat_type'];
+    protected $fillable = ['name', 'profile_id','image','chat_type','model_name','model_id','batch_id'];
 
     //protected $with = ['members'];
 
     protected $visible = ['id','name','image','profile_id','created_at','updated_at','latestMessages','profiles',
-        'unreadMessageCount','is_enabled','chat_type','isAdmin','isOnline'];
+        'unreadMessageCount','is_enabled','chat_type','isAdmin','isOnline','model_name','model_id','batch_id'];
 
     protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled','isAdmin','isOnline'];
 
