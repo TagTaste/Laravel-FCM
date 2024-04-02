@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Survey;
 
+use App\v1\Chat;
 use App\Collaborate\Review;
 use Illuminate\Http\Request;
 use App\Company;
@@ -5347,5 +5348,22 @@ class SurveyController extends Controller
         }
 
         return $this->sendNewResponse($data);
+    }
+
+    public function getChatGroups(Request $request, $id){
+        $loggedInProfileId =  $request->user()->profile->id;
+        $chatGroups = Chat::where('model_id', $id)
+        ->where('model_name', config("constant.CHAT_MODEL_SUPPORT.SURVEY"))
+        ->where('chat_type',0)
+        ->orderByRaw('ISNULL(batch_id), batch_id')
+        ->orderBy('created_at', 'ASC')
+        ->get();
+        
+        foreach ($chatGroups as $group) {
+            $group->makeHidden(['latestMessages']);
+        }
+
+        $this->model = $chatGroups;
+        return $this->sendNewResponse();
     }
 }

@@ -11,6 +11,8 @@ use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\CheckTTEmployee;
+use App\surveyApplicants;
+use App\Collaborate\Applicant;
 
 class MemberController extends Controller
 {
@@ -199,11 +201,21 @@ class MemberController extends Controller
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('exited_on')->get()->pluck('profile_id')->toArray();
         $loggedInProfileId = $request->user()->profile->id ;
         $this->model = [];
+
+        $modelName = $request->has('model_name') ? $request->input('model_name') : null;
+        $modelId = $request->has('model_id') ? $request->input('model_id') : null;
+
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        if($this->checkTTEmployee($loggedInProfileId)){
+        if(isset($modelName) && isset($modelId)){
+            if($modelName == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+                $profileIds = surveyApplicants::where('survey_id', $modelId)->whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
+            }else if($modelName == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+                $profileIds = Applicant::where('collaborate_id', $modelId)->whereNull('deleted_at')->where('profile_id', '<>', $loggedInProfileId)->pluck('profile_id')->toArray();
+            }
+        }else if($this->checkTTEmployee($loggedInProfileId)){
             $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
-        
+
         // $ids = []; $ids2 = [];
         // foreach ($chatProfileIds as $chatProfileId)
         //     $ids2[] = $chatProfileId;
@@ -255,10 +267,26 @@ class MemberController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
         $this->model = [];
+
+        $modelName = $request->has('model_name') ? $request->input('model_name') : null;
+        $modelId = $request->has('model_id') ? $request->input('model_id') : null;
+
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        if(isset($modelName) && isset($modelId)){
+            if($modelName == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+                $profileIds = surveyApplicants::where('survey_id', $modelId)->whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
+            }else if($modelName == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+                $profileIds = Applicant::where('collaborate_id', $modelId)->whereNull('deleted_at')->where('profile_id', '<>', $loggedInProfileId)->pluck('profile_id')->toArray();
+            }
+        }else if($this->checkTTEmployee($loggedInProfileId)){
+            $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
+        }
+
+
         if($this->checkTTEmployee($loggedInProfileId)){
             $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
+        
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
             $ids2[] = $chatProfileId;

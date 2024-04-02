@@ -229,6 +229,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/hashtag/trending', 'HashtagController@trending');
         Route::get('/hashtag/feed', 'HashtagController@feed');
         Route::group(['namespace' => 'V2', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
+            Route::get("collaborate/{id}/chats/groups", 'CollaborateController@getChatGroups')->middleware('permissionCollaborate');
+
             //multiple photos api
             Route::resource("photos", "PhotoController");
 
@@ -1011,6 +1013,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     });
     
     Route::group(['namespace' => 'Survey', 'prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+        Route::get('{id}/chat/groups', 'SurveyController@getChatGroups');
         Route::get('filters-list/{id}', 'SurveyController@getFilters');
         Route::get('/mandatory-fields', 'SurveyController@dynamicMandatoryFields');
         Route::get("/mandatory-fields/{id}", "SurveyController@surveyMandatoryFields");
@@ -1148,7 +1151,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             // PR product based applicant reports
             Route::post("batches/{batchId}", "BatchController@show");
-
         });
     });
 

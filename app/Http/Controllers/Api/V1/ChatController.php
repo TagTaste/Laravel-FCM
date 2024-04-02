@@ -30,7 +30,7 @@ class ChatController extends Controller
     public function index(Request $request)
     {
         $profileId = $request->user()->profile->id;
-
+        
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         $this->model = Chat::whereHas('members',function($query) use ($profileId) {
@@ -170,7 +170,6 @@ class ChatController extends Controller
     public function show(Request $request,$id)
     {
         $profileId = $request->user()->profile->id;
-
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         $this->model = Chat::whereHas('members',function($query) use ($profileId) {
