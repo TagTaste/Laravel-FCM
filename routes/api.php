@@ -294,8 +294,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                 Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports")->middleware('permissionCollaborate');
             });
         });
-
-
+        
         //Routes to get personalised meta
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
         Route::get("/meta/{modelName}/{id}/{modelId}", "MetaController@getSharedMeta");

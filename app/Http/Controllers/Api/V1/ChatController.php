@@ -522,11 +522,11 @@ class ChatController extends Controller
         $inputs['batch_id']= isset($data["batch_id"]) && !empty($data["batch_id"]) ? $data["batch_id"] : null;
 
         if($data["model_name"] == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
-            $collaborate = Collaborate::find($data["model_id"]);
-            if(!$collaborate){
+            $model = Collaborate::find($data["model_id"]);
+            if(!$model){
                 return $this->sendNewError("Collaboration not found");
             }
-            
+
             if(isset($data["batch_id"]) && !empty($data["batch_id"])){
                 $batch = \DB::table('collaborate_batches')->where('id',$data['batch_id'])->where('collaborate_id',$data['model_id'])
                 ->count();
@@ -538,18 +538,35 @@ class ChatController extends Controller
             $data["model_id"] = intval($data["model_id"]);
             $data["batch_id"] = isset($data["batch_id"]) && !empty($data["batch_id"]) ? intval($data["batch_id"]) : null;
         }else if($data["model_name"] == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
-            $survey = Surveys::find($data["model_id"]);
-            if(!$survey){
+            $model = Surveys::find($data["model_id"]);
+            if(!$model){
                 return $this->sendNewError("Survey not found");
             }
         }else{
             return $this->sendNewError("This model is not supported.");
         }            
         
+        if(!$this->checkForPermission($model, $profileId)){
+            return $this->sendNewError("Permission denied.");
+        }
+
         $chatId = $this->createChatRoom($inputs, $profileIds);
         $data["chat_id"] = $chatId;
         unset($data["profile_id"]);
         $this->model = $data;
         return $this->sendNewResponse();
+    }
+
+    private function checkForPermission($model, $profileId){
+        if ($model->company_id != null) {
+            $checkUser = CompanyUser::where('company_id',$model->company_id)->where('profile_id',$profileId)->exists();
+            if($checkUser){
+                return true;
+            }
+        } else if($model->profile_id == $profileId) {
+            return true;
+        }
+
+        return false;
     }
 }
