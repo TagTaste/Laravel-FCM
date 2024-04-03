@@ -5348,4 +5348,14 @@ class SurveyController extends Controller
 
         return $this->sendNewResponse($data);
     }
+
+    public function getHometownList(Request $request, $surveyId){
+        $this->model = $this->getFieldList($request, 'hometown', $surveyId);
+        return $this->sendResponse();
+    }
+
+    public function getCurrentCityList(Request $request, $surveyId){
+        $this->model = $this->getFieldList($request, 'current_city', $surveyId);
+        return $this->sendResponse();
+    }
 }

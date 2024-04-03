@@ -36,24 +36,46 @@ trait FilterTraits
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
-                    if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
-                    }else{
-                    // $age = htmlspecialchars_decode($age);
-                        $query->orWhere('survey_applicants.generation', 'LIKE', $age);
-                    }
+                    $age = (is_string($age) && !isset($age['key'])) ? $age : $age['key'];
+                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
+                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age);
+                    // }else{
+                    //     $age = htmlspecialchars_decode($age);
+                    //     $query->orWhere('survey_applicants.generation', 'LIKE', $age);
+                    // }
                 }
             });
         }
         
+        if (isset($filters['hometown'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['hometown'] as $hometown) {
+                    $hometown = (is_string($hometown) && !isset($hometown['key'])) ? $hometown : $hometown['key'];
+                        
+                    ($hometown == "not_defined") ? $query->orWhereNull('survey_applicants.hometown')->orWhere('survey_applicants.hometown','') : $query->orWhere('survey_applicants.hometown', 'LIKE', $hometown);
+                }
+            });
+        }
+
+        if (isset($filters['current_city'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['current_city'] as $current_city) {
+                    $current_city = (is_string($current_city) && !isset($current_city['key'])) ? $current_city : $current_city['key'];
+                        
+                    ($current_city == "not_defined") ? $query->orWhereNull('survey_applicants.current_city')->orWhere('survey_applicants.current_city','') : $query->orWhere('survey_applicants.current_city', 'LIKE', $current_city);
+                }
+            });
+        }
+
         if (isset($filters['gender'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
-                    if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender')->orWhere('survey_applicants.gender','') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
-                    }else{
-                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
-                    }
+                    $gender = (is_string($gender) && !isset($gender['key'])) ? $gender : $gender['key'];
+                    // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
+                        ($gender == "not_defined") ? $query->orWhereNull('survey_applicants.gender')->orWhere('survey_applicants.gender','') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    // }else{
+                    //     $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    // }
                 }
             });
         }
@@ -64,7 +86,8 @@ trait FilterTraits
         if (isset($filters['sensory_trained'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['sensory_trained'] as $sensory) {
-                    if ((isset($sensory['key']) && $sensory['key'] == 'Yes') || $sensory == 'Yes'){
+                    $sensory = (is_string($sensory) && !isset($sensory['key'])) ? $sensory : $sensory['key'];
+                    if ($sensory == 'Yes'){
                         $sensory = 1;
                     } else {
                         $sensory = 0;
@@ -77,7 +100,8 @@ trait FilterTraits
         if (isset($filters['super_taster'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['super_taster'] as $superTaster) {
-                    if ((isset($superTaster['key']) && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster')
+                    $superTaster = (is_string($superTaster) && !isset($superTaster['key'])) ? $superTaster : $superTaster['key'];
+                    if ($superTaster == 'SuperTaster')
                         $superTaster = 1;
                     else
                         $superTaster = 0;
@@ -89,7 +113,8 @@ trait FilterTraits
         if (isset($filters['user_type'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['user_type'] as $userType) {
-                    if ((isset($userType['key']) && $userType['key'] == 'Expert') || $userType == 'Expert')
+                    $userType = (is_string($userType) && !isset($userType['key'])) ? $userType : $userType['key'];
+                    if ($userType == 'Expert')
                         $userType = 1;
                     else
                         $userType = 0;
@@ -187,11 +212,12 @@ trait FilterTraits
             $filterProfile = [];
             foreach ($filters['profile_id'] as $filter) {
                 //$isFilterAble = true;
-                if (isset($version_num) && $version_num == 'v1'){
-                    $filterProfile[] = (int)$filter['key'];
-                } else {
+                $filter = (is_string($filter) && !isset($filter['key'])) ? $filter : $filter['key'];
+                // if (isset($version_num) && $version_num == 'v1'){
+                //     $filterProfile[] = (int)$filter['key'];
+                // } else {
                     $filterProfile[] = (int)$filter;
-                }
+                // }
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
@@ -212,12 +238,33 @@ trait FilterTraits
         if (isset($filters['age'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['age'] as $age) {
-                    if (isset($version_num) && $version_num == 'v1'){
-                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age['key']);
-                    }else{
-                    // $age = htmlspecialchars_decode($age);
-                        $query->orWhere('survey_applicants.generation', 'LIKE', $age);
-                    }
+                    $age = (is_string($age) && !isset($age['key'])) ? $age : $age['key'];
+                    // if (isset($version_num) && $version_num == 'v1'){
+                        ($age == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age);
+                    // }else{
+                    //     $age = htmlspecialchars_decode($age);
+                    //     $query->orWhere('survey_applicants.generation', 'LIKE', $age);
+                    // }
+                }
+            });
+        }
+
+        if (isset($filters['hometown'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['hometown'] as $hometown) {
+                    $hometown = (is_string($hometown) && !isset($hometown['key'])) ? $hometown : $hometown['key'];
+                        
+                    ($hometown == "not_defined") ? $query->orWhereNull('survey_applicants.hometown')->orWhere('survey_applicants.hometown','') : $query->orWhere('survey_applicants.hometown', 'LIKE', $hometown);
+                }
+            });
+        }
+
+        if (isset($filters['current_city'])) {
+            $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
+                foreach ($filters['current_city'] as $current_city) {
+                    $current_city = (is_string($current_city) && !isset($current_city['key'])) ? $current_city : $current_city['key'];
+                        
+                    ($current_city == "not_defined") ? $query->orWhereNull('survey_applicants.current_city')->orWhere('survey_applicants.current_city','') : $query->orWhere('survey_applicants.current_city', 'LIKE', $current_city);
                 }
             });
         }
@@ -228,11 +275,12 @@ trait FilterTraits
 
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['profile'] as $profile) {
-                    if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile['key']));
-                    } else {
+                    $profile = (is_string($profile) && !isset($profile['key'])) ? $profile : $profile['key'];
+                    // if (isset($version_num) && $version_num == 'v1'){
+                    //     $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile['key']));
+                    // } else {
                         $query->orWhere('name', 'LIKE', htmlspecialchars_decode($profile));
-                    }
+                    // }
                 }
             });
         }
@@ -240,17 +288,17 @@ trait FilterTraits
         if (isset($filters['gender'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['gender'] as $gender) {
-                    if (isset($version_num) && $version_num == 'v1'){
-                        ($gender['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.gender')->orWhere('survey_applicants.gender','') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender['key']);
-                    }else{
-                        $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
-                    }
+                    $gender = (is_string($gender) && !isset($gender['key'])) ? $gender : $gender['key'];
+                    // if (isset($version_num) && $version_num == 'v1'){
+                        ($gender == "not_defined") ? $query->orWhereNull('survey_applicants.gender')->orWhere('survey_applicants.gender','') : $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    // }else{
+                    //     $query->orWhere('survey_applicants.gender', 'LIKE', $gender);
+                    // }
                 }
             });
         }
 
-        //apply filter on question's options
-        
+        //apply filter on question's options   
         if (isset($filters['question_filter'])) {
             $ques_filter = ['profile_id'=>$request->user()->profile->id, 'surveys_id'=> $surveyDetails['id'], 'value'=> json_encode($filters['question_filter']), 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()];
 
@@ -286,14 +334,14 @@ trait FilterTraits
         }
         
         if (isset($filters['application_status'])) {
-
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['application_status'] as $status) {
-                    if (isset($version_num) && $version_num == 'v1'){
-                        $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS." . ucwords($status['key'])));
-                    } else {
+                    $status = (is_string($status) && !isset($status['key'])) ? $status : $status['key'];
+                    // if (isset($version_num) && $version_num == 'v1'){
+                    //     $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS." . ucwords($status['key'])));
+                    // } else {
                         $query->orWhere('survey_applicants.application_status', config("constant.SURVEY_APPLICANT_STATUS." . ucwords($status)));
-                    }
+                    // }
                 }
             });
         }
@@ -304,7 +352,8 @@ trait FilterTraits
         if (isset($filters['sensory_trained'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['sensory_trained'] as $sensory) {
-                    if ((isset($sensory['key']) && $sensory['key'] == 'Yes') || $sensory == 'Yes'){
+                    $sensory = (is_string($sensory) && !isset($sensory['key'])) ? $sensory : $sensory['key'];
+                    if ($sensory == 'Yes'){
                         $sensory = 1;
                     } else {
                         $sensory = 0;
@@ -317,7 +366,8 @@ trait FilterTraits
         if (isset($filters['super_taster'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['super_taster'] as $superTaster) {
-                    if ((isset($superTaster['key']) && $superTaster['key'] == 'SuperTaster') || $superTaster == 'SuperTaster')
+                    $superTaster = (is_string($superTaster) && !isset($superTaster['key'])) ? $superTaster : $superTaster['key'];
+                    if ($superTaster == 'SuperTaster')
                         $superTaster = 1;
                     else
                         $superTaster = 0;
@@ -329,7 +379,8 @@ trait FilterTraits
         if (isset($filters['user_type'])) {
             $Ids = $Ids->where(function ($query) use ($filters, $version_num) {
                 foreach ($filters['user_type'] as $userType) {
-                    if ((isset($userType['key']) && $userType['key'] == 'Expert') || $userType == 'Expert')
+                    $userType = (is_string($userType) && !isset($userType['key'])) ? $userType : $userType['key'];
+                    if ($userType == 'Expert')
                         $userType = 1;
                     else
                         $userType = 0;
@@ -339,8 +390,7 @@ trait FilterTraits
         }
        
         if ($profileIds->count() > 0 && isset($Ids)) {
-            $Ids = $Ids->whereIn('survey_applicants.profile_id', $profileIds);
-            
+            $Ids = $Ids->whereIn('survey_applicants.profile_id', $profileIds); 
         }
 
         if (isset($Ids)) {
@@ -475,6 +525,26 @@ trait FilterTraits
             $ageData['key'] = 'age';
             $ageData['value'] = 'Generation';
 
+            // Hometown
+            $homeTown['items'] = [];
+            if(isset($filters['hometown'])){
+                $hometownCounts = $this->getCount($surveyApplicants, 'hometown', $filteredProfileIds);
+                $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
+            }
+            $homeTown['type'] = 'dropdown_search';
+            $homeTown['key'] = 'hometown';
+            $homeTown['value'] = 'Hometown';
+ 
+            // Current City
+            $currentCity['items'] = [];
+            if(isset($filters['current_city'])){
+                $currentCityCounts = $this->getCount($surveyApplicants, 'current_city', $filteredProfileIds);
+                $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
+            }
+            $currentCity['type'] = 'dropdown_search';
+            $currentCity['key'] = 'current_city';
+            $currentCity['value'] = 'Current City';
+
             $profileModel = Profile::whereNull('deleted_at');
             
             // count of experts
@@ -561,7 +631,7 @@ trait FilterTraits
             $questionFilterData['key'] = 'question_filter';
             $questionFilterData['value'] = 'Question Filter';
 
-            $data = [$genderData, $ageData, $questionFilterData, $userType, $sensoryTrained, $superTaster, $dateData];
+            $data = [$genderData, $ageData, $homeTown, $currentCity, $questionFilterData, $userType, $sensoryTrained, $superTaster, $dateData];
         }
         $this->model = $data;
 
@@ -607,6 +677,60 @@ trait FilterTraits
             $inner_arr['count'] = isset($fieldCounts[$val]) ? $fieldCounts[$val] : 0;
             unset($field[$key]);
             $field['items'][$key] = $inner_arr;
+        }
+        return $field;
+    }
+
+    public function getFieldList($request, $field, $surveyId){
+        $current_state = $request->state;
+        $current_status = $request->current_status;
+        $search_val = $request->q;
+        $page = $request->page;
+
+        $surveyData = Surveys::where("id", "=", $surveyId)->first();
+        $surveyApplicants = surveyApplicants::where('survey_id', $surveyId)
+        ->whereNull('survey_applicants.deleted_at');
+
+        if(isset($current_status) && !empty($current_status) && $current_status = config("constant.SURVEY_STATUS.COMPLETED")){ // report section filters
+            $surveyAttemptedProfileIds = SurveyAttemptMapping::select('profile_id')->distinct()->where("survey_id", "=", $surveyId)->whereNotNull("completion_date")->whereNull("deleted_at")->pluck('profile_id')->toArray();
+            $filteredProfileIds = array_keys($this->getProfileIdOfReportFilter($surveyData, $request));
+            $filteredProfileIds = !empty($filteredProfileIds) ? array_values(array_intersect($filteredProfileIds, $surveyAttemptedProfileIds)) : $surveyAttemptedProfileIds;
+        } else { // manage section filters
+            $filteredProfileIds = $this->getProfileIdOfFilter($surveyData, $request)['profile_id']->toArray();
+        }
+
+        if(empty($filteredProfileIds)){
+            $filteredProfileIds = $surveyApplicants->pluck('profile_id')->toArray();
+        }
+
+        // for manage section
+        if(isset($current_state) && $current_state == config("constant.SURVEY_APPLICANT_STATE.ACTIVE")){
+            $surveyApplicants = $surveyApplicants->whereNull('survey_applicants.rejected_at');
+        } else if(isset($current_state) && $current_state == config("constant.SURVEY_APPLICANT_STATE.REJECTED")){
+            $surveyApplicants = $surveyApplicants->whereNotNull('survey_applicants.rejected_at');
+        }
+
+        if (isset($search_val) && $search_val != null) {
+            $surveyApplicants = $surveyApplicants->where($field, 'LIKE', '%'.$search_val.'%');
+        }
+
+        return $this->getFieldListData($page, $surveyApplicants, $filteredProfileIds, $field);
+    }
+
+    public function getFieldListData($page, $fieldApplicants, $filteredProfileIds, $field){
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $fieldApplicants = $fieldApplicants->skip($skip)->take($take);
+
+        $fieldWithCounts = $this->getCount($fieldApplicants, $field, $filteredProfileIds);
+        $field = [];
+        if($fieldWithCounts->isNotEmpty()){
+            foreach($fieldWithCounts as $key => $val)
+            {  
+                $inner_arr['key'] = $key;
+                $inner_arr['value'] = ($key == "not_defined") ? "Didn't mention" : $key;
+                $inner_arr['count'] = isset($val) ? $val : 0;
+                $field[] = $inner_arr;
+            }
         }
         return $field;
     }

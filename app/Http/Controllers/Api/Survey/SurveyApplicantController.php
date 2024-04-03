@@ -698,6 +698,26 @@ class SurveyApplicantController extends Controller
             $gender = $this->addEmptyValue($gender, $genderCounts);
             $gender['key'] = 'gender';
             $gender['value'] = 'Gender';
+
+            // Hometown
+            $homeTown['items'] = [];
+            if(isset($filters['hometown'])){
+                $hometownCounts = $this->getCount($surveyApplicants, 'hometown', $profileIds);
+                $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
+            }
+            $homeTown['type'] = 'dropdown_search';
+            $homeTown['key'] = 'hometown';
+            $homeTown['value'] = 'Hometown';
+ 
+            // Current City
+            $currentCity['items'] = [];
+            if(isset($filters['current_city'])){
+                $currentCityCounts = $this->getCount($surveyApplicants, 'current_city', $profileIds);
+                $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
+            }
+            $currentCity['type'] = 'dropdown_search';
+            $currentCity['key'] = 'current_city';
+            $currentCity['value'] = 'Current City';
             
             // count of experts
             $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
@@ -771,7 +791,7 @@ class SurveyApplicantController extends Controller
             $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster, "application_status" => $applicationStatus];
         // }
         if (isset($version_num) && $version_num == 'v1'){
-            $data = [$gender, $age, $profile, $sensoryTrained, $userType, $superTaster, $applicationStatus, $date];
+            $data = [$gender, $age, $homeTown, $currentCity, $profile, $sensoryTrained, $userType, $superTaster, $applicationStatus, $date];
         }
         $this->model = $data;
         return $this->sendResponse();
