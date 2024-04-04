@@ -183,13 +183,23 @@ return  [
     // Review flagging
     "FLAG_COLORS" => [
         "default" => '#FFECF0',
-        "tagtaste_employee" => '#F0F6FD'
+        "tagtaste_employee" => '#F0F6FD',
+        "flag_color" => '#DD2E1F',
+        "flag_line_color" => '#EB8279',
+        "unflag_color" => '#00A146',
+        "unflag_line_color" => '#66C790'
     ],
 
     "FLAG_REASONS_TEXT" => [
         "review_start_time" => 'review time',
         "review_duration" => 'review duration',
         "tagtaste_employee" => 'being TT employee'
+    ],
+
+    "FLAG_SLUG" => [
+        "SYSTEM" => "system_flag",
+        "MANUAL1" => "manual_flag",
+        "MANUAL0" => "manual_unflag"
     ],
 
     "POLL_PLACEHOLDER_IMAGE" => [

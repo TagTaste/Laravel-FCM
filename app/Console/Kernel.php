@@ -340,6 +340,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\UploadLogsToS3::class,
 
         \App\Console\Commands\ModelFlagReview::class,
+        \App\Console\Commands\AddFlagReasons::class,
 
         //deacitveted user push
         \App\Console\Commands\Build\Cache\DeactivatedUsers::class,
