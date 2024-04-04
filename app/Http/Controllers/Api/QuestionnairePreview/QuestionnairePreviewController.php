@@ -263,15 +263,13 @@ class QuestionnairePreviewController extends Controller
         foreach($emailList as $email){
             $otpNo = mt_rand(100000, 999999);
             $questionnaire->email = $email;
-            // $deepLink = Deeplink::getQuestionnairePreviewLink($questionnaire);
-            $url = env('APP_URL')."/preview/questionnaire/".$questionnaire->id."?email=".$questionnaire->email;
-            $deepLink = ["url"=>$url, "otp"=>$otpNo];
-            // $deepLink->otp = $otpNo;
+            $deepLink = Deeplink::getQuestionnairePreviewLink($questionnaire);
+            $deepLink->otp = $otpNo;
             array_push($deepLinksList, $deepLink);
             $data = ["email"=>$email, "questionnaire_id"=> $id, "otp"=>$otpNo, "created_at"=>date("Y-m-d H:i:s"), "updated_at"=>date("Y-m-d H:i:s"), "expired_at"=>date("Y-m-d H:i:s", strtotime("+7 days"))];
             $insertData = QuestionnairePreviewShareUsers::create($data); 
             if($insertData){
-                \Mail::to($email)->send(new QuestionnairePreviewShareMail(["link" => $deepLink["url"], "otp"=>$deepLink["otp"]]));     
+                \Mail::to($email)->send(new QuestionnairePreviewShareMail(["link" => $deepLink->url, "otp"=>$otpNo]));     
             }else{
                 $error .= $email.", ";
             }   
@@ -282,7 +280,7 @@ class QuestionnairePreviewController extends Controller
             $this->model = $error;
             return $this->sendNewError($error);
         }else{
-            $this->model = "Questionnaire shared successfully."
+            $this->model = "Questionnaire shared successfully.";
             return $this->sendNewResponse();
         }
     }
