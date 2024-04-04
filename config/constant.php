@@ -114,6 +114,7 @@ return  [
 
     'SIGNUP_EMAIL_VERIFICATION' => "verify_signup_email",
     'EMAIL_VERIFICATION' => "verify_email",
+    'PHONE_VERIFICATION' => "verify_phone",
 
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,

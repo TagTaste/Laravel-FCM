@@ -767,6 +767,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('profile/requestOtp', 'ProfileController@requestOtp');
         Route::post('profile/verify/email', 'ProfileController@sendVerifyMail');
 
+        // Phone verification new APIs
+        Route::post('profile/phone/send/otp', 'ProfileController@sendOtp');
+        Route::post('profile/phone/verify/otp', 'ProfileController@verifyOtp');
+
         // Email verification via otp
         Route::post('profile/verification/email', 'ProfileController@sendVerifyEmail');
         Route::post('profile/verification/email/otp', 'ProfileController@verifyEmailOtp');
