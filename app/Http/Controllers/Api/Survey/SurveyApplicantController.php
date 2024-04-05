@@ -692,12 +692,15 @@ class SurveyApplicantController extends Controller
             $age = $this->addEmptyValue($age, $ageCounts);
             $age['key'] = 'age';
             $age['value'] = 'Generation';
+            $age['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
 
             $genderCounts = $this->getCount($surveyApplicants,'gender', $profileIds);
             $gender = $this->getFieldPairedData($gender, $genderCounts);
             $gender = $this->addEmptyValue($gender, $genderCounts);
             $gender['key'] = 'gender';
             $gender['value'] = 'Gender';
+            $gender['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // Hometown
             $homeTown['items'] = [];
@@ -705,7 +708,7 @@ class SurveyApplicantController extends Controller
                 $hometownCounts = $this->getCount($surveyApplicants, 'hometown', $profileIds);
                 $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
             }
-            $homeTown['type'] = 'dropdown_search';
+            $homeTown['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $homeTown['key'] = 'hometown';
             $homeTown['value'] = 'Hometown';
  
@@ -715,7 +718,7 @@ class SurveyApplicantController extends Controller
                 $currentCityCounts = $this->getCount($surveyApplicants, 'current_city', $profileIds);
                 $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
             }
-            $currentCity['type'] = 'dropdown_search';
+            $currentCity['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $currentCity['key'] = 'current_city';
             $currentCity['value'] = 'Current City';
             
@@ -724,18 +727,21 @@ class SurveyApplicantController extends Controller
             $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
+            $userType['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // sensory trained or not
             $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds);
             $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
+            $sensoryTrained['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // supar taster or not
             $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds);
             $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';
+            $superTaster['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // application status
             $statusCounts = $this->getCount($surveyApplicants, 'application_status', $profileIds);
@@ -751,16 +757,18 @@ class SurveyApplicantController extends Controller
             }
             $applicationStatus['key'] = 'application_status';
             $applicationStatus['value'] = 'Status';
+            $applicationStatus['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // profile specializations
             $specializationsCount = $specializations->select('name', \DB::raw('COUNT(*) as count'))->whereIn('profiles.id', $profileIds)->groupBy('name')->pluck('count','name');
             $profile = $this->getFieldPairedData($profile, $specializationsCount);
             $profile['key'] = 'profile';
             $profile['value'] = 'Job Profile';
+            $profile['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // Date filter
             $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
-            $date['type'] = 'date';
+            $date['type'] = config("constant.FILTER_TYPE.DATE");
             $date['key'] = 'date';
             $date['value'] = 'Submission Date Range';
         }

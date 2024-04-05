@@ -192,6 +192,13 @@ return  [
         "tagtaste_employee" => 'being TT employee'
     ],
 
+    "FILTER_TYPE" => [
+        "MULTI_SELECT" => 'multi_select',
+        "DROPDOWN_SEARCH" => 'dropdown_search',
+        "DATE" => "date",
+        "QUESTION_FILTER" => "question_filter"
+    ],
+
     "POLL_PLACEHOLDER_IMAGE" => [
         '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650040773892_Poll%201.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650040773892_Poll%201.png"}',
         '{"meta":{"height":192,"width":500,"tiny_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/tiny/1650040872771_Poll%202.png"},"original_photo":"https://s3.ap-south-1.amazonaws.com/fortest.tagtaste.com/placeholder-poll-images/1650040872771_Poll%202.png"}',

@@ -516,6 +516,8 @@ trait FilterTraits
             $genderData = $this->addEmptyValue($genderData, $genderCounts);
             $genderData['key'] = 'gender';
             $genderData['value'] = 'Gender';
+            $genderData['type'] =  config("constant.FILTER_TYPE.MULTI_SELECT");
+
 
             // age data
             $ageData = [];
@@ -524,6 +526,7 @@ trait FilterTraits
             $ageData = $this->addEmptyValue($ageData, $ageCounts);
             $ageData['key'] = 'age';
             $ageData['value'] = 'Generation';
+            $ageData['type'] =  config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // Hometown
             $homeTown['items'] = [];
@@ -531,7 +534,7 @@ trait FilterTraits
                 $hometownCounts = $this->getCount($surveyApplicants, 'hometown', $filteredProfileIds);
                 $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
             }
-            $homeTown['type'] = 'dropdown_search';
+            $homeTown['type'] =  config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $homeTown['key'] = 'hometown';
             $homeTown['value'] = 'Hometown';
  
@@ -541,9 +544,9 @@ trait FilterTraits
                 $currentCityCounts = $this->getCount($surveyApplicants, 'current_city', $filteredProfileIds);
                 $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
             }
-            $currentCity['type'] = 'dropdown_search';
             $currentCity['key'] = 'current_city';
             $currentCity['value'] = 'Current City';
+            $currentCity['type'] =  config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
 
             $profileModel = Profile::whereNull('deleted_at');
             
@@ -552,18 +555,22 @@ trait FilterTraits
             $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
+            $userType['type'] =  config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // sensory trained or not
             $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds);
             $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
+            $sensoryTrained['type'] =  config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // supar taster or not
             $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds);
             $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';
+            $superTaster['type'] =  config("constant.FILTER_TYPE.MULTI_SELECT");
+
         }
 
         $applicants = \DB::table('survey_applicants')->where('survey_id', $survey_id)->get();
@@ -621,13 +628,13 @@ trait FilterTraits
         if (isset($version_num) && $version_num == 'v2'){
             $dateData = [];
             $dateData['items'] = $date;
-            $dateData['type'] = 'date';
+            $dateData['type'] = config("constant.FILTER_TYPE.DATE");
             $dateData['key'] = 'date';
             $dateData['value'] = 'Submission Date Range';
 
             $questionFilterData = [];
             $questionFilterData['items'] = $question_filter;
-            $questionFilterData['type'] = 'question_filter';
+            $questionFilterData['type'] = config("constant.FILTER_TYPE.QUESTION_FILTER");
             $questionFilterData['key'] = 'question_filter';
             $questionFilterData['value'] = 'Question Filter';
 

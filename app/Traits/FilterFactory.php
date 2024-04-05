@@ -90,18 +90,21 @@ trait FilterFactory
             $gender = $this->addEmptyValue($gender, $genderCounts);
             $gender['key'] = 'gender';
             $gender['value'] = 'Gender';
+            $gender['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             $ageCounts = $this->getCount($collabApplicants, 'generation', $filteredProfileIds);
             $age = $this->getFieldPairedData($age, $ageCounts);
             $age = $this->addEmptyValue($age, $ageCounts);
             $age['key'] = 'age';
             $age['value'] = 'Generation';
+            $age['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             $cityCounts = $this->getCount($collabApplicants, 'city', $filteredProfileIds);
             $city = $this->getFieldPairedData($city, $cityCounts);
             $city = $this->addEmptyValue($city, $cityCounts);
             $city['key'] = 'city';
             $city['value'] = 'Tasting City';
+            $city['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // Hometown
             $homeTown['items'] = [];
@@ -109,7 +112,7 @@ trait FilterFactory
                 $hometownCounts = $this->getCount($collabApplicants, 'hometown', $filteredProfileIds);
                 $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
             }
-            $homeTown['type'] = 'dropdown_search';
+            $homeTown['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $homeTown['key'] = 'hometown';
             $homeTown['value'] = 'Hometown';
 
@@ -119,7 +122,7 @@ trait FilterFactory
                 $currentCityCounts = $this->getCount($collabApplicants, 'current_city', $filteredProfileIds);
                 $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
             }
-            $currentCity['type'] = 'dropdown_search';
+            $currentCity['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $currentCity['key'] = 'current_city';
             $currentCity['value'] = 'Current City';
 
@@ -130,18 +133,21 @@ trait FilterFactory
             $userType = $this->getProfileFieldPairedData('Expert', 'Consumer', $userTypeCounts);
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
+            $userType['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             //sensory trained or not
             $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds);
             $sensoryTrained =  $this->getProfileFieldPairedData('Yes', 'No', $sensoryTrainedCounts);
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
+            $sensoryTrained['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             //super taster or not
             $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds);
             $superTaster = $this->getProfileFieldPairedData('SuperTaster', 'Normal', $superTasterCounts);
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';
+            $superTaster['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // profile specializations
             $specializationsCount = $specializations->select('name', \DB::raw('COUNT(*) as count'))->whereIn('profiles.id', $filteredProfileIds)->groupBy('name')->pluck('count','name');
@@ -149,10 +155,11 @@ trait FilterFactory
             $profile = $this->getFieldPairedData($profile, $specializationsCount);
             $profile['key'] = 'profile';
             $profile['value'] = 'Job Profile';
+            $profile['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // Date filter
             $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
-            $date['type'] = 'date';
+            $date['type'] = config("constant.FILTER_TYPE.DATE");
             $date['key'] = 'show_interest_date';
             $date['value'] = 'Show Interest Date';
         }
@@ -182,6 +189,7 @@ trait FilterFactory
             }
             $currentStatus['key'] = 'current_status';
             $currentStatus['value'] = 'Status';
+            $currentStatus['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // collab allergens
             $allergenData = \DB::table('collaborate_allergens')->join('allergens', 'collaborate_allergens.allergens_id', '=', 'allergens.id')->where('collaborate_allergens.collaborate_id', $collaborateId); 
@@ -203,11 +211,13 @@ trait FilterFactory
             $allergens['key'] = 'allergens';
             $allergens['value'] = 'Allergens';
             $allergens['items'] = array_values($allergenItems);
+            $allergens['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED")) || !isset($current_status)){
                 // Date filter key and value will be different for product filters
                 $date['key'] = 'review_date';
                 $date['value'] = 'Review Date Filter';
+                $date['type'] = config("constant.FILTER_TYPE.DATE");
             }
         }
 
@@ -348,7 +358,8 @@ trait FilterFactory
 
                 // Date filter
                 $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
-                $date['type'] = 'date';
+                
+                $date['type'] = config("constant.FILTER_TYPE.DATE");;
                 $date['key'] = 'review_date';
                 $date['value'] = 'Review Date Filter';
             } else {
@@ -366,21 +377,29 @@ trait FilterFactory
 
             $genderData['key'] = 'gender';
             $genderData['value'] = 'Gender';  
+            $genderData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             $ageData['key'] = 'age';
             $ageData['value'] = 'Generation';
+            $ageData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             $cityData['key'] = 'city';
             $cityData['value'] = 'Tasting City';
+            $cityData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
 
             $userTypeData['key'] = 'user_type';
             $userTypeData['value'] = 'User Type';
+            $userTypeData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
 
             $sensoryTrainedData['key'] = 'sensory_trained';
             $sensoryTrainedData['value'] = 'Sensory Trained';
+            $sensoryTrainedData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             $superTasterData['key'] = 'super_taster';
             $superTasterData['value'] = 'Super Taster';
+            $superTasterData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // Hometown
             $homeTown['items'] = [];
@@ -388,7 +407,7 @@ trait FilterFactory
                 $hometownCounts = $this->getCount($collabApplicants, 'hometown', $profileIds, $collaborateId);
                 $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
             }
-            $homeTown['type'] = 'dropdown_search';
+            $homeTown['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $homeTown['key'] = 'hometown';
             $homeTown['value'] = 'Hometown';
 
@@ -398,13 +417,13 @@ trait FilterFactory
                 $currentCityCounts = $this->getCount($collabApplicants, 'current_city', $profileIds, $collaborateId);
                 $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
             }
-            $currentCity['type'] = 'dropdown_search';
+            $currentCity['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $currentCity['key'] = 'current_city';
             $currentCity['value'] = 'Current City';
 
             if($filterType == 'dashboard_filters' || $filterType == 'dashboard_product_filters'){
                 $question_filter_data = [];
-                $question_filter_data['type'] = 'question_filter';
+                $question_filter_data['type'] = config("constant.FILTER_TYPE.QUESTION_FILTER");
                 $question_filter_data['key'] = 'question_filter';
                 $question_filter_data['value'] = 'Question Filter';  
                 $question_filter_data['items'] = [['key' => 'question','value' => $que_val, 'count' => $questions_count]];
@@ -413,6 +432,7 @@ trait FilterFactory
                 $profile = $this->getFieldPairedData($profile);
                 $profile['key'] = 'profile';
                 $profile['value'] = 'Profile';
+                $profile['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
             }
         }
         
