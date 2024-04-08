@@ -546,7 +546,7 @@ class ChatController extends Controller
             return $this->sendNewError("This model is not supported.");
         }            
         
-        if(!$this->checkForPermission($model, $profileId)){
+        if(!$this->checkForPermission($data["model_name"], $model, $profileId)){
             return $this->sendNewError("Permission denied.");
         }
 
@@ -557,7 +557,7 @@ class ChatController extends Controller
         return $this->sendNewResponse();
     }
 
-    private function checkForPermission($model, $profileId){
+    private function checkForPermission($type, $model, $profileId){
         if ($model->company_id != null) {
             $checkUser = CompanyUser::where('company_id',$model->company_id)->where('profile_id',$profileId)->exists();
             if($checkUser){
@@ -565,6 +565,18 @@ class ChatController extends Controller
             }
         } else if($model->profile_id == $profileId) {
             return true;
+        }else if($type == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+            //check for panel partner
+            $panelPartner  = \DB::table('collaborate_user_roles')
+            ->where('profile_id',$profileId)
+            ->where('collaborate_id',$model->id)
+            ->leftJoin('collaborate_role','collaborate_user_roles.role_id','=','collaborate_role.id')
+            ->where('collaborate_role.role',config("constant.COLLABORATE_ROLES.PANEL_PARTNER"))
+            ->count();
+
+            if($panelPartner > 0){
+                return true;
+            }
         }
 
         return false;

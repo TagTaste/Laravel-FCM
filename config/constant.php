@@ -138,6 +138,11 @@ return  [
         "ACTIVE" => 1,
     ],
 
+    "COLLABORATE_ROLES" => [
+        "PANEL_PARTNER" => "Panel Partners",
+        "CUSTOMER" => "Customers",
+    ],
+
     "COLLABORATE_CURRENT_STATUS" => [
         "TO_BE_NOTIFIED" => 0,
         "NOTIFIED" => 1,
