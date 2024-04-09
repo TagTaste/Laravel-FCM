@@ -279,11 +279,9 @@ class MemberController extends Controller
         }else if($this->checkTTEmployee($loggedInProfileId)){
             $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
-
-
-        if($this->checkTTEmployee($loggedInProfileId)){
-            $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
-        }
+        
+        $this->model = $chatProfileIds;
+        return $this->sendResponse(); 
         
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
