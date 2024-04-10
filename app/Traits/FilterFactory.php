@@ -1078,7 +1078,7 @@ trait FilterFactory
             $collabApplicants = $collabApplicants->where($field, 'LIKE', '%'.$search_val.'%');
         }
 
-        $filteredProfileIds = $this->getFilterProfileIds($filters, $collaborateId, $batchId)['profile_id']->toArray();
+        $filteredProfileIds = empty($filters) ? $collabApplicants->pluck('profile_id')->toArray() : $this->getFilterProfileIds($filters, $collaborateId, $batchId)['profile_id']->toArray();
 
         $beginTasting = \DB::table('collaborate_batches_assign')->where('collaborate_id', $collaborateId)->where('batch_id', $batchId);
         // for completed and in-progress status
@@ -1088,10 +1088,10 @@ trait FilterFactory
             $ids1 = $beginTasting->where('begin_tasting', $current_status)->pluck('profile_id')->toArray();
             $ids2 = $currentStatus->pluck('profile_id')->unique()->toArray();
             $statusFilteredIds = array_diff($ids1, $ids2);
-            $filteredProfileIds = !empty($filteredProfileIds) ? array_values(array_intersect($filteredProfileIds, $statusFilteredIds)) : $statusFilteredIds;
+            $filteredProfileIds = array_values(array_intersect($filteredProfileIds, $statusFilteredIds));
         } else if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.INPROGRESS")) || ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED"))){
             $statusFilteredIds = $currentStatus->where('current_status', $current_status)->pluck('profile_id')->unique()->toArray();
-            $filteredProfileIds = !empty($filteredProfileIds) ? array_values(array_intersect($filteredProfileIds, $statusFilteredIds)) : $statusFilteredIds;
+            $filteredProfileIds = array_values(array_intersect($filteredProfileIds, $statusFilteredIds));
         }
 
         return $this->getFieldListData($page, $collabApplicants, $filteredProfileIds, $field);

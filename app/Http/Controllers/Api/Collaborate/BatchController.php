@@ -2182,6 +2182,7 @@ class BatchController extends Controller
         if(isset($filters['hometown'])){
             unset($filters['hometown']);
         }
+
         $current_status = $request->current_status;
         $search_val = $request->q;
         $page = $request->page;

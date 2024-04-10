@@ -14,12 +14,9 @@ use App\SurveyAttemptMapping;
 trait FilterTraits
 {
 
-    public function getProfileIdOfReportFilter($surveyDetails, Request $request, $field = '')
+    public function getProfileIdOfReportFilter($surveyDetails, Request $request)
     {
         $filters = $request->filters;
-        if(isset($field) && isset($filters[$field])){
-            unset($filters[$field]);
-        }
         $profileIds = collect([]);
 
         if ($profileIds->count() == 0 && isset($filters['profile_ids'])) {
@@ -206,12 +203,9 @@ trait FilterTraits
         //     return ['profile_id' => $profileIds, 'type' => true];
     }
 
-    public function getProfileIdOfFilter($surveyDetails, Request $request, $field = '')
+    public function getProfileIdOfFilter($surveyDetails, Request $request)
     {
         $filters = $request->filters;
-        if(isset($field) && isset($filters[$field])){
-            unset($filters[$field]);
-        }
         $profileIds = collect([]);
 
         if ($profileIds->count() == 0 && isset($filters['profile_id'])) {
@@ -699,6 +693,10 @@ trait FilterTraits
         $current_status = $request->current_status;
         $search_val = $request->q;
         $page = $request->page;
+        $filters = $request->filters;
+        if(isset($field) && isset($filters[$field])){
+            unset($filters[$field]);
+        }
 
         $surveyData = Surveys::where("id", "=", $surveyId)->first();
         $surveyApplicants = surveyApplicants::where('survey_id', $surveyId)
@@ -707,13 +705,9 @@ trait FilterTraits
         if(isset($current_status) && !empty($current_status) && $current_status = config("constant.SURVEY_STATUS.COMPLETED")){ // report section filters
             $surveyAttemptedProfileIds = SurveyAttemptMapping::select('profile_id')->distinct()->where("survey_id", "=", $surveyId)->whereNotNull("completion_date")->whereNull("deleted_at")->pluck('profile_id')->toArray();
             $filteredProfileIds = array_keys($this->getProfileIdOfReportFilter($surveyData, $request, $field));
-            $filteredProfileIds = !empty($filteredProfileIds) ? array_values(array_intersect($filteredProfileIds, $surveyAttemptedProfileIds)) : $surveyAttemptedProfileIds;
+            $filteredProfileIds = !empty($filters) ? array_values(array_intersect($filteredProfileIds, $surveyAttemptedProfileIds)) : $surveyAttemptedProfileIds;
         } else { // manage section filters
-            $filteredProfileIds = $this->getProfileIdOfFilter($surveyData, $request, $field)['profile_id']->toArray();
-        }
-
-        if(empty($filteredProfileIds)){
-            $filteredProfileIds = $surveyApplicants->pluck('profile_id')->toArray();
+            $filteredProfileIds = !empty($filters) ? $this->getProfileIdOfFilter($surveyData, $request, $field)['profile_id']->toArray() : $surveyApplicants->pluck('profile_id')->toArray();
         }
 
         // for manage section
