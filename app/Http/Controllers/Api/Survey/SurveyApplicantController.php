@@ -69,7 +69,7 @@ class SurveyApplicantController extends Controller
         $q = $request->input('q');
         $profileIds = [];
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -673,7 +673,7 @@ class SurveyApplicantController extends Controller
       
             $surveyData = Surveys::where("id", "=", $id)->first();
             $filters = $request->input('filters');
-            $filteredProfileIds = $this->getProfileIdOfFilter($surveyData, $request, $version_num)['profile_id'];
+            $filteredProfileIds = $this->getProfileIdOfFilter($surveyData, $request)['profile_id'];
 
             $profileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
 
@@ -836,7 +836,7 @@ class SurveyApplicantController extends Controller
         //filters data
         $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -976,7 +976,7 @@ class SurveyApplicantController extends Controller
         //filters data
         $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -1202,7 +1202,7 @@ class SurveyApplicantController extends Controller
         }
 
         if (isset($filters) && $filters != null) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $list = $list->whereIn('profile_id', $profileIds);
         }

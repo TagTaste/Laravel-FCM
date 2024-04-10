@@ -2179,6 +2179,9 @@ class BatchController extends Controller
 
     public function getHometownList(Request $request, $collaborateId, $batchId){
         $filters = $request->input('filters');
+        if(isset($filters['hometown'])){
+            unset($filters['hometown']);
+        }
         $current_status = $request->current_status;
         $search_val = $request->q;
         $page = $request->page;
@@ -2188,6 +2191,9 @@ class BatchController extends Controller
 
     public function getCurrentCityList(Request $request, $collaborateId, $batchId){
         $filters = $request->input('filters');
+        if(isset($filters['current_city'])){
+            unset($filters['current_city']);
+        }
         $current_status = $request->current_status;
         $search_val = $request->q;
         $page = $request->page;
