@@ -280,9 +280,6 @@ class MemberController extends Controller
             $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
         
-        $this->model = $chatProfileIds;
-        return $this->sendResponse(); 
-        
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
             $ids2[] = $chatProfileId;
