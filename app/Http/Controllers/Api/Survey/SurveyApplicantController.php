@@ -1681,15 +1681,11 @@ class SurveyApplicantController extends Controller
 
         $submissions = SurveyAttemptMapping::where('survey_id', $surveyId)->where('profile_id', $profileId)->whereNotNull('completion_date')->get()->sortByDesc('completion_date');
 
-        $modelFlagReasons = ModelFlagReason::where('model', 'SurveyAttemptMapping')->get();
-        $profiles = Profile::get();
-        $companies = Company::get();
-
         $data = [];
         $submissionCount = count($submissions);
         $title = ($submissionCount == 1) ? 0 : 1;
         foreach($submissions as $submission){
-            $flag_logs = $this->flagLog($submission->id, 'SurveyAttemptMapping', $modelFlagReasons, $profiles, $companies);
+            $flag_logs = $this->flagLog($submission->id, 'SurveyAttemptMapping');
             if(empty($flag_logs)){
                 continue;
             }

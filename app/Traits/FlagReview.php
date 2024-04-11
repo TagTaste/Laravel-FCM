@@ -10,6 +10,7 @@ use App\Profile\User;
 use App\V2\Collaborate;
 use App\Surveys;
 use App\PublicReviewProduct;
+use Illuminate\Support\Facades\Redis;
 
 
 trait FlagReview
@@ -76,9 +77,11 @@ trait FlagReview
         return $this->addModelFlagReasons($data);
     }
 
-    public function flagLog($model_id, $model, $modelFlagReasons, $profiles, $companies){
-        $systemFlagReasons = $modelFlagReasons->where('model_id', $model_id)->where('slug', config("constant.FLAG_SLUG.SYSTEM"));
-        $manualFlagReasons = $modelFlagReasons->where('model_id', $model_id)->where('slug','<>',config("constant.FLAG_SLUG.SYSTEM"))->sortByDesc('created_at');
+    public function flagLog($model_id, $model){
+        $modelFlagReasons = new ModelFlagReason();
+        $systemFlagReasons = $modelFlagReasons->where('model', $model)->where('model_id', $model_id)->where('slug', config("constant.FLAG_SLUG.SYSTEM"))->get();
+        $manualFlagReasons = $modelFlagReasons->where('model', $model)->where('model_id', $model_id)->where('slug','<>',config("constant.FLAG_SLUG.SYSTEM"))->get()->sortByDesc('created_at');
+        
         $flag_logs = [];
         // Manually flagged reviews    
         foreach($manualFlagReasons as $modelFlagReason){
@@ -93,7 +96,7 @@ trait FlagReview
             }
             $log['flag_text'] = $modelFlagReason->reason;
             $log['created_at'] = Carbon::parse($modelFlagReason->created_at)->format('d M Y, h:i:s A');
-            $log['profile'] = $profiles->where('id', $modelFlagReason->profile_id)->first()->toArray();
+            $log['profile'] = json_decode(Redis::get("profile:small:" . $modelFlagReason->profile_id), true);
             $flag_logs[] = $log;
             $log = [];
         }
@@ -121,9 +124,9 @@ trait FlagReview
             $otherData = $systemFlagReasons->first();
             $log['created_at'] = Carbon::parse($otherData->created_at)->format('d M Y, h:i:s A');
             if(!empty($otherData->company_id)){
-                $log['company'] = $companies->where('id', $otherData->company_id)->first()->toArray();
+                $log['company'] = json_decode(Redis::get("company:small:" . $otherData->company_id), true);
             } else {
-                $log['profile'] = $profiles->where('id', $otherData->profile_id)->first()->toArray();
+                $log['profile'] = json_decode(Redis::get("profile:small:" . $otherData->profile_id), true);
             }
             $flag_logs[] = $log;
         }
