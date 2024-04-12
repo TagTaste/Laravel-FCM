@@ -171,6 +171,13 @@ Route::post("unsubscribe/reason", "SettingController@reasonUnsubscribe");
 Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     Route::post('/verifyInviteCode', 'UserController@verifyInviteCode');
 
+     // Temporarily added for email otp verification Testing
+     Route::post('/email/unverify', function (Request $request) {
+        $result = \DB::table('users')->where('email', $request->email)->update(["verified_at" => null]);
+        $message = ($result == 1) ? "success" : "failure";
+        return ["data" => $result, "messages" => $message];
+    })->middleware('api.auth');
+
     /**
      * Unauthenticated routes.
      */
@@ -229,6 +236,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/hashtag/trending', 'HashtagController@trending');
         Route::get('/hashtag/feed', 'HashtagController@feed');
         Route::group(['namespace' => 'V2', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
+            Route::get("collaborate/{id}/chats/groups", 'CollaborateController@getChatGroups')->middleware('permissionCollaborate');
+
             //multiple photos api
             Route::resource("photos", "PhotoController");
 
@@ -289,15 +298,20 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                 Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options/{optionId}", "BatchController@optionIdReports")->middleware('permissionCollaborate');
 
                 // get all any-other options for private PR post api
-                Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports")->middleware('permissionCollaborate');
+                Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
+            });
+
+            Route::group(['namespace' => 'Survey','prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+                // count with filters
+                Route::post('filters-list/{id}', 'SurveyController@getFilters');
             });
         });
-
-
+        
         //Routes to get personalised meta
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
         Route::get("/meta/{modelName}/{id}/{modelId}", "MetaController@getSharedMeta");
         Route::group(['namespace' => 'V1', 'prefix' => 'v1/', 'as' => 'v1.'], function () {
+            Route::post('chats/group', "ChatController@createGroup");
             Route::post("{feature}/{featureId}/message", "ChatController@featureMessage");
             Route::get("chatGroup", 'ChatController@chatGroup');
             Route::post("chatShareMessage", 'ChatController@shareAsMessage');
@@ -445,7 +459,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         //global image upload function
         Route::post("globalImageUpload", "PhotoController@globalImageUpload");
         Route::post("globalFileUpload", "PhotoController@globalFileUpload");
-
         Route::post("{modelName}/globalVideoUpload", "PhotoController@globalVideoUpload");
 
 
@@ -542,7 +555,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         // hometown list for search
         Route::post("collaborate/{id}/hometown", "CollaborateController@getHometownList")->middleware('permissionCollaborate');
         // current city list for search
-        Route::post("collaborate/{id}/currentCity", "CollaborateController@getCurrentCityList")->middleware('permissionCollaborate');
+        Route::post("collaborate/{id}/current_city", "CollaborateController@getCurrentCityList")->middleware('permissionCollaborate');
 
         //product review related api
         Route::get("userBatches", "CollaborateController@userBatches");
@@ -564,6 +577,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post("v1/collaborate/{id}/applicantFilters", "CollaborateController@applicantFilters");
 
         Route::group(['namespace' => 'Collaborate', 'prefix' => 'collaborate/{collaborateId}', 'as' => 'collaborate.'], function () {
+
+            Route::post("batches/{batchId}/startReview", "ReviewController@startReview");
+            
             //Route::group(['middleware' => ['permissionCollaborate']], function () {
             
             Route::get("batches/{batchId}/profile/{profileId}/submission_status", 'BatchController@getReviewTimeline')->middleware('permissionCollaborate');;
@@ -578,7 +594,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post("batches/{batchId}/hometown", "BatchController@getHometownList")->middleware('permissionCollaborate');
 
             // current cities list for search
-            Route::post("batches/{batchId}/currentCity", "BatchController@getCurrentCityList")->middleware('permissionCollaborate');
+            Route::post("batches/{batchId}/current_city", "BatchController@getCurrentCityList")->middleware('permissionCollaborate');
 
             Route::post("batches/{batchId}/startReview", "ReviewController@startReview");
             
@@ -678,8 +694,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             Route::post("headers/{headerId}/review", "ReviewController@reviewAnswers");
             Route::get("headers/{id}", "QuestionController@reviewQuestions");
             Route::get("headers", "QuestionController@headers");
-            Route::post("startReview", "ReviewController@startReview");
 
+            Route::post("startReview", "ReviewController@startReview");
 
             //collaborate comments
             Route::get('reviews/{reviewId}/comments', "ReviewController@comments");
@@ -778,6 +794,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('profile/phoneVerify', 'ProfileController@phoneVerify');
         Route::post('profile/requestOtp', 'ProfileController@requestOtp');
         Route::post('profile/verify/email', 'ProfileController@sendVerifyMail');
+
+        // Phone verification new APIs
+        Route::post('profile/phone/send/otp', 'ProfileController@sendOtp');
+        Route::post('profile/phone/verify/otp', 'ProfileController@verifyOtp');
 
         // Email verification via otp
         Route::post('profile/verification/email', 'ProfileController@sendVerifyEmail');
@@ -1028,6 +1048,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     });
     
     Route::group(['namespace' => 'Survey', 'prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+        Route::get('{id}/chats/groups', 'SurveyController@getChatGroups');
         Route::get('filters-list/{id}', 'SurveyController@getFilters');
         Route::get('/mandatory-fields', 'SurveyController@dynamicMandatoryFields');
         Route::get("/mandatory-fields/{id}", "SurveyController@surveyMandatoryFields");
@@ -1068,12 +1089,16 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/applicants/{profile_id}/submission_status', 'SurveyApplicantController@getSubmissionStatus');
         Route::get('/{id}/applicants/{profile_id}/submission_timeline', 'SurveyApplicantController@getSubmissionTimeline');        
         Route::post('/{id}/copy','SurveyController@copy');
+        // to flag or unflag a specific survey submission
+        Route::post('/{id}/submission/{submission_id}/flag','SurveyApplicantController@flagUnflagReview');
+        // flag logs
+        Route::get('/{id}/applicants/{profile_id}/flag','SurveyApplicantController@flagLogs');
 
         // get hometown list
         Route::post('/{id}/hometown', 'SurveyController@getHometownList');
 
         // get current cities list
-        Route::post('/{id}/currentCity', 'SurveyController@getCurrentCityList');
+        Route::post('/{id}/current_city', 'SurveyController@getCurrentCityList');
     });
     
     Route::group(['namespace' => '','prefix' => 'v1', 'as' => ''], function () {
@@ -1098,7 +1123,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             // survey get rejected applicants report
             Route::post('/{id}/applicants/rejected/export', 'SurveyApplicantController@downloadRejectedApplicants')->middleware('manage.permission');
-
             Route::post('/reports/{id}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");            
             Route::post('/reports/{id}/section/{sectionId}/public', 'SurveyController@publicSectionReports')->name("publicSectionReports");
 
@@ -1107,7 +1131,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             // for testing purpose(code optimisation)
             Route::post('/download-reports/test/{id}', 'SurveyController@newExcelReport');
-
 
             //get long answer
             //get short answer
@@ -1171,7 +1194,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             // PR product based applicant reports
             Route::post("batches/{batchId}", "BatchController@show");
-
         });
     });
 
