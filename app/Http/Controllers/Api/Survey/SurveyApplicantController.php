@@ -612,7 +612,7 @@ class SurveyApplicantController extends Controller
             $survey->profile_id = $profileId;
             $profile = Profile::where("id", $profileId)->first();
 
-            $inputs = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE"), 'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null];
+            $inputs = ['profile_id' => $profileId, 'survey_id' => $id, 'is_invited' => 1, 'created_at' => $now, 'updated_at' => $now, "application_status" => config("constant.SURVEY_APPLICANT_ANSWER_STATUS.INCOMPLETE"), 'age_group' => $profile->ageRange ?? null, 'gender' => $profile->gender ?? null, 'hometown' => $profile->hometown ?? null, 'current_city' => $profile->city ?? null, 'generation' => Helper::getGeneration($profile->dob), 'dob' => isset($profile->dob) ? date("Y-m-d", strtotime($profile->dob)) : null];
             $c = surveyApplicants::create($inputs);
             if (isset($c->id)) {
                 Redis::set("surveys:application_status:$id:profile:$profileId", 1);
