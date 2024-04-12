@@ -5187,6 +5187,7 @@ class SurveyController extends Controller
             $ins = \DB::table('survey_applicants')->insert($inputs);
         } else {
             $update = [];
+            
             if (empty($checkApplicant->address)) {
                 $update['address'] = $applierAddress;
             }
@@ -5200,14 +5201,17 @@ class SurveyController extends Controller
             }
             
             if ($checkApplicant->is_invited) {
-                $hometown = $request->input('hometown');
-                $current_city = $request->input('current_city');
-                if (empty($checkApplicant->hometown)) {
-                    $update['hometown'] = $hometown;
-                }
-                if (empty($checkApplicant->current_city)) {
-                    $update['current_city'] = $current_city;
-                }
+                $update = [
+                    'address' => $applierAddress, 'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
+                ];
+                // $hometown = $request->input('hometown');
+                // $current_city = $request->input('current_city');
+                // if (empty($checkApplicant->hometown)) {
+                //     $update['hometown'] = $hometown;
+                // }
+                // if (empty($checkApplicant->current_city)) {
+                //     $update['current_city'] = $current_city;
+                // }
             }
 
             if (!empty($update)) {
