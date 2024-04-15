@@ -565,7 +565,9 @@ class ChatController extends Controller
             }
         } else if($model->profile_id == $profileId) {
             return true;
-        }else if($type == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+        }
+        
+        if($type == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
             //check for panel partner
             $panelPartner  = \DB::table('collaborate_user_roles')
             ->where('profile_id',$profileId)
