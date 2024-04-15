@@ -649,7 +649,10 @@ trait FilterTraits
     {
         $query = clone $model;
         $table = $query->getModel()->getTable();
-        $query->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
+        $query->selectRaw("CASE 
+            WHEN $field IS NULL THEN 'not_defined'
+            WHEN $field = '' THEN 'not_defined'
+            ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
 
         if($table == 'survey_applicants'){
             $query = $query->whereIn('survey_applicants.profile_id', $profileIds);

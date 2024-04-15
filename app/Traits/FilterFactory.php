@@ -983,7 +983,10 @@ trait FilterFactory
         }
         // $query = clone $model;
         $table = $model->getModel()->getTable();
-        $model = $model->selectRaw("CASE WHEN $field IS NULL THEN 'not_defined' ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
+        $model = $model->selectRaw("CASE 
+            WHEN $field IS NULL THEN 'not_defined'
+            WHEN $field = '' THEN 'not_defined' 
+            ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
         
         if($table == 'collaborate_applicants'){
             $model = isset($id) ? $model->where('collaborate_id', $id)->whereIn('profile_id', $profileIds) : $model->whereIn('profile_id', $profileIds);
