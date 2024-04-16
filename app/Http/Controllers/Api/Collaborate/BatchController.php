@@ -584,13 +584,10 @@ class BatchController extends Controller
 
     public function flagLogs($collaborateId, $batchId, $profileId){
         $model_id = BatchAssign::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('profile_id', $profileId)->first()->id;
-        $modelFlagReasons = ModelFlagReason::where('model', 'BatchAssign')->get();
-        $profiles = Profile::get();
-        $companies = Company::get();
         
         $submission_data = [];
         $submission_data["title"] = "";
-        $flag_logs = $this->flagLog($model_id, 'BatchAssign', $modelFlagReasons, $profiles, $companies);
+        $flag_logs = $this->flagLog($model_id, 'BatchAssign');
         $submission_data["flag_logs"] = $flag_logs;
        
         $this->model = [$submission_data];
