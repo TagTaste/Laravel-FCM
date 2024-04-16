@@ -101,6 +101,21 @@ return  [
 
     ],
 
+    'SEVEN_SCALE_RANGE_VALUES' => [
+        4.50, 5.40, 5.80
+    ],
+
+    'NINE_SCALE_RANGE_VALUES' => [
+        5.80, 6.80, 7.30
+    ],
+
+    'SCALE_RANGE_COLORS' => [
+        "orange" => "#E27616", 
+        "red" => "#C92E41", 
+        "light_green" => "#7E9B42", 
+        "dark_green" => "#305D03"
+    ],
+
     'NOTIFICATION_DELETE_PERIOD' => 60,
     'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2,
     'MINIMUM_PAID_TASTER_TOTAL_REVIEWS' => 3,
