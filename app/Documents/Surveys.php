@@ -4,6 +4,6 @@ class Surveys extends Document
 {
     public $type = 'surveys';
     
-    public $bodyProperties = ['id', 'title', 'description',
+    public $bodyProperties = ['title', 'description',
         'state', 'created_at', 'updated_at'];
 }
