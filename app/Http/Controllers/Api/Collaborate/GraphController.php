@@ -85,7 +85,7 @@ class GraphController extends Controller
 
         $appliedFilters = $request->input('filters');
 
-        $this->model = $this->dashboardFilters($appliedFilters, $collaborateId, $version_num, 'graph_filters');
+        $this->model = $this->getGraphFilters($appliedFilters, $collaborateId, $version_num);
 
         return $this->sendResponse();
 

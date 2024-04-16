@@ -685,17 +685,18 @@ class SurveyApplicantController extends Controller
                 $profileIds = array_values(array_intersect($profileIds->toArray(), $surveyApplicantIds));
             }
 
-            $profileModel = Profile::whereNull('deleted_at');
+            $surveyApplicants = $surveyApplicants->whereIn('survey_applicants.profile_id', $profileIds);
 
-            $ageCounts = $this->getCount($surveyApplicants, 'generation', $profileIds);
+            $profileModel = Profile::select('id', 'is_expert', 'is_sensory_trained', 'is_tasting_expert')->whereNull('deleted_at')->whereIn('id', $profileIds);
+
+            $ageCounts = $this->getCount($surveyApplicants, 'generation');
             $age = $this->getFieldPairedData($age, $ageCounts);
             $age = $this->addEmptyValue($age, $ageCounts);
             $age['key'] = 'age';
             $age['value'] = 'Generation';
             $age['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
-
-            $genderCounts = $this->getCount($surveyApplicants,'gender', $profileIds);
+            $genderCounts = $this->getCount($surveyApplicants,'gender');
             $gender = $this->getFieldPairedData($gender, $genderCounts);
             $gender = $this->addEmptyValue($gender, $genderCounts);
             $gender['key'] = 'gender';
@@ -705,7 +706,7 @@ class SurveyApplicantController extends Controller
             // Hometown
             $homeTown['items'] = [];
             if(isset($filters['hometown'])){
-                $hometownCounts = $this->getCount($surveyApplicants, 'hometown', $profileIds);
+                $hometownCounts = $this->getCount($surveyApplicants, 'hometown');
                 $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
             }
             $homeTown['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
@@ -715,7 +716,7 @@ class SurveyApplicantController extends Controller
             // Current City
             $currentCity['items'] = [];
             if(isset($filters['current_city'])){
-                $currentCityCounts = $this->getCount($surveyApplicants, 'current_city', $profileIds);
+                $currentCityCounts = $this->getCount($surveyApplicants, 'current_city');
                 $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
             }
             $currentCity['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
@@ -723,21 +724,21 @@ class SurveyApplicantController extends Controller
             $currentCity['value'] = 'Current City';
             
             // count of experts
-            $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
+            $userTypeCounts = $this->getCount($profileModel,'is_expert');
             $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
             $userType['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // sensory trained or not
-            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds);
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained');
             $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
             $sensoryTrained['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // supar taster or not
-            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds);
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert');
             $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';

@@ -1364,7 +1364,7 @@ class BatchController extends Controller
         }
 
         $appliedFilters = $request->input('filters');
-        $this->model = $this->dashboardFilters($appliedFilters, $collaborateId, $version_num, 'dashboard_filters');
+        $this->model = $this->dashboardFilters($appliedFilters, $collaborateId, $version_num);
 
         return $this->sendResponse();
     }
@@ -1379,7 +1379,7 @@ class BatchController extends Controller
 
         $version_num = '';
         $appliedFilters = $request->input('filters');
-        $this->model = $this->dashboardFilters($appliedFilters, $collaborateId, $version_num, 'dashboard_product_filters', $batchId);
+        $this->model = $this->dashboardProductFilters($appliedFilters, $collaborateId, $batchId);
 
         return $this->sendResponse();
     }

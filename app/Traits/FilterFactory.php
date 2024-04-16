@@ -84,22 +84,24 @@ trait FilterFactory
                 $filteredProfileIds = $this->getFilteredProfile($filters, $collaborateId);
                 $filteredProfileIds = array_values(array_intersect($collabProfileIds, $filteredProfileIds));
             }
+
+            $collabApplicants = $collabApplicants->whereIn('profile_id', $filteredProfileIds);
             
-            $genderCounts = $this->getCount($collabApplicants, 'gender', $filteredProfileIds);
+            $genderCounts = $this->getCount($collabApplicants, 'gender');
             $gender = $this->getFieldPairedData($gender, $genderCounts);
             $gender = $this->addEmptyValue($gender, $genderCounts);
             $gender['key'] = 'gender';
             $gender['value'] = 'Gender';
             $gender['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
-            $ageCounts = $this->getCount($collabApplicants, 'generation', $filteredProfileIds);
+            $ageCounts = $this->getCount($collabApplicants, 'generation');
             $age = $this->getFieldPairedData($age, $ageCounts);
             $age = $this->addEmptyValue($age, $ageCounts);
             $age['key'] = 'age';
             $age['value'] = 'Generation';
             $age['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
-            $cityCounts = $this->getCount($collabApplicants, 'city', $filteredProfileIds);
+            $cityCounts = $this->getCount($collabApplicants, 'city');
             $city = $this->getFieldPairedData($city, $cityCounts);
             $city = $this->addEmptyValue($city, $cityCounts);
             $city['key'] = 'city';
@@ -109,7 +111,7 @@ trait FilterFactory
             // Hometown
             $homeTown['items'] = [];
             if(isset($filters['hometown'])){
-                $hometownCounts = $this->getCount($collabApplicants, 'hometown', $filteredProfileIds);
+                $hometownCounts = $this->getCount($collabApplicants, 'hometown');
                 $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
             }
             $homeTown['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
@@ -119,31 +121,31 @@ trait FilterFactory
             // Current City
             $currentCity['items'] = [];
             if(isset($filters['current_city'])){
-                $currentCityCounts = $this->getCount($collabApplicants, 'current_city', $filteredProfileIds);
+                $currentCityCounts = $this->getCount($collabApplicants, 'current_city');
                 $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
             }
             $currentCity['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $currentCity['key'] = 'current_city';
             $currentCity['value'] = 'Current City';
 
-            $profileModel = Profile::whereNull('deleted_at');
+            $profileModel = Profile::select('id','is_expert', 'is_sensory_trained', 'is_tasting_expert','deleted_at')->whereNull('deleted_at')->whereIn('id', $filteredProfileIds);
 
             //count of experts
-            $userTypeCounts = $this->getCount($profileModel,'is_expert', $filteredProfileIds);
+            $userTypeCounts = $this->getCount($profileModel,'is_expert');
             $userType = $this->getProfileFieldPairedData('Expert', 'Consumer', $userTypeCounts);
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
             $userType['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             //sensory trained or not
-            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds);
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained');
             $sensoryTrained =  $this->getProfileFieldPairedData('Yes', 'No', $sensoryTrainedCounts);
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
             $sensoryTrained['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             //super taster or not
-            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds);
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert');
             $superTaster = $this->getProfileFieldPairedData('SuperTaster', 'Normal', $superTasterCounts);
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';
@@ -223,157 +225,40 @@ trait FilterFactory
 
         //$profile = array_filter($profile);
         $data = [];
-        // if (count($filters)) {
-        //     foreach ($filters as $filter) {
-        //         if ($filter == 'gender')
-        //             $data['gender'] = $gender;
-        //         if ($filter == 'age')
-        //             $data['age'] = $age;
-        //         if ($filter == 'city')
-        //             $data['city'] = $city;
-        //         if ($filter == 'current_status')
-        //             $data['current_status'] = $currentStatus;
-        //         if ($filter == 'profile')
-        //             $data['profile'] = $profile;
-        //         if ($filter == 'hometown')
-        //             $data['hometown'] = $hometown;
-        //         if ($filter == 'current_city')
-        //             $data['current_city'] = $current_city;
-        //         if ($filter == 'super_taster')
-        //             $data['super_taster'] = $superTaster;
-        //         if ($filter == 'user_type')
-        //             $data['user_type'] = $userType;
-        //         if ($filter == 'sensory_trained')
-        //             $data['sensory_trained'] = $sensoryTrained;
-        //     }
-        // } else {
-
-            // product applicants filters
-            if($request->is('*/v1/*') && isset($batchId)){
-                if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED")) || !isset($current_status)){
-                    $data = [$gender, $age, $city, $homeTown, $currentCity, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster, $date];  
-                } else {
-                    $data = [$gender, $age, $city, $homeTown, $currentCity, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster];  
-                }
-            } else if($request->is('*/v1/*')){  // remove current status in new applicants filters
-                $data = [$gender, $age, $city, $homeTown, $currentCity, $profile, $sensoryTrained, $userType, $superTaster, $date];
+    
+        // product applicants filters
+        if($request->is('*/v1/*') && isset($batchId)){
+            if(isset($current_status) && ($current_status == config("constant.COLLABORATE_CURRENT_STATUS.COMPLETED")) || !isset($current_status)){
+                $data = [$gender, $age, $city, $homeTown, $currentCity, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster, $date];  
             } else {
-                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
+                $data = [$gender, $age, $city, $homeTown, $currentCity, $currentStatus, $profile, $sensoryTrained,$userType, $allergens, $superTaster];  
             }
-        // }
+        } else if($request->is('*/v1/*')){  // remove current status in new applicants filters
+            $data = [$gender, $age, $city, $homeTown, $currentCity, $profile, $sensoryTrained, $userType, $superTaster, $date];
+        } else {
+            $data = ['gender' => $gender, 'age' => $age, 'city' => $city, 'current_status' => $currentStatus, 'profile' => $profile, 'hometown' => $hometown, 'current_city' => $current_city, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster];
+        }
+
         return $data;
     }
 
-    public function dashboardFilters($filters, $collaborateId, $version_num, $filterType, $batchId = null)
+    public function dashboardFilters($filters, $collaborateId, $version_num)
     {
-        $gender = ['Male', 'Female', 'Other'];
-        $age = ["Gen S", "Gen X", "Millennials", "Gen Z", "Gen A"];
-        $userType = ['Expert', 'Consumer'];
-        $sensoryTrained = ["Yes", "No"];
-        $superTaster = ["SuperTaster", "Normal"];
-        $applicants = Applicant::query()->join('collaborate_tasting_user_review as c1', 'collaborate_applicants.collaborate_id', '=', 'c1.collaborate_id')
-            ->join('collaborate_tasting_user_review as c2', 'collaborate_applicants.profile_id', '=', 'c2.profile_id')
-            ->select('collaborate_applicants.*')
-            ->where('collaborate_applicants.collaborate_id', $collaborateId)
-            ->where('c1.current_status', 3)
-            ->distinct()->get();
-        $city = $applicants->pluck('city')->toArray();
-        $city = array_unique(array_filter($city));
-        $city = array_values($city);
+        $common_filters = $this->getCommonFilters($collaborateId);
+        $que_filter_data = $this->getQuestionFilter($collaborateId);
+        $question_filter = [['value' => $que_filter_data['que_val'], 'count' => $que_filter_data['que_count']]];
 
-        // profile specializations
-        $profile = \DB::table('profiles')
-        ->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')
-        ->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')->whereIn('profiles.id', $applicants->pluck('profile_id'))->groupBy('name')->pluck('name')->toArray();
-        $profile = array_values(array_filter($profile));
-        
-        $data = [];
-
-        if (isset($version_num) && !empty($version_num) && ($filterType == 'dashboard_filters') || ($filterType == 'dashboard_product_filters'))
-        {
-            $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
-            $questions_count = 0;
-            if(!is_null($savedFilter))
-            {   
-                $headers = json_decode($savedFilter->value, true);
-                foreach($headers as $header)
-                {
-                    $questions_count += count($header['questions']);
-                }
-            }
-
-            switch ($questions_count) {
-                case 0:
-                    $que_val = '+ Add Questions';
-                    break;
-                case 1:
-                    $que_val = 'Question';
-                    break;
-                default:
-                    $que_val = 'Questions';
-                    break;
-            }
-            $question_filter = [['value' => $que_val, 'count' => $questions_count]];
-        }
-
-        if (isset($version_num) && (($version_num == 'v2' && $filterType == 'dashboard_filters') || ($version_num == 'v1' && $filterType == 'graph_filters') || $filterType == 'dashboard_product_filters'))
-        {
-            if($filterType == 'dashboard_product_filters')
-            {
-                $profileIds = Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->distinct()->pluck('profile_id')->toArray();
-
-                if(isset($filters) && !empty($filters)){
-                    $filteredData = $this->getFilterProfileIds($filters, $collaborateId, $batchId);
-                    $filteredProfileIds = $filteredData['profile_id']->toArray();
-
-                    if($filteredData['type'] == true)
-                    {
-                        $profileIds = array_values(array_diff($profileIds, $filteredProfileIds));
-                    } else {
-                        $profileIds = array_values(array_intersect($profileIds, $filteredProfileIds));
-                    }
-                }
-
-                $collabApplicants = new Applicant();
-                $profileModel = Profile::whereNull('deleted_at');
-
-                // get counts of fields
-                $genderCounts = $this->getCount($collabApplicants, 'gender', $profileIds, $collaborateId);
-                $ageCounts = $this->getCount($collabApplicants, 'generation', $profileIds, $collaborateId);
-                $cityCounts = $this->getCount($collabApplicants, 'city', $profileIds, $collaborateId);
-                $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
-                $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds, 'true');
-                $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds, 'true');
-
-                // get values of fields
-                $genderData = $this->getFieldPairedData($gender, $genderCounts);
-                $genderData = $this->addEmptyValue($genderData, $genderCounts);
-                $ageData = $this->getFieldPairedData($age, $ageCounts);
-                $ageData = $this->addEmptyValue($ageData, $ageCounts);
-                $cityData = $this->getFieldPairedData($city, $cityCounts);
-                $cityData = $this->addEmptyValue($cityData, $cityCounts);
-                $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer', $userTypeCounts);
-                $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No', $sensoryTrainedCounts);
-                $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal', $superTasterCounts);
-
-                // Date filter
-                $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
-                
-                $date['type'] = config("constant.FILTER_TYPE.DATE");;
-                $date['key'] = 'review_date';
-                $date['value'] = 'Review Date Filter';
-            } else {
-                // get values of fields
-                $genderData = $this->getFieldPairedData($gender);
-                $genderData = $this->addEmptyValue($genderData);
-                $ageData = $this->getFieldPairedData($age);
-                $ageData = $this->addEmptyValue($ageData);
-                $cityData = $this->getFieldPairedData($city);
-                $cityData = $this->addEmptyValue($cityData);
-                $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer');
-                $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No');
-                $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal');
-            }
+        if(isset($version_num) && ($version_num == 'v2')) {
+            // get values of fields
+            $genderData = $this->getFieldPairedData($common_filters['gender']);
+            $genderData = $this->addEmptyValue($genderData);
+            $ageData = $this->getFieldPairedData($common_filters['age']);
+            $ageData = $this->addEmptyValue($ageData);
+            $cityData = $this->getFieldPairedData($common_filters['city']);
+            $cityData = $this->addEmptyValue($cityData);
+            $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer');
+            $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No');
+            $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal');
 
             $genderData['key'] = 'gender';
             $genderData['value'] = 'Gender';  
@@ -387,11 +272,9 @@ trait FilterFactory
             $cityData['value'] = 'Tasting City';
             $cityData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
-
             $userTypeData['key'] = 'user_type';
             $userTypeData['value'] = 'User Type';
             $userTypeData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
-
 
             $sensoryTrainedData['key'] = 'sensory_trained';
             $sensoryTrainedData['value'] = 'Sensory Trained';
@@ -404,8 +287,7 @@ trait FilterFactory
             // Hometown
             $homeTown['items'] = [];
             if(isset($filters['hometown'])){
-                $hometownCounts = $this->getCount($collabApplicants, 'hometown', $profileIds, $collaborateId);
-                $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
+                $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'));
             }
             $homeTown['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $homeTown['key'] = 'hometown';
@@ -414,51 +296,246 @@ trait FilterFactory
             // Current City
             $currentCity['items'] = [];
             if(isset($filters['current_city'])){
-                $currentCityCounts = $this->getCount($collabApplicants, 'current_city', $profileIds, $collaborateId);
-                $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
+                $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'));
             }
             $currentCity['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
             $currentCity['key'] = 'current_city';
             $currentCity['value'] = 'Current City';
 
-            if($filterType == 'dashboard_filters' || $filterType == 'dashboard_product_filters'){
-                $question_filter_data = [];
-                $question_filter_data['type'] = config("constant.FILTER_TYPE.QUESTION_FILTER");
-                $question_filter_data['key'] = 'question_filter';
-                $question_filter_data['value'] = 'Question Filter';  
-                $question_filter_data['items'] = [['key' => 'question','value' => $que_val, 'count' => $questions_count]];
-            }  
-            else if($filterType == 'graph_filters'){
-                $profile = $this->getFieldPairedData($profile);
-                $profile['key'] = 'profile';
-                $profile['value'] = 'Profile';
-                $profile['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
-            }
+            $question_filter_data = [];
+            $question_filter_data['type'] = config("constant.FILTER_TYPE.QUESTION_FILTER");
+            $question_filter_data['key'] = 'question_filter';
+            $question_filter_data['value'] = 'Question Filter';  
+            $question_filter_data['items'] = [['key' => 'question','value' => $que_filter_data['que_val'], 'count' => $que_filter_data['que_count']]];
         }
         
-        if ($filterType == 'dashboard_filters') {
-            if(isset($version_num) && $version_num == 'v1'){
-                $data = ['question_filter' =>  $question_filter, 'gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
-            } else if(isset($version_num) && $version_num == 'v2') {
-                $data = [$question_filter_data, $genderData, $ageData, $cityData, $homeTown, $currentCity, $userTypeData, $sensoryTrainedData, $superTasterData];
-            } else {
-                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
-            }
-        } 
+        if(isset($version_num) && $version_num == 'v1'){
+            $common_filters = array('question_filter' => $question_filter) + $common_filters;
+            return $common_filters;
+        } else if(isset($version_num) && $version_num == 'v2') {
+            return [$question_filter_data, $genderData, $ageData, $cityData, $homeTown, $currentCity, $userTypeData, $sensoryTrainedData, $superTasterData];
+        } else {
+            return $common_filters;
+        }
         
-        if($filterType == 'graph_filters'){
-            if(isset($version_num) && $version_num == 'v1'){
-                $data = [$genderData, $ageData, $cityData, $profile, $userTypeData, $sensoryTrainedData, $superTasterData];
+    }
+
+    public function dashboardProductFilters($filters, $collaborateId, $batchId){
+        $common_filters = $this->getCommonFilters($collaborateId);
+        $que_filter_data = $this->getQuestionFilter($collaborateId);
+
+        $profileIds = Review::where('collaborate_id', $collaborateId)->where('batch_id', $batchId)->where('current_status', 3)->distinct()->pluck('profile_id')->toArray();
+
+        if(isset($filters) && !empty($filters)){
+            $filteredData = $this->getFilterProfileIds($filters, $collaborateId, $batchId);
+            $filteredProfileIds = $filteredData['profile_id']->toArray();
+
+            if($filteredData['type'] == true)
+            {
+                $profileIds = array_values(array_diff($profileIds, $filteredProfileIds));
             } else {
-                $data = ['gender' => $gender, 'age' => $age, 'city' => $city, "user_type" => $userType, 'profile' => $profile, "sensory_trained" => $sensoryTrained, "super_taster" => $superTaster];
+                $profileIds = array_values(array_intersect($profileIds, $filteredProfileIds));
             }
         }
 
-        if ($filterType == 'dashboard_product_filters') {
-            $data = [$question_filter_data, $genderData, $ageData, $cityData, $homeTown, $currentCity, $userTypeData, $sensoryTrainedData, $superTasterData, $date];
+        $collabApplicants = Applicant::select('collaborate_id', 'profile_id','gender', 'generation', 'city', 'hometown', 'current_city')->where('collaborate_id', $collaborateId)->whereIn('profile_id', $profileIds);
+        $profileModel = Profile::select('id','is_expert', 'is_sensory_trained', 'is_tasting_expert','deleted_at')->whereNull('deleted_at')->whereIn('id', $profileIds);
+
+        // get counts of fields
+        $genderCounts = $this->getCount($collabApplicants, 'gender');
+        $ageCounts = $this->getCount($collabApplicants, 'generation');
+        $cityCounts = $this->getCount($collabApplicants, 'city');
+        $userTypeCounts = $this->getCount($profileModel,'is_expert');
+        $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained');
+        $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert');
+
+        // get values of fields
+        $genderData = $this->getFieldPairedData($common_filters['gender'], $genderCounts);
+        $genderData = $this->addEmptyValue($genderData, $genderCounts);
+        $ageData = $this->getFieldPairedData($common_filters['age'], $ageCounts);
+        $ageData = $this->addEmptyValue($ageData, $ageCounts);
+        $cityData = $this->getFieldPairedData($common_filters['city'], $cityCounts);
+        $cityData = $this->addEmptyValue($cityData, $cityCounts);
+        $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer', $userTypeCounts);
+        $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No', $sensoryTrainedCounts);
+        $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal', $superTasterCounts);
+
+        // Date filter
+        $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
+        $date['type'] = config("constant.FILTER_TYPE.DATE");;
+        $date['key'] = 'review_date';
+        $date['value'] = 'Review Date Filter';
+
+        $genderData['key'] = 'gender';
+        $genderData['value'] = 'Gender';  
+        $genderData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+        $ageData['key'] = 'age';
+        $ageData['value'] = 'Generation';
+        $ageData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+        $cityData['key'] = 'city';
+        $cityData['value'] = 'Tasting City';
+        $cityData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+        $userTypeData['key'] = 'user_type';
+        $userTypeData['value'] = 'User Type';
+        $userTypeData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+        $sensoryTrainedData['key'] = 'sensory_trained';
+        $sensoryTrainedData['value'] = 'Sensory Trained';
+        $sensoryTrainedData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+        $superTasterData['key'] = 'super_taster';
+        $superTasterData['value'] = 'Super Taster';
+        $superTasterData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+        // Hometown
+        $homeTown['items'] = [];
+        if(isset($filters['hometown'])){
+            $hometownCounts = $this->getCount($collabApplicants, 'hometown');
+            $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
+        }
+        $homeTown['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
+        $homeTown['key'] = 'hometown';
+        $homeTown['value'] = 'Hometown';
+
+        // Current City
+        $currentCity['items'] = [];
+        if(isset($filters['current_city'])){
+            $currentCityCounts = $this->getCount($collabApplicants, 'current_city');
+            $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
+        }
+        $currentCity['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
+        $currentCity['key'] = 'current_city';
+        $currentCity['value'] = 'Current City';
+
+        $question_filter_data = [];
+        $question_filter_data['type'] = config("constant.FILTER_TYPE.QUESTION_FILTER");
+        $question_filter_data['key'] = 'question_filter';
+        $question_filter_data['value'] = 'Question Filter';  
+        $question_filter_data['items'] = [['key' => 'question','value' => $que_filter_data['que_val'], 'count' => $que_filter_data['que_count']]];
+
+        return [$question_filter_data, $genderData, $ageData, $cityData, $homeTown, $currentCity, $userTypeData, $sensoryTrainedData, $superTasterData, $date];
+       
+    }
+
+    public function getGraphFilters($filters, $collaborateId, $version_num){
+        $common_filters = $this->getCommonFilters($collaborateId, 'graph');
+
+        if (isset($version_num) && $version_num == 'v1'){
+            // get values of fields
+            $genderData = $this->getFieldPairedData($common_filters['gender']);
+            $genderData = $this->addEmptyValue($genderData);
+            $ageData = $this->getFieldPairedData($common_filters['age']);
+            $ageData = $this->addEmptyValue($ageData);
+            $cityData = $this->getFieldPairedData($common_filters['city']);
+            $cityData = $this->addEmptyValue($cityData);
+            $userTypeData = $this->getProfileFieldPairedData('Expert', 'Consumer');
+            $sensoryTrainedData =  $this->getProfileFieldPairedData('Yes', 'No');
+            $superTasterData = $this->getProfileFieldPairedData('SuperTaster', 'Normal');
+
+            $genderData['key'] = 'gender';
+            $genderData['value'] = 'Gender';  
+            $genderData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+            $ageData['key'] = 'age';
+            $ageData['value'] = 'Generation';
+            $ageData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+            $cityData['key'] = 'city';
+            $cityData['value'] = 'Tasting City';
+            $cityData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+            $userTypeData['key'] = 'user_type';
+            $userTypeData['value'] = 'User Type';
+            $userTypeData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+            $sensoryTrainedData['key'] = 'sensory_trained';
+            $sensoryTrainedData['value'] = 'Sensory Trained';
+            $sensoryTrainedData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+            $superTasterData['key'] = 'super_taster';
+            $superTasterData['value'] = 'Super Taster';
+            $superTasterData['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+            $profile = $this->getFieldPairedData($common_filters['profile']);
+            $profile['key'] = 'profile';
+            $profile['value'] = 'Profile';
+            $profile['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+        }
+
+        if(isset($version_num) && $version_num == 'v1'){
+            return [$genderData, $ageData, $cityData, $profile, $userTypeData, $sensoryTrainedData, $superTasterData];
+        } else {
+            return $common_filters;
         }
         
-        return $data;
+    }
+
+    public function getCommonFilters($collaborateId, $type = ''){
+        $applicants = Applicant::query()->join('collaborate_tasting_user_review as c1', 'collaborate_applicants.collaborate_id', '=', 'c1.collaborate_id')
+            ->join('collaborate_tasting_user_review as c2', 'collaborate_applicants.profile_id', '=', 'c2.profile_id')
+            ->select('collaborate_applicants.*')
+            ->where('collaborate_applicants.collaborate_id', $collaborateId)
+            ->where('c1.current_status', 3)
+            ->distinct()->get();
+        $city = array_unique($applicants->pluck('city')->toArray());
+        $city = array_values($city);
+
+        if(isset($type) && $type == 'graph'){
+            // profile specializations
+            $profile = \DB::table('profiles')->leftJoin('profile_specializations', 'profiles.id', '=', 'profile_specializations.profile_id')->leftJoin('specializations', 'specializations.id', '=', 'profile_specializations.specialization_id')->whereIn('profiles.id', $applicants->pluck('profile_id'))->groupBy('name')->pluck('name')->toArray();
+            $profile = array_values(array_filter($profile));
+
+            $filter_data = [
+                'gender' => ['Male', 'Female', 'Other'], 
+                'age' => ["Gen S", "Gen X", "Millennials", "Gen Z", "Gen A"], 
+                'city' => $city, 
+                'profile' => $profile,
+                "user_type" => ['Expert', 'Consumer'], 
+                "sensory_trained" => ["Yes", "No"], 
+                "super_taster" =>["SuperTaster", "Normal"]
+            ];
+        } else {
+            $filter_data = [
+                'gender' => ['Male', 'Female', 'Other'], 
+                'age' => ["Gen S", "Gen X", "Millennials", "Gen Z", "Gen A"], 
+                'city' => $city, 
+                "user_type" => ['Expert', 'Consumer'], 
+                "sensory_trained" => ["Yes", "No"], 
+                "super_taster" =>["SuperTaster", "Normal"]
+            ];
+        }
+
+        return $filter_data;
+    }
+
+    public function getQuestionFilter($collaborateId){
+        $savedFilter = \DB::table('collaborate_question_filters')->where('collaborate_id', $collaborateId)->whereNull('deleted_at')->first();
+        $questions_count = 0;
+        if(!is_null($savedFilter))
+        {   
+            $headers = json_decode($savedFilter->value, true);
+            foreach($headers as $header)
+            {
+                $questions_count += count($header['questions']);
+            }
+        }
+
+        switch ($questions_count) {
+            case 0:
+                $que_val = '+ Add Questions';
+                break;
+            case 1:
+                $que_val = 'Question';
+                break;
+            default:
+                $que_val = 'Questions';
+                break;
+        }
+
+        return ['que_val' => $que_val, 'que_count' => $questions_count];
     }
 
     public function getFilteredProfile($filters, $collaborateId, $batchId = null)
@@ -976,23 +1053,24 @@ trait FilterFactory
             ->get();
     }
 
-    public function getCount($model, $field, $profileIds, $id = null)
+    public function getCount($model, $field)
     {
-        if(!isset($id)){
+        // if(!isset($id)){
             $model = clone $model;
-        }
+        // }
         // $query = clone $model;
-        $table = $model->getModel()->getTable();
+        // $table = $model->getModel()->getTable();
         $model = $model->selectRaw("CASE 
             WHEN $field IS NULL THEN 'not_defined'
             WHEN $field = '' THEN 'not_defined' 
             ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
         
-        if($table == 'collaborate_applicants'){
-            $model = isset($id) ? $model->where('collaborate_id', $id)->whereIn('profile_id', $profileIds) : $model->whereIn('profile_id', $profileIds);
-        } else {
-            $model = $model->whereIn('id', $profileIds);
-        }
+        // if($table == 'collaborate_applicants'){
+        //     $model = isset($id) ? $model->where('collaborate_id', $id)->whereIn('profile_id', $profileIds) : $model->whereIn('profile_id', $profileIds);
+        // } 
+        // else {
+        //     $model = $model->whereIn('id', $profileIds);
+        // }
 
         return $model->groupBy($field)->pluck('count', $field);
     }
@@ -1023,7 +1101,7 @@ trait FilterFactory
         $inner_arr['key'] = "not_defined";
         $inner_arr['value'] = "Didn't mention";
         if(isset($fieldCounts) && !empty($fieldCounts)){
-            $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : (isset($fieldCounts[""]) ? $fieldCounts[""] : 0);
+            $inner_arr['count'] = isset($fieldCounts["not_defined"]) ? $fieldCounts["not_defined"] : 0;
         }
         array_push($field['items'], $inner_arr);
         return $field;
@@ -1060,7 +1138,7 @@ trait FilterFactory
             $filteredProfileIds = $this->getFilteredProfile($filters, $collaborateId);
         }
 
-        $collabApplicants = Applicant::where('collaborate_id', $collaborateId);
+        $collabApplicants = Applicant::where('collaborate_id', $collaborateId)->whereIn('profile_id', $filteredProfileIds);
         if(isset($current_state) && $current_state == config("constant.COLLABORATE_APPLICANT_STATE.ACTIVE")){
             $collabApplicants = $collabApplicants->whereNotNull('shortlisted_at')->whereNull('rejected_at');
         } else if(isset($current_state) && $current_state == config("constant.COLLABORATE_APPLICANT_STATE.REJECTED")){
@@ -1071,7 +1149,7 @@ trait FilterFactory
             $collabApplicants = $collabApplicants->where($field, 'LIKE', '%'.$search_val.'%');
         }
 
-        return $this->getFieldListData($page, $collabApplicants, $filteredProfileIds, $field);
+        return $this->getFieldListData($page, $collabApplicants, $field);
     }
 
     public function getProductWiseFieldList($field, $current_status, $filters, $collaborateId, $batchId, $search_val, $page){
@@ -1096,15 +1174,16 @@ trait FilterFactory
             $statusFilteredIds = $currentStatus->where('current_status', $current_status)->pluck('profile_id')->unique()->toArray();
             $filteredProfileIds = array_values(array_intersect($filteredProfileIds, $statusFilteredIds));
         }
+        $collabApplicants = $collabApplicants->whereIn('profile_id', $filteredProfileIds);
 
-        return $this->getFieldListData($page, $collabApplicants, $filteredProfileIds, $field);
+        return $this->getFieldListData($page, $collabApplicants, $field);
     }
    
-    public function getFieldListData($page, $fieldApplicants, $filteredProfileIds, $field){
+    public function getFieldListData($page, $fieldApplicants, $field){
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $fieldApplicants = $fieldApplicants->skip($skip)->take($take);
 
-        $fieldWithCounts = $this->getCount($fieldApplicants, $field, $filteredProfileIds);
+        $fieldWithCounts = $this->getCount($fieldApplicants, $field);
         $field = [];
         if($fieldWithCounts->isNotEmpty()){
             foreach($fieldWithCounts as $key => $val)

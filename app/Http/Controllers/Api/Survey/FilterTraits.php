@@ -38,7 +38,7 @@ trait FilterTraits
                 foreach ($filters['age'] as $age) {
                     $age = (is_string($age) && !isset($age['key'])) ? $age : $age['key'];
                     // if (isset($version_num) && ($version_num == 'v1' || $version_num == 'v2')){
-                        ($age['key'] == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age);
+                        ($age == "not_defined") ? $query->orWhereNull('survey_applicants.generation')->orWhere('survey_applicants.generation','') : $query->orWhere('survey_applicants.generation', 'LIKE', $age);
                     // }else{
                     //     $age = htmlspecialchars_decode($age);
                     //     $query->orWhere('survey_applicants.generation', 'LIKE', $age);
@@ -509,9 +509,10 @@ trait FilterTraits
             $filters = $request->input('filters');
             $filteredProfileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $surveyAttemptedProfileIds;
             
+            $surveyApplicants = $surveyApplicants->whereIn('survey_applicants.profile_id', $filteredProfileIds);
             // gender data
             $genderData = [];
-            $genderCounts = $this->getCount($surveyApplicants,'gender', $filteredProfileIds);
+            $genderCounts = $this->getCount($surveyApplicants,'gender');
             $genderData['items'] = $this->addCountToField($gender, $genderCounts);
             $genderData = $this->addEmptyValue($genderData, $genderCounts);
             $genderData['key'] = 'gender';
@@ -521,7 +522,7 @@ trait FilterTraits
 
             // age data
             $ageData = [];
-            $ageCounts = $this->getCount($surveyApplicants, 'generation', $filteredProfileIds);
+            $ageCounts = $this->getCount($surveyApplicants, 'generation');
             $ageData['items'] = $this->addCountToField($age, $ageCounts);
             $ageData = $this->addEmptyValue($ageData, $ageCounts);
             $ageData['key'] = 'age';
@@ -531,7 +532,7 @@ trait FilterTraits
             // Hometown
             $homeTown['items'] = [];
             if(isset($filters['hometown'])){
-                $hometownCounts = $this->getCount($surveyApplicants, 'hometown', $filteredProfileIds);
+                $hometownCounts = $this->getCount($surveyApplicants, 'hometown');
                 $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
             }
             $homeTown['type'] =  config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
@@ -541,31 +542,31 @@ trait FilterTraits
             // Current City
             $currentCity['items'] = [];
             if(isset($filters['current_city'])){
-                $currentCityCounts = $this->getCount($surveyApplicants, 'current_city', $filteredProfileIds);
+                $currentCityCounts = $this->getCount($surveyApplicants, 'current_city');
                 $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
             }
             $currentCity['key'] = 'current_city';
             $currentCity['value'] = 'Current City';
             $currentCity['type'] =  config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
 
-            $profileModel = Profile::whereNull('deleted_at');
+            $profileModel = Profile::select('id', 'is_expert', 'is_sensory_trained', 'is_tasting_expert')->whereNull('deleted_at')->whereIn('id', $filteredProfileIds);
             
             // count of experts
-            $userTypeCounts = $this->getCount($profileModel,'is_expert', $filteredProfileIds);
+            $userTypeCounts = $this->getCount($profileModel,'is_expert');
             $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
             $userType['type'] =  config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // sensory trained or not
-            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $filteredProfileIds);
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained');
             $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
             $sensoryTrained['type'] =  config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // supar taster or not
-            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $filteredProfileIds);
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert');
             $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';
@@ -645,20 +646,20 @@ trait FilterTraits
         return $this->sendResponse();
     }
 
-    public function getCount($model, $field, $profileIds)
+    public function getCount($model, $field)
     {
         $query = clone $model;
-        $table = $query->getModel()->getTable();
+        // $table = $query->getModel()->getTable();
         $query->selectRaw("CASE 
             WHEN $field IS NULL THEN 'not_defined'
             WHEN $field = '' THEN 'not_defined'
             ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
 
-        if($table == 'survey_applicants'){
-            $query = $query->whereIn('survey_applicants.profile_id', $profileIds);
-        } else {
-            $query->whereIn('id', $profileIds);
-        }
+        // if($table == 'survey_applicants'){
+        //     $query = $query->whereIn('survey_applicants.profile_id', $profileIds);
+        // } else {
+        //     $query->whereIn('id', $profileIds);
+        // }
         
         return $query->groupBy($field)->pluck('count', $field);
     }
@@ -723,15 +724,16 @@ trait FilterTraits
         if (isset($search_val) && $search_val != null) {
             $surveyApplicants = $surveyApplicants->where($field, 'LIKE', '%'.$search_val.'%');
         }
+        $surveyApplicants = $surveyApplicants->whereIn('survey_applicants.profile_id', $filteredProfileIds);
 
-        return $this->getFieldListData($page, $surveyApplicants, $filteredProfileIds, $field);
+        return $this->getFieldListData($page, $surveyApplicants, $field);
     }
 
-    public function getFieldListData($page, $fieldApplicants, $filteredProfileIds, $field){
+    public function getFieldListData($page, $fieldApplicants, $field){
         list($skip, $take) = \App\Strategies\Paginator::paginate($page);
         $fieldApplicants = $fieldApplicants->skip($skip)->take($take);
 
-        $fieldWithCounts = $this->getCount($fieldApplicants, $field, $filteredProfileIds);
+        $fieldWithCounts = $this->getCount($fieldApplicants, $field);
         $field = [];
         if($fieldWithCounts->isNotEmpty()){
             foreach($fieldWithCounts as $key => $val)
