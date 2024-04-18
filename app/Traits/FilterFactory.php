@@ -474,14 +474,17 @@ trait FilterFactory
     }
 
     public function getCommonFilters($collaborateId, $type = ''){
-        $applicants = Applicant::query()->join('collaborate_tasting_user_review as c1', 'collaborate_applicants.collaborate_id', '=', 'c1.collaborate_id')
-            ->join('collaborate_tasting_user_review as c2', 'collaborate_applicants.profile_id', '=', 'c2.profile_id')
-            ->select('collaborate_applicants.*')
-            ->where('collaborate_applicants.collaborate_id', $collaborateId)
-            ->where('c1.current_status', 3)
+        $applicants = \DB::table('collaborate_applicants as c')
+            ->select('c.collaborate_id', 'c.profile_id', 'c.city')
+            ->where('c.collaborate_id', $collaborateId)
+            ->join('collaborate_tasting_user_review as c1', function($join) {
+                $join->on('c.collaborate_id', '=', 'c1.collaborate_id')->where('c1.current_status', 3);
+            })
+            ->join('collaborate_tasting_user_review as c2', 'c.profile_id', '=', 'c2.profile_id')
             ->distinct()->get();
+        
         $city = array_unique($applicants->pluck('city')->toArray());
-        $city = array_values($city);
+        $city = array_values(array_filter($city));
 
         if(isset($type) && $type == 'graph'){
             // profile specializations
