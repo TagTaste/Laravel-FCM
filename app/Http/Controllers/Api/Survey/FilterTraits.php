@@ -652,8 +652,13 @@ trait FilterTraits
         // $table = $query->getModel()->getTable();
         $query->selectRaw("CASE 
             WHEN $field IS NULL THEN 'not_defined'
-            WHEN $field = '' THEN 'not_defined'
-            ELSE $field END AS $field")->selectRaw('COUNT(*) as count');
+            WHEN $field = '' AND $field != '0' THEN 'not_defined'
+            ELSE $field END AS $field")->selectRaw('COUNT(*) as count')
+            ->groupBy(\DB::raw("CASE 
+                WHEN $field IS NULL THEN 'not_defined'
+                WHEN $field = '' AND $field != '0' THEN 'not_defined'
+                ELSE $field END"))
+            ->orderBy($field);
 
         // if($table == 'survey_applicants'){
         //     $query = $query->whereIn('survey_applicants.profile_id', $profileIds);
@@ -661,7 +666,7 @@ trait FilterTraits
         //     $query->whereIn('id', $profileIds);
         // }
         
-        return $query->groupBy($field)->pluck('count', $field);
+        return $query->pluck('count', $field);
     }
 
     public function addCountToField($field, $fieldCounts)
