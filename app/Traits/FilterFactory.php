@@ -1070,8 +1070,7 @@ trait FilterFactory
             ->groupBy(\DB::raw("CASE 
                 WHEN $field IS NULL THEN 'not_defined'
                 WHEN $field = '' AND $field != '0' THEN 'not_defined'
-                ELSE $field END"))
-            ->orderBy($field);
+                ELSE $field END"));
         
         // if($table == 'collaborate_applicants'){
         //     $model = isset($id) ? $model->where('collaborate_id', $id)->whereIn('profile_id', $profileIds) : $model->whereIn('profile_id', $profileIds);

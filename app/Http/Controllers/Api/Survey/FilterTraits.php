@@ -657,8 +657,7 @@ trait FilterTraits
             ->groupBy(\DB::raw("CASE 
                 WHEN $field IS NULL THEN 'not_defined'
                 WHEN $field = '' AND $field != '0' THEN 'not_defined'
-                ELSE $field END"))
-            ->orderBy($field);
+                ELSE $field END"));
 
         // if($table == 'survey_applicants'){
         //     $query = $query->whereIn('survey_applicants.profile_id', $profileIds);
