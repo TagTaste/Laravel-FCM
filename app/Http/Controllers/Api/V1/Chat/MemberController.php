@@ -75,7 +75,7 @@ class MemberController extends Controller
 
         // check applicants of specific collaborate or survey
         if($request->type == 'applicant'){
-            $applicantCheck = $this->checkApplicants($chatId, $profileId);
+            $applicantCheck = $this->checkApplicants($chatId, $profileId, $loggedInProfileId);
             if($applicantCheck[0]){
                 return $this->sendError($applicantCheck[1]);
             }
