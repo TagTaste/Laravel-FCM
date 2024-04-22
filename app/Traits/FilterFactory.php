@@ -1126,7 +1126,6 @@ trait FilterFactory
     }
 
     public function getFieldList($field, $current_state, $filters, $collaborateId, $search_val, $page){
-        
         // get field data for all batches completed reviews
         if(!isset($current_state)){
             // for summary report (completed reviews) 
@@ -1193,10 +1192,17 @@ trait FilterFactory
         $fieldWithCounts = $this->getCount($fieldApplicants, $field);
         $field = [];
         if($fieldWithCounts->isNotEmpty()){
+            if(isset($fieldWithCounts['not_defined'])){
+                $inner_arr['key'] = "not_defined";
+                $inner_arr['value'] = "Didn't mention";
+                $inner_arr['count'] = $fieldWithCounts['not_defined'];
+                $field[] = $inner_arr;
+                unset($fieldWithCounts['not_defined']);
+            }
             foreach($fieldWithCounts as $key => $val)
             {  
                 $inner_arr['key'] = $key;
-                $inner_arr['value'] = ($key == "not_defined") ? "Didn't mention" : $key;
+                $inner_arr['value'] = $key;
                 $inner_arr['count'] = isset($val) ? $val : 0;
                 $field[] = $inner_arr;
             }

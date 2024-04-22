@@ -1081,10 +1081,10 @@ class CollaborateController extends Controller
     }
 
     public function getCurrentCityList(Request $request, $collaborateId){
+        $filters = $request->input('filters');
         if(isset($filters['current_city'])){
             unset($filters['current_city']);
         }
-        $filters = $request->input('filters');
         $current_state = $request->state;
         $search_val = $request->q;
         $page = $request->page;

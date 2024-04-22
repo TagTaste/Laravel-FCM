@@ -14,9 +14,13 @@ use App\SurveyAttemptMapping;
 trait FilterTraits
 {
 
-    public function getProfileIdOfReportFilter($surveyDetails, Request $request)
+    public function getProfileIdOfReportFilter($surveyDetails, Request $request, $ignoreField = '')
     {
         $filters = $request->filters;
+        if(isset($ignoreField) && isset($filters[$ignoreField])){
+            unset($filters[$ignoreField]);
+        }
+
         $profileIds = collect([]);
 
         if ($profileIds->count() == 0 && isset($filters['profile_ids'])) {
@@ -203,9 +207,12 @@ trait FilterTraits
         //     return ['profile_id' => $profileIds, 'type' => true];
     }
 
-    public function getProfileIdOfFilter($surveyDetails, Request $request)
+    public function getProfileIdOfFilter($surveyDetails, Request $request, $ignoreField = '')
     {
         $filters = $request->filters;
+        if(isset($ignoreField) && isset($filters[$ignoreField])){
+            unset($filters[$ignoreField]);
+        }
         $profileIds = collect([]);
 
         if ($profileIds->count() == 0 && isset($filters['profile_id'])) {
@@ -740,10 +747,17 @@ trait FilterTraits
         $fieldWithCounts = $this->getCount($fieldApplicants, $field);
         $field = [];
         if($fieldWithCounts->isNotEmpty()){
+            if(isset($fieldWithCounts['not_defined'])){
+                $inner_arr['key'] = "not_defined";
+                $inner_arr['value'] = "Didn't mention";
+                $inner_arr['count'] = $fieldWithCounts['not_defined'];
+                $field[] = $inner_arr;
+                unset($fieldWithCounts['not_defined']);
+            }
             foreach($fieldWithCounts as $key => $val)
             {  
                 $inner_arr['key'] = $key;
-                $inner_arr['value'] = ($key == "not_defined") ? "Didn't mention" : $key;
+                $inner_arr['value'] = $key;
                 $inner_arr['count'] = isset($val) ? $val : 0;
                 $field[] = $inner_arr;
             }
