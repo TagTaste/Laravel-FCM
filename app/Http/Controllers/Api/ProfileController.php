@@ -103,17 +103,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -339,17 +328,6 @@ class ProfileController extends Controller
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
         return $response;
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 
     public function image($id)
@@ -580,7 +558,6 @@ class ProfileController extends Controller
 
     public function all(Request $request)
     {
-
         $loggedInProfileId = $request->user()->profile->id;
         $filters = $request->input('filters');
         $models = \App\Recipe\Profile::whereNull('deleted_at')->where('id', '!=', $loggedInProfileId)->orderBy('created_at', 'asc');
@@ -800,6 +777,154 @@ class ProfileController extends Controller
         }
 
         return $this->sendResponse();
+    }
+
+    public function sendOtp(Request $request){
+        $data = $request->except([
+            "_method", "_token", 'hero_image', 'image', 'resume', 'remove', 'remove_image',
+            'remove_hero_image', 'verified_phone'
+        ]);
+        $this->model = 0;
+    
+        if (isset($data['profile']['phone']) && !empty($data['profile']['phone'])) {
+            $profile_id = $request->user()->profile->id;
+            $profile = Profile::with([])->where('id', $profile_id)->first();
+            $country_code = array(trim(str_replace("+", "", $data['profile']['country_code'])), $data['profile']['country_code']);
+            $existForOther = Profile::where('phone', $data['profile']['phone'])
+                ->whereIn("country_code", $country_code)
+                ->where('verified_phone', 1)
+                ->first();
+            
+            if (isset($existForOther)) {
+                return $this->sendError(["This number is already verified. Please try with another number or contact tagtaste for any query."]);
+            } else if (($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0) {
+                $profile->update(['verified_phone' => 0]);
+                $number = $data['profile']['phone'];
+                $source = config("constant.PHONE_VERIFICATION");
+    
+                $otpCheck = OTPMaster::where("profile_id", $profile_id)->where('mobile', "=", $number)->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
+                ->where("source", $source)->orderBy("id", "desc")
+                ->where("deleted_at", null)
+                ->first();
+    
+                if ($otpCheck == null) 
+                {
+                    $versionKey = 'X-VERSION';
+                    $versionKeyIos = 'X-VERSION-IOS';
+
+                    if ($request->hasHeader($versionKey)) {
+                        $platform = "android";
+                    } else if ($request->hasHeader($versionKeyIos)){
+                        $platform = "ios";
+                    } else {
+                        $platform = "web";
+                    }
+    
+                    if (strlen($number) == 13) {
+                        $number = substr($number, 3);
+                    }
+    
+                    // check for server
+                    $environment = env('APP_ENV');
+                    if($environment == "test")
+                    {
+                        $otpNo = 123456;
+                    } else {
+                        $otpNo = mt_rand(100000, 999999);
+                        $text = $otpNo . " is your OTP to verify your number with TagTaste.";
+                        if ($request->profile["country_code"] == "+91" || $request->profile["country_code"] == "91") {
+                            $service = "twilio";
+                            $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                        } else {
+                            $service = "twilio";
+                            $getResp = SMS::sendSMS($request->profile["country_code"] . $data['profile']["phone"], $text, $service);
+                        }
+                    }
+    
+                    $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "mobile" => $number, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
+    
+                    if(!$insertOtp)
+                    {
+                        return $this->sendNewError("Something went wrong!");
+                    }
+    
+                    $this->model = $profile->update(['otp' => $otpNo]);
+                    $job = ((new PhoneVerify($number, $request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
+                    dispatch($job);
+                } else {
+                    return $this->sendNewError("OTP sent already. Please try again in 1 minute.");
+                }
+            }
+        }
+    
+        //save the model
+        if (isset($data['profile']) && !empty($data['profile'])) {
+            $userId = $request->user()->id;
+            try {
+                $this->model = \App\Profile::where('user_id', $userId)->first();
+                $this->model->update($data['profile']);
+                $this->model->refresh();
+                //update filters
+                \App\Filter\Profile::addModel($this->model);
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage());
+                return $this->sendNewError("Could not update.");
+            }
+        }
+    
+        \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
+    
+        return $this->sendNewResponse();
+    }
+
+    public function verifyOtp(Request $request){
+        $loggedInProfileId = $request->user()->profile->id;
+        $otp = $request->input('otp');
+        $phone = $request->input('phone');
+        $source = config("constant.PHONE_VERIFICATION");
+        $this->model = 0;
+
+        $otpVerification = OTPMaster::where('mobile', $phone)
+            ->where("source",$source)
+            ->whereNull("deleted_at")
+            ->orderBy("id", "desc")
+            ->first();
+
+        if(empty($otpVerification))
+        {
+            return $this->sendNewError("Something went wrong! Please regenerate OTP or try other login methods.");
+        }
+
+        // check for otp attempts
+        if ($otpVerification && $otpVerification->attempts >= config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
+            OTPMaster::where('mobile', $phone)->where("source",$source)->update(["deleted_at" => date("Y-m-d H:i:s")]);
+            return $this->sendNewError("OTP attempts exhausted. Please regenerate OTP or try other login methods.");
+        }
+
+        if ($otpVerification && $otpVerification->otp == $otp) {
+            // check for otp expiration 
+            if($otpVerification->expired_at < date("Y-m-d H:i:s"))
+            {
+                return $this->sendNewError("OTP has expired. Please try again!");
+            }
+
+            // Update attempts
+            $otpVerification->update(["attempts" => $otpVerification->attempts + 1]);
+
+            $profileUpdate = Profile::where('id', $loggedInProfileId)->where('otp', $otp)->update(['verified_phone' => 1]);
+            if($profileUpdate)
+            {
+                OTPMaster::where('mobile', $phone)->where("source",$source)->update(["deleted_at" => date("Y-m-d H:i:s")]);
+                $this->model = "Your phone number is verified!";
+            } else {
+                return $this->sendNewError("Something went wrong! Please regenerate OTP or try other login methods.");
+            }
+        } else {
+            $otpVerification->update(["attempts" => $otpVerification->attempts + 1]);
+            return $this->sendNewError("Incorrect OTP entered. Please try again.");
+        }
+            
+        return $this->sendNewResponse();
     }
 
     public function requestOtp(Request $request)

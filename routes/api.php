@@ -564,6 +564,12 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
             
             Route::get("batches/{batchId}/profile/{profileId}/submission_status", 'BatchController@getReviewTimeline')->middleware('permissionCollaborate');;
 
+            // Manually Flag/UnFlag a review
+            Route::post("batches/{batchId}/profile/{profileId}/flag", 'BatchController@flagUnflagReview')->middleware('permissionCollaborate');
+
+            // Flag logs
+            Route::get("batches/{batchId}/profile/{profileId}/flag", 'BatchController@flagLogs')->middleware('permissionCollaborate');
+
             Route::post("batches/{batchId}/startReview", "ReviewController@startReview");
             
             Route::get("userBatches", 'BatchController@userBatches');
@@ -762,6 +768,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::post('profile/phoneVerify', 'ProfileController@phoneVerify');
         Route::post('profile/requestOtp', 'ProfileController@requestOtp');
         Route::post('profile/verify/email', 'ProfileController@sendVerifyMail');
+
+        // Phone verification new APIs
+        Route::post('profile/phone/send/otp', 'ProfileController@sendOtp');
+        Route::post('profile/phone/verify/otp', 'ProfileController@verifyOtp');
 
         // Email verification via otp
         Route::post('profile/verification/email', 'ProfileController@sendVerifyEmail');
@@ -1053,6 +1063,11 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/applicants/{profile_id}/submission_status', 'SurveyApplicantController@getSubmissionStatus');
         Route::get('/{id}/applicants/{profile_id}/submission_timeline', 'SurveyApplicantController@getSubmissionTimeline');        
         Route::post('/{id}/copy','SurveyController@copy');
+        
+        // to flag or unflag a specific survey submission
+        Route::post('/{id}/submission/{submission_id}/flag','SurveyApplicantController@flagUnflagReview');
+        // flag logs
+        Route::get('/{id}/applicants/{profile_id}/flag','SurveyApplicantController@flagLogs');
     });
     
     Route::group(['namespace' => '','prefix' => 'v1', 'as' => ''], function () {

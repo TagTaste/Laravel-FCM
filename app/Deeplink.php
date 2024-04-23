@@ -308,7 +308,7 @@ class Deeplink
                     '$og_title' =>              $model->title,
                     '$og_description' =>        $model->description,
                     '$og_app_id' =>             env('FACEBOOK_ID'),
-                    '$desktop_url' =>           env('APP_URL')."/preview/questionnaire/$model->id",
+                    '$desktop_url' =>           env('APP_URL')."/preview/questionnaire/$model->id?owner=$model->email",
                     '$twitter_site' =>          '@tagtaste',
                     'token' =>                  "",
                     'isOwner' =>                false,

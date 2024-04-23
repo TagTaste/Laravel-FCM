@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ModelFlagReason extends Model
 {
-    protected $fillable = ['model_id', 'flag_reason_id', 'model', 'created_at', 'updated_at'];
+    protected $fillable = ['model_id', 'flag_reason_id', 'reason', 'slug', 'profile_id', 'company_id', 'model','created_at', 'updated_at'];
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 

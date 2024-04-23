@@ -10,10 +10,11 @@ use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\ScaleColor;
 
 class PublicReviewProduct extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, ScaleColor;
 
     public $incrementing = false;
 
@@ -253,7 +254,7 @@ class PublicReviewProduct extends Model
             $meta['max_rating'] = count($option);
             $meta['overall_rating'] = $userCount >= 1 ? $overallPreferances/$userCount : null;
             $meta['count'] = $userCount;
-            $meta['color_code'] = $userCount >= 1 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
+            $meta['color_code'] = $userCount >= 1 ? $this->getRatingBasedColor(round($meta['overall_rating'], 2), $meta['max_rating']) : null;
             return $meta;
         }
 

@@ -890,7 +890,7 @@ class SurveyController extends Controller
                     $end_review = $currentDateTime;
                     $duration = $end_review->diffInSeconds($start_review);
                     $completion_date = date("Y-m-d H:i:s");
-                    $flag = $this->flagReview($start_review, $duration, $survey_attempt->id, 'SurveyAttemptMapping', $request->user()->id);
+                    $flag = $this->flagReview($start_review, $duration, $survey_attempt->id, 'SurveyAttemptMapping', $request->user()->id, $request->survey_id);
                      
                     $survey_attempt->update(["completion_date" => $completion_date, "current_status" => $request->current_status, "end_review" => $currentDateTime, "duration" => $duration, "is_flag" => $flag]);
 
@@ -4346,7 +4346,7 @@ class SurveyController extends Controller
 
                 $headers[$answers->profile_id][$answers->attempt]["Name"] = html_entity_decode($answers->profile->name);
                 $headers[$answers->profile_id][$answers->attempt]["Email"] = html_entity_decode($answers->profile->email);
-                $headers[$answers->profile_id][$answers->attempt]["Age"] = floor((time() - strtotime($surveyApplicant->dob)) / 31556926);
+                $headers[$answers->profile_id][$answers->attempt]["Age"] = isset($surveyApplicant->dob) ? floor((time() - strtotime($surveyApplicant->dob)) / 31556926) : null;
                 $headers[$answers->profile_id][$answers->attempt]["generation"] = html_entity_decode($surveyApplicant->generation);
                 $headers[$answers->profile_id][$answers->attempt]["gender"] = html_entity_decode($surveyApplicant->gender);
 
@@ -4590,7 +4590,7 @@ class SurveyController extends Controller
                 $result[$counter]['Sr no'] = $counter+1;
                 $result[$counter]['Name'] = html_entity_decode($applicant->profile->name);
                 $result[$counter]['Email'] = html_entity_decode($applicant->profile->email);
-                $result[$counter]['Age'] = floor((time() - strtotime($applicant->dob)) / 31556926);
+                $result[$counter]['Age'] = isset($applicant->dob) ? floor((time() - strtotime($applicant->dob)) / 31556926) : null;
                 $result[$counter]['Generation'] = html_entity_decode($applicant->generation);
                 $result[$counter]['Gender'] = html_entity_decode($applicant->gender);
                 $result[$counter]['Phone'] = $applicant->phone;
@@ -5188,6 +5188,7 @@ class SurveyController extends Controller
             $ins = \DB::table('survey_applicants')->insert($inputs);
         } else {
             $update = [];
+            
             if (empty($checkApplicant->address)) {
                 $update['address'] = $applierAddress;
             }
@@ -5201,14 +5202,17 @@ class SurveyController extends Controller
             }
             
             if ($checkApplicant->is_invited) {
-                $hometown = $request->input('hometown');
-                $current_city = $request->input('current_city');
-                if (empty($checkApplicant->hometown)) {
-                    $update['hometown'] = $hometown;
-                }
-                if (empty($checkApplicant->current_city)) {
-                    $update['current_city'] = $current_city;
-                }
+                $update = [
+                    'address' => $applierAddress, 'city' => $city, 'age_group' => $this->calcDobRange(date("Y", strtotime($profile->dob))), 'gender' => $profile->gender, 'hometown' => $profile->hometown, 'current_city' => $profile->city, "completion_date" => null, "dob" => $dob, "generation" => Helper::getGeneration($profile->dob)
+                ];
+                // $hometown = $request->input('hometown');
+                // $current_city = $request->input('current_city');
+                // if (empty($checkApplicant->hometown)) {
+                //     $update['hometown'] = $hometown;
+                // }
+                // if (empty($checkApplicant->current_city)) {
+                //     $update['current_city'] = $current_city;
+                // }
             }
 
             if (!empty($update)) {

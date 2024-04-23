@@ -101,6 +101,21 @@ return  [
 
     ],
 
+    'SEVEN_SCALE_RANGE_VALUES' => [
+        4.50, 5.40, 5.80
+    ],
+
+    'NINE_SCALE_RANGE_VALUES' => [
+        5.80, 6.80, 7.30
+    ],
+
+    'SCALE_RANGE_COLORS' => [
+        "orange" => "#E27616", 
+        "red" => "#C92E41", 
+        "light_green" => "#7E9B42", 
+        "dark_green" => "#305D03"
+    ],
+
     'NOTIFICATION_DELETE_PERIOD' => 60,
     'MINIMUM_PAID_TASTER_PRIVATE_REVIEWS' => 2,
     'MINIMUM_PAID_TASTER_TOTAL_REVIEWS' => 3,
@@ -114,6 +129,7 @@ return  [
 
     'SIGNUP_EMAIL_VERIFICATION' => "verify_signup_email",
     'EMAIL_VERIFICATION' => "verify_email",
+    'PHONE_VERIFICATION' => "verify_phone",
 
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
@@ -188,7 +204,11 @@ return  [
     // Review flagging
     "FLAG_COLORS" => [
         "default" => '#FFECF0',
-        "tagtaste_employee" => '#F0F6FD'
+        "tagtaste_employee" => '#F0F6FD',
+        "flag_color" => '#DD2E1F',
+        "flag_line_color" => '#EB8279',
+        "unflag_color" => '#00A146',
+        "unflag_line_color" => '#66C790'
     ],
 
     "FLAG_REASONS_TEXT" => [
@@ -200,6 +220,12 @@ return  [
     'CHAT_MODEL_SUPPORT' => [
         'COLLABORATE' => "collaborate",
         'SURVEY'=>"surveys"
+    ],
+  
+    "FLAG_SLUG" => [
+        "SYSTEM" => "system_flag",
+        "MANUAL1" => "manual_flag",
+        "MANUAL0" => "manual_unflag"
     ],
 
     "POLL_PLACEHOLDER_IMAGE" => [
