@@ -695,7 +695,7 @@ trait FilterTraits
         foreach($field as $key => $val)
         {  
             $inner_arr['key'] = $val;
-            $inner_arr['value'] = $val;
+            $inner_arr['value'] = ($val == "not_defined") ? "Didn't mention" : $val;
             $inner_arr['count'] = isset($fieldCounts[$val]) ? $fieldCounts[$val] : 0;
             unset($field[$key]);
             $field['items'][$key] = $inner_arr;

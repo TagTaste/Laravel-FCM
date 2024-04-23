@@ -279,6 +279,9 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                 // get filters for dashboard of product review
                 Route::get("dashboard/filters", "BatchController@filters")->middleware('permissionCollaborate');
 
+                // get filters for dashboard of product review / post API
+                Route::post("dashboard/filters", "BatchController@filters")->middleware('permissionCollaborate');
+
                 // private product review reports post api
                 Route::post("batches/{id}/headers/{headerId}/reports", "BatchController@reports")->middleware('permissionCollaborate');
 
