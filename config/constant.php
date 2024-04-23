@@ -154,6 +154,11 @@ return  [
         "ACTIVE" => 1,
     ],
 
+    "COLLABORATE_ROLES" => [
+        "PANEL_PARTNER" => "Panel Partners",
+        "CUSTOMER" => "Customers",
+    ],
+
     "COLLABORATE_CURRENT_STATUS" => [
         "TO_BE_NOTIFIED" => 0,
         "NOTIFIED" => 1,
@@ -212,6 +217,11 @@ return  [
         "tagtaste_employee" => 'being TT employee'
     ],
 
+    'CHAT_MODEL_SUPPORT' => [
+        'COLLABORATE' => "collaborate",
+        'SURVEY'=>"surveys"
+    ],
+  
     "FLAG_SLUG" => [
         "SYSTEM" => "system_flag",
         "MANUAL1" => "manual_flag",

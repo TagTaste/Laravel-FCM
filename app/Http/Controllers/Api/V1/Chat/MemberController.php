@@ -11,10 +11,14 @@ use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\CheckTTEmployee;
+use App\Traits\CheckApplicants;
+use App\surveyApplicants;
+use App\Collaborate\Applicant;
 
 class MemberController extends Controller
 {
     use CheckTTEmployee;
+    use CheckApplicants;
     public $model;
     public $time;
 
@@ -58,23 +62,32 @@ class MemberController extends Controller
     	{
     	    $profileIds = [$profileIds];
     	}
+        
     	Member::withTrashed()->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['exited_on'=>null]);
 
     	$memberIds = Member::withTrashed()->where('chat_id',$chatId)->pluck('profile_id')->toArray();
-        $profileId = array_diff($profileIds, $memberIds);   
+        $profileId = array_diff($profileIds, $memberIds);  
         $total_count = count($memberIds) + count($profileId);
 
         if($total_count > 250){
             return $this->sendError('You cannot add more than 250 participants to the group. Please reduce the number of participants and try again!');
         }
 
-        $tagTasteEmployee = $this->checkTTEmployee($loggedInProfileId);
-        if(!$tagTasteEmployee){
-            $profileFollowers = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-            // if it's not a tagtaste employee, then check for the members whether they are profile's followers or not.
-            if(array_diff($profileId, $profileFollowers)){
-                return $this->sendError('Something went wrong! Please ensure you can only chat or make a chat group with your followers.');
-            } 
+        // check applicants of specific collaborate or survey
+        if($request->type == 'applicant'){
+            $applicantCheck = $this->checkApplicants($chatId, $profileId, $loggedInProfileId);
+            if($applicantCheck[0]){
+                return $this->sendError($applicantCheck[1]);
+            }
+        } else {
+            $tagTasteEmployee = $this->checkTTEmployee($loggedInProfileId);
+            if(!$tagTasteEmployee){
+                $profileFollowers = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+                // if it's not a tagtaste employee, then check for the members whether they are profile's followers or not.
+                if(array_diff($profileId, $profileFollowers)){
+                    return $this->sendError('Something went wrong! Please ensure you can only chat or make a chat group with your followers.');
+                } 
+            }
         }
 
         $chatMembers = [];
@@ -199,11 +212,20 @@ class MemberController extends Controller
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('exited_on')->get()->pluck('profile_id')->toArray();
         $loggedInProfileId = $request->user()->profile->id ;
         $this->model = [];
+
+        $modelName = $request->has('model_name') ? $request->input('model_name') : null;
+        $modelId = $request->has('model_id') ? $request->input('model_id') : null;
+
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        if($this->checkTTEmployee($loggedInProfileId)){
+        if(isset($modelName) && isset($modelId)){
+            if($modelName == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+                $profileIds = Applicant::where('collaborate_id', $modelId)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->where('profile_id', '<>', $loggedInProfileId)->pluck('profile_id')->toArray();
+            }else if($modelName == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+                $profileIds = surveyApplicants::where('survey_id', $modelId)->whereNull('deleted_at')->whereNull('rejected_at')->where('profile_id', '<>', $loggedInProfileId)->pluck('profile_id')->toArray();            }
+        }else if($this->checkTTEmployee($loggedInProfileId)){
             $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
-        
+
         // $ids = []; $ids2 = [];
         // foreach ($chatProfileIds as $chatProfileId)
         //     $ids2[] = $chatProfileId;
@@ -255,10 +277,20 @@ class MemberController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
         $this->model = [];
+
+        $modelName = $request->has('model_name') ? $request->input('model_name') : null;
+        $modelId = $request->has('model_id') ? $request->input('model_id') : null;
+
         $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        if($this->checkTTEmployee($loggedInProfileId)){
+        if(isset($modelName) && isset($modelId)){
+            if($modelName == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+                $profileIds = Applicant::where('collaborate_id', $modelId)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->where('profile_id', '<>', $loggedInProfileId)->pluck('profile_id')->toArray();
+            }else if($modelName == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+                $profileIds = surveyApplicants::where('survey_id', $modelId)->whereNull('deleted_at')->whereNull('rejected_at')->where('profile_id', '<>', $loggedInProfileId)->pluck('profile_id')->toArray();            }
+        }else if($this->checkTTEmployee($loggedInProfileId)){
             $profileIds = Profile::whereNull('deleted_at')->where('id', '<>', $loggedInProfileId)->pluck('id')->toArray();
         }
+        
         $ids = []; $ids2 = [];
         foreach ($chatProfileIds as $chatProfileId)
             $ids2[] = $chatProfileId;

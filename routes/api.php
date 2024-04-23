@@ -229,6 +229,8 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/hashtag/trending', 'HashtagController@trending');
         Route::get('/hashtag/feed', 'HashtagController@feed');
         Route::group(['namespace' => 'V2', 'prefix' => 'v2/', 'as' => 'v2.'], function () {
+            Route::get("collaborate/{id}/chats/groups", 'CollaborateController@getChatGroups')->middleware('permissionCollaborate');
+
             //multiple photos api
             Route::resource("photos", "PhotoController");
 
@@ -292,12 +294,12 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
                 Route::post("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports")->middleware('permissionCollaborate');
             });
         });
-
-
+        
         //Routes to get personalised meta
         Route::get("/meta/{modelName}/{modelId}", "MetaController@getMeta");
         Route::get("/meta/{modelName}/{id}/{modelId}", "MetaController@getSharedMeta");
         Route::group(['namespace' => 'V1', 'prefix' => 'v1/', 'as' => 'v1.'], function () {
+            Route::post('chats/group', "ChatController@createGroup");
             Route::post("{feature}/{featureId}/message", "ChatController@featureMessage");
             Route::get("chatGroup", 'ChatController@chatGroup');
             Route::post("chatShareMessage", 'ChatController@shareAsMessage');
@@ -1020,6 +1022,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     });
     
     Route::group(['namespace' => 'Survey', 'prefix' => 'surveys', 'as' => 'surveys.', 'middleware' => 'api.auth'], function () {
+        Route::get('{id}/chats/groups', 'SurveyController@getChatGroups');
         Route::get('filters-list/{id}', 'SurveyController@getFilters');
         Route::get('/mandatory-fields', 'SurveyController@dynamicMandatoryFields');
         Route::get("/mandatory-fields/{id}", "SurveyController@surveyMandatoryFields");
@@ -1162,7 +1165,6 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
             // PR product based applicant reports
             Route::post("batches/{batchId}", "BatchController@show");
-
         });
     });
 
