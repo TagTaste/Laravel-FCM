@@ -14,6 +14,8 @@ use App\CompanyUser;
 use App\Traits\CheckTTEmployee;
 use App\Collaborate;
 use App\Surveys;
+use App\Jobs\CreateChat;
+use App\Jobs\SendMessage;
 
 class ChatController extends Controller
 {
@@ -260,47 +262,40 @@ class ChatController extends Controller
         $inputs = $request->all();
         $this->model = false;
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-                    $s3 = \Storage::disk('s3');
-                    $filePath = 'p/' . $loggedInProfileId . "/ci";
-                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                    $inputs['preview']['image'] = \Storage::disk('s3')->url($resp);
-                }
-                if(isset($inputs['preview']))
-                {
-                    $info['preview'] = json_encode($inputs['preview']);
-                }
-                else
-                {
-                    $info['preview'] = null;
-                }
+            $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $loggedInProfileId . "/ci";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            $inputs['preview']['image'] = \Storage::disk('s3')->url($resp);
+        }
 
-                if(count($profileIds))
+        if(isset($inputs['preview']))
+        {
+            $info['preview'] = json_encode($inputs['preview']);
+        }
+        else
+        {
+            $info['preview'] = null;
+        }
+
+        if(count($profileIds))
+        {
+            foreach ($profileIds as $profileId) {
+                dispatch(new CreateChat($loggedInProfileId, $profileId, $inputs['message'], $info['preview']));
+                $this->model = true;
+            }
+        }
+        if(count($chatIds))
+        {
+            foreach ($chatIds as $chatId){
+                $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
+                if($isMember)
                 {
-                    foreach ($profileIds as $profileId) {
-                        $chat = Chat::open($loggedInProfileId, $profileId);
-                        if (!$chat) {
-                            $chat = Chat::create(['profile_id'=>$loggedInProfileId, 'chat_type'=>1]);
-                            $input = [];
-                            $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$loggedInProfileId, 'is_admin'=>1];
-                            $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$profileId, 'is_admin'=>0];
-                            $member = Member::insert($input);
-                        }
-                        $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
-                        $this->model = true;
-                    }
+                    dispatch(new SendMessage(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]));
+                    $this->model = true;
                 }
-                if(count($chatIds))
-                {
-                    foreach ($chatIds as $chatId){
-                        $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
-                        if($isMember)
-                        {
-                            $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]);
-                            $this->model = true;
-                        }
-                    }
-                }
+            }
+        }
 
         return $this->sendResponse();
     }
