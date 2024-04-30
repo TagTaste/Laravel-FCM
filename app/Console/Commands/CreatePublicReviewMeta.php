@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\PublicReviewUserTiming;
 use App\PublicReviewProduct;
 use App\Traits\FlagReview;
+use Carbon\Carbon;
 
 class CreatePublicReviewMeta extends Command
 {
@@ -49,7 +50,7 @@ class CreatePublicReviewMeta extends Command
         for($i=0; $i < count($products); $i++){
             //already added users for this product
             $profile_ids = PublicReviewUserTiming::where('product_id', $products[$i])->pluck('profile_id')->toArray();
-            $profileIdsString = implode(',', $profile_ids);
+            $profileIdsString = empty($profile_ids) ? '-1' : implode(',', $profile_ids);
 
             $startActivity = config("constant.REVIEW_ACTIVITY.START");
             $endActivity = config("constant.REVIEW_ACTIVITY.END");
@@ -69,15 +70,12 @@ class CreatePublicReviewMeta extends Command
                 }
 
                 $data = ["profile_id" => $profile_id, "product_id" => $products[$i], "start_review" => $startDate, "current_status" => 1, "created_at" => $created_at, "updated_at" => $updated_at];
-                if(isset($endDate)){
-                    $data["end_review"] = $endDate;
-                    $data["current_status"] = 2;
-                    $data["duration"] = strtotime($endDate) - strtotime($startDate);
-                }
-
                 $create = PublicReviewUserTiming::create($data);
-                $flag = $this->flagReview($startDate, $create->duration, $create->id, 'PublicReviewUserTiming', $profile_id, $products[$i]);
-                PublicReviewUserTiming::where('id', $create->id)->update(['is_flag' => $flag]);
+                if(isset($create) && isset($endDate)){
+                    $duration = strtotime($endDate) - strtotime($startDate);
+                    $flag = $this->flagReview(Carbon::parse($startDate), $duration, $create->id, 'PublicReviewUserTiming', $profile_id, $products[$i]);
+                    PublicReviewUserTiming::where('id', $create->id)->update(['current_status' => 2, 'end_review' => $endDate, 'duration' => $duration,'is_flag' => $flag]);
+                }
             }
         }
     }
