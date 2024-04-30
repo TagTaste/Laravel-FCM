@@ -1092,6 +1092,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
         Route::get('/{id}/applicants/{profile_id}/submission_status', 'SurveyApplicantController@getSubmissionStatus');
         Route::get('/{id}/applicants/{profile_id}/submission_timeline', 'SurveyApplicantController@getSubmissionTimeline');        
         Route::post('/{id}/copy','SurveyController@copy');
+
         // to flag or unflag a specific survey submission
         Route::post('/{id}/submission/{submission_id}/flag','SurveyApplicantController@flagUnflagReview');
         // flag logs
@@ -1102,6 +1103,7 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
 
         // get current cities list
         Route::post('/{id}/current_city', 'SurveyController@getCurrentCityList');
+
     });
     
     Route::group(['namespace' => '','prefix' => 'v1', 'as' => ''], function () {

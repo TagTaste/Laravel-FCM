@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V2;
 
+use App\V1\Chat;
 use App\V2\Detailed\Collaborate;
 use App\CompanyUser;
 use App\Events\Actions\Like;
@@ -110,5 +111,22 @@ class CollaborateController extends BaseController
             }
         }
         return $graphActive;
+    }
+
+    public function getChatGroups(Request $request, $id){
+        $loggedInProfileId =  $request->user()->profile->id;
+        $chatGroups = Chat::where('model_id', $id)
+        ->where('model_name',config("constant.CHAT_MODEL_SUPPORT.COLLABORATE"))
+        ->where('chat_type',0)
+        ->orderByRaw('ISNULL(batch_id), batch_id')
+        ->orderBy('created_at', 'ASC')
+        ->get();
+        
+        foreach ($chatGroups as $group) {
+            $group->makeHidden(['latestMessages']);
+        }
+
+        $this->model = $chatGroups;
+        return $this->sendNewResponse();
     }
 }

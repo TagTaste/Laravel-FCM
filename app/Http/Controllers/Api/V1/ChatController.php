@@ -12,6 +12,8 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
 use App\CompanyUser;
 use App\Traits\CheckTTEmployee;
+use App\Collaborate;
+use App\Surveys;
 
 class ChatController extends Controller
 {
@@ -28,7 +30,7 @@ class ChatController extends Controller
     public function index(Request $request)
     {
         $profileId = $request->user()->profile->id;
-
+        
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         $this->model = Chat::whereHas('members',function($query) use ($profileId) {
@@ -168,7 +170,6 @@ class ChatController extends Controller
     public function show(Request $request,$id)
     {
         $profileId = $request->user()->profile->id;
-
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         $this->model = Chat::whereHas('members',function($query) use ($profileId) {
@@ -493,4 +494,93 @@ class ChatController extends Controller
         return $class::find($featureId);
     }
 
+    public function createGroup(Request $request){
+        $profileId = $request->user()->profile->id;
+        $data = $request->input();
+        $this->model = false;
+        $profileIds = $data["profile_id"];
+        
+        // Add owner's profile Id
+        if(!in_array($profileId, $profileIds))
+        {
+            $profileIds[] = $profileId;
+        }
+        
+        if(count($profileIds) > 250){
+            return $this->sendNewError('You cannot add more than 250 participants to the group. Please reduce the number of participants and try again!');
+        }
+
+        $inputs = [];
+        $inputs['chat_type'] = 0;
+        $inputs['name']= $data["name"];
+        $inputs['image']= isset($data["image"]) ? $data["image"] : null;
+        $inputs['profile_id']=$profileId;
+        $inputs['created_at']=$this->now;
+        
+        $inputs['model_name']= $data["model_name"];
+        $inputs['model_id']= $data["model_id"];
+        $inputs['batch_id']= isset($data["batch_id"]) && !empty($data["batch_id"]) ? $data["batch_id"] : null;
+
+        if($data["model_name"] == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+            $model = Collaborate::find($data["model_id"]);
+            if(!$model){
+                return $this->sendNewError("Collaboration not found");
+            }
+
+            if(isset($data["batch_id"]) && !empty($data["batch_id"])){
+                $batch = \DB::table('collaborate_batches')->where('id',$data['batch_id'])->where('collaborate_id',$data['model_id'])
+                ->count();
+                if($batch == 0){
+                    return $this->sendNewError("This batch doesn't belong to this collaboration or not found");
+                }
+            }
+
+            $data["model_id"] = intval($data["model_id"]);
+            $data["batch_id"] = isset($data["batch_id"]) && !empty($data["batch_id"]) ? intval($data["batch_id"]) : null;
+        }else if($data["model_name"] == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+            $model = Surveys::find($data["model_id"]);
+            if(!$model){
+                return $this->sendNewError("Survey not found");
+            }
+        }else{
+            return $this->sendNewError("This model is not supported.");
+        }            
+        
+        if(!$this->checkForPermission($data["model_name"], $model, $profileId)){
+            return $this->sendNewError("Permission denied.");
+        }
+
+        $chatId = $this->createChatRoom($inputs, $profileIds);
+        $data["chat_id"] = $chatId;
+        unset($data["profile_id"]);
+        $this->model = $data;
+        return $this->sendNewResponse();
+    }
+
+    private function checkForPermission($type, $model, $profileId){
+        if ($model->company_id != null) {
+            $checkUser = CompanyUser::where('company_id',$model->company_id)->where('profile_id',$profileId)->exists();
+            if($checkUser){
+                return true;
+            }
+        } else if($model->profile_id == $profileId) {
+            return true;
+        }
+        
+        if($type == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+            //check for panel partner
+            $panelPartner  = \DB::table('collaborate_user_roles')
+            ->where('profile_id',$profileId)
+            ->where('collaborate_id',$model->id)
+            ->leftJoin('collaborate_role','collaborate_user_roles.role_id','=','collaborate_role.id')
+            ->where('collaborate_role.role',config("constant.COLLABORATE_ROLES.PANEL_PARTNER"))
+            ->count();
+
+            if($panelPartner > 0){
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

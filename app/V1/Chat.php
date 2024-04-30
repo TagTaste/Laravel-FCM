@@ -8,23 +8,54 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Redis;
+use App\Collaborate;
+use App\Surveys;
 
 class Chat extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'profile_id','image','chat_type'];
+    protected $fillable = ['name', 'profile_id','image','chat_type','model_name','model_id','batch_id'];
 
     //protected $with = ['members'];
 
     protected $visible = ['id','name','image','profile_id','created_at','updated_at','latestMessages','profiles',
-        'unreadMessageCount','is_enabled','chat_type','isAdmin','isOnline'];
+        'unreadMessageCount','is_enabled','chat_type','isAdmin','isOnline','model_name','model_id','batch_id','participants_count','model_color','model_value','model_text'];
 
-    protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled','isAdmin','isOnline'];
+    protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled','isAdmin','isOnline','participants_count','model_color','model_value','model_text'];
 
     //chat type = 1 is single chat, 0 is group chat
 
     protected $isEnabled = true;
+
+    public function getModelColorAttribute(){
+        if($this->model_name == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+            return "#EFB920";
+        }else if($this->model_name == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+            return "#00AEB3";
+        }
+        return null;
+    }
+
+    public function getModelValueAttribute(){
+        if($this->model_name == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+            $collaborate = Collaborate::find($this->model_id);
+            return $collaborate->title ?? "";
+        }else if($this->model_name == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+            $survey = Surveys::find($this->model_id);
+            return $survey->title ?? "";
+        }
+        return null;
+    }
+
+    public function getModelTextAttribute(){
+        if($this->model_name == config("constant.CHAT_MODEL_SUPPORT.COLLABORATE")){
+            return "Tasting Group";
+        }else if($this->model_name == config("constant.CHAT_MODEL_SUPPORT.SURVEY")){
+            return "Survey Group";
+        }
+        return null;
+    }
 
     public function members()
     {
@@ -135,6 +166,16 @@ class Chat extends Model
     {
         $loggedInProfileId = request()->user()->profile->id;
         return Redis::sIsMember("online:profile:",$loggedInProfileId);
+    }
+
+    public function getParticipantsCountAttribute()
+    {
+        $data = Member::where('chat_id',$this->id)->whereNull('deleted_at')->whereNull('exited_on')->count();
+        if($data > 1){
+            return $data." Users";
+        }else{
+            return $data." User";
+        }
     }
 }
 

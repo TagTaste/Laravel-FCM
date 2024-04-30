@@ -573,14 +573,15 @@ class CollaborateController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
 //        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
 //            ->get()->pluck('collaborate_id');
-        $collaborates = \App\Recipe\Collaborate::join('collaborate_batches_assign','collaborate_batches_assign.collaborate_id','=','collaborates.id')
+        $collaborates = \App\Recipe\Collaborate::select('collaborates.*', 'collaborate_batches_assign.id as collaborate_batches_assign_id')
+            ->join('collaborate_batches_assign','collaborate_batches_assign.collaborate_id','=','collaborates.id')
             ->where('collaborate_batches_assign.profile_id',$loggedInProfileId)->where('collaborate_batches_assign.begin_tasting',1)
             ->where('collaborates.state', 1)->where('collaborates.account_deactivated',0)
             ->orderBy('collaborate_batches_assign.created_at','desc')->get()->toArray();
         $collaborateIds = [];
         $data = [];
         foreach ($collaborates as $key=> &$collaborate)
-    {
+        {
             if(in_array($collaborate['id'],$collaborateIds))
             {
                 continue;
@@ -607,10 +608,10 @@ class CollaborateController extends Controller
                     $batchInfo->address_id = $batch->address_id;
                     $batchInfo->bill_verified = $batch->bill_verified;
                     $paymentOnBacth = \DB::table('payment_details')
-                                            ->where('model_id',$batchInfo->collaborate_id)
-                                            ->where('sub_model_id',$batchInfo->id)
-                                            ->where('is_active',1)
-                                            ->first();
+                                        ->where('model_id',$batchInfo->collaborate_id)
+                                        ->where('sub_model_id',$batchInfo->id)
+                                        ->where('is_active',1)
+                                        ->first();
                     $batchInfo->isPaid =  PaymentHelper::getisPaidMetaFlag($paymentOnBacth);
                     if($currentStatus != 3 && $currentStatus !=0)
                     {
@@ -620,8 +621,8 @@ class CollaborateController extends Controller
             }
             $collaborateIds[] = $collaborate['id'];
             $collaborate['batches'] = $count > 0 ? $batches : [];
-            if( sizeof($collaborate['batches']) !=0 ){
-            $data[] = $collaborate;
+            if(sizeof($collaborate['batches']) != 0 ){
+                $data[] = $collaborate;
             }
         }
         $this->model = $data;

@@ -12,11 +12,11 @@ use App\Http\Controllers\Api\Controller;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\File;
 use App\Helper;
+use App\Traits\ScaleColor;
 
 class ReportController extends Controller
 {
-
-
+    use ScaleColor;
     public function reportHeaders(Request $request, $id)
     {
         $product = PublicReviewProduct::where('id',$id)->first();
@@ -45,6 +45,13 @@ class ReportController extends Controller
         }
 
         $product = PublicReviewProduct::where('id',$productId)->first();
+
+        // get a scale value
+        $header_id = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first()->id;
+        $question = \DB::table('public_review_questions')->where('header_id',$header_id)->whereRaw("JSON_CONTAINS(questions, '5', '$.select_type')")->first();
+        $question = json_decode($question->questions);
+        $option = isset($question->option) ? $question->option : [];
+        
         if($product == null)
         {
             return $this->sendError("Product is not available");
@@ -54,14 +61,14 @@ class ReportController extends Controller
         {
             $this->model = [];
             $this->model['title'] = 'Sensogram';
-            $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a 7-point scale.';
+            $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a '.count($option).'-point scale.';
             $this->model['header_rating'] = null;
             $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
             return $this->sendResponse();
         }
         $this->model = [];
         $this->model['title'] = 'Sensogram';
-        $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a 7-point scale.';
+        $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a '.count($option).'-point scale.';
 //        $this->model['info'] = ['text'=>'this is text','link'=>null,'images'=>[]];
         $this->model['header_rating'] = $this->getHeaderRating($product);
         $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
@@ -113,7 +120,7 @@ class ReportController extends Controller
         $meta['max_rating'] = count($option);
         $meta['overall_rating'] = $userCount > 0 ? $headerRatingSum/$userCount : 0.00;
         $meta['count'] = $userCount;
-        $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
+        $meta['color_code'] = $this->getRatingBasedColor(round($meta['overall_rating'], 2), $meta['max_rating']);
         return $meta;
     }
 
@@ -147,6 +154,7 @@ class ReportController extends Controller
                 return '#305D03';
         }
     }
+
     public function anyother(Request $request, $productId,$headerId,$questionId)
     {
         $product = PublicReviewProduct::where('id',$productId)->first();

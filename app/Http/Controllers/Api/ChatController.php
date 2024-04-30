@@ -389,8 +389,15 @@ class ChatController extends Controller
         {
             $profileIds = [$profileIds];
         }
+
         $LoggedInUser = $request->user();
         $loggedInProfileId = $LoggedInUser->profile->id;
+
+        // remove sender's Id
+        if (($key = array_search($loggedInProfileId, $profileIds)) !== false) {
+            unset($profileIds[$key]);
+        }
+        
         $data = [];
 
         if(isset($model->company_id)&& (!is_null($model->company_id)))
@@ -400,9 +407,10 @@ class ChatController extends Controller
 //                return $this->sendError("Invalid Collaboration Project.");
             }
         }
-        else if($model->profile_id != $loggedInProfileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
+        // else if($model->profile_id != $loggedInProfileId){
+        //     return $this->sendError("Invalid Collaboration Project.");
+        // }
+        
         if($request->has('batch_id'))
         {
             $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$request->input('batch_id'))

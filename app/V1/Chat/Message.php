@@ -106,7 +106,7 @@ class Message extends Model
         if($this->type != 0 && isset($this->message))
         {
             $messageArray = explode('.', $this->message);
-            $receiverId = is_null($messageArray[2]) ? : $messageArray[2];
+            $receiverId = (is_null($messageArray[2]) || empty($messageArray[2])) ? : $messageArray[2];
             $messageString = [];
             if($messageArray[0] == request()->user()->profile->id)
             {
