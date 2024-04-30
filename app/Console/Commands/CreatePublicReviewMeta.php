@@ -50,7 +50,7 @@ class CreatePublicReviewMeta extends Command
         for($i=0; $i < count($products); $i++){
             //already added users for this product
             $profile_ids = PublicReviewUserTiming::where('product_id', $products[$i])->pluck('profile_id')->toArray();
-            $profileIdsString = implode(',', $profile_ids);
+            $profileIdsString = empty($profile_ids) ? '-1' : implode(',', $profile_ids);
 
             $startActivity = config("constant.REVIEW_ACTIVITY.START");
             $endActivity = config("constant.REVIEW_ACTIVITY.END");
