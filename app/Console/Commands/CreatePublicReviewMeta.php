@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\PublicReviewUserTiming;
 use App\PublicReviewProduct;
 use App\Traits\FlagReview;
+use Carbon\Carbon;
 
 class CreatePublicReviewMeta extends Command
 {
@@ -76,7 +77,7 @@ class CreatePublicReviewMeta extends Command
                 }
 
                 $create = PublicReviewUserTiming::create($data);
-                $flag = $this->flagReview($startDate, $create->duration, $create->id, 'PublicReviewUserTiming', $profile_id, $products[$i]);
+                $flag = $this->flagReview(Carbon::parse($startDate), $create->duration, $create->id, 'PublicReviewUserTiming', $profile_id, $products[$i]);
                 PublicReviewUserTiming::where('id', $create->id)->update(['is_flag' => $flag]);
             }
         }
