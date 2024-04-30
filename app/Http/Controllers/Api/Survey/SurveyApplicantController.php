@@ -69,7 +69,7 @@ class SurveyApplicantController extends Controller
         $q = $request->input('q');
         $profileIds = [];
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -691,7 +691,7 @@ class SurveyApplicantController extends Controller
       
             $surveyData = Surveys::where("id", "=", $id)->first();
             $filters = $request->input('filters');
-            $filteredProfileIds = $this->getProfileIdOfFilter($surveyData, $request, $version_num)['profile_id'];
+            $filteredProfileIds = $this->getProfileIdOfFilter($surveyData, $request)['profile_id'];
 
             $profileIds = isset($filters) && !empty($filters) ? $filteredProfileIds : $applicantProfileIds;
 
@@ -703,37 +703,64 @@ class SurveyApplicantController extends Controller
                 $profileIds = array_values(array_intersect($profileIds->toArray(), $surveyApplicantIds));
             }
 
-            $profileModel = Profile::whereNull('deleted_at');
+            $surveyApplicants = $surveyApplicants->whereIn('survey_applicants.profile_id', $profileIds);
 
-            $ageCounts = $this->getCount($surveyApplicants, 'generation', $profileIds);
+            $profileModel = Profile::select('id', 'is_expert', 'is_sensory_trained', 'is_tasting_expert')->whereNull('deleted_at')->whereIn('id', $profileIds);
+
+            $ageCounts = $this->getCount($surveyApplicants, 'generation');
             $age = $this->getFieldPairedData($age, $ageCounts);
             $age = $this->addEmptyValue($age, $ageCounts);
             $age['key'] = 'age';
             $age['value'] = 'Generation';
+            $age['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
-            $genderCounts = $this->getCount($surveyApplicants,'gender', $profileIds);
+            $genderCounts = $this->getCount($surveyApplicants,'gender');
             $gender = $this->getFieldPairedData($gender, $genderCounts);
             $gender = $this->addEmptyValue($gender, $genderCounts);
             $gender['key'] = 'gender';
             $gender['value'] = 'Gender';
+            $gender['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
+
+            // Hometown
+            $homeTown['items'] = [];
+            if(isset($filters['hometown'])){
+                $hometownCounts = $this->getCount($surveyApplicants, 'hometown');
+                $homeTown = $this->getFieldPairedData(array_column($filters['hometown'], 'key'), $hometownCounts);
+            }
+            $homeTown['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
+            $homeTown['key'] = 'hometown';
+            $homeTown['value'] = 'Hometown';
+ 
+            // Current City
+            $currentCity['items'] = [];
+            if(isset($filters['current_city'])){
+                $currentCityCounts = $this->getCount($surveyApplicants, 'current_city');
+                $currentCity = $this->getFieldPairedData(array_column($filters['current_city'], 'key'), $currentCityCounts);
+            }
+            $currentCity['type'] = config("constant.FILTER_TYPE.DROPDOWN_SEARCH");
+            $currentCity['key'] = 'current_city';
+            $currentCity['value'] = 'Current City';
             
             // count of experts
-            $userTypeCounts = $this->getCount($profileModel,'is_expert', $profileIds);
+            $userTypeCounts = $this->getCount($profileModel,'is_expert');
             $userType = $this->getProfileFieldPairedData($userTypeCounts, 'Expert', 'Consumer');
             $userType['key'] = 'user_type';
             $userType['value'] = 'User Type';
+            $userType['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // sensory trained or not
-            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained', $profileIds);
+            $sensoryTrainedCounts = $this->getCount($profileModel,'is_sensory_trained');
             $sensoryTrained = $this->getProfileFieldPairedData($sensoryTrainedCounts, 'Yes', 'No');
             $sensoryTrained['key'] = 'sensory_trained';
             $sensoryTrained['value'] = 'Sensory Trained';
+            $sensoryTrained['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // supar taster or not
-            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert', $profileIds);
+            $superTasterCounts = $this->getCount($profileModel,'is_tasting_expert');
             $superTaster = $this->getProfileFieldPairedData($superTasterCounts, 'SuperTaster', 'Normal');
             $superTaster['key'] = 'super_taster';
             $superTaster['value'] = 'Super Taster';
+            $superTaster['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // application status
             $statusCounts = $this->getCount($surveyApplicants, 'application_status', $profileIds);
@@ -749,16 +776,18 @@ class SurveyApplicantController extends Controller
             }
             $applicationStatus['key'] = 'application_status';
             $applicationStatus['value'] = 'Status';
+            $applicationStatus['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // profile specializations
             $specializationsCount = $specializations->select('name', \DB::raw('COUNT(*) as count'))->whereIn('profiles.id', $profileIds)->groupBy('name')->pluck('count','name');
             $profile = $this->getFieldPairedData($profile, $specializationsCount);
             $profile['key'] = 'profile';
             $profile['value'] = 'Job Profile';
+            $profile['type'] = config("constant.FILTER_TYPE.MULTI_SELECT");
 
             // Date filter
             $date['items'] = [['key'=>'start_date', 'value'=>''],['key'=>'end_date', 'value'=>'']];
-            $date['type'] = 'date';
+            $date['type'] = config("constant.FILTER_TYPE.DATE");
             $date['key'] = 'date';
             $date['value'] = 'Submission Date Range';
         }
@@ -789,7 +818,7 @@ class SurveyApplicantController extends Controller
             $data = ['gender' => $gender, 'age' => $age, 'city' => $city,  'profile' => $profile, "sensory_trained" => $sensoryTrained, "user_type" => $userType, "super_taster" => $superTaster, "application_status" => $applicationStatus];
         // }
         if (isset($version_num) && $version_num == 'v1'){
-            $data = [$gender, $age, $profile, $sensoryTrained, $userType, $superTaster, $applicationStatus, $date];
+            $data = [$gender, $age, $homeTown, $currentCity, $profile, $sensoryTrained, $userType, $superTaster, $applicationStatus, $date];
         }
         $this->model = $data;
         return $this->sendResponse();
@@ -826,7 +855,7 @@ class SurveyApplicantController extends Controller
         //filters data
         $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -966,7 +995,7 @@ class SurveyApplicantController extends Controller
         //filters data
         $profileIds = null;
         if ($request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
         }
 
@@ -1192,7 +1221,7 @@ class SurveyApplicantController extends Controller
         }
 
         if (isset($filters) && $filters != null) {
-            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfFilter($survey, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $list = $list->whereIn('profile_id', $profileIds);
         }

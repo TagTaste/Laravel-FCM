@@ -1143,7 +1143,7 @@ class SurveyController extends Controller
 
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
             // $request->filters = '';
-            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
 
@@ -1511,7 +1511,7 @@ class SurveyController extends Controller
         
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
             // $request->filters = '';
-            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             // $profileIds = $getFiteredProfileIds['profile_id'];
             // $type = $getFiteredProfileIds['type'];
 
@@ -2429,7 +2429,7 @@ class SurveyController extends Controller
         
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
             // $request->filters = '';
-            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             // $profileIds = $getFiteredProfileIds['profile_id'];
             // $type = $getFiteredProfileIds['type'];
 
@@ -3190,7 +3190,7 @@ class SurveyController extends Controller
 
          if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
             // $request->filters = '';
-            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             // $profileIds = $getFiteredProfileIds['profile_id'];
             // $type = $getFiteredProfileIds['type'];
 
@@ -3283,7 +3283,7 @@ class SurveyController extends Controller
 
          if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
             // $request->filters = '';
-            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
 
@@ -3351,7 +3351,7 @@ class SurveyController extends Controller
 
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
             // $request->filters = '';
-            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
 
@@ -3428,7 +3428,7 @@ class SurveyController extends Controller
 
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
             // $request->filters = '';
-            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             // $profileIds = $getFiteredProfileIds['profile_id'];
             // $type = $getFiteredProfileIds['type'];
         
@@ -4087,7 +4087,7 @@ class SurveyController extends Controller
         }
 
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)) {
-            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             $profileIds = array_keys($getFiteredProfileIds);
             $type = false;
             // $profileIds = $getFiteredProfileIds['profile_id'];
@@ -4176,7 +4176,7 @@ class SurveyController extends Controller
         }
         
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
-            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             // print_r($idAttemptFilterMapped);
             // $profileIds = $getFiteredProfileIds['profile_id'];
             // $type = $getFiteredProfileIds['type'];
@@ -4501,7 +4501,7 @@ class SurveyController extends Controller
         }
         
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
-            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $idAttemptFilterMapped = $this->getProfileIdOfReportFilter($checkIFExists, $request);
         }else if ($request->has('filters') && !empty($request->filters)) {
             $getFiteredProfileIds = $this->getProfileIdOfFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
@@ -4744,7 +4744,7 @@ class SurveyController extends Controller
         }
 
         if(isset($version_num) && $version_num == 'v1' && $request->has('filters') && !empty($request->filters)){
-            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request, $version_num);
+            $getFiteredProfileIds = $this->getProfileIdOfReportFilter($checkIFExists, $request);
             $profileIds = $getFiteredProfileIds['profile_id'];
             $type = $getFiteredProfileIds['type'];
         }else if ($request->has('filters') && !empty($request->filters)) {
@@ -5354,6 +5354,16 @@ class SurveyController extends Controller
         return $this->sendNewResponse($data);
     }
 
+    public function getHometownList(Request $request, $surveyId){
+        $this->model = $this->getFieldList($request, 'hometown', $surveyId);
+        return $this->sendResponse();
+    }
+
+    public function getCurrentCityList(Request $request, $surveyId){
+        $this->model = $this->getFieldList($request, 'current_city', $surveyId);
+        return $this->sendResponse();
+    }
+  
     public function getChatGroups(Request $request, $id){
         $loggedInProfileId =  $request->user()->profile->id;
         $chatGroups = Chat::where('model_id', $id)

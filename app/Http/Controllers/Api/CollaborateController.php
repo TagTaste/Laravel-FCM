@@ -1069,6 +1069,30 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    public function getHometownList(Request $request, $collaborateId){
+        $filters = $request->input('filters');
+        if(isset($filters['hometown'])){
+            unset($filters['hometown']);
+        }
+        $current_state = $request->state;
+        $search_val = $request->q;
+        $page = $request->page;
+        $this->model = $this->getFieldList('hometown', $current_state, $filters, $collaborateId, $search_val, $page);
+        return $this->sendResponse();
+    }
+
+    public function getCurrentCityList(Request $request, $collaborateId){
+        $filters = $request->input('filters');
+        if(isset($filters['current_city'])){
+            unset($filters['current_city']);
+        }
+        $current_state = $request->state;
+        $search_val = $request->q;
+        $page = $request->page;
+        $this->model = $this->getFieldList('current_city', $current_state, $filters, $collaborateId, $search_val, $page);
+        return $this->sendResponse();
+    }
+
     public function archivedExport(Request $request, $id)
     {
         $filters = $request->input('filters');

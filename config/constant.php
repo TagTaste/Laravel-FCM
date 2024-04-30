@@ -217,7 +217,13 @@ return  [
         "tagtaste_employee" => 'being TT employee'
     ],
 
-    'CHAT_MODEL_SUPPORT' => [
+    "FILTER_TYPE" => [
+        "MULTI_SELECT" => 'multi_select',
+        "DROPDOWN_SEARCH" => 'dropdown_search',
+        "DATE" => "date",
+        "QUESTION_FILTER" => "question_filter"
+],
+      'CHAT_MODEL_SUPPORT' => [
         'COLLABORATE' => "collaborate",
         'SURVEY'=>"surveys"
     ],
