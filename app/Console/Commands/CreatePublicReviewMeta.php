@@ -53,7 +53,7 @@ class CreatePublicReviewMeta extends Command
 
             $startActivity = config("constant.REVIEW_ACTIVITY.START");
             $endActivity = config("constant.REVIEW_ACTIVITY.END");
-            $reviewEntryData = \DB::select("SELECT activity, MIN(created_at) as max, MAX(created_at) as min, profile_id FROM `public_review_entry_mapping` where product_id='$products[$i]' AND (activity = '$startActivity' OR activity = '$endActivity') AND deleted_at IS NULL AND profile_id NOT IN ($profileIdsString) GROUP BY profile_id, activity");
+            $reviewEntryData = \DB::select("SELECT activity, MIN(created_at) as min, MAX(created_at) as max, profile_id FROM `public_review_entry_mapping` where product_id='$products[$i]' AND (activity = '$startActivity' OR activity = '$endActivity') AND deleted_at IS NULL AND profile_id NOT IN ($profileIdsString) GROUP BY profile_id, activity");
             $profileWiseData = collect($reviewEntryData)->groupBy('profile_id')->toArray();
 
             foreach($profileWiseData as $profile_id => $profile){
