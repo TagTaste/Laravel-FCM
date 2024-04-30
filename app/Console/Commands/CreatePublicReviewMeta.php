@@ -70,15 +70,12 @@ class CreatePublicReviewMeta extends Command
                 }
 
                 $data = ["profile_id" => $profile_id, "product_id" => $products[$i], "start_review" => $startDate, "current_status" => 1, "created_at" => $created_at, "updated_at" => $updated_at];
-                if(isset($endDate)){
-                    $data["end_review"] = $endDate;
-                    $data["current_status"] = 2;
-                    $data["duration"] = strtotime($endDate) - strtotime($startDate);
-                }
-
                 $create = PublicReviewUserTiming::create($data);
-                $flag = $this->flagReview(Carbon::parse($startDate), $create->duration, $create->id, 'PublicReviewUserTiming', $profile_id, $products[$i]);
-                PublicReviewUserTiming::where('id', $create->id)->update(['is_flag' => $flag]);
+                if(isset($create) && isset($endDate)){
+                    $duration = strtotime($endDate) - strtotime($startDate);
+                    $flag = $this->flagReview(Carbon::parse($startDate), $duration, $create->id, 'PublicReviewUserTiming', $profile_id, $products[$i]);
+                    PublicReviewUserTiming::where('id', $create->id)->update(['current_status' => 2, 'end_review' => $endDate, 'duration' => $duration,'is_flag' => $flag]);
+                }
             }
         }
     }
