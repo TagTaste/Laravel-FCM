@@ -63,7 +63,7 @@ class CreatePublicReviewMeta extends Command
                     } else if($review->current_status == 2) {
                         $last_header_data = \DB::select("SELECT id,header_type FROM `public_review_question_headers` WHERE global_question_id = (SELECT global_question_id FROM public_review_products WHERE id = '$products[$i]') AND header_selection_type = 2");
                         $entryData = [
-                            ["profile_id" => $review->profile_id, "product_id" => $products[$i], "activity" => config('constant.REVIEW_ACTIVITY.START'), "created_at" => $startActivityDate, "updated_at" => $startActivityDate],
+                            ["profile_id" => $review->profile_id, "product_id" => $products[$i], "header_id" => null, "header_title" => null, "activity" => config('constant.REVIEW_ACTIVITY.START'), "created_at" => $startActivityDate, "updated_at" => $startActivityDate],
                             ["profile_id" => $review->profile_id, "product_id" => $products[$i], "header_id" => $last_header_data[0]->id, "header_title" => $last_header_data[0]->header_type,"activity" => config('constant.REVIEW_ACTIVITY.END'), "created_at" => $review->max, "updated_at" => $review->max]
                         ];
                     } 
