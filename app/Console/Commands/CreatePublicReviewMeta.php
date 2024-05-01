@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\PublicReviewUserTiming;
 use App\PublicReviewProduct;
+use App\PublicReviewEntryMapping;
 use App\Traits\FlagReview;
 use Carbon\Carbon;
 
@@ -48,6 +49,28 @@ class CreatePublicReviewMeta extends Command
         
         //update start review time, end review time and duration in seconds for missing users of product
         for($i=0; $i < count($products); $i++){
+            //get profiles data who attempted for review but start entry not inserted into entry mapping table
+            $reviewData = \DB::select("SELECT DISTINCT profile_id, MIN(created_at) as min, MAX(created_at) as max, current_status FROM `public_product_user_review` WHERE product_id = '$products[$i]' AND profile_id NOT IN (SELECT profile_id FROM `public_review_entry_mapping` WHERE product_id = '$products[$i]' AND activity = 'start') GROUP BY profile_id ORDER BY `public_product_user_review`.`current_status` ASC");
+            
+            //insert start entry and final_submit entry based on review data
+            foreach($reviewData as $review){
+                $speicificReviewEntry = PublicReviewEntryMapping::where('product_id', "$products[$i]")->where('profile_id', $review->profile_id)->where('activity', '<>', config('constant.REVIEW_ACTIVITY.SECTION_SUBMIT'))->get()->toArray();
+                
+                if(empty($speicificReviewEntry)){
+                    $startActivityDate = Carbon::parse($review->min)->addSeconds(rand(5,15));
+                    if($review->current_status == 1){
+                        $entryData = ["profile_id" => $review->profile_id, "product_id" => $products[$i], "activity" => config('constant.REVIEW_ACTIVITY.START'), "created_at" => $startActivityDate, "updated_at" => $startActivityDate];
+                    } else if($review->current_status == 2) {
+                        $last_header_data = \DB::select("SELECT id,header_type FROM `public_review_question_headers` WHERE global_question_id = (SELECT global_question_id FROM public_review_products WHERE id = '$products[$i]') AND header_selection_type = 2");
+                        $entryData = [
+                            ["profile_id" => $review->profile_id, "product_id" => $products[$i], "activity" => config('constant.REVIEW_ACTIVITY.START'), "created_at" => $startActivityDate, "updated_at" => $startActivityDate],
+                            ["profile_id" => $review->profile_id, "product_id" => $products[$i], "header_id" => $last_header_data[0]->id, "header_title" => $last_header_data[0]->header_type,"activity" => config('constant.REVIEW_ACTIVITY.END'), "created_at" => $review->max, "updated_at" => $review->max]
+                        ];
+                    } 
+                    PublicReviewEntryMapping::insert($entryData);
+                }
+            }
+
             //already added users for this product
             $profile_ids = PublicReviewUserTiming::where('product_id', $products[$i])->pluck('profile_id')->toArray();
             $profileIdsString = empty($profile_ids) ? '-1' : implode(',', $profile_ids);
