@@ -21,11 +21,12 @@ use App\PublicReviewProduct\Review as PublicReviewProductReview;
 use Illuminate\Support\Facades\Log;
 use App\CollaborateTastingEntryMapping;
 use App\Traits\FlagReview;
+use App\Traits\ReviewLimitations;
 
 class ReviewController extends Controller
 {
 
-    use FlagReview;
+    use FlagReview, ReviewLimitations;
     protected $model;
     protected $now;
 
@@ -52,21 +53,41 @@ class ReviewController extends Controller
             if (!$checkAssign->exists()) {
                 return $this->sendNewError("Wrong product assigned");
             }
+
             $latestCurrentStatus = Redis::get("current_status:batch:$batchId:profile:$profileId");
             if ($latestCurrentStatus == 3) {
                 return $this->sendNewError("You have already completed this product");
             }
 
-            // Add start time and current_status to collab_batches_assign
-            $currentDateTime = Carbon::now();
-            if (empty($checkAssign->first()->start_review) && is_null($checkAssign->first()->start_review)) {
-                $checkAssign->update(["start_review" => $currentDateTime, "current_status" => 2]);
-            }
-            
-            CollaborateTastingEntryMapping::create(["profile_id"=>$profileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
+            // when no crieteria to check
+            $enforced_response = $request->enforce;
+            if(isset($enforced_response) && $enforced_response == true){
+                // Add start time and current_status to collab_batches_assign
+                $this->createCollabReviewEntryData($checkAssign, $profileId, $collaborateId, $batchId);
+                $this->model = true;
+            } else {
+                // Check whether the time interval is over after the user completed the last review or not
+                $timeInterval = $this->checkTimeInterval($profileId, 'collaborate');
+                if(isset($timeInterval['status']) && $timeInterval['status'] == false){
+                    $this->model = $timeInterval;
+                } 
 
-            $this->model = true;
+                // if the time interval is over, check whether review count limit exceeds or not
+                $reviewCount = $this->checkDailyReviewCount($profileId, 'collaborate');
+                if(isset($reviewCount['status']) && $reviewCount['status'] == false){
+                    $this->model = $reviewCount;
+                } 
+            
+                // default response
+                if(empty($timeInterval) && empty($reviewCount)){
+                    // Add start time and current_status to collab_batches_assign
+                    $this->createCollabReviewEntryData($checkAssign, $profileId, $collaborateId, $batchId);
+                    $this->model = true;
+                }
+            }
+                
             \DB::commit();
+            
         } catch (\Exception $e) {
             // roll in case of error
             \DB::rollback();
@@ -76,6 +97,15 @@ class ReviewController extends Controller
         }
         
         return $this->sendNewResponse();
+    }
+
+    public function createCollabReviewEntryData($batchModel, $profileId, $collaborateId, $batchId){
+        $currentDateTime = Carbon::now();
+        if (empty($batchModel->first()->start_review) && is_null($batchModel->first()->start_review)) {
+            $batchModel->update(["start_review" => $currentDateTime, "current_status" => 2]);
+        }
+        
+        CollaborateTastingEntryMapping::create(["profile_id"=>$profileId, "collaborate_id"=>$collaborateId, "batch_id"=>$batchId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
     }
 
     public function reviewAnswers(Request $request, $collaborateId, $headerId)
