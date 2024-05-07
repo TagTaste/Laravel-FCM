@@ -45,7 +45,7 @@ class ReviewController extends Controller
         // begin transaction
         \DB::beginTransaction();
         try {
-            $this->model = false;
+            $this->model = ["status" => false];
             $profileId = $request->user()->profile->id;
 
             $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id', $batchId)->where('profile_id', $profileId);
@@ -64,7 +64,7 @@ class ReviewController extends Controller
             if(isset($enforced_response) && $enforced_response == true){
                 // Add start time and current_status to collab_batches_assign
                 $this->createCollabReviewEntryData($checkAssign, $profileId, $collaborateId, $batchId);
-                $this->model = true;
+                $this->model = ["status" => true];
             } else {
                 // Check whether the time interval is over after the user completed the last review or not
                 $timeInterval = $this->checkTimeInterval($profileId, 'collaborate');
@@ -82,7 +82,7 @@ class ReviewController extends Controller
                 if(empty($timeInterval) && empty($reviewCount)){
                     // Add start time and current_status to collab_batches_assign
                     $this->createCollabReviewEntryData($checkAssign, $profileId, $collaborateId, $batchId);
-                    $this->model = true;
+                    $this->model = ["status" => true];
                 }
             }
                 

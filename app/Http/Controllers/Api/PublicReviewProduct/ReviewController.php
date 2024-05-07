@@ -385,7 +385,7 @@ class ReviewController extends Controller
         // begin transaction
         \DB::beginTransaction();
         try {
-            $this->model = false;
+            $this->model = ["status" => false];
             $profileId = $request->user()->profile->id;
             $product = PublicReviewProduct::where('id', $productId)->first();
             if ($product === null) {
@@ -406,7 +406,7 @@ class ReviewController extends Controller
             if(isset($enforced_response) && $enforced_response == true){
                 // Add start time of review and current_status
                 $this->createPublicProductReviewEntry($profileId, $productId);
-                $this->model = true;
+                $this->model = ["status" => true];
             } else {
                 // Check whether review count limit exceeds or not
                 $reviewCount = $this->checkDailyReviewCount($profileId, 'product');
@@ -418,7 +418,7 @@ class ReviewController extends Controller
                 if(empty($reviewCount)){
                     // Add start time of review and current_status
                     $this->createPublicProductReviewEntry($profileId, $productId);
-                    $this->model = true;
+                    $this->model = ["status" => true];
                 }
             }
 
