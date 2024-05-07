@@ -95,16 +95,16 @@ return  [
     ],
 
     'REVIEW_TIME_INTERVAL_POPUP' => [
-        'title' => 'Palate Intermission',
-        'description' => 'A moment to cleanse and refresh your palate. Enjoy the break and prepare for the next culinary delight.',
-        'timer_start_text' => 'New Tastings will appear in',
-        'timer_end_text' => 'Interval Complete, On to the Next Review Time to Shine Again!'
+        "title" => "Palate Intermission",
+        "description" => "A moment to cleanse and refresh your palate. Enjoy the break and prepare for the next culinary delight.",
+        "timer_start_text" => "New Tastings will appear in",
+        "timer_end_text" => "Interval Complete, On to the Next Review Time to Shine Again!"
     ],
 
     'REVIEW_DAILY_LIMIT_POPUP' => [
-        'title' => 'Daily Tasting Limit Reached',
-        'description' => 'You’ve hit your maximum daily food tastings. To continue tasting, please note that your review may be flagged and potentially rejected.',
-        'image_url' => 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/c/137/l/original/MJrYo7wrdDpSpXnFNUzQn879vfYEIOuR.jpg'
+        "title" => "Daily Tasting Limit Reached",
+        "description" => "You've hit your maximum daily food tastings. To continue tasting, please note that your review may be flagged and potentially rejected.",
+        "image_url" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/tasting/emptystate.svg"
     ],
   
     'SURVEY_ACTIVITY' => [
