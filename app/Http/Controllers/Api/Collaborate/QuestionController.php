@@ -273,6 +273,7 @@ class QuestionController extends Controller
             ->where(function ($query) use ($term){
                 foreach($term as $val)
                 {
+                    $query->orWhereRaw('SOUNDEX(?) = SOUNDEX(value)', $val);
                     $query->orWhere('value','like','%'.$val.'%');
                 }
             })->get();
@@ -310,6 +311,7 @@ class QuestionController extends Controller
             ->where(function ($query) use ($term){
                 foreach($term as $val)
                 {
+                    $query->orWhereRaw('SOUNDEX(?) = SOUNDEX(value)', $val);
                     $query->orWhere('value','like','%'.$val.'%');
                 }
             })
