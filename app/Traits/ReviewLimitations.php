@@ -50,7 +50,7 @@ trait ReviewLimitations
             if($profileTodayReviews > $reviewLimit->review_count){
                 $data = [
                     "status" => false,
-                    "block_type" => "review_timer",
+                    "block_type" => "daily_review_count",
                     "info" => config('constant.REVIEW_DAILY_LIMIT_POPUP')
                 ];
                 return $data;
