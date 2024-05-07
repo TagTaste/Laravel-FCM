@@ -11,7 +11,7 @@ use Carbon\Carbon;
 trait ReviewLimitations
 {
    public function checkTimeInterval($profileId, $model){
-        $timeInterval = reviewLimit::select('time_interval')->where('model', $model)->where('is_active', 1)->whereNull('deleted_at')->orderBy('created_at', 'desc')->first();
+        $timeInterval = reviewLimit::select('time_interval')->where('model', $model)->where('is_active', 1)->whereNull('deleted_at')->whereNull('review_count')->orderBy('created_at', 'desc')->first();
         if(isset($timeInterval) && !empty($timeInterval)){
             $profileLastReview = BatchAssign::select('end_review')->where('profile_id', $profileId)->where('current_status', 3)->orderBy('end_review', 'desc')->first();
             $lastReviewDate = $profileLastReview->end_review;
@@ -38,7 +38,7 @@ trait ReviewLimitations
 
    public function checkDailyReviewCount($profileId, $model){
         // get latest review count limit
-        $reviewLimit = reviewLimit::select('review_count')->where('model', $model)->where('is_active', 1)->whereNull('deleted_at')->orderBy('created_at', 'desc')->first();
+        $reviewLimit = reviewLimit::select('review_count')->where('model', $model)->where('is_active', 1)->whereNull('deleted_at')->whereNull('time_interval')->orderBy('created_at', 'desc')->first();
 
         if(isset($reviewLimit) && !empty($reviewLimit)){
             $dbModel = ($model == 'collaborate') ? new BatchAssign() : new PublicReviewUserTiming();

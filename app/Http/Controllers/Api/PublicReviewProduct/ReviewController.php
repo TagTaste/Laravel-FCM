@@ -409,7 +409,7 @@ class ReviewController extends Controller
                 $this->model = true;
             } else {
                 // Check whether review count limit exceeds or not
-                $reviewCount = $this->checkDailyReviewCount($profileId, 'publicProduct');
+                $reviewCount = $this->checkDailyReviewCount($profileId, 'product');
                 if(isset($reviewCount['status']) && $reviewCount['status'] == false){
                     $this->model = $reviewCount;
                 } 

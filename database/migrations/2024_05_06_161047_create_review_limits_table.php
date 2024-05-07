@@ -18,7 +18,7 @@ class CreateReviewLimitsTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->string('model');
             $table->bigInteger('time_interval')->nullable();
-            $table->integer('review_count');
+            $table->integer('review_count')->nullable();
             $table->tinyInteger('is_active');
             $table->timestamp('created_at');
             $table->timestamp('deleted_at')->nullable();
