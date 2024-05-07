@@ -64,29 +64,33 @@ class ReviewController extends Controller
             if(isset($enforced_response) && $enforced_response == true){
                 // Add start time and current_status to collab_batches_assign
                 $this->createCollabReviewEntryData($checkAssign, $profileId, $collaborateId, $batchId);
+                \DB::commit();
                 $this->model = ["status" => true];
-            } else {
-                // Check whether the time interval is over after the user completed the last review or not
-                $timeInterval = $this->checkTimeInterval($profileId, 'collaborate');
-                if(isset($timeInterval['status']) && $timeInterval['status'] == false){
-                    $this->model = $timeInterval;
-                } 
-
-                // if the time interval is over, check whether review count limit exceeds or not
-                $reviewCount = $this->checkDailyReviewCount($profileId, 'collaborate');
-                if(isset($reviewCount['status']) && $reviewCount['status'] == false){
-                    $this->model = $reviewCount;
-                } 
+                return $this->sendNewResponse();
+            } 
             
-                // default response
-                if(empty($timeInterval) && empty($reviewCount)){
-                    // Add start time and current_status to collab_batches_assign
-                    $this->createCollabReviewEntryData($checkAssign, $profileId, $collaborateId, $batchId);
-                    $this->model = ["status" => true];
-                }
-            }
-                
+            // Check whether the time interval is over after the user completed the last review or not
+            $timeInterval = $this->checkTimeInterval($profileId, 'collaborate');
+            if(isset($timeInterval['status']) && $timeInterval['status'] == false){
+                \DB::commit();
+                $this->model = $timeInterval;
+                return $this->sendNewResponse();
+            } 
+
+            // if the time interval is over, check whether review count limit exceeds or not
+            $reviewCount = $this->checkDailyReviewCount($profileId, 'collaborate');
+            if(isset($reviewCount['status']) && $reviewCount['status'] == false){
+                \DB::commit();
+                $this->model = $reviewCount;
+                return $this->sendNewResponse();
+            } 
+            
+            // default response
+            // Add start time and current_status to collab_batches_assign
+            $this->createCollabReviewEntryData($checkAssign, $profileId, $collaborateId, $batchId);
             \DB::commit();
+            $this->model = ["status" => true];
+            return $this->sendNewResponse();
             
         } catch (\Exception $e) {
             // roll in case of error
@@ -95,8 +99,6 @@ class ReviewController extends Controller
             $this->model = null;
             return $this->sendNewError($e->getMessage());
         }
-        
-        return $this->sendNewResponse();
     }
 
     public function createCollabReviewEntryData($batchModel, $profileId, $collaborateId, $batchId){

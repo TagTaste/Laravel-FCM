@@ -406,23 +406,26 @@ class ReviewController extends Controller
             if(isset($enforced_response) && $enforced_response == true){
                 // Add start time of review and current_status
                 $this->createPublicProductReviewEntry($profileId, $productId);
+                \DB::commit();
                 $this->model = ["status" => true];
-            } else {
-                // Check whether review count limit exceeds or not
-                $reviewCount = $this->checkDailyReviewCount($profileId, 'product');
-                if(isset($reviewCount['status']) && $reviewCount['status'] == false){
-                    $this->model = $reviewCount;
-                } 
-            
-                // default response
-                if(empty($reviewCount)){
-                    // Add start time of review and current_status
-                    $this->createPublicProductReviewEntry($profileId, $productId);
-                    $this->model = ["status" => true];
-                }
-            }
+                return $this->sendNewResponse();
+            } 
 
+            // Check whether review count limit exceeds or not
+            $reviewCount = $this->checkDailyReviewCount($profileId, 'product');
+            if(isset($reviewCount['status']) && $reviewCount['status'] == false){
+                \DB::commit();
+                $this->model = $reviewCount;
+                return $this->sendNewResponse();
+            } 
+        
+            // default response
+            // Add start time of review and current_status
+            $this->createPublicProductReviewEntry($profileId, $productId);
             \DB::commit();
+            $this->model = ["status" => true];
+            return $this->sendNewResponse();
+            
 
         } catch (\Exception $e) {
             // roll in case of error
@@ -431,8 +434,6 @@ class ReviewController extends Controller
             $this->model = null;
             return $this->sendNewError($e->getMessage());
         }
-        
-        return $this->sendNewResponse();
     }
 
     public function createPublicProductReviewEntry($profileId, $productId){
