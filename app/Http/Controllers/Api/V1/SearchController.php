@@ -1703,7 +1703,7 @@ class SearchController extends Controller
         }
         $this->model = [];
         $page = $request->input('page');
-        $take = $request->input('offset');
+        $take = $request->input('limit');
         list($skip, $take) = \App\Strategies\Paginator::paginate($page, $take);
        
         if ($response['hits']['total'] > 0) {
