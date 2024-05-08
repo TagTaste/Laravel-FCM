@@ -389,7 +389,8 @@ class SearchController extends Controller
         }
         $this->model = [];
         $page = $request->input('page');
-        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $take = $request->input('offset');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page, $take);
         if ($response['hits']['total'] > 0) {
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
