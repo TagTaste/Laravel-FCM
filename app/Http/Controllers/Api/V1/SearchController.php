@@ -345,7 +345,8 @@ class SearchController extends Controller
         //paginate
 
         $page = $request->input('page');
-        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $take = $request->input('limit');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page, $take);
         $loggedInProfileId = $request->user()->profile->id;
         $profileIds = \DB::table('profile_specializations')->where('specialization_id', $id)->skip($skip)->take($take)->get()->pluck('profile_id');
         $profileIds = $profileIds->unique();
