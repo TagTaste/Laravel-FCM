@@ -72,7 +72,7 @@ trait FlagReview
                     $profileTodayReviews = $dbModel->where('profile_id', $profileId)->where('current_status', $completedStatus)->where('end_review','like','%'.$today.'%')->get()->count();
                     
                     // check whether user exceeds the daily review limit while attempting for a review or not
-                    if($profileTodayReviews == $reviewLimit->review_count){
+                    if($profileTodayReviews >= $reviewLimit->review_count){
                         // Add flagging reason
                         $this->addModelFlagReasons($flag_reason_data);
                         $flag = true;
