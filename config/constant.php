@@ -104,7 +104,7 @@ return  [
     'REVIEW_DAILY_LIMIT_POPUP' => [
         "title" => "Daily Tasting Limit Reached",
         "description" => "You've hit your maximum daily food tastings. To continue tasting, please note that your review may be flagged and potentially rejected.",
-        "image_url" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/tasting/emptystate.svg"
+        "image_url" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/tasting/card.png"
     ],
   
     'SURVEY_ACTIVITY' => [
