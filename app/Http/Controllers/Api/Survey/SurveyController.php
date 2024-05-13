@@ -2532,26 +2532,31 @@ class SurveyController extends Controller
             $answers = SurveyAnswers::where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
             });
+
+            $ans = $answers->pluck("option_id")->toArray();
+        
+            $count2 = count(SurveyAnswers::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
+                return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
+            }));
             
             ##total count of applicants who have attempted rank question
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 
-                $totalApplicantsofRankques = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
+                $totalApplicantsofRankques = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("answer_value",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                     return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
                 });
 
                 $totalApplicantsofRankques = count($totalApplicantsofRankques);
                 ##sum of attempts of each user
                 // $totalApplicantsofRankques = array_sum($totalApplicantsofRankques->pluck("attempt")->toArray());
+
+                $ans = $answers->pluck("answer_value")->toArray();
+                $count2 = count(SurveyAnswers::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("answer_value",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
+                    return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
+                }));
             }
-            
-            $ans = $answers->pluck("option_id")->toArray();
+
             $ar = array_values(array_filter($ans));
-
-            $count2 = count(SurveyAnswers::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
-                return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
-            }));
-
             $getAvg = (count($ar) ? $this->array_avg($ar, $count2) : 0);            
 
             $respondentCount = count($answers->pluck("profile_id")->unique()->toArray());
