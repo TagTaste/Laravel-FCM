@@ -2035,7 +2035,7 @@ class SurveyController extends Controller
             ##total count of applicants who have attempted rank question
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
                 
-                $totalApplicantsofRankques = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
+                $totalApplicantsofRankques = SurveyAnswers::select(['profile_id', 'attempt'])->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("answer_value",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                     return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
                 });
 
