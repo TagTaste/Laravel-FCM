@@ -2538,6 +2538,10 @@ class SurveyController extends Controller
             $count2 = count(SurveyAnswers::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("option_id",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                 return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
             }));
+
+            $respondentCount = count($answers->pluck("profile_id")->unique()->toArray());
+            // $responseCount = array_unique(array_column($answers->toArray(), 'profile_id','batch_id'));
+            // $responseCount = $answers->pluck('profile_id')->toArray();
             
             ##total count of applicants who have attempted rank question
             if ($values['question_type'] == config("constant.SURVEY_QUESTION_TYPES.RANK")) {
@@ -2554,14 +2558,12 @@ class SurveyController extends Controller
                 $count2 = count(SurveyAnswers::select('profile_id','attempt')->distinct()->where("survey_id", "=", $id)->where("question_type", "=", $values["question_type"])->where("question_id", "=", $values["id"])->whereIn("answer_value",$queOptionIds)->whereNull("deleted_at")->get()->filter(function ($ans) use ($finalAttempMapping) {
                     return isset($finalAttempMapping[$ans->profile_id]) ? in_array($ans->attempt, $finalAttempMapping[$ans->profile_id]) : false;
                 }));
+
+                $respondentCount = count($answers->pluck("answer_value")->unique()->toArray());
             }
 
             $ar = array_values(array_filter($ans));
             $getAvg = (count($ar) ? $this->array_avg($ar, $count2) : 0);            
-
-            $respondentCount = count($answers->pluck("profile_id")->unique()->toArray());
-            // $responseCount = array_unique(array_column($answers->toArray(), 'profile_id','batch_id'));
-            // $responseCount = $answers->pluck('profile_id')->toArray();
 
             $prepareNode["reports"][$counter]["respondent_count"] = $respondentCount;
             $prepareNode["reports"][$counter]["response_count"] = $count2;    
