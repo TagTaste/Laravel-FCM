@@ -119,7 +119,7 @@ class UserService
      * 
      * @param string $email
     */
-    public function sendVerificationEmail($email, $source, $platform, $mailType = null)
+    public function emailVerification($email, $source, $platform, $mailType = null)
     {
         $verifyEmail = User::where("email", $email)->whereNull('deleted_at')->where('account_deactivated', 0)->first();
        
@@ -134,8 +134,11 @@ class UserService
             return ["result" => false, "error" => $error];
         }
 
-        $profile_id = $verifyEmail->profile->id;
+        return $this->sendEmailOtp($verifyEmail->profile->id, $email, $source, $platform, $verifyEmail->name, $mailType);
        
+    }
+
+    public function sendEmailOtp($profile_id, $email, $source, $platform, $username, $mailType, $password = null){
         $otpCheck = OTPMaster::where("profile_id", $profile_id)->where('email', "=", $email)
             ->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
             ->where("source", $source)->orderBy("id", "desc")
@@ -145,23 +148,19 @@ class UserService
         if ($otpCheck == null) 
         {
             // check for server
-            // $environment = env('APP_ENV');
-            // if($environment == "test")
-            // {
-            //     $otpNo = 123456;
-            // }
-            // else
-            // {
+            $environment = env('APP_ENV');
+            if($environment == "test")
+            {
+                $otpNo = 123456;
+            }
+            else
+            {
                 //Send OTP     
                 $otpNo = mt_rand(100000, 999999);
-                $mailDetails = ["username" => $verifyEmail->name, "email" => $email, "otp" => $otpNo];
-                $mail = ($mailType == 'sign-up') ? (new \App\Jobs\SignupEmailOtpVerification($mailDetails)) : (new \App\Jobs\EmailOtpVerification($mailDetails));
-                \Log::info('Queueing Verified Email...');
-
-                dispatch($mail);
-            // }
-
-            $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+10 minutes"))]);
+                $this->emailService($username, $email, $mailType,$otpNo);
+            }
+            
+            $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "password" => $password ?? null, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+10 minutes"))]);
 
             if(!$insertOtp)
             {
@@ -175,5 +174,164 @@ class UserService
         }
         
         return ["result" => true, "error" => ""];
+    }
+
+    public function sendPhoneOtp($profile_id, $number, $source, $platform, $country_code){
+        $otpCheck = OTPMaster::where("profile_id", $profile_id)->where('mobile', "=", $number)->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
+        ->where("source", $source)->orderBy("id", "desc")
+        ->where("deleted_at", null)
+        ->first();
+
+        if ($otpCheck == null) 
+        {
+            if (strlen($number) == 13) {
+                $number = substr($number, 3);
+            }
+
+            // check for server
+            $environment = env('APP_ENV');
+            if($environment == "test")
+            {
+                $otpNo = 123456;
+                $getResp = "test response";
+            } else {
+                $otpNo = mt_rand(100000, 999999);
+                $text = $otpNo . " is your OTP to verify your number with TagTaste.";
+                $getResp = $this->smsService($country_code, $number, $text);
+            }
+
+            $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "mobile" => $number, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
+
+            if(!$getResp || !$insertOtp)
+            {
+                return ["result" => false, "error" => "Something went wrong!"];
+            }
+
+        } else {
+            return ["result" => false, "error" => "OTP sent already. Please try again in 1 minute."];
+        }
+        return ["result" => true, "error" => ""];
+    }
+
+    //when otp is sent to both via email & phone
+    public function sendOtp($profile_id, $number, $country_code, $email, $source, $platform, $username, $mailType, $password){
+        $otpCheck = OTPMaster::where("profile_id", $profile_id)->where('mobile', "=", $number)->where('email',"=",$email)->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
+        ->where("source", $source)->orderBy("id", "desc")
+        ->where("deleted_at", null)
+        ->first();
+
+        if ($otpCheck == null) 
+        {
+            // check for server
+            $environment = env('APP_ENV');
+            if($environment == "test")
+            {
+                $otpNo = 123456;
+                $getResp = "test response";
+            }
+            else
+            {
+                //Send OTP     
+                $otpNo = mt_rand(100000, 999999);
+                $this->emailService($username, $email, $mailType,$otpNo); //via email
+                $text = $otpNo . " is your OTP to verify your number with TagTaste.";
+                $getResp = $this->smsService($text, $country_code, $number); //via sms
+            }
+            
+            $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "mobile" => $number,"email" => $email, "password" => $password, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+10 minutes"))]);
+
+            if(!$getResp || !$insertOtp)
+            {
+                $error = "Something went wrong!";
+                return ["result" => false, "error" => $error];
+            }
+        } else {
+            return ["result" => false, "error" => "OTP sent already. Please try again in 1 minute."];
+        }
+        return ["result" => true, "error" => ""];
+    }
+
+    public function verifyOtp($source, $otp, $phone = null, $email = null){
+        if(!empty($phone) && !empty($email)){
+            $otpVerification = OTPMaster::where('mobile', $phone)
+                ->where('email', $email)
+                ->where("source",$source)
+                ->whereNull("deleted_at")
+                ->orderBy("id", "desc")
+                ->first();
+            $otpMasterObj = OTPMaster::where('mobile', $phone)->where('email', $email)->where("source",$source);
+        } else if(isset($phone) && !empty($phone)){
+            $otpVerification = OTPMaster::where('mobile', $phone)
+                ->where("source",$source)
+                ->whereNull("deleted_at")
+                ->orderBy("id", "desc")
+                ->first();
+            $otpMasterObj = OTPMaster::where('mobile', $phone)->where("source",$source);
+        } else if(isset($email) && !empty($email)){
+            $otpVerification = OTPMaster::where('email', $email)
+                ->where("source",$source)
+                ->whereNull("deleted_at")
+                ->orderBy("id", "desc")
+                ->first();
+            $otpMasterObj = OTPMaster::where('email', $email)->where("source",$source);
+        }
+
+        if(empty($otpVerification))
+        {
+            return ["result" => false, "error" => "Something went wrong! Please regenerate OTP or try other methods."];
+        }
+
+        //check for otp attempts
+        if (isset($otpVerification) && $otpVerification->attempts >= config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
+            $otpMasterObj->update(["deleted_at" => date("Y-m-d H:i:s")]);
+            return ["result" => false, "error" => "OTP attempts exhausted. Please regenerate OTP or try other methods."];
+        }
+        
+        if ($otpVerification && $otpVerification->otp == $otp) {
+            //check for otp expiration 
+            if($otpVerification->expired_at < date("Y-m-d H:i:s"))
+            {
+                return ["result" => false, "error" => "OTP has expired. Please try again!"];
+            }
+
+            //Update attempts
+            $otpVerification->update(["attempts" => $otpVerification->attempts + 1]);
+            $password = $otpVerification->password;
+
+            //delete all records associated with this phone no or email
+            $otpMasterObj->update(["deleted_at" => date("Y-m-d H:i:s")]);
+
+            //check whether password is there or not and send password for password update
+            if(!empty($password)){
+                return ["result" => true, "error" => "", "password" => $password];
+            } 
+        } else {
+            $otpVerification->update(["attempts" => $otpVerification->attempts + 1]);
+            return ["result" => false, "error" => "Incorrect OTP entered. Please try again."];
+        }
+        return ["result" => true, "error" => ""];
+    }
+
+    public function emailService($username, $email, $mailType, $otpNo){
+        $mailDetails = ["username" => $username, "email" => $email, "otp" => $otpNo];
+        switch ($mailType) {
+            case 'signup':
+                $mail = new \App\Jobs\SignupEmailOtpVerification($mailDetails);
+                break;
+            case 'new_password':
+                $mail = new \App\Jobs\SignupEmailOtpVerification($mailDetails);
+                break;
+            default:
+                $mail = new \App\Jobs\EmailOtpVerification($mailDetails); // email verification on profile page
+                break;
+        };
+
+        \Log::info('Queueing email for otp verification...');
+        dispatch($mail);
+    }
+
+    public function smsService($country_code, $number, $text){
+        $service = "twilio";
+        return SMS::sendSMS($country_code . $number, $text, $service);
     }
 }

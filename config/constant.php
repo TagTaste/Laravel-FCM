@@ -130,6 +130,11 @@ return  [
     'SIGNUP_EMAIL_VERIFICATION' => "verify_signup_email",
     'EMAIL_VERIFICATION' => "verify_email",
     'PHONE_VERIFICATION' => "verify_phone",
+    'FORGOT_PASSWORD_EMAIL_VERIFICATION' => "verify_forgot_password_email",
+    'FORGOT_PASSWORD_PHONE_VERIFICATION' => "verify_forgot_password_phone",
+    'FORGOT_PASSWORD_FLOW' => "forgot_password",
+    'FORGOT_PASSWORD_TOKEN_EXPIRY' => "+15 minutes",
+    'NEW_PASSWORD_VERIFICATION' => "verify_new_password",
 
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
