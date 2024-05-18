@@ -563,9 +563,9 @@ class ApplicantController extends Controller
             //assigning batches while  invitating
 
             foreach ($batches as $value) {
-
+                Redis::sAdd("collaborate:$id:profile:$profileId:", $value);
+                Redis::set("current_status:batch:$value:profile:$profileId", 0);
                 $input = ['profile_id' => $profileId, 'batch_id' => $value, 'begin_tasting' => 0, 'created_at' => Carbon::now()->toDateTimeString(), 'collaborate_id' => $id];
-
                 BatchAssign::insert($input);
             }
         }
