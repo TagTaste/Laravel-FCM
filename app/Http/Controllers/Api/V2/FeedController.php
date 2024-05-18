@@ -90,6 +90,9 @@ class FeedController extends Controller
         $this->validatePayloadForVersion($request);
         $this->removeReportedPayloads($profileId);
         $page = $request->input('page');
+        $take = $request->input('limit');
+        $take = ($take > 13 || empty($take)) ? 13 : ($take < 3 ? 3 : $take); //limit should be minimum of 3 and maximum of 13
+
         if ($page > 20) {
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
@@ -97,7 +100,7 @@ class FeedController extends Controller
 
         $profileId = $request->user()->profile->id;
             
-        list($skip, $take) = Paginator::paginate($page, 13);
+        list($skip, $take) = Paginator::paginate($page, $take);
 
         $this->feed_card_computation($profileId);
         if ($skip == 0) {

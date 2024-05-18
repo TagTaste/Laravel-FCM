@@ -345,7 +345,8 @@ class SearchController extends Controller
         //paginate
 
         $page = $request->input('page');
-        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $take = $request->input('limit');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page, $take);
         $loggedInProfileId = $request->user()->profile->id;
         $profileIds = \DB::table('profile_specializations')->where('specialization_id', $id)->skip($skip)->take($take)->get()->pluck('profile_id');
         $profileIds = $profileIds->unique();
@@ -1703,8 +1704,9 @@ class SearchController extends Controller
         }
         $this->model = [];
         $page = $request->input('page');
-        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
-        // dd($skip);
+        $take = $request->input('limit');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page, $take);
+       
         if ($response['hits']['total'] > 0) {
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
