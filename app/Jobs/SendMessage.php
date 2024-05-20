@@ -44,7 +44,7 @@ class SendMessage implements ShouldQueue
      */
     public function handle()
     {
-        if(count($this->profileIds))
+        if(isset($this->profileIds) && count($this->profileIds))
         {
             foreach ($this->profileIds as $profileId) {
                 Log::info("Creating chat between {$this->loggedInProfileId} and {$profileId}");
@@ -64,7 +64,7 @@ class SendMessage implements ShouldQueue
                 Log::info("Message sent successfully.");
             }
         }
-        if(count($this->chatIds))
+        if(isset($this->chatIds) && count($this->chatIds))
         {
             foreach ($this->chatIds as $chatId){
                 $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$this->loggedInProfileId)->whereNull('exited_on')->exists();
