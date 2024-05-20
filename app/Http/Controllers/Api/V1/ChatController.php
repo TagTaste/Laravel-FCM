@@ -278,25 +278,9 @@ class ChatController extends Controller
             $info['preview'] = null;
         }
 
-        if(count($profileIds))
-        {
-            foreach ($profileIds as $profileId) {
-                dispatch(new CreateChat($loggedInProfileId, $profileId, $inputs['message'], $info['preview']));
-                $this->model = true;
-            }
-        }
-        if(count($chatIds))
-        {
-            foreach ($chatIds as $chatId){
-                $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
-                if($isMember)
-                {
-                    dispatch(new SendMessage(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]));
-                    $this->model = true;
-                }
-            }
-        }
-
+        //Check for profile or chatIds and send message.
+        dispatch(new SendMessage($profileIds, $chatIds, $loggedInProfileId, $inputs['message'], $info['preview']));
+        $this->model = true;
         return $this->sendResponse();
     }
 

@@ -9,6 +9,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Log;
 use App\V1\Chat\Message;
+use App\V1\Chat\Member;
+use App\V1\Chat;
 
 class SendMessage implements ShouldQueue
 {
@@ -20,10 +22,19 @@ class SendMessage implements ShouldQueue
      * @return void
      */
     
-    protected $messageData;
-    public function __construct($messageData)
+    protected $profileIds;
+    protected $chatIds;
+    protected $loggedInProfileId;
+    protected $message;
+    protected $preview;
+
+    public function __construct($profileIds, $chatIds, $loggedInProfileId, $message, $preview)
     {
-        $this->messageData = $messageData;
+        $this->profileIds = $profileIds;
+        $this->chatIds = $chatIds;
+        $this->loggedInProfileId = $loggedInProfileId;
+        $this->message = $message;
+        $this->preview = $preview;
     }
 
     /**
@@ -33,10 +44,37 @@ class SendMessage implements ShouldQueue
      */
     public function handle()
     {
-        Log::info("Sending message: {$this->messageData['message']} to chat ID: {$this->messageData['chat_id']}");
+        if(count($this->profileIds))
+        {
+            foreach ($this->profileIds as $profileId) {
+                Log::info("Creating chat between {$this->loggedInProfileId} and {$profileId}");
+                $chat = Chat::open($this->loggedInProfileId, $profileId);
+                if (!$chat) {
+                    $chat = Chat::create(['profile_id' => $this->loggedInProfileId, 'chat_type' => 1]);
+                    $input = [
+                        ['chat_id' => $chat->id, 'profile_id' => $this->loggedInProfileId, 'is_admin' => 1],
+                        ['chat_id' => $chat->id, 'profile_id' => $profileId, 'is_admin' => 0]
+                    ];
+                    Member::insert($input);
+                }
+                Log::info("New chat created with ID: {$chat->id}");
 
-        Message::create($this->messageData);
-
-        Log::info("Message sent successfully.");
+                Log::info("Sending message: {$this->message} to chat ID: {$chat->id}");
+                Message::create(['message'=>$this->message, 'profile_id'=>$this->loggedInProfileId, 'preview'=>$this->preview, 'chat_id'=>$chat->id]);
+                Log::info("Message sent successfully.");
+            }
+        }
+        if(count($this->chatIds))
+        {
+            foreach ($this->chatIds as $chatId){
+                $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$this->loggedInProfileId)->whereNull('exited_on')->exists();
+                if($isMember)
+                {
+                    Log::info("Sending message: {$this->message} to chat ID: {$chatId}");
+                    Message::create(['message'=>$this->message, 'profile_id'=>$this->loggedInProfileId, 'preview'=>$this->preview, 'chat_id'=>$chatId]);
+                    Log::info("Message sent successfully.");
+                }
+            }
+        }
     }
 }
