@@ -82,7 +82,7 @@ class SendMessage implements ShouldQueue
 
     public function addMessageAndRecepients($messageToSend, $loggedInProfileId, $previewData, $chat_id){
         $latestMessageId = \DB::table('chat_messages')->insertGetId(['message'=>$messageToSend, 'profile_id'=>$loggedInProfileId, 'preview'=>$previewData, 'chat_id'=>$chat_id, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()]);
-        $message = Message::findOrFail($latestMessageId);
+        $message = \DB::table('chat_messages')->find($latestMessageId);
         $members = Member::withTrashed()->where('chat_id',$message->chat_id)->whereNull('exited_on')->pluck('profile_id');
         Member::where('chat_id',$message->chat_id)->onlyTrashed()->update(['deleted_at'=>null]);
         $recepient = [];
@@ -105,6 +105,6 @@ class SendMessage implements ShouldQueue
             }
         }
         \DB::table('message_recepients')->insert($recepient);
-        Redis::publish("chat." . $message->chat_id,$message->toJson());  
+        Redis::publish("chat." . $message->chat_id,json_encode($message));  
     }
 }
