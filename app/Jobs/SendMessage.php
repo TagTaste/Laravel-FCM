@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use App\V1\Chat\Message;
 use App\V1\Chat\Member;
 use App\V1\Chat;
+use Illuminate\Support\Facades\Redis;
+use Carbon\Carbon;
 
 class SendMessage implements ShouldQueue
 {
@@ -60,7 +62,7 @@ class SendMessage implements ShouldQueue
                 Log::info("New chat created with ID: {$chat->id}");
 
                 Log::info("Sending message: {$this->message} to chat ID: {$chat->id}");
-                Message::create(['message'=>$this->message, 'profile_id'=>$this->loggedInProfileId, 'preview'=>$this->preview, 'chat_id'=>$chat->id]);
+                $this->addMessageAndRecepients($this->message, $this->loggedInProfileId, $this->preview, $chat->id);
                 Log::info("Message sent successfully.");
             }
         }
@@ -71,10 +73,38 @@ class SendMessage implements ShouldQueue
                 if($isMember)
                 {
                     Log::info("Sending message: {$this->message} to chat ID: {$chatId}");
-                    Message::create(['message'=>$this->message, 'profile_id'=>$this->loggedInProfileId, 'preview'=>$this->preview, 'chat_id'=>$chatId]);
+                    $this->addMessageAndRecepients($this->message, $this->loggedInProfileId, $this->preview, $chatId);
                     Log::info("Message sent successfully.");
                 }
             }
         }
+    }
+
+    public function addMessageAndRecepients($messageToSend, $loggedInProfileId, $previewData, $chat_id){
+        $latestMessageId = \DB::table('chat_messages')->insertGetId(['message'=>$messageToSend, 'profile_id'=>$loggedInProfileId, 'preview'=>$previewData, 'chat_id'=>$chat_id, 'created_at'=>Carbon::now(), 'updated_at'=>Carbon::now()]);
+        $message = Message::findOrFail($latestMessageId);
+        $members = Member::withTrashed()->where('chat_id',$message->chat_id)->whereNull('exited_on')->pluck('profile_id');
+        Member::where('chat_id',$message->chat_id)->onlyTrashed()->update(['deleted_at'=>null]);
+        $recepient = [];
+        $time = $message->created_at;
+        foreach ($members as $profileId) {
+            if($profileId == $message->profile_id)
+            {
+                $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => $time];
+            }
+            else
+            {
+                if($message->type != 0)
+                {
+                    $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => $time];
+                }
+                else
+                {
+                    $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => null];
+                }
+            }
+        }
+        \DB::table('message_recepients')->insert($recepient);
+        Redis::publish("chat." . $message->chat_id,$message->toJson());  
     }
 }

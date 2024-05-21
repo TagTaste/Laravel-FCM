@@ -14,7 +14,6 @@ use App\CompanyUser;
 use App\Traits\CheckTTEmployee;
 use App\Collaborate;
 use App\Surveys;
-use App\Jobs\CreateChat;
 use App\Jobs\SendMessage;
 
 class ChatController extends Controller
