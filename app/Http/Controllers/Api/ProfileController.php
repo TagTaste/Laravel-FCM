@@ -1124,13 +1124,14 @@ class ProfileController extends Controller
             if(empty($userData)){
                 return $this->sendNewError("We couldn't find any account associated with the provided email. Please try other methods.");
             }
-            $result = $this->userService->sendEmailOtp($userData->profile->id, $email, config("constant.FORGOT_PASSWORD_EMAIL_VERIFICATION"), $platform, $userData->name, 'new_password');
+            $result = $this->userService->sendEmailOtp($userData->profile->id, $email, config("constant.FORGOT_PASSWORD_EMAIL_VERIFICATION"), $platform, $userData->name, 'forgot_password');
 
         } else { //send otp via sms
             $phone = $request->phone;
             $country_code = $request->country_code;
-
-            $profileData = Profile::select('id','user_id')->where("phone", $phone)->where('country_code', $country_code)->whereNull('deleted_at')->first();
+            $country_codes = [$country_code, substr($country_code, 1)];
+            
+            $profileData = Profile::select('id','user_id')->where("phone", $phone)->whereIn('country_code', $country_codes)->whereNull('deleted_at')->first();
             if(empty($profileData)){
                 return $this->sendNewError("We couldn't find any account associated with the provided phone number. Please try other methods.");
             }
@@ -1243,8 +1244,9 @@ class ProfileController extends Controller
     //New password : send otp for verification
     public function passwordSendOtp(Request $request){
         $user = $request->user();
+        $user_id = $user->id;
         $profile_id = $user->profile->id;
-        $userData = User::where('id', $user->id)->first();
+        $userData = User::where('id', $user_id)->first(); 
         $platform = $this->getPlatform($request);
         $password = $request->password;
 
@@ -1257,10 +1259,12 @@ class ProfileController extends Controller
         //check whether this user's phone number is verified or not
         $profileData = Profile::where('id', $profile_id)->first();
         $phone_verification = $profileData->verified_phone;
+        $mailType = empty($userData->password) ? "create_password" : "change_password";
+
         if($phone_verification && $phone_verification == 1){
-            $result = $this->userService->sendOtp($profile_id, $profileData->phone, $profileData->country_code, $userData->email, config("constant.NEW_PASSWORD_VERIFICATION"), $platform, $userData->name, 'new_password', bcrypt($password));
+            $result = $this->userService->sendOtp($profile_id, $profileData->phone, $profileData->country_code, $userData->email, config("constant.NEW_PASSWORD_VERIFICATION"), $platform, $userData->name, $mailType, bcrypt($password));
         } else {
-            $result = $this->userService->sendEmailOtp($profile_id, $userData->email, config("constant.NEW_PASSWORD_VERIFICATION"), $platform, $userData->name, 'new_password', bcrypt($password));
+            $result = $this->userService->sendEmailOtp($profile_id, $userData->email, config("constant.NEW_PASSWORD_VERIFICATION"), $platform, $userData->name, $mailType, bcrypt($password));
         }
         if($result['result'] == false)
         {
@@ -1293,6 +1297,8 @@ class ProfileController extends Controller
         } else {
             //update password for that user
             $userData->update(['password' => $result['password']]);
+            //force logout user
+            $this->userService->forceLogoutUser(array('profile_id' => $profile_id));
             $this->model = $result['result'];
             return $this->sendNewResponse();
         }

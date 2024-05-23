@@ -157,7 +157,7 @@ class UserService
             {
                 //Send OTP     
                 $otpNo = mt_rand(100000, 999999);
-                $this->emailService($username, $email, $mailType,$otpNo);
+                $this->emailService($username, $email, $mailType, $otpNo);
             }
             
             $insertOtp = OTPMaster::create(["profile_id" => $profile_id, "otp" => $otpNo, "email" => $email, "password" => $password ?? null, "source" => $source, "platform" => $platform ?? null, "expired_at" => date("Y-m-d H:i:s", strtotime("+10 minutes"))]);
@@ -196,7 +196,7 @@ class UserService
                 $getResp = "test response";
             } else {
                 $otpNo = mt_rand(100000, 999999);
-                $text = $otpNo . " is your OTP to verify your number with TagTaste.";
+                $text = "Use OTP ".$otpNo." to verify your TagTaste account. Please DO NOT share this OTP with anyone.";
                 $getResp = $this->smsService($country_code, $number, $text);
             }
 
@@ -234,7 +234,7 @@ class UserService
                 //Send OTP     
                 $otpNo = mt_rand(100000, 999999);
                 $this->emailService($username, $email, $mailType,$otpNo); //via email
-                $text = $otpNo . " is your OTP to verify your number with TagTaste.";
+                $text = "Use OTP ".$otpNo." to verify your TagTaste account. Please DO NOT share this OTP with anyone.";
                 $getResp = $this->smsService($text, $country_code, $number); //via sms
             }
             
@@ -313,15 +313,25 @@ class UserService
     }
 
     public function emailService($username, $email, $mailType, $otpNo){
-        $mailDetails = ["username" => $username, "email" => $email, "otp" => $otpNo];
         switch ($mailType) {
             case 'signup':
+                $mailDetails = ["username" => $username, "email" => $email, "otp" => $otpNo];
                 $mail = new \App\Jobs\SignupEmailOtpVerification($mailDetails);
                 break;
-            case 'new_password':
-                $mail = new \App\Jobs\SignupEmailOtpVerification($mailDetails);
+            case 'create_password':
+                $mailDetails = ["username" => $username, "email" => $email, "otp" => $otpNo, "mail" => $mailType];
+                $mail = new \App\Jobs\NewPasswordEmailVerification($mailDetails);
+                break;
+            case 'change_password':
+                $mailDetails = ["username" => $username, "email" => $email, "otp" => $otpNo, "mail" => $mailType];
+                $mail = new \App\Jobs\NewPasswordEmailVerification($mailDetails);
+                break;
+            case 'forgot_password':
+                $mailDetails = ["username" => $username, "email" => $email, "otp" => $otpNo, "mail" => $mailType];
+                $mail = new \App\Jobs\NewPasswordEmailVerification($mailDetails);
                 break;
             default:
+            $mailDetails = ["username" => $username, "email" => $email, "otp" => $otpNo];
                 $mail = new \App\Jobs\EmailOtpVerification($mailDetails); // email verification on profile page
                 break;
         };
