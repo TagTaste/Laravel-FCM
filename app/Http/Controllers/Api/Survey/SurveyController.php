@@ -4260,7 +4260,7 @@ class SurveyController extends Controller
         }
         // dd($questionIdMapping);
         // $applicants = SurveyAttemptMapping::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->groupBy("profile_id")->where("deleted_at", "=", null);
-        $applicants = SurveyAttemptMapping::select('profile_id','attempt')->where("survey_id", "=", $id)->whereNotNull("completion_date")->where("deleted_at", "=", null);
+        $applicants = SurveyAttemptMapping::select('profile_id','attempt','duration')->where("survey_id", "=", $id)->whereNotNull("completion_date")->where("deleted_at", "=", null);
 
 
         // $getCount = $applicants->get();
@@ -4276,6 +4276,7 @@ class SurveyController extends Controller
         $finalAttempMapping = [];
         foreach($getCount as $pattempt) {
             $finalAttempMapping[$pattempt->profile_id][] = $pattempt->attempt;
+            $profileSubmissionDuration[$pattempt->profile_id][$pattempt->attempt] = $pattempt->duration;
         }
 
         // $pluck = $getCount->pluck("profile_id")->toArray();
@@ -4311,7 +4312,7 @@ class SurveyController extends Controller
         foreach ($getSurveyAnswers as $answers) {
             if (!isset($headers[$answers->profile_id][$answers->attempt])) {
                 $counter++;
-                $headers[$answers->profile_id][$answers->attempt] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null,"generation"=>null,"gender"=>null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Timestamp" => null];
+                $headers[$answers->profile_id][$answers->attempt] =  ["Sr no" => $counter, "Name" => null, "Email" => null, "Age" => null,"generation"=>null,"gender"=>null, "Phone" => null, "City" => null, "Hometown" => null, "Profile Url" => null, "Duration" => null, "Timestamp" => null];
                 foreach ($questionIdMapping as $key => $value) {
 
                     if (isset($rankMapping[$key])) {
@@ -4354,6 +4355,7 @@ class SurveyController extends Controller
                 $headers[$answers->profile_id][$answers->attempt]["City"] = html_entity_decode($answers->profile->city);
                 $headers[$answers->profile_id][$answers->attempt]["Hometown"] = html_entity_decode($surveyApplicant->hometown);
                 $headers[$answers->profile_id][$answers->attempt]["Profile Url"] = env('APP_URL') . "/@" . html_entity_decode($answers->profile->handle);
+                $headers[$answers->profile_id][$answers->attempt]["Duration"] = $profileSubmissionDuration[$answers->profile_id][$answers->attempt];
                 $headers[$answers->profile_id][$answers->attempt]["Timestamp"] = date("Y-m-d H:i:s", strtotime($answers->created_at)) . " GMT +5.30";
 
                 $ans = "";
