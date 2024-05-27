@@ -15,7 +15,7 @@ class TempTokens extends Model
      * @var array
      */
     protected $fillable = [
-        'email','questionnaire_share_id', 'source', 'token', 'created_at', 'updated_at','deleted_at','expired_at'
+        'email','questionnaire_share_id', 'profile_id', 'source', 'token', 'created_at', 'updated_at','deleted_at','expired_at'
     ];
 
 }

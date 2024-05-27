@@ -64,7 +64,7 @@ Route::post('login', function (Request $request) {
                 $platform = "web";
             }
 
-            $verificationResult =  app('App\Services\UserService')->sendVerificationEmail($credentials['email'], $source, $platform, 'sign-up');
+            $verificationResult =  app('App\Services\UserService')->emailVerification($credentials['email'], $source, $platform, 'signup');
             if($verificationResult['result'] == false)
             {
                 return response()->json(['error' => 'email_verification', 'message' => $verificationResult['error']], 401);
@@ -184,6 +184,15 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
     Route::post('/user/register', ['uses' => 'UserController@register']);
     Route::get("profile/images/{id}.jpg", ['as' => 'profile.image', 'uses' => 'ProfileController@image']);
     Route::get("profile/hero/{id}.jpg", ['as' => 'profile.heroImage', 'uses' => 'ProfileController@heroImage']);
+
+    /**
+     * Forgot password
+    */
+
+    // Forgot password : send OTP for verification
+    Route::post('forgot/send/otp', 'ProfileController@forgotSendOtp');
+    Route::post('forgot/verification/otp', 'ProfileController@forgotVerifyOtp');
+    Route::post('forgot/reset', 'ProfileController@resetPassword');
     
     /**
      * newsletter.
@@ -404,6 +413,10 @@ Route::group(['namespace' => 'Api', 'as' => 'api.'], function () {
          * Route to change password.
          */
         Route::post("change/password", "UserController@changePassword");
+
+        //Change or create password : otp verification
+        Route::post('profile/password', 'ProfileController@passwordSendOtp');
+        Route::post('profile/verification/otp', 'ProfileController@passwordVerifyOtp');
 
         // polling
         Route::post('polling/{id}/like', 'PollingController@like');

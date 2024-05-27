@@ -77,7 +77,7 @@ class UserController extends Controller
                 $platform = "web";
             }
 
-            $verificationResult = $this->userService->sendVerificationEmail($user->email, $source, $platform, 'sign-up');
+            $verificationResult = $this->userService->emailVerification($user->email, $source, $platform, 'signup');
             if($verificationResult['result'] == false)
             {
                 return ['status'=>'failed','errors'=>$verificationResult['error'],'result'=>[]];
