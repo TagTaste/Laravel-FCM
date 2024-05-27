@@ -24,11 +24,12 @@ use Carbon\Carbon;
 use App\Helper;
 use Illuminate\Support\Facades\DB;
 use App\Traits\FlagReview;
+use App\Traits\SecondsToTime;
 
 class SurveyApplicantController extends Controller
 {
 
-    use SendsJsonResponse, FilterTraits, FlagReview;
+    use SendsJsonResponse, FilterTraits, FlagReview, SecondsToTime;
 
     private $frontEndApplicationStatus = [0 => "Begin Tasting", 1 => "Notified", 2 => "Completed", 3 => "In Progress"];
     public function __construct(Surveys $model)
@@ -1378,38 +1379,6 @@ class SurveyApplicantController extends Controller
         $this->model["overview"][] = ['title' => "Super Taster", "count" => $countSuperTaste->count()];
 
         return $this->sendResponse();
-    }
-
-    function secondsToTime($seconds)
-    {
-        $s = $seconds % 60;
-        $m = floor(($seconds % 3600) / 60);
-        $h = floor(($seconds % 86400) / 3600);
-        $d = floor(($seconds % 2592000) / 86400);
-        $M = floor($seconds / 2592000);
-        
-        $durationStr = "";
-        if ($M > 0) {
-            $durationStr .= $M."m ";
-        }
-
-        if ($d > 0) {
-            $durationStr .= $d."d ";
-        }
-
-        if ($h > 0) {
-            $durationStr .= $h."h ";
-        }
-
-        if ($m > 0) {
-            $durationStr .= $m."m ";
-        }
-
-        if ($s > 0) {
-            $durationStr .= $s."s";
-        }
-
-        return $durationStr;
     }
 
     public function getSubmissionTimeline($id, $profile_id, Request $request)

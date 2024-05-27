@@ -42,11 +42,12 @@ use App\SurveyAttemptMapping;
 use App\Helper;
 use App\SurveysEntryMapping;
 use App\Traits\FlagReview;
+use App\Traits\SecondsToTime;
 
 class SurveyController extends Controller
 {
 
-    use SendsJsonResponse, FilterTraits, FlagReview;
+    use SendsJsonResponse, FilterTraits, FlagReview, SecondsToTime;
 
     protected $model;
 
@@ -4276,7 +4277,7 @@ class SurveyController extends Controller
         $finalAttempMapping = [];
         foreach($getCount as $pattempt) {
             $finalAttempMapping[$pattempt->profile_id][] = $pattempt->attempt;
-            $profileSubmissionDuration[$pattempt->profile_id][$pattempt->attempt] = $pattempt->duration;
+            $profileSubmissionDuration[$pattempt->profile_id][$pattempt->attempt] = $this->secondsToTime($pattempt->duration);
         }
 
         // $pluck = $getCount->pluck("profile_id")->toArray();
