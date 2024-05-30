@@ -191,6 +191,7 @@ class QuestionController extends Controller
             ->where(function ($query) use ($term){
                 foreach($term as $val)
                 {
+                    $query->orWhereRaw('SOUNDEX(?) = SOUNDEX(value)', $val);
                     $query->orWhere('value','like','%'.$val.'%');
                 }
             })->get();
@@ -214,7 +215,7 @@ class QuestionController extends Controller
         $parent_value = htmlspecialchars_decode($request->input('parent_value'));
 
         $value = $request->input('term');
-
+        
         $term = array_filter(explode(" ",$value), 'strlen');
 
         $product = PublicReviewProduct::where('id',$productId)->first();
@@ -229,6 +230,7 @@ class QuestionController extends Controller
             ->where(function ($query) use ($term)
             {
                 foreach($term as $val){
+                    $query->orWhereRaw('SOUNDEX(?) = SOUNDEX(value)', $val);
                     $query->orWhere("value",'like','%'.$val.'%');
                 }
             })

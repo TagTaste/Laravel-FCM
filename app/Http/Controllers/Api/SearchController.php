@@ -69,14 +69,17 @@ class SearchController extends Controller
                 }
             }
         }
+
         if (count($ids)) {
             if ($type == 'collaborate') {
                 $model = $model::whereIn('id', $ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids)->where('step', 3)->where("state", 1);
             } else
                 $model = $model::whereIn('id', $ids)->whereNull('deleted_at');
 
-            if ($type == "surveys" || $type == "quiz") {
-                $model = $model->orderBy('created_at', "desc");
+            if($type == "surveys"){ 
+                $model = $model->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"))->orderBy('created_at', "desc");
+            } else if ($type == "quiz") {
+                $model = $model->where("state", "=", config("constant.QUIZ_STATES.PUBLISHED"))->orderBy('created_at', "desc");
             } else {
                 $model = $model->orderByRaw("field(id,{$placeholders})", $ids);
             }
@@ -268,6 +271,7 @@ class SearchController extends Controller
         if (null == $type || "surveys" === $type) {
             $surveyList = \DB::table('surveys')->where('state', '!=', 1)
                 ->where('title', 'like', '%' . $term . '%')
+                ->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"))
                 ->whereNull('deleted_at')->orderBy('created_at', 'desc')->skip($skip)
                 ->take($take)->get();
 
@@ -282,6 +286,7 @@ class SearchController extends Controller
         if (null == $type || "quiz" === $type) {
             $quizList = \DB::table('quizes')->where('state', '!=', 1)
                 ->where('title', 'like', '%' . $term . '%')
+                ->where("state", "=", config("constant.QUIZ_STATES.PUBLISHED"))
                 ->whereNull('deleted_at')->orderBy('created_at', 'desc')->skip($skip)
                 ->take($take)->get();
 
@@ -389,7 +394,8 @@ class SearchController extends Controller
         }
         $this->model = [];
         $page = $request->input('page');
-        list($skip, $take) = \App\Strategies\Paginator::paginate($page);
+        $take = $request->input('limit');
+        list($skip, $take) = \App\Strategies\Paginator::paginate($page, $take);
         if ($response['hits']['total'] > 0) {
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
@@ -454,7 +460,7 @@ class SearchController extends Controller
                 }
             }
             if (isset($this->model['surveys'])) {
-                $surveys = $this->model['surveys']->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"));
+                $surveys = $this->model['surveys'];
                 $this->model['surveys'] = [];
                 foreach ($surveys as $survey) {
                     $survey->image_meta = json_decode($survey->image_meta);
@@ -514,7 +520,7 @@ class SearchController extends Controller
                 }
             }
             if (isset($this->model['surveys'])) {
-                $surveys = $this->model['surveys']->where("state", "=", config("constant.SURVEY_STATES.PUBLISHED"));
+                $surveys = $this->model['surveys'];
                 $this->model['surveys'] = [];
                 foreach ($surveys as $survey) {
                     $survey->image_meta = json_decode($survey->image_meta);
@@ -535,7 +541,7 @@ class SearchController extends Controller
             }
 
             if (isset($this->model['quiz'])) {
-                $quizes = $this->model['quiz']->where("state", "=", config("constant.QUIZ_STATES.PUBLISHED"));
+                $quizes = $this->model['quiz'];
                 unset($this->model['quiz']);
                 foreach ($quizes as $quiz) {
                     $quiz->image_meta = json_decode($quiz->image_meta);

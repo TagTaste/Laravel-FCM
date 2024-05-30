@@ -93,6 +93,19 @@ return  [
         'SECTION_SUBMIT' => 'section_submit',
         'END' => 'final_submit'
     ],
+
+    'REVIEW_TIME_INTERVAL_POPUP' => [
+        "title" => "Palate Intermission",
+        "description" => "A moment to cleanse and refresh your palate. Enjoy the break and prepare for the next culinary delight.",
+        "timer_start_text" => "New Tastings will appear in",
+        "timer_end_text" => "Interval Complete, On to the Next Review Time to Shine Again!"
+    ],
+
+    'REVIEW_DAILY_LIMIT_POPUP' => [
+        "title" => "Daily Tasting Limit Reached",
+        "description" => "You've hit your maximum daily food tastings. To continue tasting, please note that your review may be flagged and potentially rejected.",
+        "image_url" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/tasting/card.png"
+    ],
   
     'SURVEY_ACTIVITY' => [
         'START' => 'start',
@@ -130,6 +143,11 @@ return  [
     'SIGNUP_EMAIL_VERIFICATION' => "verify_signup_email",
     'EMAIL_VERIFICATION' => "verify_email",
     'PHONE_VERIFICATION' => "verify_phone",
+    'FORGOT_PASSWORD_EMAIL_VERIFICATION' => "verify_forgot_password_email",
+    'FORGOT_PASSWORD_PHONE_VERIFICATION' => "verify_forgot_password_phone",
+    'FORGOT_PASSWORD_FLOW' => "forgot_password",
+    'FORGOT_PASSWORD_TOKEN_EXPIRY' => "+15 minutes",
+    'NEW_PASSWORD_VERIFICATION' => "verify_new_password",
 
     "SURVEY_PRIVATE" => 1,
     "SURVEY_PUBLIC" => 0,
@@ -214,7 +232,8 @@ return  [
     "FLAG_REASONS_TEXT" => [
         "review_start_time" => 'review time',
         "review_duration" => 'review duration',
-        "tagtaste_employee" => 'being TT employee'
+        "tagtaste_employee" => 'being TT employee',
+        "review_daily_limit" => 'overflow tastings'
     ],
 
     "FILTER_TYPE" => [

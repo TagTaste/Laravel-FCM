@@ -69,7 +69,7 @@ class FeedController extends Controller
     public function public(Request $request, $profileId)
     {
         $page = $request->input('page',1);
-        $take = 20;
+        $take = $request->input('limit',20);
         $skip = $page > 1 ? ($page - 1) * $take : 0;
 
         $profile_id = $request->user()->profile->id;

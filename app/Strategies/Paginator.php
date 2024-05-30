@@ -24,7 +24,8 @@ class Paginator
     private function __construct($page = null, $take = null)
     {
         $this->page = $page ?? 1;
-        $this->take = $take ?? 20;
+        // $this->take = $take ?? 20;
+        $this->take = $take ? ($take > 20 ? 20 : $take) : 20;
         $this->skip = $this->calculateSkip();
     }
     

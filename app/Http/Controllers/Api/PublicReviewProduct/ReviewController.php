@@ -8,7 +8,6 @@ use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use App\Payment\PaymentDetails;
 use App\Payment\PaymentLinks;
-
 use Carbon\Carbon;
 use App\Traits\CheckTags;
 use App\Events\Actions\Tag;
@@ -23,10 +22,11 @@ use App\PublicReviewUserTiming;
 use Illuminate\Support\Facades\Log;
 use App\PublicReviewEntryMapping;
 use App\Traits\FlagReview;
+use App\Traits\ReviewLimitations;
 
 class ReviewController extends Controller
 {
-    use CheckTags, FlagReview;
+    use CheckTags, FlagReview, ReviewLimitations;
     /**
      * Variable to model
      *
@@ -385,7 +385,7 @@ class ReviewController extends Controller
         // begin transaction
         \DB::beginTransaction();
         try {
-            $this->model = false;
+            $this->model = ["status" => false];
             $profileId = $request->user()->profile->id;
             $product = PublicReviewProduct::where('id', $productId)->first();
             if ($product === null) {
@@ -401,22 +401,31 @@ class ReviewController extends Controller
                 return $this->sendNewError("User already reviewd.");
             }
 
-            // Add start time of review and current_status
-            $currentDateTime = Carbon::now();
-            $existingRecord = PublicReviewUserTiming::where('product_id', $productId)->where('profile_id', $profileId)->latest('created_at');
-
-            if(!$existingRecord->exists()){
-                PublicReviewUserTiming::insert([
-                    'product_id' => $productId,
-                    'profile_id' => $profileId,
-                    'start_review' => $currentDateTime,
-                    'current_status' => 1,
-                ]);
+            // when no crieteria to check
+            $enforced_response = $request->enforce;
+            if(isset($enforced_response) && $enforced_response == true){
+                // Add start time of review and current_status
+                $this->createPublicProductReviewEntry($profileId, $productId);
+                \DB::commit();
+                $this->model = ["status" => true];
+                return $this->sendNewResponse();
             } 
-            PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
 
-            $this->model = true;
+            // Check whether review count limit exceeds or not
+            $reviewCount = $this->checkDailyReviewCount($profileId, 'product');
+            if(isset($reviewCount['status']) && $reviewCount['status'] == false){
+                \DB::commit();
+                $this->model = $reviewCount;
+                return $this->sendNewResponse();
+            } 
+        
+            // default response
+            // Add start time of review and current_status
+            $this->createPublicProductReviewEntry($profileId, $productId);
             \DB::commit();
+            $this->model = ["status" => true];
+            return $this->sendNewResponse();
+            
 
         } catch (\Exception $e) {
             // roll in case of error
@@ -425,9 +434,23 @@ class ReviewController extends Controller
             $this->model = null;
             return $this->sendNewError($e->getMessage());
         }
-        
-        return $this->sendNewResponse();
     }
+
+    public function createPublicProductReviewEntry($profileId, $productId){
+        $currentDateTime = Carbon::now();
+        $existingRecord = PublicReviewUserTiming::where('product_id', $productId)->where('profile_id', $profileId)->latest('created_at');
+
+        if(!$existingRecord->exists()){
+            PublicReviewUserTiming::insert([
+                'product_id' => $productId,
+                'profile_id' => $profileId,
+                'start_review' => $currentDateTime,
+                'current_status' => 1,
+            ]);
+        } 
+        PublicReviewEntryMapping::create(["profile_id"=>$profileId, "product_id"=>$productId, "activity"=>config("constant.REVIEW_ACTIVITY.START"), "created_at"=>$currentDateTime, "updated_at"=>$currentDateTime]);
+    }
+
     public function comments(Request $request, $productId, $reviewId)
     {
         $model = $this->model->where('id', $reviewId)->where('product_id', $productId)->first();

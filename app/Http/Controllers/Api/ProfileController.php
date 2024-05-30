@@ -9,26 +9,31 @@ use App\Events\SuggestionEngineEvent;
 use App\Profile;
 use App\Recipe\Collaborate;
 use App\Subscriber;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-use App\User;
-use App\OTPMaster;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use App\Jobs\PhoneVerify;
-use App\Services\SMS;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
-use Twilio\Rest\Client as TwilioClient;
-use Twilio\Jwt\ClientToken;
 use App\BlockAccount\BlockAccount;
 use App\Services\UserService;
 use App\DonationProfileMapping;
+use App\User;
+use App\OTPMaster;
+use App\TempTokens;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
+use Twilio\Rest\Client as TwilioClient;
+use Twilio\Jwt\ClientToken;
+use App\Jobs\PhoneVerify;
+use App\Services\SMS;
 use App\Traits\ProfileData;
+use App\Traits\GetPlatform;
+use App\Traits\VerifyPassword;
 
 class ProfileController extends Controller
 {
-    use ProfileData;
+    use ProfileData, GetPlatform, VerifyPassword;
     protected $userService;
 
     public function __construct(UserService $userService)
@@ -796,12 +801,12 @@ class ProfileController extends Controller
                 ->first();
             
             if (isset($existForOther)) {
-                return $this->sendError(["This number is already verified. Please try with another number or contact tagtaste for any query."]);
+                return $this->sendNewError(["This number is already verified. Please try with another number or contact tagtaste for any query."]);
             } else if (($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0) {
                 $profile->update(['verified_phone' => 0]);
                 $number = $data['profile']['phone'];
                 $source = config("constant.PHONE_VERIFICATION");
-    
+                
                 $otpCheck = OTPMaster::where("profile_id", $profile_id)->where('mobile', "=", $number)->where("created_at", ">", date("Y-m-d H:i:s", strtotime("-" . config("constant.OTP_LOGIN_TIMEOUT_MINUTES") . " minutes")))
                 ->where("source", $source)->orderBy("id", "desc")
                 ->where("deleted_at", null)
@@ -819,7 +824,7 @@ class ProfileController extends Controller
                     } else {
                         $platform = "web";
                     }
-    
+
                     if (strlen($number) == 13) {
                         $number = substr($number, 3);
                     }
@@ -961,8 +966,8 @@ class ProfileController extends Controller
         $email = $request->email;
         $platform = $request->platform;
 
-        // Service called to send verification email
-        $result = $this->userService->sendVerificationEmail($email, $source, $platform);
+        //Service called to send verification email
+        $result = $this->userService->emailVerification($email, $source, $platform);
         if($result['result'] == false)
         {
             return $this->sendError($result['error']);
@@ -982,7 +987,7 @@ class ProfileController extends Controller
         $otp = $request->otp;
 
         $otpVerification = OTPMaster::where('email', $email)
-            ->whereIn("source",[ $source, $another_source])
+            ->whereIn("source",[$source, $another_source])
             ->where("deleted_at", null)
             ->orderBy("id", "desc")
             ->first();
@@ -994,7 +999,7 @@ class ProfileController extends Controller
 
         // check for otp attempts
         if ($otpVerification && $otpVerification->attempts >= config("constant.OTP_LOGIN_VERIFY_MAX_ATTEMPT")) {
-            OTPMaster::where('email', $email)->whereIn("source",[ $source, $another_source])->update(["deleted_at" => date("Y-m-d H:i:s")]);
+            OTPMaster::where('email', $email)->whereIn("source",[$source, $another_source])->update(["deleted_at" => date("Y-m-d H:i:s")]);
             return $this->sendError("OTP attempts exhausted. Please regenerate OTP or try other login methods.");
         }
 
@@ -1097,6 +1102,206 @@ class ProfileController extends Controller
         \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
 
         return $this->sendResponse();
+    }
+
+    //Forgot password : send otp for verification
+    public function forgotSendOtp(Request $request){
+        if(empty($request->email) && empty($request->phone)){
+            return $this->sendNewError("Please enter your email Id or phone number.");
+        }
+
+        $platform = $this->getPlatform($request);
+        if(isset($request->email) && !empty($request->email)){ //send otp via email
+            $email = $request->email;
+            $validator = Validator::make(['email' => $email], [
+                'email' => 'email',
+            ]);
+            if ($validator->fails()) {
+                return $this->sendNewError("Invalid email address. Please enter a valid email.");
+            }
+
+            $userData = User::select('id','name')->where("email", $email)->whereNull('deleted_at')->where('account_deactivated', 0)->first();
+            if(empty($userData)){
+                return $this->sendNewError("We couldn't find any account associated with the provided email. Please try other methods.");
+            }
+            $result = $this->userService->sendEmailOtp($userData->profile->id, $email, config("constant.FORGOT_PASSWORD_EMAIL_VERIFICATION"), $platform, $userData->name, 'forgot_password');
+
+        } else { //send otp via sms
+            $phone = $request->phone;
+            $country_code = $request->country_code;
+            $country_codes = [$country_code, substr($country_code, 1)];
+            
+            $profileData = Profile::select('id','user_id')->where("phone", $phone)->whereIn('country_code', $country_codes)->whereNull('deleted_at')->first();
+            if(empty($profileData)){
+                return $this->sendNewError("We couldn't find any account associated with the provided phone number. Please try other methods.");
+            }
+            $userOtherInfo = User::select('name')->where('id', $profileData->user_id)->whereNull('deleted_at')->where('account_deactivated', 0)->first();
+            if(empty($userOtherInfo)){
+                return $this->sendNewError("We couldn't find any account associated with the provided phone number. Please try other methods.");
+            }
+            $profile_id = $profileData->id;
+            $result = $this->userService->sendPhoneOtp($profile_id, $phone, config("constant.FORGOT_PASSWORD_PHONE_VERIFICATION"), $platform, $country_code);
+        } 
+
+        if($result['result'] == false)
+        {
+            return $this->sendNewError($result['error']);
+        }
+        else
+        {
+            $this->model = $result['result'];
+            return $this->sendNewResponse();
+        }
+    }
+
+    //Forgot password : verify otp
+    public function forgotVerifyOtp(Request $request){
+        if(empty($request->otp)){
+            return $this->sendNewError("Please enter otp for verification");
+        }
+       
+        if(isset($request->email) && !empty($request->email)){ //email otp verification
+            $email = $request->email;
+            $result = $this->userService->verifyOtp(config("constant.FORGOT_PASSWORD_EMAIL_VERIFICATION"), $request->otp, null, $email);
+            if($result['result'] == true)
+            {
+                $userData = User::select('id')->where("email", $email)->whereNull('deleted_at')->where('account_deactivated', 0)->first();
+                if(empty($userData)){
+                    return $this->sendNewError("We couldn't find any account associated with the provided phone number. Please try other methods.");
+                }
+                //create temp token
+                $token = $this->createToken($userData->profile->id);
+                if($token["data"] == false){
+                    return $this->sendNewError($token["error"]);
+                }
+                $this->model = ["temp_token" => $token["data"]];
+                return $this->sendNewResponse();
+            }
+        } else { //phone otp verification
+            $phone = $request->phone;
+            $result = $this->userService->verifyOtp(config("constant.FORGOT_PASSWORD_PHONE_VERIFICATION"), $request->otp, $phone);
+            if($result['result'] == true)
+            {
+                $profileData = Profile::select('id')->where("phone", $phone)->where('country_code', $request->country_code)->whereNull('deleted_at')->first();
+                if(empty($profileData)){
+                    return $this->sendNewError("We couldn't find any account associated with the provided phone number. Please try other methods.");
+                }
+                //create temp token
+                $token = $this->createToken($profileData->id);
+                if($token["data"] == false){
+                    return $this->sendNewError($token["error"]);
+                }
+                $this->model = ["temp_token" => $token["data"]];
+                return $this->sendNewResponse();
+            }
+        }
+        //return error if verification is unsuccessful
+        return $this->sendNewError($result['error']);
+    }
+
+    //Forgot password flow : reset password
+    public function resetPassword(Request $request){
+        $password = $request->password;
+        $temp_token = $request->temp_token;
+
+        $tokenData = TempTokens::where('token', $temp_token)->where('source', config('constant.FORGOT_PASSWORD_FLOW'))->orderBy('id', 'desc')->first();
+        if(empty($tokenData)){
+            return $this->sendNewError('Invalid token. Please try again!');
+        } else {
+            // check if token has expired or not
+            if($tokenData->expired_at < date("Y-m-d H:i:s")){
+                return $this->sendNewError('Token has expired. Please try again!');
+            }
+            $passwordVerified = $this->verifyPassword($password);
+            if(isset($passwordVerified["error"])){
+                return $this->sendNewError($passwordVerified["error"]);
+            }
+            $profileData = Profile::select('user_id')->where('id', $tokenData->profile_id)->first();
+            //update password
+            $email = User::where('id', $profileData->user_id)->first()->email;
+            $update = User::where('id', $profileData->user_id)->update(['password' => bcrypt($password)]);
+            if($update){
+                $token = \JWTAuth::attempt(['email' => $email,'password' => $password]);
+                $this->model = ["token" => $token];
+                return $this->sendNewResponse();
+            } else {
+                return $this->sendNewError('Something went wrong. Please try again!');
+            }
+        }
+    }
+
+    public function createToken($profile_id){
+        $temp_token = Str::random(120);       
+        $tokenData = ["profile_id"=>$profile_id, "source"=> config('constant.FORGOT_PASSWORD_FLOW'), "token"=>$temp_token, "created_at"=>date("Y-m-d H:i:s"), "updated_at"=>date("Y-m-d H:i:s"), "expired_at"=>date("Y-m-d H:i:s", strtotime(config('constant.FORGOT_PASSWORD_TOKEN_EXPIRY')))]; //this token will expire after 15 mins
+        $insertTokenData = TempTokens::create($tokenData);
+        if($insertTokenData){
+            return ["data" => $insertTokenData->token, "error" => ""];
+        } else {
+            return ["data" => false, "error" => "Unable to generate verification token."];  
+        }
+    }
+
+    //New password : send otp for verification
+    public function passwordSendOtp(Request $request){
+        $user = $request->user();
+        $user_id = $user->id;
+        $profile_id = $user->profile->id;
+        $userData = User::where('id', $user_id)->first(); 
+        $platform = $this->getPlatform($request);
+        $password = $request->password;
+
+        //password validations
+        $passwordVerified = $this->verifyPassword($password);
+        if(isset($passwordVerified["error"])){
+            return $this->sendNewError($passwordVerified["error"]);
+        }
+
+        //check whether this user's phone number is verified or not
+        $profileData = Profile::where('id', $profile_id)->first();
+        $phone_verification = $profileData->verified_phone;
+        $mailType = empty($userData->password) ? "create_password" : "change_password";
+
+        if($phone_verification && $phone_verification == 1){
+            $result = $this->userService->sendOtp($profile_id, $profileData->phone, $profileData->country_code, $userData->email, config("constant.NEW_PASSWORD_VERIFICATION"), $platform, $userData->name, $mailType, bcrypt($password));
+        } else {
+            $result = $this->userService->sendEmailOtp($profile_id, $userData->email, config("constant.NEW_PASSWORD_VERIFICATION"), $platform, $userData->name, $mailType, bcrypt($password));
+        }
+        if($result['result'] == false)
+        {
+            return $this->sendNewError($result['error']);
+        } else {
+            $this->model = $result['result'];
+            return $this->sendNewResponse();
+        }
+    }
+
+    //New password : verify otp
+    public function passwordVerifyOtp(Request $request){
+        if(empty($request->otp)){
+            return $this->sendNewError("Please enter otp for verification");
+        }
+        $user = $request->user();
+        $profile_id = $user->profile->id;
+        $userData = User::where('id', $user->id)->first();
+        $email = $userData->email;
+        $profileData = Profile::where('id', $profile_id)->first();
+        $phone_verification = $profileData->verified_phone;
+        if($phone_verification && $phone_verification == 1){ //check for both phone & email
+            $result = $this->userService->verifyOtp(config("constant.NEW_PASSWORD_VERIFICATION"), $request->otp, $profileData->phone, $email);
+        } else { //check for email only
+            $result = $this->userService->verifyOtp(config("constant.NEW_PASSWORD_VERIFICATION"), $request->otp, null, $email);
+        }
+        if($result['result'] == false)
+        {
+            return $this->sendNewError($result['error']);
+        } else {
+            //update password for that user
+            $userData->update(['password' => $result['password']]);
+            //force logout user
+            $this->userService->forceLogoutUser(array('profile_id' => $profile_id));
+            $this->model = $result['result'];
+            return $this->sendNewResponse();
+        }
     }
 
     public function handleAvailable(Request $request)

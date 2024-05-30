@@ -10,6 +10,9 @@ use App\Profile\User;
 use App\V2\Collaborate;
 use App\Surveys;
 use App\PublicReviewProduct;
+use App\reviewLimit;
+use App\Collaborate\BatchAssign;
+use App\PublicReviewUserTiming;
 use Illuminate\Support\Facades\Redis;
 
 
@@ -48,11 +51,32 @@ trait FlagReview
             }
 
             if($reason->slug == 'tagtaste_employee'){
-                // Check if use is tagtaste'employee or not
+                // Check if user is tagtaste'employee or not
                 if ((isset($email[1]) && $email[1] == $reason_conditions['email_domain'])) {
                     // Add flagging reason
                     $this->addModelFlagReasons($flag_reason_data);
                     $flag = true;
+                }
+            }
+            
+            if($reason->slug == 'review_daily_limit'){
+                $profileId = User::where('id',$user_id)->first()->profile->id;
+                $model_name = ($model == 'BatchAssign') ? 'collaborate' : 'product';
+                // Check whether user exceeds the daily limit of review or not
+                $reviewLimit = reviewLimit::select('review_count')->where('model', $model_name)->where('is_active', 1)->whereNull('deleted_at')->whereNull('time_interval')->orderBy('created_at', 'desc')->first();
+
+                if(isset($reviewLimit) && !empty($reviewLimit)){
+                    $dbModel = ($model == 'BatchAssign') ? new BatchAssign() : new PublicReviewUserTiming();
+                    $completedStatus = ($model == 'BatchAssign') ? 3 : 2;
+                    $today = Carbon::now()->format('Y-m-d');
+                    $profileTodayReviews = $dbModel->where('profile_id', $profileId)->where('current_status', $completedStatus)->where('end_review','like','%'.$today.'%')->get()->count();
+                    
+                    // check whether user exceeds the daily review limit while attempting for a review or not
+                    if($profileTodayReviews >= $reviewLimit->review_count){
+                        // Add flagging reason
+                        $this->addModelFlagReasons($flag_reason_data);
+                        $flag = true;
+                    }
                 }
             }
         }

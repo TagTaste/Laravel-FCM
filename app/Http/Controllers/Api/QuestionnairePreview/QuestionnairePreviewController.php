@@ -230,11 +230,12 @@ class QuestionnairePreviewController extends Controller
         ->where(function ($query) use ($term){
         foreach($term as $val)
         {
+            $query->orWhereRaw('SOUNDEX(?) = SOUNDEX(value)', $val);
             $query->orWhere('value','like','%'.$val.'%');
         }
         })->get();
 
-
+        
         foreach($options as $optionObj){
             $checknestedIds = \DB::table('global_nested_option')
             ->where('parent_id',$optionObj->s_no)
